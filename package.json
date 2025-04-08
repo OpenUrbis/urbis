@@ -15,7 +15,7 @@
     "prettier": "^3.2.5",
     "turbo": "^2.4.4"
   },
-  "name": "urbis-workflows",
+  "name": "urbis-map",
   "packageManager": "yarn@1.22.22",
   "workspaces": [
     "apps/*",

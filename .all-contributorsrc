@@ -1,5 +1,5 @@
 {
-  "projectName": "urbis-workflows",
+  "projectName": "urbis-map",
   "projectOwner": "OpenUrbis",
   "repoType": "github",
   "repoHost": "https://github.com",
@@ -59,7 +59,8 @@
       "profile": "https://github.com/junior-anzolin",
       "contributions": [
         "code",
-        "doc"
+        "doc",
+        "maintenance"
       ]
     },
     {

@@ -1,6 +1,6 @@
 # How to Open a Pull Request
 
-We’re excited to have you contribute to [Urbis-Workflows](https://github.com/OpenUrbis/urbis-workflows)! Here’s a straightforward guide to submitting a _pull request_ (PR):
+We’re excited to have you contribute to [urbis-map](https://github.com/OpenUrbis/urbis-map)! Here’s a straightforward guide to submitting a _pull request_ (PR):
 
 ## Quick Steps
 
@@ -8,7 +8,7 @@ We’re excited to have you contribute to [Urbis-Workflows](https://github.com/O
 
    - Fork the repository on GitHub and clone it to your local machine:
      ```bash
-     git clone https://github.com/OpenUrbis/urbis-workflows.git
+     git clone https://github.com/OpenUrbis/urbis-map.git
      ```
 
 2. **Create a Branch**
@@ -38,7 +38,7 @@ We’re excited to have you contribute to [Urbis-Workflows](https://github.com/O
 
 6. **Open a Pull Request**
 
-   - Go to the [Urbis-Workflows GitHub page](https://github.com/OpenUrbis/urbis-workflows), switch to your branch, and click "New Pull Request".
+   - Go to the [urbis-map GitHub page](https://github.com/OpenUrbis/urbis-map), switch to your branch, and click "New Pull Request".
    - Write a short description of what you did and why.
 
 7. **Respond to Feedback**
@@ -50,4 +50,4 @@ We’re excited to have you contribute to [Urbis-Workflows](https://github.com/O
 - Keep PRs small and focused—it makes them easier to review.
 - Check out [Contributing Guide](docs/CONTRIBUTING.md) for more details if needed.
 
-That’s it! Thanks for helping make Urbis-Workflows better.
+That’s it! Thanks for helping make urbis-map better.

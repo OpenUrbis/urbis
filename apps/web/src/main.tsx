@@ -1,25 +1,13 @@
-import { createRoot } from "react-dom/client";
+import { render } from 'preact';
+import { MapProvider } from "./context/mapContext";
 import "./style.css";
-import typescriptLogo from "/typescript.svg";
-import { Header, Counter } from "@open-urbis/ui";
 
 const App = () => (
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" className="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img
-        src={typescriptLogo}
-        className="logo vanilla"
-        alt="TypeScript logo"
-      />
-    </a>
-    <Header title="Web" />
-    <div className="card">
-      <Counter />
-    </div>
-  </div>
+  <>
+    <MapProvider>
+      <div>test</div>
+    </MapProvider>
+  </>
 );
 
-createRoot(document.getElementById("app")!).render(<App />);
+render(<App />, document.getElementById("app")!);

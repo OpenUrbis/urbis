@@ -10,14 +10,17 @@
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
-    "@open-urbis/ui": "*",
     "@open-urbis/types": "*",
+    "@open-urbis/ui": "*",
+    "@preact/signals": "^2.0.3",
+    "preact": "^10.26.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@open-urbis/eslint-config": "*",
     "@open-urbis/typescript-config": "*",
+    "@preact/preset-vite": "^2.10.1",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^3.1.0",

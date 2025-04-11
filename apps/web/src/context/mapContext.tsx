@@ -45,6 +45,5 @@ export const useMapContext = () => {
 };
 
 export const MapProvider = ({ children }: { children: ComponentChildren }) => {
-
   return <MapContext.Provider value={mapState}>{children}</MapContext.Provider>;
 };

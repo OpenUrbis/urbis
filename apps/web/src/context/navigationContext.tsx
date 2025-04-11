@@ -1,50 +1,42 @@
 import { signal } from "@preact/signals";
 import { ComponentChildren, createContext } from "preact";
 import { useContext } from "preact/hooks";
-import {
-  MapBoundingBox,
-  MapContextType,
-  MapLayerGroup,
-  MapLayerSchema,
-} from "../dto/mapContextDto";
+import { NavigationContextType } from "../dto/navigationContextDto";
 
-const layersSchema = signal<MapLayerSchema[]>([]);
-const layerGroups = signal<MapLayerGroup[]>([]);
-const features = signal<any[]>([]);
-const selectedFeatures = signal<any[]>([]);
-const boundingBox = signal<MapBoundingBox>([
-  -47.25677412109369, -23.96496625957735, -46.134795361328045,
-  -23.134722829729828,
-]);
-const viewport = signal<any>({});
-const zoom = signal<number>(10);
-const editionFeatures = signal<any[]>([]);
+const currentPage = signal<any>({});
+const lastPage = signal<any>({});
+const history = signal<any[]>([]);
 
-const mapState: MapContextType = {
-  layersSchema,
-  layerGroups,
-  features,
-  selectedFeatures,
-  boundingBox,
-  viewport,
-  zoom,
-  editionFeatures,
+const navigationState: NavigationContextType = {
+  currentPage,
+  lastPage,
+  history,
 };
 
-export const MapContext = createContext<MapContextType>(mapState);
+export const NavigationContext =
+  createContext<NavigationContextType>(navigationState);
 
-export const useMapContext = () => {
-  const context = useContext(MapContext);
+export const useNavigationContext = () => {
+  const context = useContext(NavigationContext);
 
   // Logica
 
   if (!context)
-    throw new Error("useMapContext must be used within a MapProvider");
+    throw new Error(
+      "useNavigationContext must be used within a NavigationProvider"
+    );
 
   return context;
 };
 
-export const MapProvider = ({ children }: { children: ComponentChildren }) => {
-
-  return <MapContext.Provider value={mapState}>{children}</MapContext.Provider>;
+export const NavigationProvider = ({
+  children,
+}: {
+  children: ComponentChildren;
+}) => {
+  return (
+    <NavigationContext.Provider value={navigationState}>
+      {children}
+    </NavigationContext.Provider>
+  );
 };

@@ -1,3 +1,5 @@
+import { Signal } from "@preact/signals";
+
 export type MapBoundingBox = [number, number, number, number];
 
 export type MapLayerSchemaColor = [number, number, number, number];
@@ -43,4 +45,15 @@ export type MapLayerGroup = {
   id: string;
   name: string;
   subGroups?: MapLayerGroup[];
+}
+
+export interface MapContextType {
+  layersSchema: Signal<MapLayerSchema[]>;
+  layerGroups: Signal<MapLayerGroup[]>;
+  features: Signal<any[]>;
+  selectedFeatures: Signal<any[]>;
+  boundingBox: Signal<MapBoundingBox>;
+  viewport: Signal<any>;
+  zoom: Signal<number>;
+  editionFeatures: Signal<any[]>;
 }

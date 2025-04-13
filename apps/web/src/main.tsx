@@ -7,10 +7,11 @@ import { MapProvider } from "./context/mapContext";
 import { NavigationProvider } from "./context/navigationContext";
 import { SearchProvider } from "./context/searchContext";
 import { Button } from '@rmwc/button';
-import './style.scss';
-import 'rmwc/styles';
 import { SimpleDialog } from "rmwc";
+import '@open-urbis/map-ui';
+import {Header} from '@open-urbis/map-ui';
 import { signal } from '@preact/signals';
+import SimpleMapView from "./components/MapView/SimpleMapView";
 // certo
 const open = signal<boolean>(false);
 
@@ -39,10 +40,13 @@ const App = () => (
   <NavigationProvider>
     <MapProvider>
       <SearchProvider>
-        <div>Test</div>
+        <Header title="Test" />
         <Button></Button>
         <div >
           <Example></Example>
+        </div>
+        <div>
+          <SimpleMapView></SimpleMapView>
         </div>
         <DebuggerComponent />
       </SearchProvider>

@@ -1,5 +1,5 @@
 {
-  "extends": "@open-urbis/typescript-config/vite.json",
+  "extends": "@open-urbis/map-typescript-config/vite.json",
   "include": ["src"],
   "compilerOptions": {
     "jsx": "react-jsx",

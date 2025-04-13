@@ -20,4 +20,12 @@ export default defineConfig({
       'react-dom': 'preact/compat',
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        quietDeps: true,
+        silenceDeprecations: ['legacy-js-api'],
+      },
+    },
+  },
 });

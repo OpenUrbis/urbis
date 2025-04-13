@@ -1,5 +1,5 @@
 {
-  "name": "@open-urbis/ui",
+  "name": "@open-urbis/map-ui",
   "version": "0.0.0",
   "exports": {
     ".": "./index.ts",
@@ -18,8 +18,8 @@
   "devDependencies": {
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
-    "@open-urbis/eslint-config": "*",
-    "@open-urbis/typescript-config": "*",
+    "@open-urbis/map-eslint-config": "*",
+    "@open-urbis/map-typescript-config": "*",
     "eslint": "^8.57.0",
     "typescript": "5.5.4"
   }

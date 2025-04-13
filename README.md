@@ -1,4 +1,5 @@
-# Urbis Workflows
+
+# Urbis Map
 
 ![Capa do Repositório](docs/cover.png)
 
@@ -9,17 +10,15 @@
 [![Contribute](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/OpenUrbis/urbis-map/blob/main/docs/CONTRIBUTING.md)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/pulls)
 
-<!-- [![NPM Downloads](https://img.shields.io/npm/dt/urbis-map)](https://www.npmjs.com/package/urbis-map) -->
+Urbis Map is an open-source platform designed to support city governments in mapping and managing public resources, services, and infrastructure. It provides flexible, modular tools to enhance transparency, optimize decision-making, and improve municipal governance.
 
-A generic workflow system for city governments, designed to streamline administrative processes, automate workflows, and enhance municipal efficiency with flexible, modular tools.
-
-This is a community-maintained example. If you experience a problem, please submit a pull request with a fix. GitHub Issues will be closed.
+This is a community-maintained project. If you encounter an issue, please submit a pull request with a fix. GitHub Issues will be closed.
 
 ---
 
 ## Overview
 
-urbis-map is an open-source monorepo created to provide a flexible and modular workflow management system for municipal administrations. It aims to optimize processes, automate tasks, and improve overall efficiency in city governance.
+Urbis Map is an open-source monorepo created to empower municipal administrations with a robust mapping system for public management. It enables cities to visualize and manage urban data, streamline resource allocation, and foster data-driven governance.
 
 - **Website**: [urbis.sampa.br](http://urbis.sampa.br/)
 - **GitHub Repository**: [github.com/OpenUrbis/urbis-map](https://github.com/OpenUrbis/urbis-map)
@@ -28,7 +27,7 @@ urbis-map is an open-source monorepo created to provide a flexible and modular w
 
 ## Installation
 
-To get started with urbis-map, install the dependencies using your preferred package manager:
+To get started with Urbis Map, install the dependencies using your preferred package manager:
 
 ```bash
 npm install
@@ -48,7 +47,7 @@ To start the development server:
 npm run dev
 ```
 
-This will launch the local development environment, allowing you to test and develop workflows.
+This will launch the local development environment, allowing you to test and explore the mapping system.
 
 For production builds:
 
@@ -60,19 +59,19 @@ npm run build
 
 ## Documentation
 
-Explore the documentation to learn how to set up, use, and extend urbis-map:
+Explore the documentation to learn how to set up, use, and extend Urbis Map:
 
-- [Full Documentation](http://docs.urbis.sampa.br/) (Full Documentation)
-- [Contributing Guide](docs/CONTRIBUTING.md) (How to contribute to the project)
-- [Commit Guidelines](docs/commit-guidelines.md) (How to format commit messages)
-- [Pull request Guidelines](docs/pull-request-guidelines.md) (How to format commit messages)
-- [Deploy Guidelines](docs/DEPLOY.md) (How to Deploy)
+- [Full Documentation](http://docs.urbis.sampa.br/)
+- [Contributing Guide](docs/CONTRIBUTING.md)
+- [Commit Guidelines](docs/commit-guidelines.md)
+- [Pull Request Guidelines](docs/pull-request-guidelines.md)
+- [Deploy Guidelines](docs/DEPLOY.md)
 
 ---
 
 ## Local Development
 
-To contribute to urbis-map, follow these steps:
+To contribute to Urbis Map, follow these steps:
 
 1. **Clone the repository**:
 
@@ -107,22 +106,21 @@ We welcome community contributions! Read our [Contributing Guidelines](CONTRIBUT
 
 ## License
 
-urbis-map is licensed under the . You are free to use, modify, and distribute this software under the terms of the GPL v3, ensuring that any derivative works remain open source.
+Urbis Map is licensed under the [AGPL v3](https://www.gnu.org/licenses/agpl-3.0). You are free to use, modify, and distribute this software under the terms of the AGPL v3, ensuring that any derivative works remain open source.
 
 ---
 
 ## Community
 
-We’re building a community around urbis-map! Join the conversation and help us improve the project:
+We’re building a community around Urbis Map! Join the conversation and help us improve the project:
 
-Stay tuned for updates on our official channels (coming soon).
-For now, feel free to reach out via contas@urbis.sampa.br or open a discussion in the section.
+Stay tuned for updates on our official channels (coming soon). For now, feel free to reach out via [contas@urbis.sampa.br](mailto:contas@urbis.sampa.br) or open a discussion in the repository.
 
 ---
 
 ## Contributors
 
-A huge thanks to all our contributors! Your efforts make urbis-map better for everyone.
+A huge thanks to all our contributors! Your efforts make Urbis Map better for everyone.
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

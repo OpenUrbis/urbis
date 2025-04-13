@@ -9,7 +9,11 @@ import preact from "@preact/preset-vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [preact()],
+  plugins: [preact({
+    babel: {
+      plugins: [['module:@preact/signals-react-transform']],
+    },
+  })],
   resolve: {
     alias: {
       react: 'preact/compat',

@@ -13,18 +13,23 @@
     "@open-urbis/types": "*",
     "@open-urbis/ui": "*",
     "@preact/signals": "^2.0.3",
+    "@preact/signals-react": "^3.0.1",
+    "deck.gl": "^9.1.8",
     "preact": "^10.26.5",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "rmwc": "^14.3.5"
   },
   "devDependencies": {
     "@open-urbis/eslint-config": "*",
     "@open-urbis/typescript-config": "*",
     "@preact/preset-vite": "^2.10.1",
+    "@preact/signals-react-transform": "^0.5.1",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^3.1.0",
     "eslint": "^8.57.0",
+    "sass-embedded": "^1.86.3",
     "typescript": "5.5.4",
     "vite": "^5.1.4"
   }

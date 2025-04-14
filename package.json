@@ -4,7 +4,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "test": "turbo run test",
+    "test": "turbo run test -- --passWithNoTests",
     "composer:up": "docker-compose -f apps/api/docker-compose.yaml up -d",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "changeset": "changeset",

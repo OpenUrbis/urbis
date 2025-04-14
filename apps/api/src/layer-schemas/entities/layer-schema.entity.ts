@@ -1,4 +1,22 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { LayerGroup } from 'layer-groups/entities/layer-group.entity';
+import {
+  LayerSchemaClickActionEnum,
+  LayerSchemaTypeEnum,
+} from 'layer-schemas/enums/layer-schema.enum';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
+import { LayerSchemaColors } from './layer-schema-color.entity';
+
+export interface IClickAction {
+  action: LayerSchemaClickActionEnum;
+  params: Record<string, any>;
+}
 
 @Entity('layer_schemas')
 export class LayerSchema {
@@ -6,50 +24,58 @@ export class LayerSchema {
   id: string;
 
   @Column()
-  '@@type': string; // Stored as string, validated as enum in DTO
-
-  @Column()
   name: string;
 
   @Column()
-  visible: boolean;
+  origin: string;
 
-  @Column({ type: 'jsonb', nullable: true })
-  getFillColor?: string | number[];
+  @Column({ default: true })
+  isActive: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: LayerSchemaTypeEnum,
+    default: LayerSchemaTypeEnum.GeoJsonLayer,
+  })
+  type: LayerSchemaTypeEnum;
+
+  @Column({ nullable: true })
+  isVisible?: boolean;
+
+  @Column({ nullable: true })
+  canEditFeature?: boolean;
 
   @Column({ nullable: true })
   minZoom?: number;
 
   @Column({ nullable: true })
-  data?: string;
+  getTextColorPropName?: string;
+
+  @Column({ nullable: true })
+  getFillColorPropName?: string;
+
+  @Column({ nullable: true })
+  getLineColorPropName?: string;
+
+  @Column({ nullable: true, type: 'jsonb' })
+  clickAction?: IClickAction;
+
+  @Column({ nullable: true, type: 'jsonb' })
+  viewTemplate?: Record<string, any>[];
 
   @Column({ nullable: true })
   groupId?: string;
 
-  @Column({ nullable: true })
-  getText?: string;
+  @ManyToOne(() => LayerGroup, { nullable: true })
+  @JoinColumn({ name: 'groupId' })
+  layerGroup?: LayerGroup;
 
-  @Column({ type: 'jsonb', nullable: true })
-  getTextColor?: number[];
-
-  @Column({ type: 'jsonb', nullable: true })
-  getLineColor?: string | number[];
-
-  @Column({ nullable: true })
-  getTextSize?: number;
-
-  @Column({ nullable: true })
-  autoHighlight?: boolean;
-
-  @Column({ type: 'jsonb', nullable: true })
-  highlightColor?: number[];
-
-  @Column({ type: 'jsonb', nullable: true })
-  labelColor?: number[][];
-
-  @Column({ type: 'jsonb', nullable: true })
-  mapLegend?: { label: string; color: number[] }[];
-
-  @Column({ nullable: true })
-  urlTemplate?: string;
+  @OneToMany(
+    () => LayerSchemaColors,
+    (layerSchemaColors) => layerSchemaColors.layerSchemaId,
+    {
+      nullable: true,
+    },
+  )
+  layerSchemaColors?: LayerSchemaColors[];
 }

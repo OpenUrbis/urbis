@@ -1,18 +1,15 @@
 import "preact/debug";
 
-
 import { render } from "preact";
 import { DebuggerComponent } from "./components/DebuggerComponent";
 import { MapProvider } from "./context/mapContext";
 import { NavigationProvider } from "./context/navigationContext";
 import { SearchProvider } from "./context/searchContext";
-import { Button } from '@rmwc/button';
+import { Button } from "@rmwc/button";
 import { SimpleDialog } from "rmwc";
-import '@open-urbis/map-ui';
-import {Header} from '@open-urbis/map-ui';
-import { signal } from '@preact/signals';
-import SimpleMapView from "./components/MapView/SimpleMapView";
-// certo
+import "@open-urbis/map-ui";
+import { Header } from "@open-urbis/map-ui";
+import { signal } from "@preact/signals";
 const open = signal<boolean>(false);
 
 function Example() {
@@ -28,9 +25,12 @@ function Example() {
         }}
       />
 
-      <Button raised onClick={() => {
-        open.value = true
-      }}>
+      <Button
+        raised
+        onClick={() => {
+          open.value = true;
+        }}
+      >
         Open Simple Dialog
       </Button>
     </>
@@ -42,11 +42,8 @@ const App = () => (
       <SearchProvider>
         <Header title="Test" />
         <Button></Button>
-        <div >
-          <Example></Example>
-        </div>
         <div>
-          <SimpleMapView></SimpleMapView>
+          <Example></Example>
         </div>
         <DebuggerComponent />
       </SearchProvider>

@@ -1,4 +1,3 @@
-
 # Urbis Map
 
 ![Capa do Repositório](docs/cover.png)
@@ -44,6 +43,8 @@ pnpm install
 To start the development server:
 
 ```bash
+# start postgres
+yarn composer:up
 npm run dev
 ```
 

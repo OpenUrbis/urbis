@@ -23,7 +23,7 @@ export const useNavigationContext = () => {
 
   if (!context)
     throw new Error(
-      "useNavigationContext must be used within a NavigationProvider"
+      "useNavigationContext must be used within a NavigationProvider",
     );
 
   return context;

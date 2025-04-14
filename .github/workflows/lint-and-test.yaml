@@ -59,7 +59,7 @@ jobs:
 
       # Runs tests using detected runner
       - name: Run tests
-        run: ${{ steps.detect-package-manager.outputs.runner }} turbo run test
+        run: ${{ steps.detect-package-manager.outputs.runner }} test
 
       # Turborepo cache setup
       - name: Setup Turborepo cache

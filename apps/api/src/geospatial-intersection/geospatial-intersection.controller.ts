@@ -13,7 +13,7 @@ import { GeoJsonDto } from './dto/geojson.dto';
 /**
  * Controller for handling geospatial intersection queries
  */
-@ApiTags('Geospatial Intersections')
+@ApiTags('Geospatial intersections')
 @Controller('geospatial-intersections')
 export class GeospatialIntersectionController {
   constructor(

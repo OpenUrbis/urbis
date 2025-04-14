@@ -19,21 +19,21 @@ export class ApiKeyStrategy extends PassportStrategy(Strategy, 'api-key') {
 
     if (!this.validApiKey) {
       console.error(
-        `[${ApiKeyStrategy.name}] ALERTA: Configuração crítica ausente: 'auth.apiKey' não está definida. A autenticação falhará.`,
+        `[${ApiKeyStrategy.name}] WARNING: Critical configuration missing: 'auth.apiKey' is not defined. Authentication will fail.`,
       );
     }
   }
 
   validate(req: Request): boolean {
     if (!this.validApiKey) {
-      throw new UnauthorizedException('Erro de configuração do servidor.');
+      throw new UnauthorizedException('Server configuration error.');
     }
 
     const providedApiKey = req.headers[this.apiKeyHeader.toLowerCase()];
 
     if (!providedApiKey || typeof providedApiKey !== 'string') {
       throw new UnauthorizedException(
-        `Cabeçalho '${this.apiKeyHeader}' ausente ou chave inválida`,
+        `Header '${this.apiKeyHeader}' missing or invalid key`,
       );
     }
 
@@ -42,7 +42,7 @@ export class ApiKeyStrategy extends PassportStrategy(Strategy, 'api-key') {
     if (areKeysEqual) {
       return true;
     } else {
-      throw new UnauthorizedException('Chave API inválida');
+      throw new UnauthorizedException('Invalid API key');
     }
   }
 }

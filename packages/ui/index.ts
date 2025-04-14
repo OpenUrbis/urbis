@@ -1,3 +1,3 @@
-import './style.scss';
+import "./style.scss";
 export * from "./components";
-import 'rmwc/styles';
+import "rmwc/styles";

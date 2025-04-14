@@ -6,7 +6,9 @@ import { ScatterplotLayer } from "@deck.gl/layers";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 function SimpleMapView() {
-  const accessToken = import.meta.env.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN || "your-mapbox-access-token";
+  const accessToken =
+    import.meta.env.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN ||
+    "your-mapbox-access-token";
   const overlayRef = useRef(null);
 
   const [viewport, setViewport] = useState({
@@ -44,11 +46,7 @@ function SimpleMapView() {
         mapboxAccessToken={accessToken}
         initialViewState={viewport}
       >
-        <DeckGLOverlay
-          ref={overlayRef}
-          layers={layers}
-          interleaved={true}
-        />
+        <DeckGLOverlay ref={overlayRef} layers={layers} interleaved={true} />
       </Map>
     </div>
   );

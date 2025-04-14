@@ -9,22 +9,24 @@ import preact from "@preact/preset-vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [preact({
-    babel: {
-      plugins: [['module:@preact/signals-react-transform']],
-    },
-  })],
+  plugins: [
+    preact({
+      babel: {
+        plugins: [["module:@preact/signals-react-transform"]],
+      },
+    }),
+  ],
   resolve: {
     alias: {
-      react: 'preact/compat',
-      'react-dom': 'preact/compat',
+      react: "preact/compat",
+      "react-dom": "preact/compat",
     },
   },
   css: {
     preprocessorOptions: {
       scss: {
         quietDeps: true,
-        silenceDeprecations: ['legacy-js-api'],
+        silenceDeprecations: ["legacy-js-api"],
       },
     },
   },

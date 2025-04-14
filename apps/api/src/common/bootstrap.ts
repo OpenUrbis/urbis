@@ -1,13 +1,12 @@
 import {
   ClassSerializerInterceptor,
-  DynamicModule,
   INestApplication,
   ValidationPipe,
 } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import validationOptions from './utils/validation-options';
 import { Reflector } from '@nestjs/core';
-
+import { AppModule } from 'app.module';
 /**
  * Core bootstrap module should be loaded here.
  * @param app
@@ -16,9 +15,8 @@ import { Reflector } from '@nestjs/core';
 
 export default function commonBootstrap(
   app: INestApplication,
-  module: DynamicModule,
 ) {
-  useContainer(app.select(module), { fallbackOnErrors: true });
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe(validationOptions));

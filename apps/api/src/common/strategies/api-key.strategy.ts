@@ -24,7 +24,7 @@ export class ApiKeyStrategy extends PassportStrategy(Strategy, 'api-key') {
     }
   }
 
-  validate(req: Request): Promise<boolean> {
+  validate(req: Request): boolean {
     if (!this.validApiKey) {
       throw new UnauthorizedException('Erro de configuração do servidor.');
     }

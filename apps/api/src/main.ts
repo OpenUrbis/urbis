@@ -19,7 +19,7 @@ async function bootstrap() {
   }
 
   // Common bootstrap
-  commonBootstrap(app, AppModule);
+  commonBootstrap(app);
 
   await app.listen(configService.get('app.port'));
   console.log('Running in: http://localhost:' + configService.get('app.port'));

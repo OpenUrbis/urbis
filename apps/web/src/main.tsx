@@ -10,8 +10,6 @@ import { SimpleDialog } from "rmwc";
 import "@open-urbis/map-ui";
 import { Header } from "@open-urbis/map-ui";
 import { signal } from "@preact/signals";
-import SimpleMapView from "./components/MapView/SimpleMapView";
-// certo
 const open = signal<boolean>(false);
 
 function Example() {
@@ -46,9 +44,6 @@ const App = () => (
         <Button></Button>
         <div>
           <Example></Example>
-        </div>
-        <div>
-          <SimpleMapView></SimpleMapView>
         </div>
         <DebuggerComponent />
       </SearchProvider>

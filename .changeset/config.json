@@ -8,8 +8,8 @@
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@open-urbis/ui",
-    "@open-urbis/web"
+    "@open-urbis/map-ui",
+    "@open-urbis/map-web"
   ],
   "privatePackages": false
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@open-urbis/ui",
+  "name": "@open-urbis/map-ui",
   "version": "0.0.0",
   "exports": {
     ".": "./index.ts",
@@ -9,7 +9,6 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"**/*.ts\""
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -18,9 +17,9 @@
   "devDependencies": {
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
-    "@open-urbis/eslint-config": "*",
-    "@open-urbis/typescript-config": "*",
-    "eslint": "^8.57.0",
+    "@open-urbis/map-eslint-config": "*",
+    "@open-urbis/map-typescript-config": "*",
+    "eslint": "^9.24.0",
     "typescript": "5.5.4"
   }
 }

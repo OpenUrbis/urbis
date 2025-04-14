@@ -9,4 +9,4 @@ import { LayerGroup } from './entities/layer-group.entity';
   providers: [LayerGroupsService],
   controllers: [LayerGroupsController],
 })
-export class LayerGroupsModule { }
+export class LayerGroupsModule {}

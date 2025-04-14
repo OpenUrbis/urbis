@@ -11,10 +11,7 @@ import { LayerGroup } from 'layer-groups/entities/layer-group.entity';
 @Module({
   imports: [
     SharedModule,
-    DatabaseModule.forRoot([
-      LayerSchema,
-      LayerGroup,
-    ]),
+    DatabaseModule.forRoot([LayerSchema, LayerGroup]),
     LayerSchemasModule,
     LayerGroupsModule,
     GeospatialIntersectionModule,
@@ -23,4 +20,4 @@ import { LayerGroup } from 'layer-groups/entities/layer-group.entity';
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

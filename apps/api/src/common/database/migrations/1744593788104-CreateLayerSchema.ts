@@ -1,9 +1,9 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateLayerSchema1744593788104 implements MigrationInterface {
-    name = 'CreateLayerSchema1744593788104';
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  name = 'CreateLayerSchema1744593788104';
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TABLE "layer_schemas" (
                 "id" character varying NOT NULL,
                 "@@type" character varying NOT NULL,
@@ -25,10 +25,10 @@ export class CreateLayerSchema1744593788104 implements MigrationInterface {
                 CONSTRAINT "PK_899628df9b11575bf527b829f1e" PRIMARY KEY ("id")
             )
         `);
-    }
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  }
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             DROP TABLE "layer_schemas"
         `);
-    }
+  }
 }

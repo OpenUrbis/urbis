@@ -32,7 +32,7 @@ export class LayerSeedService {
       await this.layerGroupRepository.upsert(layerGroup, ['id']);
       console.log(`Seeded LayerGroup: ${layerGroup.id}`);
     } catch (error) {
-      console.error(`Failed to seed LayerGroup: ${error.message}`);
+      console.error(`Query failed: ${error}`);
     }
 
     // Seed LayerSchema
@@ -53,8 +53,8 @@ export class LayerSeedService {
     try {
       await this.layerSchemaRepository.upsert(layerSchema, ['id']);
       console.log(`Seeded LayerSchema: ${layerSchema.id}`);
-    } catch (error) {
-      console.error(`Failed to seed LayerSchema: ${error.message}`);
+    } catch (error: any) {
+      console.error(`Query failed: ${error.message}`);
     }
 
     console.log('Database seeding completed.');

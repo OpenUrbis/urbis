@@ -1,8 +1,18 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as turf from '@turf/turf';
-import { Feature, FeatureCollection, Polygon, MultiPolygon, GeoJsonProperties } from 'geojson';
+import {
+  Feature,
+  FeatureCollection,
+  Polygon,
+  MultiPolygon,
+  GeoJsonProperties,
+} from 'geojson';
 import { formatBoundsForURL, transformBoundsToUTM } from './utils';
 /**
  * Interface for FeatureCollection properties
@@ -43,10 +53,15 @@ export class GeospatialIntersectionService {
    * @throws BadRequestException if GeoJSON is invalid
    * @throws InternalServerErrorException for server errors
    */
-  async findIntersections(geojson: Feature<Polygon | MultiPolygon>): Promise<GeospatialFeatureCollection> {
+  async findIntersections(
+    geojson: Feature<Polygon | MultiPolygon>,
+  ): Promise<GeospatialFeatureCollection> {
     try {
       // Validate input GeoJSON
-      if (!geojson?.geometry || !['Polygon', 'MultiPolygon'].includes(geojson.geometry.type)) {
+      if (
+        !geojson?.geometry ||
+        !['Polygon', 'MultiPolygon'].includes(geojson.geometry.type)
+      ) {
         throw new BadRequestException('Invalid or empty GeoJSON');
       }
 
@@ -71,7 +86,9 @@ export class GeospatialIntersectionService {
         [expandedBbox[0], expandedBbox[1]],
         [expandedBbox[2], expandedBbox[3]],
       ];
-      const utmBounds = bounds.map(([lng, lat]) => transformBoundsToUTM([lng, lat]));
+      const utmBounds = bounds.map(([lng, lat]) =>
+        transformBoundsToUTM([lng, lat]),
+      );
       const formattedBounds = formatBoundsForURL([
         utmBounds[0][0],
         utmBounds[0][1],
@@ -106,7 +123,10 @@ export class GeospatialIntersectionService {
       ];
 
       // Query layers and compute intersections
-      const features: Feature<Polygon | MultiPolygon, GeospatialFeatureProperties>[] = [];
+      const features: Feature<
+        Polygon | MultiPolygon,
+        GeospatialFeatureProperties
+      >[] = [];
       for (const layer of layers) {
         const url = `https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&bbox=${formattedBounds}&typeName=${layer}&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326`;
         const response = await firstValueFrom(this.httpService.get(url));
@@ -114,15 +134,19 @@ export class GeospatialIntersectionService {
         if (response.data?.features) {
           for (const feature of response.data.features) {
             try {
-              const featureGeometry: any = feature.geometry.type === 'MultiPolygon'
-                ? turf.multiPolygon(feature.geometry.coordinates)
-                : turf.polygon(feature.geometry.coordinates);
+              const featureGeometry: any =
+                feature.geometry.type === 'MultiPolygon'
+                  ? turf.multiPolygon(feature.geometry.coordinates)
+                  : turf.polygon(feature.geometry.coordinates);
 
               const intersection = turf.intersect(
                 turf.featureCollection([featureGeometry, polygonGeometry]),
               );
               if (intersection) {
-                const newFeature: Feature<Polygon | MultiPolygon, GeospatialFeatureProperties> = {
+                const newFeature: Feature<
+                  Polygon | MultiPolygon,
+                  GeospatialFeatureProperties
+                > = {
                   ...feature,
                   properties: {
                     ...feature.properties,
@@ -133,7 +157,10 @@ export class GeospatialIntersectionService {
                 features.push(newFeature);
               }
             } catch (error) {
-              console.error(`Error calculating intersection for layer ${layer}:`, error);
+              console.error(
+                `Error calculating intersection for layer ${layer}:`,
+                error,
+              );
             }
           }
         }

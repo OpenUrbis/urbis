@@ -38,13 +38,21 @@ export class MapLegendItemDto {
 }
 
 // Custom validator for properties that can be string or number array
-import { ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import {
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
 @ValidatorConstraint({ name: 'isColor', async: false })
 export class IsColorConstraint implements ValidatorConstraintInterface {
   validate(value: any): boolean {
     if (typeof value === 'string') return true;
-    if (Array.isArray(value) && value.length === 4 && value.every(item => typeof item === 'number')) return true;
+    if (
+      Array.isArray(value) &&
+      value.length === 4 &&
+      value.every((item) => typeof item === 'number')
+    )
+      return true;
     return false;
   }
 
@@ -63,7 +71,10 @@ export class LayerSchemaDto {
   @IsEnum(LayerType)
   '@@type': LayerType;
 
-  @ApiProperty({ description: 'Unique identifier for the layer', example: 'layer1' })
+  @ApiProperty({
+    description: 'Unique identifier for the layer',
+    example: 'layer1',
+  })
   @IsString()
   id: string;
 
@@ -92,7 +103,10 @@ export class LayerSchemaDto {
   @IsNumber()
   minZoom?: number;
 
-  @ApiProperty({ description: 'Data source or content', example: 'geojson data' })
+  @ApiProperty({
+    description: 'Data source or content',
+    example: 'geojson data',
+  })
   @IsOptional()
   @IsString()
   data?: string;
@@ -161,7 +175,10 @@ export class LayerSchemaDto {
   @Type(() => MapLegendItemDto)
   mapLegend?: MapLegendItemDto[];
 
-  @ApiProperty({ description: 'URL template for the layer', example: 'https://example.com/{z}/{x}/{y}.png' })
+  @ApiProperty({
+    description: 'URL template for the layer',
+    example: 'https://example.com/{z}/{x}/{y}.png',
+  })
   @IsOptional()
   @IsString()
   urlTemplate?: string;

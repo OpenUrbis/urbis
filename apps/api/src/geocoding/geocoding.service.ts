@@ -7,7 +7,10 @@ import { SearchResult } from './interfaces/geocoding.interface';
 export class GeocodingService {
   constructor(private readonly configService: ConfigService) {}
 
-  async searchPlaces(search: string, service?: string): Promise<SearchResult[]> {
+  async searchPlaces(
+    search: string,
+    service?: string,
+  ): Promise<SearchResult[]> {
     const config = this.configService.get('geocoding');
     const defaultService = service || config.defaultService;
 
@@ -30,22 +33,27 @@ export class GeocodingService {
 
     const config = this.configService.get('geocoding');
 
-    const { data } = await axios.get(`${config.mapboxUrl}${encodeURIComponent(search)}.json`, {
-      params: {
-        access_token: config.mapboxAccessToken,
-        limit: 5,
-        country: 'BR',
-        bbox: config.bboxSearch,
+    const { data } = await axios.get(
+      `${config.mapboxUrl}${encodeURIComponent(search)}.json`,
+      {
+        params: {
+          access_token: config.mapboxAccessToken,
+          limit: 5,
+          country: 'BR',
+          bbox: config.bboxSearch,
+        },
       },
-    });
+    );
 
-    return data.features.map((feature: any): SearchResult => ({
-      id: feature.id,
-      name: feature.place_name,
-      type: feature.place_type[0],
-      latitude: feature.center[1],
-      longitude: feature.center[0],
-    }));
+    return data.features.map(
+      (feature: any): SearchResult => ({
+        id: feature.id,
+        name: feature.place_name,
+        type: feature.place_type[0],
+        latitude: feature.center[1],
+        longitude: feature.center[0],
+      }),
+    );
   }
 
   private async searchWithNominatim(search: string): Promise<SearchResult[]> {
@@ -67,12 +75,14 @@ export class GeocodingService {
       },
     });
 
-    return data.map((feature: any): SearchResult => ({
-      id: feature.place_id,
-      name: feature.display_name,
-      type: feature.addresstype,
-      latitude: parseFloat(feature.lat),
-      longitude: parseFloat(feature.lon),
-    }));
+    return data.map(
+      (feature: any): SearchResult => ({
+        id: feature.place_id,
+        name: feature.display_name,
+        type: feature.addresstype,
+        latitude: parseFloat(feature.lat),
+        longitude: parseFloat(feature.lon),
+      }),
+    );
   }
 }

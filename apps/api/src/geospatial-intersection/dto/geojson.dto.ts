@@ -19,7 +19,15 @@ class GeoJsonGeometry {
       'Coordinates array. For Polygon: Array of linear ring coordinate arrays. For MultiPolygon: Array of Polygon coordinate arrays.',
     type: 'array',
     items: { type: 'array', items: { type: 'number' } },
-    example: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+    example: [
+      [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+        [0, 0],
+      ],
+    ],
   })
   @IsArray()
   @IsNotEmpty()

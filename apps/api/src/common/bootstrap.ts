@@ -13,9 +13,7 @@ import { AppModule } from 'app.module';
  *
  */
 
-export default function commonBootstrap(
-  app: INestApplication,
-) {
+export default function commonBootstrap(app: INestApplication) {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   app.enableCors();

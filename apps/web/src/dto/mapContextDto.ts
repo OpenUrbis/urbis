@@ -66,8 +66,14 @@ export type MapContextRenderedLayer =
   | CustomWMSLayer
   | null;
 
+export type MapContextLayerSchemaTypeMapProps = {
+  zoom: number;
+  boundingBox: number[];
+};
+
 export type MapContextLayerSchemaTypeMap = {
   [K in IGetConfigLayerSchemaTypeEnum]?: (
-    layer: IGetConfigLayerSchema
+    layer: IGetConfigLayerSchema,
+    props: MapContextLayerSchemaTypeMapProps
   ) => MapContextRenderedLayer;
 };

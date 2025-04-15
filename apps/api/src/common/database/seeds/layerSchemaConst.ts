@@ -891,6 +891,7 @@ export const layerSchemas: LayerSchema[] = [
       getTextSize: 12,
       autoHighlight: true,
       highlightColor: [153, 203, 255, 140],
+      maxZoom: 17,
     },
   },
   {
@@ -912,7 +913,7 @@ export const layerSchemas: LayerSchema[] = [
     id: 'lotes',
     name: 'Lotes',
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui%3Aview_lote_cidadao&maxFeatures=10000&outputFormat=json&srsName=EPSG',
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui%3Aview_lote_cidadao&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: true,

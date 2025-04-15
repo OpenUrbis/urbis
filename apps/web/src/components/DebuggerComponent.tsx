@@ -1,4 +1,4 @@
-import { useMapContext } from "../context/mapContext";
+import { useMapContext } from "../context/MapContext/mapContext";
 import { useNavigationContext } from "../context/navigationContext";
 import { useSearchContext } from "../context/searchContext";
 

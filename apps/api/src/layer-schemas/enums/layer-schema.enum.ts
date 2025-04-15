@@ -1,5 +1,5 @@
 export enum LayerSchemaTypeEnum {
-  Custom = 'Custom',
+  Stream = 'Stream',
   CustomWMSLayer = 'CustomWMSLayer',
   GeoJsonLayer = 'GeoJsonLayer',
 }
@@ -7,4 +7,10 @@ export enum LayerSchemaTypeEnum {
 export enum LayerSchemaClickActionEnum {
   OpenProps = 'OpenProps',
   SetZoom = 'ZoomIn',
+}
+
+export enum LayerSchemaColorTypeEnum {
+  TEXT = 'text',
+  FILL = 'fill',
+  LINE = 'line',
 }

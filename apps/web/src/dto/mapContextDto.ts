@@ -1,25 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { TileLayer } from "@deck.gl/geo-layers";
+import { GeoJsonLayer } from "@deck.gl/layers";
 import { Signal } from "@preact/signals";
+import { CustomWMSLayer } from "../components/MapView/CustomWMSLayer";
+import {
+  IGetConfigLayerSchema,
+  IGetConfigLayerSchemaTypeEnum,
+} from "../services/mapService";
 
 export type MapBoundingBox = [number, number, number, number];
 
 export type MapLayerSchemaColor = [number, number, number, number];
 
-export type MapLayerSchemaLegend = {
-  label: string;
-  color: MapLayerSchemaColor;
-  pattern?: MapLayerSchemaFillPattern;
-};
-
-export type MapLayerSchemaFillPattern =
-  | "dots"
-  | "hatch-1x"
-  | "full"
-  | "hatch-cross";
-
-export type MapLayerSchema = {
+/* export type MapLayerSchema = {
   id: string;
   name: string;
-  "@@type": any;
+  "@@type": MapContextLayerSchemaType;
   labelColor?: MapLayerSchemaColor | MapLayerSchemaColor[];
   urlTemplate?: string;
   data?: string;
@@ -39,7 +35,7 @@ export type MapLayerSchema = {
   autoHighlight?: boolean;
   highlightColor?: MapLayerSchemaColor | ((info: any) => MapLayerSchemaColor);
   mapLegend?: MapLayerSchemaLegend[];
-};
+}; */
 
 export type MapLayerGroup = {
   id: string;
@@ -48,7 +44,7 @@ export type MapLayerGroup = {
 };
 
 export interface MapContextType {
-  layersSchema: Signal<MapLayerSchema[]>;
+  layersSchema: Signal<IGetConfigLayerSchema[]>;
   layerGroups: Signal<MapLayerGroup[]>;
   features: Signal<any[]>;
   selectedFeatures: Signal<any[]>;
@@ -57,3 +53,21 @@ export interface MapContextType {
   zoom: Signal<number>;
   editionFeatures: Signal<any[]>;
 }
+
+export type MapContextLayerSchemaType =
+  | "TileLayer"
+  | "GeoJsonLayer"
+  | "CustomWMSLayer"
+  | "Custom";
+
+export type MapContextRenderedLayer =
+  | TileLayer
+  | GeoJsonLayer
+  | CustomWMSLayer
+  | null;
+
+export type MapContextLayerSchemaTypeMap = {
+  [K in IGetConfigLayerSchemaTypeEnum]?: (
+    layer: IGetConfigLayerSchema
+  ) => MapContextRenderedLayer;
+};

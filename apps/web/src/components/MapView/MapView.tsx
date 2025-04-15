@@ -6,7 +6,7 @@ import { DeckGLOverlay } from "./DeckGLOverlay";
 import { computed } from "@preact/signals";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useMapContext } from "../../context/MapContext/mapContext";
-import { renderSchemaLayers } from "./utils";
+import { transformSchemaLayers } from "./MapLayerTransform";
 
 function MapView() {
   const accessToken =
@@ -24,7 +24,7 @@ function MapView() {
   } = useMapContext();
 
   const layers = computed(() =>
-    renderSchemaLayers(layersSchema.value, {
+    transformSchemaLayers(layersSchema.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
     })

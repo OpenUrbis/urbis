@@ -60,52 +60,33 @@ const generateGetColorFns = (layer: IGetConfigLayerSchema) => {
     buildColorsObj(layer);
 
   const getTextColor = (d: any): Color => {
-    const color =
-      textColors?.[
-        d?.properties?.[
-          getTextColorPropName ?? getFillColorPropName ?? "default"
-        ]
-      ];
-    if (!color)
-      return (
-        fillColors?.[
-          d?.properties?.[
-            getTextColorPropName ?? getFillColorPropName ?? "default"
-          ]
-        ] ?? DEFAULT_COLOR
-      );
+    const key = getTextColorPropName ?? getFillColorPropName ?? "default";
+    const keyToFind = d?.properties?.[key] ?? "default";
+    const color = textColors?.[keyToFind];
+    if (!color) return fillColors?.[keyToFind] ?? DEFAULT_COLOR;
 
     return color;
   };
 
   const getLineColor = (d: any): Color => {
-    const color =
-      lineColors?.[
-        d?.properties?.[
-          getLineColorPropName ?? getFillColorPropName ?? "default"
-        ] ?? "default"
-      ];
-    if (!color)
-      return (
-        fillColors?.[
-          d?.properties?.[
-            getLineColorPropName ?? getFillColorPropName ?? "default"
-          ] ?? "default"
-        ] ?? DEFAULT_COLOR
-      );
+    const key = getLineColorPropName ?? getFillColorPropName ?? "default";
+    const keyToFind = d?.properties?.[key] ?? "default";
+    const color = lineColors?.[keyToFind];
+    if (!color) return fillColors?.[keyToFind] ?? DEFAULT_COLOR;
 
     return color;
   };
 
-  const getFillColor = (d: any): Color =>
-    fillColors?.[
-      d?.properties?.[getFillColorPropName ?? "default"] ?? "default"
-    ] ?? DEFAULT_COLOR;
+  const getFillColor = (d: any): Color => {
+    const key = getFillColorPropName ?? "default";
+    const keyToFind = d?.properties?.[key] ?? "default";
+    const color = fillColors?.[keyToFind];
+
+    return color ?? DEFAULT_COLOR;
+  };
 
   const getFillPattern = (d: any): IGetConfigFillPattern =>
-    patterns?.[
-      d?.properties?.[getFillColorPropName ?? "default"] ?? "default"
-    ] ?? "full";
+    patterns?.[d?.properties?.[getFillColorPropName!] ?? "default"] ?? "full";
 
   return { getTextColor, getFillColor, getLineColor, getFillPattern };
 };
@@ -130,7 +111,7 @@ const createGeoJsonLayer = (
     getFillColor: getFillColor,
     getTextSize: 12,
     ...properties,
-    getElevation:-10,
+    getElevation: -10,
     ...patternObj,
   });
 };
@@ -146,7 +127,6 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
   Stream: (layer, props) => {
     const { boundingBox: bbox } = props;
     const { origin } = layer;
-    console.log("called")
 
     const bounds = [
       [bbox[0], bbox[1]],
@@ -177,7 +157,7 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
     }),
 };
 
-export const renderSchemaLayers = (
+export const transformSchemaLayers = (
   layersConfig: IGetConfigLayerSchema[],
   props: MapContextLayerSchemaTypeMapProps
 ) => {

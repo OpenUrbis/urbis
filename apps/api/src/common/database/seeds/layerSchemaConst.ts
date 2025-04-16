@@ -1,6 +1,7 @@
 import { LayerSchemaColors } from 'layer-schemas/entities/layer-schema-color.entity';
 import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
 import {
+  LayerSchemaClickActionEnum,
   LayerSchemaColorTypeEnum,
   LayerSchemaTypeEnum,
 } from 'layer-schemas/enums/layer-schema.enum';
@@ -878,6 +879,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: null,
+    clickAction: {
+      action: LayerSchemaClickActionEnum.SetZoom,
+      params: {
+        zoom: 17.1,
+      },
+    },
     properties: {
       stroked: true,
       filled: true,
@@ -918,7 +925,7 @@ export const layerSchemas: LayerSchema[] = [
     type: LayerSchemaTypeEnum.Stream,
     isVisible: true,
     canEditFeature: false,
-    minZoom: 18,
+    minZoom: 17,
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
@@ -935,6 +942,13 @@ export const layerSchemas: LayerSchema[] = [
       getTextSize: 12,
       autoHighlight: true,
       highlightColor: [252, 252, 255, 150],
+      getElevation: `(allotment) => {
+        const { qt_area_construida, qt_area_terreno } =
+          allotment?.properties || {};
+        if (!qt_area_construida || !qt_area_terreno) return 0;
+
+        return (qt_area_construida / qt_area_terreno) * 2 * 3;
+      }`,
     },
   },
   {
@@ -1226,12 +1240,12 @@ export const layerSchemas: LayerSchema[] = [
     id: 'zoneamento_lei_16402_18177',
     name: 'Zoneamento - Lei nº 16.402/16+18.177/24',
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento&maxFeatures=10000&outputFormat=json&srsName=EPSG',
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: false,
     canEditFeature: false,
-    minZoom: 18,
+    minZoom: 17,
     getTextColorPropName: 'cd_zoneamento_perimetro',
     getFillColorPropName: 'cd_zoneamento_perimetro',
     getLineColorPropName: 'cd_zoneamento_perimetro',

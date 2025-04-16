@@ -10,7 +10,7 @@ import {
 
 export type MapBoundingBox = [number, number, number, number];
 
-export type MapLayerSchemaColor = [number, number, number, number];
+export type MapLayerSchemaColor = MapBoundingBox;
 
 /* export type MapLayerSchema = {
   id: string;
@@ -68,12 +68,12 @@ export type MapContextRenderedLayer =
 
 export type MapContextLayerSchemaTypeMapProps = {
   zoom: number;
-  boundingBox: number[];
+  boundingBox: MapBoundingBox;
 };
 
 export type MapContextLayerSchemaTypeMap = {
   [K in IGetConfigLayerSchemaTypeEnum]?: (
     layer: IGetConfigLayerSchema,
     props: MapContextLayerSchemaTypeMapProps
-  ) => MapContextRenderedLayer;
+  ) => MapContextRenderedLayer[];
 };

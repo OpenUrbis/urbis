@@ -48,6 +48,15 @@ export enum IGetConfigLayerSchemaTypeEnum {
   GeoJsonLayer = "GeoJsonLayer",
 }
 
+export type GetConfigLayerSchemaClickActionAction = "OpenProps" | "setZoom";
+
+export interface IGetConfigLayerSchemaClickAction {
+  action: GetConfigLayerSchemaClickActionAction;
+  params: {
+    zoom?: 17;
+  };
+}
+
 export interface IGetConfigLayerSchema {
   id: string;
   name: string;
@@ -60,7 +69,7 @@ export interface IGetConfigLayerSchema {
   getTextColorPropName?: string;
   getFillColorPropName?: string;
   getLineColorPropName?: string;
-  clickAction: any;
+  clickAction: IGetConfigLayerSchemaClickAction;
   viewTemplate: any;
   groupId?: string;
   colors: IGetConfigColor[];

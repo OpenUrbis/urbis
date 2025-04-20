@@ -36,7 +36,7 @@ export class MapConfigService {
       pitch: 0,
       padding: {
         top: 0,
-        bottom: 0,
+        bottom: 150,
         left: 280,
         right: 0,
       },

@@ -26,6 +26,7 @@ function MapView() {
     boundingBox,
     populateMapContext,
     handleViewportChange,
+    selectFeature,
   } = useMapContext();
 
   const layers = computed(() =>
@@ -47,8 +48,11 @@ function MapView() {
       info: PickingInfo
     ) => void;
   } = {
-    OpenProps: (clickAction) => {
-      console.log(clickAction);
+    OpenProps: (clickAction, info) => {
+      if (!info.object || !info.object.id) return;
+
+      selectFeature(info.object);
+      console.log(clickAction, info);
     },
     setZoom: ({ params }, info) => {
       if (!info?.coordinate || !info.object || !info.object.id) return;

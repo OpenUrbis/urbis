@@ -1,8 +1,10 @@
 import "preact/debug";
 
 import "@open-urbis/map-ui";
+import "bootstrap/dist/css/bootstrap.css";
 import { render } from "preact";
 import { DebuggerComponent } from "./components/DebuggerComponent/DebuggerComponent";
+import { FeaturesViewComponent } from "./components/FeaturesViewComponent";
 import MapView from "./components/MapView/MapView";
 import { MapProvider } from "./context/MapContext/mapContext";
 import { NavigationProvider } from "./context/navigationContext";
@@ -13,6 +15,7 @@ const App = () => (
     <MapProvider>
       <SearchProvider>
         <div>
+          <FeaturesViewComponent />
           <MapView />
         </div>
         <DebuggerComponent />

@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { MapContextType, MapLayerGroup } from "../../dto/mapContextDto";
+import {
+  MapContextSelectedFeature,
+  MapContextType,
+  MapLayerGroup,
+} from "../../dto/mapContextDto";
 import {
   getMapConfig,
   IGetConfigLayerGroup,
@@ -58,8 +62,8 @@ export const getMapHandlers = (context: MapContextType) => {
     );
   };
 
-  const selectFeature = (feature: any) => {
-    selectedFeatures.value = [...selectedFeatures.value, feature];
+  const selectFeature = (feature: MapContextSelectedFeature) => {
+    selectedFeatures.value = [/* ...selectedFeatures.value,  */feature];
   };
 
   const populateMapContext = async () => {

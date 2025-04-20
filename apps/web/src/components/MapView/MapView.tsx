@@ -48,11 +48,11 @@ function MapView() {
       info: PickingInfo
     ) => void;
   } = {
-    OpenProps: (clickAction, info) => {
+    OpenProps: (_clickAction, info) => {
+      const { viewTemplate } = (info?.layer?.props as any) ?? {};
       if (!info.object || !info.object.id) return;
 
-      selectFeature(info.object);
-      console.log(clickAction, info);
+      selectFeature({ feature: info.object, template: viewTemplate });
     },
     setZoom: ({ params }, info) => {
       if (!info?.coordinate || !info.object || !info.object.id) return;

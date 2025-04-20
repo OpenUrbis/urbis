@@ -1,0 +1,17 @@
+.label-value {
+  display: grid;
+  text-align: left;
+  gap: 4px;
+  margin-bottom: 8px;
+
+  .label {
+    font-weight: bold;
+    color: #31628d;
+  }
+
+  .value {
+    text-align: right;
+    text-align: left;
+    color: #222;
+  }
+}

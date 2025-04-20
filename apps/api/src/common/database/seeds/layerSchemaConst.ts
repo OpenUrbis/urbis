@@ -929,6 +929,143 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
+    clickAction: { action: LayerSchemaClickActionEnum.OpenProps, params: {} },
+    viewTemplate: [
+      {
+        type: 'wrapper-card',
+        templates: [
+          {
+            type: 'label-value',
+            label: 'Identificação',
+            value: `<h3>#<%- properties.id.replace("lote_cidadao.", "") %></h3>`,
+          },
+          {
+            type: 'label-value',
+            label: 'Logradouro',
+            value: "<%- properties?.nm_logradouro_completo ?? '-' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Número de Porta',
+            value: "<%- properties?.cd_numero_porta ?? '-' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Tipo de Imóvel',
+            value: "<%- properties?.dc_tipo_uso_imovel ?? '-' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Categoria SIAAU',
+            value: "<%- properties?.tx_tipo_lote ?? '-' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Mapinha',
+          },
+          {
+            type: 'label-value',
+            label: 'Distrito',
+            value: "<%- properties?.cd_setor_fiscal ?? '-' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Subprefeitura',
+            value: 'Não disponível',
+          },
+        ],
+      },
+      {
+        type: 'wrapper-card',
+        label: 'Informações',
+        templates: [
+          {
+            type: 'wrapper-row',
+            templates: [
+              {
+                type: 'label-value',
+                label: 'Área do Terreno',
+                value: "<%- properties?.qt_area_terreno ?? '-' %>",
+                properties: {
+                  columnClass: 'col-md-6',
+                },
+              },
+              {
+                type: 'label-value',
+                label: 'Área Construída',
+                value: "<%- properties?.qt_area_construida ?? '-' %>",
+                properties: {
+                  columnClass: 'col-md-6',
+                },
+              },
+              {
+                type: 'label-value',
+                label: 'Situação do Lote',
+                value: "<%- properties?.tx_situ_lote ?? '-' %>",
+                properties: {
+                  columnClass: 'col-md-6',
+                },
+              },
+              {
+                type: 'label-value',
+                label: 'Condomínio',
+                value: "<%- properties?.cd_condominio ?? '-' %>",
+                properties: {
+                  columnClass: 'col-md-6',
+                },
+              },
+              {
+                type: 'label-value',
+                label: 'Tipo de Quadra',
+                value: "<%- properties?.tx_tipo_quadra ?? '-' %>",
+                properties: {
+                  columnClass: 'col-md-6',
+                },
+              },
+              {
+                type: 'label-value',
+                label: 'Numeração',
+                value: "<%- properties?.cd_quadra_fiscal ?? '-' %>",
+                properties: {
+                  columnClass: 'col-md-6',
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'wrapper-card',
+        label: 'Restrições',
+        templates: [
+          {
+            type: 'label-value',
+            label: 'IPTU',
+            value: "<%= 'Não disponivel' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'ITBI',
+            value: "<%= 'Não disponivel' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Tombamento',
+            value: "<%= 'Não disponivel' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Área de Preservação Ambiental',
+            value: "<%= 'Não disponivel' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Árvores no Imóvel',
+            value: "<%= 'Não disponivel' %>",
+          },
+        ],
+      },
+    ],
     groupId: null,
     properties: {
       stroked: false,

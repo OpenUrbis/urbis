@@ -3,6 +3,7 @@ import { TileLayer } from "@deck.gl/geo-layers";
 import { GeoJsonLayer } from "@deck.gl/layers";
 import { Signal } from "@preact/signals";
 import { CustomWMSLayer } from "../components/MapView/CustomWMSLayer";
+import { ITemplate } from "../components/ViewTemplate/dto/templatesDto";
 import {
   IGetConfigLayerSchema,
   IGetConfigLayerSchemaTypeEnum,
@@ -46,8 +47,7 @@ export type MapLayerGroup = {
 export interface MapContextType {
   layersSchema: Signal<IGetConfigLayerSchema[]>;
   layerGroups: Signal<MapLayerGroup[]>;
-  features: Signal<any[]>;
-  selectedFeatures: Signal<any[]>;
+  selectedFeatures: Signal<MapContextSelectedFeature[]>;
   boundingBox: Signal<MapBoundingBox>;
   viewport: Signal<any>;
   zoom: Signal<number>;
@@ -77,3 +77,8 @@ export type MapContextLayerSchemaTypeMap = {
     props: MapContextLayerSchemaTypeMapProps
   ) => MapContextRenderedLayer[];
 };
+
+export interface MapContextSelectedFeature {
+  feature: any;
+  template: ITemplate | any;
+}

@@ -11,7 +11,7 @@ import { getMapHandlers } from "./handlesMapContext";
 
 const layersSchema = signal<IGetConfigLayerSchema[]>([]);
 const layerGroups = signal<MapLayerGroup[]>([]);
-const features = signal<any[]>([]);
+
 const selectedFeatures = signal<any[]>([]);
 const boundingBox = signal<MapBoundingBox>([
   -47.25677412109369, -23.96496625957735, -46.134795361328045,
@@ -24,7 +24,6 @@ const editionFeatures = signal<any[]>([]);
 const mapState: MapContextType = {
   layersSchema,
   layerGroups,
-  features,
   selectedFeatures,
   boundingBox,
   viewport,

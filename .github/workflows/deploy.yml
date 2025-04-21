@@ -22,13 +22,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Escolha a versão do Node.js compatível com seu projeto
-          cache: 'yarn' # Habilita o cache para Yarn
+          node-version: '18'
+          cache: 'yarn'
       - name: Install Yarn
         run: npm install -g yarn
       - name: Install Dependencies
         run: yarn install
-        working-directory: ./apps/web # Ajuste para o diretório do seu app
+        working-directory: ./apps/web 
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -36,9 +36,8 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WHITE_COAST_0D4E5391E }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/apps/web"
-          api_location: "/apps/api"
-          output_location: "dist"
+          app_location: "/"
+          output_location: "/apps/web/dist"
           app_build_command: "yarn build"
 
   close_pull_request_job:

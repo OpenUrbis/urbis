@@ -1,6 +1,7 @@
 {
   "name": "@open-urbis/map-ui",
   "version": "0.0.0",
+  "private": true,
   "exports": {
     ".": "./index.ts",
     "./counter": "./components/counter.ts",

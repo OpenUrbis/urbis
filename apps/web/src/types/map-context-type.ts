@@ -1,46 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TileLayer } from "@deck.gl/geo-layers";
 import { GeoJsonLayer } from "@deck.gl/layers";
 import { Signal } from "@preact/signals";
 import { CustomWMSLayer } from "../components/MapView/CustomWMSLayer";
-import { ITemplate } from "../components/ViewTemplate/dto/templatesDto";
+import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import {
   IGetConfigLayerGroup,
   IGetConfigLayerSchema,
   IGetConfigLayerSchemaTypeEnum,
-} from "../services/mapService";
+} from "./fetch-map-config-type";
 
 export type MapBoundingBox = [number, number, number, number];
 
 export type MapLayerSchemaColor = MapBoundingBox;
 
-/* export type MapLayerSchema = {
-  id: string;
-  name: string;
-  "@@type": MapContextLayerSchemaType;
-  labelColor?: MapLayerSchemaColor | MapLayerSchemaColor[];
-  urlTemplate?: string;
-  data?: string;
-  visible: boolean;
-  groupId?: string; // Referência ao id do grupo
-  minZoom?: number;
-  getFillPattern?:
-    | MapLayerSchemaFillPattern
-    | ((info: any) => MapLayerSchemaFillPattern);
-  getFillColor?: MapLayerSchemaColor | ((info: any) => MapLayerSchemaColor);
-  getElevation?: number;
-  getText?: string | ((info: any) => string);
-  isPointLayer?: boolean;
-  getTextColor?: MapLayerSchemaColor;
-  getLineColor?: MapLayerSchemaColor | ((info: any) => MapLayerSchemaColor);
-  getTextSize?: number;
-  autoHighlight?: boolean;
-  highlightColor?: MapLayerSchemaColor | ((info: any) => MapLayerSchemaColor);
-  mapLegend?: MapLayerSchemaLegend[];
-}; */
-
 export interface MapContextType {
-  layersSchema: Signal<IGetConfigLayerSchema[]>;
+  layerSchemas: Signal<IGetConfigLayerSchema[]>;
   layerGroups: Signal<IGetConfigLayerGroup[]>;
   selectedFeatures: Signal<MapContextSelectedFeature[]>;
   boundingBox: Signal<MapBoundingBox>;
@@ -53,7 +27,7 @@ export type MapContextLayerSchemaType =
   | "TileLayer"
   | "GeoJsonLayer"
   | "CustomWMSLayer"
-  | "Custom";
+  | "Stream";
 
 export type MapContextRenderedLayer =
   | TileLayer
@@ -74,6 +48,6 @@ export type MapContextLayerSchemaTypeMap = {
 };
 
 export interface MapContextSelectedFeature {
-  feature: any;
-  template: ITemplate | any;
+  feature: unknown;
+  template: ITemplate;
 }

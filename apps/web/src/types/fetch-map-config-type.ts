@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { MapBoundingBox } from "../dto/mapContextDto";
-
-const environment = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { ITemplate } from "../components/ViewTemplate/types/templates-type";
+import { MapBoundingBox } from "./map-context-type";
 
 export interface IGetConfigResponse {
+  latitude: number;
+  longitude: number;
   boundingBox: MapBoundingBox;
   zoom: number;
   bearing: number;
@@ -71,17 +71,8 @@ export interface IGetConfigLayerSchema {
   getFillColorPropName?: string;
   getLineColorPropName?: string;
   clickAction: IGetConfigLayerSchemaClickAction;
-  viewTemplate: any;
+  viewTemplate: ITemplate[];
   groupId?: string;
   colors: IGetConfigColor[];
-  properties: any;
+  properties: unknown;
 }
-
-export const getMapConfig = async (): Promise<IGetConfigResponse> => {
-  const response = await fetch(`${environment}/map-config`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch map config");
-  }
-
-  return await response.json();
-};

@@ -1,4 +1,4 @@
-import { ITemplatesDeclaration } from "../dto/templatesDto";
+import { ITemplatesDeclaration } from "../types/templates-type";
 import { CardWrapper } from "./CardWrapper";
 import { LabelValueTemplate } from "./LabelValueTemplate";
 import { RowWrapper } from "./RowWrapper";

@@ -1,26 +1,25 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from "react";
-import { Map } from "react-map-gl/mapbox";
-import { DeckGLOverlay } from "./DeckGLOverlay";
-
 import { computed } from "@preact/signals";
 import { PickingInfo } from "deck.gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useMapContext } from "../../context/MapContext/mapContext";
+import { useEffect, useRef } from "react";
+import { Map } from "react-map-gl/mapbox";
+import { MAP_CONFIGS } from "../../application-configs";
+import { useMapContext } from "../../hooks/useMapContext";
 import {
   GetConfigLayerSchemaClickActionAction,
   IGetConfigLayerSchemaClickAction,
-} from "../../services/mapService";
-import { transformSchemaLayers } from "./MapLayerTransform";
+} from "../../types/fetch-map-config-type";
+import { DeckGLOverlay } from "./DeckGLOverlay";
+import { transformSchemaLayers } from "./map-layer-transform";
 
-function MapView() {
+export const MapView = () => {
   const accessToken =
     import.meta.env.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN ||
     "your-mapbox-access-token";
   const overlayRef = useRef(null);
 
   const {
-    layersSchema,
+    layerSchemas,
     viewport,
     zoom,
     boundingBox,
@@ -30,7 +29,7 @@ function MapView() {
   } = useMapContext();
 
   const layers = computed(() =>
-    transformSchemaLayers(layersSchema.value, {
+    transformSchemaLayers(layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
     }).flat()
@@ -64,8 +63,7 @@ function MapView() {
       const destination = {
         center: [info?.coordinate[0], info?.coordinate[1]],
         zoom: params?.zoom,
-        // pitch: 45,
-        // bearing: 0,
+        ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
       };
 
       setTimeout(() => {
@@ -107,6 +105,4 @@ function MapView() {
       )}
     </div>
   );
-}
-
-export default MapView;
+};

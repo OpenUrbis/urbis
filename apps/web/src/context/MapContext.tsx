@@ -1,16 +1,13 @@
 import { signal } from "@preact/signals";
 import { ComponentChildren, createContext } from "preact";
-import { useContext } from "preact/hooks";
 import {
-  MapBoundingBox,
-  MapContextType,
-  MapLayerGroup,
-} from "../../dto/mapContextDto";
-import { IGetConfigLayerSchema } from "../../services/mapService";
-import { getMapHandlers } from "./handlesMapContext";
+  IGetConfigLayerGroup,
+  IGetConfigLayerSchema,
+} from "../types/fetch-map-config-type";
+import { MapBoundingBox, MapContextType } from "../types/map-context-type";
 
-const layersSchema = signal<IGetConfigLayerSchema[]>([]);
-const layerGroups = signal<MapLayerGroup[]>([]);
+const layerSchemas = signal<IGetConfigLayerSchema[]>([]);
+const layerGroups = signal<IGetConfigLayerGroup[]>([]);
 
 const selectedFeatures = signal<any[]>([]);
 const boundingBox = signal<MapBoundingBox>([
@@ -22,7 +19,7 @@ const zoom = signal<number>(10);
 const editionFeatures = signal<any[]>([]);
 
 const mapState: MapContextType = {
-  layersSchema,
+  layerSchemas,
   layerGroups,
   selectedFeatures,
   boundingBox,
@@ -32,15 +29,6 @@ const mapState: MapContextType = {
 };
 
 export const MapContext = createContext<MapContextType>(mapState);
-
-export const useMapContext = () => {
-  const context = useContext(MapContext);
-
-  if (!context)
-    throw new Error("useMapContext must be used within a MapProvider");
-
-  return { ...context, ...getMapHandlers(context) };
-};
 
 export const MapProvider = ({ children }: { children: ComponentChildren }) => {
   return <MapContext.Provider value={mapState}>{children}</MapContext.Provider>;

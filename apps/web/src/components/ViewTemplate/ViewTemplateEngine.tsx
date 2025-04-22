@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { ITemplate, ITemplateProps, ITemplatesMap } from "./dto/templatesDto";
+import { ITemplate, ITemplateProps, ITemplatesMap } from "./types/templates-type";
 import { VIEW_TEMPLATE_TEMPLATES } from "./templates";
 
 export const ViewTemplateEngine = ({ template, data }: ITemplateProps) => {

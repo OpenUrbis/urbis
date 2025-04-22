@@ -4,7 +4,7 @@ import {
   ITemplateProps,
   ITemplateRender,
   ITemplatesDeclaration,
-} from "../../dto/templatesDto";
+} from "../../types/templates-type";
 import "./style.scss";
 
 const LabelValueComponent: ITemplateRender = ({

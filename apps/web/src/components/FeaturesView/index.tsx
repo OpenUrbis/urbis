@@ -1,9 +1,9 @@
 import { computed } from "@preact/signals";
-import { useMapContext } from "../../context/MapContext/mapContext";
 import { ViewTemplate } from "../ViewTemplate";
 import "./style.scss";
+import { useMapContext } from "../../hooks/useMapContext";
 
-export const FeaturesViewComponent = () => {
+export const FeaturesView = () => {
   const { selectedFeatures } = useMapContext();
 
   const view = computed(() => selectedFeatures.value?.[0] ?? {});

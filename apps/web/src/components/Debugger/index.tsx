@@ -8,14 +8,14 @@ import {
 } from "@rmwc/dialog";
 import { ReactNode } from "react";
 import { Button } from "rmwc";
-import { useMapContext } from "../../context/MapContext/mapContext";
-import { useNavigationContext } from "../../context/navigationContext";
-import { useSearchContext } from "../../context/searchContext";
-import "./DebuggerComponent.scss";
+import { useNavigationContext } from "../../context/NavigationContext";
+import { useSearchContext } from "../../context/SearchContext";
+import { useMapContext } from "../../hooks/useMapContext";
+import "./style.scss";
 
 const isOpen = signal<boolean>(false);
 
-export const DebuggerComponent = () => {
+export const Debugger = () => {
   const searchContext = useSearchContext();
   const navigationContext = useNavigationContext();
   const mapContext = useMapContext();

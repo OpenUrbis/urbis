@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { IRowWrapperProperties } from "./rowWrapperDto";
+import { IRowWrapperProperties } from "./row-wrapper-type";
 
 export type ITemplateRender = (props: ITemplateProps) => any;
 
@@ -24,4 +24,5 @@ export interface ITemplate {
 export interface ITemplateProps {
   template: ITemplate;
   data: unknown;
+  key?: string;
 }

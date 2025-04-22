@@ -1,7 +1,7 @@
 import { signal } from "@preact/signals";
 import { ComponentChildren, createContext } from "preact";
 import { useContext } from "preact/hooks";
-import { SearchContextType, SearchMultiResult } from "../dto/searchContextDto";
+import { SearchContextType, SearchMultiResult } from "../types/search-context-type";
 
 const currentTerm = signal<string>("");
 const lastTerm = signal<string>("");

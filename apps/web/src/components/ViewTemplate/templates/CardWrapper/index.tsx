@@ -1,17 +1,13 @@
 import { ReactNode } from "react";
 import { Card } from "rmwc";
-import { ITemplate, ITemplatesDeclaration } from "../../dto/templatesDto";
-import { ViewTemplateEngine } from "../../engine";
+import { ITemplatesDeclaration } from "../../types/templates-type";
+import { ViewTemplateEngine } from "../../ViewTemplateEngine";
 import "./style.scss";
 
 export const CardWrapper: ITemplatesDeclaration = {
   name: "wrapper-card",
-  render: ({ template, data }) => {
+  render: ({ template, data, key }) => {
     const { templates = [], label } = template;
-
-    const renderColumn = (template: ITemplate) => (
-      <ViewTemplateEngine template={template} data={data} />
-    );
 
     return (
       <Card className="card-details">
@@ -19,7 +15,13 @@ export const CardWrapper: ITemplatesDeclaration = {
           (
             <div className="card-container">
               {label && <h4>{label}:</h4>}
-              {templates.map((template) => renderColumn(template))}
+              {templates.map((template, i) => (
+                <ViewTemplateEngine
+                  key={`${key}-engine-${i}`}
+                  template={template}
+                  data={data}
+                />
+              ))}
             </div>
           ) as ReactNode
         }

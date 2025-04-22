@@ -1,36 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { FillStyleExtension } from "@deck.gl/extensions";
 import { GeoJsonLayer } from "@deck.gl/layers";
+import { MAP_CONFIGS } from "../../application-configs";
+import {
+  IGetConfigFillPattern,
+  IGetConfigLayerSchema,
+} from "../../types/fetch-map-config-type";
 import {
   MapBoundingBox,
   MapContextLayerSchemaTypeMap,
   MapContextLayerSchemaTypeMapProps,
   MapContextRenderedLayer,
-} from "../../dto/mapContextDto";
-import {
-  IGetConfigFillPattern,
-  IGetConfigLayerSchema,
-} from "../../services/mapService";
+} from "../../types/map-context-type";
 import { CustomWMSLayer } from "./CustomWMSLayer";
-import { formatBoundsForURL, transformBoundsToUTM } from "./transformBounds";
+import { formatBoundsForURL, transformBoundsToUTM } from "./transform-bounds";
 
 type Color = [number, number, number, number];
 type ColorConfig = { [key: string]: Color };
-
-const PATTERN_PROPERTIES_OBJ = {
-  // props added by FillStyleExtension
-  fillPatternMask: true,
-  fillPatternAtlas: "/pattern.png",
-  fillPatternMapping: "/pattern.json",
-  getFillPatternScale: 0.5,
-  getFillPatternOffset: [0, 0],
-
-  // Define extensions
-  extensions: [new FillStyleExtension({ pattern: true })],
-};
-
-const DEFAULT_COLOR: Color = [0, 0, 0, 240];
-const GRID_CELL_SIZE = 0.01;
 
 const buildColorsObj = (layer: IGetConfigLayerSchema) => {
   const { colors } = layer;
@@ -50,7 +34,8 @@ const buildColorsObj = (layer: IGetConfigLayerSchema) => {
       else if (color?.type === "text") textColors[key] = color.color;
       else fillColors[key] = color.color;
     });
-  else fillColors.default = colors?.[0]?.color ?? DEFAULT_COLOR;
+  else
+    fillColors.default = colors?.[0]?.color ?? MAP_CONFIGS.DEFAULT_LAYER_COLOR;
 
   return { fillColors, lineColors, textColors, patterns };
 };
@@ -60,19 +45,23 @@ const calculateGridCells = (bbox: MapBoundingBox): MapBoundingBox[] => {
   const cells: MapBoundingBox[] = [];
 
   // Arredonda os limites para o grid fixo
-  const startX = Math.floor(minX / GRID_CELL_SIZE) * GRID_CELL_SIZE;
-  const startY = Math.floor(minY / GRID_CELL_SIZE) * GRID_CELL_SIZE;
-  const endX = Math.ceil(maxX / GRID_CELL_SIZE) * GRID_CELL_SIZE;
-  const endY = Math.ceil(maxY / GRID_CELL_SIZE) * GRID_CELL_SIZE;
+  const startX =
+    Math.floor(minX / MAP_CONFIGS.GRID_CELL_SIZE) * MAP_CONFIGS.GRID_CELL_SIZE;
+  const startY =
+    Math.floor(minY / MAP_CONFIGS.GRID_CELL_SIZE) * MAP_CONFIGS.GRID_CELL_SIZE;
+  const endX =
+    Math.ceil(maxX / MAP_CONFIGS.GRID_CELL_SIZE) * MAP_CONFIGS.GRID_CELL_SIZE;
+  const endY =
+    Math.ceil(maxY / MAP_CONFIGS.GRID_CELL_SIZE) * MAP_CONFIGS.GRID_CELL_SIZE;
 
   // Gera as células do grid com precisão fixa
-  for (let x = startX; x < endX; x += GRID_CELL_SIZE) {
-    for (let y = startY; y < endY; y += GRID_CELL_SIZE) {
+  for (let x = startX; x < endX; x += MAP_CONFIGS.GRID_CELL_SIZE) {
+    for (let y = startY; y < endY; y += MAP_CONFIGS.GRID_CELL_SIZE) {
       cells.push([
         Number(x.toFixed(6)),
         Number(y.toFixed(6)),
-        Number((x + GRID_CELL_SIZE).toFixed(6)),
-        Number((y + GRID_CELL_SIZE).toFixed(6)),
+        Number((x + MAP_CONFIGS.GRID_CELL_SIZE).toFixed(6)),
+        Number((y + MAP_CONFIGS.GRID_CELL_SIZE).toFixed(6)),
       ]);
     }
   }
@@ -90,7 +79,8 @@ const generateGetColorFns = (layer: IGetConfigLayerSchema) => {
     const key = getTextColorPropName ?? getFillColorPropName ?? "default";
     const keyToFind = d?.properties?.[key] ?? "default";
     const color = textColors?.[keyToFind];
-    if (!color) return fillColors?.[keyToFind] ?? DEFAULT_COLOR;
+    if (!color)
+      return fillColors?.[keyToFind] ?? MAP_CONFIGS.DEFAULT_LAYER_COLOR;
 
     return color;
   };
@@ -99,7 +89,8 @@ const generateGetColorFns = (layer: IGetConfigLayerSchema) => {
     const key = getLineColorPropName ?? getFillColorPropName ?? "default";
     const keyToFind = d?.properties?.[key] ?? "default";
     const color = lineColors?.[keyToFind];
-    if (!color) return fillColors?.[keyToFind] ?? DEFAULT_COLOR;
+    if (!color)
+      return fillColors?.[keyToFind] ?? MAP_CONFIGS.DEFAULT_LAYER_COLOR;
 
     return color;
   };
@@ -109,7 +100,7 @@ const generateGetColorFns = (layer: IGetConfigLayerSchema) => {
     const keyToFind = d?.properties?.[key] ?? "default";
     const color = fillColors?.[keyToFind];
 
-    return color ?? DEFAULT_COLOR;
+    return color ?? MAP_CONFIGS.DEFAULT_LAYER_COLOR;
   };
 
   const getFillPattern = (d: any): IGetConfigFillPattern =>
@@ -118,43 +109,29 @@ const generateGetColorFns = (layer: IGetConfigLayerSchema) => {
   return { getTextColor, getFillColor, getLineColor, getFillPattern };
 };
 
-const createGetElevationFn = (properties: any) => {
-  const { getElevation } = properties;
-
-  if (getElevation) {
-    try {
-      const fn = new Function(`return ${getElevation}`)();
-      if (typeof fn !== "function") return properties;
-
-      properties.getElevation = fn;
-
-      return properties;
-    } catch (e) {
-      console.error(e);
-      return properties;
-    }
-  }
-};
-
 const createGeoJsonLayer = (
   layer: IGetConfigLayerSchema
 ): MapContextRenderedLayer => {
-  const { id, origin: data, minZoom, clickAction, viewTemplate } = layer;
+  const {
+    id,
+    origin: data,
+    minZoom,
+    clickAction,
+    viewTemplate,
+    properties,
+  } = layer;
   const { getFillColor, getFillPattern, getLineColor, getTextColor } =
     generateGetColorFns(layer);
-  const patternObj = { ...PATTERN_PROPERTIES_OBJ, getFillPattern };
-  const properties = createGetElevationFn(layer.properties);
+  const patternObj = { ...MAP_CONFIGS.PATTERN_PROPERTIES, getFillPattern };
 
   return new GeoJsonLayer({
+    ...MAP_CONFIGS.DEFAULT_LAYER_PROPERTIES,
     id,
     data,
     minZoom,
-    filled: true,
-    getText: () => "",
     getTextColor: getTextColor,
     getLineColor: getLineColor,
     getFillColor: getFillColor,
-    getTextSize: 12,
     clickAction,
     viewTemplate,
     ...properties,
@@ -163,13 +140,6 @@ const createGeoJsonLayer = (
 };
 
 const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
-  /* TileLayer: (layer) =>
-    new TileLayer({
-      id: layer.id,
-      data: layer.urlTemplate,
-      minZoom: 0,
-      maxZoom: 20,
-    }), */
   Stream: (layer, props) => {
     const { boundingBox: bbox } = props;
     const { origin } = layer;

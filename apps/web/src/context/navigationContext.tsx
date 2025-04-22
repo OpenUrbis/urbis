@@ -1,7 +1,7 @@
 import { signal } from "@preact/signals";
 import { ComponentChildren, createContext } from "preact";
 import { useContext } from "preact/hooks";
-import { NavigationContextType } from "../dto/navigationContextDto";
+import { NavigationContextType } from "../types/navigation-context-type";
 
 const currentPage = signal<any>({});
 const lastPage = signal<any>({});

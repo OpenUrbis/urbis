@@ -1,26 +1,22 @@
-import { IRowWrapperProperties } from "../../dto/rowWrapperDto";
-import { ITemplate, ITemplatesDeclaration } from "../../dto/templatesDto";
-import { ViewTemplateEngine } from "../../engine";
+import { IRowWrapperProperties } from "../../types/row-wrapper-type";
+import { ITemplatesDeclaration } from "../../types/templates-type";
+import { ViewTemplateEngine } from "../../ViewTemplateEngine";
 
 export const RowWrapper: ITemplatesDeclaration = {
   name: "wrapper-row",
-  render: ({ template, data }) => {
+  render: ({ template, data, key }) => {
     const { templates = [] } = template;
-
-    const renderColumn = (template: ITemplate) => {
-      const { columnClass = "" } = template.properties as IRowWrapperProperties;
-      const className = `col ${columnClass}`;
-
-      return (
-        <div className={className}>
-          <ViewTemplateEngine template={template} data={data} />
-        </div>
-      );
-    };
 
     return (
       <div className="row">
-        {templates.map((template) => renderColumn(template))}
+        {templates.map((template, i) => (
+          <div
+            className={`col ${(template.properties as IRowWrapperProperties)?.columnClass ?? ""}`}
+            key={`${key}-row-${i}`}
+          >
+            <ViewTemplateEngine template={template} data={data} />
+          </div>
+        ))}
       </div>
     );
   },

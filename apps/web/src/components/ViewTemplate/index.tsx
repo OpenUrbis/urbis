@@ -1,5 +1,5 @@
-import { ITemplate } from "./dto/templatesDto";
-import { ViewTemplateEngine } from "./engine";
+import { ITemplate } from "./types/templates-type";
+import { ViewTemplateEngine } from "./ViewTemplateEngine";
 
 export interface IViewTemplate {
   templates: ITemplate[];

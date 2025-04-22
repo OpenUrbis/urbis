@@ -24,6 +24,7 @@ export interface IGetConfigLayerGroup {
   id: string;
   name: string;
   ownerGroup: string;
+  childGroups: IGetConfigLayerGroup[];
 }
 
 export type IGetConfigFillPattern =

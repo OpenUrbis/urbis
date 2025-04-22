@@ -4,7 +4,7 @@ import { LayerSchemaColors } from 'layer-schemas/entities/layer-schema-color.ent
 import { Repository } from 'typeorm';
 import { LayerGroup } from './../../../layer-groups/entities/layer-group.entity';
 import { LayerSchema } from './../../../layer-schemas/entities/layer-schema.entity';
-import { layerSchemaColors, layerSchemas } from './layerSchemaConst';
+import { layerSchemas } from './layerSchemaConst';
 
 @Injectable()
 export class LayerSeedService {
@@ -57,20 +57,26 @@ export class LayerSeedService {
 
     // Seed LayerSchema
     try {
-      await this.layerSchemaRepository.upsert(layerSchemas, ['id']);
+      const promises = layerSchemas.map(async (layer) => {
+        let register = await this.layerSchemaRepository.findOne({
+          where: { id: layer.id },
+          relations: ['colors'],
+        });
+        if (!register) register = this.layerSchemaRepository.create(layer);
+        else register = layer;
+
+        register.colors = layer.colors.map((color) =>
+          this.layerSchemaColorsRepository.create(color),
+        );
+
+        return await this.layerSchemaRepository.save(register);
+      });
+
+      await Promise.all(promises);
 
       console.log(
         `Seeded LayerSchemas: ${layerSchemas.map((group) => group.id).join(', ')}`,
       );
-    } catch (error: any) {
-      console.error(`Query failed: ${error.message}`);
-    }
-
-    // Seed layerSchemaColors
-    try {
-      await this.layerSchemaColorsRepository.upsert(layerSchemaColors, ['id']);
-
-      console.log(`Seeded layerSchemaColors`);
     } catch (error: any) {
       console.error(`Query failed: ${error.message}`);
     }

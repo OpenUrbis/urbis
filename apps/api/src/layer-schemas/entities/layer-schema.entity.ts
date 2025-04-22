@@ -76,7 +76,13 @@ export class LayerSchema {
   @OneToMany(
     () => LayerSchemaColors,
     (layerSchemaColors) => layerSchemaColors.layerSchema,
-    { nullable: true },
+    {
+      cascade: true,
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+      orphanedRowAction: 'delete',
+      nullable: false,
+    },
   )
   colors?: LayerSchemaColors[];
 }

@@ -5,6 +5,7 @@ import { Signal } from "@preact/signals";
 import { CustomWMSLayer } from "../components/MapView/CustomWMSLayer";
 import { ITemplate } from "../components/ViewTemplate/dto/templatesDto";
 import {
+  IGetConfigLayerGroup,
   IGetConfigLayerSchema,
   IGetConfigLayerSchemaTypeEnum,
 } from "../services/mapService";
@@ -38,15 +39,9 @@ export type MapLayerSchemaColor = MapBoundingBox;
   mapLegend?: MapLayerSchemaLegend[];
 }; */
 
-export type MapLayerGroup = {
-  id: string;
-  name: string;
-  subGroups?: MapLayerGroup[];
-};
-
 export interface MapContextType {
   layersSchema: Signal<IGetConfigLayerSchema[]>;
-  layerGroups: Signal<MapLayerGroup[]>;
+  layerGroups: Signal<IGetConfigLayerGroup[]>;
   selectedFeatures: Signal<MapContextSelectedFeature[]>;
   boundingBox: Signal<MapBoundingBox>;
   viewport: Signal<any>;

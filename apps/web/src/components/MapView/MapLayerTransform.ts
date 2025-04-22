@@ -208,7 +208,7 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
   GeoJsonLayer: (layer) => [createGeoJsonLayer(layer)],
   CustomWMSLayer: (layer) => [
     new CustomWMSLayer({
-      data: "https://geoserver.slui.dev/geoserver/slui/wmss",
+      data: "https://geoserver.slui.dev/geoserver/slui/wms",
       serviceType: "wms",
       layers: [layer.id],
     }),

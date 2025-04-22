@@ -1,824 +1,9 @@
-import { LayerSchemaColors } from 'layer-schemas/entities/layer-schema-color.entity';
 import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
 import {
   LayerSchemaClickActionEnum,
   LayerSchemaColorTypeEnum,
   LayerSchemaTypeEnum,
 } from 'layer-schemas/enums/layer-schema.enum';
-
-export const layerSchemaColors: LayerSchemaColors[] = [
-  // Para zeis_pde
-  {
-    color: [196, 80, 80, 240],
-    pattern: 'full',
-    label: 'ZEIS-1',
-    value: 'ZEIS-1',
-    layerSchemaId: 'zeis_pde',
-  },
-  {
-    color: [54, 125, 169, 240],
-    pattern: 'full',
-    label: 'ZEIS-2',
-    value: 'ZEIS-2',
-    layerSchemaId: 'zeis_pde',
-  },
-  {
-    color: [65, 156, 139, 240],
-    pattern: 'full',
-    label: 'ZEIS-3',
-    value: 'ZEIS-3',
-    layerSchemaId: 'zeis_pde',
-  },
-  {
-    color: [164, 89, 164, 240],
-    pattern: 'full',
-    label: 'ZEIS-4',
-    value: 'ZEIS-4',
-    layerSchemaId: 'zeis_pde',
-  },
-  {
-    color: [241, 127, 4, 240],
-    pattern: 'full',
-    label: 'ZEIS-5',
-    value: 'ZEIS-5',
-    layerSchemaId: 'zeis_pde',
-  },
-
-  // Para eixos
-  {
-    color: [136, 144, 173, 240],
-    pattern: 'full',
-    label: 'Area de Influencia',
-    value: 'Area de Influencia',
-    layerSchemaId: 'eixos',
-  },
-  {
-    color: [201, 186, 119, 240],
-    pattern: 'full',
-    label: 'Area de Influencia (2016)',
-    value: 'Area de Influencia (2016)',
-    layerSchemaId: 'eixos',
-  },
-
-  // Para macroareas
-  {
-    color: [127, 1, 0, 240],
-    pattern: 'full',
-    label: 'Macroarea de Estruturacao Metropolitana',
-    value: 'Macroarea de Estruturacao Metropolitana',
-    layerSchemaId: 'macroareas',
-  },
-  {
-    color: [154, 89, 89, 240],
-    pattern: 'full',
-    label: 'Macroarea de Urbanizacao Consolidada',
-    value: 'Macroarea de Urbanizacao Consolidada',
-    layerSchemaId: 'macroareas',
-  },
-  {
-    color: [210, 99, 28, 240],
-    pattern: 'full',
-    label: 'Macroarea de Qualificacao da Urbanizacao',
-    value: 'Macroarea de Qualificacao da Urbanizacao',
-    layerSchemaId: 'macroareas',
-  },
-  {
-    color: [244, 191, 3, 240],
-    pattern: 'full',
-    label: 'Macroarea de Reducao da Vulnerabilidade Urbana',
-    value: 'Macroarea de Reducao da Vulnerabilidade Urbana',
-    layerSchemaId: 'macroareas',
-  },
-  {
-    color: [250, 236, 176, 240],
-    pattern: 'full',
-    label:
-      'Macroarea de Reducao da Vulnerabilidade Urbana e Recuperacao Ambiental',
-    value:
-      'Macroarea de Reducao da Vulnerabilidade Urbana e Recuperacao Ambiental',
-    layerSchemaId: 'macroareas',
-  },
-  {
-    color: [192, 212, 167, 240],
-    pattern: 'full',
-    label: 'Macroarea de Controle e Qualificacao Urbana e Ambiental',
-    value: 'Macroarea de Controle e Qualificacao Urbana e Ambiental',
-    layerSchemaId: 'macroareas',
-  },
-  {
-    color: [108, 162, 150, 240],
-    pattern: 'full',
-    label: 'Macroarea de Contencao Urbana e Uso Sustentavel',
-    value: 'Macroarea de Contencao Urbana e Uso Sustentavel',
-    layerSchemaId: 'macroareas',
-  },
-  {
-    color: [33, 89, 86, 240],
-    pattern: 'full',
-    label: 'Macroarea de Preservacao dos Ecossistemas Naturais',
-    value: 'Macroarea de Preservacao dos Ecossistemas Naturais',
-    layerSchemaId: 'macroareas',
-  },
-
-  // Para macrozonas
-  {
-    color: [190, 190, 190, 240],
-    pattern: 'full',
-    label: 'Macrozona de Estruturacao e Qualificacao Urbana',
-    value: 'Macrozona de Estruturacao e Qualificacao Urbana',
-    layerSchemaId: 'macrozonas',
-  },
-  {
-    color: [50, 130, 138, 240],
-    pattern: 'full',
-    label: 'Macrozona de Protecao e Recuperacao Ambiental',
-    value: 'Macrozona de Protecao e Recuperacao Ambiental',
-    layerSchemaId: 'macrozonas',
-  },
-
-  // Para setores_subsetores
-  {
-    color: [140, 1, 0, 240],
-    pattern: 'full',
-    label: 'Arco Tiete',
-    value: 'Arco Tiete',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [205, 3, 0, 240],
-    pattern: 'full',
-    label: 'Arco Tamanduatei',
-    value: 'Arco Tamanduatei',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [238, 64, 0, 240],
-    pattern: 'full',
-    label: 'Arco Leste',
-    value: 'Arco Leste',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [205, 79, 57, 240],
-    pattern: 'full',
-    label: 'Arco Pinheiros',
-    value: 'Arco Pinheiros',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [241, 99, 72, 240],
-    pattern: 'full',
-    label: 'Faria Lima-Agua Espraiada-Chucri Zaidan',
-    value: 'Faria Lima-Agua Espraiada-Chucri Zaidan',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [244, 160, 122, 240],
-    pattern: 'full',
-    label: 'Arco Jurubatuba',
-    value: 'Arco Jurubatuba',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [252, 251, 205, 240],
-    pattern: 'full',
-    label: 'Avenida Cupece',
-    value: 'Avenida Cupece',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [238, 234, 191, 240],
-    pattern: 'full',
-    label: 'Noroeste',
-    value: 'Noroeste',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [219, 205, 116, 240],
-    pattern: 'full',
-    label: 'Arco Jacu-Pessego',
-    value: 'Arco Jacu-Pessego',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [167, 155, 88, 240],
-    pattern: 'full',
-    label: 'Fernao Dias',
-    value: 'Fernao Dias',
-    layerSchemaId: 'setores_subsetores',
-  },
-  {
-    color: [161, 62, 54, 240],
-    pattern: 'full',
-    label: 'Centro',
-    value: 'Centro',
-    layerSchemaId: 'setores_subsetores',
-  },
-
-  // Para zoneamento_geral
-  {
-    color: [160, 160, 160, 240],
-    pattern: 'full',
-    label: 'Zona Urbana',
-    value: 'Zona Urbana',
-    layerSchemaId: 'zoneamento_geral',
-  },
-  {
-    color: [146, 74, 0, 240],
-    pattern: 'full',
-    label: 'Zona Rural',
-    value: 'Zona Rural',
-    layerSchemaId: 'zoneamento_geral',
-  },
-
-  // Para zoneamento_lei_16402_18177
-  {
-    color: [223, 253, 178, 240],
-    pattern: 'full',
-    label: 'AC-1',
-    value: 'AC-1',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [223, 253, 178, 240],
-    pattern: 'dots',
-    label: 'AC-2',
-    value: 'AC-2',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [208, 234, 197, 240],
-    pattern: 'full',
-    label: 'Praça/Canteiro',
-    value: 'Praça/Canteiro',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [173, 160, 152, 240],
-    pattern: 'full',
-    label: 'ZC',
-    value: 'ZC',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [173, 160, 152, 240],
-    pattern: 'dots',
-    label: 'ZCa',
-    value: 'ZCa',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [207, 178, 161, 240],
-    pattern: 'full',
-    label: 'ZC-ZEIS',
-    value: 'ZC-ZEIS',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [137, 142, 189, 240],
-    pattern: 'full',
-    label: 'ZCOR-1',
-    value: 'ZCOR-1',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [129, 186, 226, 240],
-    pattern: 'full',
-    label: 'ZCOR-2',
-    value: 'ZCOR-2',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [181, 207, 231, 240],
-    pattern: 'full',
-    label: 'ZCOR-3',
-    value: 'ZCOR-3',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [154, 190, 193, 240],
-    pattern: 'full',
-    label: 'ZCORa',
-    value: 'ZCORa',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [181, 146, 177, 240],
-    pattern: 'full',
-    label: 'ZDE-1',
-    value: 'ZDE-1',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [208, 175, 185, 240],
-    pattern: 'full',
-    label: 'ZDE-2',
-    value: 'ZDE-2',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [219, 206, 159, 240],
-    pattern: 'full',
-    label: 'ZEIS-1',
-    value: 'ZEIS-1',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [254, 208, 155, 240],
-    pattern: 'full',
-    label: 'ZEIS-2',
-    value: 'ZEIS-2',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [255, 230, 170, 240],
-    pattern: 'full',
-    label: 'ZEIS-3',
-    value: 'ZEIS-3',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [255, 239, 195, 240],
-    pattern: 'full',
-    label: 'ZEIS-4',
-    value: 'ZEIS-4',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [255, 249, 221, 240],
-    pattern: 'full',
-    label: 'ZEIS-5',
-    value: 'ZEIS-5',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [212, 159, 148, 240],
-    pattern: 'full',
-    label: 'ZEM',
-    value: 'ZEM',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [227, 192, 169, 240],
-    pattern: 'hatch-1x',
-    label: 'ZEMP',
-    value: 'ZEMP',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [145, 170, 149, 240],
-    pattern: 'full',
-    label: 'ZEP',
-    value: 'ZEP',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [167, 211, 186, 240],
-    pattern: 'full',
-    label: 'ZEPAM',
-    value: 'ZEPAM',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [255, 239, 195, 240],
-    pattern: 'hatch-cross',
-    label: 'ZER-1',
-    value: 'ZER-1',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [255, 225, 158, 240],
-    pattern: 'hatch-1x',
-    label: 'ZER-2',
-    value: 'ZER-2',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [255, 255, 153, 240],
-    pattern: 'dots',
-    label: 'ZERa',
-    value: 'ZERa',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [189, 138, 140, 240],
-    pattern: 'full',
-    label: 'ZEU',
-    value: 'ZEU',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [189, 138, 140, 240],
-    pattern: 'dots',
-    label: 'ZEUa',
-    value: 'ZEUa',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [196, 158, 157, 240],
-    pattern: 'hatch-1x',
-    label: 'ZEUP',
-    value: 'ZEUP',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [197, 184, 184, 240],
-    pattern: 'dots',
-    label: 'ZEUPa',
-    value: 'ZEUPa',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [206, 206, 206, 240],
-    pattern: 'full',
-    label: 'ZM',
-    value: 'ZM',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [217, 217, 217, 240],
-    pattern: 'dots',
-    label: 'ZMa',
-    value: 'ZMa',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [186, 186, 186, 240],
-    pattern: 'full',
-    label: 'ZMIS',
-    value: 'ZMIS',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [232, 232, 232, 240],
-    pattern: 'full',
-    label: 'ZMISa',
-    value: 'ZMISa',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [224, 218, 197, 240],
-    pattern: 'full',
-    label: 'ZOE',
-    value: 'ZOE',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [176, 193, 171, 240],
-    pattern: 'full',
-    label: 'ZPDS',
-    value: 'ZPDS',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [200, 206, 175, 240],
-    pattern: 'full',
-    label: 'ZPDSr',
-    value: 'ZPDSr',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [161, 154, 181, 240],
-    pattern: 'full',
-    label: 'ZPI-1',
-    value: 'ZPI-1',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [212, 195, 221, 240],
-    pattern: 'full',
-    label: 'ZPI-2',
-    value: 'ZPI-2',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [255, 255, 153, 240],
-    pattern: 'full',
-    label: 'ZPR',
-    value: 'ZPR',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-  },
-  {
-    color: [153, 203, 255, 120],
-    label: 'default',
-    layerSchemaId: 'distrito_municipal',
-    type: LayerSchemaColorTypeEnum.FILL,
-  },
-  {
-    color: [153, 203, 255, 255],
-    label: 'default',
-    layerSchemaId: 'distrito_municipal',
-    type: LayerSchemaColorTypeEnum.TEXT,
-  },
-  {
-    color: [0, 0, 0, 120],
-    label: 'default',
-    layerSchemaId: 'distrito_municipal',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [57, 118, 29, 175],
-    label: 'default',
-    layerSchemaId: 'lotes',
-  },
-  {
-    color: [0, 0, 0, 255],
-    label: 'default',
-    layerSchemaId: 'zeis_pde',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_estimadas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [65, 120, 216, 240],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_estimadas',
-  },
-  {
-    color: [65, 120, 216, 240],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_estimadas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_ou_dormentes',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [56, 85, 204, 240],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_ou_dormentes',
-  },
-  {
-    color: [56, 85, 204, 240],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_ou_dormentes',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [0, 0, 0, 255],
-    label: 'default',
-    layerSchemaId: 'areas_contaminadas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [180, 95, 6, 240],
-    label: 'default',
-    layerSchemaId: 'areas_contaminadas',
-  },
-  {
-    color: [180, 95, 6, 240],
-    label: 'default',
-    layerSchemaId: 'areas_contaminadas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'eixos',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'macroareas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'macrozonas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'minianel_viario',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [217, 234, 211, 240],
-    label: 'default',
-    layerSchemaId: 'minianel_viario',
-  },
-  {
-    color: [217, 234, 211, 240],
-    label: 'default',
-    layerSchemaId: 'minianel_viario',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [0, 0, 0, 255],
-    label: 'default',
-    layerSchemaId: 'pracas_e_canteiros',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [147, 196, 125, 240],
-    label: 'default',
-    layerSchemaId: 'pracas_e_canteiros',
-  },
-  {
-    color: [147, 196, 125, 240],
-    label: 'default',
-    layerSchemaId: 'pracas_e_canteiros',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'restricoes_geotecnicas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [153, 2, 0, 240],
-    label: 'default',
-    layerSchemaId: 'restricoes_geotecnicas',
-  },
-  {
-    color: [153, 2, 0, 240],
-    label: 'default',
-    layerSchemaId: 'restricoes_geotecnicas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'risco_geologico',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 0, 0, 240],
-    label: 'default',
-    layerSchemaId: 'risco_geologico',
-  },
-  {
-    color: [255, 0, 0, 240],
-    label: 'default',
-    layerSchemaId: 'risco_geologico',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'risco_hidrologico',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [204, 0, 1, 240],
-    label: 'default',
-    layerSchemaId: 'risco_hidrologico',
-  },
-  {
-    color: [204, 0, 1, 240],
-    label: 'default',
-    layerSchemaId: 'risco_hidrologico',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'setores_subsetores',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'subprefeitura',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [183, 183, 183, 240],
-    label: 'default',
-    layerSchemaId: 'subprefeitura',
-  },
-  {
-    color: [183, 183, 183, 240],
-    label: 'default',
-    layerSchemaId: 'subprefeitura',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [0, 0, 0, 255],
-    label: 'default',
-    layerSchemaId: 'sujeicao_a_alagamentos',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [133, 32, 12, 240],
-    label: 'default',
-    layerSchemaId: 'sujeicao_a_alagamentos',
-  },
-  {
-    color: [133, 32, 12, 240],
-    label: 'default',
-    layerSchemaId: 'sujeicao_a_alagamentos',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'terras_indigenas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [191, 144, 0, 240],
-    label: 'default',
-    layerSchemaId: 'terras_indigenas',
-  },
-  {
-    color: [191, 144, 0, 240],
-    label: 'default',
-    layerSchemaId: 'terras_indigenas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [241, 194, 50, 240],
-    label: 'default',
-    layerSchemaId: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
-  },
-  {
-    color: [241, 194, 50, 240],
-    label: 'default',
-    layerSchemaId: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'tombamentos-areas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 165, 0, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-areas',
-  },
-  {
-    color: [255, 165, 0, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-areas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'tombamentos-envoltorias-de-imoveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [247, 217, 103, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-envoltorias-de-imoveis',
-  },
-  {
-    color: [247, 217, 103, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-envoltorias-de-imoveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'tombamentos-imoveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [249, 255, 0, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-imoveis',
-  },
-  {
-    color: [249, 255, 0, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-imoveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'zoneamento_geral',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-];
 
 export const layerSchemas: LayerSchema[] = [
   {
@@ -835,6 +20,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'areas_publicas',
+    colors: [
+      {
+        color: [65, 120, 216, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'aguas_correntes_ou_dormentes',
@@ -850,6 +41,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'areas_publicas',
+    colors: [
+      {
+        color: [56, 85, 204, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'areas_contaminadas',
@@ -865,6 +62,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'ambiental',
+    colors: [
+      {
+        color: [180, 95, 6, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'distrito_municipal',
@@ -878,7 +81,7 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    groupId: null,
+    groupId: 'geral',
     clickAction: {
       action: LayerSchemaClickActionEnum.SetZoom,
       params: {
@@ -900,6 +103,23 @@ export const layerSchemas: LayerSchema[] = [
       highlightColor: [153, 203, 255, 140],
       maxZoom: 17,
     },
+    colors: [
+      {
+        color: [153, 203, 255, 120],
+        label: 'default',
+        type: LayerSchemaColorTypeEnum.FILL,
+      },
+      {
+        color: [153, 203, 255, 255],
+        label: 'default',
+        type: LayerSchemaColorTypeEnum.TEXT,
+      },
+      {
+        color: [0, 0, 0, 120],
+        label: 'default',
+        type: LayerSchemaColorTypeEnum.LINE,
+      },
+    ],
   },
   {
     id: 'eixos',
@@ -915,6 +135,20 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: 'nm_perimetro_divisao_pde',
     getLineColorPropName: 'nm_perimetro_divisao_pde',
     groupId: 'macrozoneamento',
+    colors: [
+      {
+        color: [136, 144, 173, 240],
+        pattern: 'full',
+        label: 'Area de Influencia',
+        value: 'Area de Influencia',
+      },
+      {
+        color: [201, 186, 119, 240],
+        pattern: 'full',
+        label: 'Area de Influencia (2016)',
+        value: 'Area de Influencia (2016)',
+      },
+    ],
   },
   {
     id: 'lotes',
@@ -1066,7 +300,7 @@ export const layerSchemas: LayerSchema[] = [
         ],
       },
     ],
-    groupId: null,
+    groupId: 'geral',
     properties: {
       stroked: false,
       filled: true,
@@ -1087,6 +321,12 @@ export const layerSchemas: LayerSchema[] = [
         return (qt_area_construida / qt_area_terreno) * 2 * 3;
       }`,
     },
+    colors: [
+      {
+        color: [57, 118, 29, 175],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'macroareas',
@@ -1102,6 +342,58 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: 'nm_perimetro_divisao_pde',
     getLineColorPropName: 'nm_perimetro_divisao_pde',
     groupId: 'macrozoneamento',
+    colors: [
+      {
+        color: [127, 1, 0, 240],
+        pattern: 'full',
+        label: 'Macroarea de Estruturacao Metropolitana',
+        value: 'Macroarea de Estruturacao Metropolitana',
+      },
+      {
+        color: [154, 89, 89, 240],
+        pattern: 'full',
+        label: 'Macroarea de Urbanizacao Consolidada',
+        value: 'Macroarea de Urbanizacao Consolidada',
+      },
+      {
+        color: [210, 99, 28, 240],
+        pattern: 'full',
+        label: 'Macroarea de Qualificacao da Urbanizacao',
+        value: 'Macroarea de Qualificacao da Urbanizacao',
+      },
+      {
+        color: [244, 191, 3, 240],
+        pattern: 'full',
+        label: 'Macroarea de Reducao da Vulnerabilidade Urbana',
+        value: 'Macroarea de Reducao da Vulnerabilidade Urbana',
+      },
+      {
+        color: [250, 236, 176, 240],
+        pattern: 'full',
+        label:
+          'Macroarea de Reducao da Vulnerabilidade Urbana e Recuperacao Ambiental',
+        value:
+          'Macroarea de Reducao da Vulnerabilidade Urbana e Recuperacao Ambiental',
+      },
+      {
+        color: [192, 212, 167, 240],
+        pattern: 'full',
+        label: 'Macroarea de Controle e Qualificacao Urbana e Ambiental',
+        value: 'Macroarea de Controle e Qualificacao Urbana e Ambiental',
+      },
+      {
+        color: [108, 162, 150, 240],
+        pattern: 'full',
+        label: 'Macroarea de Contencao Urbana e Uso Sustentavel',
+        value: 'Macroarea de Contencao Urbana e Uso Sustentavel',
+      },
+      {
+        color: [33, 89, 86, 240],
+        pattern: 'full',
+        label: 'Macroarea de Preservacao dos Ecossistemas Naturais',
+        value: 'Macroarea de Preservacao dos Ecossistemas Naturais',
+      },
+    ],
   },
   {
     id: 'macrozonas',
@@ -1117,6 +409,20 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: 'nm_perimetro_divisao_pde',
     getLineColorPropName: 'nm_perimetro_divisao_pde',
     groupId: 'macrozoneamento',
+    colors: [
+      {
+        color: [190, 190, 190, 240],
+        pattern: 'full',
+        label: 'Macrozona de Estruturacao e Qualificacao Urbana',
+        value: 'Macrozona de Estruturacao e Qualificacao Urbana',
+      },
+      {
+        color: [50, 130, 138, 240],
+        pattern: 'full',
+        label: 'Macrozona de Protecao e Recuperacao Ambiental',
+        value: 'Macrozona de Protecao e Recuperacao Ambiental',
+      },
+    ],
   },
   {
     id: 'minianel_viario',
@@ -1132,6 +438,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'urbanistico',
+    colors: [
+      {
+        color: [217, 234, 211, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'parques_unidades_conservacao',
@@ -1147,6 +459,7 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'areas_publicas',
+    colors: [{ color: [0, 0, 0, 240], label: 'default' }],
   },
   {
     id: 'pracas_e_canteiros',
@@ -1162,6 +475,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'areas_publicas',
+    colors: [
+      {
+        color: [147, 196, 125, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'represas',
@@ -1177,6 +496,7 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'areas_publicas',
+    colors: [{ color: [0, 0, 0, 240], label: 'default' }],
   },
   {
     id: 'restricoes_geotecnicas',
@@ -1192,6 +512,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'seguranca',
+    colors: [
+      {
+        color: [153, 2, 0, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'risco_geologico',
@@ -1207,6 +533,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'seguranca',
+    colors: [
+      {
+        color: [255, 0, 0, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'risco_hidrologico',
@@ -1222,6 +554,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'seguranca',
+    colors: [
+      {
+        color: [204, 0, 1, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'setores_subsetores',
@@ -1237,6 +575,74 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: 'subsetor',
     getLineColorPropName: 'subsetor',
     groupId: 'macrozoneamento',
+    colors: [
+      {
+        color: [140, 1, 0, 240],
+        pattern: 'full',
+        label: 'Arco Tiete',
+        value: 'Arco Tiete',
+      },
+      {
+        color: [205, 3, 0, 240],
+        pattern: 'full',
+        label: 'Arco Tamanduatei',
+        value: 'Arco Tamanduatei',
+      },
+      {
+        color: [238, 64, 0, 240],
+        pattern: 'full',
+        label: 'Arco Leste',
+        value: 'Arco Leste',
+      },
+      {
+        color: [205, 79, 57, 240],
+        pattern: 'full',
+        label: 'Arco Pinheiros',
+        value: 'Arco Pinheiros',
+      },
+      {
+        color: [241, 99, 72, 240],
+        pattern: 'full',
+        label: 'Faria Lima-Agua Espraiada-Chucri Zaidan',
+        value: 'Faria Lima-Agua Espraiada-Chucri Zaidan',
+      },
+      {
+        color: [244, 160, 122, 240],
+        pattern: 'full',
+        label: 'Arco Jurubatuba',
+        value: 'Arco Jurubatuba',
+      },
+      {
+        color: [252, 251, 205, 240],
+        pattern: 'full',
+        label: 'Avenida Cupece',
+        value: 'Avenida Cupece',
+      },
+      {
+        color: [238, 234, 191, 240],
+        pattern: 'full',
+        label: 'Noroeste',
+        value: 'Noroeste',
+      },
+      {
+        color: [219, 205, 116, 240],
+        pattern: 'full',
+        label: 'Arco Jacu-Pessego',
+        value: 'Arco Jacu-Pessego',
+      },
+      {
+        color: [167, 155, 88, 240],
+        pattern: 'full',
+        label: 'Fernao Dias',
+        value: 'Fernao Dias',
+      },
+      {
+        color: [161, 62, 54, 240],
+        pattern: 'full',
+        label: 'Centro',
+        value: 'Centro',
+      },
+    ],
   },
   {
     id: 'subprefeitura',
@@ -1251,7 +657,13 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    groupId: null,
+    groupId: 'geral',
+    colors: [
+      {
+        color: [183, 183, 183, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'sujeicao_a_alagamentos',
@@ -1267,6 +679,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'seguranca',
+    colors: [
+      {
+        color: [133, 32, 12, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'terras_indigenas',
@@ -1281,7 +699,13 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    groupId: null,
+    groupId: 'geral',
+    colors: [
+      {
+        color: [191, 144, 0, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
@@ -1297,6 +721,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'areas_publicas',
+    colors: [
+      {
+        color: [241, 194, 50, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'tombamentos-areas',
@@ -1312,6 +742,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'tombamento',
+    colors: [
+      {
+        color: [255, 165, 0, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'tombamentos-envoltorias-de-imoveis',
@@ -1327,6 +763,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'tombamento',
+    colors: [
+      {
+        color: [247, 217, 103, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'tombamentos-imoveis',
@@ -1342,6 +784,12 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: 'tombamento',
+    colors: [
+      {
+        color: [249, 255, 0, 240],
+        label: 'default',
+      },
+    ],
   },
   {
     id: 'zeis_pde',
@@ -1357,6 +805,38 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: 'cd_zoneamento_perimetro',
     getLineColorPropName: 'cd_zoneamento_perimetro',
     groupId: 'urbanistico',
+    colors: [
+      {
+        color: [196, 80, 80, 240],
+        pattern: 'full',
+        label: 'ZEIS-1',
+        value: 'ZEIS-1',
+      },
+      {
+        color: [54, 125, 169, 240],
+        pattern: 'full',
+        label: 'ZEIS-2',
+        value: 'ZEIS-2',
+      },
+      {
+        color: [65, 156, 139, 240],
+        pattern: 'full',
+        label: 'ZEIS-3',
+        value: 'ZEIS-3',
+      },
+      {
+        color: [164, 89, 164, 240],
+        pattern: 'full',
+        label: 'ZEIS-4',
+        value: 'ZEIS-4',
+      },
+      {
+        color: [241, 127, 4, 240],
+        pattern: 'full',
+        label: 'ZEIS-5',
+        value: 'ZEIS-5',
+      },
+    ],
   },
   {
     id: 'zoneamento_geral',
@@ -1372,6 +852,20 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: 'nm_perimetro_divisao_pde',
     getLineColorPropName: 'nm_perimetro_divisao_pde',
     groupId: 'macrozoneamento',
+    colors: [
+      {
+        color: [160, 160, 160, 240],
+        pattern: 'full',
+        label: 'Zona Urbana',
+        value: 'Zona Urbana',
+      },
+      {
+        color: [146, 74, 0, 240],
+        pattern: 'full',
+        label: 'Zona Rural',
+        value: 'Zona Rural',
+      },
+    ],
   },
   {
     id: 'zoneamento_lei_16402_18177',
@@ -1387,5 +881,235 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: 'cd_zoneamento_perimetro',
     getLineColorPropName: 'cd_zoneamento_perimetro',
     groupId: 'urbanistico',
+    colors: [
+      {
+        color: [223, 253, 178, 240],
+        pattern: 'full',
+        label: 'AC-1',
+        value: 'AC-1',
+      },
+      {
+        color: [223, 253, 178, 240],
+        pattern: 'dots',
+        label: 'AC-2',
+        value: 'AC-2',
+      },
+      {
+        color: [208, 234, 197, 240],
+        pattern: 'full',
+        label: 'Praça/Canteiro',
+        value: 'Praça/Canteiro',
+      },
+      {
+        color: [173, 160, 152, 240],
+        pattern: 'full',
+        label: 'ZC',
+        value: 'ZC',
+      },
+      {
+        color: [173, 160, 152, 240],
+        pattern: 'dots',
+        label: 'ZCa',
+        value: 'ZCa',
+      },
+      {
+        color: [207, 178, 161, 240],
+        pattern: 'full',
+        label: 'ZC-ZEIS',
+        value: 'ZC-ZEIS',
+      },
+      {
+        color: [137, 142, 189, 240],
+        pattern: 'full',
+        label: 'ZCOR-1',
+        value: 'ZCOR-1',
+      },
+      {
+        color: [129, 186, 226, 240],
+        pattern: 'full',
+        label: 'ZCOR-2',
+        value: 'ZCOR-2',
+      },
+      {
+        color: [181, 207, 231, 240],
+        pattern: 'full',
+        label: 'ZCOR-3',
+        value: 'ZCOR-3',
+      },
+      {
+        color: [154, 190, 193, 240],
+        pattern: 'full',
+        label: 'ZCORa',
+        value: 'ZCORa',
+      },
+      {
+        color: [181, 146, 177, 240],
+        pattern: 'full',
+        label: 'ZDE-1',
+        value: 'ZDE-1',
+      },
+      {
+        color: [208, 175, 185, 240],
+        pattern: 'full',
+        label: 'ZDE-2',
+        value: 'ZDE-2',
+      },
+      {
+        color: [219, 206, 159, 240],
+        pattern: 'full',
+        label: 'ZEIS-1',
+        value: 'ZEIS-1',
+      },
+      {
+        color: [254, 208, 155, 240],
+        pattern: 'full',
+        label: 'ZEIS-2',
+        value: 'ZEIS-2',
+      },
+      {
+        color: [255, 230, 170, 240],
+        pattern: 'full',
+        label: 'ZEIS-3',
+        value: 'ZEIS-3',
+      },
+      {
+        color: [255, 239, 195, 240],
+        pattern: 'full',
+        label: 'ZEIS-4',
+        value: 'ZEIS-4',
+      },
+      {
+        color: [255, 249, 221, 240],
+        pattern: 'full',
+        label: 'ZEIS-5',
+        value: 'ZEIS-5',
+      },
+      {
+        color: [212, 159, 148, 240],
+        pattern: 'full',
+        label: 'ZEM',
+        value: 'ZEM',
+      },
+      {
+        color: [227, 192, 169, 240],
+        pattern: 'hatch-1x',
+        label: 'ZEMP',
+        value: 'ZEMP',
+      },
+      {
+        color: [145, 170, 149, 240],
+        pattern: 'full',
+        label: 'ZEP',
+        value: 'ZEP',
+      },
+      {
+        color: [167, 211, 186, 240],
+        pattern: 'full',
+        label: 'ZEPAM',
+        value: 'ZEPAM',
+      },
+      {
+        color: [255, 239, 195, 240],
+        pattern: 'hatch-cross',
+        label: 'ZER-1',
+        value: 'ZER-1',
+      },
+      {
+        color: [255, 225, 158, 240],
+        pattern: 'hatch-1x',
+        label: 'ZER-2',
+        value: 'ZER-2',
+      },
+      {
+        color: [255, 255, 153, 240],
+        pattern: 'dots',
+        label: 'ZERa',
+        value: 'ZERa',
+      },
+      {
+        color: [189, 138, 140, 240],
+        pattern: 'full',
+        label: 'ZEU',
+        value: 'ZEU',
+      },
+      {
+        color: [189, 138, 140, 240],
+        pattern: 'dots',
+        label: 'ZEUa',
+        value: 'ZEUa',
+      },
+      {
+        color: [196, 158, 157, 240],
+        pattern: 'hatch-1x',
+        label: 'ZEUP',
+        value: 'ZEUP',
+      },
+      {
+        color: [197, 184, 184, 240],
+        pattern: 'dots',
+        label: 'ZEUPa',
+        value: 'ZEUPa',
+      },
+      {
+        color: [206, 206, 206, 240],
+        pattern: 'full',
+        label: 'ZM',
+        value: 'ZM',
+      },
+      {
+        color: [217, 217, 217, 240],
+        pattern: 'dots',
+        label: 'ZMa',
+        value: 'ZMa',
+      },
+      {
+        color: [186, 186, 186, 240],
+        pattern: 'full',
+        label: 'ZMIS',
+        value: 'ZMIS',
+      },
+      {
+        color: [232, 232, 232, 240],
+        pattern: 'full',
+        label: 'ZMISa',
+        value: 'ZMISa',
+      },
+      {
+        color: [224, 218, 197, 240],
+        pattern: 'full',
+        label: 'ZOE',
+        value: 'ZOE',
+      },
+      {
+        color: [176, 193, 171, 240],
+        pattern: 'full',
+        label: 'ZPDS',
+        value: 'ZPDS',
+      },
+      {
+        color: [200, 206, 175, 240],
+        pattern: 'full',
+        label: 'ZPDSr',
+        value: 'ZPDSr',
+      },
+      {
+        color: [161, 154, 181, 240],
+        pattern: 'full',
+        label: 'ZPI-1',
+        value: 'ZPI-1',
+      },
+      {
+        color: [212, 195, 221, 240],
+        pattern: 'full',
+        label: 'ZPI-2',
+        value: 'ZPI-2',
+      },
+      {
+        color: [255, 255, 153, 240],
+        pattern: 'full',
+        label: 'ZPR',
+        value: 'ZPR',
+      },
+    ],
   },
 ];

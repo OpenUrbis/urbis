@@ -2,41 +2,8 @@
 import {
   MapContextSelectedFeature,
   MapContextType,
-  MapLayerGroup,
 } from "../../dto/mapContextDto";
-import {
-  getMapConfig,
-  IGetConfigLayerGroup,
-  IGetConfigLayerSchema,
-} from "../../services/mapService";
-
-const formatGroupsByApi = (
-  layerGroups: IGetConfigLayerGroup[]
-): MapLayerGroup[] => {
-  const formatedGroups: MapLayerGroup[] = [];
-
-  layerGroups.forEach((group) => {
-    const indexOwner = formatedGroups.findIndex(
-      (fGroup) => fGroup.id === group.ownerGroup
-    );
-    const objGroup: MapLayerGroup = {
-      id: group.id,
-      name: group.name,
-      subGroups: [],
-    };
-
-    if (indexOwner >= 0)
-      if (
-        formatedGroups[indexOwner].subGroups &&
-        Array.isArray(formatedGroups[indexOwner].subGroups)
-      )
-        formatedGroups[indexOwner].subGroups.push(objGroup);
-      else formatedGroups[indexOwner].subGroups = [objGroup];
-    else formatedGroups.push(objGroup);
-  });
-
-  return formatedGroups;
-};
+import { getMapConfig, IGetConfigLayerSchema } from "../../services/mapService";
 
 export const getMapHandlers = (context: MapContextType) => {
   const {
@@ -63,14 +30,14 @@ export const getMapHandlers = (context: MapContextType) => {
   };
 
   const selectFeature = (feature: MapContextSelectedFeature) => {
-    selectedFeatures.value = [/* ...selectedFeatures.value,  */feature];
+    selectedFeatures.value = [/* ...selectedFeatures.value,  */ feature];
   };
 
   const populateMapContext = async () => {
     const configs = await getMapConfig();
 
     layersSchema.value = configs.layerSchemas;
-    layerGroups.value = formatGroupsByApi(configs.layerGroups);
+    layerGroups.value = configs.layerGroups;
     zoom.value = configs.zoom;
     boundingBox.value = configs.boundingBox;
     viewport.value = {

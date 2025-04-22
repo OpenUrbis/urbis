@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LayerGroup } from 'layer-groups/entities/layer-group.entity';
 import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 @Injectable()
 export class MapConfigService {
@@ -15,8 +15,13 @@ export class MapConfigService {
 
   async getConfigs() {
     const layerGroups = await this.layerGroup.find({
-      where: { ownerGroup: 'geral' },
+      where: { ownerGroup: IsNull() },
       order: { name: 'ASC' },
+      relations: [
+        'childGroups',
+        'childGroups.childGroups',
+        'childGroups.childGroups.childGroups',
+      ],
     });
     const layerSchemas = await this.layerSchemas.find({
       where: { isActive: true },

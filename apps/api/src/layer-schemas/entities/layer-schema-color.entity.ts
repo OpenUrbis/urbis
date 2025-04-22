@@ -33,11 +33,14 @@ export class LayerSchemaColors {
   @Column({ nullable: true })
   value?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   layerSchemaId?: string;
 
   @ManyToOne(() => LayerSchema, (layerSchema) => layerSchema.colors, {
-    nullable: true,
+    nullable: false,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    orphanedRowAction: 'delete',
   })
   @JoinColumn({ name: 'layerSchemaId' })
   layerSchema?: LayerSchema;

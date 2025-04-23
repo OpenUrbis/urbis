@@ -20,11 +20,16 @@ export class LayerGroup {
   ownerGroup?: string;
 
   @ManyToOne(() => LayerGroup, { nullable: true })
-  @JoinColumn({ name: 'ownerGroup' }) // vincula a coluna ownerGroup como FK
+  @JoinColumn({ name: 'ownerGroup' })
   parentGroup?: LayerGroup;
 
   @OneToMany(() => LayerSchema, (layerSchema) => layerSchema.groupId, {
     nullable: true,
   })
   layerSchemas?: LayerSchema[];
+
+  @OneToMany(() => LayerGroup, (layerGroup) => layerGroup.parentGroup, {
+    nullable: true,
+  })
+  childGroups?: LayerGroup[];
 }

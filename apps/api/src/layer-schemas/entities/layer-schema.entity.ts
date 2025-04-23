@@ -63,6 +63,9 @@ export class LayerSchema {
   @Column({ nullable: true, type: 'jsonb' })
   viewTemplate?: Record<string, any>[];
 
+  @Column({ nullable: true, type: 'jsonb', default: {} })
+  properties?: Record<string, any>;
+
   @Column({ nullable: true })
   groupId?: string;
 
@@ -72,10 +75,14 @@ export class LayerSchema {
 
   @OneToMany(
     () => LayerSchemaColors,
-    (layerSchemaColors) => layerSchemaColors.layerSchemaId,
+    (layerSchemaColors) => layerSchemaColors.layerSchema,
     {
-      nullable: true,
+      cascade: true,
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+      orphanedRowAction: 'delete',
+      nullable: false,
     },
   )
-  layerSchemaColors?: LayerSchemaColors[];
+  colors?: LayerSchemaColors[];
 }

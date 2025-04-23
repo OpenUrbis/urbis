@@ -1,0 +1,43 @@
+.main-button {
+  position: absolute;
+  z-index: 100;
+  right: 16px;
+  bottom: 16px;
+  top: auto;
+  left: auto;
+}
+
+.layer-controller {
+  position: absolute;
+  z-index: 1000;
+  right: 16px;
+  bottom: auto;
+  top: 16px;
+  left: auto;
+  width: 350px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: auto;
+  max-height: calc(100vh - 32px);
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    background-color: #fff;
+
+    padding: 8px 16px;
+    border-bottom: 1px solid #000;
+
+    h5 {
+      margin: 0 !important;
+    }
+  }
+
+  .content {
+    padding: 8px 16px;
+    display: grid;
+    gap: 8px;
+  }
+}

@@ -30,6 +30,7 @@
     "preact": "^10.26.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-json-view": "^1.21.3",
     "react-map-gl": "^8.0.3",
     "rmwc": "^14.3.5"
   },

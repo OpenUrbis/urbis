@@ -37,7 +37,16 @@ const getMapHandlers = (context: MapContextType) => {
     boundingBox,
     viewport,
     zoom,
+    overlayRef,
   } = context;
+
+  console.log("overlayRef", overlayRef);
+
+  const flyTo = (destination: any) => {
+    if (!overlayRef?.current) return;
+
+    (overlayRef!.current as any)._map.flyTo(destination);
+  };
 
   const handleVisibleLayer = (layerId: string) => {
     layerSchemas.value = layerSchemas.value.map(
@@ -100,6 +109,7 @@ const getMapHandlers = (context: MapContextType) => {
     populateMapContext,
     selectFeature,
     handleViewportChange,
+    flyTo,
   };
 };
 

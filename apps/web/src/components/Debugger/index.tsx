@@ -6,7 +6,8 @@ import {
   DialogContent,
   DialogTitle,
 } from "@rmwc/dialog";
-import { ReactNode } from "react";
+import { createElement, ReactNode } from "react";
+import ReactJson from "react-json-view";
 import { Button } from "rmwc";
 import { useNavigationContext } from "../../context/NavigationContext";
 import { useSearchContext } from "../../context/SearchContext";
@@ -19,6 +20,7 @@ export const Debugger = () => {
   const searchContext = useSearchContext();
   const navigationContext = useNavigationContext();
   const mapContext = useMapContext();
+  delete mapContext.overlayRef;
 
   return (
     <>
@@ -36,12 +38,16 @@ export const Debugger = () => {
                 {
                   (
                     <div>
-                      <h2>Search Context</h2>
-                      <pre>{JSON.stringify(searchContext, null, 2)}</pre>
-                      <h2>Navigation Context</h2>
-                      <pre>{JSON.stringify(navigationContext, null, 2)}</pre>
-                      <h2>Map Context</h2>
-                      <pre>{JSON.stringify(mapContext, null, 2)}</pre>
+                      {createElement(ReactJson, {
+                        collapsed: true,
+                        src: JSON.parse(
+                          JSON.stringify({
+                            searchContext,
+                            navigationContext,
+                            mapContext,
+                          })
+                        ),
+                      })}
                     </div>
                   ) as ReactNode
                 }

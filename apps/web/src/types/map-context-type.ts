@@ -1,5 +1,6 @@
 import { TileLayer } from "@deck.gl/geo-layers";
 import { GeoJsonLayer } from "@deck.gl/layers";
+import { MapboxOverlay } from "@deck.gl/mapbox";
 import { Signal } from "@preact/signals";
 import { CustomWMSLayer } from "../components/MapView/CustomWMSLayer";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
@@ -21,6 +22,7 @@ export interface MapContextType {
   viewport: Signal<any>;
   zoom: Signal<number>;
   editionFeatures: Signal<any[]>;
+  overlayRef?: React.RefObject<MapboxOverlay | null>;
 }
 
 export type MapContextLayerSchemaType =

@@ -16,7 +16,6 @@ export const MapView = () => {
   const accessToken =
     import.meta.env.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN ||
     "your-mapbox-access-token";
-  const overlayRef = useRef(null);
 
   const {
     layerSchemas,
@@ -26,6 +25,9 @@ export const MapView = () => {
     populateMapContext,
     handleViewportChange,
     selectFeature,
+    flyTo,
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    overlayRef = useRef(null),
   } = useMapContext();
 
   const layers = computed(() =>
@@ -67,7 +69,7 @@ export const MapView = () => {
       };
 
       setTimeout(() => {
-        (overlayRef.current as any)._map.flyTo(destination);
+        flyTo(destination);
       });
     },
   };

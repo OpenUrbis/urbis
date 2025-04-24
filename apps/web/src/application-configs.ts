@@ -1,6 +1,6 @@
 import { FillStyleExtension } from "@deck.gl/extensions";
 
-export const MAP_CONFIGS = {
+export const MAP_CONFIGS: any = {
   PATTERN_PROPERTIES: {
     // props added by FillStyleExtension
     fillPatternMask: true,

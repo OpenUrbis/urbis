@@ -1,5 +1,6 @@
 import { signal } from "@preact/signals";
 import { ComponentChildren, createContext } from "preact";
+import { useRef } from "react";
 import {
   IGetConfigLayerGroup,
   IGetConfigLayerSchema,
@@ -31,5 +32,9 @@ const mapState: MapContextType = {
 export const MapContext = createContext<MapContextType>(mapState);
 
 export const MapProvider = ({ children }: { children: ComponentChildren }) => {
-  return <MapContext.Provider value={mapState}>{children}</MapContext.Provider>;
+  return (
+    <MapContext.Provider value={{ ...mapState, overlayRef: useRef(null) }}>
+      {children}
+    </MapContext.Provider>
+  );
 };

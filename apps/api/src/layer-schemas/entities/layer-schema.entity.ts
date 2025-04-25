@@ -8,7 +8,7 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
-import { ClickActionEnum } from './../../../../common/enums/click-action.enum';
+import { ClickActionEnum } from '@open-urbis/map-shared';
 import { LayerSchemaColors } from './layer-schema-color.entity';
 
 export interface IClickAction {

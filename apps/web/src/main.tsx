@@ -11,8 +11,8 @@ import { LayerController } from "./components/LayerController";
 import { MapView } from "./components/MapView/MapView";
 import { Search } from "./components/Search";
 import { MapProvider } from "./context/MapContext";
-import { NavigationProvider } from "./context/NavigationContext-test";
-import { SearchProvider } from "./context/SearchContext-test";
+import { NavigationProvider } from "./context/NavigationContext";
+import { SearchProvider } from "./context/SearchContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {

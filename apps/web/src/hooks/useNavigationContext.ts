@@ -1,5 +1,5 @@
 import { useContext } from "preact/hooks";
-import { NavigationContext } from "../context/NavigationContext-test";
+import { NavigationContext } from "../context/NavigationContext";
 
 export const useNavigationContext = () => {
   const context = useContext(NavigationContext);

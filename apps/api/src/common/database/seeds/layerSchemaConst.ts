@@ -163,7 +163,7 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    clickAction: { action: LayerSchemaClickActionEnum.OpenProps, params: {} },
+    clickAction: { action: LayerSchemaClickActionEnum.SelectFeature, params: {} },
     viewTemplate: [
       {
         type: 'wrapper-card',

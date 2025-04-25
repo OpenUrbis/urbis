@@ -5,7 +5,7 @@ export enum LayerSchemaTypeEnum {
 }
 
 export enum LayerSchemaClickActionEnum {
-  OpenProps = 'OpenProps',
+  SelectFeature = 'SelectFeature',
   SetZoom = 'setZoom',
 }
 

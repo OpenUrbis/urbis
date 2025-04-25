@@ -1,6 +1,6 @@
 import { useContext } from "preact/hooks";
 import { MapContext } from "../context/MapContext";
-import { getMapConfig } from "../services/map-service";
+import { getMapConfig } from "../integrations/map-integration";
 import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 import {
   MapContextSelectedFeature,
@@ -40,11 +40,11 @@ const getMapHandlers = (context: MapContextType) => {
     overlayRef,
   } = context;
 
-  console.log("overlayRef", overlayRef);
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const flyTo = (destination: any) => {
     if (!overlayRef?.current) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (overlayRef!.current as any)._map.flyTo(destination);
   };
 
@@ -99,6 +99,7 @@ const getMapHandlers = (context: MapContextType) => {
     };
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleViewportChange = (viewport: any) => {
     zoom.value = viewport.zoom;
     boundingBox.value = viewport.getBounds();

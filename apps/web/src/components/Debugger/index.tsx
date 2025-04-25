@@ -9,9 +9,9 @@ import {
 import { createElement, ReactNode } from "react";
 import ReactJson from "react-json-view";
 import { Button } from "rmwc";
-import { useNavigationContext } from "../../context/NavigationContext";
-import { useSearchContext } from "../../context/SearchContext";
 import { useMapContext } from "../../hooks/useMapContext";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
+import { useSearchContext } from "../../hooks/useSearchContext";
 import "./style.scss";
 
 const isOpen = signal<boolean>(false);

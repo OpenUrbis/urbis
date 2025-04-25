@@ -1,9 +1,9 @@
 import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
 import {
-  LayerSchemaClickActionEnum,
   LayerSchemaColorTypeEnum,
   LayerSchemaTypeEnum,
 } from 'layer-schemas/enums/layer-schema.enum';
+import { ClickActionEnum } from './../../../../../common/enums/click-action.enum';
 
 export const layerSchemas: LayerSchema[] = [
   {
@@ -83,7 +83,7 @@ export const layerSchemas: LayerSchema[] = [
     getLineColorPropName: null,
     groupId: 'geral',
     clickAction: {
-      action: LayerSchemaClickActionEnum.SetZoom,
+      action: ClickActionEnum.SetZoom,
       params: {
         zoom: 17.1,
       },
@@ -163,7 +163,7 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    clickAction: { action: LayerSchemaClickActionEnum.SelectFeature, params: {} },
+    clickAction: { action: ClickActionEnum.SelectFeature, params: {} },
     viewTemplate: [
       {
         type: 'wrapper-card',

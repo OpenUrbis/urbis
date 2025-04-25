@@ -19,8 +19,10 @@ export interface MapContextType {
   layerGroups: Signal<IGetConfigLayerGroup[]>;
   selectedFeatures: Signal<MapContextSelectedFeature[]>;
   boundingBox: Signal<MapBoundingBox>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   viewport: Signal<any>;
   zoom: Signal<number>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editionFeatures: Signal<any[]>;
   overlayRef?: React.RefObject<MapboxOverlay | null>;
 }
@@ -51,5 +53,20 @@ export type MapContextLayerSchemaTypeMap = {
 
 export interface MapContextSelectedFeature {
   feature: unknown;
-  template: ITemplate;
+  template: ITemplate[];
+}
+
+export interface IMapContextActions extends MapContextType {
+  handleVisibleLayer: (layerId: string) => void;
+  populateMapContext: () => Promise<void>;
+  selectFeature: (feature: MapContextSelectedFeature) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleViewportChange: (viewport: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  flyTo: (destination: any) => void;
+}
+
+export interface IMapActionProps extends Partial<MapContextSelectedFeature> {
+  latitude: number;
+  longitude: number;
 }

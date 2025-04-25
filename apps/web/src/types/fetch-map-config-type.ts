@@ -1,3 +1,4 @@
+import { ClickActionEnum } from "../../../common/enums/click-action.enum";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import { MapBoundingBox } from "./map-context-type";
 
@@ -49,10 +50,8 @@ export enum IGetConfigLayerSchemaTypeEnum {
   GeoJsonLayer = "GeoJsonLayer",
 }
 
-export type GetConfigLayerSchemaClickActionAction = "OpenProps" | "setZoom";
-
 export interface IGetConfigLayerSchemaClickAction {
-  action: GetConfigLayerSchemaClickActionAction;
+  action: ClickActionEnum;
   params: {
     zoom?: 17;
   };

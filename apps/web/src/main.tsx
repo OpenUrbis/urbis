@@ -31,10 +31,10 @@ const App = () => (
         <NavigationProvider>
           <MapProvider>
             <SearchProvider>
-                <Search />
-                <FeaturesView />
-                <LayerController />
-                <MapView />
+              <Search />
+              <FeaturesView />
+              <LayerController />
+              <MapView />
               <Debugger />
             </SearchProvider>
           </MapProvider>

@@ -2,8 +2,11 @@ import { signal } from "@preact/signals";
 import { ComponentChildren, createContext } from "preact";
 import { NavigationContextType } from "../types/navigation-context-type";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const currentPage = signal<any>({});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const lastPage = signal<any>({});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const history = signal<any[]>([]);
 
 const navigationState: NavigationContextType = {

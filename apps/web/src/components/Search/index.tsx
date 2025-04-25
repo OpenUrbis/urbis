@@ -156,7 +156,7 @@ export const Search = () => {
 
             {hasTerm.value && (
               <>
-                {searchConfig.value.map((config) =>
+                {searchConfig.value.map((config: IGetSearchConfigResponse) =>
                   buildList(config, results.value[config.id])
                 )}
               </>

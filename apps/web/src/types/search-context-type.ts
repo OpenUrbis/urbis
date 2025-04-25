@@ -12,3 +12,8 @@ export interface SearchContextType {
   searchQuery: ReturnType<typeof useQuery$<any>>;
   searchConfig: Signal<IGetSearchConfigResponse[]>;
 }
+
+export interface ISearchContextActions extends SearchContextType {
+  resetSearch: () => void;
+  populateSearchConfig: () => Promise<IGetSearchConfigResponse[] | null>;
+}

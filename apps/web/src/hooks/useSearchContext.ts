@@ -2,8 +2,9 @@ import { useContext } from "preact/hooks";
 import { SearchContext } from "../context/SearchContext";
 import { getSearchConfig } from "../integrations/search-integration";
 import { IGetSearchConfigResponse } from "../types/fetch-search-config-type";
+import { ISearchContextActions } from "../types/search-context-type";
 
-export const useSearchContext = () => {
+export const useSearchContext = (): ISearchContextActions => {
   const context = useContext(SearchContext);
 
   const resetSearch = (): void => {

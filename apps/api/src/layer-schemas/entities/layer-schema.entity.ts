@@ -1,8 +1,5 @@
 import { LayerGroup } from 'layer-groups/entities/layer-group.entity';
-import {
-  LayerSchemaClickActionEnum,
-  LayerSchemaTypeEnum,
-} from 'layer-schemas/enums/layer-schema.enum';
+import { LayerSchemaTypeEnum } from 'layer-schemas/enums/layer-schema.enum';
 import {
   Column,
   Entity,
@@ -11,10 +8,11 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
+import { ClickActionEnum } from './../../../../common/enums/click-action.enum';
 import { LayerSchemaColors } from './layer-schema-color.entity';
 
 export interface IClickAction {
-  action: LayerSchemaClickActionEnum;
+  action: ClickActionEnum;
   params: Record<string, any>;
 }
 

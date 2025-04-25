@@ -1,7 +1,7 @@
 import { computed } from "@preact/signals";
+import { useMapContext } from "../../hooks/useMapContext";
 import { ViewTemplate } from "../ViewTemplate";
 import "./style.scss";
-import { useMapContext } from "../../hooks/useMapContext";
 
 export const FeaturesView = () => {
   const { selectedFeatures } = useMapContext();
@@ -10,12 +10,10 @@ export const FeaturesView = () => {
 
   return (
     !!selectedFeatures.value.length && (
-      <div className="features-view">
-        <ViewTemplate
-          templates={view.value?.template}
-          data={view.value?.feature}
-        />
-      </div>
+      <ViewTemplate
+        templates={view.value?.template}
+        data={view.value?.feature}
+      />
     )
   );
 };

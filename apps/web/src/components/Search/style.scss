@@ -1,0 +1,26 @@
+.search-card {
+  border-radius: 16px;
+  margin: 6px 8px;
+
+  .search-card-container {
+    padding: 8px;
+  }
+
+  span.text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    /* Limita a 2 linhas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    /* Ajuste conforme necessário */
+    white-space: normal;
+  }
+
+}
+
+.search-placeholder {
+  margin-top: 8px;
+  margin-bottom: 0;
+}

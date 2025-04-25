@@ -4,11 +4,6 @@ export enum LayerSchemaTypeEnum {
   GeoJsonLayer = 'GeoJsonLayer',
 }
 
-export enum LayerSchemaClickActionEnum {
-  OpenProps = 'OpenProps',
-  SetZoom = 'setZoom',
-}
-
 export enum LayerSchemaColorTypeEnum {
   TEXT = 'text',
   FILL = 'fill',

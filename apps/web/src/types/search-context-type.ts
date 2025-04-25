@@ -1,26 +1,14 @@
+import { useQuery$ } from "@preact-signals/query";
 import { Signal } from "@preact/signals";
-
-export type SearchCategory = "Lotes" | "Distritos" | "Outros";
-
-export type SearchResult = {
-  id: string;
-  name: string;
-  type: "LOTE" | "DISTRITO" | string;
-  latitude: number;
-  longitude: number;
-  category?: SearchCategory;
-  rawData?: any;
-};
-
-export type SearchMultiResult = {
-  districts: SearchResult[];
-  lots: SearchResult[];
-  geocoding: SearchResult[];
-};
+import { IGetSearchConfigResponse } from "./fetch-search-config-type";
 
 export interface SearchContextType {
   currentTerm: Signal<string>;
   lastTerm: Signal<string>;
   history: Signal<string[]>;
-  results: Signal<SearchMultiResult>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  results: Signal<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  searchQuery: ReturnType<typeof useQuery$<any>>;
+  searchConfig: Signal<IGetSearchConfigResponse[]>;
 }

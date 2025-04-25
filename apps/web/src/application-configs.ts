@@ -1,6 +1,9 @@
 import { FillStyleExtension } from "@deck.gl/extensions";
+import { ClickActionEnum } from "./../../common/enums/click-action.enum";
+import { IMapActionProps, IMapContextActions } from "./types/map-context-type";
 
-export const MAP_CONFIGS = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const MAP_CONFIGS: any = {
   PATTERN_PROPERTIES: {
     // props added by FillStyleExtension
     fillPatternMask: true,
@@ -23,6 +26,7 @@ export const MAP_CONFIGS = {
     getText: () => "",
     getTextSize: 12,
   },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PRE_PROCESSING_LAYER_PROPERTIES: (properties: any) => {
     const { getElevation } = properties;
 
@@ -40,4 +44,56 @@ export const MAP_CONFIGS = {
       }
     }
   },
+};
+
+export const CLICK_ACTIONS_CONFIG = (
+  mapContext: IMapContextActions
+): {
+  [key in ClickActionEnum]: (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    clickActionParams: any,
+    informations: IMapActionProps
+  ) => void;
+} => {
+  const { selectFeature, flyTo } = mapContext;
+
+  return {
+    [ClickActionEnum.SelectFeature]: function (
+      { zoom = 17.1 },
+      { latitude, longitude, template, feature }
+    ): void {
+      if (!feature || !(feature as { id: string })?.id)
+        return console.error(
+          'clickAction(selectFeature) Error: Property "feature" is not defined'
+        );
+      if (!template)
+        return console.error(
+          'clickAction(selectFeature) Error: Property "template" is not defined'
+        );
+
+      selectFeature({ feature, template });
+      flyTo({
+        center: [longitude, latitude],
+        zoom,
+        ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
+      });
+    },
+    [ClickActionEnum.SetZoom]: function (
+      { zoom },
+      { latitude, longitude }
+    ): void {
+      if (!zoom)
+        return console.error(
+          'clickAction(setZoom) Error: Property "zoom" is not defined'
+        );
+
+      setTimeout(() => {
+        flyTo({
+          center: [longitude, latitude],
+          zoom,
+          ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
+        });
+      });
+    },
+  };
 };

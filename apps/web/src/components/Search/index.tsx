@@ -114,58 +114,56 @@ export const Search = () => {
   };
 
   return (
-    <div className="search-container">
-      <Card className="search-card">
-        {
-          (
-            <div className="search-card-container">
-              <form
-                onSubmit={handleSearch}
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <TextField
-                  label="Buscar"
-                  placeholder="Digite para buscar..."
-                  value={currentTerm.value}
-                  outlined
-                  onChange={(e: { target: { value: string } }) =>
-                    (currentTerm.value = e.target.value)
-                  }
-                  style={{ flex: 1, width: "100%" }}
-                />
-                {searchQuery.isLoading && <CircularProgress width="24px" />}
-              </form>
+    <Card className="search-card">
+      {
+        (
+          <div className="search-card-container">
+            <form
+              onSubmit={handleSearch}
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <TextField
+                label="Buscar"
+                placeholder="Digite para buscar..."
+                value={currentTerm.value}
+                outlined
+                onChange={(e: { target: { value: string } }) =>
+                  (currentTerm.value = e.target.value)
+                }
+                style={{ flex: 1, width: "100%" }}
+              />
+              {searchQuery.isLoading && <CircularProgress width="24px" />}
+            </form>
 
-              {searchQuery.error && (
-                <p style={{ color: "red", marginTop: "8px" }}>
-                  {(searchQuery.error as { message: string }).message}
-                </p>
-              )}
+            {searchQuery.error && (
+              <p style={{ color: "red", marginTop: "8px" }}>
+                {(searchQuery.error as { message: string }).message}
+              </p>
+            )}
 
-              {!currentTerm.value && (
-                <p className="search-placeholder">
-                  Busque por IPTU, endereço, coordenadas, bairros ou regiões de
-                  São Paulo:
-                </p>
-              )}
+            {!currentTerm.value && (
+              <p className="search-placeholder">
+                Busque por IPTU, endereço, coordenadas, bairros ou regiões de
+                São Paulo:
+              </p>
+            )}
 
-              {currentTerm.value && !hasTerm.value && (
-                <p className="search-placeholder">
-                  Digite ao menos 3 caracteres para buscar.
-                </p>
-              )}
+            {currentTerm.value && !hasTerm.value && (
+              <p className="search-placeholder">
+                Digite ao menos 3 caracteres para buscar.
+              </p>
+            )}
 
-              {hasTerm.value && (
-                <>
-                  {searchConfig.value.map((config) =>
-                    buildList(config, results.value[config.id])
-                  )}
-                </>
-              )}
-            </div>
-          ) as ReactNode
-        }
-      </Card>
-    </div>
+            {hasTerm.value && (
+              <>
+                {searchConfig.value.map((config) =>
+                  buildList(config, results.value[config.id])
+                )}
+              </>
+            )}
+          </div>
+        ) as ReactNode
+      }
+    </Card>
   );
 };

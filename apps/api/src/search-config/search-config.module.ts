@@ -10,8 +10,7 @@ import { SearchConfigService } from './search-config.service';
   imports: [
     TypeOrmModule.forFeature([LayerSchema, LayerSchemaColors, SearchConfig]),
   ],
-
   controllers: [SearchConfigController],
   providers: [SearchConfigService],
 })
-export class SearchConfigModule {}
+export class SearchConfigModule { }

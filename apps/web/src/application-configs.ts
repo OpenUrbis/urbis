@@ -1,5 +1,5 @@
 import { FillStyleExtension } from "@deck.gl/extensions";
-import { ClickActionEnum } from "./../../common/enums/click-action.enum";
+import { ClickActionEnum } from '@open-urbis/map-shared';
 import { IMapActionProps, IMapContextActions } from "./types/map-context-type";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

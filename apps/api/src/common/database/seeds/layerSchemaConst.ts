@@ -3,7 +3,7 @@ import {
   LayerSchemaColorTypeEnum,
   LayerSchemaTypeEnum,
 } from 'layer-schemas/enums/layer-schema.enum';
-import { ClickActionEnum } from './../../../../../common/enums/click-action.enum';
+import { ClickActionEnum } from '@open-urbis/map-shared';
 
 export const layerSchemas: LayerSchema[] = [
   {

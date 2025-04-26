@@ -1,0 +1,20 @@
+{
+  "name": "@open-urbis/map-shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "@open-urbis/map-eslint-config": "*",
+    "@open-urbis/map-typescript-config": "*",
+    "eslint": "^9.24.0",
+    "typescript": "5.5.4"
+  }
+}

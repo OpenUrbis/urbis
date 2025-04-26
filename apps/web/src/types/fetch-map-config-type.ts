@@ -1,4 +1,4 @@
-import { ClickActionEnum } from "../../../common/enums/click-action.enum";
+import { ClickActionEnum } from '@open-urbis/map-shared';
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import { MapBoundingBox } from "./map-context-type";
 

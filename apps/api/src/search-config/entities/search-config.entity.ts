@@ -1,7 +1,7 @@
-import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
-import { SearchConfigMethodEnum } from 'search-config/enums/search-config.enum';
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { ClickActionEnum } from '@open-urbis/map-shared';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { LayerSchema } from './../../layer-schemas/entities/layer-schema.entity';
+import { SearchConfigMethodEnum } from './../enums/search-config.enum';
 
 export interface IClickAction {
   action: ClickActionEnum;

@@ -35,7 +35,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { LayerSchemaTypeEnum } from 'layer-schemas/enums/layer-schema.enum';
+import { LayerSchemaTypeEnum } from './../enums/layer-schema.enum';
 
 @ValidatorConstraint({ name: 'isColor', async: false })
 export class IsColorConstraint implements ValidatorConstraintInterface {

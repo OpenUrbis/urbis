@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LayerGroup } from 'layer-groups/entities/layer-group.entity';
-import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
 import { IsNull, Repository } from 'typeorm';
+import { LayerGroup } from './../layer-groups/entities/layer-group.entity';
+import { LayerSchema } from './../layer-schemas/entities/layer-schema.entity';
 
 @Injectable()
 export class MapConfigService {

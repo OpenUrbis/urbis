@@ -1,4 +1,3 @@
-import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
 import {
   Column,
   Entity,
@@ -7,6 +6,7 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
+import { LayerSchema } from './../../layer-schemas/entities/layer-schema.entity';
 
 @Entity('layer_groups')
 export class LayerGroup {

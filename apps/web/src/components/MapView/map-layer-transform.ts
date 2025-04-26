@@ -69,7 +69,10 @@ const calculateGridCells = (bbox: MapBoundingBox): MapBoundingBox[] => {
   return cells;
 };
 
-const generateGetColorFns = (layer: IGetConfigLayerSchema, selectedFeatureIds: string[] = []) => {
+const generateGetColorFns = (
+  layer: IGetConfigLayerSchema,
+  selectedFeatureIds: string[] = []
+) => {
   const { getTextColorPropName, getFillColorPropName, getLineColorPropName } =
     layer;
   const { fillColors, lineColors, textColors, patterns } =
@@ -112,7 +115,8 @@ const generateGetColorFns = (layer: IGetConfigLayerSchema, selectedFeatureIds: s
 };
 
 const createGeoJsonLayer = (
-  layer: IGetConfigLayerSchema,selectedFeatureIds:string[] = []
+  layer: IGetConfigLayerSchema,
+  selectedFeatureIds: string[] = []
 ): MapContextRenderedLayer => {
   const {
     id,
@@ -136,6 +140,9 @@ const createGeoJsonLayer = (
     getFillColor: getFillColor,
     clickAction,
     viewTemplate,
+    updateTriggers: {
+      getFillColor: { selectedFeatureIds },
+    },
     ...properties,
     ...patternObj,
   });
@@ -168,11 +175,14 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
 
       const originWithBBox = `${origin}&bbox=${formattedBounds}`;
 
-      return createGeoJsonLayer({
-        ...layer,
-        id: cellId,
-        origin: originWithBBox,
-      }, selectedFeatureIds);
+      return createGeoJsonLayer(
+        {
+          ...layer,
+          id: cellId,
+          origin: originWithBBox,
+        },
+        selectedFeatureIds
+      );
     });
 
     return layers;
@@ -193,7 +203,9 @@ export const transformSchemaLayers = (
 ) => {
   const { zoom, selectedFeature } = props;
 
-  const selectedFeatureIds = selectedFeature.map((item) => (item.feature as { id: string }).id);
+  const selectedFeatureIds = selectedFeature?.map(
+    (item) => (item.feature as { id: string }).id
+  );
 
   return layersConfig
     .filter((layer) => {
@@ -208,7 +220,10 @@ export const transformSchemaLayers = (
     })
     .map((layer) => {
       if (BUILD_OBJECT_BASED_ON_TYPE?.[layer.type])
-        return BUILD_OBJECT_BASED_ON_TYPE[layer.type]!(layer, { ...props, selectedFeatureIds });
+        return BUILD_OBJECT_BASED_ON_TYPE[layer.type]!(layer, {
+          ...props,
+          selectedFeatureIds,
+        });
 
       return null;
     });

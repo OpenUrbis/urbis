@@ -3,9 +3,9 @@ import { MapContext } from "../context/MapContext";
 import { getMapConfig } from "../integrations/map-integration";
 import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 import {
+  IMapContextActions,
   MapContextSelectedFeature,
   MapContextType,
-  IMapContextActions
 } from "../types/map-context-type";
 
 export const calculateCenterId = (polygon: number[][]) => {
@@ -64,7 +64,8 @@ const getMapHandlers = (context: MapContextType) => {
   };
 
   const selectFeature = (feature: MapContextSelectedFeature) => {
-    selectedFeatures.value = [/* ...selectedFeatures.value,  */ feature];
+    console.log("Selected feature:", feature);
+    selectedFeatures.value = [...selectedFeatures.value, feature];
   };
 
   const populateMapContext = async () => {

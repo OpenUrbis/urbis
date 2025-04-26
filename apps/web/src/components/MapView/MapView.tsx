@@ -31,6 +31,7 @@ export const MapView = () => {
     transformSchemaLayers(layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
+      selectedFeature: selectedFeatures.value,
     }).flat()
   );
 

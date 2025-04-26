@@ -5,6 +5,7 @@ import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 import {
   MapContextSelectedFeature,
   MapContextType,
+  IMapContextActions
 } from "../types/map-context-type";
 
 export const calculateCenterId = (polygon: number[][]) => {
@@ -114,7 +115,7 @@ const getMapHandlers = (context: MapContextType) => {
   };
 };
 
-export const useMapContext = () => {
+export const useMapContext = (): IMapContextActions => {
   const context = useContext(MapContext);
 
   if (!context)

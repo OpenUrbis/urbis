@@ -1,9 +1,9 @@
-import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
+import { ClickActionEnum } from '@open-urbis/map-shared';
+import { LayerSchema } from './../../../layer-schemas/entities/layer-schema.entity';
 import {
   LayerSchemaColorTypeEnum,
   LayerSchemaTypeEnum,
-} from 'layer-schemas/enums/layer-schema.enum';
-import { ClickActionEnum } from '@open-urbis/map-shared';
+} from './../../../layer-schemas/enums/layer-schema.enum';
 
 export const layerSchemas: LayerSchema[] = [
   {

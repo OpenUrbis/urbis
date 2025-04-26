@@ -3,8 +3,9 @@ import { MapContext } from "../context/MapContext";
 import { getMapConfig } from "../integrations/map-integration";
 import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 import {
+  IMapContextActions,
   MapContextSelectedFeature,
-  MapContextType,
+  MapContextType
 } from "../types/map-context-type";
 
 export const calculateCenterId = (polygon: number[][]) => {
@@ -114,7 +115,7 @@ const getMapHandlers = (context: MapContextType) => {
   };
 };
 
-export const useMapContext = () => {
+export const useMapContext = (): IMapContextActions => {
   const context = useContext(MapContext);
 
   if (!context)

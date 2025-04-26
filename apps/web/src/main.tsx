@@ -6,10 +6,10 @@ import "bootstrap/dist/css/bootstrap.css";
 import { render } from "preact";
 import { ReactNode } from "react";
 import { Debugger } from "./components/Debugger";
-import { FeaturesView } from "./components/FeaturesView";
 import { LayerController } from "./components/LayerController";
+import { LeftNav } from "./components/LeftNav";
+import { MapLegend } from "./components/MapLegend";
 import { MapView } from "./components/MapView/MapView";
-import { Search } from "./components/Search";
 import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { SearchProvider } from "./context/SearchContext";
@@ -31,8 +31,8 @@ const App = () => (
         <NavigationProvider>
           <MapProvider>
             <SearchProvider>
-              <Search />
-              <FeaturesView />
+              <LeftNav />
+              <MapLegend />
               <LayerController />
               <MapView />
               <Debugger />

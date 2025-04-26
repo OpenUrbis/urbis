@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LayerSchemaColors } from 'layer-schemas/entities/layer-schema-color.entity';
 import { Repository } from 'typeorm';
 import { LayerGroup } from './../../../layer-groups/entities/layer-group.entity';
+import { LayerSchemaColors } from './../../../layer-schemas/entities/layer-schema-color.entity';
 import { LayerSchema } from './../../../layer-schemas/entities/layer-schema.entity';
 import { layerSchemas } from './layerSchemaConst';
 

@@ -7,11 +7,12 @@ import { render } from "preact";
 import { ReactNode } from "react";
 import { Debugger } from "./components/Debugger";
 import { LayerController } from "./components/LayerController";
+import { LeftNav } from "./components/LeftNav";
+import { MapLegend } from "./components/MapLegend";
 import { MapView } from "./components/MapView/MapView";
 import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { SearchProvider } from "./context/SearchContext";
-import { LeftNav } from "./components/LeftNav";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +32,7 @@ const App = () => (
           <MapProvider>
             <SearchProvider>
               <LeftNav />
+              <MapLegend />
               <LayerController />
               <MapView />
               <Debugger />

@@ -69,7 +69,7 @@ const calculateGridCells = (bbox: MapBoundingBox): MapBoundingBox[] => {
   return cells;
 };
 
-const generateGetColorFns = (layer: IGetConfigLayerSchema) => {
+const generateGetColorFns = (layer: IGetConfigLayerSchema, selectedFeatureIds: string[] = []) => {
   const { getTextColorPropName, getFillColorPropName, getLineColorPropName } =
     layer;
   const { fillColors, lineColors, textColors, patterns } =
@@ -96,6 +96,8 @@ const generateGetColorFns = (layer: IGetConfigLayerSchema) => {
   };
 
   const getFillColor = (d: any): Color => {
+    if (selectedFeatureIds.includes(d?.id)) return [255, 0, 0, 255];
+
     const key = getFillColorPropName ?? "default";
     const keyToFind = d?.properties?.[key] ?? "default";
     const color = fillColors?.[keyToFind];
@@ -110,7 +112,7 @@ const generateGetColorFns = (layer: IGetConfigLayerSchema) => {
 };
 
 const createGeoJsonLayer = (
-  layer: IGetConfigLayerSchema
+  layer: IGetConfigLayerSchema,selectedFeatureIds:string[] = []
 ): MapContextRenderedLayer => {
   const {
     id,
@@ -121,7 +123,7 @@ const createGeoJsonLayer = (
     properties,
   } = layer;
   const { getFillColor, getFillPattern, getLineColor, getTextColor } =
-    generateGetColorFns(layer);
+    generateGetColorFns(layer, selectedFeatureIds);
   const patternObj = { ...MAP_CONFIGS.PATTERN_PROPERTIES, getFillPattern };
 
   return new GeoJsonLayer({
@@ -141,7 +143,7 @@ const createGeoJsonLayer = (
 
 const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
   Stream: (layer, props) => {
-    const { boundingBox: bbox } = props;
+    const { boundingBox: bbox, selectedFeatureIds } = props;
     const { origin } = layer;
 
     const gridCells = calculateGridCells(bbox);
@@ -170,7 +172,7 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
         ...layer,
         id: cellId,
         origin: originWithBBox,
-      });
+      }, selectedFeatureIds);
     });
 
     return layers;
@@ -189,7 +191,9 @@ export const transformSchemaLayers = (
   layersConfig: IGetConfigLayerSchema[],
   props: MapContextLayerSchemaTypeMapProps
 ) => {
-  const { zoom } = props;
+  const { zoom, selectedFeature } = props;
+
+  const selectedFeatureIds = selectedFeature.map((item) => (item.feature as { id: string }).id);
 
   return layersConfig
     .filter((layer) => {
@@ -204,7 +208,7 @@ export const transformSchemaLayers = (
     })
     .map((layer) => {
       if (BUILD_OBJECT_BASED_ON_TYPE?.[layer.type])
-        return BUILD_OBJECT_BASED_ON_TYPE[layer.type]!(layer, props);
+        return BUILD_OBJECT_BASED_ON_TYPE[layer.type]!(layer, { ...props, selectedFeatureIds });
 
       return null;
     });

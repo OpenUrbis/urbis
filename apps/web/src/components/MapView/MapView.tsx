@@ -21,6 +21,7 @@ export const MapView = () => {
     boundingBox,
     populateMapContext,
     handleViewportChange,
+    selectedFeatures,
     // eslint-disable-next-line react-hooks/rules-of-hooks
     overlayRef = useRef(null),
   } = mapContext;

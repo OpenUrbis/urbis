@@ -42,6 +42,8 @@ export type MapContextRenderedLayer =
 export type MapContextLayerSchemaTypeMapProps = {
   zoom: number;
   boundingBox: MapBoundingBox;
+  selectedFeature?: MapContextSelectedFeature[]
+  selectedFeatureIds?: string[]
 };
 
 export type MapContextLayerSchemaTypeMap = {

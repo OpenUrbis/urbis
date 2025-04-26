@@ -1,0 +1,13 @@
+.left-nav {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: auto;
+    bottom: auto;
+    z-index: 1000;
+    width: 350px;
+    max-height: 50vh;
+    height: auto;
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+}

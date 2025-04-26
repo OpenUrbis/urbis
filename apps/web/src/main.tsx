@@ -6,13 +6,12 @@ import "bootstrap/dist/css/bootstrap.css";
 import { render } from "preact";
 import { ReactNode } from "react";
 import { Debugger } from "./components/Debugger";
-import { FeaturesView } from "./components/FeaturesView";
 import { LayerController } from "./components/LayerController";
 import { MapView } from "./components/MapView/MapView";
-import { Search } from "./components/Search";
 import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { SearchProvider } from "./context/SearchContext";
+import { LeftNav } from "./components/LeftNav";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,8 +30,7 @@ const App = () => (
         <NavigationProvider>
           <MapProvider>
             <SearchProvider>
-              <Search />
-              <FeaturesView />
+              <LeftNav />
               <LayerController />
               <MapView />
               <Debugger />

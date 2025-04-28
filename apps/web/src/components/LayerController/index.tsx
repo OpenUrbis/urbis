@@ -14,14 +14,11 @@ export const LayerController = () => {
     <>
       {!isCollapsed.value && (
         <Button
+          raised
           icon="layers"
           label="Camadas"
           onClick={() => (isCollapsed.value = true)}
           className="main-button"
-          style={{
-            backgroundColor: "#4032cb",
-            color: "#fff",
-          }}
         />
       )}
 

@@ -8,7 +8,7 @@ import {
 } from "../../types/fetch-map-config-type";
 import "./style.scss";
 
-const isCollapsed = signal<boolean>(!false);
+const isCollapsed = signal<boolean>(false);
 
 export const MapLegend = () => {
   const [activedTab, setActivedTab] = useState<string>("");

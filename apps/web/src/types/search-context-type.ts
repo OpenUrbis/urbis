@@ -6,9 +6,9 @@ export interface SearchContextType {
   currentTerm: Signal<string>;
   lastTerm: Signal<string>;
   history: Signal<string[]>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   results: Signal<any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   searchQuery: ReturnType<typeof useQuery$<any>>;
   searchConfig: Signal<IGetSearchConfigResponse[]>;
 }

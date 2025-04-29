@@ -11,7 +11,7 @@ export interface IGetSearchConfigResponse {
   transformResponse?: string;
   clickAction?: {
     action: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     params: Record<string, any>;
   };
   layerSchema?: IGetConfigLayerSchema;
@@ -22,7 +22,7 @@ export interface IGetSearchItem {
   name: string;
   latitude: number;
   longitude: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   rawData?: any;
 }
 

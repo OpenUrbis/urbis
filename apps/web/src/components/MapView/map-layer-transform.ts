@@ -78,6 +78,7 @@ const generateGetColorFns = (
   const { fillColors, lineColors, textColors, patterns } =
     buildColorsObj(layer);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getTextColor = (d: any): Color => {
     const key = getTextColorPropName ?? getFillColorPropName ?? "default";
     const keyToFind = d?.properties?.[key] ?? "default";
@@ -88,6 +89,7 @@ const generateGetColorFns = (
     return color;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getLineColor = (d: any): Color => {
     const key = getLineColorPropName ?? getFillColorPropName ?? "default";
     const keyToFind = d?.properties?.[key] ?? "default";
@@ -98,6 +100,7 @@ const generateGetColorFns = (
     return color;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFillColor = (d: any): Color => {
     if (selectedFeatureIds.includes(d?.id)) return [255, 0, 0, 255];
 
@@ -108,6 +111,7 @@ const generateGetColorFns = (
     return color ?? MAP_CONFIGS.DEFAULT_LAYER_COLOR;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFillPattern = (d: any): IGetConfigFillPattern =>
     patterns?.[d?.properties?.[getFillColorPropName!] ?? "default"] ?? "full";
 

@@ -18,6 +18,13 @@
     white-space: normal;
   }
 
+  .mdc-fab {
+    background-color: #FFFFFF !important;
+
+    .mdc-fab__icon {
+      color: #007bff !important;
+    }
+  }
 }
 
 .search-placeholder {

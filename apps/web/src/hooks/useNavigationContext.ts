@@ -20,6 +20,7 @@ export const useNavigationContext = (): INavigationContextActions => {
   const history = computed(() => ctxHistory.value);
 
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const navigateTo = (page: any) => {
     ctxLastPage.value = ctxCurrentPage.value;
     ctxHistory.value.push(page);

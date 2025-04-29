@@ -1,14 +1,20 @@
-import { useQuery$ } from "@preact-signals/query";
 import { Signal } from "@preact/signals";
-import { IGetSearchConfigResponse } from "./fetch-search-config-type";
+import {
+  IGetSearchConfigResponse,
+  ISearchResponse,
+} from "./fetch-search-config-type";
+
+export interface ISearchFetchQuery {
+  data: ISearchResponse | null;
+  loading: boolean;
+  error: string | null;
+  fetchData: (term: string) => Promise<void>;
+}
 
 export interface SearchContextType {
   currentTerm: Signal<string>;
   lastTerm: Signal<string>;
   history: Signal<string[]>;
-  
-  results: Signal<any>;
-  
-  searchQuery: ReturnType<typeof useQuery$<any>>;
+  searchQuery: ISearchFetchQuery;
   searchConfig: Signal<IGetSearchConfigResponse[]>;
 }

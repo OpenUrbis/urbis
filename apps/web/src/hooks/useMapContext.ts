@@ -5,7 +5,7 @@ import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 import {
   IMapContextActions,
   MapContextSelectedFeature,
-  MapContextType
+  MapContextType,
 } from "../types/map-context-type";
 
 export const calculateCenterId = (polygon: number[][]) => {
@@ -41,11 +41,11 @@ const getMapHandlers = (context: MapContextType) => {
     overlayRef,
   } = context;
 
-  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const flyTo = (destination: any) => {
     if (!overlayRef?.current) return;
 
-    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (overlayRef!.current as any)._map.flyTo(destination);
   };
 
@@ -100,7 +100,7 @@ const getMapHandlers = (context: MapContextType) => {
     };
   };
 
-  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleViewportChange = (viewport: any) => {
     zoom.value = viewport.zoom;
     boundingBox.value = viewport.getBounds();

@@ -17,9 +17,8 @@ const isOpen = signal<boolean>(false);
 
 export const Debugger = () => {
   const searchContext = useSearchContext();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { overlayRef, ...mapContext } = useMapContext();
-
-  console.log("overlayRef", overlayRef);
 
   return (
     <>

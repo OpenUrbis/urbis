@@ -207,6 +207,9 @@ export const layerSchemas: LayerSchema[] = [
             label: 'Subprefeitura',
             value: 'Não disponível',
           },
+          {
+            type: 'protocol-action',
+          },
         ],
       },
       {

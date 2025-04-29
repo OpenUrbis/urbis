@@ -1,8 +1,9 @@
 import { FillStyleExtension } from "@deck.gl/extensions";
-import { ClickActionEnum } from '@open-urbis/map-shared';
+import { ClickActionEnum } from "@open-urbis/map-shared";
+import { FeaturesView } from "./components/FeaturesView";
 import { IMapActionProps, IMapContextActions } from "./types/map-context-type";
+import { INavigationContextActions } from "./types/navigation-context-type";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const MAP_CONFIGS: any = {
   PATTERN_PROPERTIES: {
     // props added by FillStyleExtension
@@ -26,7 +27,6 @@ export const MAP_CONFIGS: any = {
     getText: () => "",
     getTextSize: 12,
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PRE_PROCESSING_LAYER_PROPERTIES: (properties: any) => {
     const { getElevation } = properties;
 
@@ -47,10 +47,10 @@ export const MAP_CONFIGS: any = {
 };
 
 export const CLICK_ACTIONS_CONFIG = (
-  mapContext: IMapContextActions
+  mapContext: IMapContextActions,
+  navigationContext: INavigationContextActions
 ): {
   [key in ClickActionEnum]: (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clickActionParams: any,
     informations: IMapActionProps
   ) => void;
@@ -77,6 +77,7 @@ export const CLICK_ACTIONS_CONFIG = (
         zoom,
         ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
       });
+      navigationContext.navigateTo(<FeaturesView />);
     },
     [ClickActionEnum.SetZoom]: function (
       { zoom },

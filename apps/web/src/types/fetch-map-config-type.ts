@@ -73,6 +73,6 @@ export interface IGetConfigLayerSchema {
   viewTemplate: ITemplate[];
   groupId?: string;
   colors: IGetConfigColor[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   properties: any;
 }

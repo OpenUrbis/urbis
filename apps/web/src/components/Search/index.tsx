@@ -7,6 +7,7 @@ import { createElement, ReactNode } from "react";
 import { Card, CircularProgress, List, ListItem, TextField } from "rmwc";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { useMapContext } from "../../hooks/useMapContext";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import {
   IGetSearchConfigResponse,
@@ -25,7 +26,8 @@ export const Search = () => {
     searchQuery,
   } = useSearchContext();
   const mapContext = useMapContext();
-  const clickActions = CLICK_ACTIONS_CONFIG(mapContext);
+  const navigationContext = useNavigationContext();
+  const clickActions = CLICK_ACTIONS_CONFIG(mapContext, navigationContext);
 
   useEffect(() => {
     populateSearchConfig();

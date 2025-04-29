@@ -10,7 +10,6 @@ import { createElement, ReactNode } from "react";
 import ReactJson from "react-json-view";
 import { Button } from "rmwc";
 import { useMapContext } from "../../hooks/useMapContext";
-import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import "./style.scss";
 
@@ -18,9 +17,9 @@ const isOpen = signal<boolean>(false);
 
 export const Debugger = () => {
   const searchContext = useSearchContext();
-  const navigationContext = useNavigationContext();
-  const mapContext = useMapContext();
-  delete mapContext.overlayRef;
+  const { overlayRef, ...mapContext } = useMapContext();
+
+  console.log("overlayRef", overlayRef);
 
   return (
     <>
@@ -43,7 +42,6 @@ export const Debugger = () => {
                         src: JSON.parse(
                           JSON.stringify({
                             searchContext,
-                            navigationContext,
                             mapContext,
                           })
                         ),

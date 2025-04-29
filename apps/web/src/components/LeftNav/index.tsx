@@ -1,12 +1,14 @@
-import { FeaturesView } from "../FeaturesView";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { Search } from "../Search";
 import "./style.scss";
 
 export const LeftNav = () => {
+  const navigationContext = useNavigationContext();
+
   return (
     <div className="left-nav">
       <Search />
-      <FeaturesView />
+      {navigationContext.currentPage.value}
     </div>
   );
 };

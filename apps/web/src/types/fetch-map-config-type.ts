@@ -64,7 +64,6 @@ export interface IGetConfigLayerSchema {
   isActive: boolean;
   type: IGetConfigLayerSchemaTypeEnum;
   isVisible: boolean;
-  polygonTemplate?: ITemplate[];
   minZoom?: number;
   getTextColorPropName?: string;
   getFillColorPropName?: string;

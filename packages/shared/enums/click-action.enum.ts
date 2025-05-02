@@ -1,4 +1,5 @@
 export enum ClickActionEnum {
-  SelectFeature = 'SelectFeature',
-  SetZoom = 'setZoom',
+  SelectFeature = "SelectFeature",
+  SetZoom = "setZoom",
+  openFeature = "openFeature",
 }

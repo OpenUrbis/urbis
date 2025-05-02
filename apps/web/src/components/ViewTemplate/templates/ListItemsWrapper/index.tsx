@@ -1,15 +1,17 @@
 import { ReactNode } from "react";
 import { List, ListItemText, SimpleListItem } from "rmwc";
+import { CLICK_ACTIONS_CONFIG } from "../../../../application-configs";
 import { createFn } from "../../../../utils/createFn";
 import { IListItemsProperties } from "../../types/list-items-type";
-import { ITemplatesDeclaration } from "../../types/templates-type";
+import { ITemplate, ITemplatesDeclaration } from "../../types/templates-type";
 import { ViewTemplateEngine } from "../../ViewTemplateEngine";
 
 export const ListItemsWrapper: ITemplatesDeclaration = {
   name: "wrapper-list-items",
-  render: ({ template, data, key }) => {
+  render: ({ template, data, rootTemplate }) => {
     const { templates = [] } = template;
     const properties = template.properties as IListItemsProperties;
+    const clickActions = CLICK_ACTIONS_CONFIG();
 
     if (!properties?.data) {
       console.error("'Data' is not defined in 'wrapper-list-items' properties");
@@ -27,11 +29,53 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
       }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleItem = (item: any) => {
+      const { onItemClick } = properties;
+      if (!onItemClick) return;
+      const { action, params } = onItemClick;
+
+      if (!params?.template) {
+        console.error("Template is not defined", onItemClick);
+        return;
+      }
+
+      if (
+        !Array.isArray(params?.template) &&
+        String(params?.template).toLocaleLowerCase() === "root"
+      )
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        params.template = rootTemplate as any;
+
+      const actionFn = clickActions[action];
+      if (!actionFn) {
+        console.error(
+          `Action "${action}" is not found in CLICK_ACTIONS_CONFIG of project`
+        );
+        return;
+      }
+
+      actionFn(params, {
+        latitude: 0,
+        longitude: 0,
+        template: params.template as unknown as ITemplate[],
+        feature: item,
+      });
+
+      console.log("ACTION", action);
+      console.log("TEMPLATE", template);
+      console.log("ROOT", rootTemplate);
+      console.log("Item", item);
+    };
+
     return (
-      <List twoLine={properties?.twoLine}>
+      <List twoLine={properties?.twoLine ?? false}>
         {// eslint-disable-next-line @typescript-eslint/no-explicit-any
         listItems()?.map((value: any, i: number) => (
-          <SimpleListItem key={value?.id ?? i}>
+          <SimpleListItem
+            key={value?.id ?? i}
+            onClick={() => handleItem(value)}
+          >
             {
               (
                 <ListItemText style={{ maxWidth: "100%!important" }}>
@@ -41,6 +85,7 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
                         <ViewTemplateEngine
                           template={itemTemplate}
                           data={value}
+                          rootTemplate={rootTemplate}
                         />
                       ) as ReactNode
                   )}

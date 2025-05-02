@@ -324,7 +324,10 @@ export const layerSchemas: LayerSchema[] = [
                     properties: {
                       twoLine: true,
                       data: `(data) => data.response.features.filter(({ id }) => id.includes("lote_cidadao"))`,
-                      onItemClick: {},
+                      onItemClick: {
+                        action: ClickActionEnum.openFeature,
+                        params: { template: 'root' },
+                      },
                     },
                     templates: [
                       {

@@ -6,7 +6,6 @@ import { Map } from "react-map-gl/mapbox";
 import { Button, CircularProgress } from "rmwc";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { useMapContext } from "../../hooks/useMapContext";
-import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { LayerController } from "../LayerController";
 import { DeckGLOverlay } from "./DeckGLOverlay";
@@ -20,7 +19,6 @@ export const MapView = () => {
     "your-mapbox-access-token";
 
   const mapContext = useMapContext();
-  const navigationContext = useNavigationContext();
 
   const {
     layerSchemas,
@@ -39,7 +37,7 @@ export const MapView = () => {
   const polygonEdit = usePolygonEditContext();
   const { isEditing, loading, fetchData, feature } = polygonEdit;
 
-  const clickActions = CLICK_ACTIONS_CONFIG(mapContext, navigationContext);
+  const clickActions = CLICK_ACTIONS_CONFIG();
 
   const layers = computed(() =>
     transformSchemaLayers(layerSchemas.value, {

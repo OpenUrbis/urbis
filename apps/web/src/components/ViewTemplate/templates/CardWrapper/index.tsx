@@ -6,7 +6,7 @@ import "./style.scss";
 
 export const CardWrapper: ITemplatesDeclaration = {
   name: "wrapper-card",
-  render: ({ template, data, key }) => {
+  render: ({ template, data, key, rootTemplate }) => {
     const { templates = [], label } = template;
 
     return (
@@ -20,6 +20,7 @@ export const CardWrapper: ITemplatesDeclaration = {
                   key={`${key}-engine-${i}`}
                   template={template}
                   data={data}
+                  rootTemplate={rootTemplate}
                 />
               ))}
             </div>

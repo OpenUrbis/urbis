@@ -19,7 +19,6 @@ export const useNavigationContext = (): INavigationContextActions => {
   const lastPage = computed(() => ctxLastPage.value);
   const history = computed(() => ctxHistory.value);
 
-  
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const navigateTo = (page: any) => {
     ctxLastPage.value = ctxCurrentPage.value;
@@ -27,9 +26,28 @@ export const useNavigationContext = (): INavigationContextActions => {
     ctxCurrentPage.value = page;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const addOnPage = (page: any) => {
+    navigateTo([currentPage.value, page]);
+  };
+
+  const rmOnPage = () => {
+    if (!Array.isArray(ctxCurrentPage.value)) return;
+
+    ctxCurrentPage.value = [...ctxCurrentPage.value].shift();
+  };
+
   const clearCurrentPage = () => {
     ctxCurrentPage.value = null;
   };
 
-  return { currentPage, lastPage, history, navigateTo, clearCurrentPage };
+  return {
+    currentPage,
+    lastPage,
+    history,
+    navigateTo,
+    addOnPage,
+    rmOnPage,
+    clearCurrentPage,
+  };
 };

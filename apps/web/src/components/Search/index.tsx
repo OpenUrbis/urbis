@@ -5,8 +5,6 @@ import { useEffect } from "preact/compat";
 import { createElement, ReactNode } from "react";
 import { Card, CircularProgress, Fab, List, ListItem, TextField } from "rmwc";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
-import { useMapContext } from "../../hooks/useMapContext";
-import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import {
   IGetSearchConfigResponse,
@@ -24,9 +22,7 @@ export const Search = () => {
     searchQuery,
   } = useSearchContext();
   const { data, error, fetchData, loading } = searchQuery;
-  const mapContext = useMapContext();
-  const navigationContext = useNavigationContext();
-  const clickActions = CLICK_ACTIONS_CONFIG(mapContext, navigationContext);
+  const clickActions = CLICK_ACTIONS_CONFIG();
 
   useEffect(() => {
     populateSearchConfig();

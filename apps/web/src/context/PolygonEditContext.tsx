@@ -17,7 +17,7 @@ export const PolygonEditProvider = ({
 }: {
   children: ComponentChildren;
 }) => {
-  const { data, loading, error, fetchData } = useFetchIntersectingPolygons();
+  const { data, loading, error, reset, fetchData } = useFetchIntersectingPolygons();
 
   return (
     <PolygonEditContext.Provider
@@ -27,6 +27,7 @@ export const PolygonEditProvider = ({
         data,
         loading,
         error,
+        reset,
         fetchData,
         drawRef: useRef(null),
       }}

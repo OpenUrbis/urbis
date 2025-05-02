@@ -14,6 +14,7 @@ export interface PolygonEditContextType {
   data: any | null;
   loading: boolean;
   error: string | null;
+  reset: () => void;
   fetchData: (polygon: Polygon) => Promise<void>;
 }
 

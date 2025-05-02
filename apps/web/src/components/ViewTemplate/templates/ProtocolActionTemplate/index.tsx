@@ -9,8 +9,9 @@ import {
 
 export const ProtocolActionTemplate: ITemplatesDeclaration = {
   name: "protocol-action",
-  render: ({ data, template }: ITemplateProps) => {
-    const { drawRef, setFeature, setIsEditing } = usePolygonEditContext();
+  render: ({ data, template, rootTemplate }: ITemplateProps) => {
+    const { drawRef, setFeature, reset, setIsEditing } =
+      usePolygonEditContext();
     const { navigateTo } = useNavigationContext();
 
     if (!drawRef) {
@@ -24,6 +25,7 @@ export const ProtocolActionTemplate: ITemplatesDeclaration = {
     }
 
     const edit = () => {
+      reset();
       const { current: draw } = drawRef;
 
       setFeature(data);
@@ -39,7 +41,12 @@ export const ProtocolActionTemplate: ITemplatesDeclaration = {
         draw!.changeMode("direct_select", { featureId });
       }
 
-      navigateTo(<PolygonDetails template={template.polygonTemplate!} />);
+      navigateTo(
+        <PolygonDetails
+          template={template.polygonTemplate!}
+          rootTemplate={rootTemplate!}
+        />
+      );
     };
 
     return (

@@ -7,7 +7,13 @@ import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { ViewTemplate } from "../ViewTemplate";
 import { ITemplate } from "../ViewTemplate/types/templates-type";
 
-export const PolygonDetails = ({ template }: { template: ITemplate[] }) => {
+export const PolygonDetails = ({
+  template,
+  rootTemplate,
+}: {
+  template: ITemplate[];
+  rootTemplate: ITemplate[];
+}) => {
   const { isEditing, data, loading, feature } = usePolygonEditContext();
 
   if (loading) {
@@ -47,6 +53,7 @@ export const PolygonDetails = ({ template }: { template: ITemplate[] }) => {
         <ViewTemplate
           templates={template}
           data={{ ...feature.value, response: data }}
+          rootTemplate={rootTemplate}
         />
       </div>
     );

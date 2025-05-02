@@ -7,6 +7,13 @@ export const useFetchIntersectingPolygons = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const reset = () => {
+    setLoading(false);
+    setData(null);
+    setError(null);
+  };
+
   const fetchData = async (polygon: Polygon) => {
     setLoading(true);
     setError(null);
@@ -21,5 +28,5 @@ export const useFetchIntersectingPolygons = () => {
     }
   };
 
-  return { data, loading, error, fetchData };
+  return { data, loading, error, fetchData, reset };
 };

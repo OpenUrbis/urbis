@@ -32,4 +32,5 @@ export interface ITemplateProps {
   template: ITemplate;
   data: unknown;
   key?: string;
+  rootTemplate?: ITemplate[];
 }

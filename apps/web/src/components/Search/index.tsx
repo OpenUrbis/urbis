@@ -49,12 +49,6 @@ export const Search = () => {
     const actionFn = clickActions[action as keyof typeof clickActions];
     if (actionFn) {
       const { latitude, longitude, rawData } = item;
-      console.log({
-        latitude,
-        longitude,
-        feature: rawData,
-        template,
-      });
       actionFn(params, {
         latitude,
         longitude,

@@ -19,7 +19,7 @@ export const ViewTemplateEngine = ({ template, data }: ITemplateProps) => {
 
       try {
         if (!templateType || !templateTypes?.[templateType])
-          throw new Error("Template Type is not exist");
+          throw new Error("Template Type is not exist: " + templateType);
 
         const Template = templateTypes[templateType];
 

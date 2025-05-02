@@ -9,12 +9,17 @@ import {
 
 export const ProtocolActionTemplate: ITemplatesDeclaration = {
   name: "protocol-action",
-  render: ({ data }: ITemplateProps) => {
+  render: ({ data, template }: ITemplateProps) => {
     const { drawRef, setFeature, setIsEditing } = usePolygonEditContext();
     const { navigateTo } = useNavigationContext();
 
     if (!drawRef) {
       console.error("MapContext is not initialized (drawRef is null)");
+      return null;
+    }
+
+    if (!template?.polygonTemplate) {
+      console.error("polygonTemplate is not defined in configs");
       return null;
     }
 
@@ -34,7 +39,7 @@ export const ProtocolActionTemplate: ITemplatesDeclaration = {
         draw!.changeMode("direct_select", { featureId });
       }
 
-      navigateTo(<PolygonDetails />);
+      navigateTo(<PolygonDetails template={template.polygonTemplate!} />);
     };
 
     return (

@@ -1,9 +1,9 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { calculateCenterId } from "../hooks/useMapContext";
 import {
   IGetSearchConfigResponse,
   IGetSearchItem,
 } from "../types/fetch-search-config-type";
+import { createFn } from "../utils/createFn";
 
 const environment = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -16,16 +16,6 @@ export const getSearchConfig = async (): Promise<
   }
 
   return await response.json();
-};
-
-const createFn = (strFn: string) => {
-  try {
-    const fn = new Function("utils", `return ${strFn}`);
-    return fn({ calculateCenterId });
-  } catch (error) {
-    console.error("Error creating function from string:", strFn, error);
-    return () => {};
-  }
 };
 
 export const fetchSearchItem = async (

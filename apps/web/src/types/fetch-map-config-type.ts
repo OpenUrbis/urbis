@@ -1,4 +1,4 @@
-import { ClickActionEnum } from '@open-urbis/map-shared';
+import { ClickActionEnum } from "@open-urbis/map-shared";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import { MapBoundingBox } from "./map-context-type";
 
@@ -64,13 +64,13 @@ export interface IGetConfigLayerSchema {
   isActive: boolean;
   type: IGetConfigLayerSchemaTypeEnum;
   isVisible: boolean;
-  canEditFeature: boolean;
+  polygonTemplate?: ITemplate[];
   minZoom?: number;
   getTextColorPropName?: string;
   getFillColorPropName?: string;
   getLineColorPropName?: string;
   clickAction: IGetConfigLayerSchemaClickAction;
-  viewTemplate: ITemplate[];
+  viewTemplate?: ITemplate[];
   groupId?: string;
   colors: IGetConfigColor[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

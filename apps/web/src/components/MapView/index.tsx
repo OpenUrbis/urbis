@@ -65,6 +65,7 @@ export const MapView = () => {
 
     const { action, params } = clickAction!;
     const actionFn = clickActions[action as keyof typeof clickActions];
+
     if (actionFn) {
       actionFn(params, {
         latitude: info?.coordinate[1],

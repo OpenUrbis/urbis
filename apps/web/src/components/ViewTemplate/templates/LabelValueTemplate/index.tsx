@@ -1,5 +1,5 @@
-import { Data as ejsData, render as ejsRender } from "ejs";
-import { memo, useMemo } from "preact/compat";
+import { memo } from "preact/compat";
+import { useRenderedValue } from "../../../../hooks/useRenderedValue";
 import {
   ITemplateProps,
   ITemplateRender,
@@ -7,15 +7,9 @@ import {
 } from "../../types/templates-type";
 import "./style.scss";
 
-const LabelValueComponent: ITemplateRender = ({
-  template,
-  data,
-}: ITemplateProps) => {
-  const renderedValue = useMemo(() => {
-    const templateValue = template?.value;
-    if (!templateValue) return "-";
-    return ejsRender(templateValue, data as ejsData);
-  }, [template?.value, data]);
+const LabelValueComponent: ITemplateRender = (props: ITemplateProps) => {
+  const renderedValue = useRenderedValue(props);
+  const { template } = props;
 
   return (
     <div className="label-value">

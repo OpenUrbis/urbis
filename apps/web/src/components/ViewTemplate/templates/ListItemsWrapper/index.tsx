@@ -10,8 +10,6 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
   render: ({ template, data, key }) => {
     const { templates = [] } = template;
     const properties = template.properties as IListItemsProperties;
-    console.log("PROPERTIES", properties);
-    console.log("DATA", data);
 
     if (!properties?.data) {
       console.error("'Data' is not defined in 'wrapper-list-items' properties");

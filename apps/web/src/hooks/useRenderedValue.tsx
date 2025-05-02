@@ -4,7 +4,6 @@ import { ITemplateProps } from "../components/ViewTemplate/types/templates-type"
 
 export const useRenderedValue = ({ template, data }: ITemplateProps) => {
   const value = useMemo(() => {
-    console.log(template.value, data);
     const templateValue = template?.value;
     if (!templateValue) return "-";
 

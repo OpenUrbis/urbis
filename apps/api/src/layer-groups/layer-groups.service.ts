@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LayerGroup } from './entities/layer-group.entity';
 import { LayerGroupDto } from './dto/layer-group.dto';
+import { LayerGroup } from './entities/layer-group.entity';
 
 @Injectable()
 export class LayerGroupsService {
@@ -23,19 +23,36 @@ export class LayerGroupsService {
     return group;
   }
 
-  async create(dto: LayerGroupDto): Promise<LayerGroup> {
-    const entity = this.repository.create(dto);
+  async create({ id, name, ownerGroup }: LayerGroupDto): Promise<LayerGroup> {
+    let parentGroup: LayerGroup;
+    if (ownerGroup) parentGroup = await this.findOne(ownerGroup);
+    if (parentGroup) ownerGroup = parentGroup.id;
+
+    const entity = this.repository.create({
+      id,
+      name,
+      ownerGroup,
+      parentGroup,
+    });
     return this.repository.save(entity);
   }
 
-  async update(id: string, dto: LayerGroupDto): Promise<LayerGroup> {
-    await this.findOne(id); // Ensure the group exists
-    await this.repository.update(id, dto);
+  async update(
+    id: string,
+    { name, ownerGroup }: LayerGroupDto,
+  ): Promise<LayerGroup> {
+    await this.findOne(id);
+
+    let parentGroup: LayerGroup;
+    if (ownerGroup) parentGroup = await this.findOne(ownerGroup);
+    if (parentGroup) ownerGroup = parentGroup.id;
+
+    await this.repository.update(id, { name, ownerGroup, parentGroup });
     return this.findOne(id);
   }
 
   async delete(id: string): Promise<void> {
-    await this.findOne(id); // Ensure the group exists
+    await this.findOne(id);
     await this.repository.delete(id);
   }
 

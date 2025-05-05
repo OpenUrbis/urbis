@@ -1,25 +1,25 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
-  Delete,
-  Body,
-  Param,
   UseGuards,
 } from '@nestjs/common';
-import { LayerSchemasService } from './layer-schemas.service';
+import { AuthGuard } from '@nestjs/passport';
 import {
-  ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiBasicAuth,
+  ApiSecurity,
+  ApiTags,
 } from '@nestjs/swagger';
-import { LayerSchema } from './entities/layer-schema.entity';
 import { LayerSchemaDto } from './dto/layer-schema.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { LayerSchema } from './entities/layer-schema.entity';
+import { LayerSchemasService } from './layer-schemas.service';
 
-@ApiBasicAuth('api-key')
+@ApiSecurity('api_key')
 @ApiTags('Layer Schemas')
 @UseGuards(AuthGuard('api-key'))
 @Controller('layer-schemas')

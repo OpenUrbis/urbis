@@ -12,4 +12,4 @@ RUN npx turbo run build --filter=@open-urbis/map-api
 
 EXPOSE 3000
 
-CMD ["node", "dist/app/main.js"]
+CMD ["node", "apps/api/dist/app/main.js"]

@@ -4,3 +4,9 @@ components-api-gateway:
   domainName: api.mapa.urbis.sampa.br
 components-apps:
   domainName: api.mapa.urbis.sampa.br
+ingress-nginx:
+  controller:
+    ingressClassResource:
+      name: nginx-map
+      default: false
+      controllerValue: "k8s.io/ingress-nginx"

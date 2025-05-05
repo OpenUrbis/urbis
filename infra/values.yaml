@@ -10,3 +10,10 @@ ingress-nginx:
       name: nginx-map
       default: false
       controllerValue: "k8s.io/ingress-nginx"
+    service:
+      externalTrafficPolicy: Local # Mudado para Local
+      annotations:
+        # Adiciona a anotação para a health probe do Azure LB
+        # Note as aspas por causa dos caracteres especiais no nome da chave
+        "service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path": "/healthz"
+        #... outras anotações que você possa ter...

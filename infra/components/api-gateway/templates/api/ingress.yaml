@@ -5,15 +5,15 @@ metadata:
   namespace: urbis-map
   annotations:
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.domainName }}
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "2g"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-map
   tls:
     - hosts:
         - {{ .Values.domainName }}
-      secretName: api-urbis-sampa-br-tls
+      secretName: urbis-map-certificate-tls
   rules:
     - host: {{ .Values.domainName }}
       http:

@@ -1,0 +1,2 @@
+helm dependency update ./infra
+helm upgrade urbis-map ./infra -f ./infra/values.yaml -f ./infra/secrets.yaml --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz -n urbis-map

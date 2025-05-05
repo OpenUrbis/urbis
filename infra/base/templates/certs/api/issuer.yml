@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: urbis-issuer
+  namespace: urbis-map
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: contas@urbis.sampa.br
+    privateKeySecretRef:
+      name: urbis-issuer-key
+    solvers:
+    - http01:
+        ingress:
+          class: nginx

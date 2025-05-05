@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urbis-map-api
+  namespace: urbis-map
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: urbis-map-api
+  template:
+    metadata:
+      labels:
+        app: urbis-map-api
+    spec:
+      containers:
+      - name: urbis-map-api
+        image: openurbis/urbis-map:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: APP_PORT
+          value: "3000"
+        imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+      - name: urbis-docker-hub

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: urbis-map-storage-service
+  namespace: urbis-map
+spec:
+  type: ClusterIP  
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: urbis-map-storage

@@ -31,8 +31,8 @@ jobs:
         working-directory: ./apps/web 
       - name: Create .env file
         run: |
-          echo "VITE_PUBLIC_MAPBOX_ACCESS_TOKEN=${{ secrets.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN }}" > apps/api/.env
-          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> apps/api/.env
+          echo "VITE_PUBLIC_MAPBOX_ACCESS_TOKEN=${{ secrets.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN }}" > apps/web/.env
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> apps/web/.env
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

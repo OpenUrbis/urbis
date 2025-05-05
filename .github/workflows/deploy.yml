@@ -29,11 +29,10 @@ jobs:
       - name: Install Dependencies
         run: yarn install
         working-directory: ./apps/web 
-      - name: Set Environment Variables
-        id: set_env_vars
+      - name: Create .env file
         run: |
-          echo "VITE_PUBLIC_MAPBOX_ACCESS_TOKEN=${{ secrets.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN }}" >> $GITHUB_ENV
-          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> $GITHUB_ENV
+          echo "VITE_PUBLIC_MAPBOX_ACCESS_TOKEN=${{ secrets.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN }}" > apps/api/.env
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> apps/api/.env
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LayerGroupDto } from './dto/layer-group.dto';
@@ -23,31 +27,50 @@ export class LayerGroupsService {
     return group;
   }
 
-  async create({ id, name, ownerGroup }: LayerGroupDto): Promise<LayerGroup> {
-    let parentGroup: LayerGroup;
-    if (ownerGroup) parentGroup = await this.findOne(ownerGroup);
-    if (parentGroup) ownerGroup = parentGroup.id;
+  async checkOwnerGroup(ownerGroup: string) {
+    if (!ownerGroup) return null;
 
+    const group = await this.repository.findOneBy({ id: ownerGroup });
+    if (!group)
+      throw new NotFoundException(
+        `Owner group with ID "${ownerGroup}" not found`,
+      );
+
+    return group;
+  }
+
+  async create({ id, name, ownerGroup }: LayerGroupDto): Promise<LayerGroup> {
+    const another = await this.repository.findOneBy({ id: id });
+    if (another)
+      throw new BadRequestException(`Layer group with ID ${id} already exist`);
     const entity = this.repository.create({
       id,
       name,
       ownerGroup,
-      parentGroup,
+      parentGroup: await this.checkOwnerGroup(ownerGroup),
     });
     return this.repository.save(entity);
   }
 
   async update(
     id: string,
-    { name, ownerGroup }: LayerGroupDto,
+    { name, ownerGroup, ...dto }: LayerGroupDto,
   ): Promise<LayerGroup> {
+    if (id !== dto.id) {
+      const another = await this.repository.findOneBy({ id: dto.id });
+      if (another)
+        throw new BadRequestException(
+          `Layer schema with ID ${dto.id} already exist`,
+        );
+    }
     await this.findOne(id);
 
-    let parentGroup: LayerGroup;
-    if (ownerGroup) parentGroup = await this.findOne(ownerGroup);
-    if (parentGroup) ownerGroup = parentGroup.id;
-
-    await this.repository.update(id, { name, ownerGroup, parentGroup });
+    await this.repository.update(id, {
+      id: dto.id,
+      name,
+      ownerGroup,
+      parentGroup: await this.checkOwnerGroup(ownerGroup),
+    });
     return this.findOne(id);
   }
 
@@ -58,12 +81,7 @@ export class LayerGroupsService {
 
   async upsert(dto: LayerGroupDto): Promise<LayerGroup> {
     const existing = await this.repository.findOneBy({ id: dto.id });
-    if (existing) {
-      await this.repository.update(dto.id, dto);
-      return this.repository.findOneBy({ id: dto.id });
-    } else {
-      const entity = this.repository.create(dto);
-      return this.repository.save(entity);
-    }
+
+    return existing ? await this.update(dto.id, dto) : this.create(dto);
   }
 }

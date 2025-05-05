@@ -11,15 +11,15 @@ import { LayerSchema } from './../../layer-schemas/entities/layer-schema.entity'
 
 @Entity('layer_groups')
 export class LayerGroup {
-  @ApiProperty()
+  @ApiProperty({ description: 'Unique identifier', example: 'geral' })
   @PrimaryColumn()
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Name of group', example: 'Geral' })
   @Column()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Owner group', example: 'test' })
   @Column({ nullable: true })
   ownerGroup?: string;
 

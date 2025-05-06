@@ -1,5 +1,5 @@
 import { signal } from "@preact/signals";
-import { Button } from "rmwc";
+import { Button, IconButton } from "rmwc";
 
 import "./style.scss";
 
@@ -73,7 +73,7 @@ const Header = () => {
               </a>
             </div>
           </div>
-          <Button
+          <IconButton
             className="navbar-toggler ms-2"
             onClick={toggleMenu}
             aria-expanded={isMenuOpenSignal.value}

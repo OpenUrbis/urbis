@@ -26,8 +26,19 @@ export const Search = () => {
 
   useEffect(() => {
     populateSearchConfig();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const search = query.get("search");
+    if (search) {
+      currentTerm.value = search;
+      fetchData(currentTerm.value);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchConfig.value]);
 
   const handleClickItem = (
     config: IGetSearchConfigResponse,

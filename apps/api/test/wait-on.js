@@ -7,14 +7,14 @@ async function waitFor404() {
     try {
       const response = await httpRequest(url);
       if (response.statusCode === 404) {
-        console.log('API response 404');
+        console.error('API response 404');
         break;
       }
     } catch (error) {
       console.error('Error occurred:', error);
     }
 
-    console.log('No 404 response; trying again in 1 second...');
+    console.info('No 404 response; trying again in 1 second...');
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 }
@@ -45,7 +45,7 @@ function withTimeout(promise, timeout) {
 
 withTimeout(waitFor404(), 60000)
   .then(() => {
-    console.log('waitFor404 completed within 60 seconds');
+    console.error('waitFor404 completed within 60 seconds');
   })
   .catch((error) => {
     console.error(error.message);

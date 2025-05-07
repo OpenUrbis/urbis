@@ -19,7 +19,7 @@ This is a community-maintained project. If you encounter an issue, please submit
 
 Urbis Map is an open-source monorepo created to empower municipal administrations with a robust mapping system for public management. It enables cities to visualize and manage urban data, streamline resource allocation, and foster data-driven governance.
 
-- **Website**: [urbis.sampa.br](http://urbis.sampa.br/)
+- **Website**: [mapa.urbis.sampa.br](http://mapa.urbis.sampa.br/)
 - **GitHub Repository**: [github.com/OpenUrbis/urbis-map](https://github.com/OpenUrbis/urbis-map)
 
 ---
@@ -63,6 +63,8 @@ npm run build
 Explore the documentation to learn how to set up, use, and extend Urbis Map:
 
 - [Full Documentation](http://docs.urbis.sampa.br/)
+- [Layers Configuration](docs/layer-schema.md)
+- [Search Configuration](docs/search-config.md)
 - [Contributing Guide](docs/CONTRIBUTING.md)
 - [Commit Guidelines](docs/commit-guidelines.md)
 - [Pull Request Guidelines](docs/pull-request-guidelines.md)

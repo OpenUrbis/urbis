@@ -79,7 +79,7 @@ For example:
 - Example with distinct values:
   ```json
   {
-    colors: [
+    "colors": [
       {
         "color": [136, 144, 173, 240],
         "pattern": "full",
@@ -99,7 +99,7 @@ For example:
 
   ```json
   {
-    colors: [
+    "colors": [
       {
         "color": [136, 144, 173, 240],
         "pattern": "full",
@@ -124,9 +124,9 @@ For example:
 - **Dynamic Colors**: Colors assigned based on polygon properties, e.g., the "Axes" layer maps colors to the `nm_perimetro_divisao_pde` property:
   ```json
   {
-    getFillColorPropName: "nm_perimetro_divisao_pde",
-    getLineColorPropName: "nm_perimetro_divisao_pde",
-    colors: [
+    "getFillColorPropName": "nm_perimetro_divisao_pde",
+    "getLineColorPropName": "nm_perimetro_divisao_pde",
+    "colors": [
       {
         "color": [136, 144, 173, 240],
         "pattern": "full",

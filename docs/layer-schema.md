@@ -272,11 +272,7 @@ The `colors` array defines the color and pattern configurations, with the follow
     "getTextSize": 12,
     "autoHighlight": true,
     "highlightColor": [252, 252, 255, 150],
-    "getElevation": "(allotment) => {
-      const { qt_area_construida, qt_area_terreno } = allotment?.properties || {};
-      if (!qt_area_construida || !qt_area_terreno) return 0;
-      return (qt_area_construida / qt_area_terreno) * 2 * 3;
-    }"
+    "getElevation": "(allotment) => { const { qt_area_construida, qt_area_terreno } = allotment?.properties || {}; if (!qt_area_construida || !qt_area_terreno) return 0; return (qt_area_construida / qt_area_terreno) * 2 * 3; }"
   },
   "colors": [
     {

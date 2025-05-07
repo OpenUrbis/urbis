@@ -25,8 +25,8 @@ The system allows displaying details of one or more selected polygons on the map
 
 ```json
 {
-  clickAction: {
-    action: "SelectFeature"
+  "clickAction": {
+    "action": "SelectFeature"
   }
 }
 ```

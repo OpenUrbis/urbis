@@ -1,7 +1,8 @@
 import { signal } from "@preact/signals";
-import { Button } from "rmwc";
+import { Button, IconButton } from "rmwc";
 
 import "./style.scss";
+import { Debugger } from "../Debugger";
 
 const isMenuOpenSignal = signal(false);
 
@@ -11,7 +12,7 @@ const toggleMenu = () => {
 
 const Header = () => {
   return (
-    <header className="header sticky-header mat-elevation-z4">
+    <header className="header sticky-header">
       <nav className="navbar navbar-expand-lg navbar-light">
         <div
           className="d-flex w-100 align-items-center"
@@ -73,25 +74,24 @@ const Header = () => {
               </a>
             </div>
           </div>
-          <Button
-            className="navbar-toggler ms-2"
-            onClick={toggleMenu}
-            aria-expanded={isMenuOpenSignal.value}
-            aria-controls="navbarNavAltMarkup"
-            aria-label="Toggle navigation"
-            icon="menu"
-            style={{ minWidth: 0, padding: 8 }}
-          />
-          <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+          <div className="d-flex align-items-center" style={{ gap: "2px" }}>
+            <Debugger />
             <Button
+              className="navbar-toggler"
+              onClick={toggleMenu}
+              aria-expanded={isMenuOpenSignal.value}
+              aria-controls="navbarNavAltMarkup"
+              aria-label="Toggle navigation"
+              icon="menu"
+            />
+            {/* <Button
               tag="a"
               href="https://mapa.slui.dev"
-              className="button-action"
-              style={{ textDecoration: "none" }}
+              outlined
               icon="arrow_forward"
             >
               Entrar
-            </Button>
+            </Button> */}
           </div>
         </div>
       </nav>

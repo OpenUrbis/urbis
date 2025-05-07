@@ -21,7 +21,7 @@ export const Search = () => {
     populateSearchConfig,
     searchQuery,
   } = useSearchContext();
-  const { data, error, fetchData, loading } = searchQuery;
+  const { data, error, fetchData, clearResults, loading } = searchQuery;
   const clickActions = CLICK_ACTIONS_CONFIG();
 
   useEffect(() => {
@@ -91,6 +91,7 @@ export const Search = () => {
                 handleClickItem(config, result);
 
                 resetSearch();
+                clearResults();
               },
               children: [
                 createElement(
@@ -127,13 +128,23 @@ export const Search = () => {
                 onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
                   (currentTerm.value = e.target.value)
                 }
+                trailingIcon={{
+                  icon: 'close',
+                  tabIndex: 0,
+                  onClick: () => {
+                    resetSearch();
+                    clearResults();
+
+                    console.log('Clear')
+                  }
+                }}
                 style={{ flex: 1, width: "100%" }}
               />
               {createElement(Fab, {
                 raised: true,
                 icon: loading
                   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    createElement(CircularProgress as any, { width: "24px" })
+                  createElement(CircularProgress as any, { width: "24px" })
                   : "search",
                 type: "submit",
                 class: "search-button",

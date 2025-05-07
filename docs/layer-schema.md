@@ -112,7 +112,7 @@ For example:
 - **Static Colors**: A single color applied uniformly, e.g., the "Running or Dormant Waters" layer uses:
   ```json
   {
-    colors: [
+    "colors": [
       {
         "color": [56, 85, 204, 240],
         "label": "default",

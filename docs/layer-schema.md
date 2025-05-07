@@ -24,7 +24,11 @@ The map interface organizes layers into **groups**, which contain **individual l
 The system allows displaying details of one or more selected polygons on the map when needed. To enable this functionality, the layer must be configured with the `SelectFeature` click action, without requiring additional parameters in `clickAction`:
 
 ```json
-clickAction: { action: "SelectFeature" }
+{
+  clickAction: {
+    action: "SelectFeature"
+  }
+}
 ```
 
 This configuration indicates that the layer is selectable, enabling the system to process the selection and display detailed polygon information as defined in the `viewTemplate`. For more details on click actions, see the [Actions on Polygon Click](#actions-on-polygon-click) section. The rendering mechanism for this information is detailed in the [viewTemplate Documentation](./view-template.md).
@@ -74,61 +78,69 @@ For example:
 - If the comparison value and legend text are the same (e.g., `AI`), only `label` is needed.
 - Example with distinct values:
   ```json
-  colors: [
-    {
-      "color": [136, 144, 173, 240],
-      "pattern": "full",
-      "label": "Area of Influence",
-      "value": "AI"
-    },
-    {
-      "color": [201, 186, 119, 240],
-      "pattern": "hatch-1x",
-      "label": "Area of Influence (2016)",
-      "value": "AI-16"
-    }
-  ]
+  {
+    colors: [
+      {
+        "color": [136, 144, 173, 240],
+        "pattern": "full",
+        "label": "Area of Influence",
+        "value": "AI"
+      },
+      {
+        "color": [201, 186, 119, 240],
+        "pattern": "hatch-1x",
+        "label": "Area of Influence (2016)",
+        "value": "AI-16"
+      }
+    ]
+  }
   ```
 - Example with identical values:
 
   ```json
-  colors: [
-    {
-      "color": [136, 144, 173, 240],
-      "pattern": "full",
-      "label": "Area of Influence"
-    }
-  ]
+  {
+    colors: [
+      {
+        "color": [136, 144, 173, 240],
+        "pattern": "full",
+        "label": "Area of Influence"
+      }
+    ]
+  }
   ```
 
 - **Static Colors**: A single color applied uniformly, e.g., the "Running or Dormant Waters" layer uses:
   ```json
-  colors: [
-    {
-      "color": [56, 85, 204, 240],
-      "label": "default",
-      "pattern": "full"
-    }
-  ]
+  {
+    colors: [
+      {
+        "color": [56, 85, 204, 240],
+        "label": "default",
+        "pattern": "full"
+      }
+    ]
+  }
   ```
 - **Dynamic Colors**: Colors assigned based on polygon properties, e.g., the "Axes" layer maps colors to the `nm_perimetro_divisao_pde` property:
   ```json
-  getFillColorPropName: "nm_perimetro_divisao_pde",
-  getLineColorPropName: "nm_perimetro_divisao_pde",
-  colors: [
-    {
-      "color": [136, 144, 173, 240],
-      "pattern": "full",
-      "label": "Area of Influence",
-      "value": "AI"
-    },
-    {
-      "color": [201, 186, 119, 240],
-      "pattern": "hatch-1x",
-      "label": "Area of Influence (2016)",
-      "value": "AI-16"
-    }
-  ]
+  {
+    getFillColorPropName: "nm_perimetro_divisao_pde",
+    getLineColorPropName: "nm_perimetro_divisao_pde",
+    colors: [
+      {
+        "color": [136, 144, 173, 240],
+        "pattern": "full",
+        "label": "Area of Influence",
+        "value": "AI"
+      },
+      {
+        "color": [201, 186, 119, 240],
+        "pattern": "hatch-1x",
+        "label": "Area of Influence (2016)",
+        "value": "AI-16"
+      }
+    ]
+  }
   ```
 
 ## Layer Object Parameters

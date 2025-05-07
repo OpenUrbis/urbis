@@ -11,7 +11,6 @@ export const useFetchSearch = (
   searchConfig: Signal<IGetSearchConfigResponse[]>
 ) => {
   const [data, setData] = useState<ISearchResponse | null>(null);
-
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,5 +43,12 @@ export const useFetchSearch = (
     }
   };
 
-  return { data, loading, error, fetchData };
+  // Função para limpar os resultados
+  const clearResults = () => {
+    setData(null);
+    setLoading(false);
+    setError(null);
+  };
+
+  return { data, loading, error, fetchData, clearResults };
 };

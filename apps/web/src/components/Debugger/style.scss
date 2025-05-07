@@ -1,8 +1,6 @@
 .debugger-button {
-  position: absolute;
-  top: 8px;
-  right: 48px;
-  z-index: 100;
+  margin-right: 4px;
   text-transform: none;
+  z-index: 1000;
   overflow: hidden;
 }

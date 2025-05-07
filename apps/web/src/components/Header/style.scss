@@ -54,12 +54,12 @@ button.nav-item {
 @media (max-width: 992px) {
     .navbar-collapse {
         position: absolute;
-        top: 84px;
+        top: 64px;
         left: 0px;
         right: 0px;
         text-align: center;
         background: white;
-        z-index: 1000;
+        z-index: 1000000;
         border-radius: 100px;
     }
 
@@ -203,7 +203,6 @@ a.nav-item.active {
     top: 0;
     z-index: 999999;
     background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .nav-links {
@@ -244,7 +243,6 @@ a.nav-item.active {
     border-top-left-radius: 64px;
     border-top-right-radius: 64px;
     min-height: 60vh;
-    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.04);
     margin-top: -32px;
     padding-top: 48px;
 }

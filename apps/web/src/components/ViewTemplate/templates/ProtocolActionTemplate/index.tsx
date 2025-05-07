@@ -50,8 +50,8 @@ export const ProtocolActionTemplate: ITemplatesDeclaration = {
     };
 
     return (
-      <Button onClick={() => edit()} raised>
-        Protocolar
+      <Button onClick={() => edit()} outlined>
+        Ajustar permetros
       </Button>
     );
   },

@@ -8,6 +8,7 @@ export interface ISearchFetchQuery {
   data: ISearchResponse | null;
   loading: boolean;
   error: string | null;
+  clearResults: () => void;
   fetchData: (term: string) => Promise<void>;
 }
 

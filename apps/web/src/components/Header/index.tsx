@@ -1,8 +1,8 @@
 import { signal } from "@preact/signals";
-import { Button, IconButton } from "rmwc";
+import { Button } from "rmwc";
 
-import "./style.scss";
 import { Debugger } from "../Debugger";
+import "./style.scss";
 
 const isMenuOpenSignal = signal(false);
 

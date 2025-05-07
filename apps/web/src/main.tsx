@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@preact-signals/query";
 import "bootstrap/dist/css/bootstrap.css";
 import { render } from "preact";
 import { ReactNode } from "react";
-import { Debugger } from "./components/Debugger";
 import Header from "./components/Header";
 import { LeftNav } from "./components/LeftNav";
 import { MapLegend } from "./components/MapLegend";

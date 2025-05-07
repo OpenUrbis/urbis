@@ -12,6 +12,7 @@ import { LayerSchemasService } from './layer-schemas.service';
     LayerGroupsModule,
   ],
   providers: [LayerSchemasService],
+  exports: [LayerSchemasService],
   controllers: [LayerSchemasController],
 })
 export class LayerSchemasModule {}

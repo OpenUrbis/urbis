@@ -1,8 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ClickActionEnum } from '@open-urbis/map-shared';
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
-import { LayerSchema } from './../../layer-schemas/entities/layer-schema.entity';
-import { SearchConfigMethodEnum } from './../enums/search-config.enum';
+import { LayerSchema } from '../../layer-schemas/entities/layer-schema.entity';
+import { SearchConfigMethodEnum } from '../enums/search-config.enum';
 
 export interface IClickAction {
   action: ClickActionEnum;

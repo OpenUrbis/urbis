@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LayerGroup } from './../../../layer-groups/entities/layer-group.entity';
 import { LayerSchemaColors } from './../../../layer-schemas/entities/layer-schema-color.entity';
 import { LayerSchema } from './../../../layer-schemas/entities/layer-schema.entity';
-import { SearchConfig } from './../../../search-config/entities/search-config.entity';
+import { SearchConfig } from '../../../search/entities/search-config.entity';
 import { DatabaseModule } from './../../../shared/database.module';
 import appConfig from './../../config/app.config';
 import databaseConfig from './../../config/database.config';

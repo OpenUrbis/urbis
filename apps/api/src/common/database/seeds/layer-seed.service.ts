@@ -18,7 +18,7 @@ export class LayerSeedService {
   ) {}
 
   async run(): Promise<void> {
-    console.log('Starting database seeding...');
+    console.info('Starting database seeding...');
 
     // Seed LayerGroup
     const layerGroup: LayerGroup[] = [
@@ -48,7 +48,7 @@ export class LayerSeedService {
     try {
       await this.layerGroupRepository.upsert(layerGroup, ['id']);
 
-      console.log(
+      console.info(
         `Seeded LayerGroup: ${layerGroup.map((group) => group.id).join(', ')}`,
       );
     } catch (error) {
@@ -74,13 +74,13 @@ export class LayerSeedService {
 
       await Promise.all(promises);
 
-      console.log(
+      console.info(
         `Seeded LayerSchemas: ${layerSchemas.map((group) => group.id).join(', ')}`,
       );
     } catch (error: any) {
       console.error(`Query failed: ${error.message}`);
     }
 
-    console.log('Database seeding completed.');
+    console.info('Database seeding completed.');
   }
 }

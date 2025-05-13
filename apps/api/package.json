@@ -29,6 +29,8 @@
     "seed:run": "ts-node -r tsconfig-paths/register ./src/common/database/seeds/run-seed.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.808.0",
+    "@aws-sdk/s3-request-presigner": "^3.808.0",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",
@@ -38,10 +40,10 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.3.1",
     "@nestjs/typeorm": "^10.0.2",
+    "@open-urbis/map-shared": "*",
     "@turf/turf": "^7.2.0",
     "axios": "^1.7.3",
     "bcryptjs": "^2.4.3",
-    "@open-urbis/map-shared": "*",
     "bootstrap": "^5.3.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

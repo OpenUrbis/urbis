@@ -4,7 +4,7 @@ import { ViewTemplateEngine } from "../../ViewTemplateEngine";
 
 export const RowWrapper: ITemplatesDeclaration = {
   name: "wrapper-row",
-  render: ({ template, data, key, rootTemplate }) => {
+  render: ({ template, data, key, rootTemplate, isPrint }) => {
     const { templates = [] } = template;
 
     return (
@@ -18,6 +18,7 @@ export const RowWrapper: ITemplatesDeclaration = {
               template={template}
               data={data}
               rootTemplate={rootTemplate}
+              isPrint={isPrint}
             />
           </div>
         ))}

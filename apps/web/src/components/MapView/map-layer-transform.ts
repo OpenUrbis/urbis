@@ -10,6 +10,7 @@ import {
   MapContextLayerSchemaTypeMapProps,
   MapContextRenderedLayer,
 } from "../../types/map-context-type";
+import { createFn } from "../../utils/createFn";
 import { CustomWMSLayer } from "./CustomWMSLayer";
 import { formatBoundsForURL, transformBoundsToUTM } from "./transform-bounds";
 
@@ -118,10 +119,38 @@ const generateGetColorFns = (
   return { getTextColor, getFillColor, getLineColor, getFillPattern };
 };
 
+const prepareLayerProperties = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  properties: any,
+  props: MapContextLayerSchemaTypeMapProps
+) => {
+  const { is3DActive } = props;
+  let { getElevation } = properties;
+
+  if (
+    getElevation &&
+    typeof getElevation === "string" &&
+    getElevation.includes("=>")
+  ) {
+    const getElevationFn = createFn(getElevation, false);
+    if (getElevationFn)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getElevation = (feature: any) => {
+        if (!is3DActive) return 0;
+
+        return getElevationFn(feature);
+      };
+  }
+
+  return { ...properties, getElevation };
+};
+
 const createGeoJsonLayer = (
   layer: IGetConfigLayerSchema,
-  selectedFeatureIds: string[] = []
+  props: MapContextLayerSchemaTypeMapProps
 ): MapContextRenderedLayer => {
+  const { selectedFeatureIds = [], is3DActive } = props;
+
   const {
     id,
     origin: data,
@@ -146,8 +175,9 @@ const createGeoJsonLayer = (
     viewTemplate,
     updateTriggers: {
       getFillColor: { selectedFeatureIds },
+      getElevation: { is3DActive },
     },
-    ...properties,
+    ...prepareLayerProperties(properties, props),
     ...patternObj,
   });
 };
@@ -185,13 +215,13 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
           id: cellId,
           origin: originWithBBox,
         },
-        selectedFeatureIds
+        { selectedFeatureIds, ...props }
       );
     });
 
     return layers;
   },
-  GeoJsonLayer: (layer) => [createGeoJsonLayer(layer)],
+  GeoJsonLayer: (layer, props) => [createGeoJsonLayer(layer, props)],
   CustomWMSLayer: (layer) => [
     new CustomWMSLayer({
       data: "https://geoserver.slui.dev/geoserver/slui/wms",

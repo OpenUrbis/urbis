@@ -28,6 +28,7 @@ export const MapView = () => {
     populateMapContext,
     handleViewportChange,
     selectedFeatures,
+    is3DActive,
     overlayRef,
   } = mapContext;
   if (!overlayRef) {
@@ -44,6 +45,7 @@ export const MapView = () => {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
       selectedFeature: selectedFeatures.value,
+      is3DActive: is3DActive.value,
     }).flat()
   );
 

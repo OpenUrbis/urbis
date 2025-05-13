@@ -2,6 +2,7 @@ import { TileLayer } from "@deck.gl/geo-layers";
 import { GeoJsonLayer } from "@deck.gl/layers";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { Signal } from "@preact/signals";
+import React from "react";
 import { CustomWMSLayer } from "../components/MapView/CustomWMSLayer";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import {
@@ -22,6 +23,7 @@ export interface MapContextType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   viewport: Signal<any>;
   zoom: Signal<number>;
+  is3DActive: Signal<boolean>;
   overlayRef: React.RefObject<MapboxOverlay | null>;
 }
 
@@ -42,6 +44,7 @@ export type MapContextLayerSchemaTypeMapProps = {
   boundingBox: MapBoundingBox;
   selectedFeature?: MapContextSelectedFeature[];
   selectedFeatureIds?: string[];
+  is3DActive?: boolean;
 };
 
 export type MapContextLayerSchemaTypeMap = {

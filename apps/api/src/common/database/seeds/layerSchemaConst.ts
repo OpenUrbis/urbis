@@ -198,10 +198,32 @@ export const layerSchemas: LayerSchema[] = [
           {
             type: 'polygon-map',
             properties: {
-              polygonProps:
-                '(data) => ({\n                id: "polygon-layer",\n                data: [{ coordinates: data.geometry.coordinates }],\n                pickable: false,\n                stroked: true,\n                filled: true,\n                lineWidthMinPixels: 2,\n                getPolygon: (d) => d.coordinates,\n                getFillColor: [255, 165, 0, 100],\n                getLineColor: [255, 140, 0],\n              })',
-              initialViewState:
-                '(data) => {\n                const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);\n              \n                return {\n                  longitude: centroid[0],\n                  latitude: centroid[1],\n                  zoom: 16.5,\n                  pitch: 0,\n                  bearing: 0,\n                };\n              }',
+              polygonProps: `
+                (data) => ({
+                  id: "polygon-layer",
+                  data: [{ coordinates: data.geometry.coordinates }],
+                  pickable: false,
+                  stroked: true,
+                  filled: true,
+                  lineWidthMinPixels: 2,
+                  getPolygon: (d) => d.coordinates,
+                  getFillColor: [255, 165, 0, 100],
+                  getLineColor: [255, 140, 0],
+                })
+              `,
+              initialViewState: `
+                (data) => {
+                  const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
+
+                  return {
+                    longitude: centroid[0],
+                    latitude: centroid[1],
+                    zoom: 16.5,
+                    pitch: 0,
+                    bearing: 0,
+                  };
+                }
+              `,
             },
           },
           {

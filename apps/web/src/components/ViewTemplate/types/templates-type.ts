@@ -9,6 +9,7 @@ export type ITemplateRender = (props: ITemplateProps) => any;
 export interface ITemplatesDeclaration {
   name: string;
   render: ITemplateRender;
+  hiddenOnPrint?: boolean;
 }
 
 export interface ITemplatesMap {
@@ -33,4 +34,5 @@ export interface ITemplateProps {
   data: unknown;
   key?: string;
   rootTemplate?: ITemplate[];
+  isPrint?: boolean;
 }

@@ -6,8 +6,10 @@ import "./style.scss";
 
 export const FeaturesView = ({
   feature,
+  isPrint,
 }: {
   feature?: MapContextSelectedFeature;
+  isPrint?: boolean;
 }) => {
   const { selectedFeatures } = useMapContext();
 
@@ -20,8 +22,13 @@ export const FeaturesView = ({
   const data = computed(() => view.value.feature ?? {});
 
   return (
-    !!selectedFeatures.value.length && (
-      <ViewTemplate templates={template.value} data={data.value} rootTemplate={template.value} />
+    !!template.value.length && (
+      <ViewTemplate
+        templates={template.value}
+        data={data.value}
+        rootTemplate={template.value}
+        isPrint={isPrint}
+      />
     )
   );
 };

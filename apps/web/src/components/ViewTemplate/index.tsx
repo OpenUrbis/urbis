@@ -5,14 +5,15 @@ export interface IViewTemplate {
   templates: ITemplate[];
   rootTemplate?: ITemplate[];
   data: unknown;
+  isPrint?: boolean;
 }
 
 export const ViewTemplate = ({
   templates,
   data,
   rootTemplate,
+  isPrint,
 }: IViewTemplate) => {
-
   return (
     <div
       style={{
@@ -26,6 +27,7 @@ export const ViewTemplate = ({
           template={template}
           data={data}
           rootTemplate={rootTemplate}
+          isPrint={isPrint}
         />
       ))}
     </div>

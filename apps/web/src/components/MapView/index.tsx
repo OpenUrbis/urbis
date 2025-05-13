@@ -91,7 +91,7 @@ export const MapView = () => {
   return (
     <>
       <div style={{ position: "relative", width: "100%", height: "100%" }}>
-        {viewport.value && (
+        {viewport.value ? (
           <Map
             style={{ width: "100%", height: "100%" }}
             mapStyle="mapbox://styles/mapbox/light-v9"
@@ -114,6 +114,10 @@ export const MapView = () => {
               }}
             />
           </Map>
+        ) : (
+          <div className="h-100 w-100 d-flex align-items-center justify-content-center">
+            <CircularProgress label="progress" size="xlarge" />
+          </div>
         )}
       </div>
       {isEditing.value ? saveButton() : <LayerController />}

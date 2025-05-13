@@ -43,7 +43,8 @@
     "react-dom": "^18.2.0",
     "react-json-view": "^1.21.3",
     "react-map-gl": "^8.0.3",
-    "rmwc": "^14.3.5"
+    "rmwc": "^14.3.5",
+    "wouter": "^3.7.0"
   },
   "devDependencies": {
     "@open-urbis/map-eslint-config": "*",

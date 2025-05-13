@@ -4,6 +4,7 @@ import { FeaturesView } from "./components/FeaturesView";
 import { useMapContext } from "./hooks/useMapContext";
 import { useNavigationContext } from "./hooks/useNavigationContext";
 import { IMapActionProps } from "./types/map-context-type";
+import { BackButton } from "./components/BackButton";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const MAP_CONFIGS: any = {
@@ -57,7 +58,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
   ) => void;
 } => {
   const { selectFeature, flyTo } = useMapContext();
-  const { navigateTo, addOnPage, rmOnPage } = useNavigationContext();
+  const { navigateTo, toggleDrawer } = useNavigationContext();
 
   return {
     [ClickActionEnum.SelectFeature]: function (
@@ -72,14 +73,16 @@ export const CLICK_ACTIONS_CONFIG = (): {
         return console.error(
           'clickAction(selectFeature) Error: Property "template" is not defined'
         );
-
+      toggleDrawer();
       selectFeature({ feature, template });
       flyTo({
         center: [longitude, latitude],
         zoom,
         ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
       });
-      navigateTo(<FeaturesView />);
+      navigateTo(<div className="initial-page">
+        <FeaturesView />
+      </div>);
     },
     [ClickActionEnum.SetZoom]: function (
       { zoom },
@@ -99,9 +102,13 @@ export const CLICK_ACTIONS_CONFIG = (): {
       });
     },
     [ClickActionEnum.openFeature]: function ({ template }, { feature }) {
-      rmOnPage();
-      addOnPage(
-        <FeaturesView feature={{ template: template ?? [], feature }} />
+      navigateTo(
+        <div className="page active">
+          <div className="page-header">
+            <BackButton />
+          </div>
+          <FeaturesView feature={{ template: template ?? [], feature }} />
+        </div>
       );
     },
   };

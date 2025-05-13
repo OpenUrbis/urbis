@@ -65,6 +65,6 @@ spec:
           value: "templates"
         - name: MAIL_FROM
           value: "info@yourdomain.com.br"
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
       imagePullSecrets:
       - name: urbis-docker-hub

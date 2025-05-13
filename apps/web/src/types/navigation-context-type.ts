@@ -5,6 +5,7 @@ export interface INavigationContextType {
   currentPage: Signal<any | any[]>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lastPage: Signal<any>;
+  drawerOpen: Signal<boolean>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   history: Signal<any[]>;
 }
@@ -16,10 +17,13 @@ export interface INavigationContextActions {
   lastPage: ReadonlySignal<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   history: ReadonlySignal<any[]>;
+  drawerOpen: Signal<boolean>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigateTo: (page: any) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addOnPage: (page: any) => void;
+  navigatePop: () => void;
+  toggleDrawer: () => void;
   rmOnPage: () => void;
   clearCurrentPage: () => void;
 }

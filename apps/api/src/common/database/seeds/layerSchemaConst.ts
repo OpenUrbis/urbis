@@ -161,21 +161,29 @@ export const layerSchemas: LayerSchema[] = [
     viewTemplate: [
       {
         type: 'wrapper-card',
+        label: 'Identificador',
+        properties: {
+          helper: 'Identificador do lote, (setor.quadra.lote.condominio)',
+        },
         templates: [
           {
             type: 'label-value',
-            label: 'Identificação',
-            value: `<h3>#<%- properties.id.replace("lote_cidadao.", "") %></h3>`,
+            label: 'Inscrição',
+            value:
+              "<%- properties.cd_setor_fiscal?.padStart(4, '0') ?? '0000' %>.<%- properties.cd_quadra_fiscal?.padStart(4, '0') ?? '0000' %>.<%- properties.cd_lote?.padStart(4, '0') ?? '0000' %>.<%- properties.cd_condominio?.padStart(4, '0') ?? '0000' %>",
           },
+        ],
+      },
+      {
+        type: 'wrapper-card',
+        label: 'Localização',
+        templates: [
           {
             type: 'label-value',
-            label: 'Logradouro',
-            value: "<%- properties?.nm_logradouro_completo ?? '-' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Número de Porta',
-            value: "<%- properties?.cd_numero_porta ?? '-' %>",
+            label: 'Endereço',
+            properties: { helper: 'Endereço do lote' },
+            value:
+              "<%- properties?.nm_logradouro_completo ?? '-' %>, <%- properties?.cd_numero_porta ?? '-' %>",
           },
           {
             type: 'label-value',
@@ -190,28 +198,10 @@ export const layerSchemas: LayerSchema[] = [
           {
             type: 'polygon-map',
             properties: {
-              initialViewState: `(data) => {
-                const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
-              
-                return {
-                  longitude: centroid[0],
-                  latitude: centroid[1],
-                  zoom: 16.5,
-                  pitch: 0,
-                  bearing: 0,
-                };
-              }`,
-              polygonProps: `(data) => ({
-                id: "polygon-layer",
-                data: [{ coordinates: data.geometry.coordinates }],
-                pickable: false,
-                stroked: true,
-                filled: true,
-                lineWidthMinPixels: 2,
-                getPolygon: (d) => d.coordinates,
-                getFillColor: [255, 165, 0, 100],
-                getLineColor: [255, 140, 0],
-              })`,
+              polygonProps:
+                '(data) => ({\n                id: "polygon-layer",\n                data: [{ coordinates: data.geometry.coordinates }],\n                pickable: false,\n                stroked: true,\n                filled: true,\n                lineWidthMinPixels: 2,\n                getPolygon: (d) => d.coordinates,\n                getFillColor: [255, 165, 0, 100],\n                getLineColor: [255, 140, 0],\n              })',
+              initialViewState:
+                '(data) => {\n                const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);\n              \n                return {\n                  longitude: centroid[0],\n                  latitude: centroid[1],\n                  zoom: 16.5,\n                  pitch: 0,\n                  bearing: 0,\n                };\n              }',
             },
           },
           {
@@ -234,28 +224,32 @@ export const layerSchemas: LayerSchema[] = [
                   {
                     type: 'polygon-map',
                     properties: {
-                      initialViewState: `(data) => {
-                        const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
-                      
-                        return {
+                      polygonProps: `
+                        (data) => ({
+                          id: "polygon-layer",
+                          data: [{ coordinates: data.geometry.coordinates }],
+                          pickable: false,
+                          stroked: true,
+                          filled: true,
+                          lineWidthMinPixels: 2,
+                          getPolygon: (d) => d.coordinates,
+                          getFillColor: [255, 165, 0, 100],
+                          getLineColor: [255, 140, 0],
+                        })
+                      `,
+                      initialViewState: `
+                        (data) => {
+                          const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
+
+                          return {
                           longitude: centroid[0],
                           latitude: centroid[1],
                           zoom: 16.5,
                           pitch: 0,
                           bearing: 0,
-                        };
-                      }`,
-                      polygonProps: `(data) => ({
-                        id: "polygon-layer",
-                        data: [{ coordinates: data.geometry.coordinates }],
-                        pickable: false,
-                        stroked: true,
-                        filled: true,
-                        lineWidthMinPixels: 2,
-                        getPolygon: (d) => d.coordinates,
-                        getFillColor: [255, 165, 0, 100],
-                        getLineColor: [255, 140, 0],
-                      })`,
+                          };
+                        }
+                      `,
                     },
                   },
                 ],
@@ -266,10 +260,6 @@ export const layerSchemas: LayerSchema[] = [
                 templates: [
                   {
                     type: 'wrapper-list-items',
-                    properties: {
-                      twoLine: true,
-                      data: `(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))`,
-                    },
                     templates: [
                       {
                         type: 'primary-item',
@@ -312,6 +302,10 @@ export const layerSchemas: LayerSchema[] = [
                         `,
                       },
                     ],
+                    properties: {
+                      data: '(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))',
+                      twoLine: true,
+                    },
                   },
                 ],
               },
@@ -321,24 +315,28 @@ export const layerSchemas: LayerSchema[] = [
                 templates: [
                   {
                     type: 'wrapper-list-items',
-                    properties: {
-                      twoLine: true,
-                      data: `(data) => data.response.features.filter(({ id }) => id.includes("lote_cidadao"))`,
-                      onItemClick: {
-                        action: ClickActionEnum.openFeature,
-                        params: { template: 'root' },
-                      },
-                    },
                     templates: [
                       {
                         type: 'primary-item',
-                        value: `Identificador #<%- properties.id.replace("lote_cidadao.", "") %>`,
+                        value:
+                          'Identificador #<%- properties.id.replace("lote_cidadao.", "") %>',
                       },
                       {
                         type: 'secondary-item',
-                        value: `SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>`,
+                        value:
+                          "SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>",
                       },
                     ],
+                    properties: {
+                      data: '(data) => data.response.features.filter(({ id }) => id.includes("lote_cidadao"))',
+                      twoLine: true,
+                      onItemClick: {
+                        action: 'openFeature',
+                        params: {
+                          template: 'root',
+                        },
+                      },
+                    },
                   },
                 ],
               },
@@ -348,7 +346,7 @@ export const layerSchemas: LayerSchema[] = [
       },
       {
         type: 'wrapper-card',
-        label: 'Informações',
+        label: 'Informações prediais',
         templates: [
           {
             type: 'wrapper-row',

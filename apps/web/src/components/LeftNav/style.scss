@@ -6,8 +6,8 @@
     width: 324px;
     max-width: 324px!important;
     flex: 0;
-    transition: all 0.3s ease;
     overflow: auto;
+    transition: all 0.3s ease;
     z-index: 1;
 }
 
@@ -33,36 +33,14 @@
         z-index: 1000;
     }
 }
-
-/* Estrutura de navegação empilhada */
-.page-stack {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
+.page-header {
+    padding-left: 6px;
+    padding-bottom: 6px;
 }
 
-.page {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #fff;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 10;
-}
-
-.page.active {
-    transform: translateY(0);
-    z-index: 20;
-}
-
-.page.previous {
-    transform: translateY(-10%);
-    opacity: 0.8;
-    z-index: 15;
+.mdc-deprecated-list-item__text {
+    width: 100%!important;
+    display: inline-grid!important;
 }
 
 /* Animação de entrada/saída */

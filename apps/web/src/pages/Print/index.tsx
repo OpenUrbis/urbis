@@ -71,10 +71,12 @@ const PrintPage = () => {
     </div>
   ) : error ? (
     <div className="h-100 w-100 d-flex align-items-center justify-content-center">
+      <span id="ready"></span>
       {error}
     </div>
   ) : (
     <div className="container print">
+      <span id="ready"></span>
       <header className="d-flex align-items-center justify-content-between">
         <div className="logo d-flex align-items-center justify-content-center">
           <img src="logo.svg" alt="Logo da cidade de São paulo" />
@@ -84,6 +86,7 @@ const PrintPage = () => {
           <span>Informações</span>
           <span>Informações</span>
         </div>
+        <span style={{ pageBreakInside: "avoid" }}></span>
         <div className="qrcode d-flex align-items-center justify-content-center">
           <QRCodeSVG value={location.href} size={100} />
         </div>

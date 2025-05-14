@@ -4,6 +4,7 @@ import { Icon, Tooltip } from "rmwc";
 import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import "./LayerItem.scss";
+import { LayerItemAction } from "./LayerItemAction";
 
 export const LayerItem = ({ item }: { item: IGetConfigLayerSchema }) => {
   const { handleVisibleLayer, zoom } = useMapContext();
@@ -62,15 +63,35 @@ export const LayerItem = ({ item }: { item: IGetConfigLayerSchema }) => {
     return <></>;
   });
 
+  const renderActions = () => {
+    const { properties } = item;
+    if (!properties?.layerActions || !properties?.layerActions.length)
+      return null;
+
+    return (
+      <section className="d-flex align-self-center">
+        {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          properties.layerActions.map(({ icon, action }: any, i: number) => (
+            <LayerItemAction key={`${icon}-${i}`} icon={icon} action={action} />
+          ))
+        }
+      </section>
+    );
+  };
+
   return (
-    <section
-      key={item.id}
-      className={renderLayerClassName()}
-      onClick={() => handleVisibleLayer(item.id)}
-    >
-      {renderColor()}
-      <span className="layer-item-name">{item.name}</span>
-      {<div className="layer-item-actions">{renderVisibilityIcon.value}</div>}
+    <section className="d-flex align-items-center">
+      <section
+        key={item.id}
+        className={renderLayerClassName()}
+        onClick={() => handleVisibleLayer(item.id)}
+      >
+        {renderColor()}
+        <span className="layer-item-name">{item.name}</span>
+        {<div className="layer-item-actions">{renderVisibilityIcon.value}</div>}
+      </section>
+      {renderActions()}
     </section>
   );
 };

@@ -485,6 +485,13 @@ export const layerSchemas: LayerSchema[] = [
 
         return (qt_area_construida / qt_area_terreno) * 2 * 3;
       }`,
+      layerActions: [
+        {
+          icon: 'info',
+          action:
+            "() => window.open('https://dadosabertos.urbis.sampa.br/','_blank')",
+        },
+      ],
     },
     colors: [
       {

@@ -10,10 +10,11 @@
   padding: 8px;
   border-radius: 8px;
   margin: 4px 0;
+  width: 100%;
   cursor: pointer;
 
   &:hover {
-    background-color: #f5f5f5!important;
+    background-color: #f5f5f5 !important;
   }
 
   .layer-item-name {

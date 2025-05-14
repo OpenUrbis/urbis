@@ -45,7 +45,7 @@ export class SearchConfigSeedService {
             if (condominio) CQL_FILTER += \` AND cd_condominio = '\${condominio}'\`;
           } else {
             term = \`%\${term.split(' ').join('%').split(',').join('')}%\`;
-            CQL_FILTER = \`nm_logradouro_completo ILIKE '\${term}'\`;
+            CQL_FILTER = \`endereco_completo ILIKE '\${term}'\`;
           }
 
           return {

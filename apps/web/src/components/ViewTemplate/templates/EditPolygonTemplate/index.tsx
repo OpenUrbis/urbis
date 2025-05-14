@@ -14,7 +14,7 @@ const EditPolygonComponent = ({
 }: ITemplateProps) => {
   const { drawRef, setFeature, reset, setIsEditing } = usePolygonEditContext();
   const { navigateTo } = useNavigationContext();
-  const { label = "Ajustar perimetros" } = template;
+  const { label = "Ajustar Perímetro" } = template;
 
   if (!drawRef) {
     console.error("MapContext is not initialized (drawRef is null)");

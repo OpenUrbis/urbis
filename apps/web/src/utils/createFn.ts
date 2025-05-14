@@ -1,6 +1,6 @@
 import { calculateCenterId } from "../hooks/useMapContext";
 
-export const createFn = (strFn: string, skipError = true) => {
+export const createFn = (strFn: string, returnEmptyFnIfError = true) => {
   const cleanedStrFn = strFn
     .replace(/[\n\r\t\s]+/g, " ")
     .replace(/\\u003E/g, ">")
@@ -25,6 +25,6 @@ export const createFn = (strFn: string, skipError = true) => {
       { strFn, cleanedStrFn },
       error
     );
-    return skipError ? () => {} : undefined;
+    return returnEmptyFnIfError ? () => {} : undefined;
   }
 };

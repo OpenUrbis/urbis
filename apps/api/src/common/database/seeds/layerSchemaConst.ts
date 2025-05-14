@@ -237,7 +237,7 @@ export const layerSchemas: LayerSchema[] = [
             value: 'Não disponível',
           },
           {
-            type: 'protocol-action',
+            type: 'edit-polygon',
             polygonTemplate: [
               {
                 type: 'wrapper-card',
@@ -363,6 +363,11 @@ export const layerSchemas: LayerSchema[] = [
                 ],
               },
             ],
+          },
+          {
+            type: 'button',
+            label: 'Imprimir',
+            properties: { action: `() => console.log("DO NOTHING");` },
           },
         ],
       },

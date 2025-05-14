@@ -103,7 +103,12 @@ const generateGetColorFns = (
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFillColor = (d: any): Color => {
-    if (selectedFeatureIds.includes(d?.id)) return [255, 0, 0, 255];
+    const isSelected =
+      MAP_CONFIGS.CHECKER_POLYGON_IS_SELECTED.CHECK_ARRAY_OF_PROPERTIES(
+        selectedFeatureIds,
+        d
+      );
+    if (isSelected) return isSelected;
 
     const key = getFillColorPropName ?? "default";
     const keyToFind = d?.properties?.[key] ?? "default";
@@ -235,11 +240,10 @@ export const transformSchemaLayers = (
   layersConfig: IGetConfigLayerSchema[],
   props: MapContextLayerSchemaTypeMapProps
 ) => {
-  const { zoom, selectedFeature } = props;
+  const { zoom } = props;
 
-  const selectedFeatureIds = selectedFeature?.map(
-    (item) => (item.feature as { id: string }).id
-  );
+  const selectedFeatureIds =
+    MAP_CONFIGS.CHECKER_POLYGON_IS_SELECTED.BUILD_ARRAY_OF_PROPERTIES(props);
 
   return layersConfig
     .filter((layer) => {

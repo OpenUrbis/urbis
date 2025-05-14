@@ -7,13 +7,14 @@ import {
   ITemplatesDeclaration,
 } from "../../types/templates-type";
 
-const ProtocolActionComponent = ({
+const EditPolygonComponent = ({
   data,
   template,
   rootTemplate,
 }: ITemplateProps) => {
   const { drawRef, setFeature, reset, setIsEditing } = usePolygonEditContext();
   const { navigateTo } = useNavigationContext();
+  const { label = "Ajustar perimetros" } = template;
 
   if (!drawRef) {
     console.error("MapContext is not initialized (drawRef is null)");
@@ -52,13 +53,13 @@ const ProtocolActionComponent = ({
 
   return (
     <Button onClick={() => edit()} outlined>
-      Ajustar perimetros
+      {label}
     </Button>
   );
 };
 
-export const ProtocolActionTemplate: ITemplatesDeclaration = {
-  name: "protocol-action",
+export const EditPolygonTemplate: ITemplatesDeclaration = {
+  name: "edit-polygon",
   hiddenOnPrint: true,
-  render: ProtocolActionComponent,
+  render: EditPolygonComponent,
 };

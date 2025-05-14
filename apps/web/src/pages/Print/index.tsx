@@ -86,7 +86,6 @@ const PrintPage = () => {
           <span>Informações</span>
           <span>Informações</span>
         </div>
-        <span style={{ pageBreakInside: "avoid" }}></span>
         <div className="qrcode d-flex align-items-center justify-content-center">
           <QRCodeSVG value={location.href} size={100} />
         </div>

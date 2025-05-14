@@ -25,11 +25,13 @@ export class SearchConfigSeedService {
         transformParams: `({term}) => {
           const parseCode = (term) => {
             term = term.replaceAll(" ", "");
+
             if (!/^\\d{10}(\\d{2})?$/.test(term)) return null;
-            const setor = term.substring(0, 3); // primeiros 3 dígitos
-            const quadra = term.substring(3, 6); // próximos 3 dígitos
-            const lote = term.substring(6, 10); // próximos 4 dígitos
-            const condominio = term.length === 12 ? term.substring(10, 12) : null; // últimos 2 dígitos, se existirem
+
+            const setor = term.substring(0, 3);
+            const quadra = term.substring(3, 6);
+            const lote = term.substring(6, 10);
+            const condominio = term.length === 12 ? term.substring(10, 12) : null;
 
             return { quadra, setor, lote, condominio };
           };
@@ -42,18 +44,18 @@ export class SearchConfigSeedService {
             CQL_FILTER = \`cd_setor_fiscal = '\${setor}' AND cd_quadra_fiscal = '\${quadra}' AND cd_lote = '\${lote}'\`;
             if (condominio) CQL_FILTER += \` AND cd_condominio = '\${condominio}'\`;
           } else {
-            term = \`%\${term.split(" ").join("%").split(",").join("")}%\`;
+            term = \`%\${term.split(' ').join('%').split(',').join('')}%\`;
             CQL_FILTER = \`nm_logradouro_completo ILIKE '\${term}'\`;
           }
 
           return {
-            service: "WFS",
-            version: "1.0.0",
-            request: "GetFeature",
-            typeName: "slui:view_lote_cidadao",
-            maxFeatures: "5",
-            outputFormat: "json",
-            srsName: "EPSG:4326",
+            service: 'WFS',
+            version: '1.0.0',
+            request: 'GetFeature',
+            typeName: 'slui:view_lote_cidadao',
+            maxFeatures: '5',
+            outputFormat: 'json',
+            srsName: 'EPSG:4326',
             CQL_FILTER,
           };
         }`,
@@ -76,6 +78,7 @@ export class SearchConfigSeedService {
           }) ?? [];
         }`,
         transformRequest: null,
+        clickAction: null,
       },
       {
         id: 'districts',
@@ -111,6 +114,7 @@ export class SearchConfigSeedService {
           }) ?? [];
         }`,
         transformRequest: null,
+        clickAction: null,
       },
       {
         id: 'geocoding',

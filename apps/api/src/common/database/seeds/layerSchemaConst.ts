@@ -170,7 +170,7 @@ export const layerSchemas: LayerSchema[] = [
             type: 'label-value',
             label: 'Inscrição',
             value:
-              "<%- properties.cd_setor_fiscal?.padStart(4, '0') ?? '0000' %>.<%- properties.cd_quadra_fiscal?.padStart(4, '0') ?? '0000' %>.<%- properties.cd_lote?.padStart(4, '0') ?? '0000' %>.<%- properties.cd_condominio?.padStart(4, '0') ?? '0000' %>",
+              "<%- properties.cd_setor_fiscal?.padStart(3, '0') ?? '000' %> <%- properties.cd_quadra_fiscal?.padStart(3, '0') ?? '000' %> <%- properties.cd_lote?.padStart(4, '0') ?? '0000' %> <%- properties.cd_condominio?.padStart(2, '0') ?? '00' %>",
           },
         ],
       },

@@ -27,6 +27,7 @@ export interface IPolygonEditContextActions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setFeature: (newFeature: any) => void;
   setIsEditing: (newIsEditing: boolean) => void;
+  reset: () => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setDrawRef: (newDrawRef: any) => void;
 }

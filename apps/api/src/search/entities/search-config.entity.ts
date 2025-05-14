@@ -80,7 +80,7 @@ export class SearchConfig {
       params: { zoom: 12 },
     },
   })
-  @Column({ nullable: true, type: 'jsonb', default: `{}` })
+  @Column({ nullable: true, type: 'jsonb', default: null })
   clickAction?: IClickAction;
 
   @ApiPropertyOptional({

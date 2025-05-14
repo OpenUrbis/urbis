@@ -317,10 +317,10 @@ The `button` template is a simple button with any action.
 - **Example**:
   ```json
   {
-            type: 'button',
-            label: 'Imprimir',
-            properties: { action: `() => console.log("DO NOTHING");` },
-          },
+    "type": "button",
+    "label": "Imprimir",
+    "properties": { "action": "() => console.log('DO NOTHING');" },
+  },
   ```
   This example combines a map with a list of lots, each with a click action to open details.
 

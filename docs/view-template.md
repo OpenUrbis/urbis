@@ -308,9 +308,9 @@ The `button` template is a simple button with any action.
 
 - **Properties of the `properties` Object**:
 
-| Property | Description                                                         | Example                            |
-| -------- | ------------------------------------------------------------------- | ---------------------------------- |
-| `action` | A string function that will be triggered when the button is clicked | `() => console.log("Do nothing");` |
+| Property | Description                                                          | Example                                |
+| -------- | -------------------------------------------------------------------- | -------------------------------------- |
+| `action` | A string function that will be triggered when the button is clicked. | `(data) => console.log("Do nothing");` |
 
 > This template will no be rendered when the view is to printing
 
@@ -319,7 +319,7 @@ The `button` template is a simple button with any action.
   {
     "type": "button",
     "label": "Imprimir",
-    "properties": { "action": "() => console.log('DO NOTHING');" },
+    "properties": { "action": "(data) => console.log('DO NOTHING');" },
   },
   ```
   This example combines a map with a list of lots, each with a click action to open details.

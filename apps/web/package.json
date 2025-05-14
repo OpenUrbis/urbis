@@ -39,6 +39,7 @@
     "mapbox-gl": "^3.11.0",
     "mapbox-gl-style-switcher": "^1.0.11",
     "preact": "^10.26.5",
+    "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-json-view": "^1.21.3",

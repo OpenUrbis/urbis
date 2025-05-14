@@ -65,6 +65,19 @@ spec:
           value: "templates"
         - name: MAIL_FROM
           value: "info@yourdomain.com.br"
-        imagePullPolicy: IfNotPresent
+<<<<<<< HEAD
+=======
+        - name: AWS_REGION
+          value: "us-east-1"
+        - name: AWS_ACCESS_KEY_ID
+          value: "AIA2ROSF5WQVV7UVT7"
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "WR84RulAVMlZ27Vv576ngC7rnixdd6gmByBFMGnA"
+        - name: S3_BUCKET_NAME
+          value: "storage"
+        - name: AWS_S3_ENDPOINT
+          value: "https://api.mapa.urbis.sampa.br"
+>>>>>>> c6561064887e860221e26ba55a190c795372cd5a
+        imagePullPolicy: Always
       imagePullSecrets:
       - name: urbis-docker-hub

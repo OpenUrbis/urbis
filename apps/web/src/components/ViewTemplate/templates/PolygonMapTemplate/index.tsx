@@ -1,6 +1,6 @@
 import DeckGL, { PolygonLayer } from "deck.gl";
 import { memo } from "preact/compat";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Map } from "react-map-gl/mapbox";
 import { createFn } from "../../../../utils/createFn";
 import { IPolygonMapProperties } from "../../types/polygon-map-type";
@@ -14,6 +14,7 @@ const PolygonMapComponent: ITemplateRender = ({
   template,
   data,
 }: ITemplateProps) => {
+  const [loadingMap, setLoadingMap] = useState(true);
   const properties: IPolygonMapProperties =
     template.properties as IPolygonMapProperties;
   const accessToken =
@@ -64,11 +65,13 @@ const PolygonMapComponent: ITemplateRender = ({
         position: "relative",
       }}
     >
+      {loadingMap ? <span id="mapReady"></span> : null}
       <DeckGL
         ref={mapRef}
         initialViewState={initialViewState()}
         controller={false}
         layers={[polygonProps()]}
+        onLoad={() => setLoadingMap(false)}
       >
         {
           (

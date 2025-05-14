@@ -35,12 +35,14 @@ export const ViewTemplateEngine = ({
         const Template = templateTypes[templateType];
 
         return (
-          <Template
-            template={props}
-            data={data}
-            rootTemplate={rootTemplate}
-            isPrint={isPrint}
-          />
+          <section style={{ pageBreakInside: "avoid", pageBreakAfter: "auto" }}>
+            <Template
+              template={props}
+              data={data}
+              rootTemplate={rootTemplate}
+              isPrint={isPrint}
+            />
+          </section>
         );
       } catch (e) {
         console.error(e);

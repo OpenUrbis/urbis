@@ -1,13 +1,63 @@
 import { FillStyleExtension } from "@deck.gl/extensions";
 import { ClickActionEnum } from "@open-urbis/map-shared";
+import { BackButton } from "./components/BackButton";
 import { FeaturesView } from "./components/FeaturesView";
 import { useMapContext } from "./hooks/useMapContext";
 import { useNavigationContext } from "./hooks/useNavigationContext";
-import { IMapActionProps } from "./types/map-context-type";
-import { BackButton } from "./components/BackButton";
+import {
+  IMapActionProps,
+  MapContextLayerSchemaTypeMapProps,
+} from "./types/map-context-type";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const MAP_CONFIGS: any = {
+interface FillPatternProperties {
+  fillPatternMask: boolean;
+  fillPatternAtlas: string;
+  fillPatternMapping: string;
+  getFillPatternScale: number;
+  getFillPatternOffset: [number, number];
+  extensions: [FillStyleExtension];
+}
+
+interface DefaultPropertiesDestination {
+  pitch?: number;
+  bearing?: number;
+}
+
+interface DefaultLayerProperties {
+  filled: boolean;
+  getText: () => string;
+  getTextSize: number;
+}
+
+type PreProcessingLayerProperties = (properties: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getElevation?: string | ((...args: any[]) => number);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}) => any;
+
+interface CheckerPolygonIsSelected {
+  BUILD_ARRAY_OF_PROPERTIES: (
+    props: MapContextLayerSchemaTypeMapProps
+  ) => string[];
+  CHECK_ARRAY_OF_PROPERTIES: (
+    selectedFeatureIds: string[],
+    polygon: { properties?: { id?: string } }
+  ) => [number, number, number, number] | null;
+}
+
+interface MapConfigs {
+  PATTERN_PROPERTIES: FillPatternProperties;
+  DEFAULT_LAYER_COLOR: [number, number, number, number];
+  GRID_CELL_SIZE: number;
+  DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS: DefaultPropertiesDestination;
+  DEFAULT_LAYER_PROPERTIES: DefaultLayerProperties;
+  PRE_PROCESSING_LAYER_PROPERTIES: PreProcessingLayerProperties;
+  CHECKER_POLYGON_IS_SELECTED: CheckerPolygonIsSelected;
+}
+
+export const MAP_CONFIGS: MapConfigs = {
   PATTERN_PROPERTIES: {
     // props added by FillStyleExtension
     fillPatternMask: true,
@@ -48,6 +98,23 @@ export const MAP_CONFIGS: any = {
       }
     }
   },
+  CHECKER_POLYGON_IS_SELECTED: {
+    BUILD_ARRAY_OF_PROPERTIES: ({ selectedFeature }) =>
+      selectedFeature
+        ? selectedFeature.map(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (item) => (item.feature as any).properties.id
+          )
+        : [],
+    CHECK_ARRAY_OF_PROPERTIES: (
+      selectedFeatureIds: string[],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      polygon: any
+    ): [number, number, number, number] | null =>
+      selectedFeatureIds.includes(polygon?.properties?.id)
+        ? [255, 0, 0, 255]
+        : null,
+  },
 };
 
 export const CLICK_ACTIONS_CONFIG = (): {
@@ -80,9 +147,11 @@ export const CLICK_ACTIONS_CONFIG = (): {
         zoom,
         ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
       });
-      navigateTo(<div className="initial-page">
-        <FeaturesView />
-      </div>);
+      navigateTo(
+        <div className="initial-page">
+          <FeaturesView />
+        </div>
+      );
     },
     [ClickActionEnum.SetZoom]: function (
       { zoom },

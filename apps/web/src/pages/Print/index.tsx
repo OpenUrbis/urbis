@@ -1,9 +1,11 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "preact/hooks";
+import { QRCodeSVG } from "qrcode.react";
 import { CircularProgress } from "rmwc";
 import { FeaturesView } from "../../components/FeaturesView";
 import { ITemplate } from "../../components/ViewTemplate/types/templates-type";
 import { getLayerSchema } from "../../integrations/layer-schema-integration";
+
 import "./style.scss";
 
 const PrintPage = () => {
@@ -45,6 +47,7 @@ const PrintPage = () => {
       await fetchPolygonData(await fetchLayerConfig(layerSchema), rest);
 
       setLoading(false);
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
@@ -82,10 +85,7 @@ const PrintPage = () => {
           <span>Informações</span>
         </div>
         <div className="qrcode d-flex align-items-center justify-content-center">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Link_pra_pagina_principal_da_Wikipedia-PT_em_codigo_QR_b.svg"
-            alt="Autenticador do documento"
-          />
+          <QRCodeSVG value={location.href} size={100} />
         </div>
       </header>
       <div className="content">

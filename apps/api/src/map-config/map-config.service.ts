@@ -1,8 +1,12 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as turf from '@turf/turf';
+import { firstValueFrom } from 'rxjs';
 import { IsNull, Repository } from 'typeorm';
 import { LayerGroup } from './../layer-groups/entities/layer-group.entity';
 import { LayerSchema } from './../layer-schemas/entities/layer-schema.entity';
+import { TextLayerDtoResponse } from './dto/text-layer.dto';
 
 @Injectable()
 export class MapConfigService {
@@ -11,6 +15,8 @@ export class MapConfigService {
     private readonly layerGroup: Repository<LayerGroup>,
     @InjectRepository(LayerSchema)
     private readonly layerSchemas: Repository<LayerSchema>,
+
+    private readonly httpService: HttpService,
   ) {}
 
   async getConfigs() {
@@ -37,16 +43,34 @@ export class MapConfigService {
         -23.087911153581274,
       ],
       zoom: 10,
-      bearing: -45,
+      bearing: 0,
       pitch: 0,
       padding: {
         top: 0,
-        bottom: 150,
-        left: 280,
+        bottom: 400,
+        left: 0,
         right: 0,
       },
       layerGroups,
       layerSchemas,
     };
+  }
+
+  async getTextLayer({
+    origin,
+    ...params
+  }: any): Promise<TextLayerDtoResponse[]> {
+    const { data } = await firstValueFrom(
+      this.httpService.get(origin as string, { params }),
+    );
+
+    return data.features.map(({ id, geometry, properties }) => {
+      const { coordinates } = geometry;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const polygon = turf.polygon(coordinates);
+      const centroid = turf.centroid(polygon);
+
+      return { id, coordinates: centroid.geometry.coordinates, properties };
+    });
   }
 }

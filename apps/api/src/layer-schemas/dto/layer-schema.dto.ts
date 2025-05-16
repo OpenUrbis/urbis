@@ -109,7 +109,7 @@ export class LayerSchemaDto {
   type: LayerSchemaTypeEnum;
 
   @ApiProperty({
-    example: true,
+    example: false,
     required: false,
     description: 'Determines if the layer is visible',
   })

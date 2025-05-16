@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SearchModule } from 'search/search.module';
@@ -11,6 +12,7 @@ import { MapConfigService } from './map-config.service';
   imports: [
     TypeOrmModule.forFeature([LayerSchema, LayerSchemaColors, LayerGroup]),
     SearchModule,
+    HttpModule,
   ],
   controllers: [MapConfigController],
   providers: [MapConfigService],

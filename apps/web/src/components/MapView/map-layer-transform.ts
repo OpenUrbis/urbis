@@ -1,4 +1,5 @@
 import { GeoJsonLayer, TextLayer } from "@deck.gl/layers";
+import polylabel from "polylabel";
 import { MAP_CONFIGS } from "../../application-configs";
 import { createGetTextLayerUri } from "../../integrations/map-integration";
 import {
@@ -170,10 +171,20 @@ const createTextLayer = (
   return new TextLayer({
     id: `text-layer-${id}`,
     data: createGetTextLayerUri(data),
-    getPosition: (d: any) => d.coordinates,
+    getPosition: (d: any) => {
+      try {
+        return polylabel(d.rawCoordinates, 0.000001);
+      } catch (err) {
+        console.warn(
+          `Error on calculate center with polylabel with id ${d.properties.id}:`,
+          err
+        );
+        return d.coordinates;
+      }
+    },
     getText: getTextFn,
     getColor: getTextColor,
-    getSize: 14,
+    getSize: 10,
     minZoom,
   });
 };

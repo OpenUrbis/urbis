@@ -70,7 +70,12 @@ export class MapConfigService {
       const polygon = turf.polygon(coordinates);
       const centroid = turf.centroid(polygon);
 
-      return { id, coordinates: centroid.geometry.coordinates, properties };
+      return {
+        id,
+        coordinates: centroid.geometry.coordinates,
+        properties,
+        rawCoordinates: coordinates,
+      };
     });
   }
 }

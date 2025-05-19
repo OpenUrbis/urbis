@@ -23,3 +23,7 @@ export const getIntersections = async (
 
   return data;
 };
+
+export const createGetTextLayerUri = (origin: string) => {
+  return `${environment}/text-layer?origin=${origin}`;
+};

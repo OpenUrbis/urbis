@@ -233,7 +233,7 @@ The `edit-polygon` template is the action for editing and initiating a new proto
 | Property          | Description                                                  | Default              | Example                             |
 | ----------------- | ------------------------------------------------------------ | -------------------- | ----------------------------------- |
 | `type`            | Template identifier, must be `"edit-polygon"`.               | -                    | `"edit-polygon"`                    |
-| `label`           | The text that will be displayed on the button on the screen. | "Ajustar perimetros" | `"edit-polygon"`                    |
+| `label`           | The text that will be displayed on the button on the screen. | "Ajustar Perímetro" | `"edit-polygon"`                    |
 | `polygonTemplate` | Array of wrappers or templates to be rendered.               | -                    | `[{ "type": "wrapper-card", ... }]` |
 
 - **Properties of the `properties` Object**:

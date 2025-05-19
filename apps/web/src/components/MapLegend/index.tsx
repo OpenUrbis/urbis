@@ -17,7 +17,8 @@ export const MapLegend = () => {
   const layers = computed(() =>
     layerSchemas.value.filter(
       (schema: IGetConfigLayerSchema) =>
-        schema.isVisible && schema.colors.length > 1
+        schema.isVisible &&
+        schema.colors.filter((cl) => cl.type === "fill").length > 1
     )
   );
 
@@ -50,49 +51,47 @@ export const MapLegend = () => {
     ));
   };
 
-  return (
-    layers.value.length && (
-      <>
-        {!isCollapsed.value && (
-          <Button
-            icon="closed_caption"
-            label="Legendas"
-            onClick={() => (isCollapsed.value = true)}
-            className="map-legend-main-button"
-            unelevated
-          />
-        )}
+  return layers.value.length ? (
+    <>
+      {!isCollapsed.value ? (
+        <Button
+          icon="closed_caption"
+          label="Legendas"
+          onClick={() => (isCollapsed.value = true)}
+          className="map-legend-main-button"
+          unelevated
+        />
+      ) : null}
 
-        {isCollapsed.value && (
-          <div className="map-legend">
-            <div className="header">
-              <h5>Legendas:</h5>
-              <IconButton
-                icon="close"
-                className="rmwc-icon-button-sm"
-                label="Fechar"
-                onClick={() => (isCollapsed.value = false)}
-              />
-            </div>
-
-            <div className="content">
-              <Select
-                label="Selecione a uma camada"
-                value={activedTab}
-                onChange={(input: { target: { value: string } }) =>
-                  setActivedTab(input.target.value)
-                }
-                options={layers.value.map((value) => ({
-                  label: value.name,
-                  value: value.id,
-                }))}
-              />
-
-              {renderLegend(activedLayer())}
-            </div>
+      {isCollapsed.value ? (
+        <div className="map-legend">
+          <div className="header">
+            <h5>Legendas:</h5>
+            <IconButton
+              icon="close"
+              className="rmwc-icon-button-sm"
+              label="Fechar"
+              onClick={() => (isCollapsed.value = false)}
+            />
           </div>
-        )}
-      </>
-    )
-  );
+
+          <div className="content">
+            <Select
+              label="Selecione a uma camada"
+              value={activedTab}
+              onChange={(input: { target: { value: string } }) =>
+                setActivedTab(input.target.value)
+              }
+              options={layers.value.map((value) => ({
+                label: value.name,
+                value: value.id,
+              }))}
+            />
+
+            {renderLegend(activedLayer())}
+          </div>
+        </div>
+      ) : null}
+    </>
+  ) : null;
 };

@@ -1,5 +1,7 @@
-import { GeoJsonLayer } from "@deck.gl/layers";
+import { GeoJsonLayer, TextLayer } from "@deck.gl/layers";
+import polylabel from "polylabel";
 import { MAP_CONFIGS } from "../../application-configs";
+import { createGetTextLayerUri } from "../../integrations/map-integration";
 import {
   IGetConfigFillPattern,
   IGetConfigLayerSchema,
@@ -8,7 +10,6 @@ import {
   MapBoundingBox,
   MapContextLayerSchemaTypeMap,
   MapContextLayerSchemaTypeMapProps,
-  MapContextRenderedLayer,
 } from "../../types/map-context-type";
 import { createFn } from "../../utils/createFn";
 import { CustomWMSLayer } from "./CustomWMSLayer";
@@ -150,10 +151,48 @@ const prepareLayerProperties = (
   return { ...properties, getElevation };
 };
 
+const checkZoom = (zoom: number, min?: number, max?: number) => {
+  return (min && zoom <= min) || (max && zoom >= max);
+};
+
+const createTextLayer = (
+  layer: IGetConfigLayerSchema,
+  props: MapContextLayerSchemaTypeMapProps,
+  getTextColor: (d: any) => Color
+) => {
+  const { zoom } = props;
+  const { properties, id, origin: data } = layer;
+
+  const { getText, minZoomText: minZoom, maxZoomText: maxZoom } = properties;
+  const getTextFn = getText ? createFn(getText, false) : null;
+
+  if (!getText || !getTextFn || checkZoom(zoom, minZoom, maxZoom)) return false;
+
+  return new TextLayer({
+    id: `text-layer-${id}`,
+    data: createGetTextLayerUri(data),
+    getPosition: (d: any) => {
+      try {
+        return polylabel(d.rawCoordinates, 0.000001);
+      } catch (err) {
+        console.warn(
+          `Error on calculate center with polylabel with id ${d.properties.id}:`,
+          err
+        );
+        return d.coordinates;
+      }
+    },
+    getText: getTextFn,
+    getColor: getTextColor,
+    getSize: 10,
+    minZoom,
+  });
+};
+
 const createGeoJsonLayer = (
   layer: IGetConfigLayerSchema,
   props: MapContextLayerSchemaTypeMapProps
-): MapContextRenderedLayer => {
+): any => {
   const { selectedFeatureIds = [], is3DActive } = props;
 
   const {
@@ -167,24 +206,31 @@ const createGeoJsonLayer = (
   const { getFillColor, getFillPattern, getLineColor, getTextColor } =
     generateGetColorFns(layer, selectedFeatureIds);
   const patternObj = { ...MAP_CONFIGS.PATTERN_PROPERTIES, getFillPattern };
+  const textLayer = createTextLayer(layer, props, getTextColor);
 
-  return new GeoJsonLayer({
-    ...MAP_CONFIGS.DEFAULT_LAYER_PROPERTIES,
-    id,
-    data,
-    minZoom,
-    getTextColor: getTextColor,
-    getLineColor: getLineColor,
-    getFillColor: getFillColor,
-    clickAction,
-    viewTemplate,
-    updateTriggers: {
-      getFillColor: { selectedFeatureIds },
-      getElevation: { is3DActive },
-    },
-    ...prepareLayerProperties(properties, props),
-    ...patternObj,
-  });
+  const result: any[] = [
+    new GeoJsonLayer({
+      ...MAP_CONFIGS.DEFAULT_LAYER_PROPERTIES,
+      id,
+      data,
+      minZoom,
+      getLineColor: getLineColor,
+      getFillColor: getFillColor,
+      clickAction,
+      viewTemplate,
+      updateTriggers: {
+        getFillColor: { selectedFeatureIds },
+        getElevation: { is3DActive },
+      },
+      ...prepareLayerProperties(properties, props),
+      ...patternObj,
+      extruded: !is3DActive ? false : properties?.extruded,
+    }),
+  ];
+
+  if (textLayer) result.push(textLayer);
+
+  return result;
 };
 
 const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
@@ -194,12 +240,7 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
 
     const gridCells = calculateGridCells(bbox);
     const layers = gridCells.map((cellBbox) => {
-      const formattedBbox = cellBbox.map((coord) => Number(coord).toFixed(6));
-      const cellId =
-        `cell-${formattedBbox[0]}-${formattedBbox[1]}-${formattedBbox[2]}-${formattedBbox[3]}`.replace(
-          /\./g,
-          "_"
-        );
+      const cellId = `cell-${self.crypto.randomUUID()}`.replace(/\./g, "_");
       const utmBounds = [
         transformBoundsToUTM([cellBbox[0], cellBbox[1]]),
         transformBoundsToUTM([cellBbox[2], cellBbox[3]]),
@@ -250,9 +291,7 @@ export const transformSchemaLayers = (
       const { isVisible, minZoom, properties = {} } = layer;
       const { maxZoom } = properties;
 
-      if (minZoom && zoom <= minZoom) return false;
-
-      if (maxZoom && zoom >= maxZoom) return false;
+      if (checkZoom(zoom, minZoom, maxZoom)) return false;
 
       return isVisible;
     })

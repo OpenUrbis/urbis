@@ -69,7 +69,8 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'distrito_municipal',
     name: 'Distritos',
-    origin: '/distritos.json',
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:distrito_municipal&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: true,
@@ -85,6 +86,8 @@ export const layerSchemas: LayerSchema[] = [
       },
     },
     properties: {
+      getText: `(d) => d?.properties?.nm_distrito_municipal`,
+      minZoomText: 10,
       stroked: true,
       filled: true,
       pointType: 'circle+text',
@@ -106,7 +109,7 @@ export const layerSchemas: LayerSchema[] = [
         type: LayerSchemaColorTypeEnum.FILL,
       },
       {
-        color: [153, 203, 255, 255],
+        color: [65, 92, 119, 255],
         label: 'default',
         type: LayerSchemaColorTypeEnum.TEXT,
       },
@@ -467,13 +470,11 @@ export const layerSchemas: LayerSchema[] = [
     ],
     groupId: 'geral',
     properties: {
-      stroked: false,
       filled: true,
       pointType: 'circle+text',
       pickable: true,
       extruded: true,
       wireframe: true,
-      getLineWidth: 20,
       getPointRadius: 0,
       getTextSize: 12,
       autoHighlight: true,
@@ -492,11 +493,23 @@ export const layerSchemas: LayerSchema[] = [
             "() => window.open('https://dadosabertos.urbis.sampa.br/','_blank')",
         },
       ],
+      getText: `(d) => d.properties.cd_lote?.padStart(4, '0') ?? ''`,
     },
     colors: [
       {
         color: [57, 118, 29, 175],
         label: 'default',
+        type: LayerSchemaColorTypeEnum.FILL,
+      },
+      {
+        color: [255, 255, 255, 255],
+        label: 'default',
+        type: LayerSchemaColorTypeEnum.TEXT,
+      },
+      {
+        color: [255, 255, 255, 255],
+        label: 'default',
+        type: LayerSchemaColorTypeEnum.LINE,
       },
     ],
   },

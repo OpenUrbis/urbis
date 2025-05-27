@@ -19,15 +19,18 @@ export class LayerSchemasService {
   ) {}
 
   async findAll(): Promise<LayerSchema[]> {
-    return this.repository.find();
+    return this.repository.find({ relations: ['colors'] });
   }
 
   async findOne(id: string): Promise<LayerSchema> {
-    const group = await this.repository.findOneBy({ id });
-    if (!group) {
+    const schema = await this.repository.findOne({
+      where: { id },
+      relations: ['colors'],
+    });
+    if (!schema) {
       throw new NotFoundException(`Layer schema with ID "${id}" not found`);
     }
-    return group;
+    return schema;
   }
 
   async create({

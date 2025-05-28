@@ -31,26 +31,68 @@ export const LayerController = () => {
 
   return (
     <>
-      <div className="controllers-btn">
-      {has3DLayer && (
-        <Button
-          icon="view_in_ar"
-          label={is3DActive.value ? "Desativar 3D" : "Ativar 3D"}
-          className="is-3d-active"
-          onClick={() => (is3DActive.value = !is3DActive.value)}
-          raised
-        />
-      )}
-      {!isCollapsed.value && (
-        <Button
-          icon="layers"
-          label="Camadas"
-          onClick={() => (isCollapsed.value = true)}
-          className="main-button"
-          unelevated
-        />
-      )}
-      </div>
+      {/* Botões flutuantes no canto inferior esquerdo */}
+<div
+  style={{
+    position: "fixed",
+    bottom: "30px",
+    left: "20px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    zIndex: 9999,
+  }}
+>
+  {/* Botão 3D */}
+  {has3DLayer.value && (
+    <button
+      onClick={() => (is3DActive.value = !is3DActive.value)}
+      title="Alternar visualização 3D"
+      style={{
+        width: "48px",
+        height: "48px",
+        borderRadius: "50%",
+        backgroundColor: "#007bff",
+        color: "#fff",
+        fontSize: "20px",
+        fontWeight: "bold",
+        textAlign: "center",
+        lineHeight: "48px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+        border: "none",
+        cursor: "pointer",
+      }}
+    >
+      3D
+    </button>
+  )}
+
+  {/* Botão de Ajuda */}
+  <a
+    href="https://urbis.sampa.br/pt/ajuda"
+    target="_blank"
+    rel="noopener noreferrer"
+    title="Ajuda"
+    style={{
+      width: "48px",
+      height: "48px",
+      borderRadius: "50%",
+      backgroundColor: "#007bff",
+      color: "#fff",
+      fontSize: "24px",
+      fontWeight: "bold",
+      textAlign: "center",
+      lineHeight: "48px",
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+      border: "none",
+      cursor: "pointer",
+      textDecoration: "none",
+      display: "inline-block",
+    }}
+  >
+    ?
+  </a>
+</div>
 
       {isCollapsed.value && (
         <div className="layer-controller">

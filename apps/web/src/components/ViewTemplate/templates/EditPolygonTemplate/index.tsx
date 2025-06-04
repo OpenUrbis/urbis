@@ -12,40 +12,21 @@ const EditPolygonComponent = ({
   template,
   rootTemplate,
 }: ITemplateProps) => {
-  const { drawRef, setFeature, reset, setIsEditing } = usePolygonEditContext();
+  const { editFeature, editFeatureTemplate } = usePolygonEditContext();
   const { navigateTo } = useNavigationContext();
   const { label = "Ajustar Perímetro" } = template;
 
-  if (!drawRef) {
-    console.error("MapContext is not initialized (drawRef is null)");
-    return null;
-  }
-
-  if (!template?.polygonTemplate) {
+  if (!template?.polygonTemplate && !editFeatureTemplate.value) {
     console.error("polygonTemplate is not defined in configs");
     return null;
   }
 
   const edit = () => {
-    reset();
-    const { current: draw } = drawRef;
-
-    setFeature(data);
-    setIsEditing(true);
-
-    draw!.deleteAll();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    draw!.add(data as any);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const featureId = (data as any).id;
-    if (featureId) {
-      draw!.changeMode("direct_select", { featureId });
-    }
+    editFeature(data);
 
     navigateTo(
       <PolygonDetails
-        template={template.polygonTemplate!}
+        template={template?.polygonTemplate ?? editFeatureTemplate.value}
         rootTemplate={rootTemplate!}
       />
     );

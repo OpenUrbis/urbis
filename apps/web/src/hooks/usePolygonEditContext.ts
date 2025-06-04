@@ -40,6 +40,30 @@ export const usePolygonEditContext = (): IPolygonEditContextActions => {
     ctxIsEditing.value = false;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editFeature = (data: any) => {
+    if (!drawRef) {
+      console.error("MapContext is not initialized (drawRef is null)");
+      return;
+    }
+
+    reset();
+    const { current: draw } = drawRef;
+
+    setFeature(data);
+    setIsEditing(true);
+
+    draw!.deleteAll();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    draw!.add(data as any);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const featureId = (data as any).id;
+    if (featureId) {
+      draw!.changeMode("direct_select", { featureId });
+    }
+  };
+
   return {
     feature,
     isEditing,
@@ -48,6 +72,7 @@ export const usePolygonEditContext = (): IPolygonEditContextActions => {
     setIsEditing,
     setDrawRef,
     reset,
+    editFeature,
     ...restContext,
   };
 };

@@ -1,7 +1,8 @@
-import { signal } from "@preact/signals-react";
+import { computed, signal } from "@preact/signals-react";
 import { ComponentChildren, createContext } from "preact";
 import { useRef } from "react";
 import { useFetchIntersectingPolygons } from "../hooks/useFetchIntersectingPolygons";
+import { useMapContext } from "../hooks/useMapContext";
 import { PolygonEditContextType } from "../types/polygon-edit-context-type";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,7 +18,17 @@ export const PolygonEditProvider = ({
 }: {
   children: ComponentChildren;
 }) => {
-  const { data, loading, error, reset, fetchData } = useFetchIntersectingPolygons();
+  const { data, loading, error, reset, fetchData } =
+    useFetchIntersectingPolygons();
+  const { editFeatureTemplate: mapContextEditFeatureTemplate, layerWithRootEditTemplate: mapContextLayerWithRootEditTemplate } =
+    useMapContext();
+
+  const editFeatureTemplate = computed(
+    () => mapContextEditFeatureTemplate.value
+  );
+  const layerWithRootEditTemplate = computed(
+    () => mapContextLayerWithRootEditTemplate.value
+  );
 
   return (
     <PolygonEditContext.Provider
@@ -29,6 +40,8 @@ export const PolygonEditProvider = ({
         error,
         reset,
         fetchData,
+        editFeatureTemplate,
+        layerWithRootEditTemplate,
         drawRef: useRef(null),
       }}
     >

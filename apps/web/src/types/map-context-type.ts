@@ -25,6 +25,8 @@ export interface MapContextType {
   zoom: Signal<number>;
   is3DActive: Signal<boolean>;
   overlayRef: React.RefObject<MapboxOverlay | null>;
+  editFeatureTemplate: Signal<ITemplate[]>;
+  layerWithRootEditTemplate: Signal<string>;
 }
 
 export type MapContextLayerSchemaType =

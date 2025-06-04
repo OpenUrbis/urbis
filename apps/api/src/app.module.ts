@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { MapConfig } from 'map-config/entities/map-config.entity';
+import { FilesModule } from './files/files.module';
 import { GeocodingModule } from './geocoding/geocoding.module';
 import { GeospatialIntersectionModule } from './geospatial-intersection/geospatial-intersection.module';
 import { LayerGroup } from './layer-groups/entities/layer-group.entity';
@@ -11,7 +13,6 @@ import { SearchConfig } from './search/entities/search-config.entity';
 import { SearchModule } from './search/search.module';
 import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
-import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { FilesModule } from './files/files.module';
       LayerGroup,
       LayerSchemaColors,
       SearchConfig,
+      MapConfig,
     ]),
     MapConfigModule,
     LayerSchemasModule,

@@ -26,7 +26,7 @@ const EditPolygonComponent = ({
 
     navigateTo(
       <PolygonDetails
-        template={template?.polygonTemplate ?? editFeatureTemplate.value}
+        template={template?.polygonTemplate ?? editFeatureTemplate.value ?? []}
         rootTemplate={rootTemplate!}
       />
     );

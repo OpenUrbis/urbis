@@ -230,11 +230,11 @@ The `edit-polygon` template is the action for editing and initiating a new proto
 - **Purpose**: Edit the polygon and create a protocol with its information.
 - **Root Properties**:
 
-| Property          | Description                                                  | Default              | Example                             |
-| ----------------- | ------------------------------------------------------------ | -------------------- | ----------------------------------- |
-| `type`            | Template identifier, must be `"edit-polygon"`.               | -                    | `"edit-polygon"`                    |
-| `label`           | The text that will be displayed on the button on the screen. | "Ajustar Perímetro" | `"edit-polygon"`                    |
-| `polygonTemplate` | Array of wrappers or templates to be rendered.               | -                    | `[{ "type": "wrapper-card", ... }]` |
+| Property          | Description                                                                                                                                                         | Default             | Example                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ----------------------------------- |
+| `type`            | Template identifier, must be `"edit-polygon"`.                                                                                                                      | -                   | `"edit-polygon"`                    |
+| `label`           | The text that will be displayed on the button on the screen.                                                                                                        | "Ajustar Perímetro" | `"edit-polygon"`                    |
+| `polygonTemplate` | Array of wrappers or templates to be rendered. If not informed, the system will search for the editFeatureTemplate configuration that is in the `map_config` table. | -                   | `[{ "type": "wrapper-card", ... }]` |
 
 - **Properties of the `properties` Object**:
 

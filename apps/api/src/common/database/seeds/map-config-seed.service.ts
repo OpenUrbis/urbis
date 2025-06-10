@@ -1,0 +1,182 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { MapConfig } from 'map-config/entities/map-config.entity';
+import { Repository } from 'typeorm';
+
+@Injectable()
+export class MapConfigSeedService {
+  constructor(
+    @InjectRepository(MapConfig)
+    private readonly mapConfigRepository: Repository<MapConfig>,
+  ) {}
+
+  async run(): Promise<void> {
+    console.info('Starting database seeding...');
+
+    // Seed MapConfig
+    const mapConfig: MapConfig[] = [
+      { id: 'latitude', value: { literally: -23.5505 } },
+      { id: 'longitude', value: { literally: -46.6333 } },
+      {
+        id: 'boundingBox',
+        value: [
+          -47.276872262413406, -24.206465289774574, -46.05576004987694,
+          -23.087911153581274,
+        ],
+      },
+      { id: 'zoom', value: { literally: 10 } },
+      { id: 'bearing', value: { literally: 0 } },
+      { id: 'pitch', value: { literally: 0 } },
+      {
+        id: 'padding',
+        value: {
+          top: 0,
+          bottom: 400,
+          left: 0,
+          right: 0,
+        },
+      },
+      { id: 'layerWithRootEditTemplate', value: { literally: 'lotes' } },
+      {
+        id: 'editFeatureTemplate',
+        value: [
+          {
+            type: 'wrapper-card',
+            label: 'Área selecionada',
+            templates: [
+              {
+                type: 'polygon-map',
+                properties: {
+                  polygonProps: `
+                        (data) => ({
+                          id: "polygon-layer",
+                          data: [{ coordinates: data.geometry.coordinates }],
+                          pickable: false,
+                          stroked: true,
+                          filled: true,
+                          lineWidthMinPixels: 2,
+                          getPolygon: (d) => d.coordinates,
+                          getFillColor: [255, 165, 0, 100],
+                          getLineColor: [255, 140, 0],
+                        })
+                      `,
+                  initialViewState: `
+                        (data) => {
+                          const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
+
+                          return {
+                          longitude: centroid[0],
+                          latitude: centroid[1],
+                          zoom: 16.5,
+                          pitch: 0,
+                          bearing: 0,
+                          };
+                        }
+                      `,
+                },
+              },
+            ],
+          },
+          {
+            type: 'wrapper-card',
+            label: 'Intersesões no perimetro',
+            templates: [
+              {
+                type: 'wrapper-list-items',
+                templates: [
+                  {
+                    type: 'primary-item',
+                    value: `
+                          <% if (id.includes("macroareas")) { %>
+                            <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else if (id.includes("minianel_viario")) { %>
+                            <%- properties.nm_restricao_circulacao_veiculo %>
+                          <% } else if (id.includes("subprefeitura")) { %>
+                            <%- properties.nm_subprefeitura %>
+                          <% } else if (id.includes("macrozonas")) { %>
+                            <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else if (id.includes("tombamentos-areas")) { %>
+                            <%- properties.nm_bairro %>
+                          <% } else if (id.includes("zoneamento_geral")) { %>
+                            <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else { %>
+                            Não mapeado
+                          <% } %>
+                        `,
+                  },
+                  {
+                    type: 'secondary-item',
+                    value: `
+                          <% if (id.includes("macroareas")) { %>
+                            Macroarea
+                          <% } else if (id.includes("minianel_viario")) { %>
+                            Minianel Viario
+                          <% } else if (id.includes("subprefeitura")) { %>
+                            Sub-Prefeitura
+                          <% } else if (id.includes("macrozonas")) { %>
+                            Macrozona
+                          <% } else if (id.includes("tombamentos-areas")) { %>
+                            <%- properties.tx_resolucao_condephaat %>
+                          <% } else if (id.includes("zoneamento_geral")) { %>
+                            Zoneamento
+                          <% } else { %>
+                            Não mapeado
+                          <% } %>
+                        `,
+                  },
+                ],
+                properties: {
+                  data: '(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))',
+                  twoLine: true,
+                },
+              },
+            ],
+          },
+          {
+            type: 'wrapper-card',
+            label: 'Lotes no Perímetro',
+            templates: [
+              {
+                type: 'wrapper-list-items',
+                templates: [
+                  {
+                    type: 'primary-item',
+                    value:
+                      'Identificador #<%- properties.id.replace("lote_cidadao.", "") %>',
+                  },
+                  {
+                    type: 'secondary-item',
+                    value:
+                      "SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>",
+                  },
+                ],
+                properties: {
+                  data: '(data) => data.response.features.filter(({ id }) => id.includes("lote_cidadao"))',
+                  twoLine: true,
+                  onItemClick: {
+                    action: 'openFeature',
+                    params: {
+                      template: 'root',
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    try {
+      await this.mapConfigRepository.upsert(mapConfig, ['id']);
+
+      console.info(
+        `Seeded MapConfig: ${mapConfig.map((group) => group.id).join(', ')}`,
+      );
+    } catch (error) {
+      console.error(`Query failed: ${error}`);
+    }
+
+    console.info('Database seeding completed.');
+  }
+}

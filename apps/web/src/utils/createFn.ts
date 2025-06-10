@@ -1,4 +1,4 @@
-import { calculateCenterId } from "../hooks/useMapContext";
+import { calculateCenterId } from "./calculateCenterId";
 
 export const createFn = (strFn: string, returnEmptyFnIfError = true) => {
   const cleanedStrFn = strFn

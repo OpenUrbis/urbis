@@ -2,6 +2,8 @@ import {
   Injectable,
   BadRequestException,
   InternalServerErrorException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
@@ -14,6 +16,8 @@ import {
   GeoJsonProperties,
 } from 'geojson';
 import { formatBoundsForURL, transformBoundsToUTM } from './utils';
+import axios from 'axios';
+
 /**
  * Interface for FeatureCollection properties
  */
@@ -44,17 +48,21 @@ interface GeospatialFeatureCollection extends FeatureCollection {
  */
 @Injectable()
 export class GeospatialIntersectionService {
+  private readonly geoserverUrl = 'https://geoserver.slui.dev/geoserver/slui/ows';
+
   constructor(private readonly httpService: HttpService) {}
 
   /**
    * Finds intersections between a GeoJSON polygon and multiple GeoServer layers
    * @param geojson - GeoJSON Feature with Polygon or MultiPolygon geometry
+   * @param specificLayers - Optional array of layer names to restrict the search
    * @returns FeatureCollection containing intersecting features with area and layer metadata
    * @throws BadRequestException if GeoJSON is invalid
    * @throws InternalServerErrorException for server errors
    */
   async findIntersections(
     geojson: Feature<Polygon | MultiPolygon>,
+    specificLayers?: string[],
   ): Promise<GeospatialFeatureCollection> {
     try {
       // Validate input GeoJSON
@@ -97,7 +105,7 @@ export class GeospatialIntersectionService {
       ]);
 
       // Define GeoServer layers
-      const layers = [
+      const allLayers = [
         'slui:ZEIS_(PDE)',
         'slui:aguas_correntes_ou_dormentes',
         'slui:areas_contaminadas',
@@ -121,6 +129,9 @@ export class GeospatialIntersectionService {
         'slui:tombamentos-imoveis',
         'slui:zoneamento_geral',
       ];
+
+      // Use specific layers if provided, otherwise use all layers
+      const layers = specificLayers || allLayers;
 
       // Query layers and compute intersections
       const features: Feature<
@@ -181,6 +192,132 @@ export class GeospatialIntersectionService {
       }
       console.error('Error processing geospatial intersection:', error);
       throw new InternalServerErrorException('Server error');
+    }
+  }
+
+  async findIntersectionsBySqlc(sqlc: string): Promise<any> {
+    try {
+      // Validate SQLC length
+      if (sqlc.length !== 10 && sqlc.length !== 12) {
+        throw new HttpException('SQLC must be 10 or 12 characters long', HttpStatus.BAD_REQUEST);
+      }
+
+      // Format SQLC number based on length
+      let formattedSqlc: string;
+      if (sqlc.length === 10) {
+        formattedSqlc = `${sqlc.substring(0, 3)} ${sqlc.substring(3, 6)} ${sqlc.substring(6, 10)} 00`;
+      } else {
+        formattedSqlc = `${sqlc.substring(0, 3)} ${sqlc.substring(3, 6)} ${sqlc.substring(6, 10)} ${sqlc.substring(10, 12)}`;
+      }
+
+      // Make WFS request to get the lot feature
+      const wfsResponse = await axios.get(this.geoserverUrl, {
+        params: {
+          service: 'WFS',
+          version: '1.0.0',
+          request: 'GetFeature',
+          typeName: 'slui:view_lote_cidadao',
+          maxFeatures: 5,
+          outputFormat: 'json',
+          srsName: 'EPSG:4326',
+          CQL_FILTER: `setor_quadra_lote_condominio = '${formattedSqlc}'`,
+        },
+        headers: {
+          'accept': 'application/json',
+          'origin': 'https://mapa.urbis.sampa.br',
+        },
+      });
+
+      if (!wfsResponse.data.features || wfsResponse.data.features.length === 0) {
+        throw new HttpException('Lot not found', HttpStatus.NOT_FOUND);
+      }
+
+      // Get the first feature (lot geometry)
+      const lotFeature = wfsResponse.data.features[0];
+
+      // Define the specific layers we need for this query
+      const requiredLayers = [
+        'slui:zoneamento_geral',
+        'slui:subprefeitura',
+        'slui:setores_e_subsetores',
+        'slui:area_manancial_billings',
+        'slui:area_manancial_juquery',
+        'slui:area_manancial_guarapiranga',
+        'slui:tombamentos-areas',
+        'slui:tombamentos-envoltorias-de-imoveis',
+        'slui:tombamentos-imoveis',
+        'slui:area_envoltoria_conpresp',
+        'slui:area_envoltoria_iphan',
+        'slui:area_envoltoria_condephaat',
+        'slui:parques_unidades_de_conservacao_e_apa',
+        'slui:areas_contaminadas',
+        'slui:melhoramento_viario',
+        'slui:operacao_urbana'
+      ];
+
+      // Get intersections with specific layers
+      const intersections = await this.findIntersections(lotFeature, requiredLayers);
+
+      // Structure the response
+      const response = {
+        cd_sql: sqlc,
+        geom_lote: lotFeature,
+        geom_zoneamento_2016: intersections.features
+          .filter(f => f.properties.layer === 'slui:zoneamento_geral')
+          .map(f => f),
+        geom_subprefeitura: intersections.features
+          .filter(f => f.properties.layer === 'slui:subprefeitura')
+          .map(f => f),
+        geom_distrito: intersections.features
+          .filter(f => f.properties.layer === 'slui:setores_e_subsetores')
+          .map(f => f),
+        geom_area_manancial_billings: intersections.features
+          .filter(f => f.properties.layer === 'slui:area_manancial_billings')
+          .map(f => f),
+        geom_area_manancial_juquery: intersections.features
+          .filter(f => f.properties.layer === 'slui:area_manancial_juquery')
+          .map(f => f),
+        geom_area_manancial_guarapiranga: intersections.features
+          .filter(f => f.properties.layer === 'slui:area_manancial_guarapiranga')
+          .map(f => f),
+        geom_tombado: intersections.features
+          .filter(f => ['slui:tombamentos-areas', 'slui:tombamentos-envoltorias-de-imoveis', 'slui:tombamentos-imoveis'].includes(f.properties.layer))
+          .map(f => f),
+        geom_area_envoltoria_conpresp: intersections.features
+          .filter(f => f.properties.layer === 'slui:area_envoltoria_conpresp')
+          .map(f => f),
+        geom_area_envoltoria_iphan: intersections.features
+          .filter(f => f.properties.layer === 'slui:area_envoltoria_iphan')
+          .map(f => f),
+        geom_area_envoltoria_condephaat: intersections.features
+          .filter(f => f.properties.layer === 'slui:area_envoltoria_condephaat')
+          .map(f => f),
+        geom_uc: intersections.features
+          .filter(f => f.properties.layer === 'slui:parques_unidades_de_conservacao_e_apa' && f.properties.tipo === 'UC')
+          .map(f => f),
+        geom_apa: intersections.features
+          .filter(f => f.properties.layer === 'slui:parques_unidades_de_conservacao_e_apa' && f.properties.tipo === 'APA')
+          .map(f => f),
+        geom_area_contaminada: intersections.features
+          .filter(f => f.properties.layer === 'slui:areas_contaminadas')
+          .map(f => f),
+        geom_melhoramento_viario: intersections.features
+          .filter(f => f.properties.layer === 'slui:melhoramento_viario')
+          .map(f => f),
+        geom_operacao_urbana: intersections.features
+          .filter(f => f.properties.layer === 'slui:operacao_urbana')
+          .map(f => f)
+      };
+
+      return response;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error processing SQLC query',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

@@ -2,8 +2,6 @@ import {
   Injectable,
   BadRequestException,
   InternalServerErrorException,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
@@ -16,7 +14,6 @@ import {
   GeoJsonProperties,
 } from 'geojson';
 import { formatBoundsForURL, transformBoundsToUTM } from './utils';
-import axios from 'axios';
 
 /**
  * Interface for FeatureCollection properties

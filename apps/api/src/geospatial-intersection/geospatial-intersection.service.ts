@@ -50,12 +50,28 @@ interface GeospatialFeatureCollection extends FeatureCollection {
 export class GeospatialIntersectionService {
   private readonly geoserverUrl = 'https://geoserver.slui.dev/geoserver/slui/ows';
 
+  private readonly fieldToLayerMap = {
+    geom_zoneamento_2016: ['slui:zoneamento_geral'],
+    geom_subprefeitura: ['slui:subprefeitura'],
+    geom_distrito: ['slui:distrito_municipal'],
+    geom_tombado: [
+      'slui:tombamentos-areas',
+      'slui:tombamentos-envoltorias-de-imoveis',
+      'slui:tombamentos-imoveis'
+    ],
+    geom_uc: ['slui:parques_unidades_de_conservacao_e_apa'],
+    geom_apa: ['slui:parques_unidades_de_conservacao_e_apa'],
+    geom_area_contaminada: ['slui:areas_contaminadas'],
+    geom_melhoramento_viario: ['slui:minianel_viario']
+  };
+
   constructor(private readonly httpService: HttpService) {}
 
   /**
    * Finds intersections between a GeoJSON polygon and multiple GeoServer layers
    * @param geojson - GeoJSON Feature with Polygon or MultiPolygon geometry
    * @param specificLayers - Optional array of layer names to restrict the search
+   * @param srsName - Optional SRS name for the query
    * @returns FeatureCollection containing intersecting features with area and layer metadata
    * @throws BadRequestException if GeoJSON is invalid
    * @throws InternalServerErrorException for server errors
@@ -63,6 +79,7 @@ export class GeospatialIntersectionService {
   async findIntersections(
     geojson: Feature<Polygon | MultiPolygon>,
     specificLayers?: string[],
+    srsName: string = 'EPSG:4326',
   ): Promise<GeospatialFeatureCollection> {
     try {
       // Validate input GeoJSON
@@ -120,6 +137,7 @@ export class GeospatialIntersectionService {
         'slui:risco_geologico',
         'slui:risco_hidrologico',
         'slui:setores_e_subsetores',
+        'slui:distrito_municipal',
         'slui:subprefeitura',
         'slui:sujeicao_a_alagamentos',
         'slui:terras_indigenas',
@@ -139,7 +157,7 @@ export class GeospatialIntersectionService {
         GeospatialFeatureProperties
       >[] = [];
       for (const layer of layers) {
-        const url = `https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&bbox=${formattedBounds}&typeName=${layer}&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326`;
+        const url = `https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&bbox=${formattedBounds}&typeName=${layer}&maxFeatures=10000&outputFormat=json&srsName=${srsName}`;
         const response = await firstValueFrom(this.httpService.get(url));
 
         if (response.data?.features) {
@@ -195,71 +213,43 @@ export class GeospatialIntersectionService {
     }
   }
 
-  async findIntersectionsBySqlc(sqlc: string): Promise<any> {
+  async findIntersectionsBySqlc(sqlc: string, fields?: string[]): Promise<any> {
     try {
       // Validate SQLC length
       if (sqlc.length !== 10 && sqlc.length !== 12) {
-        throw new HttpException('SQLC must be 10 or 12 characters long', HttpStatus.BAD_REQUEST);
+        throw new Error('SQLC number must be 10 or 12 digits');
       }
 
-      // Format SQLC number based on length
-      let formattedSqlc: string;
-      if (sqlc.length === 10) {
-        formattedSqlc = `${sqlc.substring(0, 3)} ${sqlc.substring(3, 6)} ${sqlc.substring(6, 10)} 00`;
-      } else {
-        formattedSqlc = `${sqlc.substring(0, 3)} ${sqlc.substring(3, 6)} ${sqlc.substring(6, 10)} ${sqlc.substring(10, 12)}`;
-      }
-
-      // Make WFS request to get the lot feature
-      const wfsResponse = await axios.get(this.geoserverUrl, {
-        params: {
-          service: 'WFS',
-          version: '1.0.0',
-          request: 'GetFeature',
-          typeName: 'slui:view_lote_cidadao',
-          maxFeatures: 5,
-          outputFormat: 'json',
-          srsName: 'EPSG:4326',
-          CQL_FILTER: `setor_quadra_lote_condominio = '${formattedSqlc}'`,
-        },
-        headers: {
-          'accept': 'application/json',
-          'origin': 'https://mapa.urbis.sampa.br',
-        },
-      });
+      // Get lot geometry from WFS
+      const wfsResponse = await this.getLotGeometry(sqlc);
 
       if (!wfsResponse.data.features || wfsResponse.data.features.length === 0) {
-        throw new HttpException('Lot not found', HttpStatus.NOT_FOUND);
+        throw new Error('No lot found for the provided SQLC number');
       }
 
       // Get the first feature (lot geometry)
       const lotFeature = wfsResponse.data.features[0];
 
-      // Define the specific layers we need for this query
-      const requiredLayers = [
-        'slui:zoneamento_geral',
-        'slui:subprefeitura',
-        'slui:setores_e_subsetores',
-        'slui:area_manancial_billings',
-        'slui:area_manancial_juquery',
-        'slui:area_manancial_guarapiranga',
-        'slui:tombamentos-areas',
-        'slui:tombamentos-envoltorias-de-imoveis',
-        'slui:tombamentos-imoveis',
-        'slui:area_envoltoria_conpresp',
-        'slui:area_envoltoria_iphan',
-        'slui:area_envoltoria_condephaat',
-        'slui:parques_unidades_de_conservacao_e_apa',
-        'slui:areas_contaminadas',
-        'slui:melhoramento_viario',
-        'slui:operacao_urbana'
-      ];
+      // Determine which layers we need based on requested fields
+      let requiredLayers: string[] = [];
+      
+      if (!fields || fields.length === 0) {
+        // If no fields specified, get all layers
+        requiredLayers = Object.values(this.fieldToLayerMap).flat();
+      } else {
+        // Get unique layers for requested fields
+        requiredLayers = [...new Set(
+          fields
+            .filter(field => field in this.fieldToLayerMap)
+            .flatMap(field => this.fieldToLayerMap[field])
+        )];
+      }
 
-      // Get intersections with specific layers
-      const intersections = await this.findIntersections(lotFeature, requiredLayers);
+      // Get intersections with specific layers using EPSG:4326
+      const intersections = await this.findIntersections(lotFeature, requiredLayers, 'EPSG:4326');
 
       // Structure the response
-      const response = {
+      const allFields = {
         cd_sql: sqlc,
         geom_lote: lotFeature,
         geom_zoneamento_2016: intersections.features
@@ -269,28 +259,10 @@ export class GeospatialIntersectionService {
           .filter(f => f.properties.layer === 'slui:subprefeitura')
           .map(f => f),
         geom_distrito: intersections.features
-          .filter(f => f.properties.layer === 'slui:setores_e_subsetores')
-          .map(f => f),
-        geom_area_manancial_billings: intersections.features
-          .filter(f => f.properties.layer === 'slui:area_manancial_billings')
-          .map(f => f),
-        geom_area_manancial_juquery: intersections.features
-          .filter(f => f.properties.layer === 'slui:area_manancial_juquery')
-          .map(f => f),
-        geom_area_manancial_guarapiranga: intersections.features
-          .filter(f => f.properties.layer === 'slui:area_manancial_guarapiranga')
+          .filter(f => f.properties.layer === 'slui:distrito_municipal')
           .map(f => f),
         geom_tombado: intersections.features
           .filter(f => ['slui:tombamentos-areas', 'slui:tombamentos-envoltorias-de-imoveis', 'slui:tombamentos-imoveis'].includes(f.properties.layer))
-          .map(f => f),
-        geom_area_envoltoria_conpresp: intersections.features
-          .filter(f => f.properties.layer === 'slui:area_envoltoria_conpresp')
-          .map(f => f),
-        geom_area_envoltoria_iphan: intersections.features
-          .filter(f => f.properties.layer === 'slui:area_envoltoria_iphan')
-          .map(f => f),
-        geom_area_envoltoria_condephaat: intersections.features
-          .filter(f => f.properties.layer === 'slui:area_envoltoria_condephaat')
           .map(f => f),
         geom_uc: intersections.features
           .filter(f => f.properties.layer === 'slui:parques_unidades_de_conservacao_e_apa' && f.properties.tipo === 'UC')
@@ -302,22 +274,61 @@ export class GeospatialIntersectionService {
           .filter(f => f.properties.layer === 'slui:areas_contaminadas')
           .map(f => f),
         geom_melhoramento_viario: intersections.features
-          .filter(f => f.properties.layer === 'slui:melhoramento_viario')
+          .filter(f => f.properties.layer === 'slui:minianel_viario')
           .map(f => f),
-        geom_operacao_urbana: intersections.features
-          .filter(f => f.properties.layer === 'slui:operacao_urbana')
-          .map(f => f)
       };
+
+      // If no fields are specified, return all fields
+      if (!fields || fields.length === 0) {
+        return allFields;
+      }
+
+      // Filter the response based on requested fields
+      const response = {};
+      fields.forEach(field => {
+        if (field in allFields) {
+          response[field] = allFields[field];
+        }
+      });
 
       return response;
     } catch (error) {
-      if (error instanceof HttpException) {
+      if (error instanceof Error) {
         throw error;
       }
-      throw new HttpException(
+      throw new Error(
         'Error processing SQLC query',
-        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  private async getLotGeometry(sqlc: string): Promise<any> {
+    // Format SQLC number based on length
+    let formattedSqlc: string;
+    if (sqlc.length === 10) {
+      formattedSqlc = `${sqlc.substring(0, 3)} ${sqlc.substring(3, 6)} ${sqlc.substring(6, 10)} 00`;
+    } else {
+      formattedSqlc = `${sqlc.substring(0, 3)} ${sqlc.substring(3, 6)} ${sqlc.substring(6, 10)} ${sqlc.substring(10, 12)}`;
+    }
+
+    // Make WFS request to get the lot feature
+    const wfsResponse = await this.httpService.get(this.geoserverUrl, {
+      params: {
+        service: 'WFS',
+        version: '1.0.0',
+        request: 'GetFeature',
+        typeName: 'slui:view_lote_cidadao',
+        maxFeatures: 5,
+        outputFormat: 'json',
+        srsName: 'EPSG:4326',
+        CQL_FILTER: `setor_quadra_lote_condominio = '${formattedSqlc}'`,
+      },
+      headers: {
+        'accept': 'application/json',
+        'origin': 'https://mapa.urbis.sampa.br',
+      },
+    }).toPromise();
+
+    return wfsResponse;
   }
 }

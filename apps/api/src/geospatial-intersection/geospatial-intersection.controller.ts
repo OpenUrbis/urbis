@@ -80,6 +80,6 @@ export class GeospatialIntersectionController {
     description: 'Internal server error occurred',
   })
   async findIntersectionsBySqlc(@Body() sqlcDto: SqlcDto): Promise<any> {
-    return this.geospatialIntersectionService.findIntersectionsBySqlc(sqlcDto.sqlc);
+    return this.geospatialIntersectionService.findIntersectionsBySqlc(sqlcDto.sqlc, sqlcDto.fields);
   }
 }

@@ -48,7 +48,7 @@ export class GeospatialIntersectionService {
   private readonly geoserverUrl = 'https://geoserver.slui.dev/geoserver/slui/ows';
 
   private readonly fieldToLayerMap = {
-    geom_zoneamento_2016: ['slui:zoneamento_geral'],
+    geom_zoneamento_2016: ['slui:zoneamento'],
     geom_subprefeitura: ['slui:subprefeitura'],
     geom_distrito: ['slui:distrito_municipal'],
     geom_tombado: [
@@ -62,7 +62,7 @@ export class GeospatialIntersectionService {
     geom_melhoramento_viario: ['slui:minianel_viario']
   };
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService) { }
 
   /**
    * Finds intersections between a GeoJSON polygon and multiple GeoServer layers
@@ -142,7 +142,7 @@ export class GeospatialIntersectionService {
         'slui:tombamentos-areas',
         'slui:tombamentos-envoltorias-de-imoveis',
         'slui:tombamentos-imoveis',
-        'slui:zoneamento_geral',
+        'slui:zoneamento',
       ];
 
       // Use specific layers if provided, otherwise use all layers
@@ -229,7 +229,7 @@ export class GeospatialIntersectionService {
 
       // Determine which layers we need based on requested fields
       let requiredLayers: string[] = [];
-      
+
       if (!fields || fields.length === 0) {
         // If no fields specified, get all layers
         requiredLayers = Object.values(this.fieldToLayerMap).flat();
@@ -250,7 +250,7 @@ export class GeospatialIntersectionService {
         cd_sql: sqlc,
         geom_lote: lotFeature.geometry,
         geom_zoneamento_2016: intersections.features
-          .filter(f => f.properties.layer === 'slui:zoneamento_geral')
+          .filter(f => f.properties.layer === 'slui:zoneamento')
           .map(f => f),
         geom_subprefeitura: intersections.features
           .filter(f => f.properties.layer === 'slui:subprefeitura')

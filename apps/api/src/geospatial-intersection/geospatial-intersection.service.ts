@@ -248,7 +248,7 @@ export class GeospatialIntersectionService {
       // Structure the response
       const allFields = {
         cd_sql: sqlc,
-        lot: lotFeature,
+        lote: lotFeature,
         geom_lote: lotFeature.geometry,
         geom_zoneamento_2016: intersections.features
           .filter(f => f.properties.layer === 'slui:zoneamento')

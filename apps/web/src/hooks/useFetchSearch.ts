@@ -4,6 +4,7 @@ import { fetchSearchItem } from "../integrations/search-integration";
 import {
   IGetSearchConfigResponse,
   IGetSearchItem,
+  IGetSearchItemError,
   ISearchResponse,
 } from "../types/fetch-search-config-type";
 
@@ -19,7 +20,7 @@ export const useFetchSearch = (
     setError(null);
 
     try {
-      const promises: Promise<IGetSearchItem[]>[] = [];
+      const promises: Promise<IGetSearchItem[] | IGetSearchItemError[]>[] = [];
       const mapIndex: string[] = [];
 
       searchConfig.value.forEach((config) => {

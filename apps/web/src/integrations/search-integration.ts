@@ -50,8 +50,9 @@ export const fetchSearchItem = async (
 
     const response = await axios(config);
 
-    return response.data ?? [];
-  } catch (error) {
-    return [{ type: 'error', message: "Houve um erro ao buscar os dados de pesquisa." }];
+    return response.data ?? []; 
+  } catch (error: any) {
+    console.error("Error fetching search item:", error);
+    return [{ type: 'error', message: error?.response?.data?.message ?? "Houve um erro ao buscar os dados de pesquisa." }];
   }
 };

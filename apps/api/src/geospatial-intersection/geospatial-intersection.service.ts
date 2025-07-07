@@ -101,7 +101,7 @@ export class GeospatialIntersectionService {
 
       // Calculate expanded bounding box
       const bbox = turf.bbox(polygonGeometry);
-      const margin = 0.01;
+      const margin = 100; // 100 metros
       const expandedBbox = [
         bbox[0] - margin,
         bbox[1] - margin,

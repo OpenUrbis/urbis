@@ -252,8 +252,8 @@ export class GeospatialIntersectionService {
         )];
       }
 
-      // Get intersections with specific layers using EPSG:4326
-      const intersections = await this.findIntersections(lotFeature, requiredLayers, 'EPSG:4326');
+      // Get intersections with specific layers using EPSG:31983
+      const intersections = await this.findIntersections(lotFeature, requiredLayers, 'EPSG:31983');
 
       // Structure the response
       const allFields = {

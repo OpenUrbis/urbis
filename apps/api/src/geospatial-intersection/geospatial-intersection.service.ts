@@ -13,7 +13,7 @@ import {
   MultiPolygon,
   GeoJsonProperties,
 } from 'geojson';
-import { formatBoundsForURL, transformBoundsToUTM } from './utils';
+import { formatBoundsForURL } from './utils';
 
 /**
  * Interface for FeatureCollection properties

@@ -16,6 +16,23 @@ import {
 import { formatBoundsForURL } from './utils';
 
 /**
+ * Interface for CIT (Cadastro Imobiliário Territorial) data
+ */
+interface CitData {
+  setor_tributário: string;
+  quadra_fiscal: string;
+  lote_fiscal: string;
+  nível_de_preservação: string | null;
+  subprefeitura: string | null;
+  descrição_da_preservação: string | null;
+  endereço_secundário: string | null;
+  denominação_do_bem: string | null;
+  endereco_oficial: string | null;
+  complemento: string | null;
+  bairro: string | null;
+  situacao_do_imovel: string | null;
+}
+/**
  * Interface for FeatureCollection properties
  */
 interface GeospatialFeatureCollectionProperties {
@@ -237,6 +254,9 @@ export class GeospatialIntersectionService {
       // Get the first feature (lot geometry)
       const lotFeature = wfsResponse.data.features[0];
 
+      // Get CIT data using the first 10 digits of SQLC
+      const citData = await this.getCitData(sqlc.substring(0, 10));
+
       // Determine which layers we need based on requested fields
       let requiredLayers: string[] = [];
 
@@ -258,6 +278,7 @@ export class GeospatialIntersectionService {
       // Structure the response
       const allFields = {
         cd_sql: sqlc,
+        cit_data: citData,
         perimetro: lotFeature,
         geom_lote: lotFeature.geometry,
         geom_zoneamento_2016: intersections.features
@@ -325,6 +346,31 @@ export class GeospatialIntersectionService {
       throw new Error(
         'Error processing SQLC query',
       );
+    }
+  }
+
+  private async getCitData(sqlc: string): Promise<CitData | null> {
+    try {
+      // Format SQLC for CIT featureID (using only the first 10 digits)
+      // Format: cit.XXX.XXX.XXXX (e.g., cit.038.114.0062)
+      const setor = sqlc.substring(0, 3);
+      const quadra = sqlc.substring(3, 6);
+      const lote = sqlc.substring(6, 10);
+      const featureId = `cit.${setor}.${quadra}.${lote}`;
+
+      // Make WFS request to get CIT data
+      const citUrl = `https://geoserver.slui.dev/geoserver/wfs?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:cit&featureID=${featureId}&outputFormat=application/json`;
+      
+      const response = await firstValueFrom(this.httpService.get(citUrl));
+
+      if (response.data?.features && response.data.features.length > 0) {
+        return response.data.features[0].properties;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error fetching CIT data:', error);
+      return null;
     }
   }
 

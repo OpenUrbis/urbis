@@ -50,6 +50,8 @@ export class GeospatialIntersectionController {
   async findIntersections(@Body() geojson: GeoJsonDto): Promise<any> {
     return this.geospatialIntersectionService.findIntersections(
       geojson as any['features'][0],
+      undefined,
+      'EPSG:4326',
     );
   }
 

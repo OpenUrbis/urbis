@@ -19,7 +19,7 @@ import { SqlcDto } from './dto/sqlc.dto';
 export class GeospatialIntersectionController {
   constructor(
     private readonly geospatialIntersectionService: GeospatialIntersectionService,
-  ) {}
+  ) { }
 
   /**
    * Find intersections between a GeoJSON polygon and GeoServer layers
@@ -49,38 +49,39 @@ export class GeospatialIntersectionController {
   })
   async findIntersections(@Body() geojson: GeoJsonDto): Promise<any> {
     const allLayers = [
-        'slui:ZEIS_(PDE)',
-        'slui:aguas_correntes_ou_dormentes',
-        'slui:areas_contaminadas',
-        'slui:eixos',
-        'slui:lote_cidadao',
-        'slui:macroareas',
-        'slui:macrozonas',
-        'slui:minianel_viario',
-        'slui:parques_unidades_de_conservacao_e_apa',
-        'slui:represas',
-        'slui:restricoes_geotecnicas',
-        'slui:risco_geologico',
-        'slui:risco_hidrologico',
-        'slui:setores_e_subsetores',
-        'slui:distrito_municipal',
-        'slui:subprefeitura',
-        'slui:sujeicao_a_alagamentos',
-        'slui:terras_indigenas',
-        'slui:terrenos_marginais_aos_cursos_dagua_navegaveis',
-        'slui:tombamentos-areas',
-        'slui:tombamentos-envoltorias-de-imoveis',
-        'slui:tombamentos-imoveis',
-        'slui:zoneamento',
-        'slui:manancial_billings',
-        'slui:manancial_guarapiranga',
-        'slui:manancial_juquery',
-        'slui:tombamentos_envoltorias_de_imoveis_IPHAN',
-        'slui:tombamentos_envoltorias_de_imoveis_CONPRESP',
-        'slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT',
-      ];
+      'slui:ZEIS_(PDE)',
+      'slui:aguas_correntes_ou_dormentes',
+      'slui:areas_contaminadas',
+      'slui:eixos',
+      'slui:lote_cidadao',
+      'slui:macroareas',
+      'slui:macrozonas',
+      'slui:minianel_viario',
+      'slui:parques_unidades_de_conservacao_e_apa',
+      'slui:represas',
+      'slui:restricoes_geotecnicas',
+      'slui:risco_geologico',
+      'slui:risco_hidrologico',
+      'slui:setores_e_subsetores',
+      'slui:distrito_municipal',
+      'slui:subprefeitura',
+      'slui:sujeicao_a_alagamentos',
+      'slui:terras_indigenas',
+      'slui:terrenos_marginais_aos_cursos_dagua_navegaveis',
+      'slui:tombamentos-areas',
+      'slui:tombamentos-envoltorias-de-imoveis',
+      'slui:tombamentos-imoveis',
+      'slui:zoneamento',
+      'slui:manancial_billings',
+      'slui:manancial_guarapiranga',
+      'slui:manancial_juquery',
+      'slui:tombamentos_envoltorias_de_imoveis_IPHAN',
+      'slui:tombamentos_envoltorias_de_imoveis_CONPRESP',
+      'slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT',
+    ];
+    console.log('here', geojson);
     return this.geospatialIntersectionService.findIntersections(
-      geojson as any['features'][0],
+      geojson as any,
       allLayers,
       'EPSG:4326',
     );

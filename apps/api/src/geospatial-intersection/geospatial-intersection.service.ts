@@ -6,6 +6,7 @@ import {
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as turf from '@turf/turf';
+import * as proj4 from 'proj4';
 import {
   Feature,
   FeatureCollection,
@@ -116,28 +117,30 @@ export class GeospatialIntersectionService {
         ? turf.multiPolygon(geojson.geometry.coordinates as number[][][][])
         : turf.polygon(geojson.geometry.coordinates as number[][][]);
 
-      // Calculate expanded bounding box
-      const bbox = turf.bbox(polygonGeometry);
-      const margin = 100; // 100 metros
-      const expandedBbox = [
-        bbox[0] - margin,
-        bbox[1] - margin,
-        bbox[2] + margin,
-        bbox[3] + margin,
+      // Calculate bbox and transform it to the default layer CRS: EPSG:31983
+      const bbox = turf.bbox(polygonGeometry); // [minX, minY, maxX, maxY]
+      const projWGS84 = '+proj=longlat +datum=WGS84';
+      const projEPSG31983 = '+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+
+      // Infer source projection from requested output (common in our flows)
+      const sourceProj = srsName === 'EPSG:31983' ? projEPSG31983 : projWGS84;
+
+      const minPointEPSG31983 = proj4(sourceProj, projEPSG31983, [bbox[0], bbox[1]]);
+      const maxPointEPSG31983 = proj4(sourceProj, projEPSG31983, [bbox[2], bbox[3]]);
+
+      // Expand by 100 meters in EPSG:31983 space
+      const margin = 100;
+      const expandedBboxEPSG31983 = [
+        minPointEPSG31983[0] - margin,
+        minPointEPSG31983[1] - margin,
+        maxPointEPSG31983[0] + margin,
+        maxPointEPSG31983[1] + margin,
       ];
 
-      // Transform bounds to UTM
-      const bounds = [
-        [expandedBbox[0], expandedBbox[1]],
-        [expandedBbox[2], expandedBbox[3]],
-      ];
-      const utmBounds = bounds;
-      const formattedBounds = formatBoundsForURL([
-        utmBounds[0][0],
-        utmBounds[0][1],
-        utmBounds[1][0],
-        utmBounds[1][1],
-      ]);
+      const formattedBoundsEPSG31983 = formatBoundsForURL(expandedBboxEPSG31983);
+      // BBOX must declare its own CRS independently from srsName
+      const bboxParam = `${formattedBoundsEPSG31983},urn:ogc:def:crs:EPSG:31983`;
+      console.log(bboxParam);
 
       // Define GeoServer layers
       const allLayers = [
@@ -180,8 +183,10 @@ export class GeospatialIntersectionService {
         Polygon | MultiPolygon,
         GeospatialFeatureProperties
       >[] = [];
+      
       for (const layer of layers) {
-        const url = `https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&bbox=${formattedBounds}&typeName=${layer}&maxFeatures=10000&outputFormat=json&srsName=${srsName}`;
+        const url = `https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&bbox=${bboxParam}&typeName=${layer}&maxFeatures=10000&outputFormat=json&srsName=${srsName}`;
+        console.log('url', url);
         const response = await firstValueFrom(this.httpService.get(url));
 
         if (response.data?.features) {
@@ -191,7 +196,7 @@ export class GeospatialIntersectionService {
                 feature.geometry.type === 'MultiPolygon'
                   ? turf.multiPolygon(feature.geometry.coordinates)
                   : turf.polygon(feature.geometry.coordinates);
-
+              console.log(featureGeometry);
               const intersection = turf.intersect(
                 turf.featureCollection([featureGeometry, polygonGeometry]),
               );

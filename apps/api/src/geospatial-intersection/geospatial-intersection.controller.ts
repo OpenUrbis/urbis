@@ -79,7 +79,6 @@ export class GeospatialIntersectionController {
       'slui:tombamentos_envoltorias_de_imoveis_CONPRESP',
       'slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT',
     ];
-    console.log('here', geojson);
     return this.geospatialIntersectionService.findIntersections(
       geojson as any,
       allLayers,

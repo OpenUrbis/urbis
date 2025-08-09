@@ -313,6 +313,71 @@ export const layerSchemas: LayerSchema[] = [
       },
       {
         type: 'wrapper-card',
+        label: 'Interseções no Perímetro',
+        templates: [
+          {
+            type: 'wrapper-request',
+            templates: [
+              {
+                type: 'wrapper-list-items',
+                templates: [
+                  {
+                    type: 'primary-item',
+                    value: `
+                          <% if (id.includes("macroareas")) { %>
+                            <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else if (id.includes("minianel_viario")) { %>
+                            <%- properties.nm_restricao_circulacao_veiculo %>
+                          <% } else if (id.includes("subprefeitura")) { %>
+                            <%- properties.nm_subprefeitura %>
+                          <% } else if (id.includes("macrozonas")) { %>
+                            <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else if (id.includes("tombamentos-areas")) { %>
+                            <%- properties.nm_bairro %>
+                          <% } else if (id.includes("zoneamento_geral")) { %>
+                            <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else { %>
+                            Não mapeado
+                          <% } %>
+                        `,
+                  },
+                  {
+                    type: 'secondary-item',
+                    value: `
+                          <% if (id.includes("macroareas")) { %>
+                            Macroarea
+                          <% } else if (id.includes("minianel_viario")) { %>
+                            Minianel Viario
+                          <% } else if (id.includes("subprefeitura")) { %>
+                            Sub-Prefeitura
+                          <% } else if (id.includes("macrozonas")) { %>
+                            Macrozona
+                          <% } else if (id.includes("tombamentos-areas")) { %>
+                            <%- properties.tx_resolucao_condephaat %>
+                          <% } else if (id.includes("zoneamento_geral")) { %>
+                            Zoneamento
+                          <% } else { %>
+                            Não mapeado
+                          <% } %>
+                        `,
+                  },
+                ],
+                properties: {
+                  data: '(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))',
+                  twoLine: true,
+                },
+              },
+            ],
+            properties: {
+              url: 'https://api.mapa.urbis.sampa.br/geospatial-intersections',
+              method: 'post',
+              data: `({data}) => data`,
+            },
+          },
+        ],
+      },
+      /* {
+        type: 'wrapper-card',
         label: 'Restrições',
         templates: [
           {
@@ -341,7 +406,7 @@ export const layerSchemas: LayerSchema[] = [
             value: "<%= 'Não disponivel' %>",
           },
         ],
-      },
+      }, */
     ],
     groupId: 'geral',
     properties: {

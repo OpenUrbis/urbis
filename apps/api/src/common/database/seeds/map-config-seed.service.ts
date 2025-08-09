@@ -79,7 +79,7 @@ export class MapConfigSeedService {
           },
           {
             type: 'wrapper-card',
-            label: 'Intersesões no perimetro',
+            label: 'Interseções no Perímetro',
             templates: [
               {
                 type: 'wrapper-list-items',

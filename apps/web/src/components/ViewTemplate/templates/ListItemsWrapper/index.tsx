@@ -5,6 +5,7 @@ import { createFn } from "../../../../utils/createFn";
 import { IListItemsProperties } from "../../types/list-items-type";
 import { ITemplate, ITemplatesDeclaration } from "../../types/templates-type";
 import { ViewTemplateEngine } from "../../ViewTemplateEngine";
+import "./style.scss";
 
 export const ListItemsWrapper: ITemplatesDeclaration = {
   name: "wrapper-list-items",

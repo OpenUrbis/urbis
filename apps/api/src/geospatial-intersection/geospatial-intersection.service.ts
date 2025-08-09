@@ -6,6 +6,7 @@ import {
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as turf from '@turf/turf';
+import * as proj4 from 'proj4';
 import {
   Feature,
   FeatureCollection,
@@ -38,6 +39,8 @@ interface CitData {
 interface GeospatialFeatureCollectionProperties {
   input: Feature<Polygon | MultiPolygon>;
   totalArea: number;
+  // Optional CIT metadata when an SQLC/SQC is provided with the input feature
+  cit_data?: CitData | null;
 }
 
 /**
@@ -116,28 +119,29 @@ export class GeospatialIntersectionService {
         ? turf.multiPolygon(geojson.geometry.coordinates as number[][][][])
         : turf.polygon(geojson.geometry.coordinates as number[][][]);
 
-      // Calculate expanded bounding box
-      const bbox = turf.bbox(polygonGeometry);
-      const margin = 100; // 100 metros
-      const expandedBbox = [
-        bbox[0] - margin,
-        bbox[1] - margin,
-        bbox[2] + margin,
-        bbox[3] + margin,
+      // Calculate bbox and transform it to the default layer CRS: EPSG:31983
+      const bbox = turf.bbox(polygonGeometry); // [minX, minY, maxX, maxY]
+      const projWGS84 = '+proj=longlat +datum=WGS84';
+      const projEPSG31983 = '+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+
+      // Infer source projection from requested output (common in our flows)
+      const sourceProj = srsName === 'EPSG:31983' ? projEPSG31983 : projWGS84;
+
+      const minPointEPSG31983 = proj4(sourceProj, projEPSG31983, [bbox[0], bbox[1]]);
+      const maxPointEPSG31983 = proj4(sourceProj, projEPSG31983, [bbox[2], bbox[3]]);
+
+      // Expand by 100 meters in EPSG:31983 space
+      const margin = 100;
+      const expandedBboxEPSG31983 = [
+        minPointEPSG31983[0] - margin,
+        minPointEPSG31983[1] - margin,
+        maxPointEPSG31983[0] + margin,
+        maxPointEPSG31983[1] + margin,
       ];
 
-      // Transform bounds to UTM
-      const bounds = [
-        [expandedBbox[0], expandedBbox[1]],
-        [expandedBbox[2], expandedBbox[3]],
-      ];
-      const utmBounds = bounds;
-      const formattedBounds = formatBoundsForURL([
-        utmBounds[0][0],
-        utmBounds[0][1],
-        utmBounds[1][0],
-        utmBounds[1][1],
-      ]);
+      const formattedBoundsEPSG31983 = formatBoundsForURL(expandedBboxEPSG31983);
+      // BBOX must declare its own CRS independently from srsName
+      const bboxParam = `${formattedBoundsEPSG31983},urn:ogc:def:crs:EPSG:31983`;
 
       // Define GeoServer layers
       const allLayers = [
@@ -180,8 +184,9 @@ export class GeospatialIntersectionService {
         Polygon | MultiPolygon,
         GeospatialFeatureProperties
       >[] = [];
+      
       for (const layer of layers) {
-        const url = `https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&bbox=${formattedBounds}&typeName=${layer}&maxFeatures=10000&outputFormat=json&srsName=${srsName}`;
+        const url = `https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&bbox=${bboxParam}&typeName=${layer}&maxFeatures=10000&outputFormat=json&srsName=${srsName}`;
         const response = await firstValueFrom(this.httpService.get(url));
 
         if (response.data?.features) {
@@ -191,7 +196,6 @@ export class GeospatialIntersectionService {
                 feature.geometry.type === 'MultiPolygon'
                   ? turf.multiPolygon(feature.geometry.coordinates)
                   : turf.polygon(feature.geometry.coordinates);
-
               const intersection = turf.intersect(
                 turf.featureCollection([featureGeometry, polygonGeometry]),
               );
@@ -219,6 +223,74 @@ export class GeospatialIntersectionService {
         }
       }
 
+      // Enrich "lote_cidadao" features with CIT data (per-lot)
+      try {
+        const lotFeatures = features.filter(
+          f => f.properties?.layer === 'slui:lote_cidadao',
+        );
+
+        // Build a unique set of 10-digit SQLC (setor+quadra+lote)
+        const sqlc10Set = new Set<string>();
+        const getSqlc10FromProperties = (props: Record<string, any>): string | null => {
+          // Preferred fields
+          const setor = props?.cd_setor_fiscal?.toString()?.padStart(3, '0');
+          const quadra = props?.cd_quadra_fiscal?.toString()?.padStart(3, '0');
+          const lote = props?.cd_lote?.toString()?.padStart(4, '0');
+          if (setor && quadra && lote) {
+            return `${setor}${quadra}${lote}`;
+          }
+          // Fallback: parse combined field (e.g., "038 114 0062 00")
+          const combined: string | undefined = props?.setor_quadra_lote_condominio;
+          if (combined) {
+            const onlyDigits = String(combined).replace(/\D/g, '');
+            if (onlyDigits.length >= 10) {
+              return onlyDigits.substring(0, 10);
+            }
+          }
+          // Fallback: any other sqlc-like field
+          const rawSqlc: string | undefined = props?.cd_sql || props?.sqlc || props?.sqc;
+          if (rawSqlc) {
+            const onlyDigits = String(rawSqlc).replace(/\D/g, '');
+            if (onlyDigits.length >= 10) {
+              return onlyDigits.substring(0, 10);
+            }
+          }
+          return null;
+        };
+
+        for (const lf of lotFeatures) {
+          const key = getSqlc10FromProperties(lf.properties || {});
+          if (key) sqlc10Set.add(key);
+        }
+
+        if (sqlc10Set.size > 0) {
+          const sqlc10List = Array.from(sqlc10Set.values());
+          const citMap = new Map<string, CitData | null>();
+
+          await Promise.all(
+            sqlc10List.map(async sqlc10 => {
+              try {
+                const data = await this.getCitData(sqlc10);
+                citMap.set(sqlc10, data);
+              } catch (e) {
+                console.error('Error fetching CIT for', sqlc10, e);
+                citMap.set(sqlc10, null);
+              }
+            }),
+          );
+
+          // Attach cit_data to each lot feature
+          for (const lf of lotFeatures) {
+            const key = getSqlc10FromProperties(lf.properties || {});
+            if (key) {
+              (lf.properties as any).cit_data = citMap.get(key) ?? null;
+            }
+          }
+        }
+      } catch (e) {
+        // Do not break main response if CIT enrichment fails
+        console.error('Error enriching lote_cidadao with CIT data:', e);
+      }
       // Return feature collection
       return {
         type: 'FeatureCollection',

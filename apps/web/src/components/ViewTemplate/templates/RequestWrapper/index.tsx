@@ -55,6 +55,7 @@ export const RequestWrapper: ITemplatesDeclaration = {
         try {
           const { data } = await axios(axiosConfig);
 
+          console.log(data);
           setData(data);
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -78,15 +79,17 @@ export const RequestWrapper: ITemplatesDeclaration = {
         <CircularProgress size="large" />
       </div>
     ) : (
-      templates.map((template, i) => (
-        <ViewTemplateEngine
-          key={`${key}-engine-${i}`}
-          template={template}
-          data={{ ...(rawData ?? {}), response: data }}
-          rootTemplate={rootTemplate}
-          isPrint={isPrint}
-        />
-      ))
+      <div style="display: grid; gap: 8px;">
+        {templates.map((template, i) => (
+          <ViewTemplateEngine
+            key={`${key}-engine-${i}`}
+            template={template}
+            data={{ ...(rawData ?? {}), response: data }}
+            rootTemplate={rootTemplate}
+            isPrint={isPrint}
+          />
+        ))}
+      </div>
     );
   },
 };

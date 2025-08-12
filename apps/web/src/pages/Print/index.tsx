@@ -80,10 +80,11 @@ const PrintPage = () => {
       <header className="d-flex align-items-center justify-content-between">
         <div className="logo d-flex align-items-center justify-content-center">
           <img src="logo.svg" alt="Logo da cidade de São paulo" />
+          DEMO
         </div>
         <div className="metadata d-flex align-items-center justify-content-center flex-column">
           <span>Prefeitura de São Paulo</span>
-          <span>Informações</span>
+          <span>DEMO - ADESAMPA</span>
           <span>Informações</span>
         </div>
         <div className="qrcode d-flex align-items-center justify-content-center">

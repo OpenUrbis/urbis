@@ -312,11 +312,141 @@ export const layerSchemas: LayerSchema[] = [
         ],
       },
       {
-        type: 'wrapper-card',
-        label: 'Interseções no Perímetro',
+        type: 'wrapper-request',
+        properties: {
+          url: 'https://api.mapa.urbis.sampa.br/geospatial-intersections',
+          method: 'post',
+          data: `({data}) => data`,
+          transformResponse: `(response) => {
+            response = JSON.parse(response);
+            const { features } = response;
+
+            const fieldToLayerMap = {
+              geom_zoneamento_2016: ["slui:zoneamento"],
+              geom_subprefeitura: ["slui:subprefeitura"],
+              geom_distrito: ["slui:distrito_municipal"],
+              geom_tombado: [
+                "slui:tombamentos-areas",
+                "slui:tombamentos-envoltorias-de-imoveis",
+                "slui:tombamentos-imoveis",
+              ],
+              geom_uc: ["slui:parques_unidades_de_conservacao_e_apa"],
+              geom_apa: ["slui:parques_unidades_de_conservacao_e_apa"],
+              geom_area_contaminada: ["slui:areas_contaminadas"],
+              geom_melhoramento_viario: ["slui:minianel_viario"],
+              geom_area_manancial: ["slui:manancial_billings"],
+              geom_area_manancial_guarapiranga: ["slui:manancial_guarapiranga"],
+              geom_area_manancial_juquery: ["slui:manancial_juquery"],
+              geom_area_envoltoria_iphan: [
+                "slui:tombamentos_envoltorias_de_imoveis_IPHAN",
+              ],
+              geom_area_envoltoria_conpresp: [
+                "slui:tombamentos_envoltorias_de_imoveis_CONPRESP",
+              ],
+              geom_area_envoltoria_condephaat: [
+                "slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT",
+              ],
+            };
+            const camadasTombamento = [
+              "geom_tombado",
+              "geom_area_envoltoria_condephaat",
+              "geom_area_envoltoria_conpresp",
+              "geom_area_envoltoria_iphan",
+            ];
+            const camadasPreservada = [
+              "geom_apa",
+              "geom_area_manancial_juquery",
+              "geom_area_manancial_guarapiranga",
+              "geom_area_manancial_billings",
+            ];
+
+            response.properties.cit_data = [];
+            response.properties.restricoes = [];
+
+            features.forEach((feat) => {
+              const { properties } = feat;
+              const { layer } = properties;
+
+              if (properties?.cit_data?.situacao_do_imovel) 
+                response.properties.cit_data.push(properties.cit_data);
+
+              Object.keys(fieldToLayerMap).forEach((key) => {
+                if (fieldToLayerMap[key].includes(layer)) {
+                  response.properties.restricoes.push(key);
+                }
+              });
+
+              camadasTombamento.forEach((camada) => {
+                if (response.properties.restricoes.includes(camada)) {
+                  response.properties.tombamento_restrito = true;
+                }
+              });
+
+              camadasPreservada.forEach((camada) => {
+                if (response.properties.restricoes.includes(camada)) {
+                  response.properties.area_preservada = true;
+                }
+              });
+            });
+
+            return response;
+          };`,
+        },
         templates: [
           {
-            type: 'wrapper-request',
+            type: 'wrapper-card',
+            label: 'Restrições',
+            templates: [
+              {
+                type: 'label-value',
+                label: 'ITBI',
+                value: "<%= 'Não disponivel' %>",
+              },
+              {
+                type: 'label-value',
+                label: 'Tombamento',
+                value:
+                  "<%- response?.properties?.tombamento_restrito ? 'Tombado' : 'Sem restrição' %>",
+              },
+              {
+                type: 'label-value',
+                label: 'Área de Preservação Ambiental',
+                value:
+                  "<%- response?.properties?.area_preservada ? 'Preservada' : 'Sem restrição' %>",
+              },
+              {
+                type: 'label-value',
+                label: 'Árvores no Imóvel',
+                value: "<%= 'Não disponivel' %>",
+              },
+            ],
+          },
+          {
+            type: 'wrapper-card',
+            label: 'IPTU',
+            templates: [
+              {
+                type: 'wrapper-list-items',
+                templates: [
+                  {
+                    type: 'primary-item',
+                    value: `<%- descrição_da_preservação ?? 'Não disponível' %>`,
+                  },
+                  {
+                    type: 'secondary-item',
+                    value: `<%- situacao_do_imovel ?? 'Não disponível' %>`,
+                  },
+                ],
+                properties: {
+                  data: '(data) => data.response.properties.cit_data.length ? data.response.properties.cit_data : [{"descrição_da_preservação": "Não disponível", situacao_do_imovel: "Não disponível"}]',
+                  twoLine: true,
+                },
+              },
+            ],
+          },
+          {
+            type: 'wrapper-card',
+            label: 'Interseções no Perímetro',
             templates: [
               {
                 type: 'wrapper-list-items',
@@ -336,6 +466,14 @@ export const layerSchemas: LayerSchema[] = [
                             <%- properties.nm_bairro %>
                           <% } else if (id.includes("zoneamento_geral")) { %>
                             <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else if (properties.layer.includes("slui:setores_e_subsetores")) { %>
+                            <%- properties.nm_tema_divisao_pde %>
+                          <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
+                            <%- properties.nm_distrito_municipal %>
+                          <% } else if (properties.layer.includes("slui:tombamentos")) { %>
+                            <%- properties?.nm_area ?? properties?.nm_area_tombada %>
+                          <% } else if (properties.layer.includes("slui:zoneamento")) { %>
+                            <%- properties?.tx_zoneamento_perimetro %>
                           <% } else { %>
                             Não mapeado
                           <% } %>
@@ -356,6 +494,14 @@ export const layerSchemas: LayerSchema[] = [
                             <%- properties.tx_resolucao_condephaat %>
                           <% } else if (id.includes("zoneamento_geral")) { %>
                             Zoneamento
+                          <% } else if (id.includes("slui:setores_e_subsetores")) { %>
+                            <%- properties.setor %>
+                          <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
+                            Distrito municipal
+                          <% } else if (properties.layer.includes("slui:tombamentos")) { %>
+                            Imóvel tombado
+                          <% } else if (properties.layer.includes("slui:zoneamento")) { %>
+                            Zoneamento perimetro
                           <% } else { %>
                             Não mapeado
                           <% } %>
@@ -368,45 +514,9 @@ export const layerSchemas: LayerSchema[] = [
                 },
               },
             ],
-            properties: {
-              url: 'https://api.mapa.urbis.sampa.br/geospatial-intersections',
-              method: 'post',
-              data: `({data}) => data`,
-            },
           },
         ],
       },
-      /* {
-        type: 'wrapper-card',
-        label: 'Restrições',
-        templates: [
-          {
-            type: 'label-value',
-            label: 'IPTU',
-            value: "<%= 'Não disponivel' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'ITBI',
-            value: "<%= 'Não disponivel' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Tombamento',
-            value: "<%= 'Não disponivel' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Área de Preservação Ambiental',
-            value: "<%= 'Não disponivel' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Árvores no Imóvel',
-            value: "<%= 'Não disponivel' %>",
-          },
-        ],
-      }, */
     ],
     groupId: 'geral',
     properties: {

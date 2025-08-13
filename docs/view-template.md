@@ -8,6 +8,7 @@
   - [List of Available Wrappers](#list-of-available-wrappers)
   - [Row](#row)
   - [Card](#card)
+  - [Wrapper Request](#wrapper-request)
   - [List Items](#list-items)
 - [Templates](#templates)
   - [List of Available Templates](#list-of-available-templates)
@@ -55,6 +56,7 @@ The `wrapper-row` organizes templates in a row, leveraging the grid system of **
 | `columnClass` | Bootstrap CSS class to define the column width for each template. | `"col-md-6"` |
 
 - **Example**:
+
   ```json
   {
     "type": "wrapper-row",
@@ -78,6 +80,7 @@ The `wrapper-row` organizes templates in a row, leveraging the grid system of **
     ]
   }
   ```
+
   This example creates a row with two label-value pairs, each occupying half the available width on medium or larger screens, using the Bootstrap grid.
 
 ### Card
@@ -100,6 +103,7 @@ The `wrapper-card` displays content in a visual card, typically with a title (`l
 | `helper` | Help text   | `{ "helper": "Information about content in card" }` |
 
 - **Example**:
+
   ```json
   {
     "type": "wrapper-card",
@@ -129,8 +133,81 @@ The `wrapper-card` displays content in a visual card, typically with a title (`l
     ]
   }
   ```
+
   This card displays a title "Information" and a row with two label-value pairs.
 
+### Wrapper Request
+
+The `wrapper-request` performs HTTP requests to fetch data to be displayed on the interface, using Axios configuration to define the request parameters. The result of the request is stored in the `response` variable in the main object, allowing child templates to access this data for rendering.
+
+- **Purpose**: Dynamically fetch data from an API and display it in child templates or wrappers, such as cards or lists.
+- **Root Properties**:
+
+| Property    | Description                                                                 | Example                             |
+|------------|-----------------------------------------------------------------------------|-------------------------------------|
+| `type`      | Wrapper identifier, must be `"wrapper-request"`.                            | `"wrapper-request"`                 |
+| `templates` | Array of child templates or wrappers to be rendered with the request data.  | `[{ "type": "wrapper-card", ... }]` |
+
+- **Properties of the `properties` Object**:
+
+The `properties` object follows the typing of the Axios request configuration ([Axios](https://axios-http.com/docs/req_config)), with the particularity that functions such as `transformRequest`, `transformResponse`, `paramsSerializer`, and others must be provided as *string functions* (functions in string format), as the data is stored in JSON in the database. The most common properties include:
+
+| Property           | Description                                                                 | Example                                                                 |
+|--------------------|-----------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| `url`              | Server URL for the request (required).                                      | `"https://api.mapa.urbis.sampa.br/geospatial-intersections"`            |
+| `method`           | HTTP method of the request (default: `"get"`).                              | `"post"`                                                               |
+| `data`             | Data sent in the request body, can be a *string function*. The object passed to this function is the complete form configuration object, containing the selected polygon within the `data` property. | `"(data) => data"`                                                     |
+| `transformResponse`| String function that transforms the response data before it is used.       | `"(response) => { response = JSON.parse(response); return response; }"` |
+
+- **Notes**:
+  - The request result is stored in the `response` variable in the main object, accessible via EJS in child templates, such as `<%- response?.properties?.key %>`.
+  - Functions must be JSON-serializable, so use *string functions* for configurations like `transformResponse` or `data`.
+  - The `data` function receives the complete form configuration object, which includes the selected polygon in the `data` property, allowing access to information such as `data.geometry` for use in the request.
+
+- **Example**:
+
+  ```json
+  {
+    "type": "wrapper-request",
+    "properties": {
+      "url": "https://api.mapa.urbis.sampa.br/geospatial-intersections",
+      "method": "post",
+      "data": "({data}) => data",
+      "transformResponse": "(response) => { response = JSON.parse(response); const { features } = response; const fieldToLayerMap = { geom_zoneamento_2016: ['slui:zoneamento'], geom_subprefeitura: ['slui:subprefeitura'], geom_distrito: ['slui:distrito_municipal'], geom_tombado: ['slui:tombamentos-areas', 'slui:tombamentos-envoltorias-de-imoveis', 'slui:tombamentos-imoveis'], geom_uc: ['slui:parques_unidades_de_conservacao_e_apa'], geom_apa: ['slui:parques_unidades_de_conservacao_e_apa'], geom_area_contaminada: ['slui:areas_contaminadas'], geom_melhoramento_viario: ['slui:minianel_viario'], geom_area_manancial: ['slui:manancial_billings'], geom_area_manancial_guarapiranga: ['slui:manancial_guarapiranga'], geom_area_manancial_juquery: ['slui:manancial_juquery'], geom_area_envoltoria_iphan: ['slui:tombamentos_envoltorias_de_imoveis_IPHAN'], geom_area_envoltoria_conpresp: ['slui:tombamentos_envoltorias_de_imoveis_CONPRESP'], geom_area_envoltoria_condephaat: ['slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT'] }; const camadasTombamento = ['geom_tombado', 'geom_area_envoltoria_condephaat', 'geom_area_envoltoria_conpresp', 'geom_area_envoltoria_iphan']; const camadasPreservada = ['geom_apa', 'geom_area_manancial_juquery', 'geom_area_manancial_guarapiranga', 'geom_area_manancial_billings']; response.properties.cit_data = []; response.properties.restricoes = []; features.forEach((feat) => { const { properties } = feat; const { layer } = properties; if (properties?.cit_data?.situacao_do_imovel) response.properties.cit_data.push(properties.cit_data); Object.keys(fieldToLayerMap).forEach((key) => { if (fieldToLayerMap[key].includes(layer)) { response.properties.restricoes.push(key); } }); camadasTombamento.forEach((camada) => { if (response.properties.restricoes.includes(camada)) { response.properties.tombamento_restrito = true; } }); camadasPreservada.forEach((camada) => { if (response.properties.restricoes.includes(camada)) { response.properties.area_preservada = true; } }); }); return response; }"
+    },
+    "templates": [
+      {
+        "type": "wrapper-card",
+        "label": "Restrictions",
+        "templates": [
+          {
+            "type": "label-value",
+            "label": "ITBI",
+            "value": "<%= 'Not available' %>"
+          },
+          {
+            "type": "label-value",
+            "label": "Heritage Listing",
+            "value": "<%- response?.properties?.tombamento_restrito ? 'Listed' : 'No restriction' %>"
+          },
+          {
+            "type": "label-value",
+            "label": "Environmental Preservation Area",
+            "value": "<%- response?.properties?.area_preservada ? 'Preserved' : 'No restriction' %>"
+          },
+          {
+            "type": "label-value",
+            "label": "Trees on the Property",
+            "value": "<%= 'Not available' %>"
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  This example performs a POST request to the geospatial intersections API, using the form configuration object (containing the selected polygon in `data`) to send the data, transforms the response to map restrictions, and displays the results in a card with four label-value pairs.
+  
 ### List Items
 
 The `wrapper-list-items` renders a list of items, often used to display filtered or related data, such as lots or intersections. It supports interactions, such as item clicks, and can display information in a single or two-line format (`twoLine`).
@@ -152,6 +229,7 @@ The `wrapper-list-items` renders a list of items, often used to display filtered
 | `onItemClick` | Configuration for the action triggered when an item is clicked.                                                                                                                                                                                                     | `{ "action": "openFeature", "params": { "template": "root" } }`                      |
 
 - **Example**:
+
   ```json
   {
     "type": "wrapper-list-items",
@@ -175,6 +253,7 @@ The `wrapper-list-items` renders a list of items, often used to display filtered
     ]
   }
   ```
+
   This example renders a list of lots with two lines per item, where clicking an item opens details using the layer's `viewTemplate`.
 
 ## Templates
@@ -211,6 +290,7 @@ The `label-value` template displays a label-value pair, ideal for showing specif
 | `helper`      | Help text                                                       | `{ "helper": "Information about the value" }` |
 
 - **Example**:
+
   ```json
   {
     "type": "label-value",
@@ -221,6 +301,7 @@ The `label-value` template displays a label-value pair, ideal for showing specif
     }
   }
   ```
+
   This template displays the label "Land Area" and the corresponding value of the `qt_area_terreno` property.
 
 ### Edit Polygon Action
@@ -245,6 +326,7 @@ The `edit-polygon` template is the action for editing and initiating a new proto
 > This template will no be rendered when the view is to printing
 
 - **Example**:
+
   ```json
   {
     "type": "edit-polygon",
@@ -292,6 +374,7 @@ The `edit-polygon` template is the action for editing and initiating a new proto
     ]
   }
   ```
+  
   This example combines a map with a list of lots, each with a click action to open details.
 
 ### Button Action
@@ -315,6 +398,7 @@ The `button` template is a simple button with any action.
 > This template will no be rendered when the view is to printing
 
 - **Example**:
+
   ```json
   {
     "type": "button",
@@ -322,6 +406,7 @@ The `button` template is a simple button with any action.
     "properties": { "action": "(data) => console.log('DO NOTHING');" },
   },
   ```
+
   This example combines a map with a list of lots, each with a click action to open details.
 
 ### Polygon Map
@@ -343,6 +428,7 @@ The `polygon-map` template renders a non-interactive map with a highlighted poly
 | `polygonProps`     | JavaScript function that configures the polygon's visual properties (color, outline). | `"(data) => ({ id: 'polygon-layer', data: [{ coordinates: data.geometry.coordinates }], pickable: false, stroked: true, filled: true, lineWidthMinPixels: 2, getPolygon: (d) => d.coordinates, getFillColor: [255, 165, 0, 100], getLineColor: [255, 140, 0] })"` |
 
 - **Example**:
+
   ```json
   {
     "type": "polygon-map",
@@ -352,6 +438,7 @@ The `polygon-map` template renders a non-interactive map with a highlighted poly
     }
   }
   ```
+
   This template displays a centered polygon with an orange fill and a darker outline.
 
 ### Primary Item
@@ -373,12 +460,14 @@ The `primary-item` template defines the primary content of an item in a list ([L
 | (None)   | Currently, there are no specific properties in the `properties` object. | -       |
 
 - **Example**:
+
   ```json
   {
     "type": "primary-item",
     "value": "Identifier #<%- properties.id.replace('lote_cidadao.', '') %>"
   }
   ```
+
   This template displays the identifier of a lot without the "lote_cidadao." prefix.
 
 ### Secondary Item
@@ -400,10 +489,12 @@ The `secondary-item` template defines the secondary content of an item in a list
 | (None)   | Currently, there are no specific properties in the `properties` object. | -       |
 
 - **Example**:
+
   ```json
   {
     "type": "secondary-item",
     "value": "SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>"
   }
   ```
+
   This template displays fiscal codes and the address of a lot.

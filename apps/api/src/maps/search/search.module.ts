@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LayerSchemasModule } from 'layer-schemas/layer-schemas.module';
+import { LayerSchemasModule } from 'maps/layer-schemas/layer-schemas.module';
 import { LayerSchemaColors } from '../layer-schemas/entities/layer-schema-color.entity';
 import { LayerSchema } from '../layer-schemas/entities/layer-schema.entity';
 import { SearchConfig } from './entities/search-config.entity';

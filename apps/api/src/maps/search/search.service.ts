@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
-import { LayerSchemasService } from 'layer-schemas/layer-schemas.service';
+import { LayerSchema } from 'maps/layer-schemas/entities/layer-schema.entity';
+import { LayerSchemasService } from 'maps/layer-schemas/layer-schemas.service';
 import { Repository } from 'typeorm';
 import { SearchConfigDto } from './dto/search.dto';
 import { SearchConfig } from './entities/search-config.entity';

@@ -20,7 +20,7 @@ import { SearchConfig } from './entities/search-config.entity';
 import { SearchService } from './search.service';
 
 @ApiTags('Search configurations')
-@Controller('search')
+@Controller('maps/search')
 export class SearchController {
   constructor(private readonly service: SearchService) {}
 

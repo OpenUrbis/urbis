@@ -15,85 +15,89 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { LayerSchemaDto } from './dto/layer-schema.dto';
-import { LayerSchema } from './entities/layer-schema.entity';
-import { LayerSchemasService } from './layer-schemas.service';
+import { LayerGroupDto } from './dto/layer-group.dto';
+import { LayerGroup } from './entities/layer-group.entity';
+import { LayerGroupsService } from './layer-groups.service';
 
-@ApiTags('Layer Schemas')
-@Controller('layer-schemas')
-export class LayerSchemasController {
-  constructor(private readonly service: LayerSchemasService) {}
+@ApiTags('Layer Groups')
+@Controller('maps/layer-groups')
+export class LayerGroupsController {
+  constructor(private readonly service: LayerGroupsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all layer schemas' })
+  @ApiOperation({ summary: 'Get all layer groups' })
   @ApiResponse({
     status: 200,
-    description: 'List of layer schemas',
-    type: [LayerSchema],
+    description: 'List of layer groups',
+    type: [LayerGroup],
   })
-  async findAll(): Promise<LayerSchema[]> {
+  async findAll(): Promise<LayerGroup[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a layer schema by ID' })
+  @ApiOperation({ summary: 'Get a layer group by ID' })
   @ApiResponse({
     status: 200,
-    description: 'The layer schema',
-    type: LayerSchema,
+    description: 'The layer group',
+    type: LayerGroup,
   })
   @ApiResponse({
     status: 404,
     description: 'Layer schema with ID not found',
-    type: LayerSchema,
+    example: {
+      message: 'Layer group with ID iffel-towesr not found',
+      error: 'Bad Request',
+      statusCode: 400,
+    },
   })
-  async findOne(@Param('id') id: string): Promise<LayerSchema> {
+  async findOne(@Param('id') id: string): Promise<LayerGroup> {
     return this.service.findOne(id);
   }
 
   @ApiSecurity('api_key')
   @UseGuards(AuthGuard('api-key'))
   @Post()
-  @ApiOperation({ summary: 'Create a new layer schema' })
+  @ApiOperation({ summary: 'Create a new layer group' })
   @ApiResponse({
     status: 201,
-    description: 'The created layer schema',
-    type: LayerSchema,
+    description: 'The created layer group',
+    type: LayerGroup,
   })
   @ApiResponse({
     status: 400,
-    description: 'Layer schema with ID already exist',
+    description: 'Layer group with ID already exist',
     example: {
       message: 'Layer schema with ID iffel-towesr already exist',
       error: 'Bad Request',
       statusCode: 400,
     },
   })
-  async create(@Body() dto: LayerSchemaDto): Promise<LayerSchema> {
+  async create(@Body() dto: LayerGroupDto): Promise<LayerGroup> {
     return this.service.create(dto);
   }
 
   @ApiSecurity('api_key')
   @UseGuards(AuthGuard('api-key'))
   @Put(':id')
-  @ApiOperation({ summary: 'Update a layer schema by ID' })
+  @ApiOperation({ summary: 'Update a layer group by ID' })
   @ApiResponse({
     status: 200,
-    description: 'The updated layer schema',
-    type: LayerSchema,
+    description: 'The updated layer group',
+    type: LayerGroup,
   })
   @ApiResponse({
     status: 404,
     description: 'Layer schema with ID not found',
     example: {
-      message: 'Layer schema with ID iffel-towesr not found',
+      message: 'Layer group with ID iffel-towesr not found',
       error: 'Bad Request',
       statusCode: 400,
     },
   })
   @ApiResponse({
     status: 400,
-    description: 'Layer schema with ID already exist',
+    description: 'Layer group with ID already exist',
     example: {
       message: 'Layer schema with ID iffel-towesr already exist',
       error: 'Bad Request',
@@ -102,21 +106,21 @@ export class LayerSchemasController {
   })
   async update(
     @Param('id') id: string,
-    @Body() dto: LayerSchemaDto,
-  ): Promise<LayerSchema> {
+    @Body() dto: LayerGroupDto,
+  ): Promise<LayerGroup> {
     return this.service.update(id, dto);
   }
 
   @ApiSecurity('api_key')
   @UseGuards(AuthGuard('api-key'))
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a layer schema by ID' })
+  @ApiOperation({ summary: 'Delete a layer group by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })
   @ApiResponse({
     status: 404,
     description: 'Layer schema with ID not found',
     example: {
-      message: 'Layer schema with ID iffel-towesr not found',
+      message: 'Layer group with ID iffel-towesr not found',
       error: 'Bad Request',
       statusCode: 400,
     },
@@ -128,13 +132,13 @@ export class LayerSchemasController {
   @ApiSecurity('api_key')
   @UseGuards(AuthGuard('api-key'))
   @Post('upsert')
-  @ApiOperation({ summary: 'Create or update a layer schema based on ID' })
+  @ApiOperation({ summary: 'Create or update a layer group based on ID' })
   @ApiResponse({
     status: 201,
-    description: 'The created or updated layer schema',
-    type: LayerSchema,
+    description: 'The created or updated layer group',
+    type: LayerGroup,
   })
-  async upsert(@Body() dto: LayerSchemaDto): Promise<LayerSchema> {
+  async upsert(@Body() dto: LayerGroupDto): Promise<LayerGroup> {
     return this.service.upsert(dto);
   }
 }

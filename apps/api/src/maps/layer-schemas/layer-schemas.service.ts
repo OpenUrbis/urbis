@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LayerGroupsService } from 'layer-groups/layer-groups.service';
+import { LayerGroupsService } from 'maps/layer-groups/layer-groups.service';
 import { Repository } from 'typeorm';
 import { LayerSchemaDto } from './dto/layer-schema.dto';
 import { LayerSchema } from './entities/layer-schema.entity';

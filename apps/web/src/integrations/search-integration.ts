@@ -6,12 +6,13 @@ import {
 } from "../types/fetch-search-config-type";
 import { createFn } from "../utils/createFn";
 
-const environment = import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br";
+const environment =
+  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
 
 export const getSearchConfig = async (): Promise<
   IGetSearchConfigResponse[]
 > => {
-  const response = await fetch(`${environment}/search-config`);
+  const response = await fetch(`${environment}/config/search`);
   if (!response.ok) {
     throw new Error("Failed to fetch map config");
   }
@@ -43,16 +44,24 @@ export const fetchSearchItem = async (
       config.params = transformParamsFn ? transformParamsFn({ term }) : {};
     }
 
-    if (transformRequest) config.transformRequest = [createFn(transformRequest)];
+    if (transformRequest)
+      config.transformRequest = [createFn(transformRequest)];
 
     if (transformResponse)
       config.transformResponse = [createFn(transformResponse)];
 
     const response = await axios(config);
 
-    return response.data ?? []; 
+    return response.data ?? [];
   } catch (error: any) {
     console.error("Error fetching search item:", error);
-    return [{ type: 'error', message: error?.response?.data?.message ?? "Houve um erro ao buscar os dados de pesquisa." }];
+    return [
+      {
+        type: "error",
+        message:
+          error?.response?.data?.message ??
+          "Houve um erro ao buscar os dados de pesquisa.",
+      },
+    ];
   }
 };

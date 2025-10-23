@@ -7,8 +7,8 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { IClickAction } from 'layer-schemas/entities/layer-schema.entity';
-import { SearchConfigMethodEnum } from 'search/enums/search-config.enum';
+import { IClickAction } from 'maps/layer-schemas/entities/layer-schema.entity';
+import { SearchConfigMethodEnum } from 'maps/search/enums/search-config.enum';
 
 export class SearchConfigDto {
   @ApiProperty({

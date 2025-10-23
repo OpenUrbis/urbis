@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LayerGroupsModule } from 'layer-groups/layer-groups.module';
+import { LayerGroupsModule } from 'maps/layer-groups/layer-groups.module';
 import { LayerSchemaColors } from './entities/layer-schema-color.entity';
 import { LayerSchema } from './entities/layer-schema.entity';
 import { LayerSchemasController } from './layer-schemas.controller';

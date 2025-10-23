@@ -15,11 +15,11 @@ import { SqlcDto } from './dto/sqlc.dto';
  * Controller for handling geospatial intersection queries
  */
 @ApiTags('Geospatial intersections')
-@Controller('geospatial-intersections')
+@Controller('maps/geospatial-intersections')
 export class GeospatialIntersectionController {
   constructor(
     private readonly geospatialIntersectionService: GeospatialIntersectionService,
-  ) { }
+  ) {}
 
   /**
    * Find intersections between a GeoJSON polygon and GeoServer layers
@@ -113,6 +113,9 @@ export class GeospatialIntersectionController {
     description: 'Internal server error occurred',
   })
   async findIntersectionsBySqlc(@Body() sqlcDto: SqlcDto): Promise<any> {
-    return this.geospatialIntersectionService.findIntersectionsBySqlc(sqlcDto.sqlc, sqlcDto.fields);
+    return this.geospatialIntersectionService.findIntersectionsBySqlc(
+      sqlcDto.sqlc,
+      sqlcDto.fields,
+    );
   }
 }

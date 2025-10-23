@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClickActionEnum } from '@open-urbis/map-shared';
 import { Repository } from 'typeorm';
-import { SearchConfig } from '../../../search/entities/search-config.entity';
+import { SearchConfig } from '../../../maps/search/entities/search-config.entity';
 
 @Injectable()
 export class SearchConfigSeedService {

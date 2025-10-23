@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { LayerGroup } from 'layer-groups/entities/layer-group.entity';
-import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
+import { LayerGroup } from 'maps/layer-groups/entities/layer-group.entity';
+import { LayerSchema } from 'maps/layer-schemas/entities/layer-schema.entity';
 
 export class MapConfigResponseDto {
   @ApiProperty({ description: '', example: -23.5505 })

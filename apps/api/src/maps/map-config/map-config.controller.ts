@@ -1,20 +1,20 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SearchConfig } from 'search/entities/search-config.entity';
-import { SearchService } from 'search/search.service';
+import { SearchConfig } from 'maps/search/entities/search-config.entity';
+import { SearchService } from 'maps/search/search.service';
 import { MapConfigResponseDto } from './dto/map-config-response.dto';
 import { TextLayerDtoResponse } from './dto/text-layer.dto';
 import { MapConfigService } from './map-config.service';
 
 @ApiTags('Configurations Getters')
-@Controller()
+@Controller('maps/config')
 export class MapConfigController {
   constructor(
     private readonly mapConfigService: MapConfigService,
     private readonly searchConfigService: SearchService,
   ) {}
 
-  @Get('map-config')
+  @Get('map')
   @ApiOperation({
     summary: 'Get configurations of map view and schemas in front end',
   })
@@ -27,7 +27,7 @@ export class MapConfigController {
     return this.mapConfigService.getConfigs();
   }
 
-  @Get('search-config')
+  @Get('search')
   @ApiOperation({ summary: 'Get configurations of search field in front end' })
   @ApiResponse({
     status: 200,

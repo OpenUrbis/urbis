@@ -10,7 +10,7 @@ import { GeocodingQueryDto, SearchResultDto } from './dto/geocoding.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 
 @ApiTags('Geocoding')
-@Controller('geocoding/places')
+@Controller('maps/geocoding/places')
 export class GeocodingController {
   constructor(private readonly geocodingService: GeocodingService) {}
 

@@ -14,7 +14,7 @@ import {
 import {
   LayerSchemaColorTypeEnum,
   LayerSchemaTypeEnum,
-} from 'layer-schemas/enums/layer-schema.enum';
+} from 'maps/layer-schemas/enums/layer-schema.enum';
 
 interface IClickAction {
   action: ClickActionEnum;

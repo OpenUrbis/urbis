@@ -14,6 +14,7 @@ module.exports = {
         destructuredArrayIgnorePattern: "^_",
         varsIgnorePattern: "^_",
         ignoreRestSiblings: true,
+        "require-await": "off",
       },
     ],
   },

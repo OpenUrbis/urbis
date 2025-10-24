@@ -19,7 +19,7 @@
     },
     "test": {
       "dependsOn": [
-        "build"
+Ø
       ],
       "outputs": []
     },

@@ -26,12 +26,4 @@ export class AuthUpdateDto {
   @ApiProperty()
   @IsOptional()
   country?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  phone?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  userMetadata: any;
 }

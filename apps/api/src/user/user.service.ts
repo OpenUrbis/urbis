@@ -18,6 +18,10 @@ export class UserService {
     );
   }
 
+  list() {
+    return this.usersRepository.find();
+  }
+
   findOne(
     fields: FindOptionsWhere<User>,
     findOptions: FindOneOptions<User> = {},

@@ -51,6 +51,7 @@ export class OidcController {
       .toString()
       .replace('interaction/api', 'interaction')
       .replace('/auth/oidc', '');
+
     const { params, prompt, uid } = await this.oidcProvider.interactionDetails(
       req,
       res,
@@ -83,7 +84,6 @@ export class OidcController {
     res.redirect(
       [
         clientUrl,
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         `sign-in?session=${uuid}&clientId=${(response as any).params.client_id}&prompt=${prompt.name}`,
       ].join('/'),
     );
@@ -100,6 +100,7 @@ export class OidcController {
       .replace('interaction/api', 'interaction')
       .replace('/auth/oidc', '')
       .replace('interaction/validate', 'interaction');
+
     req.headers.cookie = '_interaction=' + uuid;
     try {
       const { uid, prompt } = await this.oidcProvider.interactionDetails(

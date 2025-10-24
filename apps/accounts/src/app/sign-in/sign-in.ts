@@ -1,7 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,6 +22,7 @@ import { SignInApi } from './services/sign-in-api';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatFormFieldModule,
+    ReactiveFormsModule,
   ],
   providers: [HttpClient, SignInApi],
   templateUrl: './sign-in.html',
@@ -24,8 +30,11 @@ import { SignInApi } from './services/sign-in-api';
 })
 export class SignIn implements OnInit {
   formGroup = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required]),
+    email: new FormControl('test1@example.com', [
+      Validators.required,
+      Validators.email,
+    ]),
+    password: new FormControl('string', [Validators.required]),
   });
 
   router = inject(Router);

@@ -8,15 +8,13 @@ import {
   Param,
   Post,
   Put,
-  UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
-@UseGuards(AuthGuard('jwt'))
+// @UseGuards(AuthGuard('jwt'))
 @ApiTags('Users')
 @Controller('user')
 export class UserController {
@@ -26,6 +24,11 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createProfileDto: CreateUserDto) {
     return this.service.create(createProfileDto);
+  }
+
+  @Get()
+  list() {
+    return this.service.list();
   }
 
   @Get(':id')

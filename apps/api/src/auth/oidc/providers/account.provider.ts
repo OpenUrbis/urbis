@@ -1,5 +1,7 @@
 export class AccountProvider {
-  static async findAccount(_: any, id: any) {
+  // Alterado para static arrow function
+  static findAccount = async (_: any, id: any) => {
+    console.log('TA CHAMANDO AQUI', _, id);
     return {
       accountId: id,
       async claims() {
@@ -9,7 +11,10 @@ export class AccountProvider {
       },
     };
   }
-  static async loadExistingGrant(ctx) {
+  
+  // Alterado para static arrow function
+  static loadExistingGrant = async (ctx: any) => {
+    // Certifique-se que o 'ctx' tem o tipo correto (ou use 'any' para simplificar localmente)
     const grant = new ctx.oidc.provider.Grant({
       clientId: ctx.oidc.client.clientId,
       accountId: ctx.oidc.session.accountId,

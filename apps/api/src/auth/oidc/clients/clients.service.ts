@@ -6,12 +6,15 @@ import { buildClientsDataSource } from './clients.data-source';
 @Injectable()
 export class ClientsService {
   constructor(private configService: ConfigService) {}
+
   buildClients(): ClientMetadata[] {
     return buildClientsDataSource(this.configService);
   }
-  async getClients() {
+
+  getClients() {
     return this.buildClients();
   }
+
   getClient(clientId: string) {
     return this.buildClients().find((client) => client.client_id === clientId);
   }

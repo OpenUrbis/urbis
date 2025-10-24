@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
@@ -44,9 +44,18 @@ export class SignInApi {
 
   authenticate(authenticate: any) {
     const { session } = this.getStoredSession();
+    const data = new HttpParams()
+      .set('email', authenticate.email)
+      .set('password', authenticate.password)
+      .set('session', session);
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+    });
     return this.httpClient.post(
       environment.api + '/auth/oidc/interaction/' + session,
-      authenticate,
+      data.toString(),
+      { headers },
     );
   }
 }

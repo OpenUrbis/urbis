@@ -1,20 +1,20 @@
 <div class="d-flex justify-content-center align-items-center w-100 h-100">
-  <div class="h-50 w-50 d-flex justify-content-center align-items-center">
-    <form (ngSubmit)="onSubmit()">
+  <div class="h-50 w-50">
+    <form
+      (ngSubmit)="onSubmit()"
+      class="d-flex justify-content-center align-items-center flex-column"
+      [formGroup]="formGroup"
+    >
       <mat-form-field appearance="outline">
-        <mat-label>Outline form field</mat-label>
-        <input matInput placeholder="Placeholder" />
-        <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
-        <mat-hint>Hint</mat-hint>
+        <mat-label>Email</mat-label>
+        <input matInput placeholder="Placeholder" formControlName="email" />
       </mat-form-field>
       <mat-form-field appearance="outline">
-        <mat-label>Outline form field</mat-label>
-        <input matInput placeholder="Placeholder" />
-        <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
-        <mat-hint>Hint</mat-hint>
+        <mat-label>Senha</mat-label>
+        <input matInput placeholder="Placeholder" formControlName="password" />
       </mat-form-field>
 
-      <button matButton="filled">Basic</button>
+      <button matButton="filled">EntrarØ</button>
     </form>
   </div>
 </div>

@@ -1,6 +1,4 @@
 import { ConfigService } from '@nestjs/config';
-import { RedisAdapter } from 'auth/oidc/adapters/redis.adapter';
-import * as oidc from 'oidc-provider';
 import { ClientsService } from '../../auth/oidc/clients/clients.service';
 import { accessTokenProvider } from '../../auth/oidc/providers/access-token.provider';
 import { AccountProvider } from '../../auth/oidc/providers/account.provider';
@@ -8,17 +6,16 @@ import { logoutSource } from '../../auth/oidc/sources/logout.source';
 import { jwks } from '../config/certs/jwks';
 import { AuthService } from './../../auth/auth.service';
 
-export const oidcProviderFactory = async (
+export const oidcProviderFactory = (
   configService: ConfigService,
   ClientsService: ClientsService,
   authService: AuthService,
 ) => {
-  const TTL = (_ctx, _token, _client) => {
+  const TTL = () => {
     return 60 * 60 * 24;
   };
   const configuration = {
-    adapter: RedisAdapter as unknown as any,
-    clients: await ClientsService.getClients(),
+    clients: ClientsService.getClients(),
     clientBasedCORS: () => true,
     findAccount: AccountProvider.findAccount,
     loadExistingGrant: AccountProvider.loadExistingGrant,
@@ -39,12 +36,16 @@ export const oidcProviderFactory = async (
     },
   };
   // run in memory for localhost
-  if (configService.get('auth.sessionsTable') === undefined) {
+  /*   if (configService.get('auth.sessionsTable') === undefined) {
     configuration.adapter = undefined;
-  }
+  } */
 
-  const provider = new oidc.Provider(
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const Provider = require('oidc-provider').Provider;
+
+  const provider = new Provider(
     `${configService.get('app.backendDomain')}/auth/oidc`,
+    configuration,
   );
   provider.proxy = true;
   return accessTokenProvider(provider, authService);

@@ -20,10 +20,6 @@ export class AuthRegisterLoginDto {
   @MinLength(1)
   country?: string;
 
-  @ApiProperty()
-  @IsOptional()
-  recaptha?: string;
-
   @ApiProperty({ example: 'John' })
   @IsNotEmpty()
   firstName: string;
@@ -31,6 +27,4 @@ export class AuthRegisterLoginDto {
   @ApiProperty({ example: 'Doe' })
   @IsNotEmpty()
   lastName: string;
-
-  firebaseUserUid?: string;
 }

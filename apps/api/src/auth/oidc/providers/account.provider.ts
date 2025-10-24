@@ -1,17 +1,16 @@
 export class AccountProvider {
   // Alterado para static arrow function
-  static findAccount = async (_: any, id: any) => {
-    console.log('TA CHAMANDO AQUI', _, id);
+  static findAccount = (_: any, id: any) => {
     return {
       accountId: id,
-      async claims() {
+      claims() {
         return {
           sub: id,
         };
       },
     };
-  }
-  
+  };
+
   // Alterado para static arrow function
   static loadExistingGrant = async (ctx: any) => {
     // Certifique-se que o 'ctx' tem o tipo correto (ou use 'any' para simplificar localmente)
@@ -22,5 +21,5 @@ export class AccountProvider {
     grant.addOIDCScope('openid profile offline_access');
     await grant.save();
     return grant;
-  }
+  };
 }

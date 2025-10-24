@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 @Injectable()
 export class SignInApi {
@@ -38,7 +38,7 @@ export class SignInApi {
   trySession() {
     const { session } = this.getStoredSession();
     return this.httpClient.get(
-      environment.api + '/auth/oidc/interaction/validate/' + session,
+      environment.api + '/oidc/interaction/validate/' + session,
     );
   }
 
@@ -53,7 +53,7 @@ export class SignInApi {
       'Content-Type': 'application/x-www-form-urlencoded',
     });
     return this.httpClient.post(
-      environment.api + '/auth/oidc/interaction/' + session,
+      environment.api + '/oidc/interaction/login/' + session,
       data.toString(),
       { headers },
     );

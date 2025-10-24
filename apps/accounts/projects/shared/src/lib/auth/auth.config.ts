@@ -6,7 +6,6 @@ export const authConfig: PassedInitialConfig = {
     secureRoutes: [environment.api],
     authority: environment.api + '/auth/oidc',
     forbiddenRoute: '/forbidden',
-    unauthorizedRoute: '/unauthorized',
     refreshTokenRetryInSeconds: 10,
     logLevel: LogLevel.Debug,
     redirectUrl: `${window.location.origin}/callback`,

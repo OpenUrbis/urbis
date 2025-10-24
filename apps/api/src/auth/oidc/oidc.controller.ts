@@ -47,15 +47,13 @@ export class OidcController {
     @Res() res: Response,
     @Param('uuid') uuid: string,
   ) {
-    req.url = req.originalUrl
-      .toString()
-      .replace('interaction/api', 'interaction')
-      .replace('/auth/oidc', '');
+    res.set('cache-control', 'no-store');
 
     const { params, prompt, uid } = await this.oidcProvider.interactionDetails(
       req,
       res,
     );
+
     const response = {
       params: params,
       uid: uid,
@@ -70,7 +68,7 @@ export class OidcController {
             <title>Carregando...</title>
           </head>
           <body onload="document.forms[0].submit()">
-            <form autocomplete="off" action="${apiUrl}/auth/oidc/interaction/${uid}" method="post">
+            <form autocomplete="off" action="${apiUrl}/oidc/interaction/${uid}" method="post">
               <input type="hidden" name="prompt" value="consent">
               <div style="padding: 12px;">Carregando...</div>
               <button style="display: none;" autofocus type="submit" class="login login-submit">Continue</button>
@@ -95,11 +93,7 @@ export class OidcController {
     @Res() res,
     @Param('uuid') uuid: string,
   ) {
-    req.url = req.originalUrl
-      .toString()
-      .replace('interaction/api', 'interaction')
-      .replace('/auth/oidc', '')
-      .replace('interaction/validate', 'interaction');
+    res.set('cache-control', 'no-store');
 
     req.headers.cookie = '_interaction=' + uuid;
     try {
@@ -121,19 +115,16 @@ export class OidcController {
     @Res() res: Response,
     @Param('uuid') uuid: string,
   ) {
+    res.set('cache-control', 'no-store');
     req.body = {
       email: '',
       password: '',
     };
     req.headers.cookie = '_interaction=' + uuid;
-    req.url = req.originalUrl
-      .replace('/login', '')
-      .replace('interaction/api', 'interaction')
-      .replace('/auth/oidc', '');
 
     const session = {
       login: {
-        accountId: req.user._id.toString(),
+        accountId: req.user.id,
       },
     };
     const redirectToCallback = await this.oidcProvider.interactionResult(
@@ -147,10 +138,13 @@ export class OidcController {
     res.send({ redirectToCallback, isNewUser: req.user?.isNewUser });
   }
 
-  @All('/*')
+  @All('*')
   public mountedOidc(@Req() req: Request, @Res() res: Response) {
+    console.log('TA CHEGANDO');
+    res.set('cache-control', 'no-store');
+
     req.url = req.originalUrl.replace('/auth/oidc', '');
 
-    this.oidcProvider.callback()(req, res);
+    this.oidcProvider.callback()(req, res).catch(console.error);
   }
 }

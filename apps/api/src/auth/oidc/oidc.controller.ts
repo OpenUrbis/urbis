@@ -84,7 +84,7 @@ export class OidcController {
       [
         clientUrl,
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        `sign-in?session=${uuid}&clientId=${response.params.client_id}&prompt=${prompt.name}`,
+        `sign-in?session=${uuid}&clientId=${(response as any).params.client_id}&prompt=${prompt.name}`,
       ].join('/'),
     );
   }
@@ -149,6 +149,7 @@ export class OidcController {
   @All('/*')
   public mountedOidc(@Req() req: Request, @Res() res: Response) {
     req.url = req.originalUrl.replace('/auth/oidc', '');
+
     this.oidcProvider.callback()(req, res);
   }
 }

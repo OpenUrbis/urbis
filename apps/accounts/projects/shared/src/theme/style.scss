@@ -1,0 +1,61 @@
+@use "@angular/material" as mat;
+@use "sass:map";
+@use "./themes/colors.new" as slingui;
+
+// @use "~bootstrap/dist/css/bootstrap.css" as *;
+
+@use "./themes/colors" as *;
+
+@use "./components" as *;
+@use "./typography/config.scss" as *;
+@use "./components/global-image-viewer.style.scss" as *;
+
+:root {
+  @include mat.elevation-classes();
+  @include mat.app-background();
+
+  @include mat.typography-hierarchy($slingui-typography);
+  @include mat.theme(
+    (
+      color: (
+        primary: slingui.$primary-palette,
+        tertiary: slingui.$tertiary-palette,
+      ),
+      theme-type: light,
+    )
+  );
+}
+
+:root {
+  // hardcode overlap surface vars
+  --mat-sys-surface: #f7f9ff;
+  --mat-sys-surface-dim: #e0e4eb;
+  --mat-sys-surface-bright: #f7f9ff;
+  --mat-sys-surface-container-lowest: #fff;
+  --mat-sys-surface-container-low: #ecf1f8;
+  --mat-sys-surface-container: #e9f0fc;
+  --mat-sys-surface-container-high: #e5e8ed;
+  --mat-sys-surface-container-highest: #e0e3e8;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Syne, "Helvetica Neue", sans-serif;
+}
+
+table * {
+  font-family: Syne, "Helvetica Neue", sans-serif;
+}
+
+.mat-mdc-menu-panel.mat-mdc-menu-panel {
+  max-height: 420px;
+}
+
+.rails a.mat-mdc-list-item.mdc-list-item {
+  border-radius: 0px !important;
+}

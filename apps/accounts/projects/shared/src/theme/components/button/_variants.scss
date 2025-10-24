@@ -1,0 +1,66 @@
+// src/styles/components/button/_variants.scss
+
+@use "sass:map";
+@use "sass:meta";
+@use "@angular/material" as mat;
+@use "./../../themes/colors" as *;
+
+@mixin apply() {
+  .mdc-button .mdc-button__label {
+    text-decoration: none !important;
+  }
+
+  button.mdc-button {
+    padding: 0 16px 0 16px;
+    border-radius: 20px;
+    height: 40px !important;
+  }
+
+  a.mdc-button {
+    padding: 0 16px 0 16px;
+    border-radius: 20px;
+    height: 40px !important;
+  }
+
+  .mdc-notched-outline__notch {
+    border-left: 0px !important;
+  }
+
+  .mat-ripple-element {
+    // background-color: rgba(map.get($primary-palette, 400), 0.24);
+    -webkit-filter: blur(21px);
+    -moz-filter: blur(21px);
+    -o-filter: blur(21px);
+    -ms-filter: blur(21px);
+    filter: blur(21px);
+  }
+
+  .mat-mdc-button-ripple:not(.mat-mdc-button-persistent-ripple)>* {
+    background-color: rgba(map.get($primary-palette, 400), 0.24);
+    -webkit-filter: blur(21px);
+    -moz-filter: blur(21px);
+    -o-filter: blur(21px);
+    -ms-filter: blur(21px);
+    filter: blur(21px);
+  }
+
+  .mat-mdc-icon-button mat-icon {
+    color: var(--mat-sys-primary) !important;
+  }
+
+  .mat-mdc-unelevated-button {
+    border-radius: 24px !important;
+  }
+
+  mat-card {
+    .mat-mdc-icon-button {
+      border: 1px solid map.get($neutral-palette, 50) !important;
+    }
+  }
+
+  mat-form-field {
+    .mat-mdc-icon-button {
+      border: 0px !important;
+    }
+  }
+}

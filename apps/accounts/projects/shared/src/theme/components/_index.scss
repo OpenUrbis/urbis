@@ -1,0 +1,13 @@
+// src/styles/components/_index.scss
+
+@use "./button/variants" as button-variants;
+@use "./card/variants" as card-variants;
+@use "./form-field/variants" as form-field-variants;
+@use "./chips/variants" as chips-variants;
+@use "./tables/variants" as tables-variants;
+
+@mixin theme($theme, $typography-config, $variants) {
+  @include button-variants.apply();
+  @include chips-variants.apply();
+  @include tables-variants.apply();
+}

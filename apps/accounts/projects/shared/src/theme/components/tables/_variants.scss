@@ -1,0 +1,58 @@
+// src/styles/components/button/_variants.scss
+
+@use "sass:map";
+@use "sass:meta";
+@use "@angular/material" as mat;
+
+// Header row
+[mat-table] .mat-mdc-header-row {
+  font-style: normal;
+  height: var(--mdc-table-header-row-height, 56px);
+  font-weight: var(--mdc-table-header-label-text-weight, 500);
+  font-size: var(--mdc-table-header-label-text-size, 14px);
+  line-height: var(--mdc-table-header-label-text-line-height, 20px);
+  letter-spacing: var(--mdc-table-header-label-text-tracking, 1px);
+  text-transform: uppercase;
+
+  .mat-sort-header-content {
+    letter-spacing: var(--mdc-table-header-label-text-tracking, 1px);
+    color: var(--mdc-table-header-label-text-color, var(--mat-sys-primary));
+  }
+}
+
+// Paginator
+mat-paginator {
+  border-top: 1px solid
+    var(--mdc-table-divider-color, var(--mat-sys-outline-variant));
+  font-weight: var(--mdc-table-pagination-label-text-weight, 500);
+  font-size: var(--mdc-table-pagination-label-text-size, 14px);
+  line-height: var(--mdc-table-pagination-label-text-line-height, 20px);
+}
+
+// Data row
+[mat-table] .mdc-data-table__row {
+  height: var(--mdc-table-row-height, 52px);
+  font-weight: var(--mdc-table-row-label-text-weight, 400);
+  font-size: var(--mdc-table-row-label-text-size, 14px);
+  letter-spacing: var(--mdc-table-row-label-text-tracking, 0.25px);
+  line-height: var(--mdc-table-row-label-text-line-height, 20px);
+}
+
+// Table box
+.table-box {
+  overflow: hidden;
+  padding: 1px;
+  background-color: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant) !important;
+  border-radius: var(--mdc-table-container-shape, 8px) !important;
+  padding: var(--mdc-table-container-padding, 8px);
+}
+
+[mat-table] .mat-mdc-row,
+td,
+th {
+  border-top-color: var(--mat-divider-color) !important;
+  border-bottom-color: var(--mat-divider-color) !important;
+  border-right-color: var(--mat-divider-color) !important;
+  border-left-color: var(--mat-divider-color) !important;
+}

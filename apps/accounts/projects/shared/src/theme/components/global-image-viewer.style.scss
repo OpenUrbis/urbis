@@ -1,0 +1,16 @@
+.transparent-dialog {
+  .mat-mdc-dialog-surface {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .iv-snap-view {
+    position: fixed;
+    left: 24px;
+    top: 24px;
+  }
+}
+
+.image-viewer-backdrop {
+  background-color: color(srgb 0 0 0 / .85);
+}

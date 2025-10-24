@@ -43,7 +43,9 @@ export const oidcProviderFactory = async (
     configuration.adapter = undefined;
   }
 
-  const provider = new oidc.Provider(configService.get('app.backendDomain'));
+  const provider = new oidc.Provider(
+    `${configService.get('app.backendDomain')}/auth/oidc`,
+  );
   provider.proxy = true;
   return accessTokenProvider(provider, authService);
 };

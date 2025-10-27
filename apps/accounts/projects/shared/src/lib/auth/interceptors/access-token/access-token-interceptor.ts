@@ -11,7 +11,6 @@ export class AccessTokenInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    console.log("TA PASSANDO AQUI")
     if (req.headers.get('DISABLE_INTERCEPTORS') === 'true') {
       return next.handle(req);
     }
@@ -21,7 +20,6 @@ export class AccessTokenInterceptor implements HttpInterceptor {
         if (token !== undefined && token !== null) {
           let tokenValue = 'Bearer ' + token;
           if (!req.url.includes('oidc/token')) {
-            console.log("TA SETANDO O TOKEN",req.url)
             requestToForward = req.clone({
               setHeaders: { Authorization: tokenValue },
             });

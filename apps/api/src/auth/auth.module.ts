@@ -12,9 +12,9 @@ import { ForgotModule } from './forgot/forgot.module';
 import { EmailStrategy } from './strategies/email.strategy';
 
 @Module({
-  imports: [UserModule, ForgotModule, PassportModule, MailModule, SharedModule],
+  imports: [SharedModule, UserModule, ForgotModule, PassportModule, MailModule],
   controllers: [AuthController],
-  providers: [IsExist, IsNotExist, EmailStrategy, AuthService, JwtService],
+  providers: [IsExist, IsNotExist, EmailStrategy, AuthService],
   exports: [AuthService],
 })
 export class AuthModule {}

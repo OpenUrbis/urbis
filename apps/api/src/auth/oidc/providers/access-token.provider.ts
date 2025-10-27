@@ -2,7 +2,9 @@ import { AuthService } from './../../../auth/auth.service';
 
 export function accessTokenProvider(provider, authService: AuthService) {
   async function save() {
-    const accessToken = await authService.buildAccessToken(this.accountId);
+    const accessToken = await authService.buildAccessToken(
+      this.accountId as unknown as string,
+    );
     provider.emit('token.issued', this);
     return accessToken;
   }

@@ -44,7 +44,7 @@ export const oidcProviderFactory = (
   const Provider = require('oidc-provider').Provider;
 
   const provider = new Provider(
-    `${configService.get('app.backendDomain')}`,
+    `${configService.get('app.backendDomain')}/auth/oidc`,
     configuration,
   );
   provider.proxy = true;

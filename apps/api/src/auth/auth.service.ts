@@ -35,7 +35,6 @@ export class AuthService {
         message: 'Email is not found or password is wrong',
       });
     }
-
     return user;
   }
 

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ApiKeyStrategy } from '../common/strategies/api-key.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import geocodingConfig from 'common/config/geocoding.config';
 import { HeaderResolver, I18nModule } from 'nestjs-i18n';
 import { join } from 'path';
 import appConfig from './../common/config/app.config';
 import authConfig from './../common/config/auth.config';
 import databaseConfig from './../common/config/database.config';
-import geocodingConfig from 'common/config/geocoding.config';
 
 @Module({
   imports: [
@@ -14,6 +14,16 @@ import geocodingConfig from 'common/config/geocoding.config';
       isGlobal: true,
       load: [appConfig, databaseConfig, authConfig, geocodingConfig],
       envFilePath: ['.env'],
+    }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('auth.secret'),
+        signOptions: {
+          expiresIn: configService.get('auth.expires'),
+        },
+      }),
     }),
     I18nModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
@@ -39,7 +49,6 @@ import geocodingConfig from 'common/config/geocoding.config';
     }),
   ],
   controllers: [],
-  providers: [ApiKeyStrategy],
-  exports: [ApiKeyStrategy],
+  exports: [JwtModule],
 })
 export class SharedModule {}

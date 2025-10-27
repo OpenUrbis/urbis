@@ -2,23 +2,16 @@ import {
   All,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Inject,
   Param,
   Post,
   Req,
   Res,
-  SerializeOptions,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import Provider from 'oidc-provider';
-import { User } from 'user/entities/user.entity';
-import { AuthService } from './../auth.service';
 import { LoginGuard } from './../guards/login.guard';
 
 @Controller('auth/oidc')
@@ -27,10 +20,9 @@ export class OidcController {
     @Inject('OidcProvider')
     public oidcProvider: Provider,
     private configService: ConfigService,
-    private authService: AuthService,
   ) {}
 
-  @ApiBearerAuth()
+  /*   @ApiBearerAuth()
   @SerializeOptions({
     groups: ['exposeProvider'],
   })
@@ -38,8 +30,8 @@ export class OidcController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   public async me(@Req() request) {
-    return await this.authService.me(request.user as User);
-  }
+return await this.authService.me(request.user);
+  } */
 
   @Get('interaction/:uuid')
   async interactionView(
@@ -47,13 +39,12 @@ export class OidcController {
     @Res() res: Response,
     @Param('uuid') uuid: string,
   ) {
-    res.set('cache-control', 'no-store');
-
-    const { params, prompt, uid } = await this.oidcProvider.interactionDetails(
-      req,
-      res,
-    );
-
+    req.url = req.originalUrl
+      .toString()
+      .replace('interaction/api', 'interaction')
+      .replace('/auth/oidc', '');
+    const { params, prompt, uid, ...body } =
+      await this.oidcProvider.interactionDetails(req, res);
     const response = {
       params: params,
       uid: uid,
@@ -68,7 +59,7 @@ export class OidcController {
             <title>Carregando...</title>
           </head>
           <body onload="document.forms[0].submit()">
-            <form autocomplete="off" action="${apiUrl}/oidc/interaction/${uid}" method="post">
+            <form autocomplete="off" action="${apiUrl}/auth/oidc/interaction/${uid}" method="post">
               <input type="hidden" name="prompt" value="consent">
               <div style="padding: 12px;">Carregando...</div>
               <button style="display: none;" autofocus type="submit" class="login login-submit">Continue</button>
@@ -93,8 +84,11 @@ export class OidcController {
     @Res() res,
     @Param('uuid') uuid: string,
   ) {
-    res.set('cache-control', 'no-store');
-
+    req.url = req.originalUrl
+      .toString()
+      .replace('interaction/api', 'interaction')
+      .replace('/auth/oidc', '')
+      .replace('interaction/validate', 'interaction');
     req.headers.cookie = '_interaction=' + uuid;
     try {
       const { uid, prompt } = await this.oidcProvider.interactionDetails(
@@ -115,12 +109,15 @@ export class OidcController {
     @Res() res: Response,
     @Param('uuid') uuid: string,
   ) {
-    res.set('cache-control', 'no-store');
     req.body = {
       email: '',
       password: '',
     };
     req.headers.cookie = '_interaction=' + uuid;
+    req.url = req.originalUrl
+      .replace('/login', '')
+      .replace('interaction/api', 'interaction')
+      .replace('/auth/oidc', '');
 
     const session = {
       login: {
@@ -138,13 +135,9 @@ export class OidcController {
     res.send({ redirectToCallback, isNewUser: req.user?.isNewUser });
   }
 
-  @All('*')
+  @All('/*')
   public mountedOidc(@Req() req: Request, @Res() res: Response) {
-    console.log('TA CHEGANDO');
-    res.set('cache-control', 'no-store');
-
     req.url = req.originalUrl.replace('/auth/oidc', '');
-
-    this.oidcProvider.callback()(req, res).catch(console.error);
+    this.oidcProvider.callback()(req, res);
   }
 }

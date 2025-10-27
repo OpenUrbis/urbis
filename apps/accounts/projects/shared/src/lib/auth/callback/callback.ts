@@ -38,7 +38,6 @@ export class Callback implements OnInit {
         }
       },
       error: (e) => {
-        console.log('e', e);
         this.errorMessage = e.message ?? 'You have invalid callback session';
       },
     });

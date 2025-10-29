@@ -52,6 +52,7 @@ export class WhitelabelService extends StatefulService<IWhitelabelState> {
   }
 
   setPrimaryColor(desiredColor: string) {
+    applyDynamicColorPalette(desiredColor, this.state().theme);
     this.setStateProperty('primaryColor', desiredColor);
   }
 }

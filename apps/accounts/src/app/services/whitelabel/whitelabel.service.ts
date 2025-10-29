@@ -29,13 +29,14 @@ export class WhitelabelService extends StatefulService<IWhitelabelState> {
       console.error('[WhitelabelService] ERROR parsing data from localstorage');
     }
 
-    if (initialState.primaryColor) {
-      applyDynamicColorPalette(initialState.primaryColor, initialState.theme);
-    }
-
     super(initialState);
 
     effect(() => {
+      const primaryColor = this.state().primaryColor;
+      if (primaryColor) {
+        applyDynamicColorPalette(primaryColor, this.state().theme);
+      }
+
       localStorage.setItem(
         'whitelabel',
         JSON.stringify(this.state() as IWhitelabelLocalStorage),
@@ -52,7 +53,6 @@ export class WhitelabelService extends StatefulService<IWhitelabelState> {
   }
 
   setPrimaryColor(desiredColor: string) {
-    applyDynamicColorPalette(desiredColor, this.state().theme);
     this.setStateProperty('primaryColor', desiredColor);
   }
 }

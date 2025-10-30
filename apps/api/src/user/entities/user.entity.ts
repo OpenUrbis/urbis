@@ -10,9 +10,11 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserRoleAssignment } from '../../role/entities/user-role-assignment.entity';
 import { UserStatus } from '../enums/user-status.enum';
 
 @Entity('users')
@@ -41,7 +43,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   @Index()
   @Exclude({ toPlainOnly: true })
-  emailHashConfirm?: string;
+  emailHashConfirm?: string | null;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -79,4 +81,7 @@ export class User extends BaseEntity {
     }
     return bcrypt.compare(plainPassword, this.password);
   }
+
+  @OneToMany(() => UserRoleAssignment, (ura) => ura.user)
+  userRoleAssignments: UserRoleAssignment[];
 }

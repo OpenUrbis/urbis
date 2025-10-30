@@ -1,7 +1,12 @@
+import {
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { Observable, switchMap } from 'rxjs';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { Observable, switchMap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AccessTokenInterceptor implements HttpInterceptor {
@@ -9,7 +14,7 @@ export class AccessTokenInterceptor implements HttpInterceptor {
 
   intercept(
     req: HttpRequest<any>,
-    next: HttpHandler
+    next: HttpHandler,
   ): Observable<HttpEvent<any>> {
     if (req.headers.get('DISABLE_INTERCEPTORS') === 'true') {
       return next.handle(req);
@@ -17,16 +22,25 @@ export class AccessTokenInterceptor implements HttpInterceptor {
     return this.oidcSecurityService.getAccessToken().pipe(
       switchMap((token) => {
         let requestToForward = req;
+        const header: any = {};
         if (token !== undefined && token !== null) {
           let tokenValue = 'Bearer ' + token;
           if (!req.url.includes('oidc/token')) {
-            requestToForward = req.clone({
-              setHeaders: { Authorization: tokenValue },
-            });
+            header['Authorization'] = tokenValue;
           }
+
+          const org = JSON.parse(
+            localStorage.getItem('organization-seleted') ?? '{}',
+          );
+          if (org?.id) header['x-organization-id'] = org.id;
         }
+
+        requestToForward = req.clone({
+          setHeaders: header,
+        });
+
         return next.handle(requestToForward);
-      })
+      }),
     );
   }
 }

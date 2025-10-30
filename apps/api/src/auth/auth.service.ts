@@ -43,6 +43,7 @@ export class AuthService {
       id,
     });
     return this.jwtService.sign({
+      _id: user.id,
       id: user.id,
       sub: user.id,
       email: user.email,

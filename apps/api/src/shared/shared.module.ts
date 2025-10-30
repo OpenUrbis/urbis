@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from 'auth/strategies/jwt.strategy';
 import geocodingConfig from 'common/config/geocoding.config';
 import { HeaderResolver, I18nModule } from 'nestjs-i18n';
 import { join } from 'path';
@@ -21,7 +23,7 @@ import databaseConfig from './../common/config/database.config';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get('auth.secret'),
         signOptions: {
-          expiresIn: configService.get('auth.expires'),
+          expiresIn: configService.get('auth.expires') ?? 30 * 24 * 60 * 60, // 30 days,
         },
       }),
     }),
@@ -47,8 +49,9 @@ import databaseConfig from './../common/config/database.config';
       imports: [ConfigModule],
       inject: [ConfigService],
     }),
+    PassportModule,
   ],
-  controllers: [],
-  exports: [JwtModule],
+  providers: [JwtStrategy],
+  exports: [JwtStrategy, JwtModule],
 })
 export class SharedModule {}

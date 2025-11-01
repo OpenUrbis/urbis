@@ -14,7 +14,7 @@ import { Organization } from './organization.entity';
 
 @Entity('organization_shared_whitelabels')
 export class OrganizationSharedWhitelabel extends BaseEntity {
-  @PrimaryColumn('uuid')
+  @PrimaryColumn()
   organizationId: string;
 
   @Column({

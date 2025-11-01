@@ -29,12 +29,12 @@ export class OrganizationSharedWhitelabel extends BaseEntity {
   })
   logos?: Record<ApplicationTheme, string> | null;
 
+  @Column({ nullable: true, length: 9 })
+  primaryColor?: string | null;
+
   @OneToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organizationId' })
   organization: Organization;
-
-  @Column({ nullable: true, length: 9 })
-  primaryColor?: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,0 +1,68 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class InsertSystemRoles1761621560975 implements MigrationInterface {
+  roles = [
+    {
+      id: 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4',
+      name: 'Administrador',
+      description:
+        'Permite ao usuário gerenciar grupos de permissões, usuários, e organizações',
+      permissions: [
+        'role:create',
+        'role:update',
+        'role:assign',
+        'role:unassign',
+        'user:create',
+        'user:update',
+        'user:delete',
+        'auth:reset-2fa',
+        'auth:reset-password',
+        'organization:create',
+        'organization:update',
+      ],
+    },
+  ];
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    let query = '';
+
+    this.roles.forEach((role) => {
+      query += `
+  
+              INSERT INTO roles (id, name, description, type) 
+              VALUES ('${role.id}', '${role.name}', '${role.description}', 'system');  
+  
+          `;
+
+      role.permissions.forEach((permission) => {
+        query += `
+  
+        INSERT INTO public.role_permissions ("rolesId","permissionsPermission")
+        VALUES ('${role.id}', '${permission}');  
+  
+    `;
+      });
+    });
+
+    await queryRunner.query(query);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    let query = '';
+
+    this.roles.forEach(
+      (role) =>
+        (query += `
+    
+            DELETE FROM public.role_permissions
+            WHERE "rolesId" = '${role.id}';
+    
+            DELETE FROM roles
+            WHERE id = '${role.id}';
+            
+        `),
+    );
+
+    await queryRunner.query(query);
+  }
+}

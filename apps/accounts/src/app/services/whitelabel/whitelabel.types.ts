@@ -1,12 +1,23 @@
 export type ApplicationTheme = 'light' | 'dark';
-
-export interface IWhitelabelState {
-  loading: boolean;
-  primaryColor: string | undefined;
-  theme: ApplicationTheme;
-}
+export const DEFAULTS = {
+  application: {
+    name: 'accounts',
+  },
+  whitelabel: {
+    theme: <ApplicationTheme>'light',
+    primaryColor: '',
+    logo: '',
+    icon: '',
+  },
+} as const;
 
 export interface IWhitelabelLocalStorage {
-  primaryColor: string;
   theme: ApplicationTheme;
+  primaryColor: string;
+  logo: string;
+  icon: string;
+}
+
+export interface IWhitelabelState extends IWhitelabelLocalStorage {
+  loading: boolean;
 }

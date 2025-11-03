@@ -1,6 +1,7 @@
 import { effect, Injectable } from '@angular/core';
 import {
   ApplicationTheme,
+  DEFAULTS,
   IWhitelabelLocalStorage,
   IWhitelabelState,
 } from './whitelabel.types';
@@ -11,9 +12,8 @@ import { StatefulService } from '../../utils/types/stateful-service';
 export class WhitelabelService extends StatefulService<IWhitelabelState> {
   constructor() {
     let initialState = {
+      ...DEFAULTS.whitelabel,
       loading: false,
-      primaryColor: undefined,
-      theme: 'light',
     } as IWhitelabelState;
 
     try {

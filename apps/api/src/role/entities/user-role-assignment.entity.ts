@@ -11,7 +11,7 @@ import { Organization } from '../../organization/entities/organization.entity';
 import { User } from '../../user/entities/user.entity';
 import { Role } from './role.entity';
 
-@Entity('user-role-assignments')
+@Entity('user_role_assignments')
 export class UserRoleAssignment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

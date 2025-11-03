@@ -3,13 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
 import { Equal, ILike, IsNull, Or, Repository } from 'typeorm';
 import { Organization } from '../organization/entities/organization.entity';
+import { AddPermissionToRoleDto } from './dto/add-role.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { UserRolesDto } from './dto/user-roles.dto';
+import { RolePermission } from './entities/role-permission.entity';
 import { Role } from './entities/role.entity';
 import { UserRoleAssignment } from './entities/user-role-assignment.entity';
-import { RoleTypeEnum } from './enums/role-type.enum';
 import { PermissionService } from './permission/permission.service';
 
 @Injectable()
@@ -17,44 +17,74 @@ export class RoleService {
   constructor(
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
+    @InjectRepository(RolePermission)
+    private rolePermissionRepository: Repository<RolePermission>,
     @InjectRepository(UserRoleAssignment)
     private userRoleAssignmentRepository: Repository<UserRoleAssignment>,
 
     private readonly permissionService: PermissionService,
   ) {}
 
-  async create(data: CreateRoleDto, organization: Organization) {
-    const permissions = await this.permissionService.getFromArray(
-      data.permissions,
-    );
-
-    return await this.roleRepository.save({
-      ...(data as unknown as Role),
-      permissions,
-      organization,
-    });
+  findOne(id: string): Promise<Role | null> {
+    return this.roleRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, data: UpdateRoleDto, organization: Organization) {
-    const role = await this.roleRepository.findOne({
-      where: { id, organizationId: organization.id, type: RoleTypeEnum.USER },
-      relations: ['permissions'],
-    });
-    if (!role)
-      throw new NotFoundException({ message: 'This role ID is not found' });
+  private async syncPermissions(
+    roleId: string,
+    dtos: AddPermissionToRoleDto[],
+  ): Promise<void> {
+    const role = await this.findOne(roleId);
 
-    const { name, description } = data;
+    await this.rolePermissionRepository.delete({ role: { id: roleId } });
 
-    if (name !== undefined) role.name = name;
+    for (const dto of dtos) {
+      const permission = await this.permissionService.findOne(dto.action);
+      if (!permission) {
+        throw new NotFoundException(
+          `Permission action ${dto.action} not found`,
+        );
+      }
 
-    if (description !== undefined) role.description = description;
+      const rolePermission = this.rolePermissionRepository.create({
+        role,
+        permission,
+        scope: dto.scope,
+      });
+      await this.rolePermissionRepository.save(rolePermission);
+    }
+  }
 
-    if (data.permissions !== undefined)
-      role.permissions = await this.permissionService.getFromArray(
-        data.permissions,
-      );
+  async create(createRoleDto: CreateRoleDto): Promise<Role> {
+    const { permissions, name, description, organizationId } = createRoleDto;
 
-    return await this.roleRepository.save(role);
+    const role = this.roleRepository.create({ name, description });
+    console.log('PUPU', role);
+    if (organizationId) {
+      role.organization = { id: organizationId } as Organization;
+    }
+    await this.roleRepository.save(role);
+
+    if (permissions && permissions.length > 0) {
+      await this.syncPermissions(role.id, permissions);
+    }
+
+    return this.findOne(role.id);
+  }
+
+  async update(id: string, updateRoleDto: UpdateRoleDto): Promise<Role> {
+    const { permissions, ...roleData } = updateRoleDto;
+    const role = await this.findOne(id);
+    Object.assign(role, roleData);
+    if (roleData.organizationId) {
+      role.organization = { id: roleData.organizationId } as Organization;
+    }
+    await this.roleRepository.save(role);
+
+    if (permissions) {
+      await this.syncPermissions(id, permissions);
+    }
+
+    return this.findOne(id);
   }
 
   async assign(data: AssignRoleDto) {
@@ -87,40 +117,10 @@ export class RoleService {
         userId,
         organizationId: orgId ? Or(Equal(orgId), IsNull()) : undefined,
       },
-      relations: ['role.permissions', 'organization'],
+      relations: ['role.rolePermissions.permission', 'organization'],
     });
 
     return assignments;
-  }
-
-  async getUserRoles(userId: string) {
-    const assignments = await this.listUserRoles(userId);
-    const roles: UserRolesDto[] = [];
-    const systemRole: UserRolesDto = {
-      type: RoleTypeEnum.SYSTEM,
-      permissions: [],
-    };
-
-    assignments.forEach((assignment) => {
-      if (assignment?.role?.type !== RoleTypeEnum.SYSTEM)
-        roles.push({
-          type: assignment.role.type,
-          permissions: assignment.role.permissions.map(
-            (permission) => permission.permission,
-          ),
-          organization: assignment?.organization?.id,
-        });
-      else
-        systemRole.permissions.push(
-          ...assignment.role.permissions.map(
-            (permission) => permission.permission,
-          ),
-        );
-    });
-
-    roles.push(systemRole);
-
-    return roles;
   }
 
   list(pagination: IPaginationOptions, search?: string): Promise<Role[]> {
@@ -133,7 +133,7 @@ export class RoleService {
         : undefined,
       take: limit,
       skip: page * limit,
-      relations: ['permissions'],
+      relations: ['rolePermissions', 'rolePermissions.permission'],
     });
   }
 }

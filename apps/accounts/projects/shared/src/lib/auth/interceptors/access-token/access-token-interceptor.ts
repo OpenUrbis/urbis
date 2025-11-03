@@ -28,11 +28,14 @@ export class AccessTokenInterceptor implements HttpInterceptor {
           if (!req.url.includes('oidc/token')) {
             header['Authorization'] = tokenValue;
           }
-
-          const org = JSON.parse(
-            localStorage.getItem('organization-seleted') ?? '{}',
+          const orgByLocalStorage = localStorage.getItem(
+            'organization-seleted',
           );
-          if (org?.id) header['x-organization-id'] = org.id;
+
+          if (orgByLocalStorage && orgByLocalStorage != 'undefined') {
+            const org = JSON.parse(orgByLocalStorage);
+            if (org?.id) header['x-organization-id'] = org?.id;
+          }
         }
 
         requestToForward = req.clone({

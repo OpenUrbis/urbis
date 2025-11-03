@@ -1,11 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Validate,
+  ValidateNested,
 } from 'class-validator';
+import { IsExist } from 'common/utils/validators/is-exists.validator';
+import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
+import { AddPermissionToRoleDto } from './add-role.dto';
 
 export class CreateRoleDto {
   @ApiProperty({ example: 'Administrador' })
@@ -20,24 +26,17 @@ export class CreateRoleDto {
   @IsOptional()
   description?: string | null;
 
+  @IsOptional()
+  @IsString()
+  @Validate(IsExist, ['Organization', 'id'])
+  organizationId?: string;
+
   @ApiProperty({
-    example: [
-      'role:create',
-      'role:update',
-      'role:assign',
-      'role:unassign',
-      'user:create',
-      'user:update',
-      'user:delete',
-      'auth:reset-2fa',
-      'auth:reset-password',
-      'organization:create',
-      'organization:update',
-    ],
+    example: [{ action: 'role:create', scope: RolePermissionScopeEnum.OWN }],
   })
   @IsArray()
-  @IsString({ each: true })
-  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => AddPermissionToRoleDto)
   @ArrayMinSize(1)
-  permissions: string[];
+  permissions?: AddPermissionToRoleDto[];
 }

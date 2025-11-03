@@ -30,8 +30,8 @@ import { SignInApi } from './services/sign-in-api';
 })
 export class SignIn implements OnInit {
   formGroup = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required]),
+    email: new FormControl('test@test.com', [Validators.required, Validators.email]),
+    password: new FormControl('Teste@1234', [Validators.required]),
   });
 
   router = inject(Router);

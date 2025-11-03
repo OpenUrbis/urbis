@@ -165,7 +165,7 @@ export class AuthService {
     await this.forgotService.softDelete(forgot.id);
   }
 
-  async me(user: User): Promise<User> {
+  async me(user: any): Promise<User> {
     return await this.userService.findOne({
       id: user.id,
     });

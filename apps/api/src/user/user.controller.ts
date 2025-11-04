@@ -8,13 +8,15 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
-// @UseGuards(AuthGuard('jwt'))
+@UseGuards(AccessControlGuard)
 @ApiTags('Users')
 @Controller('user')
 export class UserController {

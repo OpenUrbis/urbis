@@ -1,0 +1,11 @@
+<div class="row m-0" [class.success]="!hasError()" [class.error]="hasError()">
+  <div class="col-auto align-self-center p-0 me-1">
+    <mat-icon class="material-symbols-outlined">
+      {{ hasError() ? "cancel" : "check_circle" }}
+    </mat-icon>
+  </div>
+  <div class="col align-self-center p-0 text">
+    <ng-content></ng-content>
+  </div>
+  Ø
+</div>

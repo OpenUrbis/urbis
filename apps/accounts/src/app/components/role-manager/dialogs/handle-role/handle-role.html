@@ -69,10 +69,10 @@
       }
     </mat-list>
   </mat-dialog-content>
-  <mat-dialog-actions>
+  <mat-dialog-actions class="d-flex gap-2">
     <button matButton="outlined" type="button" mat-dialog-close>
       Cancelar
     </button>
-    <button matButton="filled" type="submit">Salvar</button>
+    <lib-loading-button [loading]="loading()">Salvar</lib-loading-button>
   </mat-dialog-actions>
 </form>

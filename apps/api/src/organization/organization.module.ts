@@ -10,7 +10,7 @@ import { OrganizationService } from './organization.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([...OrganizationModuleEntities]),
-    UserModule,
+    forwardRef(() => UserModule),
     forwardRef(() => RoleModule),
   ],
   controllers: [OrganizationController],

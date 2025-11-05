@@ -37,7 +37,7 @@ export class RolesManager {
   }
 
   formatPermissions(role: IRoleResponse) {
-    return role.rolePermissions.map(({permission}) => permission.name).join(', ');
+    return role.rolePermissions.map(({permission}) => permission?.name).join(', ');
   }
 
   editRole(role?: IRoleResponse) {

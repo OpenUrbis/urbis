@@ -38,7 +38,6 @@ export class UserRoleManager {
   );
 
   userRoleIds = computed(() => {
-    console.log(this.userRoles());
     return this.userRoles()?.map((role) => role.roleId);
   });
 

@@ -1,0 +1,19 @@
+<h3 mat-dialog-title>
+  {{ organizationId() ? "Editar" : "Criar" }} atribuição
+  {{ organizationId() ? "da organização " + orgControl.value.name : "" }}
+</h3>
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content class="p-3 d-flex flex-column gap-2">
+    @if (!organizationId()) {
+      <app-organization-selector [control]="orgControl" />
+    }
+
+    <app-role-selector [control]="rolesControl" [multi]="true" />
+  </mat-dialog-content>
+  <mat-dialog-actions class="d-flex gap-2">
+    <button matButton="outlined" type="button" mat-dialog-close>
+      Cancelar
+    </button>
+    <lib-loading-button [loading]="loading()">Salvar</lib-loading-button>
+  </mat-dialog-actions>
+</form>

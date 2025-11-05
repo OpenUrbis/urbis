@@ -13,8 +13,12 @@
   <mat-list>
     @for (item of userRoles(); track item.id) {
       <mat-list-item>
-        <span matListItemTitle>{{ item.role.name }}</span>
-        <span matListItemLine>{{ item?.organization?.name ?? "-" }}</span>
+        <span matListItemTitle>
+          <b>{{ item.role.name }}</b>
+          @if (item?.organization) {
+            em {{ item?.organization?.name }}
+          }
+        </span>
         <span matListItemLine>{{ formatPermissions(item.role) }}</span>
         <span matListItemMeta>
           <button

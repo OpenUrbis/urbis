@@ -1,11 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
-import { Equal, ILike, IsNull, Or, Repository } from 'typeorm';
+import { OrganizationService } from 'organization/organization.service';
+import {
+  EntityManager,
+  Equal,
+  FindOptionsWhere,
+  ILike,
+  In,
+  IsNull,
+  Not,
+  Or,
+  Repository,
+} from 'typeorm';
 import { Organization } from '../organization/entities/organization.entity';
 import { AddPermissionToRoleDto } from './dto/add-role.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleFromOrganizationDto } from './dto/update-role-from-organization.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { RolePermission } from './entities/role-permission.entity';
 import { Role } from './entities/role.entity';
@@ -23,10 +35,16 @@ export class RoleService {
     private userRoleAssignmentRepository: Repository<UserRoleAssignment>,
 
     private readonly permissionService: PermissionService,
+    @Inject({ forwardRef: () => OrganizationService })
+    private readonly organizationService: OrganizationService,
   ) {}
 
-  findOne(id: string): Promise<Role | null> {
-    return this.roleRepository.findOne({ where: { id } });
+  async findOne(id: string): Promise<Role | null> {
+    const role = await this.roleRepository.findOne({ where: { id } });
+
+    if (!role) throw new NotFoundException({ message: 'Role is not found' });
+
+    return role;
   }
 
   private async syncPermissions(
@@ -87,7 +105,7 @@ export class RoleService {
     return this.findOne(id);
   }
 
-  async assign(data: AssignRoleDto) {
+  async assign(data: AssignRoleDto, entityManager?: EntityManager) {
     const { userId, roleId, organizationId } = data;
     const assign = await this.userRoleAssignmentRepository.findOne({
       where: {
@@ -96,19 +114,102 @@ export class RoleService {
         organizationId,
       },
     });
+
+    const newRegister = {
+      userId,
+      roleId,
+      organizationId,
+    };
+
     if (!assign)
-      return this.userRoleAssignmentRepository.save({
-        userId,
-        roleId,
-        organizationId,
-      });
+      return entityManager
+        ? entityManager.save(UserRoleAssignment, newRegister)
+        : this.userRoleAssignmentRepository.save(newRegister);
     else return assign;
   }
 
-  async unassign(id: string) {
-    await this.userRoleAssignmentRepository.delete({ id });
+  async unassign(id: string, entityManager?: EntityManager) {
+    if (entityManager) await entityManager.delete(UserRoleAssignment, { id });
+    else await this.userRoleAssignmentRepository.delete({ id });
 
     return { message: 'OK' };
+  }
+
+  async assignByOrganization(
+    organizationId: string,
+    data: UpdateRoleFromOrganizationDto,
+  ) {
+    const { roleIds, userId } = data;
+    const organization = await this.organizationService.findOne(organizationId);
+
+    const dataSource = this.userRoleAssignmentRepository.manager.connection;
+    const queryRunner = dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const assignPromises = [];
+      roleIds.forEach((roleId) =>
+        assignPromises.push(
+          this.assign({ roleId, organizationId: organization.id, userId }),
+        ),
+      );
+      await Promise.all(assignPromises);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+
+    return await this.userRoleAssignmentRepository.find({
+      where: { organizationId, userId },
+    });
+  }
+
+  async updateAssignByOrganization(
+    organizationId: string,
+    data: UpdateRoleFromOrganizationDto,
+  ) {
+    const { roleIds, userId } = data;
+    const organization = await this.organizationService.findOne(organizationId);
+    const assigns = await this.userRoleAssignmentRepository.find({
+      where: { organizationId, userId },
+    });
+
+    const dataSource = this.userRoleAssignmentRepository.manager.connection;
+    const queryRunner = dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const unassignPromises = [];
+      assigns.forEach((assign) =>
+        unassignPromises.push(this.unassign(assign.id)),
+      );
+      await Promise.all(unassignPromises);
+
+      const assignPromises = [];
+      roleIds.forEach((roleId) =>
+        assignPromises.push(
+          this.assign({ roleId, organizationId: organization.id, userId }),
+        ),
+      );
+      await Promise.all(assignPromises);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+
+    return await this.userRoleAssignmentRepository.find({
+      where: { organizationId, userId },
+    });
   }
 
   async listUserRoles(userId: string, orgId?: string) {
@@ -123,14 +224,20 @@ export class RoleService {
     return assignments;
   }
 
-  list(pagination: IPaginationOptions, search?: string): Promise<Role[]> {
+  list(
+    pagination: IPaginationOptions,
+    search?: string,
+    exclude?: string[],
+  ): Promise<Role[]> {
     const { limit, page } = pagination;
+    const where: FindOptionsWhere<Role> = {};
+
+    if (search) where.name = Or(ILike(`%${search}%`));
+
+    if (exclude && exclude?.length > 0) where.id = Not(In(exclude));
+
     return this.roleRepository.find({
-      where: search
-        ? {
-            name: Or(ILike(`%${search}%`)),
-          }
-        : undefined,
+      where: where,
       take: limit,
       skip: page * limit,
       relations: ['rolePermissions', 'rolePermissions.permission'],

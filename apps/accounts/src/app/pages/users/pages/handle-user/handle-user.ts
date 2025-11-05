@@ -23,6 +23,7 @@ import {
   LoadingContent,
 } from '../../../../../../projects/shared/src/public-api';
 import { RoleManagerModule } from '../../../../components/role-manager/role-manager-module';
+import { UserOrganizationManager } from '../../../../components/user-organization-manager/user-organization-manager';
 import { ICreateUserRequest, IUpdateUserRequest } from '../../dto/user.dto';
 import { UsersApi } from '../../services/users-api';
 
@@ -43,6 +44,7 @@ import { UsersApi } from '../../services/users-api';
     RouterLink,
     LoadingContent,
     LoadingButton,
+    UserOrganizationManager,
   ],
   templateUrl: './handle-user.html',
   styleUrl: './handle-user.scss',

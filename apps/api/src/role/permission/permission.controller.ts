@@ -53,8 +53,13 @@ export class PermissionController {
     @Query('page', new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search') search: string,
-    @Query('exclude') exclude: string[],
+    @Query('exclude') exclude: string[] | string,
   ): Promise<Permission[]> {
-    return this.service.list({ page, limit }, search, exclude);
+    console.log(exclude);
+    return this.service.list(
+      { page, limit },
+      search,
+      typeof exclude === 'string' ? [exclude] : exclude,
+    );
   }
 }

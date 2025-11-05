@@ -3,9 +3,9 @@ import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { IPagination } from '../../../shared/dto/pagination.dto';
+import { IPaginationWithExclude } from '../../../shared/dto/pagination.dto';
 import { IAssignRoleUserRequest } from '../dto/assign-role-user.dto';
-import { IPermissionParams, IPermissionResponse } from '../dto/permission.dto';
+import { IPermissionResponse } from '../dto/permission.dto';
 import {
   ICreateRoleRequest,
   IRoleResponse,
@@ -36,7 +36,7 @@ export class RoleManagerApi {
     );
   }
 
-  listPermissions(params?: IPermissionParams) {
+  listPermissions(params?: IPaginationWithExclude) {
     return this.httpClient
       .get<IPermissionResponse[]>(`${API_BASE}/permission/list`, {
         params: params
@@ -55,7 +55,7 @@ export class RoleManagerApi {
       );
   }
 
-  listRoles(params?: IPagination) {
+  listRoles(params?: IPaginationWithExclude) {
     return this.httpClient
       .get<IRoleResponse[]>(`${API_BASE}/list`, {
         params: params
@@ -72,6 +72,26 @@ export class RoleManagerApi {
           return of([]);
         }),
       );
+  }
+
+  updateAssignByOrganization(
+    organizationId: string,
+    data: { roleIds: string[]; userId: string },
+  ) {
+    return this.httpClient.put<IUserAssigmentResponse>(
+      `${API_BASE}/assign/${organizationId}`,
+      data,
+    );
+  }
+
+  createAssignByOrganization(
+    organizationId: string,
+    data: { roleIds: string[]; userId: string },
+  ) {
+    return this.httpClient.post<IUserAssigmentResponse>(
+      `${API_BASE}/assign/${organizationId}`,
+      data,
+    );
   }
 
   assign(data: IAssignRoleUserRequest) {

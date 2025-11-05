@@ -29,6 +29,10 @@ export class UserService {
     return this.usersRepository.findOne({
       ...findOptions,
       where: fields,
+      relations: [
+        'userRoleAssignments.role',
+        'userRoleAssignments.organization',
+      ],
     });
   }
 

@@ -63,7 +63,7 @@ export class HandleRole {
   selectedPermissions = signal<IInternalPermission[]>([]);
 
   selectedToString = computed(() =>
-    this.selectedPermissions().map((prm) => prm.action),
+    this.selectedPermissions().map((prm) => prm.id),
   );
 
   matSnackBar = inject(MatSnackBar);

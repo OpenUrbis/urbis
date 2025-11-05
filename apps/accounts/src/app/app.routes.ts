@@ -34,6 +34,11 @@ export const routes: Routes = [
       ).then((c) => c.Unauthorized),
   },
   {
+    path: 'roles',
+    canActivate: [AutoLoginPartialRoutesGuard],
+    loadComponent: () => import('./pages/roles/roles').then((m) => m.Roles),
+  },
+  {
     path: 'users',
     canActivate: [AutoLoginPartialRoutesGuard],
     loadChildren: () =>

@@ -1,6 +1,6 @@
 import { IPermissionResponse } from './permission.dto';
 
-export type ScopeType = 'global' | 'any' | 'own'
+export type ScopeType = 'global' | 'any' | 'own';
 
 export interface IInternalPermission extends IPermissionResponse {
   scope: ScopeType;
@@ -22,6 +22,7 @@ export interface IRoleResponse {
 }
 
 export interface IRolePermission {
+  id: string;
   scope: ScopeType;
   permission: IPermissionResponse;
 }

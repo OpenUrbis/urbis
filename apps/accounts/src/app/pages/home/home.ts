@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { RoleManagerModule } from '../../components/role-manager/role-manager-module';
-
 @Component({
   selector: 'app-home',
   imports: [MatButtonModule, RoleManagerModule],
@@ -11,6 +11,8 @@ import { RoleManagerModule } from '../../components/role-manager/role-manager-mo
   styleUrl: './home.scss',
 })
 export class Home {
+  matSnackBar = inject(MatSnackBar);
+
   constructor(
     private readonly api: HttpClient,
     private readonly oidcService: OidcSecurityService,

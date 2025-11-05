@@ -1,0 +1,32 @@
+<lib-loading-content [loading]="loading()">
+  <mat-card>
+    <mat-card-header class="d-flex justify-content-between align-items-center">
+      <mat-card-title>Usuários</mat-card-title>
+      <a matButton="filled" aria-label="Adicionar user" routerLink="create">
+        <mat-icon class="material-symbols-outlined">add</mat-icon>
+        Criar
+      </a>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-list>
+        @for (item of users(); track item.id) {
+          <mat-list-item>
+            <span matListItemTitle
+              >{{ item.firstName }} {{ item.lastName }}</span
+            >
+            <span matListItemLine>{{ item.email }}</span>
+            <span matListItemMeta>
+              <a
+                matIconButton
+                aria-label="Editar usuário"
+                [routerLink]="['edit', item.id]"
+              >
+                <mat-icon class="material-symbols-outlined">create</mat-icon>
+              </a>
+            </span>
+          </mat-list-item>
+        }
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</lib-loading-content>

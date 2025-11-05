@@ -1,25 +1,31 @@
-<div class="d-flex justify-content-between align-self-center">
-  <h3>Cargos do usuário</h3>
-  <button
-    matButton="filled"
-    aria-label="Adicionar cargo"
-    (click)="openAddRole()"
-  >
-    <mat-icon class="material-symbols-outlined">add</mat-icon>
-    Adicionar
-  </button>
-</div>
-<mat-list>
-  @for (item of userRoles(); track item.id) {
-    <mat-list-item>
-      <span matListItemTitle>{{ item.role.name }}</span>
-      <span matListItemLine>{{ item?.organization?.name ?? "-" }}</span>
-      <span matListItemLine>{{ formatPermissions(item.role) }}</span>
-      <span matListItemMeta>
-        <button matIconButton aria-label="Remover cargo" (click)="rmRole(item)">
-          <mat-icon class="material-symbols-outlined">delete</mat-icon>
-        </button>
-      </span>
-    </mat-list-item>
-  }
-</mat-list>
+<lib-loading-content [loading]="loading()">
+  <div class="d-flex justify-content-between align-self-center">
+    <h3>Cargos do usuário</h3>
+    <button
+      matButton="filled"
+      aria-label="Adicionar cargo"
+      (click)="openAddRole()"
+    >
+      <mat-icon class="material-symbols-outlined">add</mat-icon>
+      Adicionar
+    </button>
+  </div>
+  <mat-list>
+    @for (item of userRoles(); track item.id) {
+      <mat-list-item>
+        <span matListItemTitle>{{ item.role.name }}</span>
+        <span matListItemLine>{{ item?.organization?.name ?? "-" }}</span>
+        <span matListItemLine>{{ formatPermissions(item.role) }}</span>
+        <span matListItemMeta>
+          <button
+            matIconButton
+            aria-label="Remover cargo"
+            (click)="rmRole(item)"
+          >
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+          </button>
+        </span>
+      </mat-list-item>
+    }
+  </mat-list>
+</lib-loading-content>

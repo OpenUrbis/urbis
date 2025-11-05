@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
-import { startWith, Subject, switchMap, tap } from 'rxjs';
+import { catchError, startWith, Subject, switchMap, tap } from 'rxjs';
 import { IPagination } from '../../../shared/dto/pagination.dto';
 import { HandleRole } from '../dialogs/handle-role/handle-role';
 import { IRoleResponse } from '../dto/role.dto';
 import { RoleManagerApi } from '../services/role-manager-api';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-roles-manager',
@@ -17,6 +18,7 @@ export class RolesManager {
   pagination$ = new Subject<IPagination>();
   loading = signal<boolean>(false);
 
+  matSnackBar = inject(MatSnackBar);
   roleManagerApi = inject(RoleManagerApi);
   dialog = inject(MatDialog);
 

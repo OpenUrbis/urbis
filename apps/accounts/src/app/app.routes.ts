@@ -33,4 +33,18 @@ export const routes: Routes = [
         './../../projects/shared/src/lib/auth/unauthorized/unauthorized'
       ).then((c) => c.Unauthorized),
   },
+  {
+    path: 'users',
+    canActivate: [AutoLoginPartialRoutesGuard],
+    loadChildren: () =>
+      import('./pages/users/users.routes').then((m) => m.usersRoutes),
+  },
+  {
+    path: 'organizations',
+    canActivate: [AutoLoginPartialRoutesGuard],
+    loadChildren: () =>
+      import('./pages/organizations/organizations.routes').then(
+        (m) => m.organizationsRoutes,
+      ),
+  },
 ];

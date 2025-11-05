@@ -24,16 +24,16 @@ export class UserRoleManager {
   userId = input.required<string>();
   userId$ = new Subject();
 
-  listLoading = signal<boolean>(false);
+  loading = signal<boolean>(false);
 
   roleManagerApi = inject(RoleManagerApi);
   dialog = inject(MatDialog);
 
   userRoles = toSignal(
     this.userId$.pipe(
-      tap(() => this.listLoading.set(true)),
+      tap(() => this.loading.set(true)),
       switchMap(() => this.roleManagerApi.getUserRoles(this.userId())),
-      tap(() => this.listLoading.set(false)),
+      tap(() => this.loading.set(false)),
     ),
   );
 

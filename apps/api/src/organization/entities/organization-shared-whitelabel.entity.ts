@@ -12,8 +12,8 @@ import {
 import { ApplicationTheme } from '../enums/application-theme.enum';
 import { Organization } from './organization.entity';
 
-@Entity('organization_shared_whitelabels')
-export class OrganizationSharedWhitelabel extends BaseEntity {
+@Entity('organization_global_whitelabels')
+export class OrganizationGlobalWhitelabel extends BaseEntity {
   @PrimaryColumn()
   organizationId: string;
 

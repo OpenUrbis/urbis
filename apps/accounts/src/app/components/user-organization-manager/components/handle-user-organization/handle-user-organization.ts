@@ -63,14 +63,12 @@ export class HandleUserOrganization implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log('PUTA', this.data);
     const organization = this.data.organization;
     if (organization) {
       this.organizationId.set(organization.id);
       const roles =
         organization?.userRoleAssignments?.map(({ role }) => role) ?? [];
 
-      console.log('ROLES', roles);
 
       this.form.patchValue({ organization, roles } as any);
     }
@@ -78,7 +76,6 @@ export class HandleUserOrganization implements AfterViewInit {
 
   async save() {
     const { roles, organization } = this.form.value;
-    console.log(this.form.value);
     if (!roles?.length) {
       this.matSnackBar.open('Selecione ao menos um cargo para este usuário');
       return;

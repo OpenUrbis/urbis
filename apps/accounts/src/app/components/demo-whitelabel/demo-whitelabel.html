@@ -43,9 +43,9 @@
 
   <button matButton="filled" (click)="whitelabelState.toggleTheme()">
     Switch to
-    {{
-      whitelabelState.value().application.theme === "light" ? "Dark" : "Light"
-    }}
+    {{ whitelabelState.value().theme === "light" ? "Dark" : "Light" }}
     Mode
   </button>
 </div>
+
+<img [src]="whitelabelState.value().icon" class="icon" />

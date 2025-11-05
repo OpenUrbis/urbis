@@ -31,15 +31,23 @@ export class WhitelabelState {
   loading = computed(
     () => this.organization.loading() || this.whitelabelResource.isLoading(),
   );
-  value = computed(() => this.whitelabelResource.value() as any);
+  value = computed(() => {
+    const value = this.whitelabelResource.value() as any;
+    const obj = {
+      theme: value.application?.theme ?? 'light',
+      primaryColor: value.global?.primaryColor,
+    } as IWhitelabelLocalStorage;
+    obj.logo = value.global?.logos?.[obj.theme];
+    obj.icon = value.global?.icons?.[obj.theme];
+    return obj;
+  });
   errors = computed(() => this.whitelabelResource.error());
 
   constructor() {
     effect(() => {
-      const primaryColor = this.value()?.global?.primaryColor;
+      const primaryColor = this.value().primaryColor;
       if (primaryColor) {
-        const theme = this.value()?.application?.theme ?? 'light';
-        applyDynamicColorPalette(primaryColor, theme);
+        applyDynamicColorPalette(primaryColor, this.value().theme);
       }
 
       localStorage.setItem(
@@ -50,31 +58,33 @@ export class WhitelabelState {
   }
 
   toggleTheme() {
+    const whitelabel = this.whitelabelResource.value() as any;
     this.whitelabelResource.value.set({
-      ...this.value(),
+      ...whitelabel,
       application: {
-        ...this.value().application,
-        theme:
-          oppositeTheme[this.value().application.theme as ApplicationTheme],
+        ...whitelabel.application,
+        theme: oppositeTheme[this.value().theme],
       },
     });
   }
 
   setTheme(desiredTheme: ApplicationTheme) {
+    const whitelabel = this.whitelabelResource.value() as any;
     this.whitelabelResource.value.set({
-      ...this.value(),
+      ...whitelabel,
       application: {
-        ...this.value().application,
+        ...whitelabel.application,
         theme: desiredTheme,
       },
     });
   }
 
   setPrimaryColor(desiredColor: string) {
+    const whitelabel = this.whitelabelResource.value() as any;
     this.whitelabelResource.value.set({
-      ...this.value(),
+      ...whitelabel,
       global: {
-        ...this.value().global,
+        ...whitelabel.global,
         primaryColor: desiredColor,
       },
     });

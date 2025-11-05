@@ -8,12 +8,14 @@ import { OrganizationSelector } from '../../components/organization-selector/org
 import { RoleManagerModule } from '../../components/role-manager/role-manager-module';
 import { RoleSelector } from '../../components/role-selector/role-selector';
 import { PermissionSelector } from '../../components/permission-selector/permission-selector';
+import { DemoWhitelabelComponent } from '../../components/demo-whitelabel/demo-whitelabel';
 @Component({
   selector: 'app-home',
   imports: [
     MatButtonModule,
     RoleManagerModule,
-    PermissionSelector
+    PermissionSelector,
+    DemoWhitelabelComponent,
   ],
   templateUrl: './home.html',
   styleUrl: './home.scss',

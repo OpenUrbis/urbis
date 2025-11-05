@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { WhitelabelService } from '../../services/whitelabel/whitelabel.service';
+import { WhitelabelState } from '../../states/whitelabel/whitelabel.state';
 
 @Component({
   selector: 'app-demo-whitelabel',
@@ -9,5 +9,5 @@ import { WhitelabelService } from '../../services/whitelabel/whitelabel.service'
   styleUrl: './demo-whitelabel.scss',
 })
 export class DemoWhitelabelComponent {
-  constructor(readonly whitelabelService: WhitelabelService) {}
+  constructor(readonly whitelabelState: WhitelabelState) {}
 }

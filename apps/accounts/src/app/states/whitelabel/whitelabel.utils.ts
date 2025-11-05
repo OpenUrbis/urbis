@@ -1,5 +1,9 @@
 import chroma from 'chroma-js';
-import { ApplicationTheme } from './whitelabel.types';
+import {
+  ApplicationTheme,
+  IWhitelabelLocalStorage,
+  IWhitelabelState,
+} from './whitelabel.types';
 
 const m2ToneToM3: Record<number, number> = {
   100: 95,
@@ -173,3 +177,27 @@ export const oppositeTheme = {
   light: 'dark' as ApplicationTheme,
   dark: 'light' as ApplicationTheme,
 };
+
+export function getWhitelabelDefaultValue() {
+  let initialState = {
+    theme: <ApplicationTheme>'light',
+    primaryColor: '',
+    logo: '',
+    icon: '',
+  } as IWhitelabelState;
+
+  try {
+    const raw = localStorage.getItem('whitelabel');
+    if (raw) {
+      const parsed: IWhitelabelLocalStorage = JSON.parse(raw);
+      initialState = {
+        ...initialState,
+        ...parsed,
+      };
+    }
+  } catch {
+    console.error('[WhitelabelService] ERROR parsing data from localstorage');
+  }
+
+  return initialState;
+}

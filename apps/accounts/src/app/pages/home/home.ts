@@ -9,6 +9,7 @@ import { RoleManagerModule } from '../../components/role-manager/role-manager-mo
 import { RoleSelector } from '../../components/role-selector/role-selector';
 import { PermissionSelector } from '../../components/permission-selector/permission-selector';
 import { DemoWhitelabelComponent } from '../../components/demo-whitelabel/demo-whitelabel';
+import { OrganizationState } from '../../states/organization/organization.state';
 @Component({
   selector: 'app-home',
   imports: [
@@ -27,6 +28,7 @@ export class Home {
   constructor(
     private readonly api: HttpClient,
     private readonly oidcService: OidcSecurityService,
+    private readonly organizationState: OrganizationState,
   ) {
     effect(() => this.formcontrol.valueChanges.subscribe(console.log));
   }

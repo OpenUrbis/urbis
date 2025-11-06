@@ -9,17 +9,9 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ForgotModule } from './forgot/forgot.module';
 import { EmailStrategy } from './strategies/email.strategy';
-import { TwoFactoryModule } from './two-factory/two-factory.module';
 
 @Module({
-  imports: [
-    SharedModule,
-    UserModule,
-    ForgotModule,
-    PassportModule,
-    MailModule,
-    TwoFactoryModule,
-  ],
+  imports: [SharedModule, UserModule, ForgotModule, PassportModule, MailModule],
   controllers: [AuthController],
   providers: [IsExist, IsNotExist, EmailStrategy, AuthService],
   exports: [AuthService],

@@ -1,6 +1,7 @@
-import { Component, effect } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProfileState } from '../../../states/profile/profile.state';
+import { ProfileEditApi } from '../services/profile-edit-api';
 
 @Component({
   standalone: false,
@@ -9,25 +10,27 @@ import { ProfileState } from '../../../states/profile/profile.state';
   styleUrl: './personal-data-form.scss',
 })
 export class PersonalDataForm {
+  api = inject(ProfileEditApi);
+  state = inject(ProfileState);
+
   form = new FormGroup({
     firstName: new FormControl('', Validators.required),
     lastName: new FormControl('', Validators.required),
-    oldPassword: new FormControl('', Validators.required),
   });
 
-  constructor(readonly profileState: ProfileState) {
+  constructor() {
     effect(() => {
-      if (!profileState.value().id || profileState.loading()) return;
+      if (!this.state.value().id || this.state.loading()) return;
 
       this.form.patchValue({
-        firstName: profileState.value().firstName,
-        lastName: profileState.value().lastName,
+        firstName: this.state.value().firstName,
+        lastName: this.state.value().lastName,
       });
     });
   }
 
   submit() {
-    console.log('submited');
-    this.profileState.refresh();
+    if (this.form.invalid) return;
+    this.api.patchMe(this.form.value).subscribe(() => this.state.refresh());
   }
 }

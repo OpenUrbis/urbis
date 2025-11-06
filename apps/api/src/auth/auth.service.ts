@@ -214,7 +214,7 @@ export class AuthService {
       {
         id: user.id,
       },
-      { select: { password: true } },
+      { select: { id: true, password: true } },
     );
 
     this.passwordValidationStep(

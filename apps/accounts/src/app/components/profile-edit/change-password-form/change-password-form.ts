@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProfileState } from '../../../states/profile/profile.state';
 import { ProfileEditApi } from '../services/profile-edit-api';
+import { passwordFormGroup } from '../../../../../projects/shared/src/public-api';
+import { mergeFormGroups } from '../../../shared/utils/merge-form-groups';
 
 @Component({
   standalone: false,
@@ -13,11 +15,12 @@ export class ChangePasswordForm {
   api = inject(ProfileEditApi);
   state = inject(ProfileState);
 
-  form = new FormGroup({
-    oldPassword: new FormControl('', Validators.required),
-    password: new FormControl('', Validators.required),
-    repeatPassword: new FormControl('', Validators.required),
-  });
+  form = mergeFormGroups(
+    new FormGroup({
+      oldPassword: new FormControl('', Validators.required),
+    }),
+    passwordFormGroup(),
+  );
 
   submit() {
     if (this.form.invalid) return;

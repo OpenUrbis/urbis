@@ -1,0 +1,10 @@
+<form [formGroup]="form" (ngSubmit)="send()">
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Código</mat-label>
+    <input matInput placeholder="Código" [formControl]="otp" />
+  </mat-form-field>
+
+  <div class="d-flex justify-content-end gap-2">
+    <lib-loading-button [loading]="loading()">Validar</lib-loading-button>
+  </div>
+</form>

@@ -18,6 +18,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from 'auth/auth.service';
 import { Request, Response } from 'express';
 import Provider from 'oidc-provider';
+import { User } from 'user/entities/user.entity';
 import { LoginGuard } from './../guards/login.guard';
 
 @Controller('auth/oidc')
@@ -130,9 +131,12 @@ export class OidcController {
       .replace('interaction/api', 'interaction')
       .replace('/auth/oidc', '');
 
+    const user: User = req.user;
+
     const session = {
       login: {
-        accountId: req.user.id,
+        accountId: user.id,
+        twoFactorStatus: user.otpSecret ? 'verify_needed' : 'setup_needed',
       },
     };
     const redirectToCallback = await this.oidcProvider.interactionResult(

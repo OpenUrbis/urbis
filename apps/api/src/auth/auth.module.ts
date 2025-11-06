@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
+import { AccessControlModule } from 'common/guards/access-control/access-control.module';
 import { UserModule } from 'user/user.module';
 import { MailModule } from './../common/mail/mail.module';
 import { IsExist } from './../common/utils/validators/is-exists.validator';
@@ -9,9 +10,18 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ForgotModule } from './forgot/forgot.module';
 import { EmailStrategy } from './strategies/email.strategy';
+import { TwoFactoryModule } from './two-factory/two-factory.module';
 
 @Module({
-  imports: [SharedModule, UserModule, ForgotModule, PassportModule, MailModule],
+  imports: [
+    SharedModule,
+    UserModule,
+    ForgotModule,
+    PassportModule,
+    MailModule,
+    AccessControlModule,
+    TwoFactoryModule,
+  ],
   controllers: [AuthController],
   providers: [IsExist, IsNotExist, EmailStrategy, AuthService],
   exports: [AuthService],

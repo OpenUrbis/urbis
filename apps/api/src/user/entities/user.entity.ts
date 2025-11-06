@@ -3,8 +3,6 @@ import { Exclude } from 'class-transformer';
 import {
   AfterLoad,
   BaseEntity,
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   CreateDateColumn,
   DeleteDateColumn,

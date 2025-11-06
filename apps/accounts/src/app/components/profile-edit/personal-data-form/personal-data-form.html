@@ -1,0 +1,13 @@
+<form [formGroup]="form" class="profile-form" (ngSubmit)="submit()">
+  <mat-form-field>
+    <mat-label>Primeiro nome</mat-label>
+    <input matInput formControlName="firstName" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Ultimo nome</mat-label>
+    <input matInput formControlName="lastName" />
+  </mat-form-field>
+
+  <button matButton="filled">Salvar</button>
+</form>

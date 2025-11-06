@@ -6,12 +6,21 @@ import { FindOptionsWhere, ILike, In, Not, Or, Repository } from 'typeorm';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Organization } from './entities/organization.entity';
+import { OrganizationGlobalWhitelabel } from './entities/organization-shared-whitelabel.entity';
+import { OrganizationApplicationWhitelabel } from './entities/organization-application-whitelabel.entity';
+import { ApplicationName } from './enums/application-name.enum';
 
 @Injectable()
 export class OrganizationService {
   constructor(
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
+
+    @InjectRepository(OrganizationGlobalWhitelabel)
+    private organizationGlobalWhitelabel: Repository<OrganizationGlobalWhitelabel>,
+
+    @InjectRepository(OrganizationApplicationWhitelabel)
+    private organizationApplicationWhitelabel: Repository<OrganizationApplicationWhitelabel>,
 
     private readonly roleService: RoleService,
   ) {}
@@ -80,5 +89,22 @@ export class OrganizationService {
         'userRoleAssignments.role',
       ],
     });
+  }
+
+  async getUnifiedWhitelabel(
+    application: ApplicationName,
+    organizationId: string,
+  ) {
+    const [globalWhitelabel, applicationWhitelabel] = await Promise.all([
+      this.organizationGlobalWhitelabel.findOneBy({
+        organizationId,
+      }),
+      this.organizationApplicationWhitelabel.findOneBy({
+        organizationId,
+        application,
+      }),
+    ]);
+
+    return { global: globalWhitelabel, application: applicationWhitelabel };
   }
 }

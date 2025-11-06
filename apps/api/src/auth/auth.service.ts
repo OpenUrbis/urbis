@@ -30,7 +30,7 @@ export class AuthService {
     const user = await this.userService.findOne({
       email: loginDto.email,
     });
-    if (!user || !user?.validatePassword(loginDto.password)) {
+    if (!user || !(await user.validatePassword(loginDto.password))) {
       throw new BadRequestException({
         message: 'Email is not found or password is wrong',
       });
@@ -171,7 +171,7 @@ export class AuthService {
     });
   }
 
-  passwordValidationStep(
+  async passwordValidationStep(
     user: User,
     dtoPassword: string,
     dtoOldPassword: string,
@@ -195,7 +195,7 @@ export class AuthService {
     }
 
     /* If old password is invalid throws error */
-    const isOldPasswordValid = user.validatePassword(dtoOldPassword);
+    const isOldPasswordValid = await user.validatePassword(dtoOldPassword);
     if (!isOldPasswordValid) {
       throw new HttpException(
         {
@@ -217,11 +217,13 @@ export class AuthService {
       { select: { id: true, password: true } },
     );
 
-    this.passwordValidationStep(
+    await this.passwordValidationStep(
       currentUser,
       userDto.password,
       userDto.oldPassword,
     );
+
+    delete userDto.oldPassword;
 
     await this.userService.findByIdAndUpdate(user.id, userDto);
 

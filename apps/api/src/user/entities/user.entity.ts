@@ -1,4 +1,4 @@
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import {
   AfterLoad,
@@ -86,7 +86,7 @@ export class User extends BaseEntity {
     return !this.emailHashConfirm;
   }
 
-  validatePassword(plainPassword: string): boolean {
+  validatePassword(plainPassword: string) {
     if (!this.password || !plainPassword) {
       return false;
     }

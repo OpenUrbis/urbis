@@ -27,7 +27,9 @@ const Header = () => {
                 width="auto"
                 height="36px"
                 alt="Urbis"
+                style="border-radius: 0!important"
               />
+              <span style="color: #8b8a8a; font-size: 14px;">DEMO</span>
             </a>
           </div>
           <div
@@ -87,7 +89,6 @@ const Header = () => {
             />
 
             <MenuToggleButton />
-
           </div>
         </div>
       </nav>

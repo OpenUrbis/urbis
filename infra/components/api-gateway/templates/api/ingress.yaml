@@ -5,9 +5,14 @@ metadata:
   namespace: urbis-map
   annotations:
     external-dns.alpha.kubernetes.io/hostname: {{ .Values.domainName }}
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "2g"
+    cert-manager.io/issue-temporary-certificate: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($request_uri ~* "^/\.well-known/acme-challenge/") {
+        return 200 "challenge-bypassed";
+      }
 spec:
   ingressClassName: nginx-map
   tls:
@@ -39,10 +44,3 @@ spec:
                 name: urbis-map-api-service
                 port:
                   number: 3000
-          - path: /(.well-known/acme-challenge/.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: cm-acme-http-solver-8vtnq # change me to you solver
-                port:
-                  number: 8089 # geralmente o cert-manager usa 8089, mas confira!

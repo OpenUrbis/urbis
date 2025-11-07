@@ -5,12 +5,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { jwtDecode } from 'jwt-decode';
+import { DemoWhitelabelComponent } from '../../components/demo-whitelabel/demo-whitelabel';
 import { PermissionSelector } from '../../components/permission-selector/permission-selector';
 import { RoleManagerModule } from '../../components/role-manager/role-manager-module';
-
+import { OrganizationState } from '../../states/organization/organization.state';
 @Component({
   selector: 'app-home',
-  imports: [MatButtonModule, RoleManagerModule, PermissionSelector],
+  imports: [
+    MatButtonModule,
+    RoleManagerModule,
+    PermissionSelector,
+    DemoWhitelabelComponent,
+  ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -21,6 +27,7 @@ export class Home {
   constructor(
     private readonly api: HttpClient,
     private readonly oidcService: OidcSecurityService,
+    private readonly organizationState: OrganizationState,
   ) {
     effect(() => this.formcontrol.valueChanges.subscribe(console.log));
   }

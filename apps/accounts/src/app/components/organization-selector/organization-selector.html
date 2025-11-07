@@ -1,0 +1,58 @@
+@if (multi()) {
+  <mat-form-field class="example-chip-list" appearance="outline" class="w-100">
+    <mat-label>Organizações</mat-label>
+    <mat-chip-grid #chipGrid aria-label="Selecionar organização">
+      @for (
+        organization of selectedOrganizations();
+        track organization.id;
+        let index = $index
+      ) {
+        <mat-chip-row (removed)="remove(index)">
+          {{ organization.name }}
+          <button
+            matChipRemove
+            [attr.aria-label]="'Remover ' + organization.name"
+          >
+            <mat-icon class="material-symbols-outlined">cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+      }
+    </mat-chip-grid>
+    <input
+      name="currentOrganization"
+      placeholder="Selecionar organização..."
+      #organizationInput
+      [formControl]="search"
+      [matChipInputFor]="chipGrid"
+      [matAutocomplete]="auto"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+    />
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="selected($event); organizationInput.value = ''"
+    >
+      @for (organization of organizations(); track organization) {
+        <mat-option [value]="organization">{{ organization.name }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+} @else {
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Organização</mat-label>
+    <input
+      type="text"
+      matInput
+      [formControl]="search"
+      [matAutocomplete]="auto"
+    />
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      [displayWith]="displayFn"
+      (optionSelected)="selected($event)"
+    >
+      @for (option of organizations(); track option.id) {
+        <mat-option [value]="option">{{ option.name }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+}

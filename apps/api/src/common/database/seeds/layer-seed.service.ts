@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LayerGroup } from './../../../layer-groups/entities/layer-group.entity';
-import { LayerSchemaColors } from './../../../layer-schemas/entities/layer-schema-color.entity';
-import { LayerSchema } from './../../../layer-schemas/entities/layer-schema.entity';
+import { LayerGroup } from '../../../maps/layer-groups/entities/layer-group.entity';
+import { LayerSchemaColors } from './../../../maps/layer-schemas/entities/layer-schema-color.entity';
+import { LayerSchema } from './../../../maps/layer-schemas/entities/layer-schema.entity';
 import { layerSchemas } from './layerSchemaConst';
 
 @Injectable()
@@ -62,7 +62,8 @@ export class LayerSeedService {
           where: { id: layer.id },
           relations: ['colors'],
         });
-        if (!register) register = this.layerSchemaRepository.create(layer);
+        if (!register)
+          register = this.layerSchemaRepository.create(layer) as any;
         else register = layer;
 
         register.colors = layer.colors.map((color) =>

@@ -1,0 +1,35 @@
+// src/styles/components/button/_variants.scss
+
+@use "sass:map";
+@use "sass:meta";
+@use "@angular/material" as mat;
+@use "./../../themes/colors" as *;
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading {
+  border-radius: 28px 0 0 28px !important;
+  min-width: 28px !important;
+  margin-right: -2px;
+}
+
+.mat-mdc-select-arrow-wrapper {
+  margin-right: 16px;
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
+  border-radius: 0 28px 28px 0 !important;
+}
+
+.mat-mdc-text-field-wrapper {
+  padding-left: max(26px, var(--mdc-shape-small, 4px)) !important;
+  padding-right: 6px !important;
+  padding-right: max(4px, var(--mdc-shape-small, 4px)) !important;
+}
+
+.mat-form-field-disabled .mdc-notched-outline__leading {
+  border-radius: 28px 0 0 28px !important;
+  min-width: 28px !important;
+}
+
+.mat-form-field-disabled .mdc-notched-outline__trailing {
+  border-radius: 0 28px 28px 0 !important;
+}

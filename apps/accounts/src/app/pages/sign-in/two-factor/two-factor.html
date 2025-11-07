@@ -1,0 +1,13 @@
+<lib-loading-content [loading]="!queryParams()?.accessToken">
+  <div class="container h-100 d-flex justify-content-center align-items-center">
+    <mat-card>
+      <mat-card-content>
+        @if (step() === 0) {
+          <app-two-factor-setup [accessToken]="queryParams()?.accessToken" />
+        } @else {
+          <app-two-factor-verify [accessToken]="queryParams()?.accessToken" />
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</lib-loading-content>

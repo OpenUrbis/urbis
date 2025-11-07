@@ -1,6 +1,7 @@
 import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 
-const environment = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const environment =
+  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
 
 export const getLayerSchema = async (
   id: string

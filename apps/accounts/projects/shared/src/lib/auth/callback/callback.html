@@ -1,0 +1,25 @@
+<div class="callback-page text-center">
+  <div class="callback-content">
+    @if (loading && errorMessage == undefined) {
+      <div class="callback-loading">
+        <mat-spinner diameter="32"></mat-spinner>
+      </div>
+    }
+    @if (errorMessage) {
+      <div>
+        <h1 style="font-size: 72px" class="mb-4">:(</h1>
+        <h4>We have a problem authenticating your account:</h4>
+        <p>
+          {{ errorMessage }}
+        </p>
+        <p>
+          If you are facing this problem repeatedly,<br />
+          clearing the browser's cache may be a solution.
+        </p>
+        <div class="mt-4">
+          <a mat-flat-button color="primary" routerLink="/">Try again</a>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,51 @@
+@if (multi()) {
+  <mat-form-field class="example-chip-list" appearance="outline" class="w-100">
+    <mat-label>Cargos</mat-label>
+    <mat-chip-grid #chipGrid aria-label="Selecionar cargo">
+      @for (role of selectedRoles(); track role.id; let index = $index) {
+        <mat-chip-row (removed)="remove(index)">
+          {{ role.name }}
+          <button matChipRemove [attr.aria-label]="'Remover ' + role.name">
+            <mat-icon class="material-symbols-outlined">cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+      }
+    </mat-chip-grid>
+    <input
+      name="currentRole"
+      placeholder="Selecionar cargo..."
+      #roleInput
+      [formControl]="search"
+      [matChipInputFor]="chipGrid"
+      [matAutocomplete]="auto"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+    />
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="selected($event); roleInput.value = ''"
+    >
+      @for (role of roles(); track role) {
+        <mat-option [value]="role">{{ role.name }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+} @else {
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Cargo</mat-label>
+    <input
+      type="text"
+      matInput
+      [formControl]="search"
+      [matAutocomplete]="auto"
+    />
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      [displayWith]="displayFn"
+      (optionSelected)="selected($event)"
+    >
+      @for (option of roles(); track option.id) {
+        <mat-option [value]="option">{{ option.name }}</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+}

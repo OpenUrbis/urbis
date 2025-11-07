@@ -1,0 +1,78 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content>
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Nome</mat-label>
+      <input matInput placeholder="Nome" formControlName="name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Descrição</mat-label>
+      <input matInput placeholder="Descrição" formControlName="description" />
+    </mat-form-field>
+
+    <mat-form-field class="w-100 d-flex flex-column" appearance="outline">
+      <mat-label>Selecione as permissões</mat-label>
+      <mat-chip-grid
+        #chipGrid
+        aria-label="Permissões selecionadas"
+        class="w-100"
+      >
+        <input
+          type="text"
+          placeholder="Selecione as permissões que deseja"
+          #permissionInputSearch
+          matInput
+          [formControl]="searchPermissions"
+          [matAutocomplete]="permissionInputAuto"
+          [matChipInputFor]="chipGrid"
+          class="w-100 mt-2"
+        />
+      </mat-chip-grid>
+      <mat-autocomplete
+        #permissionInputAuto="matAutocomplete"
+        (optionSelected)="
+          addPermission($event); permissionInputSearch.value = ''
+        "
+      >
+        @for (option of permissions(); track option) {
+          <mat-option [value]="option">{{ option.name }}</mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-list>
+      @for (
+        item of selectedPermissions();
+        track item.action;
+        let index = $index
+      ) {
+        <mat-list-item>
+          <span matListItemTitle>{{ item.name }}</span>
+          @if (item.description) {
+            <span matListItemTitle>{{ item.description }}</span>
+          }
+          <span matListItemMeta>
+            <mat-form-field>
+              <mat-label>Escopo</mat-label>
+              <mat-select
+                [value]="item.scope"
+                (selectionChange)="changeScope(index, $event)"
+              >
+                <mat-option value="global">Global</mat-option>
+                <mat-option value="any">Qualquer</mat-option>
+                <mat-option value="own">Proprietário</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </span>
+        </mat-list-item>
+      }
+    </mat-list>
+  </mat-dialog-content>
+  <mat-dialog-actions class="d-flex gap-2">
+    <button matButton="outlined" type="button" mat-dialog-close>
+      Cancelar
+    </button>
+    <lib-loading-button [loading]="loading()">Salvar</lib-loading-button>
+  </mat-dialog-actions>
+</form>

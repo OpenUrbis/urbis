@@ -55,7 +55,6 @@ export const RequestWrapper: ITemplatesDeclaration = {
         try {
           const { data } = await axios(axiosConfig);
 
-          console.log(data);
           setData(data);
         } catch (error) {
           console.error("Error fetching data:", error);

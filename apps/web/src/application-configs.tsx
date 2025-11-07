@@ -132,7 +132,6 @@ export const CLICK_ACTIONS_CONFIG = (): {
       { zoom = 17.1 },
       { latitude, longitude, template, feature }
     ): void {
-      console.log(feature);
       if (!feature || !(feature as { id: string })?.id)
         return console.error(
           'clickAction(selectFeature) Error: Property "feature" is not defined'

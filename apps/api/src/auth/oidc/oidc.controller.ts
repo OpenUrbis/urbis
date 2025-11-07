@@ -1,5 +1,6 @@
 import {
   All,
+  BadRequestException,
   Controller,
   Get,
   HttpCode,
@@ -13,9 +14,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from 'auth/auth.service';
+import { TwoFactorService } from 'auth/two-factor/two-factor.service';
+import { TwoFactorGuard } from 'common/guards/two-factor/two-factor.guard';
 import { Request, Response } from 'express';
 import Provider from 'oidc-provider';
 import { User } from 'user/entities/user.entity';
@@ -28,6 +32,8 @@ export class OidcController {
     public oidcProvider: Provider,
     private configService: ConfigService,
     private readonly authService: AuthService,
+    private readonly twoFactorService: TwoFactorService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @ApiBearerAuth()
@@ -40,7 +46,7 @@ export class OidcController {
   public async me(@Req() request) {
     const user = await this.authService.me(request.user);
 
-    return { sub: user.id, ...user, _id: user.id };
+    return { sub: user.id, _id: user.id };
   }
 
   @Get('interaction/:uuid')
@@ -114,6 +120,51 @@ export class OidcController {
     }
   }
 
+  @UseGuards(TwoFactorGuard)
+  @Post('interaction/validate2fa/:uuid')
+  async validate2FA(
+    @Req() req,
+    @Res() res: Response,
+    @Param('uuid') uuid: string,
+  ) {
+    const { code } = req.body;
+    req.body = {
+      email: '',
+      password: '',
+      code: '',
+    };
+    req.headers.authorization = '';
+    req.headers.Authorization = '';
+    req.headers.cookie = '_interaction=' + uuid;
+    req.url = req.originalUrl
+      .replace('/validate2fa', '')
+      .replace('interaction/api', 'interaction')
+      .replace('/auth/oidc', '');
+
+    const user: User = req.user;
+
+    const session = {
+      login: {
+        accountId: user.id,
+      },
+    };
+    const { isValid } = await this.twoFactorService.verify2FACode(user, code);
+    if (!isValid)
+      throw new BadRequestException({
+        message: 'Invalid code',
+        isInvalid: true,
+      });
+    const redirectToCallback = await this.oidcProvider.interactionResult(
+      req,
+      res,
+      session,
+      {
+        mergeWithLastSubmission: true,
+      },
+    );
+    res.send({ redirectToCallback });
+  }
+
   @UseGuards(LoginGuard)
   @Post('interaction/login/:uuid')
   async loginConfirm(
@@ -131,23 +182,30 @@ export class OidcController {
       .replace('interaction/api', 'interaction')
       .replace('/auth/oidc', '');
 
-    const user: User = req.user;
+    const { id, otpValidated, requires2fa, email }: User = req.user;
 
     const session = {
       login: {
-        accountId: user.id,
-        twoFactorStatus: user.otpSecret ? 'verify_needed' : 'setup_needed',
+        accountId: id,
       },
     };
-    const redirectToCallback = await this.oidcProvider.interactionResult(
-      req,
-      res,
-      session,
-      {
-        mergeWithLastSubmission: true,
-      },
-    );
-    res.send({ redirectToCallback, isNewUser: req.user?.isNewUser });
+
+    await this.oidcProvider.interactionResult(req, res, session, {
+      mergeWithLastSubmission: true,
+    });
+    res.send({
+      otpValidated,
+      requires2fa,
+      accessToken: this.jwtService.sign(
+        {
+          _id: id,
+          id: id,
+          sub: id,
+          email: email,
+        },
+        { secret: this.configService.get('auth.twoFactorSecret') },
+      ),
+    });
   }
 
   @All('/*')

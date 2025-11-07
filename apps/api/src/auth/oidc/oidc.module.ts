@@ -8,9 +8,10 @@ import { ConfigService } from '@nestjs/config';
 import { ClientsService } from './clients/clients.service';
 import { AuthService } from './../../auth/auth.service';
 import { SharedModule } from 'shared/shared.module';
+import { TwoFactorModule } from 'auth/two-factor/two-factor.module';
 
 @Module({
-  imports: [ApplicationsModule, AuthModule, PassportModule, SharedModule],
+  imports: [ApplicationsModule, AuthModule, PassportModule, SharedModule, TwoFactorModule],
   controllers: [OidcController],
   providers: [
     {

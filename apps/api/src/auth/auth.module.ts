@@ -10,7 +10,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ForgotModule } from './forgot/forgot.module';
 import { EmailStrategy } from './strategies/email.strategy';
-import { TwoFactoryModule } from './two-factory/two-factory.module';
+import { TwoFactorModule } from './two-factor/two-factor.module';
 
 @Module({
   imports: [
@@ -19,8 +19,8 @@ import { TwoFactoryModule } from './two-factory/two-factory.module';
     ForgotModule,
     PassportModule,
     MailModule,
+    TwoFactorModule,
     AccessControlModule,
-    TwoFactoryModule,
   ],
   controllers: [AuthController],
   providers: [IsExist, IsNotExist, EmailStrategy, AuthService],

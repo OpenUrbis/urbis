@@ -76,7 +76,6 @@ export class RoleService {
     const { permissions, name, description, organizationId } = createRoleDto;
 
     const role = this.roleRepository.create({ name, description });
-    console.log('PUPU', role);
     if (organizationId) {
       role.organization = { id: organizationId } as Organization;
     }

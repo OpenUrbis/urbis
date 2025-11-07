@@ -23,7 +23,11 @@ export class AccessTokenInterceptor implements HttpInterceptor {
       switchMap((token) => {
         let requestToForward = req;
         const header: any = {};
-        if (token !== undefined && token !== null) {
+        if (
+          token !== undefined &&
+          token !== null &&
+          !req.url.includes('2fa')
+        ) {
           let tokenValue = 'Bearer ' + token;
           if (!req.url.includes('oidc/token')) {
             header['Authorization'] = tokenValue;
@@ -36,11 +40,11 @@ export class AccessTokenInterceptor implements HttpInterceptor {
             const org = JSON.parse(orgByLocalStorage);
             if (org?.id) header['x-organization-id'] = org?.id;
           }
-        }
 
-        requestToForward = req.clone({
-          setHeaders: header,
-        });
+          requestToForward = req.clone({
+            setHeaders: header,
+          });
+        }
 
         return next.handle(requestToForward);
       }),

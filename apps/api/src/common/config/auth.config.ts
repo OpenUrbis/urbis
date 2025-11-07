@@ -5,6 +5,6 @@ export default registerAs('auth', () => ({
   secret: process.env.AUTH_SECRET,
   expires: process.env.AUTH_JWT_TOKEN_EXPIRES_IN,
 
-  twoFactoryAppName: process.env.TWO_FACTORY_APP_NAME ?? 'AppName',
-  twoFactorySecret: process.env.TWO_FACTORY_SECRET ?? 'secret',
+  twoFactorAppName: process.env.TWO_FACTORY_APP_NAME ?? 'AppName',
+  twoFactorSecret: process.env.TWO_FACTORY_SECRET ?? '2FAsecret',
 }));

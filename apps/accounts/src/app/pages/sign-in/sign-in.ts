@@ -30,12 +30,15 @@ import { SignInApi } from './services/sign-in-api';
 })
 export class SignIn implements OnInit {
   formGroup = new FormGroup({
-    email: new FormControl('test@test.com', [Validators.required, Validators.email]),
+    email: new FormControl('test@test.com', [
+      Validators.required,
+      Validators.email,
+    ]),
     password: new FormControl('Teste@1234', [Validators.required]),
   });
 
   router = inject(Router);
-  route = inject(ActivatedRoute);
+  activatedRoute = inject(ActivatedRoute);
   signInService = inject(SignInApi);
 
   ngOnInit() {
@@ -58,7 +61,7 @@ export class SignIn implements OnInit {
   }
 
   validateSession() {
-    this.route.queryParams.subscribe(({ clientId, session }) => {
+    this.activatedRoute.queryParams.subscribe(({ clientId, session }) => {
       if (clientId !== undefined && session !== undefined) {
         this.signInService.storeSession(clientId, session);
       }
@@ -83,8 +86,18 @@ export class SignIn implements OnInit {
       error: ({ error }) => {
         console.error(error);
       },
-      next: ({ redirectToCallback }: any) => {
-        location.href = redirectToCallback;
+      next: ({
+        redirectToCallback,
+        otpValidated,
+        requires2fa,
+        accessToken,
+      }: any) => {
+        if (!requires2fa && redirectToCallback)
+          return (location.href = redirectToCallback);
+
+        this.router.navigate(['/two-factor'], {
+          queryParams: { otpValidated, requires2fa, accessToken },
+        });
       },
     });
   }

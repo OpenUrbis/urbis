@@ -55,7 +55,6 @@ export class PermissionController {
     @Query('search') search: string,
     @Query('exclude') exclude: string[] | string,
   ): Promise<Permission[]> {
-    console.log(exclude);
     return this.service.list(
       { page, limit },
       search,

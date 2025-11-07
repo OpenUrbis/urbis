@@ -3,6 +3,7 @@ import { AuthModuleEntities } from 'auth/index.entity';
 import { OidcModule } from 'auth/oidc/oidc.module';
 import { OrganizationModule } from 'organization/organization.module';
 import { AuthModule } from './auth/auth.module';
+import { RedisModule } from './common/redis/redis.module';
 import { FilesModule } from './files/files.module';
 import { MapsModuleEntities } from './maps/index.entity';
 import { MapsModule } from './maps/maps.module';
@@ -13,7 +14,6 @@ import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
 import { UserModuleEntities } from './user/index.entity';
 import { UserModule } from './user/user.module';
-import { RedisModule } from './common/redis/redis.module';
 
 @Module({
   imports: [

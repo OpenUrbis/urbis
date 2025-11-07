@@ -18,7 +18,7 @@ import { RedisService } from './redis.service';
           db: configService.get('database.redis.db', 0),
         });
 
-        client.on('connect', () => console.log('✅ Redis conected!'));
+        client.on('connect', () => console.info('✅ Redis conected!'));
         client.on('error', (err) =>
           console.error('❌ Error on connect Redis:', err),
         );

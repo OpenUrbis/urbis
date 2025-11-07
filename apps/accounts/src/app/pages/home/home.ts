@@ -29,7 +29,6 @@ export class Home {
     this.oidcService.checkAuth().subscribe(({ isAuthenticated, idToken }) => {
       if (isAuthenticated) {
         const decoded: any = jwtDecode(idToken);
-        console.log(decoded);
       }
     });
   }

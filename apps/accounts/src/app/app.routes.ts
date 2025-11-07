@@ -8,11 +8,6 @@ export const routes: Routes = [
       import('./pages/sign-in/sign-in').then((c) => c.SignIn),
   },
   {
-    path: 'two-factory',
-    loadComponent: () =>
-      import('./pages/two-factory/two-factory').then((c) => c.TwoFactory),
-  },
-  {
     path: 'callback',
     loadComponent: () =>
       import('./../../projects/shared/src/lib/auth/callback/callback').then(
@@ -32,6 +27,11 @@ export const routes: Routes = [
       import(
         './../../projects/shared/src/lib/auth/unauthorized/unauthorized'
       ).then((c) => c.Unauthorized),
+  },
+  {
+    path: 'two-factor',
+    loadComponent: () =>
+      import('./pages/sign-in/two-factor/two-factor').then((c) => c.TwoFactor),
   },
   {
     path: '',

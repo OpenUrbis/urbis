@@ -1,10 +1,8 @@
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import {
   AfterLoad,
   BaseEntity,
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -73,20 +71,11 @@ export class User extends BaseEntity {
     this.previousPassword = this.password;
   }
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async setPassword() {
-    if (this.previousPassword !== this.password && this.password) {
-      const salt = await bcrypt.genSalt();
-      this.password = await bcrypt.hash(this.password, salt);
-    }
-  }
-
   get isEmailConfirmed() {
     return !this.emailHashConfirm;
   }
 
-  validatePassword(plainPassword: string): boolean {
+  validatePassword(plainPassword: string) {
     if (!this.password || !plainPassword) {
       return false;
     }

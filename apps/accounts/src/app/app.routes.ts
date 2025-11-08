@@ -59,4 +59,10 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'profile',
+    canActivate: [AutoLoginPartialRoutesGuard],
+    loadChildren: () =>
+      import('./pages/profile/profile.routes').then((m) => m.profileRoutes),
+  },
 ];

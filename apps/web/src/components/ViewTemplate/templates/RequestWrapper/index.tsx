@@ -1,12 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import axios, { AxiosRequestConfig } from "axios";
 import { useEffect, useState } from "preact/hooks";
-import { CircularProgress } from "rmwc";
+import { Loader2 } from "lucide-react";
 import { createFn } from "../../../../utils/createFn";
 import { IRequestProperties } from "../../types/request-type";
 import { ITemplatesDeclaration } from "../../types/templates-type";
 import { ViewTemplateEngine } from "../../ViewTemplateEngine";
-import "./style.scss";
 
 export const RequestWrapper: ITemplatesDeclaration = {
   name: "wrapper-request",
@@ -74,11 +73,11 @@ export const RequestWrapper: ITemplatesDeclaration = {
     }, [rawData, template]);
 
     return loading || !data ? (
-      <div className="d-flex justify-content-center align-items-center">
-        <CircularProgress size="large" />
+      <div className="flex justify-center items-center py-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     ) : (
-      <div style="display: grid; gap: 8px;">
+      <div className="grid gap-2">
         {templates.map((template, i) => (
           <ViewTemplateEngine
             key={`${key}-engine-${i}`}

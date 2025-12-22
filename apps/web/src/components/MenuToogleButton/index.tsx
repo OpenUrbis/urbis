@@ -1,6 +1,4 @@
-import { Button } from "@rmwc/button";
-import "@rmwc/button/styles";
-import "@rmwc/icon/styles";
+import { Button } from "@/components/ui/button";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 
 export const MenuToggleButton = () => {
@@ -8,12 +6,13 @@ export const MenuToggleButton = () => {
 
   return (
     <Button
-      unelevated
-      className="d-block d-md-none"
+      variant="ghost"
+      size="icon"
       onClick={toggleDrawer}
-      icon={drawerOpen.value ? "close" : "search"}
+      className="mr-2"
+      aria-label="Alternar menu"
     >
-      {drawerOpen.value ? "Fechar" : "Buscar"}
+      <span className="material-symbols-outlined text-2xl">menu</span>
     </Button>
   );
 };

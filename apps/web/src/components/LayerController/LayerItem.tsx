@@ -1,28 +1,36 @@
 import { computed } from "@preact/signals";
-import { useCallback } from "react";
-import { Icon, Tooltip } from "rmwc";
 import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
-import "./LayerItem.scss";
 import { LayerItemAction } from "./LayerItemAction";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-export const LayerItem = ({ item }: { item: IGetConfigLayerSchema }) => {
+export const LayerItem = ({ 
+  item, 
+  indent, 
+  className 
+}: { 
+  item: IGetConfigLayerSchema; 
+  indent?: number; 
+  className?: string; 
+}) => {
   const { handleVisibleLayer, zoom } = useMapContext();
-
-  const renderLayerClassName = useCallback(
-    () => `layer-item ${item.isVisible ? "layer-item-active" : ""}`,
-    [item.isVisible]
-  );
 
   const renderColor = () => {
     const { colors } = item;
     const colorArray = colors.filter((color) => color.type === "fill");
 
     return (
-      <div className="layer-item-color">
+      <div className="w-[10px] h-6 flex flex-col rounded-sm overflow-hidden shrink-0 border border-border/50">
         {colorArray.map((itemColor, index) => (
           <div
             key={index}
+            className="w-full h-full"
             style={{ backgroundColor: `rgba(${itemColor.color.join(",")})` }}
           ></div>
         ))}
@@ -32,35 +40,40 @@ export const LayerItem = ({ item }: { item: IGetConfigLayerSchema }) => {
 
   const renderVisibilityIcon = computed(() => {
     if (item.isVisible && (item.minZoom || item?.properties?.maxZoom)) {
-      if (item.minZoom)
-        if (zoom.value > item.minZoom) {
-          return <Icon icon="visibility" />;
-        } else {
-          return (
-            <Tooltip
-              content={`Esta camada só é visível a partir do zoom nível ${item.minZoom}.`}
-              tag="div"
-            >
-              <Icon icon="visibility_off" />
-            </Tooltip>
-          );
-        }
-      if (item.properties?.maxZoom)
-        if (zoom.value < item?.properties?.maxZoom) {
-          return <Icon icon="visibility" />;
-        } else {
-          return (
-            <Tooltip
-              content={`Esta camada só é visível a partir do zoom nível ${item?.properties?.maxZoom}.`}
-              tag="div"
-            >
-              <Icon icon="visibility_off" />
-            </Tooltip>
-          );
-        }
-    }
+      const minZoom = item.minZoom;
+      const maxZoom = item?.properties?.maxZoom;
+      
+      let isVisibleByZoom = true;
+      let tooltipText = "";
 
-    return <></>;
+      if (minZoom && zoom.value <= minZoom) {
+        isVisibleByZoom = false;
+        tooltipText = `Esta camada só é visível a partir do zoom nível ${minZoom}.`;
+      }
+      
+      if (maxZoom && zoom.value >= maxZoom) {
+        isVisibleByZoom = false;
+        tooltipText = `Esta camada só é visível até o zoom nível ${maxZoom}.`;
+      }
+
+      if (isVisibleByZoom) {
+         return <span className="material-symbols-outlined text-base text-muted-foreground">visibility</span>;
+      }
+
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <span className="material-symbols-outlined text-base text-muted-foreground">visibility_off</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{tooltipText}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+    return null;
   });
 
   const renderActions = () => {
@@ -69,29 +82,37 @@ export const LayerItem = ({ item }: { item: IGetConfigLayerSchema }) => {
       return null;
 
     return (
-      <section className="d-flex align-self-center">
+      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           properties.layerActions.map(({ icon, action }: any, i: number) => (
             <LayerItemAction key={`${icon}-${i}`} icon={icon} action={action} />
           ))
         }
-      </section>
+      </div>
     );
   };
 
   return (
-    <section className="d-flex align-items-center">
-      <section
-        key={item.id}
-        className={renderLayerClassName()}
-        onClick={() => handleVisibleLayer(item.id)}
-      >
-        {renderColor()}
-        <span className="layer-item-name">{item.name}</span>
-        {<div className="layer-item-actions">{renderVisibilityIcon.value}</div>}
-      </section>
-      {renderActions()}
-    </section>
+    <div
+      key={item.id}
+      className={cn(
+        "flex flex-nowrap items-center justify-between py-2 w-full cursor-pointer transition-colors hover:bg-muted/50 border-b border-border/40 group pr-4",
+        item.isVisible ? "bg-muted/30" : "",
+        className
+      )}
+      style={{ paddingLeft: indent !== undefined ? `${indent}px` : '16px' }}
+      onClick={() => handleVisibleLayer(item.id)}
+    >
+      <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
+         {renderColor()}
+         <span className={cn("text-sm truncate", item.isVisible ? "font-medium text-foreground" : "font-normal text-muted-foreground")}>{item.name}</span>
+      </div>
+      
+      <div className="flex items-center shrink-0 ml-2 gap-2">
+         {renderActions()}
+         {renderVisibilityIcon.value}
+      </div>
+    </div>
   );
 };

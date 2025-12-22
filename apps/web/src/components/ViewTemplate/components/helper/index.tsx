@@ -1,6 +1,10 @@
 import { ReactNode } from "react";
-import { Icon, RichTooltip } from "rmwc";
-import "./style.scss";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Helper = ({
   properties,
@@ -14,19 +18,20 @@ export const Helper = ({
   const { helper } = properties ?? {};
 
   return helper ? (
-    <div className="d-flex align-items-center">
+    <div className="flex items-center">
       {children}
-      <section className="helper-container">
-        <RichTooltip title="Ajuda" body={helper} align="end" className="helper">
-          {
-            (
-              <Icon
-                icon={{ icon: "info", size: "small" }}
-                style={{ marginLeft: "8px" }}
-              />
-            ) as ReactNode
-          }
-        </RichTooltip>
+      <section className="ml-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="material-symbols-outlined text-sm text-muted-foreground cursor-help">info</span>
+            </TooltipTrigger>
+            <TooltipContent align="end" className="max-w-[300px]">
+              <p className="font-semibold">Ajuda</p>
+              <p className="text-sm">{helper}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </section>
     </div>
   ) : (

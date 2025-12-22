@@ -20,6 +20,7 @@ const boundingBox = signal<MapBoundingBox>([
 const viewport = signal<any>(undefined);
 const zoom = signal<number>(10);
 const is3DActive = signal<boolean>(true);
+const selectedBaseMap = signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets">("standard");
 const editFeatureTemplate = signal<ITemplate[]>([]);
 const layerWithRootEditTemplate = signal<string>('');
 
@@ -36,6 +37,7 @@ export const MapProvider = ({ children }: { children: ComponentChildren }) => {
         viewport,
         zoom,
         is3DActive,
+        selectedBaseMap,
         editFeatureTemplate,
         layerWithRootEditTemplate,
         overlayRef: useRef(null),

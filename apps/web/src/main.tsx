@@ -2,13 +2,15 @@ import "preact/debug";
 
 import "@open-urbis/map-ui";
 import { QueryClient, QueryClientProvider } from "@preact-signals/query";
-import "bootstrap/dist/css/bootstrap.css";
+import "./globals.css";
+import "./integrations/sync-manager";
 import { render } from "preact";
 import { lazy, Suspense } from "preact/compat";
 import "preact/debug";
 import { ReactNode } from "react";
-import { CircularProgress } from "rmwc";
+import { Loader2 } from "lucide-react";
 import { Route, Router } from "wouter";
+import { ThemeProvider } from "./components/ThemeProvider";
 import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { PolygonEditProvider } from "./context/PolygonEditContext";
@@ -29,41 +31,44 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <div id="app">
-    <QueryClientProvider client={queryClient}>
+    <ThemeProvider defaultTheme="dark" storageKey="urbis-ui-theme">
       {
         (
-          <NavigationProvider>
-            <MapProvider>
-              <SearchProvider>
-                <PolygonEditProvider>
-                  <Router>
-                    {
-                      (
-                        <Suspense
-                          fallback={
-                            <div className="h-100 w-100 d-flex align-items-center justify-content-center">
-                              <CircularProgress
-                                label="progress"
-                                size="xlarge"
-                              />
-                            </div>
+          <QueryClientProvider client={queryClient}>
+            {
+              (
+                <NavigationProvider>
+                  <MapProvider>
+                    <SearchProvider>
+                      <PolygonEditProvider>
+                        <Router>
+                          {
+                            (
+                              <Suspense
+                                fallback={
+                                  <div className="h-screen w-screen flex items-center justify-center">
+                                    <Loader2 className="h-10 w-10 animate-spin" />
+                                  </div>
+                                }
+                              >
+                                <Route path="/">{(<MapPage />) as ReactNode}</Route>
+                                <Route path="/print">
+                                  {(<PrintPage />) as ReactNode}
+                                </Route>
+                              </Suspense>
+                            ) as ReactNode
                           }
-                        >
-                          <Route path="/">{(<MapPage />) as ReactNode}</Route>
-                          <Route path="/print">
-                            {(<PrintPage />) as ReactNode}
-                          </Route>
-                        </Suspense>
-                      ) as ReactNode
-                    }
-                  </Router>
-                </PolygonEditProvider>
-              </SearchProvider>
-            </MapProvider>
-          </NavigationProvider>
+                        </Router>
+                      </PolygonEditProvider>
+                    </SearchProvider>
+                  </MapProvider>
+                </NavigationProvider>
+              ) as ReactNode
+            }
+          </QueryClientProvider>
         ) as ReactNode
       }
-    </QueryClientProvider>
+    </ThemeProvider>
   </div>
 );
 

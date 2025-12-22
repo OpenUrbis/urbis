@@ -1,5 +1,4 @@
 import { memo } from "preact/compat";
-import { ListItemSecondaryText } from "rmwc";
 import { useRenderedValue } from "../../../../hooks/useRenderedValue";
 import {
   ITemplateProps,
@@ -11,8 +10,8 @@ const SecondaryItemComponent: ITemplateRender = (props: ITemplateProps) => {
   const renderedValue = useRenderedValue(props);
 
   return (
-    <ListItemSecondaryText
-      style={{ maxWidth: "100%!important" }}
+    <span
+      className="block text-xs text-muted-foreground w-full"
       dangerouslySetInnerHTML={{ __html: renderedValue }}
     />
   );

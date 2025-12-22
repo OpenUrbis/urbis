@@ -1,10 +1,9 @@
-import { Button } from "rmwc";
+import { Button } from "@/components/ui/button";
 import { createFn } from "../../../../utils/createFn";
 import {
   ITemplateProps,
   ITemplatesDeclaration,
 } from "../../types/templates-type";
-import "./style.scss";
 
 export const ButtonTemplate: ITemplatesDeclaration = {
   name: "button",
@@ -21,7 +20,7 @@ export const ButtonTemplate: ITemplatesDeclaration = {
     const action = createFn(properties?.action, false);
 
     return action ? (
-      <Button className="button-template" onClick={() => action(data)} outlined>
+      <Button variant="outline" className="my-2 w-full" onClick={() => action(data)}>
         {label}
       </Button>
     ) : null;

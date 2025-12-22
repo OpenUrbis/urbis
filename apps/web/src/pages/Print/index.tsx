@@ -1,12 +1,9 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "preact/hooks";
 import { QRCodeSVG } from "qrcode.react";
-import { CircularProgress } from "rmwc";
 import { FeaturesView } from "../../components/FeaturesView";
 import { ITemplate } from "../../components/ViewTemplate/types/templates-type";
 import { getLayerSchema } from "../../integrations/layer-schema-integration";
-
-import "./style.scss";
 
 const PrintPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -66,27 +63,27 @@ const PrintPage = () => {
   }, [fetchData]);
 
   return loading ? (
-    <div className="h-100 w-100 d-flex align-items-center justify-content-center">
-      <CircularProgress label="progress" size="xlarge" />
+    <div className="h-screen w-screen flex items-center justify-center">
+      <span className="material-symbols-outlined text-4xl animate-spin">progress_activity</span>
     </div>
   ) : error ? (
-    <div className="h-100 w-100 d-flex align-items-center justify-content-center">
+    <div className="h-screen w-screen flex items-center justify-center text-destructive">
       <span id="ready"></span>
       {error}
     </div>
   ) : (
-    <div className="container-fluid print">
+    <div className="w-full p-4 print:p-0">
       <span id="ready"></span>
-      <header className="d-flex align-items-center justify-content-between">
-        <div className="logo d-flex align-items-center justify-content-center">
-          <img src="logo.svg" alt="Logo da cidade de São paulo" />
+      <header className="flex items-center justify-between pb-5 px-12">
+        <div className="flex items-center justify-center">
+          <img src="logo.svg" alt="Logo da cidade de São paulo" className="w-[100px]" />
         </div>
-        <div className="metadata d-flex align-items-center justify-content-center flex-column">
-          <span>Prefeitura de São Paulo</span>
+        <div className="flex flex-col items-center justify-center text-center">
+          <span className="font-bold">Prefeitura de São Paulo</span>
           <span>DEMO - ADESAMPA</span>
           <span>Informações</span>
         </div>
-        <div className="qrcode d-flex align-items-center justify-content-center">
+        <div className="flex items-center justify-center w-[108px] p-2">
           <QRCodeSVG value={location.href} size={100} />
         </div>
       </header>

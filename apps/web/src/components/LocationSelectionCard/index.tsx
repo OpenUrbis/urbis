@@ -1,13 +1,23 @@
 import { computed } from "@preact/signals-react";
-import { ReactNode, useState } from "react";
-import { Button, Card, TextField } from "rmwc";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from "@/components/ui/item";
 import { useMapContext } from "../../hooks/useMapContext";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { transformFileToJson } from "../../utils/transformFileToJson";
 import { calculateCentroid } from "../MapView/utils";
 import { PolygonDetails } from "../PolygonDetails";
-import "./styles.scss";
+import { BaseMapSelector } from "../BaseMapSelector";
 
 export const LocationSelectionCard = () => {
   const { flyTo, layerSchemas } = useMapContext();
@@ -112,82 +122,115 @@ export const LocationSelectionCard = () => {
   };
 
   return (
-    <div className="card-list">
-      <Card
-        className="card-details lote-information"
-        style={{ padding: "16px" }}
-      >
-        {
-          (
-            <>
-              {step === 1 && (
-                <>
-                  <h5>Selecione uma Opção:</h5>
-                  <div className="d-gap">
-                    <Button
-                      outlined
-                      onClick={() => handleOptionSelect("coordenadas")}
-                    >
-                      Navegar por Latitude e Longitude
-                    </Button>
-                    <Button
-                      outlined
-                      onClick={() => handleOptionSelect("geoJson")}
-                    >
-                      Enviar arquivo GeoReferenciado
-                    </Button>
-                  </div>
-                </>
-              )}
+    <div className="grid gap-2">
+      {step === 1 ? (
+        <div className="flex flex-col gap-2">
+          <Item
+            variant="outline"
+            className="cursor-pointer bg-card shadow-sm"
+            onClick={() => handleOptionSelect("coordenadas")}
+          >
+            <ItemContent>
+              <ItemTitle>Navegar por Coordenadas</ItemTitle>
+              <ItemDescription>
+                Inserir latitude e longitude manualmente.
+              </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <span className="material-symbols-outlined text-muted-foreground">
+                chevron_right
+              </span>
+            </ItemActions>
+          </Item>
 
-              {step === 2 && selectedOption === "coordenadas" && (
-                <>
-                  <TextField
-                    label="Latitude"
+          <Item
+            variant="outline"
+            className="cursor-pointer bg-card shadow-sm"
+            onClick={() => handleOptionSelect("geoJson")}
+          >
+            <ItemContent>
+              <ItemTitle>Buscar com perímetro georeferenciado</ItemTitle>
+              <ItemDescription>
+                Carregar arquivo GeoJSON para localização.
+              </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <span className="material-symbols-outlined text-muted-foreground">
+                chevron_right
+              </span>
+            </ItemActions>
+          </Item>
+        </div>
+      ) : (
+        <Card className="rounded-xl border shadow-sm">
+          <CardHeader className="p-3 pb-0">
+            <CardTitle className="text-lg font-medium">
+              {selectedOption === "coordenadas"
+                ? "Navegar por Coordenadas"
+                : "Buscar com perímetro"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 space-y-4">
+            {selectedOption === "coordenadas" && (
+              <div className="space-y-4">
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                  <Label htmlFor="latitude">Latitude</Label>
+                  <Input
                     type="number"
+                    id="latitude"
                     value={latitude}
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    onChange={(e: any) => setLatitude(e.target.value)}
-                    fullwidth
+                    placeholder="-23.5505"
+                    onChange={(e) => setLatitude(e.currentTarget.value)}
                   />
-                  <TextField
-                    label="Longitude"
+                </div>
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                  <Label htmlFor="longitude">Longitude</Label>
+                  <Input
                     type="number"
+                    id="longitude"
                     value={longitude}
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    onChange={(e: any) => setLongitude(e.target.value)}
-                    fullwidth
+                    placeholder="-46.6333"
+                    onChange={(e) => setLongitude(e.currentTarget.value)}
                   />
-                </>
-              )}
-              {step === 2 && selectedOption === "geoJson" && (
-                <input
+                </div>
+              </div>
+            )}
+            {selectedOption === "geoJson" && (
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="geojson">Selecione o arquivo</Label>
+                <Input
                   type="file"
-                  style={{ maxWidth: "260px" }}
+                  id="geojson"
+                  className="max-w-[260px]"
                   accept=".geojson"
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  onChange={(e: any) =>
+                  onChange={(e) =>
                     setGeoJsonFile(
-                      e?.target?.files ? e?.target?.files?.[0] : null
+                      e.currentTarget.files ? e.currentTarget.files[0] : null
                     )
                   }
                 />
-              )}
+              </div>
+            )}
 
-              {error && (
-                <div style={{ color: "red", marginTop: "8px" }}>{error}</div>
-              )}
+            {error && <div className="text-red-500 mt-2 text-sm">{error}</div>}
 
-              {step === 2 && <Button onClick={() => setStep(1)}>Voltar</Button>}
-              {step === 2 && (
-                <Button onClick={handleSubmit} raised>
-                  Enviar
-                </Button>
-              )}
-            </>
-          ) as ReactNode
-        }
-      </Card>
+            <div className="flex gap-2 pt-2 justify-end">
+              <Button
+                variant="ghost"
+                onClick={() => setStep(1)}
+                className="rounded-full"
+              >
+                Voltar
+              </Button>
+              <Button onClick={handleSubmit} className="rounded-full">
+                Buscar
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {step === 1 && <BaseMapSelector />}
     </div>
   );
 };

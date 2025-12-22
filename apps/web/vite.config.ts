@@ -22,6 +22,7 @@ export default defineConfig({
       react: "preact/compat",
       "react-dom": "preact/compat",
       fs: path.resolve(__dirname, "./src/stubs/fs.js"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   css: {

@@ -112,7 +112,12 @@ export const useLayerPersistence = () => {
             searchConfig: searchContext?.searchConfig.value || []
         },
         mapContext: {
-            selectedFeatures: mapContext.selectedFeatures.value
+            selectedFeatures: mapContext.selectedFeatures.value,
+            layerSchemas: mapContext.layerSchemas.value,
+            layerGroups: mapContext.layerGroups.value,
+            zoom: mapContext.zoom.value,
+            is3DActive: mapContext.is3DActive.value,
+            selectedBaseMap: mapContext.selectedBaseMap.value,
         },
         lastUpdate: Date.now()
     };

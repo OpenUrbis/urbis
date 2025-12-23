@@ -9,7 +9,6 @@ import { LayerGroup } from "./LayerGroup";
 import { LayerSortableList } from "./LayerSortableList";
 import { AddLayerModal } from "./modals/AddLayerModal";
 import { ShareModal } from "./modals/ShareModal";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLayerPersistence } from "../../hooks/useLayerPersistence";
 
 const isCollapsed = signal<boolean>(false);
@@ -71,7 +70,7 @@ export const LayerController = () => {
                 )}
                 onClick={() => setActiveTab('visible')}
              >
-                Camadas Visíveis
+                Camadas Selecionadas
              </button>
           </div>
           
@@ -89,7 +88,7 @@ export const LayerController = () => {
              </div>
           )}
 
-          <ScrollArea className="flex-1">
+          <div className="flex-1 overflow-y-auto">
             {activeTab === 'sources' ? (
                <div className="flex flex-col">
                  {layerGroups.value.map((group, i) => (
@@ -103,7 +102,7 @@ export const LayerController = () => {
             ) : (
                <LayerSortableList />
             )}
-          </ScrollArea>
+          </div>
 
           <div className="p-3 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 grid grid-cols-2 gap-2 shrink-0">
               <Button

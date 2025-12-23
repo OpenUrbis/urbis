@@ -9,17 +9,17 @@
     "./setup-counter": "./utils/counter.ts"
   },
   "license": "MIT",
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "rmwc": "^14.3.5"
   },
   "devDependencies": {
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
     "@open-urbis/map-eslint-config": "*",
     "@open-urbis/map-typescript-config": "*",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
     "eslint": "^9.24.0",
     "typescript": "5.5.4"
   }

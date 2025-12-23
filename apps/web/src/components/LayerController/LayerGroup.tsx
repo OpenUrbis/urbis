@@ -38,7 +38,7 @@ export const LayerGroup = ({
   level?: number;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { layerSchemas } = useMapContext();
+  const { layerSchemas, handleActiveLayer } = useMapContext();
 
   const layers = computed(() =>
     layerSchemas.value.filter((value) => value.groupId === group.id)
@@ -83,6 +83,7 @@ export const LayerGroup = ({
           key={item.id} 
           item={item} 
           indent={(level + 2) * 16} 
+          onToggle={handleActiveLayer}
        />
     ));
   });

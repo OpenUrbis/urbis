@@ -3,7 +3,6 @@ import "preact/debug";
 import "@open-urbis/map-ui";
 import { QueryClient, QueryClientProvider } from "@preact-signals/query";
 import "./globals.css";
-import "./integrations/sync-manager";
 import { render } from "preact";
 import { lazy, Suspense } from "preact/compat";
 import "preact/debug";

@@ -3,10 +3,10 @@ import createIndexedDBAdapter from '@signaldb/indexeddb';
 import { IGetConfigLayerSchema } from '../types/fetch-map-config-type';
 
 export const adapter = createIndexedDBAdapter('urbis-map-db-state', {
-  prefix: 'urbis-app-'
+  prefix: 'urbis-map-',
 });
 const historyAdapter = createIndexedDBAdapter('urbis-map-db-history', {
-  prefix: 'urbis-app-'
+  prefix: 'urbis-map-'
 });
 
 export interface AppStateDoc {

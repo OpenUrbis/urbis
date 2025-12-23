@@ -43,6 +43,21 @@ const getMapHandlers = (context: MapContextType) => {
     );
   };
 
+  const handleActiveLayer = (layerId: string) => {
+    layerSchemas.value = layerSchemas.value.map(
+      (layer): IGetConfigLayerSchema => {
+        if (layer.id === layerId) {
+          return {
+            ...layer,
+            isActive: !layer.isActive,
+            isVisible: !layer.isActive,
+          };
+        }
+        return layer;
+      }
+    );
+  };
+
   const selectFeature = (feature: MapContextSelectedFeature) => {
     selectedFeatures.value = [/* ...selectedFeatures.value,  */ feature];
   };
@@ -61,7 +76,12 @@ const getMapHandlers = (context: MapContextType) => {
       editFeatureTemplate: cEditFeatureTemplate,
       layerWithRootEditTemplate: cLayerWithRootEditTemplate,
     } = await getMapConfig();
-
+    console.log("Map config loaded", {
+      cLayerSchemas,
+      cLayerGroups,
+      cZoom,
+      cBoundingBox,
+    });
     layerSchemas.value = cLayerSchemas;
     layerGroups.value = cLayerGroups;
     zoom.value = cZoom;
@@ -87,13 +107,22 @@ const getMapHandlers = (context: MapContextType) => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleViewportChange = (viewport: any) => {
-    zoom.value = viewport.zoom;
-    boundingBox.value = viewport.getBounds();
+  const handleViewportChange = (v: any) => {
+    zoom.value = v.zoom;
+    boundingBox.value = v.getBounds();
+    viewport.value = {
+        ...viewport.value,
+        zoom: v.zoom,
+        bearing: v.bearing,
+        pitch: v.pitch,
+        latitude: v.latitude,
+        longitude: v.longitude
+    };
   };
 
   return {
     handleVisibleLayer,
+    handleActiveLayer,
     populateMapContext,
     selectFeature,
     handleViewportChange,

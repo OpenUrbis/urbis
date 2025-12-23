@@ -37,7 +37,7 @@ const Header = () => {
             <img
               fetchPriority="high"
               src="https://urbis.sampa.br/assets/images/logo.webp"
-              className="h-8 w-auto object-contain"
+              className="h-6 w-auto object-contain"
               alt="Urbis"
             />
             <span className="hidden font-bold sm:inline-block text-muted-foreground text-sm">

@@ -11,7 +11,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Águas Correntes Estimadas',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?LAYERS=slui%3Aaguas_correntes_estimadas&FORMAT=image%2Fjpeg&TRANSPARENT=true',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.CustomWMSLayer,
     isVisible: false,
     minZoom: null,
@@ -31,7 +31,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Águas Correntes ou Dormentes',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:aguas_correntes_ou_dormentes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -51,7 +51,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Áreas Contaminadas',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:areas_contaminadas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -125,7 +125,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Eixos',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:eixos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -568,7 +568,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Macroáreas',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:macroareas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -634,7 +634,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Macrozonas',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:macrozonas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -662,7 +662,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Minianel Viário',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:minianel_viario&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -697,7 +697,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Praças e Canteiros',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?LAYERS=slui%3Apracas_e_canteiros&FORMAT=image%2Fjpeg&TRANSPARENT=true',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.CustomWMSLayer,
     isVisible: false,
     minZoom: null,
@@ -732,7 +732,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Restrições Geotécnicas',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:restricoes_geotecnicas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -752,7 +752,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Risco Geológico',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:risco_geologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -772,7 +772,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Risco Hidrológico',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:risco_hidrologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -792,7 +792,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Setores e Subsetores',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:setores_e_subsetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -874,7 +874,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Subprefeituras',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:subprefeitura&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -894,7 +894,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Sujeição a Alagamentos',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:sujeicao_a_alagamentos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.CustomWMSLayer,
     isVisible: false,
     minZoom: null,
@@ -914,7 +914,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Terras Indígenas',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:terras_indigenas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -934,7 +934,7 @@ export const layerSchemas: LayerSchema[] = [
     name: "Terrenos Marginais aos Cursos D'Água Navegáveis",
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:terrenos_marginais_aos_cursos_dagua_navegaveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -954,7 +954,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Ambientais e Urbanísticos',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-areas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -974,7 +974,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Envoltorias de Imóveis',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-envoltorias-de-imoveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -994,7 +994,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Imóveis',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-imoveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1014,7 +1014,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'ZEIS - Lei nº 16.050/14',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:ZEIS_(PDE)&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1060,7 +1060,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Urbano Geral',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento_geral&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1088,7 +1088,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Zoneamento - Lei nº 16.402/16+18.177/24',
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
+    isActive: false,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: false,
     minZoom: 17,

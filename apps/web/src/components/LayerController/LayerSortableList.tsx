@@ -42,7 +42,7 @@ function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "flex items-center w-full border-b border-border/40 bg-background hover:bg-muted/50 transition-colors touch-none",
+        "flex items-center w-full border-b border-border/40 bg-background hover:bg-muted/50 transition-colors",
         isDragging && "opacity-50 z-50 bg-muted"
       )}
     >
@@ -63,10 +63,14 @@ function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
 export const LayerSortableList = () => {
   const { layerSchemas } = useMapContext();
   
-  const visibleLayers = layerSchemas.value.filter(l => l.isVisible);
+  const visibleLayers = layerSchemas.value.filter(l => l.isActive).reverse();
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -98,7 +102,7 @@ export const LayerSortableList = () => {
         <div className="pb-20">
           {visibleLayers.length === 0 && (
             <div className="text-center text-muted-foreground text-sm p-4">
-              Nenhuma camada visível no momento.
+              Nenhuma camada selecionada no momento.
             </div>
           )}
           {visibleLayers.map((item) => (

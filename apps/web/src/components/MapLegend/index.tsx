@@ -64,7 +64,7 @@ export const MapLegend = () => {
       {!isCollapsed.value ? (
         <Button
           onClick={() => (isCollapsed.value = true)}
-          className="fixed left-2 bottom-9 z-[8] shadow-md"
+          className="absolute left-2 bottom-9 z-[8] shadow-md"
         >
           <span className="material-symbols-outlined mr-2 text-base">closed_caption</span>
           Legendas
@@ -72,7 +72,7 @@ export const MapLegend = () => {
       ) : null}
 
       {isCollapsed.value ? (
-        <div className="fixed left-2 bottom-9 z-[1000] w-[324px] max-w-[calc(100%-12px)] max-h-[66vh] bg-background rounded-lg shadow-lg overflow-auto border">
+        <div className="absolute left-2 bottom-9 z-[1000] w-[324px] max-w-[calc(100%-12px)] max-h-[66vh] bg-background rounded-lg shadow-lg overflow-auto border">
           <div className="flex items-center justify-between p-2 pl-4 border-b bg-background sticky top-0">
             <h5 className="text-base font-semibold m-0">Legendas:</h5>
             <Button

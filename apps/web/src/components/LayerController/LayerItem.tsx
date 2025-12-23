@@ -13,13 +13,11 @@ import {
 export const LayerItem = ({ 
   item, 
   indent, 
-  className,
-  onToggle,
+  className 
 }: { 
   item: IGetConfigLayerSchema; 
   indent?: number; 
   className?: string; 
-  onToggle?: (id: string) => void;
 }) => {
   const { handleVisibleLayer, zoom } = useMapContext();
 
@@ -41,49 +39,41 @@ export const LayerItem = ({
   };
 
   const renderVisibilityIcon = computed(() => {
-    if (!item.isActive) return null;
-
-    const minZoom = item.minZoom;
-    const maxZoom = item?.properties?.maxZoom;
+    if (item.isVisible && (item.minZoom || item?.properties?.maxZoom)) {
+      const minZoom = item.minZoom;
+      const maxZoom = item?.properties?.maxZoom;
       
-    let isVisibleByZoom = true;
-    let tooltipText = "";
+      let isVisibleByZoom = true;
+      let tooltipText = "";
 
-    if (minZoom && zoom.value <= minZoom) {
-      isVisibleByZoom = false;
-      tooltipText = `Esta camada só é visível a partir do zoom nível ${minZoom}.`;
-    }
+      if (minZoom && zoom.value <= minZoom) {
+        isVisibleByZoom = false;
+        tooltipText = `Esta camada só é visível a partir do zoom nível ${minZoom}.`;
+      }
       
-    if (maxZoom && zoom.value >= maxZoom) {
-      isVisibleByZoom = false;
-      tooltipText = `Esta camada só é visível até o zoom nível ${maxZoom}.`;
-    }
+      if (maxZoom && zoom.value >= maxZoom) {
+        isVisibleByZoom = false;
+        tooltipText = `Esta camada só é visível até o zoom nível ${maxZoom}.`;
+      }
 
-    if (!isVisibleByZoom && item.isVisible) {
+      if (isVisibleByZoom) {
+         return <span className="material-symbols-outlined text-base text-muted-foreground">visibility</span>;
+      }
+
       return (
-        <div className="relative flex items-center justify-center">
-          <span className="material-symbols-outlined text-base text-muted-foreground/50">visibility</span>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-yellow-500/90 text-[10px] font-bold text-white shadow-sm cursor-help">
-                  !
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-[200px]">
-                <p className="text-xs">{tooltipText}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <span className="material-symbols-outlined text-base text-muted-foreground">visibility_off</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{tooltipText}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     }
-
-    return (
-      <span className="material-symbols-outlined text-base text-muted-foreground">
-        {item.isVisible ? "visibility" : "visibility_off"}
-      </span>
-    );
+    return null;
   });
 
   const renderActions = () => {
@@ -108,11 +98,10 @@ export const LayerItem = ({
       key={item.id}
       className={cn(
         "flex flex-nowrap items-center justify-between py-2 w-full cursor-pointer transition-colors hover:bg-muted/50 border-b border-border/40 group pr-4",
-        item.isVisible ? "bg-muted/30" : "",
         className
       )}
       style={{ paddingLeft: indent !== undefined ? `${indent}px` : '16px' }}
-      onClick={() => onToggle ? onToggle(item.id) : handleVisibleLayer(item.id)}
+      onClick={() => handleVisibleLayer(item.id)}
     >
       <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
          {renderColor()}

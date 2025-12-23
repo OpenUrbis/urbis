@@ -13,6 +13,7 @@ import { DeckGLOverlay } from "./DeckGLOverlay";
 import { addMapControls } from "./map-controls";
 import { transformSchemaLayers } from "./map-layer-transform";
 import { useTheme } from "../ThemeProvider";
+import { MapCoordinates } from "./MapCoordinates";
 
 export const MapView = () => {
   const accessToken =
@@ -32,7 +33,8 @@ export const MapView = () => {
     selectedFeatures,
     is3DActive,
     overlayRef,
-    selectedBaseMap
+    selectedBaseMap,
+    cursorPosition
   } = mapContext;
   
   if (!overlayRef) {
@@ -123,6 +125,12 @@ export const MapView = () => {
             mapStyle={currentMapStyle}
             mapboxAccessToken={accessToken}
             initialViewState={viewport.value}
+            onMouseMove={(evt) => {
+              cursorPosition.value = {
+                latitude: evt.lngLat.lat,
+                longitude: evt.lngLat.lng,
+              };
+            }}
             onMoveEnd={() =>
               handleViewportChange(
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -145,6 +153,7 @@ export const MapView = () => {
             <span className="material-symbols-outlined text-4xl animate-spin">progress_activity</span>
           </div>
         )}
+        <MapCoordinates />
       </div>
       {isEditing.value ? saveButton() : <LayerController />}
     </>

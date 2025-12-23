@@ -23,6 +23,7 @@ const is3DActive = signal<boolean>(true);
 const selectedBaseMap = signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets">("standard");
 const editFeatureTemplate = signal<ITemplate[]>([]);
 const layerWithRootEditTemplate = signal<string>('');
+const cursorPosition = signal<{ latitude: number; longitude: number } | null>(null);
 
 export const MapContext = createContext<MapContextType | null>(null);
 
@@ -40,6 +41,7 @@ export const MapProvider = ({ children }: { children: ComponentChildren }) => {
         selectedBaseMap,
         editFeatureTemplate,
         layerWithRootEditTemplate,
+        cursorPosition,
         overlayRef: useRef(null),
       }}
     >

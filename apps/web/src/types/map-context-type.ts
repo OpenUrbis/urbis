@@ -28,6 +28,7 @@ export interface MapContextType {
   overlayRef: React.RefObject<MapboxOverlay | null>;
   editFeatureTemplate: Signal<ITemplate[]>;
   layerWithRootEditTemplate: Signal<string>;
+  cursorPosition: Signal<{ latitude: number; longitude: number } | null>;
 }
 
 export type MapContextLayerSchemaType =

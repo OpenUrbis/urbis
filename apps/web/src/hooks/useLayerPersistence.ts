@@ -86,7 +86,8 @@ export const useLayerPersistence = () => {
         if (state.mapContext.is3DActive !== undefined) mapContext.is3DActive.value = state.mapContext.is3DActive;
         if (state.mapContext.selectedBaseMap) mapContext.selectedBaseMap.value = state.mapContext.selectedBaseMap;
         if (state.mapContext.selectedFeatures) mapContext.selectedFeatures.value = state.mapContext.selectedFeatures;
-        
+        if (state.mapContext.viewport) mapContext.viewport.value = state.mapContext.viewport;
+
         if (state.searchContext) {
             if (state.searchContext.currentTerm) searchContext!.currentTerm.value = state.searchContext.currentTerm;
             if (state.searchContext.history) searchContext!.history.value = state.searchContext.history;
@@ -116,6 +117,7 @@ export const useLayerPersistence = () => {
             layerSchemas: mapContext.layerSchemas.value,
             layerGroups: mapContext.layerGroups.value,
             zoom: mapContext.zoom.value,
+            viewport: mapContext.viewport.value,
             is3DActive: mapContext.is3DActive.value,
             selectedBaseMap: mapContext.selectedBaseMap.value,
         },

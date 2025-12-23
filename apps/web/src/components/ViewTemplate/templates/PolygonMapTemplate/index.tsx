@@ -1,6 +1,6 @@
 import DeckGL, { PolygonLayer } from "deck.gl";
 import { memo } from "preact/compat";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Map } from "react-map-gl/mapbox";
 import { createFn } from "../../../../utils/createFn";
 import { IPolygonMapProperties } from "../../types/polygon-map-type";
@@ -34,7 +34,7 @@ const PolygonMapComponent: ITemplateRender = ({
     return null;
   }
 
-  const initialViewState = () => {
+  const initialViewState = useMemo(() => {
     const strFn = createFn(properties!.initialViewState!);
 
     try {
@@ -43,17 +43,18 @@ const PolygonMapComponent: ITemplateRender = ({
       console.error('Error on execute "initialViewState": ', err);
       return {};
     }
-  };
-  const polygonProps = () => {
+  }, [data, properties]);
+
+  const layers = useMemo(() => {
     const strFn = createFn(properties!.polygonProps!);
 
     try {
-      return new PolygonLayer(strFn(data));
+      return [new PolygonLayer(strFn(data))];
     } catch (err) {
       console.error('Error on execute "polygonProps": ', err);
-      return undefined;
+      return [];
     }
-  };
+  }, [data, properties]);
 
   return (
     <div
@@ -68,9 +69,9 @@ const PolygonMapComponent: ITemplateRender = ({
       {loadingMap ? <span id="mapReady"></span> : null}
       <DeckGL
         ref={mapRef}
-        initialViewState={initialViewState()}
+        initialViewState={initialViewState}
         controller={false}
-        layers={[polygonProps()]}
+        layers={layers}
         onLoad={() => setLoadingMap(false)}
       >
         {

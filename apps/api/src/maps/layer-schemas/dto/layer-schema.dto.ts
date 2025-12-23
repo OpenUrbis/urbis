@@ -60,7 +60,8 @@ class LayerSchemaColorDto {
   @ApiProperty({
     example: 'default',
     required: false,
-    description: 'Value used to compare with colorPropName and show color in layer',
+    description:
+      'Value used to compare with colorPropName and show color in layer',
   })
   @IsOptional()
   @IsString()

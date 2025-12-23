@@ -60,17 +60,17 @@ export const MapView = () => {
              ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
              : theme;
           return currentTheme === "dark" 
-              ? "mapbox://styles/mapbox/dark-v11"
-              : "mapbox://styles/mapbox/light-v11";
+              ? "mapbox://styles/mapbox/dark-v9"
+              : "mapbox://styles/mapbox/light-v9";
       }
       
       switch (style) {
-          case "light": return "mapbox://styles/mapbox/light-v11";
-          case "dark": return "mapbox://styles/mapbox/dark-v11";
-          case "outdoors": return "mapbox://styles/mapbox/outdoors-v12";
+          case "light": return "mapbox://styles/mapbox/light-v9";
+          case "dark": return "mapbox://styles/mapbox/dark-v9";
+          case "outdoors": return "mapbox://styles/mapbox/outdoors-v9";
           case "satellite": return "mapbox://styles/mapbox/satellite-v9";
-          case "satellite-streets": return "mapbox://styles/mapbox/satellite-streets-v12";
-          default: return "mapbox://styles/mapbox/light-v11";
+          case "satellite-streets": return "mapbox://styles/mapbox/satellite-streets-v9";
+          default: return "mapbox://styles/mapbox/light-v9";
       }
   }, [theme, selectedBaseMap.value]);
 

@@ -65,7 +65,8 @@ interface GeospatialFeatureCollection extends FeatureCollection {
  */
 @Injectable()
 export class GeospatialIntersectionService {
-  private readonly geoserverUrl = 'https://geoserver.slui.dev/geoserver/slui/ows';
+  private readonly geoserverUrl =
+    'https://geoserver.slui.dev/geoserver/slui/ows';
 
   private readonly fieldToLayerMap = {
     geom_zoneamento_2016: ['slui:zoneamento'],
@@ -74,7 +75,7 @@ export class GeospatialIntersectionService {
     geom_tombado: [
       'slui:tombamentos-areas',
       'slui:tombamentos-envoltorias-de-imoveis',
-      'slui:tombamentos-imoveis'
+      'slui:tombamentos-imoveis',
     ],
     geom_uc: ['slui:parques_unidades_de_conservacao_e_apa'],
     geom_apa: ['slui:parques_unidades_de_conservacao_e_apa'],
@@ -83,12 +84,18 @@ export class GeospatialIntersectionService {
     geom_area_manancial: ['slui:manancial_billings'],
     geom_area_manancial_guarapiranga: ['slui:manancial_guarapiranga'],
     geom_area_manancial_juquery: ['slui:manancial_juquery'],
-    geom_area_envoltoria_iphan: ['slui:tombamentos_envoltorias_de_imoveis_IPHAN'],
-    geom_area_envoltoria_conpresp: ['slui:tombamentos_envoltorias_de_imoveis_CONPRESP'],
-    geom_area_envoltoria_condephaat: ['slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT'],
+    geom_area_envoltoria_iphan: [
+      'slui:tombamentos_envoltorias_de_imoveis_IPHAN',
+    ],
+    geom_area_envoltoria_conpresp: [
+      'slui:tombamentos_envoltorias_de_imoveis_CONPRESP',
+    ],
+    geom_area_envoltoria_condephaat: [
+      'slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT',
+    ],
   };
 
-  constructor(private readonly httpService: HttpService) { }
+  constructor(private readonly httpService: HttpService) {}
 
   /**
    * Finds intersections between a GeoJSON polygon and multiple GeoServer layers
@@ -122,13 +129,20 @@ export class GeospatialIntersectionService {
       // Calculate bbox and transform it to the default layer CRS: EPSG:31983
       const bbox = turf.bbox(polygonGeometry); // [minX, minY, maxX, maxY]
       const projWGS84 = '+proj=longlat +datum=WGS84';
-      const projEPSG31983 = '+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+      const projEPSG31983 =
+        '+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
 
       // Infer source projection from requested output (common in our flows)
       const sourceProj = srsName === 'EPSG:31983' ? projEPSG31983 : projWGS84;
 
-      const minPointEPSG31983 = proj4(sourceProj, projEPSG31983, [bbox[0], bbox[1]]);
-      const maxPointEPSG31983 = proj4(sourceProj, projEPSG31983, [bbox[2], bbox[3]]);
+      const minPointEPSG31983 = proj4(sourceProj, projEPSG31983, [
+        bbox[0],
+        bbox[1],
+      ]);
+      const maxPointEPSG31983 = proj4(sourceProj, projEPSG31983, [
+        bbox[2],
+        bbox[3],
+      ]);
 
       // Expand by 100 meters in EPSG:31983 space
       const margin = 100;
@@ -139,7 +153,9 @@ export class GeospatialIntersectionService {
         maxPointEPSG31983[1] + margin,
       ];
 
-      const formattedBoundsEPSG31983 = formatBoundsForURL(expandedBboxEPSG31983);
+      const formattedBoundsEPSG31983 = formatBoundsForURL(
+        expandedBboxEPSG31983,
+      );
       // BBOX must declare its own CRS independently from srsName
       const bboxParam = `${formattedBoundsEPSG31983},urn:ogc:def:crs:EPSG:31983`;
 
@@ -184,7 +200,7 @@ export class GeospatialIntersectionService {
         Polygon | MultiPolygon,
         GeospatialFeatureProperties
       >[] = [];
-      
+
       for (const layer of layers) {
         const url = `https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&bbox=${bboxParam}&typeName=${layer}&maxFeatures=10000&outputFormat=json&srsName=${srsName}`;
         const response = await firstValueFrom(this.httpService.get(url));
@@ -226,12 +242,14 @@ export class GeospatialIntersectionService {
       // Enrich "lote_cidadao" features with CIT data (per-lot)
       try {
         const lotFeatures = features.filter(
-          f => f.properties?.layer === 'slui:lote_cidadao',
+          (f) => f.properties?.layer === 'slui:lote_cidadao',
         );
 
         // Build a unique set of 10-digit SQLC (setor+quadra+lote)
         const sqlc10Set = new Set<string>();
-        const getSqlc10FromProperties = (props: Record<string, any>): string | null => {
+        const getSqlc10FromProperties = (
+          props: Record<string, any>,
+        ): string | null => {
           // Preferred fields
           const setor = props?.cd_setor_fiscal?.toString()?.padStart(3, '0');
           const quadra = props?.cd_quadra_fiscal?.toString()?.padStart(3, '0');
@@ -240,7 +258,8 @@ export class GeospatialIntersectionService {
             return `${setor}${quadra}${lote}`;
           }
           // Fallback: parse combined field (e.g., "038 114 0062 00")
-          const combined: string | undefined = props?.setor_quadra_lote_condominio;
+          const combined: string | undefined =
+            props?.setor_quadra_lote_condominio;
           if (combined) {
             const onlyDigits = String(combined).replace(/\D/g, '');
             if (onlyDigits.length >= 10) {
@@ -248,7 +267,8 @@ export class GeospatialIntersectionService {
             }
           }
           // Fallback: any other sqlc-like field
-          const rawSqlc: string | undefined = props?.cd_sql || props?.sqlc || props?.sqc;
+          const rawSqlc: string | undefined =
+            props?.cd_sql || props?.sqlc || props?.sqc;
           if (rawSqlc) {
             const onlyDigits = String(rawSqlc).replace(/\D/g, '');
             if (onlyDigits.length >= 10) {
@@ -268,7 +288,7 @@ export class GeospatialIntersectionService {
           const citMap = new Map<string, CitData | null>();
 
           await Promise.all(
-            sqlc10List.map(async sqlc10 => {
+            sqlc10List.map(async (sqlc10) => {
               try {
                 const data = await this.getCitData(sqlc10);
                 citMap.set(sqlc10, data);
@@ -319,7 +339,10 @@ export class GeospatialIntersectionService {
       // Get lot geometry from WFS
       const wfsResponse = await this.getLotGeometry(sqlc);
 
-      if (!wfsResponse.data.features || wfsResponse.data.features.length === 0) {
+      if (
+        !wfsResponse.data.features ||
+        wfsResponse.data.features.length === 0
+      ) {
         throw new Error('No lot found for the provided SQLC number');
       }
 
@@ -337,15 +360,21 @@ export class GeospatialIntersectionService {
         requiredLayers = Object.values(this.fieldToLayerMap).flat();
       } else {
         // Get unique layers for requested fields
-        requiredLayers = [...new Set(
-          fields
-            .filter(field => field in this.fieldToLayerMap)
-            .flatMap(field => this.fieldToLayerMap[field])
-        )];
+        requiredLayers = [
+          ...new Set(
+            fields
+              .filter((field) => field in this.fieldToLayerMap)
+              .flatMap((field) => this.fieldToLayerMap[field]),
+          ),
+        ];
       }
 
       // Get intersections with specific layers using EPSG:31983
-      const intersections = await this.findIntersections(lotFeature, requiredLayers, 'EPSG:31983');
+      const intersections = await this.findIntersections(
+        lotFeature,
+        requiredLayers,
+        'EPSG:31983',
+      );
 
       // Structure the response
       const allFields = {
@@ -354,47 +383,75 @@ export class GeospatialIntersectionService {
         perimetro: lotFeature,
         geom_lote: lotFeature.geometry,
         geom_zoneamento_2016: intersections.features
-          .filter(f => f.properties.layer === 'slui:zoneamento')
-          .map(f => f),
+          .filter((f) => f.properties.layer === 'slui:zoneamento')
+          .map((f) => f),
         geom_subprefeitura: intersections.features
-          .filter(f => f.properties.layer === 'slui:subprefeitura')
-          .map(f => f),
+          .filter((f) => f.properties.layer === 'slui:subprefeitura')
+          .map((f) => f),
         geom_distrito: intersections.features
-          .filter(f => f.properties.layer === 'slui:distrito_municipal')
-          .map(f => f),
+          .filter((f) => f.properties.layer === 'slui:distrito_municipal')
+          .map((f) => f),
         geom_tombado: intersections.features
-          .filter(f => ['slui:tombamentos-areas', 'slui:tombamentos-envoltorias-de-imoveis', 'slui:tombamentos-imoveis'].includes(f.properties.layer))
-          .map(f => f),
+          .filter((f) =>
+            [
+              'slui:tombamentos-areas',
+              'slui:tombamentos-envoltorias-de-imoveis',
+              'slui:tombamentos-imoveis',
+            ].includes(f.properties.layer),
+          )
+          .map((f) => f),
         geom_uc: intersections.features
-          .filter(f => f.properties.layer === 'slui:parques_unidades_de_conservacao_e_apa' && f.properties.tipo === 'UC')
-          .map(f => f),
+          .filter(
+            (f) =>
+              f.properties.layer ===
+                'slui:parques_unidades_de_conservacao_e_apa' &&
+              f.properties.tipo === 'UC',
+          )
+          .map((f) => f),
         geom_apa: intersections.features
-          .filter(f => f.properties.layer === 'slui:parques_unidades_de_conservacao_e_apa' && f.properties.tipo === 'APA')
-          .map(f => f),
+          .filter(
+            (f) =>
+              f.properties.layer ===
+                'slui:parques_unidades_de_conservacao_e_apa' &&
+              f.properties.tipo === 'APA',
+          )
+          .map((f) => f),
         geom_area_contaminada: intersections.features
-          .filter(f => f.properties.layer === 'slui:areas_contaminadas')
-          .map(f => f),
+          .filter((f) => f.properties.layer === 'slui:areas_contaminadas')
+          .map((f) => f),
         geom_melhoramento_viario: intersections.features
-          .filter(f => f.properties.layer === 'slui:minianel_viario')
-          .map(f => f),
+          .filter((f) => f.properties.layer === 'slui:minianel_viario')
+          .map((f) => f),
         geom_area_manancial: intersections.features
-          .filter(f => f.properties.layer === 'slui:manancial_billings')
-          .map(f => f),
+          .filter((f) => f.properties.layer === 'slui:manancial_billings')
+          .map((f) => f),
         geom_area_manancial_guarapiranga: intersections.features
-          .filter(f => f.properties.layer === 'slui:manancial_guarapiranga')
-          .map(f => f),
+          .filter((f) => f.properties.layer === 'slui:manancial_guarapiranga')
+          .map((f) => f),
         geom_area_manancial_juquery: intersections.features
-          .filter(f => f.properties.layer === 'slui:manancial_juquery')
-          .map(f => f),
+          .filter((f) => f.properties.layer === 'slui:manancial_juquery')
+          .map((f) => f),
         geom_area_envoltoria_iphan: intersections.features
-          .filter(f => f.properties.layer === 'slui:tombamentos_envoltorias_de_imoveis_IPHAN')
-          .map(f => f),
+          .filter(
+            (f) =>
+              f.properties.layer ===
+              'slui:tombamentos_envoltorias_de_imoveis_IPHAN',
+          )
+          .map((f) => f),
         geom_area_envoltoria_conpresp: intersections.features
-          .filter(f => f.properties.layer === 'slui:tombamentos_envoltorias_de_imoveis_CONPRESP')
-          .map(f => f),
+          .filter(
+            (f) =>
+              f.properties.layer ===
+              'slui:tombamentos_envoltorias_de_imoveis_CONPRESP',
+          )
+          .map((f) => f),
         geom_area_envoltoria_condephaat: intersections.features
-          .filter(f => f.properties.layer === 'slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT')
-          .map(f => f),
+          .filter(
+            (f) =>
+              f.properties.layer ===
+              'slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT',
+          )
+          .map((f) => f),
       };
 
       // If no fields are specified, return all fields
@@ -404,7 +461,7 @@ export class GeospatialIntersectionService {
 
       // Filter the response based on requested fields
       const response = {};
-      fields.forEach(field => {
+      fields.forEach((field) => {
         if (field in allFields) {
           response[field] = allFields[field];
         }
@@ -415,9 +472,7 @@ export class GeospatialIntersectionService {
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error(
-        'Error processing SQLC query',
-      );
+      throw new Error('Error processing SQLC query');
     }
   }
 
@@ -432,7 +487,7 @@ export class GeospatialIntersectionService {
 
       // Make WFS request to get CIT data
       const citUrl = `https://geoserver.slui.dev/geoserver/wfs?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:cit&featureID=${featureId}&outputFormat=application/json`;
-      
+
       const response = await firstValueFrom(this.httpService.get(citUrl));
 
       if (response.data?.features && response.data.features.length > 0) {
@@ -456,22 +511,24 @@ export class GeospatialIntersectionService {
     }
 
     // Make WFS request to get the lot feature
-    const wfsResponse = await this.httpService.get(this.geoserverUrl, {
-      params: {
-        service: 'WFS',
-        version: '1.0.0',
-        request: 'GetFeature',
-        typeName: 'slui:view_lote_cidadao',
-        maxFeatures: 5,
-        outputFormat: 'json',
-        srsName: 'EPSG:31983',
-        CQL_FILTER: `setor_quadra_lote_condominio = '${formattedSqlc}'`,
-      },
-      headers: {
-        'accept': 'application/json',
-        'origin': 'https://mapa.urbis.sampa.br',
-      },
-    }).toPromise();
+    const wfsResponse = await this.httpService
+      .get(this.geoserverUrl, {
+        params: {
+          service: 'WFS',
+          version: '1.0.0',
+          request: 'GetFeature',
+          typeName: 'slui:view_lote_cidadao',
+          maxFeatures: 5,
+          outputFormat: 'json',
+          srsName: 'EPSG:31983',
+          CQL_FILTER: `setor_quadra_lote_condominio = '${formattedSqlc}'`,
+        },
+        headers: {
+          accept: 'application/json',
+          origin: 'https://mapa.urbis.sampa.br',
+        },
+      })
+      .toPromise();
 
     return wfsResponse;
   }

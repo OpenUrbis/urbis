@@ -21,5 +21,26 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "resolutions": {
+    "@luma.gl/core": "9.2.5",
+    "@luma.gl/engine": "9.2.5",
+    "@luma.gl/webgl": "9.2.5",
+    "@luma.gl/shadertools": "9.2.5",
+    "@luma.gl/constants": "9.2.5",
+    "deck.gl": "9.2.5",
+    "@deck.gl/core": "9.2.5",
+    "@deck.gl/layers": "9.2.5",
+    "@deck.gl/geo-layers": "9.2.5",
+    "@deck.gl/mapbox": "9.2.5",
+    "@deck.gl/json": "9.2.5",
+    "@deck.gl/react": "9.2.5",
+    "@deck.gl/aggregation-layers": "9.2.5",
+    "@deck.gl/extensions": "9.2.5",
+    "@deck.gl/mesh-layers": "9.2.5",
+    "@deck.gl/widgets": "9.2.5",
+    "@deck.gl/google-maps": "9.2.5",
+    "@deck.gl/carto": "9.2.5",
+    "@deck.gl/arcgis": "9.2.5"
+  }
 }

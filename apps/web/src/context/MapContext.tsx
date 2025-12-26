@@ -24,6 +24,8 @@ const selectedBaseMap = signal<"standard" | "light" | "dark" | "outdoors" | "sat
 const editFeatureTemplate = signal<ITemplate[]>([]);
 const layerWithRootEditTemplate = signal<string>('');
 const cursorPosition = signal<{ latitude: number; longitude: number } | null>(null);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const digitalAddressFeature = signal<any | null>(null);
 
 export const MapContext = createContext<MapContextType | null>(null);
 
@@ -42,6 +44,7 @@ export const MapProvider = ({ children }: { children: ComponentChildren }) => {
         editFeatureTemplate,
         layerWithRootEditTemplate,
         cursorPosition,
+        digitalAddressFeature,
         overlayRef: useRef(null),
       }}
     >

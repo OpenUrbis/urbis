@@ -28,3 +28,25 @@ export const getIntersections = async (
 export const createGetTextLayerUri = (origin: string) => {
   return `${environment}/config/text-layer?origin=${origin}`;
 };
+
+export const exportGeoJson = async (
+  bounds: number[],
+  layers: string[],
+  zoom?: number,
+  format?: 'geojson' | 'dwg'
+): Promise<Blob> => {
+  const { data } = await axios.post(
+    `${environment}/export/geojson`,
+    {
+      bounds,
+      layers,
+      zoom,
+      format,
+    },
+    {
+      responseType: "blob",
+    }
+  );
+
+  return data;
+};

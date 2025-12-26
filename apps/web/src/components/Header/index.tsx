@@ -16,7 +16,16 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useAuth } from "react-oidc-context";
 
 import { Debugger } from "../Debugger";
 import { MenuToggleButton } from "../MenuToogleButton";
@@ -25,6 +34,8 @@ import { ModeToggle } from "../ModeToggle";
 const isMenuOpenSignal = signal(false);
 
 const Header = () => {
+  const auth = useAuth();
+
   return (
     <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center px-4 w-full">
@@ -73,6 +84,35 @@ const Header = () => {
              <div className="hidden lg:block">
                <Debugger />
              </div>
+
+             {/* User Menu */}
+             {auth.isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full border">
+                       <span className="material-symbols-outlined text-xl">account_circle</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{auth.user?.profile.name || "Usuário"}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {auth.user?.profile.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => auth.removeUser()}>
+                      Sair
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+             ) : (
+                <Button variant="outline" size="sm" onClick={() => auth.signinRedirect()}>
+                  Entrar
+                </Button>
+             )}
              
              {/* Mobile Menu Drawer */}
              <div className="md:hidden">

@@ -25,7 +25,7 @@ export const Debugger = () => {
   return (
     <Dialog open={isOpen.value} onOpenChange={(open) => (isOpen.value = open)}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="outline" size="icon">
           <Bug className="h-5 w-5" />
           <span className="sr-only">Open Debugger</span>
         </Button>

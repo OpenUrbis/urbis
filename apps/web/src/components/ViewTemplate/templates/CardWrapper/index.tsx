@@ -22,7 +22,7 @@ export const CardWrapper: ITemplatesDeclaration = {
     };
 
     return (
-      <Card className="rounded-xl mx-2">
+      <Card className="rounded-xl">
         <CardContent className="p-4">
               {renderLabel()}
               {templates.map((template, i) => (

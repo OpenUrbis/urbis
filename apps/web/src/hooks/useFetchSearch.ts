@@ -24,8 +24,10 @@ export const useFetchSearch = (
       const mapIndex: string[] = [];
 
       searchConfig.value.forEach((config) => {
-        mapIndex.push(config.id);
-        promises.push(fetchSearchItem(config, term));
+        if (config.isActive !== false) {
+          mapIndex.push(config.id);
+          promises.push(fetchSearchItem(config, term));
+        }
       });
 
       const results = await Promise.all(promises);

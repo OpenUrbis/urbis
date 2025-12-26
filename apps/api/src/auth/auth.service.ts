@@ -30,6 +30,7 @@ export class AuthService {
     const user = await this.userService.findOne({
       email: loginDto.email,
     });
+    console.log(user);
     if (!user || !(await user.validatePassword(loginDto.password))) {
       throw new BadRequestException({
         message: 'Email is not found or password is wrong',

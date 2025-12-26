@@ -152,7 +152,7 @@ const prepareLayerProperties = (
 };
 
 const checkZoom = (zoom: number, min?: number, max?: number) => {
-  return (min && zoom <= min) || (max && zoom >= max);
+  return (min && zoom < min) || (max && zoom >= max);
 };
 
 const createTextLayer = (

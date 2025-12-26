@@ -2,6 +2,14 @@ import { useEffect } from "preact/compat";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
@@ -36,6 +44,17 @@ export const Search = () => {
       fetchData(currentTerm.value);
     }
   }, [searchConfig.value]);
+
+  const toggleConfig = (id: string, currentStatus: boolean | undefined) => {
+    const newStatus = currentStatus === false ? true : false;
+    searchConfig.value = searchConfig.value.map((c) =>
+      c.id === id ? { ...c, isActive: newStatus } : c
+    );
+
+    if (currentTerm.value) {
+      fetchData(currentTerm.value);
+    }
+  };
 
   const handleClickItem = (
     config: IGetSearchConfigResponse,
@@ -150,6 +169,58 @@ export const Search = () => {
                   </Button>
                 )}
               </div>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    type="button"
+                    className="shrink-0 rounded-full"
+                  >
+                    <span className="material-symbols-outlined text-base">
+                      settings
+                    </span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Configuração de Pesquisa</DialogTitle>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2 font-medium text-muted-foreground">
+                            Opção de pesquisa
+                          </th>
+                          <th className="text-center py-2 font-medium text-muted-foreground">
+                            Habilitada
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {searchConfig.value.map((config) => (
+                          <tr
+                            key={config.id}
+                            className="border-b last:border-0 hover:bg-muted/50 transition-colors"
+                          >
+                            <td className="py-2 font-medium">{config.name}</td>
+                            <td className="py-2 text-center">
+                              <Switch
+                                checked={config.isActive !== false}
+                                onCheckedChange={() =>
+                                  toggleConfig(config.id, config.isActive)
+                                }
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </DialogContent>
+              </Dialog>
               
               <Button
                 variant="outline"
@@ -177,9 +248,9 @@ export const Search = () => {
 
             {data && (
               <div className="max-h-[60vh] overflow-y-auto">
-                {searchConfig.value.map((config) =>
-                  buildList(config, data?.[config.id] ?? [])
-                )}
+                {searchConfig.value
+                  .filter((config) => config.isActive !== false)
+                  .map((config) => buildList(config, data?.[config.id] ?? []))}
               </div>
             )}
       </CardContent>

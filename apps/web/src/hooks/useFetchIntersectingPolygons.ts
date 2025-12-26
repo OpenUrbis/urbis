@@ -2,6 +2,7 @@ import { useState } from "react";
 import { getIntersections } from "../integrations/map-integration";
 import { Polygon, ResponseData } from "../types/fetch-map-intersections-type";
 import { useNavigationContext } from "./useNavigationContext";
+import { useMediaQuery } from "./useMediaQuery";
 
 export const useFetchIntersectingPolygons = () => {
   const [data, setData] = useState<ResponseData | null>(null);
@@ -9,6 +10,7 @@ export const useFetchIntersectingPolygons = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const {toggleDrawer} = useNavigationContext();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const reset = () => {
     setLoading(false);
@@ -22,7 +24,7 @@ export const useFetchIntersectingPolygons = () => {
     try {
       const response = await getIntersections(polygon);
       setData(response);
-      toggleDrawer();
+      if (!isDesktop) toggleDrawer();
     } catch (err) {
       console.error(err);
       setError("Error fetching intersecting polygons");

@@ -1,8 +1,11 @@
 import { computed } from "@preact/signals";
+import { useState } from "react";
 import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { LayerItemAction } from "./LayerItemAction";
+import { LayerMetadataModal } from "./modals/LayerMetadataModal";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -13,13 +16,16 @@ import {
 export const LayerItem = ({ 
   item, 
   indent, 
-  className 
+  className,
+  onClick
 }: { 
   item: IGetConfigLayerSchema; 
   indent?: number; 
-  className?: string; 
+  className?: string;
+  onClick?: (id: string) => void;
 }) => {
-  const { handleVisibleLayer, zoom } = useMapContext();
+  const { zoom } = useMapContext();
+  const [showMetadata, setShowMetadata] = useState(false);
 
   const renderColor = () => {
     const { colors } = item;
@@ -39,32 +45,39 @@ export const LayerItem = ({
   };
 
   const renderVisibilityIcon = computed(() => {
-    if (item.isVisible && (item.minZoom || item?.properties?.maxZoom)) {
-      const minZoom = item.minZoom;
-      const maxZoom = item?.properties?.maxZoom;
-      
-      let isVisibleByZoom = true;
-      let tooltipText = "";
+    const minZoom = item.minZoom;
+    const maxZoom = item?.properties?.maxZoom;
 
+    let isVisibleByZoom = true;
+    let tooltipText = "";
+
+    // Check visibility constraints based on zoom
+    if (item.isVisible) {
       if (minZoom && zoom.value <= minZoom) {
         isVisibleByZoom = false;
         tooltipText = `Esta camada só é visível a partir do zoom nível ${minZoom}.`;
-      }
-      
-      if (maxZoom && zoom.value >= maxZoom) {
+      } else if (maxZoom && zoom.value >= maxZoom) {
         isVisibleByZoom = false;
         tooltipText = `Esta camada só é visível até o zoom nível ${maxZoom}.`;
       }
+    }
 
-      if (isVisibleByZoom) {
-         return <span className="material-symbols-outlined text-base text-muted-foreground">visibility</span>;
-      }
+    if (!item.isVisible) {
+      return (
+        <span className="material-symbols-outlined text-base text-muted-foreground">
+          visibility_off
+        </span>
+      );
+    }
 
+    if (!isVisibleByZoom) {
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <span className="material-symbols-outlined text-base text-muted-foreground">visibility_off</span>
+              <span className="material-symbols-outlined text-base text-muted-foreground opacity-50">
+                visibility_off
+              </span>
             </TooltipTrigger>
             <TooltipContent>
               <p>{tooltipText}</p>
@@ -73,7 +86,12 @@ export const LayerItem = ({
         </TooltipProvider>
       );
     }
-    return null;
+
+    return (
+      <span className="material-symbols-outlined text-base text-muted-foreground">
+        visibility
+      </span>
+    );
   });
 
   const renderActions = () => {
@@ -101,7 +119,7 @@ export const LayerItem = ({
         className
       )}
       style={{ paddingLeft: indent !== undefined ? `${indent}px` : '16px' }}
-      onClick={() => handleVisibleLayer(item.id)}
+      onClick={() => onClick && onClick(item.id)}
     >
       <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
          {renderColor()}
@@ -109,9 +127,37 @@ export const LayerItem = ({
       </div>
       
       <div className="flex items-center shrink-0 ml-2 gap-2">
-         {renderActions()}
-         {renderVisibilityIcon.value}
+        {renderActions()}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 rounded-full hover:bg-muted"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMetadata(true);
+                }}
+              >
+                <span className="material-symbols-outlined text-base text-muted-foreground">
+                  info
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Informações da Camada</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        {renderVisibilityIcon.value}
       </div>
+
+      <LayerMetadataModal
+        open={showMetadata}
+        onOpenChange={setShowMetadata}
+        layer={item}
+      />
     </div>
   );
 };

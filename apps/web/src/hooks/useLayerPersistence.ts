@@ -91,6 +91,7 @@ export const useLayerPersistence = () => {
         if (state.searchContext) {
             if (state.searchContext.currentTerm) searchContext!.currentTerm.value = state.searchContext.currentTerm;
             if (state.searchContext.history) searchContext!.history.value = state.searchContext.history;
+            if (state.searchContext.searchConfig) searchContext!.searchConfig.value = state.searchContext.searchConfig;
         }
     };
 

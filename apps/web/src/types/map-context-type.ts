@@ -29,6 +29,8 @@ export interface MapContextType {
   editFeatureTemplate: Signal<ITemplate[]>;
   layerWithRootEditTemplate: Signal<string>;
   cursorPosition: Signal<{ latitude: number; longitude: number } | null>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  digitalAddressFeature: Signal<any | null>;
 }
 
 export type MapContextLayerSchemaType =

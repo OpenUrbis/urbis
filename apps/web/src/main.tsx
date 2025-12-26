@@ -14,6 +14,7 @@ import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { PolygonEditProvider } from "./context/PolygonEditContext";
 import { SearchProvider } from "./context/SearchContext";
+import { AuthProvider } from "./components/AuthProvider";
 
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
@@ -29,46 +30,48 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <div id="app">
-    <ThemeProvider defaultTheme="dark" storageKey="urbis-ui-theme">
-      {
-        (
-          <QueryClientProvider client={queryClient}>
-            {
-              (
-                <NavigationProvider>
-                  <MapProvider>
-                    <SearchProvider>
-                      <PolygonEditProvider>
-                        <Router>
-                          {
-                            (
-                              <Suspense
-                                fallback={
-                                  <div className="h-screen w-screen flex items-center justify-center">
-                                    <Loader2 className="h-10 w-10 animate-spin" />
-                                  </div>
-                                }
-                              >
-                                <Route path="/">{(<MapPage />) as ReactNode}</Route>
-                                <Route path="/print">
-                                  {(<PrintPage />) as ReactNode}
-                                </Route>
-                              </Suspense>
-                            ) as ReactNode
-                          }
-                        </Router>
-                      </PolygonEditProvider>
-                    </SearchProvider>
-                  </MapProvider>
-                </NavigationProvider>
-              ) as ReactNode
-            }
-          </QueryClientProvider>
-        ) as ReactNode
-      }
-    </ThemeProvider>
-  </div>
+  <AuthProvider>
+    <div id="app">
+      <ThemeProvider defaultTheme="dark" storageKey="urbis-ui-theme">
+        {
+          (
+            <QueryClientProvider client={queryClient}>
+              {
+                (
+                  <NavigationProvider>
+                    <MapProvider>
+                      <SearchProvider>
+                        <PolygonEditProvider>
+                          <Router>
+                            {
+                              (
+                                <Suspense
+                                  fallback={
+                                    <div className="h-screen w-screen flex items-center justify-center">
+                                      <Loader2 className="h-10 w-10 animate-spin" />
+                                    </div>
+                                  }
+                                >
+                                  <Route path="/">{(<MapPage />) as ReactNode}</Route>
+                                  <Route path="/print">
+                                    {(<PrintPage />) as ReactNode}
+                                  </Route>
+                                </Suspense>
+                              ) as ReactNode
+                            }
+                          </Router>
+                        </PolygonEditProvider>
+                      </SearchProvider>
+                    </MapProvider>
+                  </NavigationProvider>
+                ) as ReactNode
+              }
+            </QueryClientProvider>
+          ) as ReactNode
+        }
+      </ThemeProvider>
+    </div>
+  </AuthProvider>
 );
 
 render(<App />, document.getElementById("app")!);

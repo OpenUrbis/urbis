@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { useMapContext } from "../../hooks/useMapContext";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { LayerController } from "../LayerController";
 import { DeckGLOverlay } from "./DeckGLOverlay";
@@ -14,6 +15,7 @@ import { addMapControls } from "./map-controls";
 import { transformSchemaLayers } from "./map-layer-transform";
 import { useTheme } from "../ThemeProvider";
 import { MapCoordinates } from "./MapCoordinates";
+import { getDigitalAddressLayers } from "./digital-address-layer";
 
 export const MapView = () => {
   const accessToken =
@@ -22,6 +24,7 @@ export const MapView = () => {
 
   const mapContext = useMapContext();
   const { theme } = useTheme();
+  const { drawerOpen } = useNavigationContext();
 
   const {
     layerSchemas,
@@ -34,7 +37,8 @@ export const MapView = () => {
     is3DActive,
     overlayRef,
     selectedBaseMap,
-    cursorPosition
+    cursorPosition,
+    digitalAddressFeature
   } = mapContext;
   
   if (!overlayRef) {
@@ -46,14 +50,18 @@ export const MapView = () => {
 
   const clickActions = CLICK_ACTIONS_CONFIG();
 
-  const layers = computed(() =>
-    transformSchemaLayers(layerSchemas.value, {
+  const layers = computed(() => {
+    const baseLayers = transformSchemaLayers(layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
       selectedFeature: selectedFeatures.value,
       is3DActive: is3DActive.value,
-    }).flat()
-  );
+    }).flat();
+
+    const digitalLayers = getDigitalAddressLayers(digitalAddressFeature.value);
+
+    return [...baseLayers, ...digitalLayers];
+  });
 
   const currentMapStyle = useMemo(() => {
       const style = selectedBaseMap.value;
@@ -79,6 +87,15 @@ export const MapView = () => {
   useEffect(() => {
     populateMapContext();
   }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const map = (overlayRef?.current as any)?._map;
+      map?.resize();
+    }, 350);
+    return () => clearTimeout(timeout);
+  }, [drawerOpen.value]);
 
   const handleClick = (info: PickingInfo) => {
     const { clickAction, viewTemplate: template } =

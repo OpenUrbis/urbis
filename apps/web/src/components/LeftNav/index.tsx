@@ -16,7 +16,7 @@ export const LeftNav = () => {
           drawerOpen.value ? "w-[420px]" : "w-0 border-none"
         )}
       >
-        <div className="h-full overflow-y-auto p-4 space-y-4 w-[420px]">
+        <div className="h-full overflow-y-auto p-3 space-y-4 w-[420px]">
           <Search />
           {currentPage.value}
         </div>

@@ -1,3 +1,8 @@
+import axios from "axios";
+
+const environment =
+  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
+
 export interface SyncData {
   root: {
     searchContext: {
@@ -21,6 +26,29 @@ export interface SyncData {
   };
 }
 
+export interface ShareResponse {
+  id: string;
+  shortUrl: string;
+  directUrl: string;
+}
+
+export interface SharedMapItem {
+    id: string;
+    name: string;
+    description: string;
+    createdAt: string;
+    state: SyncData;
+}
+
+export interface SharedMap {
+    id: string;
+    name: string;
+    description: string;
+    userId: string;
+    createdAt: string;
+    state: SyncData;
+}
+
 export const shareService = {
   save: async (data: SyncData) => {
     console.log('[ShareService] Saving data...', data);
@@ -29,25 +57,54 @@ export const shareService = {
     return { success: true, id: 'mock-id-' + Date.now() };
   },
   
-  share: async (data: SyncData) => {
-     console.log('[ShareService] Sharing data...', data);
-     await new Promise((resolve) => setTimeout(resolve, 1000));
-     // Return a mock ID that would represent the shared state
-     const id = 'share-' + Date.now();
+  share: async (data: SyncData, name: string, description?: string): Promise<ShareResponse> => {
+     const payload = {
+         name,
+         description,
+         state: data
+     };
+     
+     const { data: responseData } = await axios.post(`${environment}/share`, payload);
+     
+     const id = responseData.id;
+     const url = `${window.location.origin}/?shareId=${id}`;
+
      return { 
         id,
-        shortUrl: `https://urbis.map/share/${id}`,
-        directUrl: `${window.location.origin}/?id=${id}`
+        shortUrl: url,
+        directUrl: url
      };
   },
 
-  load: async (id: string): Promise<SyncData | null> => {
-      console.log('[ShareService] Loading data for id...', id);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // Mock: return null or some dummy data? 
-      // For now, let's assume if it starts with 'share-', we might mock data, 
-      // but simpler to return null so it falls back to defaults or handling
-      // In a real app this fetches from DynamoDB.
-      return null; 
+  load: async (id: string): Promise<SharedMap | null> => {
+      try {
+        const { data } = await axios.get(`${environment}/share/${id}`);
+        return data;
+      } catch (error) {
+        console.error("Error loading shared state", error);
+        return null;
+      }
+  },
+
+  update: async (id: string, data: SyncData, name: string, description?: string): Promise<SharedMap> => {
+      const payload = {
+         name,
+         description,
+         state: data
+      };
+      const { data: responseData } = await axios.patch(`${environment}/share/${id}`, payload);
+      return responseData;
+  },
+
+  getHistory: async (userId: string, page: number = 1, limit: number = 10): Promise<{ items: SharedMapItem[], total: number }> => {
+      try {
+        const { data } = await axios.get(`${environment}/share/user/${userId}`, {
+            params: { page, limit }
+        });
+        return data;
+      } catch (error) {
+        console.error("Error loading share history", error);
+        throw error;
+      }
   }
 };

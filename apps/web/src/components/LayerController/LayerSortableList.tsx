@@ -21,6 +21,7 @@ import { LayerItem } from "./LayerItem";
 import { cn } from "@/lib/utils";
 
 function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
+  const { handleVisibleLayer } = useMapContext();
   const {
     attributes,
     listeners,
@@ -54,6 +55,7 @@ function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
              item={item} 
              className="border-none py-2 hover:bg-transparent pr-4" 
              indent={0} 
+             onClick={handleVisibleLayer}
          />
       </div>
     </div>

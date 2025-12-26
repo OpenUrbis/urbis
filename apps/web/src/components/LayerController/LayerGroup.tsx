@@ -83,7 +83,7 @@ export const LayerGroup = ({
           key={item.id} 
           item={item} 
           indent={(level + 2) * 16} 
-          onToggle={handleActiveLayer}
+          onClick={handleActiveLayer}
        />
     ));
   });

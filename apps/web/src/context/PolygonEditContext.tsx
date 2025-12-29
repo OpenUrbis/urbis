@@ -1,6 +1,5 @@
 import { computed, signal } from "@preact/signals-react";
-import { ComponentChildren, createContext } from "preact";
-import { useRef } from "react";
+import { createContext, ReactNode, useRef } from "react";
 import { useFetchIntersectingPolygons } from "../hooks/useFetchIntersectingPolygons";
 import { useMapContext } from "../hooks/useMapContext";
 import { PolygonEditContextType } from "../types/polygon-edit-context-type";
@@ -16,7 +15,7 @@ export const PolygonEditContext = createContext<PolygonEditContextType | null>(
 export const PolygonEditProvider = ({
   children,
 }: {
-  children: ComponentChildren;
+  children: ReactNode;
 }) => {
   const { data, loading, error, reset, fetchData } =
     useFetchIntersectingPolygons();

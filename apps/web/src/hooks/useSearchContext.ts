@@ -1,4 +1,4 @@
-import { useContext } from "preact/hooks";
+import { useContext } from "react";
 import { SearchContext } from "../context/SearchContext";
 import { getSearchConfig } from "../integrations/search-integration";
 import { IGetSearchConfigResponse } from "../types/fetch-search-config-type";

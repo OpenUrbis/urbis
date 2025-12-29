@@ -1,5 +1,5 @@
 import { signal } from "@preact/signals";
-import { Bug } from "lucide-react";
+import { Bug, Copy } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,20 @@ export const Debugger = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { overlayRef, ...mapContext } = useMapContext();
 
+  const getDebugData = () => {
+    return JSON.parse(
+      JSON.stringify({
+        searchContext,
+        mapContext,
+      })
+    );
+  };
+
+  const copyToClipboard = () => {
+    const data = getDebugData();
+    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+  };
+
   return (
     <Dialog open={isOpen.value} onOpenChange={(open) => (isOpen.value = open)}>
       <DialogTrigger asChild>
@@ -37,15 +51,14 @@ export const Debugger = () => {
         <div className="w-full min-w-[424px]">
           {createElement(ReactJson, {
             collapsed: true,
-            src: JSON.parse(
-              JSON.stringify({
-                searchContext,
-                mapContext,
-              })
-            ),
+            src: getDebugData(),
           })}
         </div>
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
+           <Button type="button" variant="outline" onClick={copyToClipboard} className="gap-2">
+             <Copy className="h-4 w-4" />
+             Copiar JSON
+           </Button>
            <DialogClose asChild>
              <Button type="button" variant="secondary">
                Fechar

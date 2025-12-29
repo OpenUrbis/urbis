@@ -33,7 +33,9 @@ export const exportGeoJson = async (
   bounds: number[],
   layers: string[],
   zoom?: number,
-  format?: 'geojson' | 'dwg'
+  format?: 'geojson' | 'dwg',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  externalLayers?: any[]
 ): Promise<Blob> => {
   const { data } = await axios.post(
     `${environment}/export/geojson`,
@@ -42,6 +44,7 @@ export const exportGeoJson = async (
       layers,
       zoom,
       format,
+      externalLayers,
     },
     {
       responseType: "blob",

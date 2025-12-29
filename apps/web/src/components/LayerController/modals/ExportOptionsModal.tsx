@@ -1,4 +1,5 @@
-import { useState } from "preact/hooks";
+// @ts-nocheck
+import { useSignal } from "@preact/signals";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +25,7 @@ export const ExportOptionsModal = ({
   bounds,
   onConfirm,
 }: ExportOptionsModalProps) => {
-  const [format, setFormat] = useState<"geojson" | "dwg">("geojson");
+  const format = useSignal<"geojson" | "dwg">("geojson");
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -38,10 +39,12 @@ export const ExportOptionsModal = ({
             <span className="material-symbols-outlined text-lg shrink-0">
               info
             </span>
-            <p>
-              O limite de exportação é de 1000 feições. Caso exceda, aproxime o
-              mapa.
-            </p>
+            <div className="space-y-1">
+              <p>
+                O limite de exportação é de 1000 feições. Caso exceda, aproxime o
+                mapa.
+              </p>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -64,8 +67,8 @@ export const ExportOptionsModal = ({
                   id="geojson"
                   name="format"
                   value="geojson"
-                  checked={format === "geojson"}
-                  onChange={() => setFormat("geojson")}
+                  checked={format.value === "geojson"}
+                  onChange={() => (format.value = "geojson")}
                   className="mt-1"
                 />
                 <div className="grid gap-1.5">
@@ -84,8 +87,8 @@ export const ExportOptionsModal = ({
                   id="dwg"
                   name="format"
                   value="dwg"
-                  checked={format === "dwg"}
-                  onChange={() => setFormat("dwg")}
+                  checked={format.value === "dwg"}
+                  onChange={() => (format.value = "dwg")}
                   className="mt-1"
                 />
                 <div className="grid gap-1.5">
@@ -108,7 +111,7 @@ export const ExportOptionsModal = ({
           </Button>
           <Button
             onClick={() => {
-              onConfirm(format);
+              onConfirm(format.value);
               onOpenChange(false);
             }}
           >

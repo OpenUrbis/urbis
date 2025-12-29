@@ -1,5 +1,5 @@
-import { computed, signal } from "@preact/signals";
-import { useCallback, useState } from "react";
+import { computed, signal, useSignal } from "@preact/signals";
+import { useEffect } from "preact/hooks";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -17,7 +17,7 @@ import {
 const isCollapsed = signal<boolean>(false);
 
 export const MapLegend = () => {
-  const [activedTab, setActivedTab] = useState<string>("");
+  const activedTab = useSignal<string>("");
   const { layerSchemas } = useMapContext();
 
   const layers = computed(() =>
@@ -28,12 +28,17 @@ export const MapLegend = () => {
     )
   );
 
-  const activedLayer = useCallback(() => {
-    const currentLayer = layers.value.find((layer) => layer.id === activedTab);
-    if (!currentLayer && layers.value.length) setActivedTab(layers.value[0].id);
+  const activedLayer = computed(() => {
+    const currentLayer = layers.value.find((layer) => layer.id === activedTab.value);
+    // Return current or first if none selected
+    return currentLayer || (layers.value.length > 0 ? layers.value[0] : undefined);
+  });
 
-    return currentLayer;
-  }, [layers.value, activedTab]);
+  useEffect(() => {
+      if (!activedTab.value && layers.value.length > 0) {
+          activedTab.value = layers.value[0].id;
+      }
+  }, [layers.value]);
 
   const renderColorClass = (item: IGetConfigColor) => {
     let result = "w-5 h-5";
@@ -88,8 +93,8 @@ export const MapLegend = () => {
 
           <div className="p-3 grid gap-1">
             <Select
-              value={activedTab}
-              onValueChange={(value) => setActivedTab(value)}
+              value={activedTab.value || (layers.value[0]?.id || "")}
+              onValueChange={(value) => (activedTab.value = value)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecione uma camada" />
@@ -104,7 +109,7 @@ export const MapLegend = () => {
             </Select>
 
             <div className="mt-2">
-              {renderLegend(activedLayer())}
+              {renderLegend(activedLayer.value)}
             </div>
           </div>
         </div>

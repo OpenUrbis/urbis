@@ -268,13 +268,19 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
     return layers;
   },
   GeoJsonLayer: (layer, props) => [createGeoJsonLayer(layer, props)],
-  CustomWMSLayer: (layer) => [
-    new CustomWMSLayer({
-      data: "https://geoserver.slui.dev/geoserver/slui/wms",
-      serviceType: "wms",
-      layers: [layer.id],
-    }),
-  ],
+  CustomWMSLayer: (layer) => {
+    const { origin, properties } = layer;
+    const layers = properties?.wms?.layers ? [properties.wms.layers] : [layer.id];
+
+    return [
+      new CustomWMSLayer({
+        id: layer.id,
+        data: origin,
+        serviceType: "wms",
+        layers: layers,
+      }),
+    ];
+  },
 };
 
 export const transformSchemaLayers = (

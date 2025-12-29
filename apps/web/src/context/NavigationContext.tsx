@@ -1,5 +1,5 @@
 import { signal } from "@preact/signals";
-import { ComponentChildren, createContext } from "preact";
+import { createContext, ReactNode } from "react";
 import { INavigationContextType } from "../types/navigation-context-type";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,7 +24,7 @@ export const NavigationContext =
 export const NavigationProvider = ({
   children,
 }: {
-  children: ComponentChildren;
+  children: ReactNode;
 }) => {
   return (
     <NavigationContext.Provider value={navigationState}>

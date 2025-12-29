@@ -1,6 +1,5 @@
 import { signal } from "@preact/signals";
-import { ComponentChildren, createContext } from "preact";
-import { useRef } from "react";
+import { createContext, ReactNode, useRef } from "react";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import {
   IGetConfigLayerGroup,
@@ -29,7 +28,7 @@ const digitalAddressFeature = signal<any | null>(null);
 
 export const MapContext = createContext<MapContextType | null>(null);
 
-export const MapProvider = ({ children }: { children: ComponentChildren }) => {
+export const MapProvider = ({ children }: { children: ReactNode }) => {
   return (
     <MapContext.Provider
       value={{

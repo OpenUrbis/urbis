@@ -1,5 +1,4 @@
-import { computed } from "@preact/signals";
-import { useState } from "react";
+import { computed, useSignal } from "@preact/signals";
 import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { LayerItemAction } from "./LayerItemAction";
@@ -25,7 +24,7 @@ export const LayerItem = ({
   onClick?: (id: string) => void;
 }) => {
   const { zoom } = useMapContext();
-  const [showMetadata, setShowMetadata] = useState(false);
+  const showMetadata = useSignal(false);
 
   const renderColor = () => {
     const { colors } = item;
@@ -137,7 +136,7 @@ export const LayerItem = ({
                 className="h-6 w-6 rounded-full hover:bg-muted"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setShowMetadata(true);
+                  showMetadata.value = true;
                 }}
               >
                 <span className="material-symbols-outlined text-base text-muted-foreground">
@@ -154,8 +153,8 @@ export const LayerItem = ({
       </div>
 
       <LayerMetadataModal
-        open={showMetadata}
-        onOpenChange={setShowMetadata}
+        open={showMetadata.value}
+        onOpenChange={(v) => (showMetadata.value = v)}
         layer={item}
       />
     </div>

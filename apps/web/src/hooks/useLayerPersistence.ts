@@ -1,5 +1,5 @@
 import { effect, signal } from "@preact/signals";
-import { useContext, useEffect } from "preact/hooks";
+import { useContext, useEffect } from "react";
 import { appState, appHistory } from "../integrations/signaldb";
 import { useMapContext } from "./useMapContext";
 import { SearchContext } from "../context/SearchContext";

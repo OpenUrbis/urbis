@@ -1,5 +1,4 @@
-import { computed } from "@preact/signals-react";
-import { useState } from "react";
+import { computed, useSignal } from "@preact/signals";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,16 +37,16 @@ export const LocationSelectionCard = () => {
     usePolygonEditContext();
   const { navigateTo } = useNavigationContext();
 
-  const [step, setStep] = useState(1);
-  const [geoJsonFile, setGeoJsonFile] = useState<File | null>(null);
-  const [error, setError] = useState("");
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const step = useSignal(1);
+  const geoJsonFile = useSignal<File | null>(null);
+  const error = useSignal("");
+  const selectedOption = useSignal<string | null>(null);
   
-  const [inputType, setInputType] = useState<"latlon" | "digital" | "pluscode">("latlon");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
-  const [digitalAddress, setDigitalAddress] = useState("");
-  const [plusCodeInput, setPlusCodeInput] = useState("");
+  const inputType = useSignal<"latlon" | "digital" | "pluscode">("latlon");
+  const latitude = useSignal("");
+  const longitude = useSignal("");
+  const digitalAddress = useSignal("");
+  const plusCodeInput = useSignal("");
 
   if (!editFeatureTemplate.value || !layerWithRootEditTemplate.value)
     return null;
@@ -67,10 +66,10 @@ export const LocationSelectionCard = () => {
   }
 
   const validateInputs = () => {
-    if (selectedOption === "coordenadas") {
-      if (inputType === "latlon") {
-        const lat = parseFloat(latitude);
-        const lon = parseFloat(longitude);
+    if (selectedOption.value === "coordenadas") {
+      if (inputType.value === "latlon") {
+        const lat = parseFloat(latitude.value);
+        const lon = parseFloat(longitude.value);
         if (
           isNaN(lat) ||
           isNaN(lon) ||
@@ -79,57 +78,55 @@ export const LocationSelectionCard = () => {
           lon < -180 ||
           lon > 180
         ) {
-          setError(
-            "Por favor, insira valores válidos para latitude e longitude."
-          );
+          error.value = "Por favor, insira valores válidos para latitude e longitude.";
           return false;
         }
-      } else if (inputType === "digital") {
-         if (!digitalAddress.trim()) {
-             setError("Por favor, insira um endereço digital.");
+      } else if (inputType.value === "digital") {
+         if (!digitalAddress.value.trim()) {
+             error.value = "Por favor, insira um endereço digital.";
              return false;
          }
          try {
-             decode(digitalAddress);
+             decode(digitalAddress.value);
          } catch (e) {
-             setError("Endereço digital inválido. Verifique o formato (Ex: -23-46 J6M-GHNT).");
+             error.value = "Endereço digital inválido. Verifique o formato (Ex: -23-46 J6M-GHNT).";
              return false;
          }
-      } else if (inputType === "pluscode") {
-          if (!plusCodeInput.trim()) {
-              setError("Por favor, insira um Plus Code.");
+      } else if (inputType.value === "pluscode") {
+          if (!plusCodeInput.value.trim()) {
+              error.value = "Por favor, insira um Plus Code.";
               return false;
           }
-          if (!olc.isValid(plusCodeInput)) {
-              setError("Plus Code inválido. (Ex: 58PH6G7J+R9)");
+          if (!olc.isValid(plusCodeInput.value)) {
+              error.value = "Plus Code inválido. (Ex: 58PH6G7J+R9)";
               return false;
           }
-          if (!olc.isFull(plusCodeInput)) {
+          if (!olc.isFull(plusCodeInput.value)) {
                // Assuming full code required or handle recovery? 
                // For simplicity, require full code or we need a reference location.
                // We will try to decode, if it throws, it throws.
           }
       }
-    } else if (selectedOption === "geoJson" && !geoJsonFile) {
-      setError("Por favor, envie um arquivo GeoJSON válido.");
+    } else if (selectedOption.value === "geoJson" && !geoJsonFile.value) {
+      error.value = "Por favor, envie um arquivo GeoJSON válido.";
       return false;
     }
 
-    setError("");
+    error.value = "";
     return true;
   };
 
   const handleSubmit = () => {
     if (validateInputs()) {
-      if (selectedOption === "coordenadas") {
+      if (selectedOption.value === "coordenadas") {
         let lat: number, lon: number;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let polygonCoords: any[] = [];
         let typeLabel = "digital";
 
-        if (inputType === "latlon") {
-            lat = parseFloat(latitude);
-            lon = parseFloat(longitude);
+        if (inputType.value === "latlon") {
+            lat = parseFloat(latitude.value);
+            lon = parseFloat(longitude.value);
             
             // Default to Digital Address Polygon for lat/lon input
             const address = encode(lat, lon);
@@ -150,12 +147,12 @@ export const LocationSelectionCard = () => {
                 [minLon, minLat]
             ]];
 
-        } else if (inputType === "digital") {
-            const decoded = decode(digitalAddress);
+        } else if (inputType.value === "digital") {
+            const decoded = decode(digitalAddress.value);
             lat = decoded.latitude;
             lon = decoded.longitude;
             
-            const p = getPolygon(digitalAddress);
+            const p = getPolygon(digitalAddress.value);
             const lats = p.map(pt => pt.lat);
             const lons = p.map(pt => pt.lon);
             const minLat = Math.min(...lats);
@@ -173,7 +170,7 @@ export const LocationSelectionCard = () => {
 
         } else { // pluscode
             typeLabel = "pluscode";
-            const codeArea = olc.decode(plusCodeInput);
+            const codeArea = olc.decode(plusCodeInput.value);
             lat = codeArea.latitudeCenter;
             lon = codeArea.longitudeCenter;
             
@@ -237,11 +234,11 @@ export const LocationSelectionCard = () => {
             />
         );
 
-      } else if (selectedOption === "geoJson") {
-        openObj({ file: geoJsonFile! });
+      } else if (selectedOption.value === "geoJson") {
+        openObj({ file: geoJsonFile.value! });
       }
-      setStep(1);
-      setSelectedOption(null);
+      step.value = 1;
+      selectedOption.value = null;
     }
   };
 
@@ -268,16 +265,16 @@ export const LocationSelectionCard = () => {
   };
 
   const handleOptionSelect = (option: string) => {
-    setSelectedOption(option);
-    setStep(2);
-    setError("");
+    selectedOption.value = option;
+    step.value = 2;
+    error.value = "";
     // Clear previous digital features
     digitalAddressFeature.value = null;
   };
 
   return (
     <div className="grid gap-2">
-      {step === 1 ? (
+      {step.value === 1 ? (
         <div className="flex flex-col gap-2">
           <Item
             variant="outline"
@@ -319,19 +316,19 @@ export const LocationSelectionCard = () => {
         <Card className="rounded-xl border shadow-sm">
           <CardHeader className="p-2 pb-0">
             <CardTitle className="text-base font-medium">
-              {selectedOption === "coordenadas"
+              {selectedOption.value === "coordenadas"
                 ? "Busca Detalhada"
                 : "Buscar com perímetro"}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-2 space-y-2">
-            {selectedOption === "coordenadas" && (
+            {selectedOption.value === "coordenadas" && (
               <div className="space-y-2">
                 <div className="grid w-full max-w-sm items-center gap-1">
                     <Label className="text-[10px] text-muted-foreground uppercase font-bold">Método de Entrada</Label>
-                    <Select value={inputType} onValueChange={(v: "latlon" | "digital" | "pluscode") => {
-                        setInputType(v);
-                        setError("");
+                    <Select value={inputType.value} onValueChange={(v: "latlon" | "digital" | "pluscode") => {
+                        inputType.value = v;
+                        error.value = "";
                     }}>
                         <SelectTrigger>
                             <SelectValue placeholder="Selecione o tipo" />
@@ -344,7 +341,7 @@ export const LocationSelectionCard = () => {
                     </Select>
                 </div>
 
-                {inputType === "latlon" && (
+                {inputType.value === "latlon" && (
                     <div className="grid grid-cols-2 gap-2">
                         <div className="grid w-full items-center gap-1">
                             <Label htmlFor="latitude" className="text-xs">Latitude</Label>
@@ -352,9 +349,9 @@ export const LocationSelectionCard = () => {
                                 className="h-8 text-xs"
                                 type="number"
                                 id="latitude"
-                                value={latitude}
+                                value={latitude.value}
                                 placeholder="-23.5505"
-                                onChange={(e) => setLatitude(e.currentTarget.value)}
+                                onChange={(e) => (latitude.value = (e.currentTarget as HTMLInputElement).value)}
                             />
                             <p className="text-[9px] text-muted-foreground">Ex: -23.55052</p>
                         </div>
@@ -364,47 +361,47 @@ export const LocationSelectionCard = () => {
                                 className="h-8 text-xs"
                                 type="number"
                                 id="longitude"
-                                value={longitude}
+                                value={longitude.value}
                                 placeholder="-46.6333"
-                                onChange={(e) => setLongitude(e.currentTarget.value)}
+                                onChange={(e) => (longitude.value = (e.currentTarget as HTMLInputElement).value)}
                             />
                             <p className="text-[9px] text-muted-foreground">Ex: -46.63330</p>
                         </div>
                     </div>
                 )}
                 
-                {inputType === "digital" && (
+                {inputType.value === "digital" && (
                     <div className="grid w-full max-w-sm items-center gap-1">
                         <Label htmlFor="digitalAddress" className="text-xs">Endereço Digital</Label>
                         <Input
                             className="h-8 text-xs"
                             type="text"
                             id="digitalAddress"
-                            value={digitalAddress}
+                            value={digitalAddress.value}
                             placeholder="-23-46 J6M-GHNT"
-                            onChange={(e) => setDigitalAddress(e.currentTarget.value)}
+                            onChange={(e) => (digitalAddress.value = (e.currentTarget as HTMLInputElement).value)}
                         />
                         <p className="text-[9px] text-muted-foreground">Ex: -23-46 J6M-GHNT</p>
                     </div>
                 )}
 
-                {inputType === "pluscode" && (
+                {inputType.value === "pluscode" && (
                     <div className="grid w-full max-w-sm items-center gap-1">
                         <Label htmlFor="plusCode" className="text-xs">Plus Code</Label>
                         <Input
                             className="h-8 text-xs"
                             type="text"
                             id="plusCode"
-                            value={plusCodeInput}
+                            value={plusCodeInput.value}
                             placeholder="58PH6G7J+R9"
-                            onChange={(e) => setPlusCodeInput(e.currentTarget.value)}
+                            onChange={(e) => (plusCodeInput.value = (e.currentTarget as HTMLInputElement).value)}
                         />
                         <p className="text-[9px] text-muted-foreground">Ex: 58PH6G7J+R9</p>
                     </div>
                 )}
               </div>
             )}
-            {selectedOption === "geoJson" && (
+            {selectedOption.value === "geoJson" && (
               <div className="grid w-full max-w-sm items-center gap-1">
                 <Label htmlFor="geojson" className="text-xs">Selecione o arquivo</Label>
                 <Input
@@ -413,17 +410,15 @@ export const LocationSelectionCard = () => {
                   id="geojson"
                   accept=".geojson"
                   onChange={(e) =>
-                    setGeoJsonFile(
-                      e.currentTarget.files ? e.currentTarget.files[0] : null
-                    )
+                    (geoJsonFile.value = e.currentTarget.files ? e.currentTarget.files[0] : null)
                   }
                 />
               </div>
             )}
 
-            {error && (
+            {error.value && (
                 <div className="bg-red-50 text-red-600 p-1.5 rounded text-[10px] border border-red-200">
-                    {error}
+                    {error.value}
                 </div>
             )}
 
@@ -431,7 +426,7 @@ export const LocationSelectionCard = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setStep(1)}
+                onClick={() => (step.value = 1)}
                 className="rounded-full h-7 text-xs"
               >
                 Voltar
@@ -444,7 +439,7 @@ export const LocationSelectionCard = () => {
         </Card>
       )}
 
-      {step === 1 && <BaseMapSelector />}
+      {step.value === 1 && <BaseMapSelector />}
     </div>
   );
 };

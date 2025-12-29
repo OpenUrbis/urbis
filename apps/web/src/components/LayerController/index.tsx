@@ -1,6 +1,5 @@
-import { signal } from "@preact/signals";
+import { signal, useSignal } from "@preact/signals";
 import "preact/compat";
-import { useState } from "preact/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,28 +29,26 @@ import { ExportOptionsModal } from "./modals/ExportOptionsModal";
 const isCollapsed = signal<boolean>(false);
 
 export const LayerController = () => {
-  // useLayerPersistence(); // Functionality disabled for now. Uncomment to enable layer state persistence.
-  const { layerGroups, layerSchemas, boundingBox, overlayRef, zoom } =
-    useMapContext();
+  const { layerGroups, layerSchemas, boundingBox, zoom } = useMapContext();
   const { data: polygonData } = usePolygonEditContext();
-  const [activeTab, setActiveTab] = useState<'sources' | 'visible'>('sources');
-  const [searchValue, setSearchValue] = useState('');
-  const [isAddLayerOpen, setIsAddLayerOpen] = useState(false);
-  const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isShareHistoryOpen, setIsShareHistoryOpen] = useState(false);
+  
+  const activeTab = useSignal<'sources' | 'visible'>('sources');
+  const searchValue = useSignal('');
+  const isAddLayerOpen = useSignal(false);
+  const isShareOpen = useSignal(false);
+  const isShareHistoryOpen = useSignal(false);
   
   // Export states
-  const [isExporting, setIsExporting] = useState(false);
-  const [showExportResult, setShowExportResult] = useState(false);
-  const [showErrorDialog, setShowErrorDialog] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [exportUrl, setExportUrl] = useState<string | null>(null);
-  const [exportFilename, setExportFilename] = useState("exportacao.geojson");
+  const isExporting = useSignal(false);
+  const showExportResult = useSignal(false);
+  const showErrorDialog = useSignal(false);
+  const errorMessage = useSignal("");
+  const exportUrl = useSignal<string | null>(null);
+  const exportFilename = useSignal("exportacao.geojson");
   
-  const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
-  const [layersForExport, setLayersForExport] = useState<
-    { id: string; name: string }[]
-  >([]);
+  const isExportOptionsOpen = useSignal(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const layersForExport = useSignal<any[]>([]);
 
   const handleExportGeoJSON = () => {
     const currentZoom = zoom.value;
@@ -59,42 +56,69 @@ export const LayerController = () => {
     const layers = layerSchemas.value
       .filter((s) => s.isVisible)
       // Check zoom level (if minZoom is set, currentZoom must be >= minZoom)
-      .filter((s) => !(s.minZoom && currentZoom < s.minZoom))
-      .map((s) => ({ id: s.id, name: s.name }));
+      .filter((s) => !(s.minZoom && currentZoom < s.minZoom));
 
     if (layers.length === 0) {
-      setErrorMessage(
-        "Nenhuma camada visível ou disponível para o nível de zoom atual.",
-      );
-      setShowErrorDialog(true);
+      errorMessage.value =
+        "Nenhuma camada visível ou disponível para o nível de zoom atual.";
+      showErrorDialog.value = true;
       return;
     }
 
-    setLayersForExport(layers);
-    setIsExportOptionsOpen(true);
+    layersForExport.value = layers;
+    isExportOptionsOpen.value = true;
   };
 
   const handleConfirmExport = async (format: "geojson" | "dwg") => {
-    setIsExporting(true);
-    setExportUrl(null);
-    setShowExportResult(false);
-    setShowErrorDialog(false);
+    isExporting.value = true;
+    exportUrl.value = null;
+    showExportResult.value = false;
+    showErrorDialog.value = false;
 
     try {
       const bounds = boundingBox.value;
       const currentZoom = zoom.value;
       // Use the IDs from the layers we identified for export
-      const layerIds = layersForExport.map((l) => l.id);
+      const layerIds = layersForExport.value.map((l) => l.id);
 
-      const blob = await exportGeoJson(bounds, layerIds, currentZoom, format);
+      // Prepare external layers
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const externalLayers = layersForExport.value.map((layer: any) => {
+        const props = layer.properties || {};
+        // Check for WMS structure from WebLayer
+        const wmsProps = props.wms || {};
+
+        const wfsUrl = wmsProps.url || layer.origin;
+        const typeName =
+          wmsProps.layers || props.layers || props.typeName || props.type_name;
+
+        if (wfsUrl && typeName) {
+          return {
+            id: layer.id,
+            wfsUrl,
+            typeName,
+            cqlFilter: props.cql_filter || props.cqlFilter,
+            minZoom: layer.minZoom,
+          };
+        }
+        return null;
+      }).filter((l) => l !== null);
+
+      const blob = await exportGeoJson(
+        bounds,
+        layerIds,
+        currentZoom,
+        format,
+        externalLayers,
+      );
       const url = URL.createObjectURL(blob);
-      setExportUrl(url);
+      exportUrl.value = url;
       
       // Determine filename extension
       const ext = format === 'dwg' ? 'dxf' : 'geojson';
-      setExportFilename(`exportacao-${Date.now()}.${ext}`);
+      exportFilename.value = `exportacao-${Date.now()}.${ext}`;
       
-      setShowExportResult(true);
+      showExportResult.value = true;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error("Export failed", e);
@@ -109,10 +133,10 @@ export const LayerController = () => {
           // ignore
         }
       }
-      setErrorMessage(message);
-      setShowErrorDialog(true);
+      errorMessage.value = message;
+      showErrorDialog.value = true;
     } finally {
-      setIsExporting(false);
+      isExporting.value = false;
     }
   };
 
@@ -152,45 +176,45 @@ export const LayerController = () => {
              <button 
                 className={cn(
                   "flex-1 pb-2 pt-2 text-xs font-medium transition-all border-b-2 focus-visible:outline-none",
-                  activeTab === 'sources' ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30"
+                  activeTab.value === 'sources' ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30"
                 )}
-                onClick={() => setActiveTab('sources')}
+                onClick={() => (activeTab.value = 'sources')}
              >
                 Fontes de Dados
              </button>
              <button 
                 className={cn(
                   "flex-1 pb-2 pt-2 text-xs font-medium transition-all border-b-2 focus-visible:outline-none",
-                  activeTab === 'visible' ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30"
+                  activeTab.value === 'visible' ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30"
                 )}
-                onClick={() => setActiveTab('visible')}
+                onClick={() => (activeTab.value = 'visible')}
              >
                 Camadas Selecionadas
              </button>
           </div>
           
-          {activeTab === 'sources' && (
+          {activeTab.value === 'sources' && (
              <div className="p-2 border-b bg-background/30">
                 <div className="relative">
                   <span className="absolute left-2 top-1.5 material-symbols-outlined text-base text-muted-foreground">search</span>
                   <Input 
                     placeholder="Buscar camadas..." 
                     className="h-8 pl-8 text-sm bg-background/50" 
-                    value={searchValue}
-                    onInput={(e) => setSearchValue((e.target as HTMLInputElement).value)}
+                    value={searchValue.value}
+                    onInput={(e) => (searchValue.value = (e.target as HTMLInputElement).value)}
                   />
                 </div>
              </div>
           )}
 
           <div className="flex-1 overflow-y-auto">
-            {activeTab === 'sources' ? (
+            {activeTab.value === 'sources' ? (
                <div className="flex flex-col">
                  {layerGroups.value.map((group, i) => (
                    <LayerGroup 
                       key={`group-main-${i}`} 
                       group={group} 
-                      searchValue={searchValue}
+                      searchValue={searchValue.value}
                    />
                  ))}
                </div>
@@ -203,7 +227,7 @@ export const LayerController = () => {
             <Button
               variant="outline"
               className="flex-1 justify-start text-xs h-9 px-3"
-              onClick={() => setIsShareOpen(true)}
+              onClick={() => (isShareOpen.value = true)}
             >
               <span className="material-symbols-outlined text-base mr-2">
                 share
@@ -222,13 +246,13 @@ export const LayerController = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsAddLayerOpen(true)}>
+                <DropdownMenuItem onClick={() => (isAddLayerOpen.value = true)}>
                   <span className="material-symbols-outlined mr-2">
                     add_circle
                   </span>
                   Adicionar Nova Camada
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsShareHistoryOpen(true)}>
+                <DropdownMenuItem onClick={() => (isShareHistoryOpen.value = true)}>
                   <span className="material-symbols-outlined mr-2">
                     history
                   </span>
@@ -246,18 +270,18 @@ export const LayerController = () => {
         </div>
       )}
 
-      <AddLayerModal isOpen={isAddLayerOpen} onOpenChange={setIsAddLayerOpen} />
-      <ShareModal isOpen={isShareOpen} onOpenChange={setIsShareOpen} />
-      <ShareHistoryModal isOpen={isShareHistoryOpen} onOpenChange={setIsShareHistoryOpen} />
+      <AddLayerModal isOpen={isAddLayerOpen.value} onOpenChange={(v) => (isAddLayerOpen.value = v)} />
+      <ShareModal isOpen={isShareOpen.value} onOpenChange={(v) => (isShareOpen.value = v)} />
+      <ShareHistoryModal isOpen={isShareHistoryOpen.value} onOpenChange={(v) => (isShareHistoryOpen.value = v)} />
       <ExportOptionsModal
-        isOpen={isExportOptionsOpen}
-        onOpenChange={setIsExportOptionsOpen}
-        layers={layersForExport}
+        isOpen={isExportOptionsOpen.value}
+        onOpenChange={(v) => (isExportOptionsOpen.value = v)}
+        layers={layersForExport.value}
         bounds={boundingBox.value}
         onConfirm={handleConfirmExport}
       />
 
-      {isExporting && (
+      {isExporting.value && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-foreground text-background px-4 py-2 rounded-md shadow-lg z-[50] flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
           <span className="material-symbols-outlined animate-spin text-sm">
             progress_activity
@@ -266,7 +290,7 @@ export const LayerController = () => {
         </div>
       )}
 
-      <Dialog open={showExportResult} onOpenChange={setShowExportResult}>
+      <Dialog open={showExportResult.value} onOpenChange={(v) => (showExportResult.value = v)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Exportação Concluída</DialogTitle>
@@ -294,15 +318,15 @@ export const LayerController = () => {
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setShowExportResult(false)}
+              onClick={() => (showExportResult.value = false)}
             >
               Fechar
             </Button>
-            {exportUrl && (
+            {exportUrl.value && (
               <Button asChild>
                 <a
-                  href={exportUrl}
-                  download={exportFilename}
+                  href={exportUrl.value}
+                  download={exportFilename.value}
                 >
                   <span className="material-symbols-outlined mr-2">
                     download
@@ -315,7 +339,7 @@ export const LayerController = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+      <Dialog open={showErrorDialog.value} onOpenChange={(v) => (showErrorDialog.value = v)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Erro na Exportação</DialogTitle>
@@ -324,12 +348,12 @@ export const LayerController = () => {
             <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-900 text-red-800 dark:text-red-200">
               <p className="text-sm font-medium flex gap-2 items-center">
                 <span className="material-symbols-outlined">error</span>
-                {errorMessage}
+                {errorMessage.value}
               </p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowErrorDialog(false)}>
+            <Button variant="outline" onClick={() => (showErrorDialog.value = false)}>
               Fechar
             </Button>
           </DialogFooter>

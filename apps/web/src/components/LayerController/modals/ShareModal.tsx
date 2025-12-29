@@ -1,4 +1,5 @@
-import { useContext, useEffect, useState } from "preact/hooks";
+import { useContext, useEffect } from "react";
+import { useSignal } from "@preact/signals";
 import { useAuth } from "react-oidc-context";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,13 +19,15 @@ interface ShareModalProps {
 export const ShareModal = ({ isOpen, onOpenChange }: ShareModalProps) => {
   const mapContext = useMapContext();
   const searchContext = useContext(SearchContext);
-  const [shortUrl, setShortUrl] = useState("");
-  const [directUrl, setDirectUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  
+  const shortUrl = useSignal("");
+  const directUrl = useSignal("");
+  const loading = useSignal(false);
+  const name = useSignal("");
+  const description = useSignal("");
+  const error = useSignal("");
+  const success = useSignal("");
+  
   const auth = useAuth();
 
   const currentUserId = auth.user?.profile.sub || 'mock-user-id-123';
@@ -32,8 +35,8 @@ export const ShareModal = ({ isOpen, onOpenChange }: ShareModalProps) => {
 
   useEffect(() => {
       if (isOpen && currentShare.value) {
-          if (!name) setName(currentShare.value.name);
-          if (!description) setDescription(currentShare.value.description || "");
+          if (!name.value) name.value = currentShare.value.name;
+          if (!description.value) description.value = currentShare.value.description || "";
       }
   }, [isOpen]);
 
@@ -69,44 +72,44 @@ export const ShareModal = ({ isOpen, onOpenChange }: ShareModalProps) => {
   };
 
   const handleShare = async () => {
-     setError("");
-     setSuccess("");
-     if (!name.trim()) return;
-     setLoading(true);
+     error.value = "";
+     success.value = "";
+     if (!name.value.trim()) return;
+     loading.value = true;
      
      const payload = getPayload();
 
      try {
-         const result = await shareService.share(payload as any, name, description);
-         setShortUrl(result.shortUrl);
-         setDirectUrl(result.directUrl);
+         const result = await shareService.share(payload as any, name.value, description.value);
+         shortUrl.value = result.shortUrl;
+         directUrl.value = result.directUrl;
      } catch (e) {
          console.error("Error sharing", e);
-         setError("Ocorreu um erro ao gerar o link. Tente novamente.");
+         error.value = "Ocorreu um erro ao gerar o link. Tente novamente.";
      } finally {
-         setLoading(false);
+         loading.value = false;
      }
   };
 
   const handleUpdate = async () => {
-     setError("");
-     setSuccess("");
-     if (!name.trim() || !currentShare.value) return;
-     setLoading(true);
+     error.value = "";
+     success.value = "";
+     if (!name.value.trim() || !currentShare.value) return;
+     loading.value = true;
      
      const payload = getPayload();
 
      try {
-         const result = await shareService.update(currentShare.value.id, payload as any, name, description);
+         const result = await shareService.update(currentShare.value.id, payload as any, name.value, description.value);
          currentShare.value = result;
-         setSuccess("Compartilhamento atualizado com sucesso!");
-         setDirectUrl(`${window.location.origin}/?shareId=${result.id}`);
-         setShortUrl(`${window.location.origin}/?shareId=${result.id}`);
+         success.value = "Compartilhamento atualizado com sucesso!";
+         directUrl.value = `${window.location.origin}/?shareId=${result.id}`;
+         shortUrl.value = `${window.location.origin}/?shareId=${result.id}`;
      } catch (e) {
          console.error("Error updating", e);
-         setError("Ocorreu um erro ao atualizar. Tente novamente.");
+         error.value = "Ocorreu um erro ao atualizar. Tente novamente.";
      } finally {
-         setLoading(false);
+         loading.value = false;
      }
   };
 
@@ -116,12 +119,12 @@ export const ShareModal = ({ isOpen, onOpenChange }: ShareModalProps) => {
   };
   
   const resetForm = () => {
-      setShortUrl("");
-      setDirectUrl("");
-      setName("");
-      setDescription("");
-      setError("");
-      setSuccess("");
+      shortUrl.value = "";
+      directUrl.value = "";
+      name.value = "";
+      description.value = "";
+      error.value = "";
+      success.value = "";
   };
 
   return (
@@ -140,26 +143,26 @@ export const ShareModal = ({ isOpen, onOpenChange }: ShareModalProps) => {
         </div>
 
         <div className="grid gap-4 py-2">
-          {error && (
+          {error.value && (
             <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 p-3 rounded-md text-sm flex items-center gap-2">
                 <span className="material-symbols-outlined text-base">error</span>
-                {error}
+                {error.value}
             </div>
           )}
-          {success && (
+          {success.value && (
             <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-300 p-3 rounded-md text-sm flex items-center gap-2">
                 <span className="material-symbols-outlined text-base">check_circle</span>
-                {success}
+                {success.value}
             </div>
           )}
-          {!shortUrl ? (
+          {!shortUrl.value ? (
             <>
                 <div className="space-y-2">
                     <Label htmlFor="share-name">Nome do compartilhamento</Label>
                     <Input 
                         id="share-name" 
-                        value={name} 
-                        onInput={(e) => setName(e.currentTarget.value)} 
+                        value={name.value} 
+                        onInput={(e) => (name.value = (e.currentTarget as HTMLInputElement).value)} 
                         placeholder="Ex: Análise da região sul" 
                     />
                 </div>
@@ -167,8 +170,9 @@ export const ShareModal = ({ isOpen, onOpenChange }: ShareModalProps) => {
                     <Label htmlFor="share-desc">Descrição (opcional)</Label>
                     <Textarea 
                         id="share-desc" 
-                        value={description} 
-                        onInput={(e) => setDescription(e.currentTarget.value)} 
+                        value={description.value} 
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        onInput={(e) => (description.value = (e.currentTarget as any).value)} 
                         placeholder="Adicione uma breve descrição..." 
                     />
                 </div>
@@ -176,18 +180,18 @@ export const ShareModal = ({ isOpen, onOpenChange }: ShareModalProps) => {
                     <Button 
                         className="flex-1 bg-blue-600 hover:bg-blue-700 text-white" 
                         onClick={handleShare}
-                        disabled={loading || !name.trim()}
+                        disabled={loading.value || !name.value.trim()}
                     >
-                        {loading ? "Gerando..." : "Gerar novo link"}
+                        {loading.value ? "Gerando..." : "Gerar novo link"}
                     </Button>
                     {isOwner && (
                         <Button 
                             className="flex-1" 
                             variant="secondary"
                             onClick={handleUpdate}
-                            disabled={loading || !name.trim()}
+                            disabled={loading.value || !name.value.trim()}
                         >
-                            {loading ? "Salvando..." : "Salvar Alterações"}
+                            {loading.value ? "Salvando..." : "Salvar Alterações"}
                         </Button>
                     )}
                 </div>
@@ -197,8 +201,8 @@ export const ShareModal = ({ isOpen, onOpenChange }: ShareModalProps) => {
                 <div className="space-y-2">
                     <h4 className="text-sm font-semibold">Link direto</h4>
                     <div className="flex gap-2">
-                        <Input value={directUrl} readOnly className="flex-1" />
-                        <Button variant="outline" size="icon" onClick={() => copyToClipboard(directUrl)}>
+                        <Input value={directUrl.value} readOnly className="flex-1" />
+                        <Button variant="outline" size="icon" onClick={() => copyToClipboard(directUrl.value)}>
                             <span className="material-symbols-outlined text-base">content_copy</span>
                         </Button>
                     </div>

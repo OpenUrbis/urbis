@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import axios, { AxiosRequestConfig } from "axios";
-import { useEffect, useState } from "preact/hooks";
+import { useEffect } from "preact/hooks";
+import { useSignal } from "@preact/signals";
 import { Loader2 } from "lucide-react";
 import { createFn } from "../../../../utils/createFn";
 import { IRequestProperties } from "../../types/request-type";
@@ -18,11 +19,11 @@ export const RequestWrapper: ITemplatesDeclaration = {
       isPrint,
     } = componentProperties;
     const { templates = [] } = template;
-    const [loading, setLoading] = useState(false);
-    const [data, setData] = useState(undefined);
+    const loading = useSignal(false);
+    const responseData = useSignal(undefined);
 
     const fetch = async () => {
-      setLoading(true);
+      loading.value = true;
       let axiosConfig: AxiosRequestConfig;
 
       try {
@@ -52,17 +53,17 @@ export const RequestWrapper: ITemplatesDeclaration = {
         }
 
         try {
-          const { data } = await axios(axiosConfig);
+          const { data: axiosData } = await axios(axiosConfig);
 
-          setData(data);
+          responseData.value = axiosData;
         } catch (error) {
           console.error("Error fetching data:", error);
         } finally {
-          setLoading(false);
+          loading.value = false;
         }
       } catch (error) {
         console.error("Error preparing request:", error);
-        setLoading(false);
+        loading.value = false;
       }
     };
 
@@ -72,7 +73,7 @@ export const RequestWrapper: ITemplatesDeclaration = {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rawData, template]);
 
-    return loading || !data ? (
+    return loading.value || !responseData.value ? (
       <div className="flex justify-center items-center py-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
@@ -82,7 +83,7 @@ export const RequestWrapper: ITemplatesDeclaration = {
           <ViewTemplateEngine
             key={`${key}-engine-${i}`}
             template={template}
-            data={{ ...(rawData ?? {}), response: data }}
+            data={{ ...(rawData ?? {}), response: responseData.value }}
             rootTemplate={rootTemplate}
             isPrint={isPrint}
           />

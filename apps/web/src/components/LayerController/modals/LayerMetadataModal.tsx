@@ -1,3 +1,4 @@
+import { useSignal } from "@preact/signals";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { IGetConfigLayerSchema } from "../../../types/fetch-map-config-type";
-import { useState } from "react";
 
 interface LayerMetadataModalProps {
   open: boolean;
@@ -20,7 +20,7 @@ export const LayerMetadataModal = ({
   onOpenChange,
   layer,
 }: LayerMetadataModalProps) => {
-  const [activeTab, setActiveTab] = useState<"metadata" | "layer">("metadata");
+  const activeTab = useSignal<"metadata" | "layer">("metadata");
 
   const { properties } = layer;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,7 +40,7 @@ export const LayerMetadataModal = ({
           <DialogTitle>Informações da Camada</DialogTitle>
         </DialogHeader>
 
-        {activeTab === "metadata" && (
+        {activeTab.value === "metadata" && (
           <div className="space-y-6 pt-2">
             <div>
               <h2 className="text-2xl font-bold">{layer.name}</h2>
@@ -114,7 +114,7 @@ export const LayerMetadataModal = ({
           </div>
         )}
 
-        {activeTab === "layer" && (
+        {activeTab.value === "layer" && (
           <div className="space-y-4 pt-2">
             <h3 className="font-semibold">Detalhes Técnicos</h3>
             <pre className="bg-zinc-100 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-50 p-4 rounded text-xs overflow-auto whitespace-pre-wrap break-all border border-border">
@@ -126,8 +126,8 @@ export const LayerMetadataModal = ({
         <DialogFooter className="flex sm:justify-between items-center mt-6 border-t pt-4">
           <div className="flex gap-2">
             <Button
-              variant={activeTab === "metadata" ? "default" : "outline"}
-              onClick={() => setActiveTab("metadata")}
+              variant={activeTab.value === "metadata" ? "default" : "outline"}
+              onClick={() => (activeTab.value = "metadata")}
               size="sm"
             >
               <span className="material-symbols-outlined mr-2 text-base">
@@ -136,8 +136,8 @@ export const LayerMetadataModal = ({
               Metadata
             </Button>
             <Button
-              variant={activeTab === "layer" ? "default" : "outline"}
-              onClick={() => setActiveTab("layer")}
+              variant={activeTab.value === "layer" ? "default" : "outline"}
+              onClick={() => (activeTab.value = "layer")}
               size="sm"
             >
               <span className="material-symbols-outlined mr-2 text-base">

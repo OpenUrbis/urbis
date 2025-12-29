@@ -1,4 +1,4 @@
-import { useContext } from "preact/hooks";
+import { useContext } from "react";
 import { signal } from "@preact/signals";
 import { MapContext } from "../context/MapContext";
 import { getMapConfig } from "../integrations/map-integration";

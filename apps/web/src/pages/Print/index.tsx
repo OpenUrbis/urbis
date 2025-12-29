@@ -1,27 +1,28 @@
 import axios from "axios";
-import { useCallback, useEffect, useState } from "preact/hooks";
+import { useCallback, useEffect } from "preact/hooks";
+import { useSignal } from "@preact/signals";
 import { QRCodeSVG } from "qrcode.react";
 import { FeaturesView } from "../../components/FeaturesView";
 import { ITemplate } from "../../components/ViewTemplate/types/templates-type";
 import { getLayerSchema } from "../../integrations/layer-schema-integration";
 
 const PrintPage = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
-  const [template, setTemplate] = useState<ITemplate[]>([]);
+  const loading = useSignal<boolean>(false);
+  const error = useSignal<string>("");
+  const template = useSignal<ITemplate[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [data, setData] = useState<any[]>([]);
+  const data = useSignal<any[]>([]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchPolygonData = async (origin: string, params: any) => {
-    const { data, status } = await axios(origin, { params });
+    const { data: responseData, status } = await axios(origin, { params });
 
-    const feature = data?.features?.[0];
+    const feature = responseData?.features?.[0];
 
     if (!feature || status !== 200)
       throw { message: "LayerSchema data is not found" };
 
-    setData(feature);
+    data.value = feature;
   };
 
   const fetchLayerConfig = async (layerSchema: string) => {
@@ -31,7 +32,7 @@ const PrintPage = () => {
 
     if (!viewTemplate) throw { message: "ViewTemplate is not found" };
 
-    setTemplate(viewTemplate);
+    template.value = viewTemplate;
 
     return origin;
   };
@@ -43,18 +44,18 @@ const PrintPage = () => {
 
       await fetchPolygonData(await fetchLayerConfig(layerSchema), rest);
 
-      setLoading(false);
+      loading.value = false;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
-      setError(err.message ?? "Erro não identificado");
-      setLoading(false);
+      error.value = err.message ?? "Erro não identificado";
+      loading.value = false;
     }
   }, []);
 
   useEffect(() => {
-    setLoading(true);
+    loading.value = true;
 
     const params = new URLSearchParams(location.search);
     const queryObject = Object.fromEntries(params.entries());
@@ -62,14 +63,14 @@ const PrintPage = () => {
     fetchData(queryObject);
   }, [fetchData]);
 
-  return loading ? (
+  return loading.value ? (
     <div className="h-screen w-screen flex items-center justify-center">
       <span className="material-symbols-outlined text-4xl animate-spin">progress_activity</span>
     </div>
-  ) : error ? (
+  ) : error.value ? (
     <div className="h-screen w-screen flex items-center justify-center text-destructive">
       <span id="ready"></span>
-      {error}
+      {error.value}
     </div>
   ) : (
     <div className="w-full p-4 print:p-0">
@@ -89,7 +90,7 @@ const PrintPage = () => {
       </header>
       <div className="content">
         <FeaturesView
-          feature={{ feature: data, template }}
+          feature={{ feature: data.value, template: template.value }}
           key="print"
           isPrint={true}
         />

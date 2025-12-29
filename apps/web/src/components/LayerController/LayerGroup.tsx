@@ -1,5 +1,5 @@
-import { computed } from "@preact/signals";
-import { useState, useEffect } from "preact/hooks";
+import { computed, useSignal } from "@preact/signals";
+import { useEffect } from "preact/hooks";
 import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerGroup, IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { LayerItem } from "./LayerItem";
@@ -37,7 +37,7 @@ export const LayerGroup = ({
   searchValue?: string;
   level?: number;
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const isOpen = useSignal(false);
   const { layerSchemas, handleActiveLayer } = useMapContext();
 
   const layers = computed(() =>
@@ -63,10 +63,10 @@ export const LayerGroup = ({
   useEffect(() => {
     if (searchValue) {
        if (shouldRender.value) {
-         setIsOpen(true);
+         isOpen.value = true;
        }
     } else {
-      setIsOpen(false);
+      isOpen.value = false;
     }
   }, [searchValue, shouldRender.value]);
 
@@ -102,7 +102,7 @@ export const LayerGroup = ({
           "w-full flex justify-between items-center cursor-pointer hover:bg-muted/50 transition-colors py-3 pr-4",
         )}
         style={{ paddingLeft: `${(level + 1) * 16}px` }}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => (isOpen.value = !isOpen.value)}
       >
         <div className="flex items-center gap-2">
            {level > 0 && <span className="material-symbols-outlined text-lg text-muted-foreground/70">subdirectory_arrow_right</span>}
@@ -111,10 +111,10 @@ export const LayerGroup = ({
            </h3>
         </div>
         <span className="material-symbols-outlined text-xl text-muted-foreground">
-          {isOpen ? "expand_less" : "expand_more"}
+          {isOpen.value ? "expand_less" : "expand_more"}
         </span>
       </section>
-      {isOpen && (
+      {isOpen.value && (
         <div className={renderContentClassName.value}>
           {renderItems.value}
           {group.childGroups?.map((subGroup) => (

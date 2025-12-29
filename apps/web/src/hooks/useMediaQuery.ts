@@ -1,19 +1,20 @@
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
+import { useSignal } from "@preact/signals";
 
 export function useMediaQuery(query: string) {
-  const [value, setValue] = useState(false)
+  const value = useSignal(false)
 
   useEffect(() => {
     function onChange(event: MediaQueryListEvent) {
-      setValue(event.matches)
+      value.value = event.matches
     }
 
     const result = matchMedia(query)
     result.addEventListener("change", onChange)
-    setValue(result.matches)
+    value.value = result.matches
 
     return () => result.removeEventListener("change", onChange)
   }, [query])
 
-  return value
+  return value.value
 }

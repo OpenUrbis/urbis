@@ -90,13 +90,13 @@ export class ExportService {
         this.logger.log(
           `Fetching WFS data for ${schema.id} (typeName: ${wfsInfo.typeName}) with limit ${limit}`,
         );
-        
+
         const layerFeatures = await this.fetchLayerData(
           wfsInfo,
           bboxParam,
           limit,
         );
-        
+
         this.logger.log(`Fetched ${layerFeatures.length} features for ${schema.id}`);
 
         if (features.length + layerFeatures.length > MAX_FEATURES) {
@@ -111,6 +111,65 @@ export class ExportService {
           throw error;
         }
         this.logger.error(`Failed to fetch data for layer ${schema.id}`, error);
+      }
+    }
+
+    if (dto.externalLayers) {
+      for (const extLayer of dto.externalLayers) {
+        this.logger.log(`Processing external layer: ${extLayer.id}`);
+
+        if (features.length >= MAX_FEATURES) {
+          this.logger.warn(
+            `Max features limit reached before external layer ${extLayer.id}`,
+          );
+          throw new BadRequestException(
+            `Limite de ${MAX_FEATURES} feições excedido. Por favor, aproxime mais o mapa para reduzir a quantidade de dados.`,
+          );
+        }
+
+        // Check Zoom Level
+        if (
+          typeof zoom === 'number' &&
+          typeof extLayer.minZoom === 'number' &&
+          zoom < extLayer.minZoom
+        ) {
+          this.logger.log(
+            `Skipping external layer ${extLayer.id} due to zoom limit (minZoom: ${extLayer.minZoom}, current: ${zoom})`,
+          );
+          skippedByZoom.push(extLayer.id);
+          continue;
+        }
+
+        try {
+          const limit = MAX_FEATURES - features.length + 1;
+          this.logger.log(
+            `Fetching WFS data for external ${extLayer.id} (typeName: ${extLayer.typeName}) with limit ${limit}`,
+          );
+
+          const layerFeatures = await this.fetchLayerData(
+            extLayer,
+            bboxParam,
+            limit,
+          );
+          this.logger.log(
+            `Fetched ${layerFeatures.length} features for external ${extLayer.id}`,
+          );
+
+          if (features.length + layerFeatures.length > MAX_FEATURES) {
+            throw new BadRequestException(
+              `Limite de ${MAX_FEATURES} feições excedido. Por favor, aproxime mais o mapa para reduzir a quantidade de dados.`,
+            );
+          }
+          features.push(...layerFeatures);
+        } catch (error) {
+          if (error instanceof BadRequestException) {
+            throw error;
+          }
+          this.logger.error(
+            `Failed to fetch data for external layer ${extLayer.id}`,
+            error,
+          );
+        }
       }
     }
 

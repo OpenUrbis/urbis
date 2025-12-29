@@ -1,5 +1,5 @@
 import { computed } from "@preact/signals";
-import { useContext } from "preact/hooks";
+import { useContext } from "react";
 import { PolygonEditContext } from "../context/PolygonEditContext";
 import { IPolygonEditContextActions } from "../types/polygon-edit-context-type";
 

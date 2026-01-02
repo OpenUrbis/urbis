@@ -8,8 +8,8 @@ import {
   DialogTrigger,
   DialogFooter,
   DialogClose
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
 import { createElement } from "react";
 import ReactJson from "react-json-view";
 import { useMapContext } from "../../hooks/useMapContext";

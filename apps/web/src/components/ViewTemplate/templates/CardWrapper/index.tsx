@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@open-urbis/map-ui";
 import { Helper } from "../../components/helper";
 import { ITemplatesDeclaration } from "../../types/templates-type";
 import { ViewTemplateEngine } from "../../ViewTemplateEngine";

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 
 export const MenuToggleButton = () => {

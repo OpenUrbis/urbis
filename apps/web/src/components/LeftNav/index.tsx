@@ -1,8 +1,8 @@
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { Search } from "../Search";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTitle } from "@open-urbis/map-ui";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { cn } from "@/lib/utils";
+import { cn } from "@open-urbis/map-ui";
 
 export const LeftNav = () => {
   const { drawerOpen, toggleDrawer, currentPage } = useNavigationContext();

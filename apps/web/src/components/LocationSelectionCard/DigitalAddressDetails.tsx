@@ -1,13 +1,13 @@
 import { encode, getPolygon, getAddressMetrics } from '@open-urbis/numeracao-digital';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@open-urbis/map-ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@open-urbis/map-ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@open-urbis/map-ui";
 import { DigitalAddressPlate } from "./DigitalAddressPlate";
 import { DigitalAddressCard } from "./DigitalAddressCard";
 import { useNavigationContext } from "../../hooks/useNavigationContext";

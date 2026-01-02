@@ -5,8 +5,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
 import { IGetConfigLayerSchema } from "../../../types/fetch-map-config-type";
 
 interface LayerMetadataModalProps {

@@ -1,13 +1,13 @@
 import { computed, signal, useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
-import { Button } from "@/components/ui/button";
+import { Button } from "@open-urbis/map-ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@open-urbis/map-ui";
 import { useMapContext } from "../../hooks/useMapContext";
 import {
   IGetConfigColor,

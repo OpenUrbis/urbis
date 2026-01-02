@@ -3,14 +3,14 @@ import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { LayerItemAction } from "./LayerItemAction";
 import { LayerMetadataModal } from "./modals/LayerMetadataModal";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { cn } from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@open-urbis/map-ui";
 
 export const LayerItem = ({ 
   item, 

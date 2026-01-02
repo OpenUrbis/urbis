@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 
 const itemVariants = cva(
   "group relative flex w-full items-center justify-between gap-4 rounded-xl border p-4 transition-all hover:bg-muted/50 data-[state=open]:bg-muted/50",

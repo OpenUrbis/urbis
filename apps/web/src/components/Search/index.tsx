@@ -1,15 +1,15 @@
 import { useEffect } from "preact/compat";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@open-urbis/map-ui";
+import { Input } from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
+} from "@open-urbis/map-ui";
+import { Switch } from "@open-urbis/map-ui";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { useSearchContext } from "../../hooks/useSearchContext";

@@ -1,22 +1,22 @@
 import { computed, useSignal } from "@preact/signals";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@open-urbis/map-ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@open-urbis/map-ui";
+import { Input } from "@open-urbis/map-ui";
+import { Label } from "@open-urbis/map-ui";
 import {
   Item,
   ItemActions,
   ItemContent,
   ItemDescription,
   ItemTitle,
-} from "@/components/ui/item";
+} from "@open-urbis/map-ui";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@open-urbis/map-ui";
 import { useMapContext } from "../../hooks/useMapContext";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";

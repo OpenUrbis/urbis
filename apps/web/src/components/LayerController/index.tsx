@@ -1,21 +1,21 @@
 import { signal, useSignal } from "@preact/signals";
 import "preact/compat";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@open-urbis/map-ui";
+import { Input } from "@open-urbis/map-ui";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@open-urbis/map-ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from "@open-urbis/map-ui";
+import { cn } from "@open-urbis/map-ui";
 import { useMapContext } from "../../hooks/useMapContext";
 import { exportGeoJson } from "../../integrations/map-integration";
 import { LayerGroup } from "./LayerGroup";

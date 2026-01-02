@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@open-urbis/map-ui";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { ViewTemplate } from "../ViewTemplate";
 import { ITemplate } from "../ViewTemplate/types/templates-type";

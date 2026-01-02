@@ -18,7 +18,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { useMapContext } from "../../hooks/useMapContext";
 import { LayerItem } from "./LayerItem";
-import { cn } from "@/lib/utils";
+import { cn } from "@open-urbis/map-ui";
 
 function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
   const { handleVisibleLayer } = useMapContext();

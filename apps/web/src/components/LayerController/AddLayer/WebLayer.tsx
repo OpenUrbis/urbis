@@ -2,10 +2,10 @@
 import { useSignal, useComputed } from "@preact/signals";
 import { createElement } from "react";
 import ReactJson from "react-json-view";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@open-urbis/map-ui";
+import { Input } from "@open-urbis/map-ui";
+import { Label } from "@open-urbis/map-ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@open-urbis/map-ui";
 import { useMapContext } from "../../../hooks/useMapContext";
 import { IGetConfigLayerSchema, IGetConfigLayerSchemaTypeEnum } from "../../../types/fetch-map-config-type";
 import axios from "axios";

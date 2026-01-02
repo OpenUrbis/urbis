@@ -1,11 +1,11 @@
 import { useContext, useEffect } from "react";
 import { useSignal } from "@preact/signals";
 import { useAuth } from "react-oidc-context";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
+import { Input } from "@open-urbis/map-ui";
+import { Label } from "@open-urbis/map-ui";
+import { Textarea } from "@open-urbis/map-ui";
 import { shareService } from "../../../integrations/share-service";
 import { useMapContext, currentShare } from "../../../hooks/useMapContext";
 import { SearchContext } from "../../../context/SearchContext";

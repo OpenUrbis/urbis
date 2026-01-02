@@ -6,9 +6,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
+import { Label } from "@open-urbis/map-ui";
 
 interface ExportOptionsModalProps {
   isOpen: boolean;

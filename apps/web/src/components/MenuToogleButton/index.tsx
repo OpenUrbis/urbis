@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 
 export const MenuToggleButton = () => {
-  const { drawerOpen, toggleDrawer } = useNavigationContext();
+  const { toggleDrawer } = useNavigationContext();
 
   return (
     <Button

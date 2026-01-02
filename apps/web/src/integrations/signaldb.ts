@@ -38,9 +38,11 @@ export interface AppHistoryDoc {
 }
 
 export const appState = new Collection<AppStateDoc>({
-  persistence: adapter,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  persistence: adapter as any,
 });
 
 export const appHistory = new Collection<AppHistoryDoc>({
-  persistence: historyAdapter,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  persistence: historyAdapter as any,
 });

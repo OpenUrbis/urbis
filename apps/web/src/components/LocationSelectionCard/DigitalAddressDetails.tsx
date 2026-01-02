@@ -1,4 +1,4 @@
-import { encode, getPolygon, getAddressMetrics, extrair5Decimais } from '@open-urbis/numeracao-digital';
+import { encode, getPolygon, getAddressMetrics } from '@open-urbis/numeracao-digital';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -30,9 +30,6 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode }: Digital
   const polygon = getPolygon(address);
   const metrics = getAddressMetrics(address);
   const [prefix, code] = address.split(' ');
-  const lat5 = extrair5Decimais(latitude);
-  const lon5 = extrair5Decimais(longitude);
-  const fivePlusFive = lat5 + lon5;
 
   const handleDownloadPDF = async () => {
     const element = document.getElementById('digital-address-plate');

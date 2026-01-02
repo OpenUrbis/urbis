@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { ViewTemplate } from "../ViewTemplate";

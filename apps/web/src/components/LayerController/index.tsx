@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useMapContext } from "../../hooks/useMapContext";
-import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { exportGeoJson } from "../../integrations/map-integration";
 import { LayerGroup } from "./LayerGroup";
 import { LayerSortableList } from "./LayerSortableList";
@@ -30,7 +29,6 @@ const isCollapsed = signal<boolean>(false);
 
 export const LayerController = () => {
   const { layerGroups, layerSchemas, boundingBox, zoom } = useMapContext();
-  const { data: polygonData } = usePolygonEditContext();
   
   const activeTab = useSignal<'sources' | 'visible'>('sources');
   const searchValue = useSignal('');

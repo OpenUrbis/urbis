@@ -31,7 +31,7 @@ export const usePolygonEditContext = (): IPolygonEditContextActions => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setDrawRef = (newDrawRef: any) => {
-    drawRef!.current = newDrawRef;
+    (drawRef as any)!.current = newDrawRef;
   };
 
   const reset = () => {

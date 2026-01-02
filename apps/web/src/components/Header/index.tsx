@@ -1,4 +1,3 @@
-import { signal } from "@preact/signals";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -30,8 +29,6 @@ import { useAuth } from "react-oidc-context";
 import { Debugger } from "../Debugger";
 import { MenuToggleButton } from "../MenuToogleButton";
 import { ModeToggle } from "../ModeToggle";
-
-const isMenuOpenSignal = signal(false);
 
 const Header = () => {
   const auth = useAuth();

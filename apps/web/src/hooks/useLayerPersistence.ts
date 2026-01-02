@@ -46,7 +46,8 @@ export const useLayerPersistence = () => {
         currentSessionId.value = id;
         try {
             const data = await shareService.load(id);
-            if (data && data.root) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (data && (data as any).root) {
                 // Restore from API (Mock) logic if needed
                 console.log('Restored from API', data);
             } else {

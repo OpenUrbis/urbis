@@ -29,6 +29,11 @@ export const PolygonDetails = ({
             <span className="font-bold text-primary">
               Selecione uma área e <br /> clique para Salvar:
             </span>
+            <p className="text-[10px] text-muted-foreground mt-2 leading-snug">
+              Para selecionar e poder editar os vértices do elemento, clique nele
+              duas vezes e faça as edições necessárias depois clique em Salvar /
+              Atualizar.
+            </p>
           </div>
         </CardContent>
       </Card>

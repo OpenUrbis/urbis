@@ -16,6 +16,9 @@ import { useMapContext } from "../../hooks/useMapContext";
 import html2canvas from "html2canvas";
 // @ts-ignore
 import jsPDF from "jspdf";
+import proj4 from "proj4";
+
+proj4.defs("EPSG:31983", "+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 
 interface DigitalAddressDetailsProps {
   latitude: number;
@@ -30,6 +33,10 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode }: Digital
   const polygon = getPolygon(address);
   const metrics = getAddressMetrics(address);
   const [prefix, code] = address.split(' ');
+
+  const utm = proj4("EPSG:4326", "EPSG:31983", [longitude, latitude]);
+  const utmX = utm[0];
+  const utmY = utm[1];
 
   const handleDownloadPDF = async () => {
     const element = document.getElementById('digital-address-plate');
@@ -100,15 +107,15 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode }: Digital
 
         {/* Espaço Representado */}
         <div className="space-y-2 pt-2 border-t">
-          <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Coordenadas</h3>
+          <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Coordenadas (SIRGAS 2000 / UTM 23S)</h3>
           <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-md border border-border/50">
             <div>
-              <span className="block text-[10px] uppercase font-medium text-muted-foreground mb-1">Latitude</span>
-              <span className="font-mono text-sm">{latitude.toFixed(5)}</span>
+              <span className="block text-[10px] uppercase font-medium text-muted-foreground mb-1">Easting (X)</span>
+              <span className="font-mono text-sm">{utmX.toFixed(2)} m</span>
             </div>
             <div>
-              <span className="block text-[10px] uppercase font-medium text-muted-foreground mb-1">Longitude</span>
-              <span className="font-mono text-sm">{longitude.toFixed(5)}</span>
+              <span className="block text-[10px] uppercase font-medium text-muted-foreground mb-1">Northing (Y)</span>
+              <span className="font-mono text-sm">{utmY.toFixed(2)} m</span>
             </div>
           </div>
         </div>
@@ -142,9 +149,12 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode }: Digital
 
         {/* Polígono (Moved down and minimized) */}
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vértices (Debug)</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vértices (UTM 23S)</h3>
           <pre className="text-[9px] bg-muted/50 p-2 rounded border border-border/30 overflow-x-auto font-mono text-muted-foreground">
-            {polygon.map(p => `${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}`).join('\n')}
+            {polygon.map(p => {
+                const ptUtm = proj4("EPSG:4326", "EPSG:31983", [p.lon, p.lat]);
+                return `${ptUtm[0].toFixed(2)}, ${ptUtm[1].toFixed(2)}`;
+            }).join('\n')}
           </pre>
         </div>
 
@@ -161,7 +171,7 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode }: Digital
                  <DialogTitle>Placa Virtual</DialogTitle>
                </DialogHeader>
                <div className="flex flex-col items-center justify-center p-6 gap-6 w-full">
-                 <DigitalAddressPlate address={address} prefix={prefix} code={code} />
+                 <DigitalAddressPlate address={address} prefix={prefix} code={code} utm={{x: utmX, y: utmY}} />
                  
                  <Button onClick={handleDownloadPDF} variant="default" className="w-full max-w-sm rounded-full">
                     <span className="material-symbols-outlined mr-2">download</span>

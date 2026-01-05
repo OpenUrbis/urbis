@@ -4,9 +4,10 @@ interface DigitalAddressPlateProps {
   address: string;
   prefix: string;
   code: string;
+  utm?: { x: number; y: number };
 }
 
-export const DigitalAddressPlate = ({ address, prefix, code }: DigitalAddressPlateProps) => {
+export const DigitalAddressPlate = ({ address, prefix, code, utm }: DigitalAddressPlateProps) => {
   return (
     <div className="flex flex-col items-center gap-3 w-full">
         <div id="digital-address-plate" className="relative w-full aspect-[1.6/1] bg-white rounded-xl overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
@@ -27,8 +28,16 @@ export const DigitalAddressPlate = ({ address, prefix, code }: DigitalAddressPla
 
             {/* Footer */}
             <div className="flex justify-between items-end px-6 py-4 bg-white border-t border-gray-100 shrink-0">
-                 <div className="text-xs text-slate-400 font-mono mb-1">
-                    {address}
+                 <div className="flex flex-col gap-1">
+                    <div className="text-xs text-slate-400 font-mono">
+                        {address}
+                    </div>
+                    {utm && (
+                        <div className="text-[10px] text-slate-500 font-mono font-medium">
+                            E: {utm.x.toFixed(2)} N: {utm.y.toFixed(2)}
+                            <span className="block text-[8px] text-slate-400 font-sans uppercase mt-0.5">SIRGAS 2000 / UTM 23S</span>
+                        </div>
+                    )}
                  </div>
                  <div className="border border-gray-100 p-1.5 rounded bg-white">
                     <QRCodeCanvas value={address} size={64} fgColor="#000000" />

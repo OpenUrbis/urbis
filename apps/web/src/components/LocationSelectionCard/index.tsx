@@ -28,6 +28,11 @@ import { DigitalAddressDetails } from "./DigitalAddressDetails";
 import { decode, getPolygon, encode } from "@open-urbis/numeracao-digital";
 // @ts-ignore
 import { OpenLocationCode } from "open-location-code";
+import proj4 from "proj4";
+
+// Define Projections
+proj4.defs("EPSG:31983", "+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+proj4.defs("EPSG:4674", "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs");
 
 const olc = new OpenLocationCode();
 
@@ -42,6 +47,7 @@ export const LocationSelectionCard = () => {
   const error = useSignal("");
   const selectedOption = useSignal<string | null>(null);
   
+  const crs = useSignal<"EPSG:4674" | "EPSG:4326" | "EPSG:31983">("EPSG:31983");
   const inputType = useSignal<"latlon" | "digital" | "pluscode">("latlon");
   const latitude = useSignal("");
   const longitude = useSignal("");
@@ -70,16 +76,25 @@ export const LocationSelectionCard = () => {
       if (inputType.value === "latlon") {
         const lat = parseFloat(latitude.value);
         const lon = parseFloat(longitude.value);
-        if (
+        
+        // For UTM, range check is different/harder. 
+        // For Lat/Lon, check limits.
+        const isProjected = crs.value === "EPSG:31983";
+        
+        if (!isProjected && (
           isNaN(lat) ||
           isNaN(lon) ||
           lat < -90 ||
           lat > 90 ||
           lon < -180 ||
           lon > 180
-        ) {
+        )) {
           error.value = "Por favor, insira valores válidos para latitude e longitude.";
           return false;
+        }
+        if (isProjected && (isNaN(lat) || isNaN(lon))) {
+             error.value = "Por favor, insira valores válidos para coordenadas.";
+             return false;
         }
       } else if (inputType.value === "digital") {
          if (!digitalAddress.value.trim()) {
@@ -127,6 +142,20 @@ export const LocationSelectionCard = () => {
         if (inputType.value === "latlon") {
             lat = parseFloat(latitude.value);
             lon = parseFloat(longitude.value);
+
+            // Convert if needed
+            if (crs.value === "EPSG:31983") {
+                // UTM [Easting, Northing] -> [Lon, Lat]
+                // Input: lon field is X (Easting), lat field is Y (Northing)
+                const converted = proj4("EPSG:31983", "EPSG:4326", [lon, lat]);
+                lon = converted[0];
+                lat = converted[1];
+            } else if (crs.value === "EPSG:4674") {
+                // SIRGAS 2000 Lat/Lon -> WGS84 Lat/Lon (practically same, but explicit)
+                const converted = proj4("EPSG:4674", "EPSG:4326", [lon, lat]);
+                lon = converted[0];
+                lat = converted[1];
+            }
             
             // Default to Digital Address Polygon for lat/lon input
             const address = encode(lat, lon);
@@ -235,33 +264,70 @@ export const LocationSelectionCard = () => {
         );
 
       } else if (selectedOption.value === "geoJson") {
-        openObj({ file: geoJsonFile.value! });
+        openObj({ file: geoJsonFile.value!, crs: crs.value });
       }
       step.value = 1;
       selectedOption.value = null;
     }
   };
 
-  const openObj = async ({ file }: { file: File }) => {
+  const openObj = async ({ file, crs }: { file: File, crs: string }) => {
     if (!file) return;
-    const object = await transformFileToJson(file);
-    editFeature(object);
+    let object = await transformFileToJson(file);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const centroid: any = calculateCentroid(object?.geometry.coordinates);
-    const destination = {
-      center: [centroid[0][0], centroid[0][1]],
-      zoom: 18,
-      bearing: 0,
-    };
+    // Convert GeoJSON coordinates if needed
+    if (crs !== "EPSG:4326") {
+        const transform = (coords: any): any => {
+            if (typeof coords[0] === "number") {
+                return proj4(crs, "EPSG:4326", coords);
+            }
+            return coords.map(transform);
+        };
 
-    navigateTo(
-      <PolygonDetails
-        template={editFeatureTemplate.value!}
-        rootTemplate={rootTemplate.value!}
-      />
-    );
-    flyTo(destination);
+        const transformFeature = (feature: any) => {
+             if (feature.geometry && feature.geometry.coordinates) {
+                 feature.geometry.coordinates = transform(feature.geometry.coordinates);
+             }
+             return feature;
+        }
+
+        if (object.type === "FeatureCollection") {
+            object.features = object.features.map(transformFeature);
+        } else if (object.type === "Feature") {
+            object = transformFeature(object);
+        }
+    }
+
+    let featureToEdit = object;
+    if (object.type === "FeatureCollection") {
+        featureToEdit = object.features?.[0];
+    }
+
+    if (featureToEdit) {
+        // Remove CRS if present (we converted to WGS84)
+        delete featureToEdit.crs;
+        
+        editFeature(featureToEdit);
+
+        const geometry = featureToEdit.geometry;
+        if (geometry?.coordinates) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const centroid: any = calculateCentroid(geometry.coordinates);
+      const destination = {
+        center: [centroid[0][0], centroid[0][1]],
+        zoom: 18,
+        bearing: 0,
+      };
+
+            navigateTo(
+                <PolygonDetails
+                template={editFeatureTemplate.value!}
+                rootTemplate={rootTemplate.value!}
+                />
+            );
+            flyTo(destination);
+        }
+    }
   };
 
   const handleOptionSelect = (option: string) => {
@@ -342,30 +408,49 @@ export const LocationSelectionCard = () => {
                 </div>
 
                 {inputType.value === "latlon" && (
-                    <div className="grid grid-cols-2 gap-2">
-                        <div className="grid w-full items-center gap-1">
-                            <Label htmlFor="latitude" className="text-xs">Latitude</Label>
-                            <Input
-                                className="h-8 text-xs"
-                                type="number"
-                                id="latitude"
-                                value={latitude.value}
-                                placeholder="-23.5505"
-                                onChange={(e) => (latitude.value = (e.currentTarget as HTMLInputElement).value)}
-                            />
-                            <p className="text-[9px] text-muted-foreground">Ex: -23.55052</p>
+                    <div className="space-y-2">
+                        <div className="grid w-full max-w-sm items-center gap-1">
+                            <Label className="text-[10px] text-muted-foreground uppercase font-bold">Projeção</Label>
+                            <Select value={crs.value} onValueChange={(v: any) => crs.value = v}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione a projeção" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="EPSG:4674">SIRGAS 2000 / WGS 84 (Geográfico)</SelectItem>
+                                    <SelectItem value="EPSG:31983">SIRGAS 2000 (UTM 23S)</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <div className="grid w-full items-center gap-1">
-                            <Label htmlFor="longitude" className="text-xs">Longitude</Label>
-                            <Input
-                                className="h-8 text-xs"
-                                type="number"
-                                id="longitude"
-                                value={longitude.value}
-                                placeholder="-46.6333"
-                                onChange={(e) => (longitude.value = (e.currentTarget as HTMLInputElement).value)}
-                            />
-                            <p className="text-[9px] text-muted-foreground">Ex: -46.63330</p>
+
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="grid w-full items-center gap-1">
+                                <Label htmlFor="latitude" className="text-xs">
+                                    {crs.value === "EPSG:31983" ? "Northing (Y)" : "Latitude"}
+                                </Label>
+                                <Input
+                                    className="h-8 text-xs"
+                                    type="number"
+                                    id="latitude"
+                                    value={latitude.value}
+                                    placeholder={crs.value === "EPSG:31983" ? "7394382" : "-23.5505"}
+                                    onChange={(e) => (latitude.value = (e.currentTarget as HTMLInputElement).value)}
+                                />
+                                <p className="text-[9px] text-muted-foreground">Ex: {crs.value === "EPSG:31983" ? "7394382" : "-23.55052"}</p>
+                            </div>
+                            <div className="grid w-full items-center gap-1">
+                                <Label htmlFor="longitude" className="text-xs">
+                                    {crs.value === "EPSG:31983" ? "Easting (X)" : "Longitude"}
+                                </Label>
+                                <Input
+                                    className="h-8 text-xs"
+                                    type="number"
+                                    id="longitude"
+                                    value={longitude.value}
+                                    placeholder={crs.value === "EPSG:31983" ? "333199" : "-46.6333"}
+                                    onChange={(e) => (longitude.value = (e.currentTarget as HTMLInputElement).value)}
+                                />
+                                <p className="text-[9px] text-muted-foreground">Ex: {crs.value === "EPSG:31983" ? "333199" : "-46.63330"}</p>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -402,17 +487,42 @@ export const LocationSelectionCard = () => {
               </div>
             )}
             {selectedOption.value === "geoJson" && (
-              <div className="grid w-full max-w-sm items-center gap-1">
-                <Label htmlFor="geojson" className="text-xs">Selecione o arquivo</Label>
-                <Input
-                  className="h-8 text-xs"
-                  type="file"
-                  id="geojson"
-                  accept=".geojson"
-                  onChange={(e) =>
-                    (geoJsonFile.value = e.currentTarget.files ? e.currentTarget.files[0] : null)
-                  }
-                />
+              <div className="space-y-2">
+                  <div className="grid w-full max-w-sm items-center gap-1">
+                    <Label className="text-[10px] text-muted-foreground uppercase font-bold">Projeção do Arquivo</Label>
+                    <Select value={crs.value} onValueChange={(v: any) => crs.value = v}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Selecione a projeção" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="EPSG:4674">SIRGAS 2000 / WGS 84 (Geográfico)</SelectItem>
+                            <SelectItem value="EPSG:31983">SIRGAS 2000 (UTM 23S)</SelectItem>
+                        </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid w-full max-w-sm items-center gap-1">
+                    <Label htmlFor="geojson" className="text-xs">Selecione o arquivo</Label>
+                    <Input
+                      className="h-8 text-xs"
+                      type="file"
+                      id="geojson"
+                      accept=".geojson"
+                      onChange={(e) =>
+                        (geoJsonFile.value = e.currentTarget.files ? e.currentTarget.files[0] : null)
+                      }
+                    />
+                    <div className="flex gap-4 text-[10px] text-muted-foreground pt-1">
+                        <a href="/exemplo_wgs84.geojson" download className="hover:underline flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[10px]">download</span>
+                            Exemplo WGS 84
+                        </a>
+                        <a href="/exemplo_sirgas_utm.geojson" download className="hover:underline flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[10px]">download</span>
+                            Exemplo SIRGAS UTM
+                        </a>
+                    </div>
+                  </div>
               </div>
             )}
 

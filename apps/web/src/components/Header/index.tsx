@@ -1,97 +1,151 @@
-import { signal } from "@preact/signals";
-import { Button } from "rmwc";
+import { Button } from "@open-urbis/map-ui";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@open-urbis/map-ui";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@open-urbis/map-ui";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@open-urbis/map-ui";
+import { cn } from "@open-urbis/map-ui";
+import { useAuth } from "react-oidc-context";
 
 import { Debugger } from "../Debugger";
-import "./style.scss";
 import { MenuToggleButton } from "../MenuToogleButton";
-
-const isMenuOpenSignal = signal(false);
-
-const toggleMenu = () => {
-  isMenuOpenSignal.value = !isMenuOpenSignal.value;
-};
+import { ModeToggle } from "../ModeToggle";
 
 const Header = () => {
-  return (
-    <header className="header sticky-header">
-      <nav className="navbar navbar-expand-lg navbar-light">
-        <div
-          className="d-flex w-100 align-items-center"
-          style={{ justifyContent: "flex-start" }}
-        >
-          <div className="d-flex align-items-center">
-            <a className="navbar-brand" href="/">
-              <img
-                fetchPriority="high"
-                src="https://urbis.sampa.br/assets/images/logo.webp"
-                width="auto"
-                height="36px"
-                alt="Urbis"
-                style="border-radius: 0!important"
-              />
-              <span style="color: #8b8a8a; font-size: 14px;">DEMO</span>
-            </a>
-          </div>
-          <div
-            className={`collapse navbar-collapse flex-grow-1 ${isMenuOpenSignal.value ? "show" : ""}`}
-            id="navbarNavAltMarkup"
-          >
-            <div className="navbar-nav nav-links">
-              <a className="nav-item nav-link" href="https://urbis.sampa.br">
-                Início
-              </a>
-              <a className="nav-item nav-link nav-chip active" rel="noopener">
-                Mapa
-              </a>
-              <a
-                className="nav-item nav-link"
-                href="https://viabiliza.urbis.sampa.br"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Viabiliza
-              </a>
-              <a
-                className="nav-item nav-link"
-                href="https://dadosabertos.urbis.sampa.br"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Dados Abertos
-              </a>
-              <a
-                className="nav-item nav-link"
-                href="https://github.com/OpenUrbis"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-              <a
-                className="nav-item nav-link"
-                href="https://docs.urbis.sampa.br"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Documentação
-              </a>
-            </div>
-          </div>
-          <div className="d-flex align-items-center" style={{ gap: "2px" }}>
-            <Debugger />
-            <Button
-              className="navbar-toggler"
-              onClick={toggleMenu}
-              aria-expanded={isMenuOpenSignal.value}
-              aria-controls="navbarNavAltMarkup"
-              aria-label="Toggle navigation"
-              icon="menu"
-            />
+  const auth = useAuth();
 
-            <MenuToggleButton />
+  return (
+    <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 items-center px-4 w-full">
+        <div className="mr-2 flex items-center">
+          <MenuToggleButton />
+        </div>
+        {/* Logo */}
+        <div className="mr-4 flex items-center">
+          <a className="mr-6 flex items-center space-x-2" href="/">
+            <img
+              fetchPriority="high"
+              src="https://urbis.sampa.br/assets/images/logo.webp"
+              className="h-6 w-auto object-contain"
+              alt="Urbis"
+            />
+            <span className="hidden font-bold sm:inline-block text-muted-foreground text-sm">
+              DEMO
+            </span>
+          </a>
+        </div>
+
+        {/* Desktop Menu - NavigationMenu */}
+        <div className="hidden md:flex items-center gap-2">
+          <NavigationMenu>
+            <NavigationMenuList>
+              {["Início", "Mapa", "Viabiliza", "Dados Abertos", "GitHub", "Documentação"].map((item) => (
+                <NavigationMenuItem key={item}>
+                  <NavigationMenuLink
+                    href="#"
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      "rounded-full border border-input h-8 px-4 bg-transparent hover:bg-accent"
+                    )}
+                  >
+                    {item}
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+
+        <div className="flex flex-1 items-center justify-end space-x-2">
+          <div className="flex items-center gap-2">
+             <ModeToggle />
+             <div className="hidden lg:block">
+               <Debugger />
+             </div>
+
+             {/* User Menu */}
+             {auth.isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full border">
+                       <span className="material-symbols-outlined text-xl">account_circle</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{auth.user?.profile.name || "Usuário"}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {auth.user?.profile.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => auth.removeUser()}>
+                      Sair
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+             ) : (
+                <Button variant="outline" size="sm" onClick={() => auth.signinRedirect()}>
+                  Entrar
+                </Button>
+             )}
+             
+             {/* Mobile Menu Drawer */}
+             <div className="md:hidden">
+               <Drawer>
+                 <DrawerTrigger asChild>
+                   <Button variant="ghost" size="icon">
+                     <span className="material-symbols-outlined text-xl">expand_more</span>
+                     <span className="sr-only">Toggle Menu</span>
+                   </Button>
+                 </DrawerTrigger>
+                 <DrawerContent>
+                   <DrawerHeader>
+                     <DrawerTitle>Menu</DrawerTitle>
+                   </DrawerHeader>
+                   <div className="p-4 flex flex-col gap-4">
+                     {["Início", "Mapa", "Viabiliza", "Dados Abertos", "GitHub", "Documentação"].map((item) => (
+                       <a
+                         key={item}
+                         href="#"
+                         className="text-lg font-medium hover:text-primary transition-colors"
+                       >
+                         {item}
+                       </a>
+                     ))}
+                   </div>
+                   <DrawerFooter>
+                     <DrawerClose asChild>
+                       <Button variant="outline">Fechar</Button>
+                     </DrawerClose>
+                   </DrawerFooter>
+                 </DrawerContent>
+               </Drawer>
+             </div>
           </div>
         </div>
-      </nav>
+      </div>
     </header>
   );
 };

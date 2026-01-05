@@ -1,5 +1,5 @@
 import { effect, signal } from "@preact/signals";
-import { ComponentChildren, createContext } from "preact";
+import { createContext, ReactNode } from "react";
 import { useFetchSearch } from "../hooks/useFetchSearch";
 import { IGetSearchConfigResponse } from "../types/fetch-search-config-type";
 import { SearchContextType } from "../types/search-context-type";
@@ -14,7 +14,7 @@ export const SearchContext = createContext<SearchContextType | null>(null);
 export const SearchProvider = ({
   children,
 }: {
-  children: ComponentChildren;
+  children: ReactNode;
 }) => {
   const searchQuery = useFetchSearch(searchConfig);
 

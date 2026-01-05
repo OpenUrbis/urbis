@@ -6,12 +6,13 @@ import {
 } from "../types/fetch-search-config-type";
 import { createFn } from "../utils/createFn";
 
-const environment = import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br";
+const environment =
+  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
 
 export const getSearchConfig = async (): Promise<
   IGetSearchConfigResponse[]
 > => {
-  const response = await fetch(`${environment}/search-config`);
+  const response = await fetch(`${environment}/config/search`);
   if (!response.ok) {
     throw new Error("Failed to fetch map config");
   }
@@ -43,16 +44,55 @@ export const fetchSearchItem = async (
       config.params = transformParamsFn ? transformParamsFn({ term }) : {};
     }
 
-    if (transformRequest) config.transformRequest = [createFn(transformRequest)];
+    if (transformRequest)
+      config.transformRequest = [createFn(transformRequest)];
 
-    if (transformResponse)
-      config.transformResponse = [createFn(transformResponse)];
+    // Force text response to allow manual parsing and count extraction
+    config.transformResponse = [(data) => data];
 
     const response = await axios(config);
+    const responseText = response.data;
+    let responseJson;
+    try {
+      responseJson = JSON.parse(responseText);
+    } catch (e) {
+      console.error("Failed to parse response JSON", e);
+      responseJson = {};
+    }
 
-    return response.data ?? []; 
+    let items: any[] = [];
+
+    if (transformResponse) {
+      const fn = createFn(transformResponse);
+      try {
+        items = fn(responseText);
+      } catch (e) {
+        console.error("Error transforming response", e);
+        items = [];
+      }
+    } else {
+      items = Array.isArray(responseJson) ? responseJson : [];
+    }
+
+    const totalCount =
+      responseJson.totalFeatures ||
+      responseJson.numberMatched ||
+      responseJson.count;
+
+    if (Array.isArray(items) && totalCount !== undefined) {
+      (items as any).totalCount = totalCount;
+    }
+
+    return items ?? [];
   } catch (error: any) {
     console.error("Error fetching search item:", error);
-    return [{ type: 'error', message: error?.response?.data?.message ?? "Houve um erro ao buscar os dados de pesquisa." }];
+    return [
+      {
+        type: "error",
+        message:
+          error?.response?.data?.message ??
+          "Houve um erro ao buscar os dados de pesquisa.",
+      },
+    ];
   }
 };

@@ -26,26 +26,62 @@ Urbis Map is an open-source monorepo created to empower municipal administration
 
 ## Installation
 
-To get started with Urbis Map, install the dependencies using your preferred package manager:
+To get started with Urbis Map, install the dependencies using pnpm:
 
 ```bash
-npm install
-# or
-yarn install
-# or
 pnpm install
 ```
 
 ---
 
+## Environment Setup
+
+Before running the application, you need to set up the environment variables.
+
+### API (`apps/api`)
+
+Copy `apps/api/.env.example` to `apps/api/.env`:
+
+```bash
+cp apps/api/.env.example apps/api/.env
+```
+
+Ensure the following variables are set correctly in `apps/api/.env`:
+
+- `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_NAME`: PostgreSQL configuration.
+- `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`: Redis configuration.
+- `AUTH_SECRET`, `AUTH_API_KEY`: Secrets for authentication.
+- `MAIL_SENDGRID_API_KEY`, `MAIL_FROM`: Email configuration.
+
+### Web (`apps/web`)
+
+Copy `apps/web/.env.example` to `apps/web/.env`:
+
+```bash
+cp apps/web/.env.example apps/web/.env
+```
+
+Required variables:
+
+- `VITE_PUBLIC_MAPBOX_ACCESS_TOKEN`: Mapbox token for map rendering.
+- `VITE_API_URL`: URL of the backend API (default: `http://localhost:3000`).
+
+---
+
 ## Usage
+
+To start the infrastructure (PostgreSQL and Redis) using Docker:
+
+```bash
+pnpm composer:up
+```
+
+> **Note:** The `composer:up` command requires the database environment variables. Ensure you have them exported or in a `.env` file in the root directory, or update the script to load them from `apps/api/.env`.
 
 To start the development server:
 
 ```bash
-# start postgres
-yarn composer:up
-npm run dev
+pnpm dev
 ```
 
 This will launch the local development environment, allowing you to test and explore the mapping system.
@@ -53,7 +89,7 @@ This will launch the local development environment, allowing you to test and exp
 For production builds:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ---
@@ -85,13 +121,13 @@ To contribute to Urbis Map, follow these steps:
 2. **Install dependencies**:
 
    ```bash
-   yarn install
+   pnpm install
    ```
 
 3. **Start the development server**:
 
    ```bash
-   yarn dev
+   pnpm dev
    ```
 
 4. Open your browser and visit `http://localhost:5173`.

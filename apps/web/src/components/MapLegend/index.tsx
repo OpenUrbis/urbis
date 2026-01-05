@@ -1,17 +1,23 @@
-import { computed, signal } from "@preact/signals";
-import { useCallback, useState } from "react";
-import { Button, IconButton, Select } from "rmwc";
+import { computed, signal, useSignal } from "@preact/signals";
+import { useEffect } from "preact/hooks";
+import { Button } from "@open-urbis/map-ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@open-urbis/map-ui";
 import { useMapContext } from "../../hooks/useMapContext";
 import {
   IGetConfigColor,
   IGetConfigLayerSchema,
 } from "../../types/fetch-map-config-type";
-import "./style.scss";
 
 const isCollapsed = signal<boolean>(false);
 
 export const MapLegend = () => {
-  const [activedTab, setActivedTab] = useState<string>("");
+  const activedTab = useSignal<string>("");
   const { layerSchemas } = useMapContext();
 
   const layers = computed(() =>
@@ -22,15 +28,20 @@ export const MapLegend = () => {
     )
   );
 
-  const activedLayer = useCallback(() => {
-    const currentLayer = layers.value.find((layer) => layer.id === activedTab);
-    if (!currentLayer && layers.value.length) setActivedTab(layers.value[0].id);
+  const activedLayer = computed(() => {
+    const currentLayer = layers.value.find((layer) => layer.id === activedTab.value);
+    // Return current or first if none selected
+    return currentLayer || (layers.value.length > 0 ? layers.value[0] : undefined);
+  });
 
-    return currentLayer;
-  }, [layers.value, activedTab]);
+  useEffect(() => {
+      if (!activedTab.value && layers.value.length > 0) {
+          activedTab.value = layers.value[0].id;
+      }
+  }, [layers.value]);
 
   const renderColorClass = (item: IGetConfigColor) => {
-    let result = "color";
+    let result = "w-5 h-5";
 
     if (item?.pattern) result += ` pattern ${item.pattern}`;
 
@@ -41,57 +52,68 @@ export const MapLegend = () => {
     if (!item || item.colors.length === 0) return null;
 
     return item.colors.map((itemColor) => (
-      <section key={itemColor.id} className="layer-legend-item">
+      <section key={itemColor.id} className="flex items-center gap-2 py-1">
         <div
           style={{ backgroundColor: `rgba(${itemColor.color.join(",")})` }}
           className={renderColorClass(itemColor)}
         ></div>
-        <span className="label">{itemColor.label}</span>
+        <span className="text-sm text-foreground">{itemColor.label}</span>
       </section>
     ));
   };
 
-  return layers.value.length ? (
+  if (!layers.value.length) return null;
+
+  return (
     <>
       {!isCollapsed.value ? (
         <Button
-          icon="closed_caption"
-          label="Legendas"
           onClick={() => (isCollapsed.value = true)}
-          className="map-legend-main-button"
-          unelevated
-        />
+          className="absolute left-2 bottom-9 z-[8] shadow-md"
+        >
+          <span className="material-symbols-outlined mr-2 text-base">closed_caption</span>
+          Legendas
+        </Button>
       ) : null}
 
       {isCollapsed.value ? (
-        <div className="map-legend">
-          <div className="header">
-            <h5>Legendas:</h5>
-            <IconButton
-              icon="close"
-              className="rmwc-icon-button-sm"
-              label="Fechar"
+        <div className="absolute left-2 bottom-9 z-[1000] w-[324px] max-w-[calc(100%-12px)] max-h-[66vh] bg-background rounded-lg shadow-lg overflow-auto border">
+          <div className="flex items-center justify-between p-2 pl-4 border-b bg-background sticky top-0">
+            <h5 className="text-base font-semibold m-0">Legendas:</h5>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
               onClick={() => (isCollapsed.value = false)}
-            />
+              aria-label="Fechar"
+            >
+               <span className="material-symbols-outlined text-base">close</span>
+            </Button>
           </div>
 
-          <div className="content">
+          <div className="p-3 grid gap-1">
             <Select
-              label="Selecione a uma camada"
-              value={activedTab}
-              onChange={(input: { target: { value: string } }) =>
-                setActivedTab(input.target.value)
-              }
-              options={layers.value.map((value) => ({
-                label: value.name,
-                value: value.id,
-              }))}
-            />
+              value={activedTab.value || (layers.value[0]?.id || "")}
+              onValueChange={(value) => (activedTab.value = value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione uma camada" />
+              </SelectTrigger>
+              <SelectContent>
+                {layers.value.map((value) => (
+                   <SelectItem key={value.id} value={value.id}>
+                     {value.name}
+                   </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            {renderLegend(activedLayer())}
+            <div className="mt-2">
+              {renderLegend(activedLayer.value)}
+            </div>
           </div>
         </div>
       ) : null}
     </>
-  ) : null;
+  );
 };

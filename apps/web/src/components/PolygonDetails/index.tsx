@@ -1,8 +1,4 @@
-import "@rmwc/button/styles";
-import "@rmwc/card/styles";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { ReactNode } from "react";
-import { Card, CircularProgress } from "rmwc";
+import { Card, CardContent } from "@open-urbis/map-ui";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { ViewTemplate } from "../ViewTemplate";
 import { ITemplate } from "../ViewTemplate/types/templates-type";
@@ -18,31 +14,28 @@ export const PolygonDetails = ({
 
   if (loading) {
     return (
-      <Card className="card-details lote-information">
-        {
-          (
-            <div className="card-container text-center">
-              <CircularProgress label="progress" />
-            </div>
-          ) as ReactNode
-        }
+      <Card className="m-2 rounded-xl">
+        <CardContent className="p-4 flex justify-center">
+          <span className="material-symbols-outlined text-2xl animate-spin">progress_activity</span>
+        </CardContent>
       </Card>
     );
   }
   if (isEditing.value && !data) {
     return (
-      <Card className="card-details lote-information">
-        {
-          (
-            <div className="card-container">
-              <div>
-                <span className="label">
-                  Selecione uma área e <br /> clique para Salvar:
-                </span>
-              </div>
-            </div>
-          ) as ReactNode
-        }
+      <Card className="m-2 rounded-xl">
+        <CardContent className="p-4">
+          <div>
+            <span className="font-bold text-primary">
+              Selecione uma área e <br /> clique para Salvar:
+            </span>
+            <p className="text-[10px] text-muted-foreground mt-2 leading-snug">
+              Para selecionar e poder editar os vértices do elemento, clique nele
+              duas vezes e faça as edições necessárias depois clique em Salvar /
+              Atualizar.
+            </p>
+          </div>
+        </CardContent>
       </Card>
     );
   }

@@ -1,0 +1,17 @@
+// src/styles/components/button/_variants.scss
+
+@use "sass:map";
+@use "sass:meta";
+@use "@angular/material" as mat;
+@use "./../../themes/colors" as *;
+
+
+.mat-mdc-chip {
+  background: transparent !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+
+  mat-icon {
+    color: var(--mat-sys-primary);
+  }
+}

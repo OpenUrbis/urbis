@@ -1,5 +1,4 @@
 import { memo } from "preact/compat";
-import { ListItemPrimaryText } from "rmwc";
 import { useRenderedValue } from "../../../../hooks/useRenderedValue";
 import {
   ITemplateProps,
@@ -11,7 +10,8 @@ const PrimaryItemComponent: ITemplateRender = (props: ITemplateProps) => {
   const renderedValue = useRenderedValue(props);
 
   return (
-    <ListItemPrimaryText
+    <span
+      className="block text-sm font-medium text-foreground"
       dangerouslySetInnerHTML={{ __html: renderedValue }}
     />
   );

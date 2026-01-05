@@ -24,9 +24,13 @@ export interface MapContextType {
   viewport: Signal<any>;
   zoom: Signal<number>;
   is3DActive: Signal<boolean>;
+  selectedBaseMap: Signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets">;
   overlayRef: React.RefObject<MapboxOverlay | null>;
   editFeatureTemplate: Signal<ITemplate[]>;
   layerWithRootEditTemplate: Signal<string>;
+  cursorPosition: Signal<{ latitude: number; longitude: number } | null>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  digitalAddressFeature: Signal<any | null>;
 }
 
 export type MapContextLayerSchemaType =
@@ -63,6 +67,7 @@ export interface MapContextSelectedFeature {
 
 export interface IMapContextActions extends MapContextType {
   handleVisibleLayer: (layerId: string) => void;
+  handleActiveLayer: (layerId: string) => void;
   populateMapContext: () => Promise<void>;
   selectFeature: (feature: MapContextSelectedFeature) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

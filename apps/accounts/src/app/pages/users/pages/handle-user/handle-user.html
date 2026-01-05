@@ -1,0 +1,80 @@
+<lib-loading-content [loading]="loading()">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title class="d-flex justify-content-start align-items-center">
+        <a
+          matIconButton
+          aria-label="Editar usuário"
+          routerLink="/users"
+          class="me-3"
+        >
+          <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
+        </a>
+        {{ name() ? name() : "Criar usuário" }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="pt-3">
+      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+        <mat-tab label="Dados do usuários">
+          <form
+            [formGroup]="form"
+            (ngSubmit)="save()"
+            class="p-3 d-flex flex-column gap-2"
+          >
+            <mat-form-field appearance="outline">
+              <mat-label>Nome</mat-label>
+              <input matInput formControlName="firstName" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Sobrenome</mat-label>
+              <input matInput formControlName="lastName" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input
+                type="email"
+                matInput
+                formControlName="email"
+                placeholder="Ex. pat@example.com"
+              />
+              @if (
+                getFormControl("email").hasError("email") &&
+                !getFormControl("email").hasError("required")
+              ) {
+                <mat-error> Por favor, insira um email válido </mat-error>
+              }
+              @if (getFormControl("email").hasError("required")) {
+                <mat-error> Email é <strong>obrigatório</strong> </mat-error>
+              }
+            </mat-form-field>
+
+            @if (!id()) {
+              <lib-password-form-group [formGroup]="form.controls.password" />
+            }
+
+            <div class="d-flex justify-content-end">
+              <lib-loading-button [loading]="loadingSave()">
+                Salvar
+              </lib-loading-button>
+            </div>
+          </form>
+        </mat-tab>
+        @if (id()) {
+          <mat-tab label="Cargos">
+            <div class="p-3">
+              <app-user-role-manager [userId]="id()!" />
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Organizações">
+            <div class="p-3">
+              <app-user-organization-manager [userId]="id()!" />
+            </div>
+          </mat-tab>
+        }
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</lib-loading-content>

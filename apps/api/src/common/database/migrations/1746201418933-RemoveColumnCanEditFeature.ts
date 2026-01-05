@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class RemoveColumnCanEditFeature1746201418933
-  implements MigrationInterface
-{
+export class RemoveColumnCanEditFeature1746201418933 implements MigrationInterface {
   name = 'RemoveColumnCanEditFeature1746201418933';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

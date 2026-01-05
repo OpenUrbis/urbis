@@ -1,5 +1,5 @@
 import { computed } from "@preact/signals";
-import { useContext } from "preact/hooks";
+import { useContext } from "react";
 import { NavigationContext } from "../context/NavigationContext";
 import { INavigationContextActions } from "../types/navigation-context-type";
 

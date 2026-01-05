@@ -1,0 +1,53 @@
+<lib-loading-content [loading]="loading()">
+  <h2 mat-dialog-title>Adicionar cargo</h2>
+  <mat-dialog-content>
+    <mat-accordion>
+      @for (item of result$ | async; track item.id) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ item.name }}
+            </mat-panel-title>
+
+            <button
+              matIconButton
+              aria-label="Adicionar cargo"
+              (click)="addRole($event, item)"
+              class="me-3"
+              [disabled]="data.roles.includes(item.id)"
+            >
+              <mat-icon class="material-symbols-outlined">add</mat-icon>
+            </button>
+          </mat-expansion-panel-header>
+          <div MatExpansionPanelContent>
+            <p>
+              {{ item.description }}
+            </p>
+
+            <h6>Permissões:</h6>
+            <mat-list>
+              @for (
+                rolePermission of item.rolePermissions;
+                track rolePermission.id
+              ) {
+                <mat-list-item>
+                  <span matListItemTitle>{{
+                    rolePermission.permission.name
+                  }}</span>
+                  @if (item.description) {
+                    <span matListItemTitle>{{
+                      rolePermission.permission.description
+                    }}</span>
+                  }
+                  <span matListItemLine>
+                    {{ rolePermission.scope | permissionScope }}
+                  </span>
+                </mat-list-item>
+              }
+            </mat-list>
+          </div>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  </mat-dialog-content>
+</lib-loading-content>

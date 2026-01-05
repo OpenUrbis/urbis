@@ -1,6 +1,5 @@
 import { signal } from "@preact/signals";
-import { ComponentChildren, createContext } from "preact";
-import { useRef } from "react";
+import { createContext, ReactNode, useRef } from "react";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import {
   IGetConfigLayerGroup,
@@ -20,12 +19,16 @@ const boundingBox = signal<MapBoundingBox>([
 const viewport = signal<any>(undefined);
 const zoom = signal<number>(10);
 const is3DActive = signal<boolean>(true);
+const selectedBaseMap = signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets">("standard");
 const editFeatureTemplate = signal<ITemplate[]>([]);
 const layerWithRootEditTemplate = signal<string>('');
+const cursorPosition = signal<{ latitude: number; longitude: number } | null>(null);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const digitalAddressFeature = signal<any | null>(null);
 
 export const MapContext = createContext<MapContextType | null>(null);
 
-export const MapProvider = ({ children }: { children: ComponentChildren }) => {
+export const MapProvider = ({ children }: { children: ReactNode }) => {
   return (
     <MapContext.Provider
       value={{
@@ -36,8 +39,11 @@ export const MapProvider = ({ children }: { children: ComponentChildren }) => {
         viewport,
         zoom,
         is3DActive,
+        selectedBaseMap,
         editFeatureTemplate,
         layerWithRootEditTemplate,
+        cursorPosition,
+        digitalAddressFeature,
         overlayRef: useRef(null),
       }}
     >

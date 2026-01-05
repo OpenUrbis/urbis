@@ -12,7 +12,6 @@ import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 import mapboxgl from "mapbox-gl";
-import { MapboxStyleSwitcherControl } from "mapbox-gl-style-switcher";
 import "mapbox-gl-style-switcher/styles.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { IPolygonEditContextActions } from "../../types/polygon-edit-context-type";
@@ -52,8 +51,6 @@ export const addMapControls = (
 ) => {
   // Adiciona o controle de troca de estilo ao mapa
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const styleSwitcherControl: any = new MapboxStyleSwitcherControl();
-  map.addControl(styleSwitcherControl, "top-left");
 
   // Controle de escala
   const scaleControl = new mapboxgl.ScaleControl();

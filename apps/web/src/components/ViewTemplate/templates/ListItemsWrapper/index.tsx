@@ -1,11 +1,9 @@
 import { ReactNode } from "react";
-import { List, ListItemText, SimpleListItem } from "rmwc";
 import { CLICK_ACTIONS_CONFIG } from "../../../../application-configs";
 import { createFn } from "../../../../utils/createFn";
 import { IListItemsProperties } from "../../types/list-items-type";
 import { ITemplate, ITemplatesDeclaration } from "../../types/templates-type";
 import { ViewTemplateEngine } from "../../ViewTemplateEngine";
-import "./style.scss";
 
 export const ListItemsWrapper: ITemplatesDeclaration = {
   name: "wrapper-list-items",
@@ -65,16 +63,15 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
     };
 
     return (
-      <List twoLine={properties?.twoLine ?? false}>
+      <ul className="divide-y divide-border p-0 list-none m-0">
         {// eslint-disable-next-line @typescript-eslint/no-explicit-any
         listItems()?.map((value: any, i: number) => (
-          <SimpleListItem
+          <li
             key={value?.id ?? i}
+            className="cursor-pointer hover:bg-muted/50 p-2 transition-colors"
             onClick={() => handleItem(value)}
           >
-            {
-              (
-                <ListItemText style={{ maxWidth: "100%!important" }}>
+            <div className="w-full">
                   {templates.map(
                     (itemTemplate) =>
                       (
@@ -86,12 +83,10 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
                         />
                       ) as ReactNode
                   )}
-                </ListItemText>
-              ) as ReactNode
-            }
-          </SimpleListItem>
+            </div>
+          </li>
         ))}
-      </List>
+      </ul>
     );
   },
 };

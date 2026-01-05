@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MapConfig } from 'map-config/entities/map-config.entity';
 import { Repository } from 'typeorm';
+import { MapConfig } from './../../../maps/map-config/entities/map-config.entity';
 
 @Injectable()
 export class MapConfigSeedService {

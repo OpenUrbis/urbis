@@ -1,17 +1,23 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MapConfig } from 'map-config/entities/map-config.entity';
-import { SearchConfig } from '../../../search/entities/search-config.entity';
-import { LayerGroup } from './../../../layer-groups/entities/layer-group.entity';
-import { LayerSchemaColors } from './../../../layer-schemas/entities/layer-schema-color.entity';
-import { LayerSchema } from './../../../layer-schemas/entities/layer-schema.entity';
+import { AuthModuleEntities } from '../../../auth/index.entity';
+import { MapsModuleEntities } from '../../../maps/index.entity';
+import { LayerGroup } from '../../../maps/layer-groups/entities/layer-group.entity';
+import { SearchConfig } from '../../../maps/search/entities/search-config.entity';
+import { OrganizationModuleEntities } from '../../../organization/index.entity';
+import { RoleModuleEntities } from '../../../role/index.entity';
+import { UserModuleEntities } from '../../../user/index.entity';
+import { LayerSchemaColors } from './../../../maps/layer-schemas/entities/layer-schema-color.entity';
+import { LayerSchema } from './../../../maps/layer-schemas/entities/layer-schema.entity';
+import { MapConfig } from './../../../maps/map-config/entities/map-config.entity';
 import { DatabaseModule } from './../../../shared/database.module';
 import appConfig from './../../config/app.config';
 import databaseConfig from './../../config/database.config';
 import { LayerSeedService } from './layer-seed.service';
 import { MapConfigSeedService } from './map-config-seed.service';
 import { SearchConfigSeedService } from './search-config-seed.service';
+import { UserSeedService } from './user-seed/user-seed.service';
 
 @Module({
   imports: [
@@ -21,20 +27,25 @@ import { SearchConfigSeedService } from './search-config-seed.service';
       envFilePath: ['.env'],
     }),
     DatabaseModule.forRoot([
-      LayerGroup,
-      LayerSchema,
-      LayerSchemaColors,
-      SearchConfig,
-      MapConfig,
+      ...MapsModuleEntities,
+      ...AuthModuleEntities,
+      ...UserModuleEntities,
+      ...OrganizationModuleEntities,
+      ...RoleModuleEntities,
     ]),
     TypeOrmModule.forFeature([
-      LayerGroup,
-      LayerSchema,
-      LayerSchemaColors,
-      SearchConfig,
-      MapConfig,
+      ...MapsModuleEntities,
+      ...AuthModuleEntities,
+      ...UserModuleEntities,
+      ...OrganizationModuleEntities,
+      ...RoleModuleEntities,
     ]),
   ],
-  providers: [LayerSeedService, SearchConfigSeedService, MapConfigSeedService],
+  providers: [
+    LayerSeedService,
+    SearchConfigSeedService,
+    MapConfigSeedService,
+    UserSeedService,
+  ],
 })
 export class SeedModule {}

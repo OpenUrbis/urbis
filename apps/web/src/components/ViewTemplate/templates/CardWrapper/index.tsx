@@ -1,9 +1,8 @@
 import { ReactNode } from "react";
-import { Card } from "rmwc";
+import { Card, CardContent } from "@open-urbis/map-ui";
 import { Helper } from "../../components/helper";
 import { ITemplatesDeclaration } from "../../types/templates-type";
 import { ViewTemplateEngine } from "../../ViewTemplateEngine";
-import "./style.scss";
 
 export const CardWrapper: ITemplatesDeclaration = {
   name: "wrapper-card",
@@ -14,19 +13,17 @@ export const CardWrapper: ITemplatesDeclaration = {
       if (!label) return null;
 
       return (
-        <div className="d-flex align-items-center helper-container">
+        <div className="flex items-center mb-2">
           <Helper properties={properties}>
-            <h4>{label}</h4>
+            <h4 className="font-semibold text-lg">{label}</h4>
           </Helper>
         </div>
       );
     };
 
     return (
-      <Card className="card-details">
-        {
-          (
-            <div className="card-container">
+      <Card className="rounded-xl">
+        <CardContent className="p-4">
               {renderLabel()}
               {templates.map((template, i) => (
                 <ViewTemplateEngine
@@ -37,9 +34,7 @@ export const CardWrapper: ITemplatesDeclaration = {
                   isPrint={isPrint}
                 />
               ))}
-            </div>
-          ) as ReactNode
-        }
+        </CardContent>
       </Card>
     ) as ReactNode;
   },

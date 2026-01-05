@@ -2,7 +2,11 @@
   "extends": "@open-urbis/map-typescript-config/vite.json",
   "include": ["src"],
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "jsx": "react-jsx",
-    "jsxImportSource": "preact"
+    "jsxImportSource": "react"
   }
 }

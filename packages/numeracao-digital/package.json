@@ -1,0 +1,45 @@
+{
+  "name": "@open-urbis/numeracao-digital",
+  "version": "0.0.0",
+  "description": "Pacote para codificação e decodificação de Endereçamento Digital, convertendo coordenadas geográficas em códigos curtos Base27.",
+  "private": true,
+  "author": "SEPLAN/SIME/CODATA",
+  "license": "MIT",
+  "keywords": [
+    "digital-address",
+    "geolocation",
+    "gis",
+    "base27",
+    "encoding",
+    "decoding",
+    "typescript",
+    "urbis",
+    "sao-paulo"
+  ],
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint \"src/**/*.ts\"",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@open-urbis/map-typescript-config": "workspace:*",
+    "@types/jest": "^29.5.2",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "5.5.4"
+  },
+  "jest": {
+    "moduleFileExtensions": ["js", "json", "ts"],
+    "rootDir": ".",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": ["src/**/*.(t|j)s"],
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node"
+  }
+}

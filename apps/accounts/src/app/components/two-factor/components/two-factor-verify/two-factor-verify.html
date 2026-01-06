@@ -1,0 +1,20 @@
+<form [formGroup]="form" (ngSubmit)="send()">
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>{{ "components.twoFactorVerify.label" | translate }}</mat-label>
+    <input
+      matInput
+      [placeholder]="'components.twoFactorVerify.placeholder' | translate"
+      [attr.aria-label]="'components.twoFactorVerify.label' | translate"
+      [formControl]="otp"
+    />
+  </mat-form-field>
+
+  <div class="d-flex justify-content-end gap-2">
+    <lib-loading-button
+      [loading]="loading()"
+      [attr.aria-label]="'components.twoFactorVerify.buttons.validate' | translate"
+    >
+      {{ "components.twoFactorVerify.buttons.validate" | translate }}
+    </lib-loading-button>
+  </div>
+</form>

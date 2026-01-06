@@ -1,0 +1,35 @@
+<lib-loading-content
+  [loading]="!queryParams()?.accessToken && !this.accessToken()"
+>
+  @if (!onlyContent()) {
+    <div
+      class="container h-100 d-flex justify-content-center align-items-center"
+    >
+      <mat-card>
+        <mat-card-content>
+          <ng-container [ngTemplateOutlet]="content2FA" />
+        </mat-card-content>
+      </mat-card>
+    </div>
+  } @else {
+    <ng-container [ngTemplateOutlet]="content2FA" />
+  }
+</lib-loading-content>
+
+<ng-template #content2FA>
+  @if (step() === 0) {
+    <app-two-factor-setup
+      [accessToken]="queryParams()?.accessToken ?? accessToken()"
+      [useOidcFlow]="!this.accessToken()"
+      (verified)="verified.emit($event)"
+    />
+  } @else {
+    <h3>{{ "components.twoFactor.verification.title" | translate }}</h3>
+    <p>{{ "components.twoFactor.verification.description" | translate }}</p>
+    <app-two-factor-verify
+      [accessToken]="queryParams()?.accessToken ?? accessToken()"
+      [useOidcFlow]="!this.accessToken()"
+      (verified)="verified.emit($event)"
+    />
+  }
+</ng-template>

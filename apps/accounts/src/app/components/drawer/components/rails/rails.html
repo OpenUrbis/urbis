@@ -1,0 +1,41 @@
+<mat-nav-list
+  class="d-flex flex-column gap-3 mt-3 justify-content-center align-content-center"
+>
+  @for (item of items(); track $index) {
+    @if (item.externalRedirect) {
+      <a
+        mat-list-item
+        [href]="redirect(item.redirectTo)"
+        class="text-center"
+        [ngClass]="{ active: item.name === 'components.rails.items.accounts' }"
+        [attr.aria-label]="item.name | translate"
+      >
+        <div mat-list-item-icon class="icon-container">
+          <mat-icon class="material-symbols-outlined">
+            {{ item.icon }}
+          </mat-icon>
+        </div>
+        <div matListItemTitle>
+          {{ item.name | translate }}
+        </div>
+      </a>
+    } @else {
+      <a
+        mat-list-item
+        [routerLink]="item.redirectTo ?? '#'"
+        class="text-center"
+        [ngClass]="{ active: item.name === 'components.rails.items.accounts' }"
+        [attr.aria-label]="item.name | translate"
+      >
+        <div mat-list-item-icon class="icon-container">
+          <mat-icon class="material-symbols-outlined">
+            {{ item.icon }}
+          </mat-icon>
+        </div>
+        <div matListItemTitle>
+          {{ item.name | translate }}
+        </div>
+      </a>
+    }
+  }
+</mat-nav-list>

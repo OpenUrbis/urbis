@@ -1,0 +1,16 @@
+<div class="container h-100" [ngClass]="containerClasses()">
+  @if (title()) {
+    <app-header [title]="title()!" [subtitle]="subtitle()">
+      <section leftActions>
+        <ng-content select="[leftActions]"></ng-content>
+      </section>
+
+      <section rightActions>
+        <ng-content select="[rightActions]"></ng-content>
+      </section>
+    </app-header>
+  }
+  <div class="pt-4">
+    <ng-content></ng-content>
+  </div>
+</div>

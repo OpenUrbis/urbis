@@ -1,0 +1,6 @@
+<h2 mat-dialog-title>
+  {{ "components.switchOrganizationDialog.title" | translate }}
+</h2>
+<mat-dialog-content>
+  <app-organization-switcher (selected)="change()" />
+</mat-dialog-content>

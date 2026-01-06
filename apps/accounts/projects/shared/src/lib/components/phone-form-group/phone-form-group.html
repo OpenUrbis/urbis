@@ -1,0 +1,21 @@
+@if (formGroup()) {
+  <form [formGroup]="formGroup()">
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>{{ "components.lib.phoneForm.field" | translate }}</mat-label>
+      <ngx-mat-input-tel
+        [enablePlaceholder]="true"
+        [enableSearch]="true"
+        [preferredCountries]="preferredCountries()"
+        name="phone"
+        format="national"
+        formControlName="phone"
+        [attr.aria-label]="'components.lib.phoneForm.field' | translate"
+      ></ngx-mat-input-tel>
+      @if (control?.invalid && control?.touched) {
+        <mat-hint class="error-hint">{{
+          "components.lib.phoneForm.errors.required" | translate
+        }}</mat-hint>
+      }
+    </mat-form-field>
+  </form>
+}

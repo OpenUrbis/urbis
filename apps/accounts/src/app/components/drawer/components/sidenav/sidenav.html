@@ -1,0 +1,104 @@
+<mat-nav-list class="d-flex flex-column gap-1">
+  <h3 mat-subheader>{{ "components.profileMenu.title" | translate }}</h3>
+  <a
+    mat-list-item
+    routerLink="/profile"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.myProfile' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      person
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.myProfile" | translate }}
+    </div>
+  </a>
+
+  <a
+    mat-list-item
+    routerLink="/roles"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.roles' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      security
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.roles" | translate }}
+    </div>
+  </a>
+
+  <a
+    mat-list-item
+    routerLink="/users"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.users' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      group
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.users" | translate }}
+    </div>
+  </a>
+
+  <a
+    mat-list-item
+    routerLink="/organizations"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.organizations' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      domain
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.organizations" | translate }}
+    </div>
+  </a>
+
+  <a
+    mat-list-item
+    routerLink="/whitelabel"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.whitelabel' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      palette
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.whitelabel" | translate }}
+    </div>
+  </a>
+
+  <div class="selection-footer">
+    <mat-divider></mat-divider>
+
+    <a
+      (click)="changeOrganization()"
+      mat-list-item
+      [attr.aria-label]="
+        'components.profileMenu.changeOrganization' | translate
+      "
+    >
+      <mat-icon matListItemIcon class="material-symbols-outlined"
+        >swap_vert</mat-icon
+      >
+      <div matListItemTitle>
+        {{ "components.profileMenu.changeOrganization" | translate }}
+      </div>
+    </a>
+
+    <a
+      (click)="logout()"
+      mat-list-item
+      [attr.aria-label]="'components.profileMenu.logout' | translate"
+    >
+      <mat-icon matListItemIcon class="material-symbols-outlined"
+        >logout</mat-icon
+      >
+      <div matListItemTitle>
+        {{ "components.profileMenu.logout" | translate }}
+      </div>
+    </a>
+  </div>
+</mat-nav-list>

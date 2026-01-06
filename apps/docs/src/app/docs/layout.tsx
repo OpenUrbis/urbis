@@ -2,7 +2,8 @@ import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/lib/layout.shared";
 import { source } from "@/lib/source";
-import { UrbisHeader } from "@open-urbis/map-ui";
+import { UrbisHeaderWrapper } from "./urbis-header-wrapper";
+import { SidebarController } from "./sidebar-controller";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const menuItems = [
@@ -16,9 +17,10 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      <UrbisHeader menuItems={menuItems} showMobileMenu={false} />
+      <UrbisHeaderWrapper menuItems={menuItems} showMobileMenu={true} />
       <div className="flex-1">
         <DocsLayout tree={source.pageTree} {...baseOptions()}>
+          <SidebarController />
           {children}
         </DocsLayout>
       </div>

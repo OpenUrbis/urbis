@@ -118,6 +118,15 @@ body {
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+
+  /* Fumadocs */
+  --color-fd-background: var(--background);
+  --color-fd-foreground: var(--foreground);
+  --color-fd-card: var(--card);
+  --color-fd-card-foreground: var(--card-foreground);
+
+  --fd-docs-row-1: 65px;
+  --fd-toc-popover-height: 32px;
 }
 
 .dark {
@@ -158,6 +167,12 @@ body {
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: #fff;
   --chart-5: oklch(0.645 0.246 16.439);
+
+  /* Fumadocs */
+  --color-fd-background: var(--background);
+  --color-fd-foreground: var(--foreground);
+  --color-fd-card: var(--card);
+  --color-fd-card-foreground: var(--card-foreground);
 }
 
 @layer base {
@@ -167,4 +182,20 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Ensure priority for layout variables */
+html {
+  --fd-docs-row-1: 65px;
+  --fd-toc-popover-height: 32px;
+}
+
+/* User provided specific override for sidebar */
+.sticky.top-\(--fd-docs-row-1\).z-20.\[grid-area\:sidebar\].pointer-events-none.\*\:pointer-events-auto.h-\[calc\(var\(--fd-docs-height\)-var\(--fd-docs-row-1\)\)\].md\:layout\:\[--fd-sidebar-width\:268px\].max-md\:hidden {
+    --fd-docs-row-1: 65px;
+    --fd-toc-popover-height: 32px;
+}
+
+#nd-sidebar-mobile {
+  z-index: 100000;
 }

@@ -27,6 +27,7 @@ import {
 } from "./ui/dropdown-menu";
 import { cn } from "../lib/utils";
 import React from "react";
+import { CircleUser, Menu } from "lucide-react";
 
 interface UrbisHeaderProps {
   logoSrc?: string;
@@ -42,6 +43,8 @@ interface UrbisHeaderProps {
   leftSlot?: React.ReactNode;
   rightSlot?: React.ReactNode;
   showMobileMenu?: boolean;
+  showLogin?: boolean;
+  onMobileMenuClick?: () => void;
 }
 
 export const UrbisHeader = ({
@@ -55,6 +58,8 @@ export const UrbisHeader = ({
   leftSlot,
   rightSlot,
   showMobileMenu = true,
+  showLogin = true,
+  onMobileMenuClick,
 }: UrbisHeaderProps) => {
   return (
     <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -108,7 +113,7 @@ export const UrbisHeader = ({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full border">
-                       <span className="material-symbols-outlined text-xl">account_circle</span>
+                       <CircleUser className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -126,44 +131,51 @@ export const UrbisHeader = ({
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-             ) : (
+             ) : showLogin ? (
                 <Button variant="outline" size="sm" onClick={onLogin}>
                   Entrar
                 </Button>
-             )}
+             ) : null}
              
              {/* Mobile Menu Drawer */}
              {showMobileMenu && (
                <div className="md:hidden">
-                 <Drawer>
-                   <DrawerTrigger asChild>
-                     <Button variant="ghost" size="icon">
-                       <span className="material-symbols-outlined text-xl">expand_more</span>
-                       <span className="sr-only">Toggle Menu</span>
-                     </Button>
-                   </DrawerTrigger>
-                   <DrawerContent>
-                     <DrawerHeader>
-                       <DrawerTitle>Menu</DrawerTitle>
-                     </DrawerHeader>
-                     <div className="p-4 flex flex-col gap-4">
-                       {menuItems.map((item) => (
-                         <a
-                           key={item.label}
-                           href={item.href}
-                           className="text-lg font-medium hover:text-primary transition-colors"
-                         >
-                           {item.label}
-                         </a>
-                       ))}
-                     </div>
-                     <DrawerFooter>
-                       <DrawerClose asChild>
-                         <Button variant="outline">Fechar</Button>
-                       </DrawerClose>
-                     </DrawerFooter>
-                   </DrawerContent>
-                 </Drawer>
+                 {onMobileMenuClick ? (
+                   <Button variant="ghost" size="icon" onClick={onMobileMenuClick}>
+                     <Menu className="h-5 w-5" />
+                     <span className="sr-only">Toggle Menu</span>
+                   </Button>
+                 ) : (
+                   <Drawer>
+                     <DrawerTrigger asChild>
+                       <Button variant="ghost" size="icon">
+                         <Menu className="h-5 w-5" />
+                         <span className="sr-only">Toggle Menu</span>
+                       </Button>
+                     </DrawerTrigger>
+                     <DrawerContent>
+                       <DrawerHeader>
+                         <DrawerTitle>Menu</DrawerTitle>
+                       </DrawerHeader>
+                       <div className="p-4 flex flex-col gap-4">
+                         {menuItems.map((item) => (
+                           <a
+                             key={item.label}
+                             href={item.href}
+                             className="text-lg font-medium hover:text-primary transition-colors"
+                           >
+                             {item.label}
+                           </a>
+                         ))}
+                       </div>
+                       <DrawerFooter>
+                         <DrawerClose asChild>
+                           <Button variant="outline">Fechar</Button>
+                         </DrawerClose>
+                       </DrawerFooter>
+                     </DrawerContent>
+                   </Drawer>
+                 )}
                </div>
              )}
           </div>

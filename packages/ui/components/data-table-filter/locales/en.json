@@ -29,8 +29,15 @@
   "filters.date.isOnOrBefore": "é em ou antes de",
   "filters.date.isBetween": "está entre",
   "filters.date.isNotBetween": "não está entre",
+  "filters.date.isEmpty": "está vazio",
+  "filters.date.isNotEmpty": "não está vazio",
+  "filters.text.is": "é exatamente",
+  "filters.text.isNot": "não é exatamente",
   "filters.text.contains": "contém",
   "filters.text.doesNotContain": "não contém",
+  "filters.text.isEmpty": "está vazio",
+  "filters.text.isNotEmpty": "não está vazio",
+  "filters.text.similarTo": "parecido com",
   "filters.number.is": "é",
   "filters.number.isNot": "não é",
   "filters.number.greaterThan": "maior que",
@@ -38,5 +45,7 @@
   "filters.number.lessThan": "menor que",
   "filters.number.lessThanOrEqual": "menor ou igual a",
   "filters.number.isBetween": "está entre",
-  "filters.number.isNotBetween": "não está entre"
+  "filters.number.isNotBetween": "não está entre",
+  "filters.number.isEmpty": "está vazio",
+  "filters.number.isNotEmpty": "não está vazio"
 }

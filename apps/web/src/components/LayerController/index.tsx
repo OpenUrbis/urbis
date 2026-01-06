@@ -18,6 +18,7 @@ import {
 import { cn } from "@open-urbis/map-ui";
 import { useMapContext } from "../../hooks/useMapContext";
 import { exportGeoJson } from "../../integrations/map-integration";
+import { getLayerNameFromConfig } from "../../utils/layer-utils";
 import { LayerGroup } from "./LayerGroup";
 import { LayerSortableList } from "./LayerSortableList";
 import { AddLayerModal } from "./modals/AddLayerModal";
@@ -26,6 +27,9 @@ import { ShareHistoryModal } from "./modals/ShareHistoryModal";
 import { ExportOptionsModal } from "./modals/ExportOptionsModal";
 
 const isCollapsed = signal<boolean>(false);
+
+const environment =
+  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
 
 export const LayerController = () => {
   const { layerGroups, layerSchemas, boundingBox, zoom } = useMapContext();
@@ -76,31 +80,51 @@ export const LayerController = () => {
     try {
       const bounds = boundingBox.value;
       const currentZoom = zoom.value;
-      // Use the IDs from the layers we identified for export
-      const layerIds = layersForExport.value.map((l) => l.id);
-
-      // Prepare external layers
+      
+      const layerIds: string[] = [];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const externalLayers = layersForExport.value.map((layer: any) => {
+      const externalLayers: any[] = [];
+
+      layersForExport.value.forEach((layer: any) => {
         const props = layer.properties || {};
         // Check for WMS structure from WebLayer
         const wmsProps = props.wms || {};
 
         const wfsUrl = wmsProps.url || layer.origin;
         const typeName =
-          wmsProps.layers || props.layers || props.typeName || props.type_name;
+          wmsProps.layers ||
+          props.layers ||
+          props.typeName ||
+          props.type_name ||
+          getLayerNameFromConfig(layer);
 
         if (wfsUrl && typeName) {
-          return {
+          const filter = layer.cqlFilter || props.cql_filter || props.cqlFilter;
+          
+          let finalWfsUrl = wfsUrl;
+          // Ensure URL is absolute for backend reachability
+          if (finalWfsUrl.startsWith('/')) {
+             finalWfsUrl = `${environment.replace('/maps', '')}${finalWfsUrl}`;
+          } else if (!finalWfsUrl.startsWith('http')) {
+             // Handle cases like 'maps/...' without leading slash if any
+             finalWfsUrl = `${environment.replace('/maps', '')}/${finalWfsUrl}`;
+          }
+
+          externalLayers.push({
             id: layer.id,
-            wfsUrl,
+            wfsUrl: finalWfsUrl,
             typeName,
-            cqlFilter: props.cql_filter || props.cqlFilter,
+            cqlFilter: filter,
+            cql_filter: filter,
+            CQL_FILTER: filter,
             minZoom: layer.minZoom,
-          };
+          });
+          
+          // Do not push to layerIds to avoid duplication (processing as both DB and External)
+        } else {
+          layerIds.push(layer.id);
         }
-        return null;
-      }).filter((l) => l !== null);
+      });
 
       const blob = await exportGeoJson(
         bounds,

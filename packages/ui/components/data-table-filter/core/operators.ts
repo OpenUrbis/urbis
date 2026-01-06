@@ -224,15 +224,47 @@ export const dateFilterOperators = {
     isNegated: true,
     negationOf: 'is between',
   },
+  'is empty': {
+    key: 'filters.date.isEmpty',
+    value: 'is empty',
+    target: 'single',
+    relativeOf: ['is', 'is not', 'is before', 'is after', 'is not empty'],
+    isNegated: false,
+    negation: 'is not empty',
+  },
+  'is not empty': {
+    key: 'filters.date.isNotEmpty',
+    value: 'is not empty',
+    target: 'single',
+    relativeOf: ['is', 'is not', 'is before', 'is after', 'is empty'],
+    isNegated: true,
+    negationOf: 'is empty',
+  },
 } as const satisfies FilterDetails<'date'>
 
 /* Details for all the filter operators for text data type */
 export const textFilterOperators = {
+  is: {
+    key: 'filters.text.is',
+    value: 'is',
+    target: 'single',
+    relativeOf: ['is not', 'contains', 'does not contain', 'is empty', 'is not empty'],
+    isNegated: false,
+    negation: 'is not',
+  },
+  'is not': {
+    key: 'filters.text.isNot',
+    value: 'is not',
+    target: 'single',
+    relativeOf: ['is', 'contains', 'does not contain', 'is empty', 'is not empty'],
+    isNegated: true,
+    negationOf: 'is',
+  },
   contains: {
     key: 'filters.text.contains',
     value: 'contains',
     target: 'single',
-    relativeOf: 'does not contain',
+    relativeOf: ['is', 'is not', 'does not contain', 'is empty', 'is not empty'],
     isNegated: false,
     negation: 'does not contain',
   },
@@ -240,9 +272,33 @@ export const textFilterOperators = {
     key: 'filters.text.doesNotContain',
     value: 'does not contain',
     target: 'single',
-    relativeOf: 'contains',
+    relativeOf: ['is', 'is not', 'contains', 'is empty', 'is not empty'],
     isNegated: true,
     negationOf: 'contains',
+  },
+  'is empty': {
+    key: 'filters.text.isEmpty',
+    value: 'is empty',
+    target: 'single',
+    relativeOf: ['is', 'is not', 'contains', 'does not contain', 'is not empty'],
+    isNegated: false,
+    negation: 'is not empty',
+  },
+  'is not empty': {
+    key: 'filters.text.isNotEmpty',
+    value: 'is not empty',
+    target: 'single',
+    relativeOf: ['is', 'is not', 'contains', 'does not contain', 'is empty', 'similar to'],
+    isNegated: true,
+    negationOf: 'is empty',
+  },
+  'similar to': {
+    key: 'filters.text.similarTo',
+    value: 'similar to',
+    target: 'single',
+    relativeOf: ['is', 'is not', 'contains', 'does not contain', 'is empty', 'is not empty'],
+    isNegated: false,
+    negation: 'does not contain',
   },
 } as const satisfies FilterDetails<'text'>
 
@@ -259,6 +315,8 @@ export const numberFilterOperators = {
       'is less than or equal to',
       'is less than',
       'is greater than or equal to',
+      'is empty',
+      'is not empty'
     ],
     isNegated: false,
     negation: 'is not',
@@ -274,6 +332,8 @@ export const numberFilterOperators = {
       'is less than or equal to',
       'is less than',
       'is greater than or equal to',
+      'is empty',
+      'is not empty'
     ],
     isNegated: true,
     negationOf: 'is',
@@ -289,6 +349,8 @@ export const numberFilterOperators = {
       'is less than or equal to',
       'is less than',
       'is greater than or equal to',
+      'is empty',
+      'is not empty'
     ],
     isNegated: false,
     negation: 'is less than or equal to',
@@ -304,6 +366,8 @@ export const numberFilterOperators = {
       'is greater than',
       'is less than or equal to',
       'is less than',
+      'is empty',
+      'is not empty'
     ],
     isNegated: false,
     negation: 'is less than or equal to',
@@ -319,6 +383,8 @@ export const numberFilterOperators = {
       'is greater than',
       'is less than or equal to',
       'is greater than or equal to',
+      'is empty',
+      'is not empty'
     ],
     isNegated: false,
     negation: 'is greater than',
@@ -334,6 +400,8 @@ export const numberFilterOperators = {
       'is greater than',
       'is less than',
       'is greater than or equal to',
+      'is empty',
+      'is not empty'
     ],
     isNegated: false,
     negation: 'is greater than or equal to',
@@ -343,7 +411,7 @@ export const numberFilterOperators = {
     value: 'is between',
     target: 'multiple',
     pluralOf: 'is',
-    relativeOf: 'is not between',
+    relativeOf: ['is not between', 'is empty', 'is not empty'],
     isNegated: false,
     negation: 'is not between',
   },
@@ -352,9 +420,25 @@ export const numberFilterOperators = {
     value: 'is not between',
     target: 'multiple',
     pluralOf: 'is not',
-    relativeOf: 'is between',
+    relativeOf: ['is between', 'is empty', 'is not empty'],
     isNegated: true,
     negationOf: 'is between',
+  },
+  'is empty': {
+    key: 'filters.number.isEmpty',
+    value: 'is empty',
+    target: 'single',
+    relativeOf: ['is', 'is not', 'is greater than', 'is less than', 'is not empty'],
+    isNegated: false,
+    negation: 'is not empty',
+  },
+  'is not empty': {
+    key: 'filters.number.isNotEmpty',
+    value: 'is not empty',
+    target: 'single',
+    relativeOf: ['is', 'is not', 'is greater than', 'is less than', 'is empty'],
+    isNegated: true,
+    negationOf: 'is empty',
   },
 } as const satisfies FilterDetails<'number'>
 

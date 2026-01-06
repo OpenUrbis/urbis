@@ -35,18 +35,11 @@ export class ExportService {
     const features: Feature[] = [];
     const MAX_FEATURES = 1000;
 
-    // Transform bounds to EPSG:31983 for WFS query
-    const minPoint = (proj4 as any)(this.projWGS84, this.projEPSG31983, [
-      bounds[0],
-      bounds[1],
-    ]);
-    const maxPoint = (proj4 as any)(this.projWGS84, this.projEPSG31983, [
-      bounds[2],
-      bounds[3],
-    ]);
-
-    const bboxParam = `${minPoint[0]},${minPoint[1]},${maxPoint[0]},${maxPoint[1]}`;
-    this.logger.log(`BBOX EPSG:31983: ${bboxParam}`);
+    // Use WGS84 bounds directly for WFS query to avoid projection issues
+    // bounds: [minLon, minLat, maxLon, maxLat]
+    // Using Lon/Lat order which is safer for default GeoServer configurations even in 1.1.0 if not using URN
+    const bboxParam = `${bounds[0]},${bounds[1]},${bounds[2]},${bounds[3]}`;
+    this.logger.log(`BBOX EPSG:4326: ${bboxParam}`);
 
     // Fetch schemas from DB
     const schemas = await this.layerSchemaRepository.find({
@@ -83,6 +76,18 @@ export class ExportService {
       if (!wfsInfo) {
         this.logger.warn(`Layer ${schema.id} is not WFS exportable (missing info).`);
         continue;
+      }
+
+      // Merge override filter from externalLayers
+      if (dto.externalLayers) {
+        const override = dto.externalLayers.find((e) => e.id === schema.id);
+        if (override && override.cqlFilter) {
+          if (wfsInfo.cqlFilter) {
+            wfsInfo.cqlFilter = `(${wfsInfo.cqlFilter}) AND (${override.cqlFilter})`;
+          } else {
+            wfsInfo.cqlFilter = override.cqlFilter;
+          }
+        }
       }
 
       try {
@@ -232,6 +237,40 @@ export class ExportService {
     return null;
   }
 
+  private async getGeometryColumnName(
+    wfsUrl: string,
+    typeName: string,
+  ): Promise<string> {
+    try {
+      const params = {
+        service: 'WFS',
+        version: '1.1.0',
+        request: 'DescribeFeatureType',
+        typeName: typeName,
+        outputFormat: 'application/json',
+      };
+      
+      const response = await firstValueFrom(
+        this.httpService.get(wfsUrl, { params }),
+      );
+
+      if (response.data && response.data.featureTypes && response.data.featureTypes[0]) {
+        const properties = response.data.featureTypes[0].properties;
+        const geomProp = properties.find((p: any) => 
+          p.type.includes('gml:') || 
+          p.type.includes('Geometry') || 
+          p.type.includes('Point') || 
+          p.type.includes('Curve') || 
+          p.type.includes('Surface')
+        );
+        return geomProp ? geomProp.name : 'the_geom';
+      }
+    } catch (e) {
+      this.logger.warn(`Failed to describe feature type for ${typeName}, defaulting to 'the_geom'`, e);
+    }
+    return 'the_geom';
+  }
+
   private async fetchLayerData(
     layer: {
       id: string;
@@ -261,17 +300,20 @@ export class ExportService {
     const params: any = {
       ...originParams,
       service: 'WFS',
-      version: '1.0.0',
+      version: '1.1.0',
       request: 'GetFeature',
       typeName: layer.typeName,
       outputFormat: 'json',
-      bbox: `${bboxParam},urn:ogc:def:crs:EPSG:31983`,
       srsName: 'EPSG:4326', // Request output in WGS84
       maxFeatures: limit,
     };
 
     if (layer.cqlFilter) {
-      params.CQL_FILTER = layer.cqlFilter;
+      // Need geometry column name for BBOX CQL with SRS
+      const geomCol = await this.getGeometryColumnName(wfsUrl, layer.typeName);
+      params.CQL_FILTER = `(${layer.cqlFilter}) AND BBOX(${geomCol}, ${bboxParam}, 'EPSG:4326')`;
+    } else {
+      params.bbox = `${bboxParam},EPSG:4326`;
     }
 
     try {

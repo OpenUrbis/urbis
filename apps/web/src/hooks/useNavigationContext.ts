@@ -28,6 +28,15 @@ export const useNavigationContext = (): INavigationContextActions => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const navigateReplace = (page: any) => {
+    if (ctxHistory.value.length > 0) {
+        ctxHistory.value.pop();
+    }
+    ctxHistory.value.push(page);
+    ctxCurrentPage.value = page;
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const addOnPage = (page: any) => {
     navigateTo([currentPage.value, page]);
   };
@@ -69,6 +78,7 @@ export const useNavigationContext = (): INavigationContextActions => {
     history,
     drawerOpen,
     navigateTo,
+    navigateReplace,
     addOnPage,
     toggleDrawer,
     navigatePop,

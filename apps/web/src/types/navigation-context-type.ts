@@ -21,6 +21,8 @@ export interface INavigationContextActions {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigateTo: (page: any) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  navigateReplace: (page: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addOnPage: (page: any) => void;
   navigatePop: () => void;
   toggleDrawer: () => void;

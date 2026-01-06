@@ -51,7 +51,7 @@ export function FilterOperator<TData, TType extends ColumnDataType>({
   const close = () => setOpen(false)
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"

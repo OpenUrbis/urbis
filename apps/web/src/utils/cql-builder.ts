@@ -1,3 +1,5 @@
+import { normalizeTerm } from "./layer-utils";
+
 export const filtersToCQL = (filters: any[]): string => {
   if (!filters || filters.length === 0) return '';
 
@@ -8,20 +10,30 @@ export const filtersToCQL = (filters: any[]): string => {
     const formatValue = (val: any) => {
         if (type === 'number') return val;
         if (type === 'date') return `'${new Date(val).toISOString()}'`; // Or format as needed by GeoServer
-        return `'${val}'`;
+        return `'${String(val).replace(/'/g, "''")}'`;
     };
 
     switch (operator) {
       // Text
       case 'contains':
-        return `${columnId} ilike '%${value}%'`; // ilike for case-insensitive
+        return `strToLowerCase(${columnId}) like '%${String(value).replace(/'/g, "''").toLowerCase()}%'`;
       case 'does not contain':
-        return `not (${columnId} ilike '%${value}%')`;
+        return `not (strToLowerCase(${columnId}) like '%${String(value).replace(/'/g, "''").toLowerCase()}%')`;
+      case 'similar to':
+        // Remove accents and replace single quotes with space to match normalized search term
+        // strReplace(string, search, replace, global)
+        return `strToLowerCase(strReplace(strStripAccents(${columnId}), '''', ' ', true)) like '%${normalizeTerm(String(value))}%'`;
       case 'is':
       case 'is (text)': // In case the label differs
         return `${columnId} = ${formatValue(value)}`;
       case 'is not':
         return `${columnId} <> ${formatValue(value)}`;
+      case 'is empty':
+        if (type === 'number' || type === 'date') return `${columnId} IS NULL`;
+        return `(${columnId} IS NULL OR ${columnId} = '')`;
+      case 'is not empty':
+        if (type === 'number' || type === 'date') return `${columnId} IS NOT NULL`;
+        return `(${columnId} IS NOT NULL AND ${columnId} <> '')`;
       
       // Number
       case 'is greater than':

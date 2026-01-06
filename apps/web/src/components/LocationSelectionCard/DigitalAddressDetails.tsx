@@ -24,9 +24,10 @@ interface DigitalAddressDetailsProps {
   latitude: number;
   longitude: number;
   plusCode?: string;
+  sourceType: "latlon" | "digital" | "pluscode";
 }
 
-export const DigitalAddressDetails = ({ latitude, longitude, plusCode }: DigitalAddressDetailsProps) => {
+export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceType }: DigitalAddressDetailsProps) => {
   const { navigatePop } = useNavigationContext();
   const { digitalAddressFeature } = useMapContext();
   const address = encode(latitude, longitude);
@@ -92,10 +93,12 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode }: Digital
         {/* Códigos (Moved to Top) */}
         <div className="space-y-3">
           {/* Digital Address */}
-          <DigitalAddressCard prefix={prefix} code={code} address={address} />
+          {(sourceType === 'latlon' || sourceType === 'digital') && (
+            <DigitalAddressCard prefix={prefix} code={code} address={address} />
+          )}
 
           {/* Plus Code */}
-          {plusCode && (
+          {sourceType === 'pluscode' && plusCode && (
              <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 text-center shadow-sm">
                 <span className="block text-xs font-bold text-primary mb-1 uppercase tracking-widest">Plus Code (Google)</span>
                 <span className="text-xl font-mono font-bold tracking-wide text-foreground block">
@@ -120,44 +123,6 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode }: Digital
           </div>
         </div>
 
-        {/* Métricas */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Métricas da Área</h3>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex justify-between border-b pb-1">
-                <span className="text-muted-foreground">Face N:</span>
-                <span className="font-medium">{metrics.faces[0].toFixed(2)} m</span>
-            </div>
-            <div className="flex justify-between border-b pb-1">
-                <span className="text-muted-foreground">Face E:</span>
-                <span className="font-medium">{metrics.faces[1].toFixed(2)} m</span>
-            </div>
-            <div className="flex justify-between border-b pb-1">
-                <span className="text-muted-foreground">Face S:</span>
-                <span className="font-medium">{metrics.faces[2].toFixed(2)} m</span>
-            </div>
-            <div className="flex justify-between border-b pb-1">
-                <span className="text-muted-foreground">Face O:</span>
-                <span className="font-medium">{metrics.faces[3].toFixed(2)} m</span>
-            </div>
-          </div>
-          <div className="flex justify-between items-center pt-2 font-medium bg-muted/20 p-2 rounded">
-             <span>Área Total</span>
-             <span className="text-primary font-bold">{metrics.area.toFixed(2)} m²</span>
-          </div>
-        </div>
-
-        {/* Polígono (Moved down and minimized) */}
-        <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vértices (UTM 23S)</h3>
-          <pre className="text-[9px] bg-muted/50 p-2 rounded border border-border/30 overflow-x-auto font-mono text-muted-foreground">
-            {polygon.map(p => {
-                const ptUtm = proj4("EPSG:4326", "EPSG:31983", [p.lon, p.lat]);
-                return `${ptUtm[0].toFixed(2)}, ${ptUtm[1].toFixed(2)}`;
-            }).join('\n')}
-          </pre>
-        </div>
-
         <div className="pt-2">
            <Dialog>
              <DialogTrigger asChild>
@@ -166,7 +131,7 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode }: Digital
                  Gerar Placa Virtual
                </Button>
              </DialogTrigger>
-             <DialogContent className="sm:max-w-2xl bg-slate-50">
+             <DialogContent className="sm:max-w-2xl">
                <DialogHeader>
                  <DialogTitle>Placa Virtual</DialogTitle>
                </DialogHeader>

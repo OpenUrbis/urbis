@@ -13,59 +13,30 @@ import {
   SelectTrigger,
   SelectValue,
   useDataTableFilters,
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
 } from "@open-urbis/map-ui";
 import { useState, useMemo } from "react";
 import axios from "axios";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { filtersToCQL } from "../../utils/cql-builder";
 import { createFn } from "../../utils/createFn";
-import { Calendar, Hash, Type } from "lucide-react";
-
-const getColumnType = (binding: string): "text" | "number" | "date" | null => {
-  if (binding.includes("String")) return "text";
-  if (
-    binding.includes("Long") ||
-    binding.includes("Integer") ||
-    binding.includes("Double") ||
-    binding.includes("BigDecimal") ||
-    binding.includes("Float")
-  )
-    return "number";
-  if (binding.includes("Date") || binding.includes("Timestamp")) return "date";
-  return "text";
-};
-
-const getIcon = (type: string) => {
-    switch (type) {
-        case 'number': return Hash;
-        case 'date': return Calendar;
-        default: return Type;
-    }
-}
-
-const getLayerNameFromConfig = (config: any): string | null => {
-    // Try to get from origin
-    const origin = config.layerSchema?.origin;
-    if (origin) {
-        const match = origin.match(/[?&](typeName|LAYERS)=([^&]+)/);
-        if (match) {
-            return decodeURIComponent(match[2]);
-        }
-    }
-    // If it was available directly:
-    // return config.layerSchema?.layer;
-    return null;
-}
+import { getColumnType, getIcon, getLayerNameFromConfig, normalizeTerm } from "../../utils/layer-utils";
 
 export const ConcatenatedSearchModal = () => {
-  const { searchConfig, searchQuery } = useSearchContext();
-  const { setResults, clearResults } = searchQuery;
+  const { searchConfig } = useSearchContext();
 
   const [selectedLayerId, setSelectedLayerId] = useState<string>("");
   const [loadingAttributes, setLoadingAttributes] = useState(false);
   const [columnsConfig, setColumnsConfig] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [open, setOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
 
   // Filter state managed by the hook
   const [filters, setFilters] = useState<any[]>([]);
@@ -88,6 +59,8 @@ export const ConcatenatedSearchModal = () => {
     setSelectedLayerId(layerId);
     setColumnsConfig([]);
     setFilters([]);
+    setSearchResults([]);
+    setTotalCount(undefined);
 
     // Find layer config
     const layerConfig = searchConfig.value.find((c) => c.id === layerId);
@@ -141,10 +114,20 @@ export const ConcatenatedSearchModal = () => {
 
   const handleSearch = async () => {
     if (!selectedLayerId) return;
-    const cql = filtersToCQL(filters);
+
+    // Normalize values for contains/does not contain operators
+    const normalizedFilters = filters.map(f => {
+        if ((f.operator === 'contains' || f.operator === 'does not contain') && f.type === 'text') {
+            return { ...f, values: f.values.map((v: any) => normalizeTerm(String(v))) };
+        }
+        return f;
+    });
+
+    const cql = filtersToCQL(normalizedFilters);
 
     setIsSearching(true);
-    clearResults(); // Clear previous results
+    setSearchResults([]); // Clear previous results
+    setTotalCount(undefined);
 
     try {
       const layerConfig = searchConfig.value.find(
@@ -168,7 +151,7 @@ export const ConcatenatedSearchModal = () => {
             outputFormat: "application/json",
             CQL_FILTER: cql || undefined,
             srsName: "EPSG:4326", // Ensure lat/lon
-            maxFeatures: 100,
+            maxFeatures: 1000, // Increased to 1000
           },
           transformResponse: (data) => data, // Keep as text to allow manual parsing/transform
         });
@@ -183,62 +166,51 @@ export const ConcatenatedSearchModal = () => {
         }
 
         let items: any[] = [];
+        
+        // For table display, we want flattened properties
+        items = (responseJson.features || []).map((f: any) => {
+            return {
+                id: f.id,
+                ...f.properties
+            };
+        });
+
         const totalFeatures = responseJson.totalFeatures || responseJson.numberMatched;
-
-        if (layerConfig.transformResponse) {
-          try {
-            const fn = createFn(layerConfig.transformResponse);
-            // Pass text as transformResponse usually expects raw string (contains JSON.parse)
-            items = fn(responseText);
-
-            // Try to attach rawData if missing and counts match
-            if (
-              responseJson.features &&
-              Array.isArray(items) &&
-              items.length === responseJson.features.length
-            ) {
-              items = items.map((item, index) => {
-                if (!item.rawData) {
-                  return { ...item, rawData: responseJson.features[index] };
-                }
-                return item;
-              });
-            }
-          } catch (e) {
-            console.error("Error transforming response", e);
-            // Try passing object if text failed? No, error was about "[object Object]" not valid JSON
-            items = [];
-          }
-        } else {
-          items = (responseJson.features || []).map((f: any) => ({
-            id: f.id,
-            name: f.properties.nome || f.id, // Fallback
-            latitude: f.geometry?.coordinates[1],
-            longitude: f.geometry?.coordinates[0],
-            rawData: f,
-          }));
-        }
-
         if (totalFeatures !== undefined) {
-          (items as any).totalCount = totalFeatures;
+            setTotalCount(totalFeatures);
         }
 
-        setResults({ [selectedLayerId]: items });
-        setOpen(false);
-
-        // Enable only the searched layer
-        if (searchConfig.value) {
-          searchConfig.value = searchConfig.value.map((c) => ({
-            ...c,
-            isActive: c.id === selectedLayerId,
-          }));
-        }
+        setSearchResults(items);
       }
     } catch (error) {
       console.error(error);
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleExportCSV = () => {
+      if (searchResults.length === 0) return;
+
+      const headers = Object.keys(searchResults[0]).filter(k => k !== 'id'); // Filter internal ID if needed
+      const csvContent = [
+          headers.join(','),
+          ...searchResults.map(row => headers.map(header => {
+              const val = row[header];
+              // Handle commas in value by quoting
+              const strVal = String(val === null || val === undefined ? '' : val);
+              return strVal.includes(',') ? `"${strVal}"` : strVal;
+          }).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "busca_export.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
   };
 
   return (
@@ -253,12 +225,12 @@ export const ConcatenatedSearchModal = () => {
           <span className="material-symbols-outlined">filter_list</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col">
         <DialogHeader>
           <DialogTitle>Busca Concatenada</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 flex-1 overflow-y-auto">
           <div className="flex items-center gap-4">
             <Select value={selectedLayerId} onValueChange={handleLayerChange}>
               <SelectTrigger className="w-[280px]">
@@ -308,6 +280,45 @@ export const ConcatenatedSearchModal = () => {
               )}
             </Button>
           </div>
+
+          {searchResults.length > 0 && (
+              <div className="space-y-2 mt-4">
+                  <div className="flex justify-between items-center">
+                      <div className="flex flex-col">
+                          <h3 className="font-semibold">Resultados</h3>
+                          <p className="text-sm text-muted-foreground">
+                              Exibindo {searchResults.length} de {totalCount !== undefined ? totalCount : '?'} itens
+                          </p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                          <span className="material-symbols-outlined mr-2">download</span>
+                          Exportar CSV
+                      </Button>
+                  </div>
+                  <div className="border rounded-md overflow-auto max-h-[400px]">
+                      <Table>
+                          <TableHeader>
+                              <TableRow>
+                                  {Object.keys(searchResults[0]).map(key => (
+                                      <TableHead key={key} className="whitespace-nowrap">{key}</TableHead>
+                                  ))}
+                              </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                              {searchResults.map((row, i) => (
+                                  <TableRow key={i}>
+                                      {Object.values(row).map((val: any, j) => (
+                                          <TableCell key={j} className="whitespace-nowrap max-w-[200px] truncate" title={String(val)}>
+                                              {String(val)}
+                                          </TableCell>
+                                      ))}
+                                  </TableRow>
+                              ))}
+                          </TableBody>
+                      </Table>
+                  </div>
+              </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

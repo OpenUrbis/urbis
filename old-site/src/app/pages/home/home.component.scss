@@ -1,0 +1,33 @@
+.home {
+    background-color: #F7F9FF;
+}
+
+.botao-flutuante {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.botao-flutuante:hover {
+  background-color: #0056b3;
+}
+
+.home app-mosaico {
+  background-color: #E8E6EB; /* cor da parte inferior da imagem */
+  display: block; /* força o fundo a aplicar */
+}
+

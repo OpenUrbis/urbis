@@ -1,0 +1,62 @@
+@use '@angular/material' as mat;
+// Importe seu tema customizado
+@use './themes/_theme-colors' as custom;
+
+$theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: custom.$primary-palette,
+  ),
+));
+
+html {
+  @include mat.all-component-themes($theme); /* ✅ Agora está dentro do seletor */
+  background-color: #F7F9FF;
+  font-family: "Noto Sans", sans-serif;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  scrollbar-width: thin; /* barra fina */
+  scrollbar-color: #6A86F7 #E7E6EA; /* thumb e track */
+}
+
+/* Ícones do Material */
+.material-icons {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+/* Scrollbar para Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 16px; /* Largura mais confortável */
+}
+
+::-webkit-scrollbar-track {
+  background: #E7E6EA; /* Track com cinza claro Urbis */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6A86F7; /* Azul padrão Urbis */
+  border-radius: 999px; /* Arredondamento máximo */
+  border: 3px solid #E7E6EA; /* Espaçamento interno */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3D5AFE; /* Azul mais forte no hover */
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #304FFE; /* Azul mais escuro ao clicar */
+}

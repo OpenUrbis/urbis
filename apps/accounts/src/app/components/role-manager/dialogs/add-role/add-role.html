@@ -1,5 +1,7 @@
 <lib-loading-content [loading]="loading()">
-  <h2 mat-dialog-title>Adicionar cargo</h2>
+  <h2 mat-dialog-title>
+    {{ "components.roleManager.addRole.title" | translate }}
+  </h2>
   <mat-dialog-content>
     <mat-accordion>
       @for (item of result$ | async; track item.id) {
@@ -11,7 +13,9 @@
 
             <button
               matIconButton
-              aria-label="Adicionar cargo"
+              [attr.aria-label]="
+                'components.roleManager.addRole.buttons.add' | translate
+              "
               (click)="addRole($event, item)"
               class="me-3"
               [disabled]="data.roles.includes(item.id)"
@@ -24,7 +28,9 @@
               {{ item.description }}
             </p>
 
-            <h6>Permissões:</h6>
+            <h6>
+              {{ "components.roleManager.addRole.permissionsTitle" | translate }}
+            </h6>
             <mat-list>
               @for (
                 rolePermission of item.rolePermissions;

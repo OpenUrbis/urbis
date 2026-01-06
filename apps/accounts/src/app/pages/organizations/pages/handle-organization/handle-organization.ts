@@ -25,6 +25,9 @@ import {
   IRequestUpdateOrganization,
 } from '../../dto/organization.dto';
 import { OrganizationsApi } from '../../services/organizations-api';
+import { Users } from '../../../users/users';
+import { TranslateModule } from '@ngx-translate/core';
+import { PageStructure } from '../../../../components/page-structure/page-structure';
 
 @Component({
   selector: 'app-handle-organization',
@@ -41,6 +44,9 @@ import { OrganizationsApi } from '../../services/organizations-api';
     RouterLink,
     LoadingContent,
     LoadingButton,
+    Users,
+    TranslateModule,
+    PageStructure,
   ],
   templateUrl: './handle-organization.html',
   styleUrl: './handle-organization.scss',

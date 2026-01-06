@@ -4,7 +4,7 @@ import { AuthState } from '../auth/auth.state';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { TUser } from '../../shared/types/user';
+import { IUser } from '../../pages/users/dto/user.dto';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileState {
@@ -14,13 +14,15 @@ export class ProfileState {
   private profileResource = rxResource({
     params: () => ({ isAuthenticated: this.auth.isAuthenticated() }),
     stream: ({ params }) => {
-      if (!params.isAuthenticated) return of({} as TUser);
-      return this.http.get<TUser>(`${environment.api}/auth/me`);
+      if (!params.isAuthenticated) return of({} as IUser);
+      return this.http.get<IUser>(`${environment.api}/auth/me`);
     },
-    defaultValue: {} as TUser,
+    defaultValue: {} as IUser,
   });
 
-  loading = computed(() => this.profileResource.isLoading());
+  loading = computed(
+    () => this.profileResource.isLoading() || !this.profileResource.value(),
+  );
   value = computed(() => this.profileResource.value());
   errors = computed(() => this.profileResource.error());
 

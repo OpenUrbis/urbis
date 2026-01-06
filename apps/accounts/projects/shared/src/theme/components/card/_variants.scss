@@ -6,6 +6,7 @@
 
 mat-card.mat-mdc-card {
   box-shadow: none !important;
-  background-color: var(--mat-sys-surface);
+  background-color: var(--mat-sys-surface) !important;
   border: 1px solid var(--mat-sys-outline-variant) !important;
+  border-radius: var(--mdc-table-container-shape, 8px) !important;
 }

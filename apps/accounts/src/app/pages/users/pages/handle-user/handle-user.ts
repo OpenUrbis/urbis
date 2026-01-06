@@ -19,13 +19,17 @@ import { catchError, firstValueFrom, of, switchMap, tap } from 'rxjs';
 import { passwordFormGroup } from '../../../../../../projects/shared/src/lib/components/password-form-group/form-group/password-form-group';
 import { PasswordFormGroup } from '../../../../../../projects/shared/src/lib/components/password-form-group/password-form-group';
 import {
+  ConfirmDialogModule,
   LoadingButton,
   LoadingContent,
+  useConfirmDialog,
 } from '../../../../../../projects/shared/src/public-api';
 import { RoleManagerModule } from '../../../../components/role-manager/role-manager-module';
 import { UserOrganizationManager } from '../../../../components/user-organization-manager/user-organization-manager';
 import { ICreateUserRequest, IUpdateUserRequest } from '../../dto/user.dto';
 import { UsersApi } from '../../services/users-api';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { PageStructure } from '../../../../components/page-structure/page-structure';
 
 @Component({
   selector: 'app-handle-user',
@@ -45,6 +49,9 @@ import { UsersApi } from '../../services/users-api';
     LoadingContent,
     LoadingButton,
     UserOrganizationManager,
+    ConfirmDialogModule,
+    TranslateModule,
+    PageStructure,
   ],
   templateUrl: './handle-user.html',
   styleUrl: './handle-user.scss',
@@ -66,6 +73,7 @@ export class HandleUser {
   activatedRoute = inject(ActivatedRoute);
   router = inject(Router);
   userApi = inject(UsersApi);
+  confirmDialog = useConfirmDialog();
 
   constructor() {
     effect(() => {
@@ -142,6 +150,31 @@ export class HandleUser {
       );
     } finally {
       this.loadingSave.set(false);
+    }
+  }
+
+  async deleteUser(id: string) {
+    try {
+      await this.confirmDialog(
+        {
+          title: 'Deseja excluir este usuário?',
+          description: 'Esta ação é irreversivel.',
+        },
+        { resultMode: 'reject' },
+      );
+
+      this.loading.set(true);
+
+      await firstValueFrom(this.userApi.delete(id));
+
+      this.router.navigate(['/users'], { replaceUrl: true });
+    } catch (err: any) {
+      console.error(err);
+      if (err?.internalMessage) return;
+
+      this.matSnackBar.open('Não foi possivel excluir este usuário');
+    } finally {
+      this.loading.set(false);
     }
   }
 }

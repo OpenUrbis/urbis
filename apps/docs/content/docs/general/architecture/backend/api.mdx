@@ -1,0 +1,28 @@
+---
+title: API & Swagger
+description: API documentation and how to access the Swagger UI.
+icon: FileText
+---
+
+We provide an auto-generated OpenAPI specification via Swagger to document our REST endpoints.
+
+## Accessing Swagger
+
+When the API is running locally, the documentation is available at:
+
+```
+http://localhost:3000/swagger/docs
+```
+
+This interface allows you to explore available endpoints, request parameters, response schemas, and even test requests directly from your browser.
+
+## Authentication
+
+The API uses API Keys or Bearer Tokens (JWT) for authentication.
+
+-   **API Key**: Used for machine-to-machine communication or specific endpoints. Header: `X-API-Key` (configurable via environment variables).
+-   **Bearer Token**: Used for user sessions. Header: `Authorization: Bearer <token>`.
+
+## Versioning
+
+Currently, the API is versioned via the URL path (e.g., `/v1/...`) if applicable, or managed through breaking change policies. (Note: Verify specific versioning strategy in `main.ts`).

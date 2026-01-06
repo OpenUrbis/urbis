@@ -2,14 +2,20 @@
   <div class="forbidden-content">
     <div>
       <h1 style="font-size: 72px" class="mb-4">:(</h1>
-      <h4>We had an unexpected problem.</h4>
-      <p>
-        If you are facing this problem repeatedly,<br />
-        clearing the browser's cache may be a solution.
-      </p>
+      <h4>{{ "pages.auth.forbidden.title" | translate }}</h4>
+      <p>{{ "pages.auth.forbidden.description" | translate }}</p>
       <div class="mt-4">
-        <a mat-flat-button color="primary" routerLink="/">Try log in</a>
-        <p class="mt-4">Error code: 403</p>
+        <a
+          mat-flat-button
+          color="primary"
+          routerLink="/"
+          [attr.aria-label]="'pages.auth.forbidden.button' | translate"
+        >
+          {{ "pages.auth.forbidden.button" | translate }}
+        </a>
+        <p class="mt-4">
+          {{ "pages.auth.forbidden.errorCode" | translate }}
+        </p>
       </div>
     </div>
   </div>

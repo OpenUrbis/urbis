@@ -1,6 +1,6 @@
 'use client'
 
-import { Input } from '@/components/ui/input'
+import { Input } from '../../ui/input'
 import { useCallback, useEffect, useState } from 'react'
 import { debounce } from '../lib/debounce'
 

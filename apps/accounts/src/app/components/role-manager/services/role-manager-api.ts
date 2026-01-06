@@ -3,7 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { IPaginationWithExclude } from '../../../shared/dto/pagination.dto';
+import {
+  IPaginationResponse,
+  IPaginationWithExclude,
+} from '../../../shared/dto/pagination.dto';
 import { IAssignRoleUserRequest } from '../dto/assign-role-user.dto';
 import { IPermissionResponse } from '../dto/permission.dto';
 import {
@@ -57,7 +60,7 @@ export class RoleManagerApi {
 
   listRoles(params?: IPaginationWithExclude) {
     return this.httpClient
-      .get<IRoleResponse[]>(`${API_BASE}/list`, {
+      .get<IPaginationResponse<IRoleResponse>>(`${API_BASE}/list`, {
         params: params
           ? new HttpParams({ fromObject: params as any })
           : undefined,

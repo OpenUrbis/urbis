@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { PasswordFormGroup } from './password-form-group';
 
@@ -8,7 +9,7 @@ describe('PasswordFormGroup', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PasswordFormGroup]
+      imports: [PasswordFormGroup, TranslateModule.forRoot()]
     })
     .compileComponents();
 

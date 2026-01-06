@@ -1,16 +1,16 @@
-import { IRoleResponse } from '../../../components/role-manager/dto/role.dto';
 import { IUserAssigmentResponse } from '../../../components/role-manager/dto/user-assignment.dto';
 
-export interface IResponseOrganization {
+export interface IOrganization {
   id: string;
   name: string;
   description?: string;
   metadata: any;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string;
 }
 
-export interface IResponseOrganizationWithRole extends IResponseOrganization {
+export interface IResponseOrganizationWithRole extends IOrganization {
   userRoleAssignments: IUserAssigmentResponse[];
 }
 

@@ -1,0 +1,67 @@
+---
+title: Helm Deployment
+description: Deploying Urbis Workflows Infrastructure with Helm.
+---
+
+This document provides a basic guide to deploying the Urbis Workflows Infrastructure using Helm, referencing the [OpenUrbis/urbis-workflows-infra](https://github.com/OpenUrbis/urbis-workflows-infra) repository.
+
+## Prerequisites
+
+Before proceeding, ensure you have:
+- A Kubernetes cluster (version 1.20 or higher)
+- Helm 3 installed
+- `kubectl` configured to interact with your cluster
+
+## Steps to Deploy
+
+1. **Clone the Repository**  
+   Clone the Urbis Workflows Infrastructure repository to your local machine:
+   ```bash
+   git clone https://github.com/OpenUrbis/urbis-workflows-infra.git
+   cd urbis-workflows-infra
+   ```
+
+2. **Create a Namespace**  
+   Create a Kubernetes namespace for the deployment:
+   ```bash
+   kubectl create namespace urbis-workflows
+   ```
+
+3. **Configure the Deployment**  
+   Customize the deployment by editing the `values.yaml` file for general configurations and `secrets.yaml` for sensitive data (e.g., database passwords). Ensure `secrets.yaml` is not committed to version control.  
+   Example modification in `values.yaml`:
+   ```yaml
+   postgresql:
+     replicaCount: 2
+   ```
+
+4. **Install the Helm Chart**  
+   Deploy the infrastructure using the Helm chart:
+   ```bash
+   helm install urbis-workflows ./infra -f values.yaml -f secrets.yaml -n urbis-workflows
+   ```
+
+5. **Verify the Deployment**  
+   Check the status of the deployed resources:
+   ```bash
+   kubectl get pods -n urbis-workflows
+   ```
+
+## Updating the Deployment
+
+To apply changes to the configuration or chart:
+```bash
+helm upgrade urbis-workflows ./infra -f values.yaml -f secrets.yaml -n urbis-workflows
+```
+
+## Uninstalling the Deployment
+
+To remove the deployment:
+```bash
+helm uninstall urbis-workflows -n urbis-workflows
+```
+**Note**: Persistent data (e.g., database volumes) must be deleted manually if no longer needed.
+
+## Additional Information
+
+For more details, refer to the [README](https://github.com/OpenUrbis/urbis-workflows-infra/blob/main/README.md) in the repository. For support, open an issue on GitHub or contact contas@urbis.sampa.br.

@@ -1,14 +1,21 @@
-import { HttpInterceptorFn } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { AccessTokenInterceptor } from './access-token-interceptor';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 
-import { accessTokenInterceptor } from './access-token-interceptor';
-
-describe('accessTokenInterceptor', () => {
-  const interceptor: HttpInterceptorFn = (req, next) =>
-    TestBed.runInInjectionContext(() => accessTokenInterceptor(req, next));
+describe('AccessTokenInterceptor', () => {
+  let interceptor: AccessTokenInterceptor;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [
+        AccessTokenInterceptor,
+        {
+          provide: OidcSecurityService,
+          useValue: {},
+        },
+      ],
+    });
+    interceptor = TestBed.inject(AccessTokenInterceptor);
   });
 
   it('should be created', () => {

@@ -1,3 +1,5 @@
+@use '../../../../projects/shared/src/theme/components/card/variants.scss';
+
 .profile-form {
   display: flex;
   flex-direction: column;
@@ -5,4 +7,74 @@
 
 .profile-content {
   padding: 8px;
+
+  .date-info {
+    color: var(--mat-sys-secondary);
+    margin: 0;
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.15px;
+  }
+
+
+  .mat-mdc-list-item-title {
+    color: var(--mat-sys-primary) !important;
+    font-weight: 600 !important;
+
+    &:hover {
+      color: var(--mat-sys-primary) !important;
+      font-weight: 600 !important;
+    }
+  }
+}
+
+.header {
+
+  .avatar {
+    width: 120px;
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    color: var(--mat-sys-primary);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 38px;
+    letter-spacing: 0.15px;
+    margin: 0;
+  }
+
+  p {
+    color: var(--mat-sys-secondary);
+    margin: 0;
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.15px;
+  }
+
+}
+
+.user-info {
+
+  .info-item {
+
+    .verified {
+      opacity: 0.75;
+      font-size: 12px;
+      margin-left: 12px;
+    }
+
+    .profile-icon-info {
+      color: var(--mat-sys-primary) !important;
+      margin: 16px 24px 16px 16px;
+      font-size: 28px !important;
+      line-height: 40px;
+      height: 36px;
+      width: 28px;
+    }
+  }
 }

@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { passwordFormGroup } from './form-group/password-form-group';
 import { HintError } from './hint-error/hint-error';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'lib-password-form-group',
@@ -18,6 +19,7 @@ import { HintError } from './hint-error/hint-error';
     MatIconModule,
     MatButtonModule,
     HintError,
+    TranslateModule,
   ],
   templateUrl: './password-form-group.html',
   styleUrl: './password-form-group.scss',

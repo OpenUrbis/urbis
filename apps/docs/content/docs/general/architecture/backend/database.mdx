@@ -1,0 +1,57 @@
+---
+title: Database & Migrations
+description: Managing database schemas, migrations, and seeds.
+icon: Database
+---
+
+Monorepo Boilerplate uses PostgreSQL as its primary data store and TypeORM for object-relational mapping.
+
+## Connection
+
+The database connection is configured in `apps/api/src/common/database/database.module.ts`. It reads credentials from environment variables (`DB_HOST`, `DB_PORT`, `DB_USERNAME`, etc.).
+
+## Migrations
+
+We use database migrations to manage schema changes over time. This ensures that the database schema is version-controlled and can be replicated across different environments (dev, staging, prod).
+
+### Running Migrations
+
+To apply pending migrations:
+
+```bash
+pnpm migration:run
+```
+
+### Creating Migrations
+
+To generate a new migration based on changes to your entities:
+
+```bash
+pnpm migration:generate --name=NameOfMigration
+```
+
+To create an empty migration file:
+
+```bash
+pnpm migration:create --name=NameOfMigration
+```
+
+### Reverting Migrations
+
+To undo the last migration:
+
+```bash
+pnpm migration:revert
+```
+
+## Seeding
+
+Seeding allows us to populate the database with initial or test data.
+
+To run the seeds:
+
+```bash
+pnpm db:seed
+```
+
+The seed script is located at `apps/api/src/common/database/seeds/run-seed.ts`.

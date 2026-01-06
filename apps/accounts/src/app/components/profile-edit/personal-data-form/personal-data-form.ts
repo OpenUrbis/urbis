@@ -2,6 +2,11 @@ import { Component, effect, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProfileState } from '../../../states/profile/profile.state';
 import { ProfileEditApi } from '../services/profile-edit-api';
+import {
+  countrySelectFormGroup,
+  phoneFormGroup,
+} from '../../../../../projects/shared/src/public-api';
+import { mergeFormGroups } from '../../../shared/utils/merge-form-groups';
 
 @Component({
   standalone: false,
@@ -13,18 +18,22 @@ export class PersonalDataForm {
   api = inject(ProfileEditApi);
   state = inject(ProfileState);
 
-  form = new FormGroup({
-    firstName: new FormControl('', Validators.required),
-    lastName: new FormControl('', Validators.required),
-  });
+  form = mergeFormGroups(
+    new FormGroup({
+      firstName: new FormControl('', Validators.required),
+      lastName: new FormControl('', Validators.required),
+    }),
+    phoneFormGroup(),
+    countrySelectFormGroup(),
+  );
 
   constructor() {
     effect(() => {
-      if (!this.state.value().id || this.state.loading()) return;
+      const value = this.state.value();
+      if (!value.id || this.state.loading()) return;
 
       this.form.patchValue({
-        firstName: this.state.value().firstName,
-        lastName: this.state.value().lastName,
+        ...value,
       });
     });
   }

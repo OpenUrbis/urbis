@@ -40,12 +40,20 @@ mat-paginator {
 
 // Table box
 .table-box {
+  position: relative;
   overflow: hidden;
   padding: 1px;
   background-color: var(--mat-sys-surface);
   border: 1px solid var(--mat-sys-outline-variant) !important;
   border-radius: var(--mdc-table-container-shape, 8px) !important;
   padding: var(--mdc-table-container-padding, 8px);
+
+  mat-progress-bar {
+    position: absolute;
+    top: calc(var(--mdc-table-header-row-height, 56px) + 5px);
+    left: 0;
+    width: 100%;
+  }
 }
 
 [mat-table] .mat-mdc-row,

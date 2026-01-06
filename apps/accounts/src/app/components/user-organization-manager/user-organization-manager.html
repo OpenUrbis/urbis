@@ -1,31 +1,56 @@
 <lib-loading-content [loading]="loading()">
-  <div class="d-flex justify-content-between align-self-center">
-    <h3>Organizações do usuário</h3>
-    <button matButton="filled" aria-label="Adicionar cargo" (click)="handleAssign()">
-      <mat-icon class="material-symbols-outlined">add</mat-icon>
-      Adicionar
-    </button>
-  </div>
-  <mat-list>
-    @for (item of organizations(); track item.id) {
-      <mat-list-item>
-        <span matListItemTitle>{{ item.name }}</span>
-        @if (item.description) {
-          <span matListItemLine>{{ item.description }}</span>
-        }
-        <span matListItemLine>
-          {{ buildRoles(item) }}
-        </span>
-        <span matListItemMeta>
-          <button
-            matIconButton
-            aria-label="Remover cargo"
-            (click)="handleAssign(item)"
-          >
-            <mat-icon class="material-symbols-outlined">create</mat-icon>
-          </button>
-        </span>
-      </mat-list-item>
-    }
-  </mat-list>
+  <app-page-structure
+    [title]="'components.userOrganizationManager.page.title' | translate"
+    [containerClasses]="[]"
+  >
+    <section rightActions>
+      <button
+        matButton="filled"
+        [attr.aria-label]="
+          'components.userOrganizationManager.page.buttons.add.ariaLabel'
+            | translate
+        "
+        (click)="handleAssign()"
+      >
+        <mat-icon class="material-symbols-outlined">add</mat-icon>
+        {{
+          "components.userOrganizationManager.page.buttons.add.title"
+            | translate
+        }}
+      </button>
+    </section>
+
+    <mat-list>
+      @for (item of organizations(); track item.id) {
+        <mat-list-item>
+          <span matListItemTitle>
+            {{ item.name }}
+          </span>
+
+          @if (item.description) {
+            <span matListItemLine>
+              {{ item.description }}
+            </span>
+          }
+
+          <span matListItemLine>
+            {{ buildRoles(item) }}
+          </span>
+
+          <span matListItemMeta>
+            <button
+              matIconButton
+              [attr.aria-label]="
+                'components.userOrganizationManager.page.buttons.edit.ariaLabel'
+                  | translate
+              "
+              (click)="handleAssign(item)"
+            >
+              <mat-icon class="material-symbols-outlined">create</mat-icon>
+            </button>
+          </span>
+        </mat-list-item>
+      }
+    </mat-list>
+  </app-page-structure>
 </lib-loading-content>

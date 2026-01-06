@@ -1,20 +1,93 @@
-<div class="d-flex justify-content-center align-items-center w-100 h-100">
-  <div class="h-50 w-50">
+<div class="row justify-content-center align-items-center h-100">
+  <div class="col-10 col-xl-3 col-lg-4 col-md-6 sign-in-container">
     <form
       (ngSubmit)="onSubmit()"
       class="d-flex justify-content-center align-items-center flex-column"
       [formGroup]="formGroup"
+      class="h-100 w-100"
     >
-      <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput placeholder="Placeholder" formControlName="email" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Senha</mat-label>
-        <input matInput placeholder="Placeholder" type="password" formControlName="password" />
-      </mat-form-field>
+      <mat-card class="py-3">
+        <mat-card-header class="mb-5">
+          <mat-card-title>
+            {{ "pages.signIn.title" | translate }}
+          </mat-card-title>
+          <mat-card-subtitle>
+            {{ "pages.signIn.subtitle" | translate }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="d-flex flex-column">
+          <mat-form-field appearance="outline">
+            <mat-label>{{
+              "pages.signIn.form.fields.email" | translate
+            }}</mat-label>
+            <input
+              matInput
+              [placeholder]="
+                'pages.signIn.form.placeholders.email' | translate
+              "
+              [attr.aria-label]="
+                'pages.signIn.form.fields.email' | translate
+              "
+              formControlName="email"
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{
+              "pages.signIn.form.fields.password" | translate
+            }}</mat-label>
+            <input
+              matInput
+              [placeholder]="
+                'pages.signIn.form.placeholders.password' | translate
+              "
+              [attr.aria-label]="
+                'pages.signIn.form.fields.password' | translate
+              "
+              type="password"
+              formControlName="password"
+            />
+          </mat-form-field>
 
-      <button matButton="filled">Entrar</button>
+          <div class="d-flex justify-content-end py-1">
+            <a href="/forgot-password" matButton="text">
+              {{ "pages.signIn.form.links.forgotPassword" | translate }}
+            </a>
+          </div>
+        </mat-card-content>
+        <mat-card-actions
+          class="justify-content-center align-items-center d-flex flex-column px-3 gap-3"
+        >
+          <button
+            matButton="filled"
+            class="w-100"
+            [disabled]="formGroup.invalid"
+            [attr.aria-label]="
+              'pages.signIn.form.buttons.submit' | translate
+            "
+          >
+            {{ "pages.signIn.form.buttons.submit" | translate }}
+          </button>
+          <a
+            href="/sign-up"
+            matButton="outlined"
+            class="w-100"
+            [attr.aria-label]="
+              'pages.signIn.form.links.signUp' | translate
+            "
+          >
+            {{ "pages.signIn.form.links.signUp" | translate }}
+          </a>
+
+          <div class="divider">
+            <span>{{ "pages.signIn.form.divider" | translate }}</span>
+          </div>
+
+          <lib-sign-in-gov-br-btn
+            (click)="signInWithExternalOidc()"
+            class="w-100"
+          />
+        </mat-card-actions>
+      </mat-card>
     </form>
   </div>
 </div>

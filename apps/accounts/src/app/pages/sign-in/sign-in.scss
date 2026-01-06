@@ -1,0 +1,26 @@
+@use "../../../../projects/shared/src/theme/components/card/variants";
+
+.divider {
+  padding: 0px 16px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex-grow: 1;
+  height: 1px;
+  width: 100%;
+  background-color: var(--mat-sys-on-surface);
+}
+
+.divider span {
+  margin: 0 10px;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--mat-sys-on-surface);
+  line-height: 21px;
+}

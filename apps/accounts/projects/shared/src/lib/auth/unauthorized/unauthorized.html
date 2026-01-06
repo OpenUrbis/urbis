@@ -2,22 +2,24 @@
   <div class="unauthorized-content">
     <div>
       <h1 style="font-size: 72px" class="mb-4">:(</h1>
-      <h4>Parece que você está tendo problemas para fazer login</h4>
-      <p>
-        Isso pode ocorrer devido a alguns problemas comuns. Tente o seguinte:
-      </p>
+      <h4>{{ "pages.auth.unauthorized.title" | translate }}</h4>
+      <p>{{ "pages.auth.unauthorized.description" | translate }}</p>
       <ol>
         <li>
-          Verifique a data e a hora do seu dispositivo — certifique-se de que
-          estejam corretas.
+          {{ "pages.auth.unauthorized.steps.checkTime" | translate }}
         </li>
-        <li>Limpe o cache do seu navegador e tente novamente.</li>
+        <li>{{ "pages.auth.unauthorized.steps.clearCache" | translate }}</li>
       </ol>
-      <p>
-        Se o problema persistir, entre em contato com nossa equipe de suporte.
-      </p>
+      <p>{{ "pages.auth.unauthorized.support" | translate }}</p>
       <div class="mt-4">
-        <a mat-flat-button color="primary" routerLink="/">Try log in</a>
+        <a
+          mat-flat-button
+          color="primary"
+          routerLink="/"
+          [attr.aria-label]="'pages.auth.unauthorized.button' | translate"
+        >
+          {{ "pages.auth.unauthorized.button" | translate }}
+        </a>
       </div>
     </div>
   </div>

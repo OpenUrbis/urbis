@@ -45,12 +45,50 @@ const addDrawControls = (
   return draw;
 };
 
+class PickLocationControl implements mapboxgl.IControl {
+  private container!: HTMLElement;
+  private map?: mapboxgl.Map;
+  private onPick: () => void;
+  private button!: HTMLButtonElement;
+
+  constructor(onPick: () => void) {
+    this.onPick = onPick;
+  }
+
+  onAdd(map: mapboxgl.Map) {
+    this.map = map;
+    this.container = document.createElement("div");
+    this.container.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
+    
+    this.button = document.createElement("button");
+    this.button.type = "button";
+    this.button.title = "Identificar Local";
+    this.button.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; line-height: 29px;">pin_drop</span>';
+    this.button.addEventListener("click", () => {
+        this.onPick();
+    });
+
+    this.container.appendChild(this.button);
+    return this.container;
+  }
+
+  onRemove() {
+    this.container.parentNode?.removeChild(this.container);
+    this.map = undefined;
+  }
+}
+
 export const addMapControls = (
   map: mapboxgl.Map,
-  polygonEdit: IPolygonEditContextActions
+  polygonEdit: IPolygonEditContextActions,
+  onPickLocation?: () => void
 ) => {
   // Adiciona o controle de troca de estilo ao mapa
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+  if (onPickLocation) {
+      map.addControl(new PickLocationControl(onPickLocation), "top-right");
+  }
 
   // Controle de escala
   const scaleControl = new mapboxgl.ScaleControl();

@@ -1,16 +1,16 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 @Pipe({
   name: 'permissionScope',
 })
 export class PermissionScopePipe implements PipeTransform {
-  transform(value: string): string {
-    const translates: any = {
-      global: 'Global',
-      any: 'Qualquer',
-      own: 'Proprietário',
-    };
+  constructor(private translate: TranslateService) {}
 
-    return translates[value] ?? 'Global';
+  transform(value: string): string {
+    const key = `pages.roles.form.scopeOptions.${value}`;
+    const translated = this.translate.instant(key);
+
+    return translated || this.translate.instant('pages.roles.form.scopeOptions.global');
   }
 }

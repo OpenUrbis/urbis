@@ -1,35 +1,44 @@
-<lib-loading-content [loading]="loading()">
-  <div class="d-flex justify-content-between align-self-center">
-    <h3>Cargos do usuário</h3>
+<app-page-structure
+  [title]="'pages.users.edit.roles.title' | translate"
+  [containerClasses]="[]"
+>
+  <section rightActions>
     <button
       matButton="filled"
-      aria-label="Adicionar cargo"
+      [attr.aria-label]="'components.userRoleManager.buttons.add' | translate"
       (click)="openAddRole()"
     >
-      <mat-icon class="material-symbols-outlined">add</mat-icon>
-      Adicionar
-    </button>
-  </div>
-  <mat-list>
-    @for (item of userRoles(); track item.id) {
-      <mat-list-item>
-        <span matListItemTitle>
-          <b>{{ item.role.name }}</b>
-          @if (item?.organization) {
-            em {{ item?.organization?.name }}
-          }
-        </span>
-        <span matListItemLine>{{ formatPermissions(item.role) }}</span>
-        <span matListItemMeta>
-          <button
-            matIconButton
-            aria-label="Remover cargo"
-            (click)="rmRole(item)"
-          >
-            <mat-icon class="material-symbols-outlined">delete</mat-icon>
-          </button>
-        </span>
-      </mat-list-item>
-    }
-  </mat-list>
-</lib-loading-content>
+      {{ "pages.users.edit.roles.buttons.add" | translate }}</button
+    >
+  </section>
+
+  <lib-loading-content [loading]="loading()">
+    <mat-list>
+      @for (item of userRoles(); track item.id) {
+        <mat-list-item>
+          <span matListItemTitle>
+            <b>{{ item.role.name }}</b>
+            @if (item?.organization) {
+              {{
+                "components.userRoleManager.labels.inOrganization"
+                  | translate: { organization: item?.organization?.name }
+              }}
+            }
+          </span>
+          <span matListItemLine>{{ formatPermissions(item.role) }}</span>
+          <span matListItemMeta>
+            <button
+              matIconButton
+              [attr.aria-label]="
+                'components.userRoleManager.buttons.remove' | translate
+              "
+              (click)="rmRole(item)"
+            >
+              <mat-icon class="material-symbols-outlined">delete</mat-icon>
+            </button>
+          </span>
+        </mat-list-item>
+      }
+    </mat-list>
+  </lib-loading-content>
+</app-page-structure>

@@ -1,0 +1,125 @@
+<div class="container custom-branding-edit">
+  <div [class.loading]="loading()">
+    <div *ngIf="loading()" class="loading-indicator">
+      <mat-spinner diameter="26"></mat-spinner>
+    </div>
+    <div class="custom-branding-edit-content">
+      <div class="d-flex flex-column">
+        <div *ngIf="!loading()" class="text-center mb-1">
+          <!-- Form -->
+          <form
+            (ngSubmit)="onSubmit()"
+            [formGroup]="formGroup"
+            class="form mx-auto"
+          >
+            <!-- Brand Color -->
+            <mat-form-field appearance="outline">
+              <mat-label>Brand Color</mat-label>
+              <input
+                matInput
+                formControlName="brandColor"
+                placeholder="#89C540"
+              />
+              <div matSuffix class="color-picker-wrapper">
+                <input
+                  type="color"
+                  formControlName="brandColor"
+                  class="color-picker-suffix"
+                />
+              </div>
+              <mat-hint
+                *ngIf="
+                  formGroup.controls.brandColor.invalid &&
+                  formGroup.controls.brandColor.touched
+                "
+              >
+                Invalid Hex Color
+              </mat-hint>
+            </mat-form-field>
+
+            <!-- Default Theme -->
+            <div class="mb-4 text-start">
+              <mat-label class="d-block mb-2 font-weight-bold"
+                >Default Theme</mat-label
+              >
+              <mat-radio-group formControlName="defaultTheme">
+                <mat-radio-button value="light" class="me-3"
+                  >Light</mat-radio-button
+                >
+                <mat-radio-button value="dark">Dark</mat-radio-button>
+              </mat-radio-group>
+            </div>
+
+            <div class="row">
+              <!-- Logo (Light Background) -->
+              <div class="col-6 mb-4">
+                <lib-file-uploader
+                  id="logo"
+                  label="Logomark (for Light Background)"
+                  [organizationId]="organizationId()!"
+                  [uploadStrategy]="logomark()"
+                  [currentUrl]="logomarkSrc()"
+                >
+                </lib-file-uploader>
+              </div>
+
+              <!-- Logo (Dark Background) -->
+              <div class="col-6 mb-4">
+                <lib-file-uploader
+                  id="logoDark"
+                  label="Logomark (for Dark Background)"
+                  previewBackground="dark"
+                  [uploadStrategy]="logomark()"
+                  [organizationId]="organizationId()!"
+                  [currentUrl]="logomarkDarkSrc()"
+                >
+                </lib-file-uploader>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Logo (Light Background) -->
+              <div class="col-6 mb-4">
+                <lib-file-uploader
+                  id="logo"
+                  label="Logotype (for Light Background)"
+                  [organizationId]="organizationId()!"
+                  [uploadStrategy]="logotype()"
+                  [currentUrl]="logotypeSrc()"
+                >
+                </lib-file-uploader>
+              </div>
+
+              <!-- Logo (Dark Background) -->
+              <div class="col-6 mb-4">
+                <lib-file-uploader
+                  id="logoDark"
+                  label="Logotype (for Dark Background)"
+                  previewBackground="dark"
+                  [organizationId]="organizationId()!"
+                  [uploadStrategy]="logotype()"
+                  [currentUrl]="logotypeDarkSrc()"
+                >
+                </lib-file-uploader>
+              </div>
+            </div>
+
+            <div class="buttons">
+              <button
+                [disabled]="!formGroup.valid"
+                mat-flat-button
+                type="submit"
+                color="primary"
+              >
+                Save
+                <mat-icon class="material-symbols-outlined" iconPositionEnd
+                  >save</mat-icon
+                >
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

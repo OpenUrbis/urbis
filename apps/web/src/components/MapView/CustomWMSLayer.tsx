@@ -47,6 +47,7 @@ import {
     serviceType?: ImageServiceType | 'auto';
     layers?: string[];
     srs?: 'EPSG:4326' | 'EPSG:3857' | 'auto';
+    cqlFilter?: string;
     onMetadataLoad?: (metadata: ImageSourceMetadata) => void;
     onMetadataLoadError?: (error: Error) => void;
     onImageLoadStart?: (requestId: unknown) => void;
@@ -234,7 +235,8 @@ import {
         transparent: true,
         layers,
         srs: srs,
-        format: 'image/png'
+        format: 'image/png',
+        CQL_FILTER: this.props.cqlFilter || undefined
       };
       if (srs === 'EPSG:3857') {
         const min = WGS84ToPseudoMercator([bounds[0], bounds[1]]);

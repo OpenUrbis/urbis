@@ -1,92 +1,86 @@
 import { computed, effect, inject, Injectable } from '@angular/core';
-import { ApplicationTheme, IWhitelabelLocalStorage } from './whitelabel.types';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { OrganizationState } from '../organization/organization.state';
+import {
+  ApplicationTheme,
+  IUnifiedWhitelabelApi,
+  IUpdateWhitelabelDto,
+} from './whitelabel.types';
 import {
   applyDynamicColorPalette,
   getWhitelabelDefaultValue,
   oppositeTheme,
 } from './whitelabel.utils';
-import { HttpClient } from '@angular/common/http';
-import { OrganizationState } from '../organization/organization.state';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { environment } from '../../../environments/environment';
+import { WhitelabelApi } from './whitelabel.service';
 import { of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class WhitelabelState {
-  private http = inject(HttpClient);
+  private api = inject(WhitelabelApi);
   private organization = inject(OrganizationState);
 
   private whitelabelResource = rxResource({
-    params: () => this.organization.value(),
+    defaultValue: getWhitelabelDefaultValue(),
+    params: () => ({
+      selectedOrganization: this.organization.selectedOrganization(),
+    }),
     stream: ({ params }) => {
       if (!params.selectedOrganization?.id)
-        return of(getWhitelabelDefaultValue());
-      return this.http.get(
-        `${environment.api}/organization/${params.selectedOrganization.id}/whitelabel/accounts`,
+        return of({} as IUnifiedWhitelabelApi);
+      return this.api.getUnifiedOrganizationWhitelabel(
+        params.selectedOrganization?.id,
       );
     },
-    defaultValue: getWhitelabelDefaultValue(),
   });
 
   loading = computed(
     () => this.organization.loading() || this.whitelabelResource.isLoading(),
   );
-  value = computed(() => {
-    const value = this.whitelabelResource.value() as any;
-    const obj = {
-      theme: value.application?.theme ?? 'light',
-      primaryColor: value.global?.primaryColor,
-    } as IWhitelabelLocalStorage;
-    obj.logo = value.global?.logos?.[obj.theme];
-    obj.icon = value.global?.icons?.[obj.theme];
-    return obj;
-  });
-  errors = computed(() => this.whitelabelResource.error());
+  value = computed(() => this.whitelabelResource.value());
+  errors = computed(() => ({
+    organization: this.whitelabelResource.error(),
+  }));
 
   constructor() {
     effect(() => {
-      const primaryColor = this.value().primaryColor;
-      if (primaryColor) {
-        applyDynamicColorPalette(primaryColor, this.value().theme);
+      const value = this.value();
+
+      if (value.primaryColor) {
+        applyDynamicColorPalette(value.primaryColor, value.theme);
       }
 
       localStorage.setItem(
         'whitelabel',
-        JSON.stringify(this.value() as IWhitelabelLocalStorage),
+        JSON.stringify(value as IUnifiedWhitelabelApi),
       );
     });
   }
 
+  private requestUpdateApi(updates: IUpdateWhitelabelDto) {
+    return this.api
+      .updateOrganizationWhitelabel(
+        this.organization.selectedOrganization()?.id,
+        updates,
+      )
+      .subscribe((response) => {
+        this.whitelabelResource.value.set(response);
+      });
+  }
+
+  reload() {
+    this.whitelabelResource.reload();
+  }
+
   toggleTheme() {
-    const whitelabel = this.whitelabelResource.value() as any;
-    this.whitelabelResource.value.set({
-      ...whitelabel,
-      application: {
-        ...whitelabel.application,
-        theme: oppositeTheme[this.value().theme],
-      },
-    });
+    const theme = oppositeTheme[this.value().theme];
+    return this.requestUpdateApi({ theme });
   }
 
-  setTheme(desiredTheme: ApplicationTheme) {
-    const whitelabel = this.whitelabelResource.value() as any;
-    this.whitelabelResource.value.set({
-      ...whitelabel,
-      application: {
-        ...whitelabel.application,
-        theme: desiredTheme,
-      },
-    });
+  setTheme(theme: ApplicationTheme) {
+    return this.requestUpdateApi({ theme });
   }
 
-  setPrimaryColor(desiredColor: string) {
-    const whitelabel = this.whitelabelResource.value() as any;
-    this.whitelabelResource.value.set({
-      ...whitelabel,
-      global: {
-        ...whitelabel.global,
-        primaryColor: desiredColor,
-      },
-    });
+  setPrimaryColor(primaryColor: string) {
+    return this.requestUpdateApi({ primaryColor });
   }
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterOutlet } from '@angular/router';
+import { WhitelabelState } from './states/whitelabel/whitelabel.state';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,5 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected title = 'accounts';
+  constructor(private readonly whitelabelState: WhitelabelState) {}
 }

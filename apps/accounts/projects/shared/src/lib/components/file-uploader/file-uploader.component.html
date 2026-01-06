@@ -1,0 +1,25 @@
+<div class="file-uploader-container">
+  <div class="mb-2 text-start">
+    <label class="d-block mb-2 font-weight-bold" *ngIf="label">{{
+      label
+    }}</label>
+
+    <div
+      *ngIf="currentUrl"
+      class="mb-3 image-preview-container"
+      [ngClass]="{
+        'bg-dark': previewBackground === 'dark',
+        'bg-light': previewBackground === 'light',
+      }"
+    >
+      <img
+        [src]="currentUrl"
+        alt="Preview"
+        class="img-fluid"
+        style="max-height: 150px; object-fit: contain"
+      />
+    </div>
+
+    <uppy-dashboard [uppy]="uppy" [props]="dashboardProps"></uppy-dashboard>
+  </div>
+</div>

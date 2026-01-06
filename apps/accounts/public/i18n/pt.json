@@ -1,0 +1,594 @@
+{
+  "pages": {
+    "signIn": {
+      "title": "Acessar conta",
+      "subtitle": "Insira os dados abaixo.",
+      "form": {
+        "fields": {
+          "email": "Email",
+          "password": "Senha"
+        },
+        "placeholders": {
+          "email": "Placeholder",
+          "password": "Placeholder"
+        },
+        "buttons": {
+          "govbr": "Entrar com GovBR",
+          "submit": "Entrar"
+        },
+        "links": {
+          "forgotPassword": "Esqueceu a senha?",
+          "signUp": "Criar conta"
+        },
+        "divider": "OU:"
+      }
+    },
+    "signUp": {
+      "title": "Criar conta",
+      "actions": {
+        "back": "Voltar"
+      },
+      "form": {
+        "fields": {
+          "firstName": "Nome",
+          "lastName": "Sobrenome",
+          "email": "Email"
+        },
+        "buttons": {
+          "submit": "Criar conta"
+        }
+      },
+      "errors": {
+        "submit": "Houve um erro realizar o registro"
+      }
+    },
+    "forgotPassword": {
+      "title": "Esqueceu a senha",
+      "description": "Digite o endereço de e-mail associado à sua conta e enviaremos as instruções para redefinir sua senha.",
+      "fields": {
+        "email": "Email"
+      },
+      "placeholders": {
+        "email": "example@email.com"
+      },
+      "buttons": {
+        "submit": "Enviar",
+        "back": "Voltar"
+      },
+      "sent": {
+        "title": "Email enviado!",
+        "description": "Verifique sua caixa de entrada para instruções de como recuperar sua senha.",
+        "buttons": {
+          "back": "Voltar para login"
+        }
+      },
+      "reset": {
+        "title": "Redefinir senha",
+        "buttons": {
+          "submit": "Enviar"
+        }
+      },
+      "errors": {
+        "sendEmail": "Houve um erro ao prosseguir com a redefinacao de senha",
+        "submitNewPassword": "Houve um erro ao redefinir sua senha"
+      }
+    },
+    "confirmAccount": {
+      "title": "Confirmar conta",
+      "loading": "Carregando...",
+      "success": "Conta confirmada com sucesso",
+      "errors": {
+        "hashNotFound": "Hash não encontrado",
+        "confirm": "Houve um erro ao confirmar o email"
+      }
+    },
+    "onboarding": {
+      "welcome": "Bem vindo {{name}}",
+      "titles": {
+        "selectOrganization": "Selecione uma organização para continuar:",
+        "fillInformation": "Preencha as informações abaixo:"
+      },
+      "actions": {
+        "back": "Voltar",
+        "createNew": "Criar uma nova"
+      }
+    },
+    "profile": {
+      "page": {
+        "title": "Bem vindo,",
+        "subtitle": "Gerencie suas informações",
+        "cardTitle": "Perfil",
+        "accountInfoCreated": "Sua conta foi criada em",
+        "accountInfoUpdated": "a última atualização foi em",
+        "accountInfoStatus": "e está",
+        "actions": {
+          "edit": "Editar perfil"
+        }
+      },
+      "fields": {
+        "name": "Nome",
+        "email": "E-mail",
+        "country": "País"
+      },
+      "email": {
+        "verified": "(Verificado)",
+        "resend": "Reenviar",
+        "resendError": "Houve um problema ao reenviar o código de confirmação"
+      },
+      "edit": {
+        "pageTitle": "Editar Perfil",
+        "tabs": {
+          "personalData": "Dados pessoais",
+          "changePassword": "Alterar senha",
+          "twoFactor": "Dois fatores"
+        },
+        "personal": {
+          "fields": {
+            "firstName": "Primeiro nome",
+            "lastName": "Último nome",
+            "phone": "Telefone",
+            "country": "País"
+          },
+          "buttons": {
+            "save": "Salvar"
+          }
+        },
+        "password": {
+          "fields": {
+            "currentPassword": "Senha atual",
+            "password": "Senha",
+            "confirmPassword": "Confirmar Senha"
+          },
+          "buttons": {
+            "save": "Salvar"
+          }
+        },
+        "twoFactor": {
+          "descriptionDisabled": "Autenticação de dois fatores desativada",
+          "enableButton": "Ativar"
+        }
+      }
+    },
+    "roles": {
+      "page": {
+        "title": "Cargos",
+        "subtitle": "Gerencie os cargos",
+        "buttons": {
+          "create": {
+            "title": "Criar",
+            "ariaLabel": "Adicionar cargo"
+          },
+          "edit": {
+            "title": "Editar",
+            "ariaLabel": "Editar cargo"
+          }
+        }
+      },
+      "table": {
+        "columns": {
+          "name": "Nome",
+          "description": "Descrição",
+          "allowedActions": "Ações permitidas",
+          "status": "Status",
+          "actions": "Ações"
+        },
+        "noData": "Nenhum cargo encontrado com os filtros aplicados."
+      },
+      "form": {
+        "fields": {
+          "name": "Nome",
+          "description": "Descrição",
+          "permissions": "Permissões",
+          "scope": "Escopo"
+        },
+        "placeholders": {
+          "permissions": "Selecione as permissões que deseja"
+        },
+        "permissions": {
+          "selectedAria": "Permissões selecionadas"
+        },
+        "scopeOptions": {
+          "global": "Global",
+          "any": "Qualquer",
+          "own": "Proprietário"
+        },
+        "selectedTitle": "Permissões selecionadas",
+        "selectedEmpty": "Adicione permissões pelo campo permissões acima",
+        "buttons": {
+          "cancel": "Cancelar",
+          "save": "Salvar"
+        }
+      }
+    },
+    "users": {
+      "page": {
+        "title": "Usuários",
+        "subtitle": "Gerencie os usuários",
+        "buttons": {
+          "create": {
+            "title": "Criar",
+            "ariaLabel": "Adicionar usuário"
+          },
+          "edit": {
+            "title": "Editar",
+            "ariaLabel": "Editar usuário"
+          },
+          "delete": {
+            "ariaLabel": "Deletar usuário"
+          }
+        }
+      },
+      "table": {
+        "columns": {
+          "name": "Nome",
+          "email": "Email",
+          "status": "Status",
+          "actions": "Ações"
+        },
+        "noData": "Nenhum usuário encontrado com os filtros aplicados."
+      },
+      "edit": {
+        "title": {
+          "create": "Criar usuário"
+        },
+        "fields": {
+          "firstName": "Nome",
+          "lastName": "Sobrenome",
+          "email": "Email"
+        },
+        "placeholders": {
+          "email": "Ex. pat@example.com"
+        },
+        "errors": {
+          "emailInvalid": "Por favor, insira um email válido",
+          "emailRequired": "Email é obrigatório"
+        },
+        "tabs": {
+          "dadosDoUsuarios": "Dados do usuários",
+          "roles": "Cargos",
+          "organizations": "Organizações"
+        },
+        "buttons": {
+          "save": "Salvar"
+        },
+        "roles": {
+          "buttons": {
+            "add": "Adicionar"
+          },
+          "title": "Cargos do usuário"
+        }
+      }
+    },
+    "organizations": {
+      "page": {
+        "title": "Organizações",
+        "subtitle": "Gerencie suas organizações",
+        "buttons": {
+          "create": {
+            "title": "Criar",
+            "ariaLabel": "Adicionar organização"
+          },
+          "edit": {
+            "title": "Editar",
+            "ariaLabel": "Editar organização"
+          }
+        }
+      },
+      "table": {
+        "columns": {
+          "name": "Nome",
+          "description": "Descrição",
+          "actions": "Ações"
+        },
+        "noData": "Nenhuma organização encontrada com os filtros aplicados."
+      },
+      "form": {
+        "title": {
+          "create": "Criar organização"
+        },
+        "tabs": {
+          "details": "Dados da organização",
+          "users": "Usuários"
+        },
+        "fields": {
+          "name": "Nome",
+          "description": "Descrição"
+        },
+        "buttons": {
+          "save": "Salvar",
+          "back": "Editar organização"
+        },
+        "actions": {
+          "back": "Voltar"
+        }
+      }
+    },
+    "auth": {
+      "unauthorized": {
+        "title": "Parece que você está tendo problemas para fazer login",
+        "description": "Isso pode ocorrer devido a alguns problemas comuns. Tente o seguinte:",
+        "steps": {
+          "checkTime": "Verifique a data e a hora do seu dispositivo — certifique-se de que estejam corretas.",
+          "clearCache": "Limpe o cache do seu navegador e tente novamente."
+        },
+        "support": "Se o problema persistir, entre em contato com nossa equipe de suporte.",
+        "button": "Tentar login"
+      },
+      "forbidden": {
+        "title": "Tivemos um problema inesperado.",
+        "description": "Se você estiver enfrentando esse problema repetidamente, limpar o cache do navegador pode ser uma solução.",
+        "button": "Tentar login",
+        "errorCode": "Código de erro: 403"
+      },
+      "callback": {
+        "title": "Houve um problema para autenticar sua conta:",
+        "description": "Se você estiver enfrentando esse problema repetidamente, limpar o cache do navegador pode ser uma solução.",
+        "button": "Tentar novamente",
+        "errors": {
+          "username": "Não foi possível recuperar seu nome de usuário",
+          "invalidSession": "Sua sessão de callback é inválida"
+        }
+      }
+    },
+    "whitelabel": {
+      "page": {
+        "title": "Whitelabel",
+        "subtitle": "Customize a plataforma conforme sua identidade visual."
+      }
+    }
+  },
+  "components": {
+    "profileMenu": {
+      "title": "Profile",
+      "myProfile": "Meu perfil",
+      "roles": "Cargos",
+      "users": "Usuários",
+      "organizations": "Organizações",
+      "whitelabel": "Whitelabel",
+      "changeOrganization": "Alterar organização",
+      "logout": "Logout"
+    },
+    "userOrganizationManager": {
+      "page": {
+        "title": "Organizações",
+        "buttons": {
+          "add": {
+            "title": "Adicionar",
+            "ariaLabel": "Adicionar organização"
+          },
+          "edit": {
+            "title": "Editar",
+            "ariaLabel": "Editar organização"
+          }
+        },
+        "labels": {
+          "rolesSingle": "Cargo:",
+          "rolesMultiple": "Cargos:"
+        }
+      },
+      "dialog": {
+        "createTitle": "Criar atribuição",
+        "editTitle": "Editar atribuição",
+        "organizationLabel": "da organização {{name}}",
+        "buttons": {
+          "cancel": "Cancelar",
+          "save": "Salvar"
+        },
+        "errors": {
+          "selectRole": "Selecione ao menos um cargo para este usuário",
+          "invalidForm": "O formulário é inválido",
+          "save": "Houve um erro ao salvar a atribuição"
+        }
+      }
+    },
+    "shared": {
+      "table": {
+        "paginator": {
+          "itemsPerPage": "Itens por página",
+          "nextPage": "Próxima página",
+          "previousPage": "Página anterior",
+          "firstPage": "Primeira página",
+          "lastPage": "Última página",
+          "rangeLabelNoItems": "0 de {{length}}",
+          "rangeLabelWithItems": "{{startIndex}} – {{endIndex}} de {{length}}"
+        },
+        "loading": "Carregando..."
+      },
+      "status": {
+        "active": "ativo",
+        "inactive": "inativo"
+      }
+    },
+    "lib": {
+      "countrySelectForm": {
+        "field": "País",
+        "errors": {
+          "required": "Selecione um país"
+        }
+      },
+      "phoneForm": {
+        "field": "Telefone",
+        "errors": {
+          "required": "Informe um telefone válido"
+        }
+      },
+      "passwordForm": {
+        "fields": {
+          "password": "Senha",
+          "repeatPassword": "Confirmar Senha"
+        },
+        "actions": {
+          "toggleVisibility": "Alternar visibilidade da senha"
+        },
+        "errors": {
+          "minlength": "Use pelo menos 8 caracteres.",
+          "uppercaseLetter": "Inclua pelo menos uma letra MAIÚSCULA.",
+          "lettersAndNumbers": "Inclua pelo menos um número e uma letra.",
+          "equalPasswords": "As senhas não conferem."
+        }
+      }
+    },
+    "roleSelector": {
+      "labels": {
+        "single": "Cargo",
+        "multiple": "Cargos"
+      },
+      "aria": {
+        "select": "Selecionar cargo",
+        "remove": "Remover cargo {{name}}"
+      },
+      "placeholders": {
+        "search": "Selecionar cargo..."
+      }
+    },
+    "organizationSelector": {
+      "labels": {
+        "single": "Organização",
+        "multiple": "Organizações"
+      },
+      "aria": {
+        "select": "Selecionar organização",
+        "remove": "Remover organização {{name}}"
+      },
+      "placeholders": {
+        "search": "Selecionar organização..."
+      }
+    },
+    "permissionSelector": {
+      "labels": {
+        "single": "Permissão",
+        "multiple": "Permissões"
+      },
+      "aria": {
+        "select": "Selecionar permissão",
+        "remove": "Remover permissão {{name}}"
+      },
+      "placeholders": {
+        "search": "Selecionar permissão..."
+      }
+    },
+    "switchOrganizationDialog": {
+      "title": "Selecionar organização"
+    },
+    "createOrganization": {
+      "fields": {
+        "name": "Nome",
+        "description": "Descrição"
+      },
+      "buttons": {
+        "create": "Criar",
+        "createAndSelect": "Criar e selecionar"
+      },
+      "errors": {
+        "create": "Houve um erro ao tentar criar a organização"
+      }
+    },
+    "roleManager": {
+      "handleRole": {
+        "selectedTitle": "Permissões selecionadas",
+        "emptyState": "Adicione permissões pelo campo permissões acima"
+      },
+      "addRole": {
+        "title": "Adicionar cargo",
+        "permissionsTitle": "Permissões:",
+        "buttons": {
+          "add": "Adicionar cargo"
+        },
+        "errors": {
+          "assign": "Houve um erro ao tentar adicionar o cargo ao usuário"
+        }
+      }
+    },
+    "userRoleManager": {
+      "labels": {
+        "inOrganization": "em {{organization}}"
+      },
+      "buttons": {
+        "add": "Adicionar cargo",
+        "remove": "Remover cargo"
+      }
+    },
+    "drawer": {
+      "buttons": {
+        "toggle": "Alternar menu"
+      }
+    },
+    "demoWhitelabel": {
+      "title": "Demo Whitelabel",
+      "presets": {
+        "purple": "Whitelabel Roxo",
+        "red": "Whitelabel Vermelho",
+        "green": "Whitelabel Verde",
+        "yellow": "Whitelabel Amarelo",
+        "brown": "Whitelabel Marrom"
+      },
+      "actions": {
+        "switchToDark": "Alterar para o modo escuro",
+        "switchToLight": "Alterar para o modo claro"
+      },
+      "iconAlt": "Ícone da identidade visual"
+    },
+    "twoFactorManager": {
+      "status": {
+        "label": "Autenticação de dois fatores {{state}}",
+        "enabled": "ativada",
+        "disabled": "desativada"
+      },
+      "buttons": {
+        "disable": "Desativar",
+        "enable": "Ativar"
+      },
+      "verification": {
+        "title": "Verificação",
+        "description": "Valide com o código do seu aplicativo autenticador"
+      },
+      "errors": {
+        "disable": "Erro ao desativar a autenticação de dois fatores"
+      }
+    },
+    "twoFactor": {
+      "verification": {
+        "title": "Verificação",
+        "description": "Valide com o código do seu aplicativo autenticador"
+      }
+    },
+    "twoFactorSetup": {
+      "initialValidationTitle": "Validação inicial",
+      "initialValidationDescription": "Valide com o código enviado em seu e-mail",
+      "emailCodeLabel": "Código",
+      "buttons": {
+        "resend": "Reenviar Código",
+        "validate": "Validar"
+      },
+      "qrcodeTitle": "Escaneie o QR Code",
+      "qrcodeDescription": "Utilize o Google Authenticator ou similar, escaneie o QR Code abaixo e insira o código que aparecer no app",
+      "errors": {
+        "resend": "Houve um erro ao reenviar o código",
+        "invalidCode": "O código informado é inválido",
+        "validate": "Houve um erro ao validar o código",
+        "emailOtpInvalid": "O código digitado é inválido"
+      }
+    },
+    "twoFactorVerify": {
+      "label": "Código",
+      "placeholder": "Código",
+      "buttons": {
+        "validate": "Validar"
+      },
+      "errors": {
+        "invalid": "O código é inválido",
+        "invalidProvided": "O código informado é inválido",
+        "validate": "Houve um erro ao validar o código"
+      }
+    },
+    "signInGovBr": {
+      "button": "Entrar com GovBR"
+    },
+    "rails": {
+      "items": {
+        "docs": "Documentação",
+        "accounts": "Contas"
+      }
+    }
+  }
+}

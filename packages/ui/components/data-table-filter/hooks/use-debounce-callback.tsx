@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useMemo, useRef } from 'react'
 import { debounce } from '../lib/debounce'
 import { useUnmount } from './use-unmount'
@@ -24,7 +26,7 @@ export function useDebounceCallback<T extends (...args: any) => ReturnType<T>>(
   delay = 500,
   options?: DebounceOptions,
 ): DebouncedState<T> {
-  const debouncedFunc = useRef<ReturnType<typeof debounce>>(null)
+  const debouncedFunc = useRef<ReturnType<typeof debounce> | null>(null)
 
   useUnmount(() => {
     if (debouncedFunc.current) {

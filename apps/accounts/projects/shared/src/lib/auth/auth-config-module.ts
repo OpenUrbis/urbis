@@ -1,9 +1,13 @@
 import { NgModule } from '@angular/core';
 import { AuthModule } from 'angular-auth-oidc-client';
-import { authConfig } from './auth.config';
+import { authConfig, externalOidcAuthConfig } from './auth.config';
 
 @NgModule({
   declarations: [],
-  imports: [AuthModule.forRoot(authConfig)],
+  imports: [
+    AuthModule.forRoot({
+      config: [authConfig, externalOidcAuthConfig],
+    }),
+  ],
 })
 export class AuthConfigModule {}

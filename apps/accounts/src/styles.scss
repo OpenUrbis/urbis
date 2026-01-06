@@ -3,16 +3,24 @@
 // components according to the Material 3 design spec.
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
-@use '@angular/material' as mat;
-@import "bootstrap/scss/bootstrap";
+@use "@angular/material" as mat;
+@use "bootstrap/scss/bootstrap";
+@use "@uppy/core/css/style.scss" as uppyCore;
+@use "@uppy/status-bar/css/style.scss" as uppyStatusBar;
+@use "@uppy/dashboard/css/style.scss" as uppyDashboard;
+@use "@uppy/image-editor/css/style.css" as uppyImageEditor;
 
 html {
-  @include mat.theme((color: (primary: mat.$azure-palette,
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
       ),
       typography: Roboto,
       density: 0,
-    ));
+    )
+  );
 }
 
 body {
@@ -42,4 +50,14 @@ body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.dialog-lg-content {
+  mat-dialog-container {
+    min-width: 100%;
+  }
 }

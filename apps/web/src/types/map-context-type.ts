@@ -24,7 +24,7 @@ export interface MapContextType {
   viewport: Signal<any>;
   zoom: Signal<number>;
   is3DActive: Signal<boolean>;
-  selectedBaseMap: Signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets">;
+  selectedBaseMap: Signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets" | "maxar-satellite">;
   overlayRef: React.RefObject<MapboxOverlay | null>;
   editFeatureTemplate: Signal<ITemplate[]>;
   layerWithRootEditTemplate: Signal<string>;

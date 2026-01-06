@@ -1,0 +1,25 @@
+---
+title: Accounts
+description: Understanding the accounts system and user management.
+icon: Users
+---
+
+The `apps/accounts` application is the primary interface for users to manage their identity.
+
+## Features
+
+-   **Profile Management**: Update name, email, and avatar.
+-   **Security Settings**: Change password, enable 2FA.
+-   **Organization Management**: Create and manage organizations, invite members.
+
+## Integration
+
+It is built with Angular and communicates with the API via standard REST endpoints protected by OIDC tokens.
+
+## Structure
+
+The Angular app follows a feature-based structure:
+
+-   `src/app/pages/`: Routing components for each page.
+-   `src/app/components/`: Reusable UI components.
+-   `src/app/states/`: State management (if applicable, e.g., NgRx or Signals).

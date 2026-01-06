@@ -1,27 +1,101 @@
 <lib-loading-content [loading]="profileState.loading()">
-  <div class="profile-content">
-    <mat-card>
-      <mat-card-header>
-        <h2>Perfil</h2>
-      </mat-card-header>
-      <mat-card-content>
-        <form [formGroup]="form" class="profile-form">
-          <mat-form-field>
-            <mat-label>Primeiro nome</mat-label>
-            <input matInput formControlName="firstName" />
-          </mat-form-field>
+  <div class="row pt-5 justify-content-center">
+    <div class="col-12 col-sm-12 col-md-8 col-xl-6">
+      <div
+        class="d-flex pt-5 flex-column justify-items-center align-items-center header pb-5"
+      >
+        <app-profile-avatar />
+        <h3>{{ "profile.page.title" | translate: { name: fullName() } }}</h3>
+        <p>{{ "profile.page.subtitle" | translate }}</p>
+      </div>
 
-          <mat-form-field>
-            <mat-label>Ultimo nome</mat-label>
-            <input matInput formControlName="lastName" />
-          </mat-form-field>
+      <mat-card class="profile-content">
+        <mat-card-content>
+          <div class="w-100 d-flex justify-content-between align-items-center">
+            <p class="date-info">
+              {{ "pages.profile.page.accountInfoCreated" | translate }}
+              {{ createdAt() | date: "dd/MM/yyyy" }},
+              {{ "pages.profile.page.accountInfoUpdated" | translate }}
+              {{ updatedAt() | date: "dd/MM/yyyy" }},
+              {{ "pages.profile.page.accountInfoStatus" | translate }}
+              {{ "components.shared.status." + status() | translate }}
+            </p>
+            <a
+              matIconButton
+              routerLink="/profile/edit"
+              [attr.aria-label]="
+                'pages.profile.page.actions.edit' | translate
+              "
+            >
+              <mat-icon class="material-symbols-outlined">create</mat-icon>
+            </a>
+          </div>
 
-          <mat-form-field>
-            <mat-label>Email</mat-label>
-            <input matInput formControlName="email" />
-          </mat-form-field>
-        </form>
-      </mat-card-content>
-    </mat-card>
+          <mat-list class="user-info">
+            <mat-list-item class="info-item">
+              <mat-icon
+                class="material-symbols-outlined profile-icon-info"
+                matListItemIcon
+              >
+                badge
+              </mat-icon>
+              <span matListItemTitle>
+                {{ "pages.profile.fields.name" | translate }}
+              </span>
+              <span matListItemLine>{{ fullName() }}</span>
+            </mat-list-item>
+            <mat-divider />
+            <mat-list-item class="info-item">
+              <mat-icon
+                class="material-symbols-outlined profile-icon-info"
+                matListItemIcon
+              >
+                mail
+              </mat-icon>
+              <span matListItemTitle>
+                {{ "pages.profile.fields.email" | translate }}
+              </span>
+              <span matListItemLine>
+                {{ email() }}
+                @if (isEmailConfirmed()) {
+                  <span class="verified">
+                    {{ "pages.profile.email.verified" | translate }}
+                  </span>
+                }
+              </span>
+              @if (!isEmailConfirmed()) {
+                <span matListItemMeta>
+                  <lib-loading-button
+                    apperance="outlined"
+                    [loading]="loadingResend()"
+                    (click)="resendEmailConfirmation()"
+                    [attr.aria-label]="
+                      'pages.profile.email.resend' | translate
+                    "
+                  >
+                    {{ "pages.profile.email.resend" | translate }}
+                  </lib-loading-button>
+                </span>
+              }
+            </mat-list-item>
+            <mat-divider />
+            <mat-list-item class="info-item">
+              <mat-icon
+                class="material-symbols-outlined profile-icon-info"
+                matListItemIcon
+              >
+                public
+              </mat-icon>
+              <span matListItemTitle>
+                {{ "pages.profile.fields.country" | translate }}
+              </span>
+              <span matListItemLine>
+                {{ country() }}
+              </span>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
 </lib-loading-content>

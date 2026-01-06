@@ -1,0 +1,59 @@
+<lib-loading-content [loading]="loading()">
+  <div class="p-3">
+    @if (step() === 0) {
+      <div class="d-flex align-items-center flex-column">
+        <p class="text-center">
+          {{
+            "components.twoFactorManager.status.label"
+              | translate: {
+                  state:
+                    ("components.twoFactorManager.status." +
+                      (isActive() ? "enabled" : "disabled")) | translate
+                }
+          }}
+        </p>
+        @if (isActive()) {
+          <button
+            matButton="outlined"
+            class="w-75"
+            (click)="step.set(2)"
+            [attr.aria-label]="
+              'components.twoFactorManager.buttons.disable' | translate
+            "
+          >
+            <mat-icon class="material-symbols-outlined">lock_open</mat-icon>
+            {{ "components.twoFactorManager.buttons.disable" | translate }}
+          </button>
+        } @else {
+          <button
+            matButton="outlined"
+            class="w-75"
+            (click)="step.set(1)"
+            [attr.aria-label]="
+              'components.twoFactorManager.buttons.enable' | translate
+            "
+          >
+            <mat-icon class="material-symbols-outlined">lock</mat-icon>
+            {{ "components.twoFactorManager.buttons.enable" | translate }}
+          </button>
+        }
+      </div>
+    } @else if (step() === 1 && accessToken()) {
+      <app-two-factor
+        [accessToken]="accessToken()"
+        [onlyContent]="true"
+        (verified)="validated($event)"
+      />
+    } @else if (step() === 2 && accessToken()) {
+      <h3>{{ "components.twoFactorManager.verification.title" | translate }}</h3>
+      <p>
+        {{ "components.twoFactorManager.verification.description" | translate }}
+      </p>
+      <app-two-factor-verify
+        [accessToken]="accessToken()!"
+        [useOidcFlow]="false"
+        (code)="desactive($event)"
+      />
+    }
+  </div>
+</lib-loading-content>

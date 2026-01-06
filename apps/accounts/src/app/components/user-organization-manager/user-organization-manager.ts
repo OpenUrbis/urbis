@@ -10,6 +10,9 @@ import { LoadingContent } from '../../../../projects/shared/src/public-api';
 import { IResponseOrganizationWithRole } from '../../pages/organizations/dto/organization.dto';
 import { OrganizationsApi } from '../../pages/organizations/services/organizations-api';
 import { HandleUserOrganization } from './components/handle-user-organization/handle-user-organization';
+import { TranslateModule } from '@ngx-translate/core';
+import { PageStructure } from '../page-structure/page-structure';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-user-organization-manager',
@@ -21,6 +24,8 @@ import { HandleUserOrganization } from './components/handle-user-organization/ha
     MatListModule,
     LoadingContent,
     MatDialogModule,
+    TranslateModule,
+    PageStructure,
   ],
   templateUrl: './user-organization-manager.html',
   styleUrl: './user-organization-manager.scss',
@@ -32,6 +37,7 @@ export class UserOrganizationManager {
 
   organizationApi = inject(OrganizationsApi);
   matDialog = inject(MatDialog);
+  translate = inject(TranslateService);
 
   organizations = toSignal(
     // TO DO: Paginação dos users
@@ -48,7 +54,11 @@ export class UserOrganizationManager {
 
   buildRoles(item: IResponseOrganizationWithRole) {
     const { userRoleAssignments } = item;
-    let txt = userRoleAssignments.length > 1 ? 'Cargos: ' : 'Cargo: ';
+    const labelKey =
+      userRoleAssignments.length > 1
+        ? 'components.userOrganizationManager.page.labels.rolesMultiple'
+        : 'components.userOrganizationManager.page.labels.rolesSingle';
+    let txt = `${this.translate.instant(labelKey)} `;
 
     userRoleAssignments.forEach(({ role }, i) => {
       txt += role.name;
@@ -61,7 +71,7 @@ export class UserOrganizationManager {
   handleAssign(item?: IResponseOrganizationWithRole) {
     const dialogRef = this.matDialog.open(HandleUserOrganization, {
       data: { organization: item, userId: this.userId() },
-      width: '50%'
+      width: '50%',
     });
 
     dialogRef.afterClosed().subscribe(() => this.user$.next(this.userId()));

@@ -1,0 +1,82 @@
+@use "sass:map";
+
+.custom-branding-edit {
+  max-width: 900px;
+  margin: 0 auto;
+
+  h1 {
+    font-weight: 500;
+    color: var(--mat-sys-primary);
+    margin-bottom: 6px;
+  }
+}
+
+mat-card.loading > * {
+  opacity: 0.4;
+}
+
+mat-card.loading {
+  z-index: 10;
+  position: relative;
+
+  .loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    mat-spinner {
+      margin-left: -50%;
+      margin-top: -50%;
+    }
+  }
+}
+
+mat-card {
+  mat-card-content {
+    padding: 24px;
+  }
+
+  h2 {
+    margin-bottom: 0px;
+    color: var(--mat-sys-primary);
+  }
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-hint {
+  font-size: 14px;
+  margin-left: 12px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end; // Align to right like reference
+  margin-top: 16px;
+}
+
+.color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.color-picker-suffix {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 4px; // Optional rounded corners
+  overflow: hidden; // To respect border-radius
+}
+
+.form {
+  max-width: 820px;
+  padding-top: 8px;
+  height: auto;
+  overflow: hidden;
+}

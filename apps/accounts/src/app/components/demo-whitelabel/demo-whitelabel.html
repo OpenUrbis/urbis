@@ -1,51 +1,80 @@
-<h3>Demo Whitelabel</h3>
+<h3>{{ "components.demoWhitelabel.title" | translate }}</h3>
 
 <div class="d-flex gap-2">
   <button
     matButton="filled"
     style="background-color: #c3b1e1; color: black"
-    (click)="whitelabelState.setPrimaryColor('#C3B1E1')"
+    (click)="setPrimaryColor('#C3B1E1')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.purple' | translate
+    "
   >
-    Whitelabel Roxo
+    {{ "components.demoWhitelabel.presets.purple" | translate }}
   </button>
 
   <button
     matButton="filled"
     style="background-color: #ff6961; color: white"
-    (click)="whitelabelState.setPrimaryColor('#FF6961')"
+    (click)="setPrimaryColor('#FF6961')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.red' | translate
+    "
   >
-    Whitelabel Vermelho
+    {{ "components.demoWhitelabel.presets.red" | translate }}
   </button>
 
   <button
     matButton="filled"
     style="background-color: #77dd77; color: black"
-    (click)="whitelabelState.setPrimaryColor('#77DD77')"
+    (click)="setPrimaryColor('#77DD77')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.green' | translate
+    "
   >
-    Whitelabel Verde
+    {{ "components.demoWhitelabel.presets.green" | translate }}
   </button>
 
   <button
     matButton="filled"
     style="background-color: #fdfd96; color: black"
-    (click)="whitelabelState.setPrimaryColor('#FDFD96')"
+    (click)="setPrimaryColor('#FDFD96')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.yellow' | translate
+    "
   >
-    Whitelabel Amarelo
+    {{ "components.demoWhitelabel.presets.yellow" | translate }}
   </button>
 
   <button
     matButton="filled"
     style="background-color: #836952; color: white"
-    (click)="whitelabelState.setPrimaryColor('#836952')"
+    (click)="setPrimaryColor('#836952')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.brown' | translate
+    "
   >
-    Whitelabel Marrom
+    {{ "components.demoWhitelabel.presets.brown" | translate }}
   </button>
 
-  <button matButton="filled" (click)="whitelabelState.toggleTheme()">
-    Switch to
-    {{ whitelabelState.value().theme === "light" ? "Dark" : "Light" }}
-    Mode
+  <button
+    matButton="filled"
+    (click)="toggleTheme()"
+    [attr.aria-label]="
+      whitelabelState.value().theme === 'light'
+        ? ('components.demoWhitelabel.actions.switchToDark' | translate)
+        : ('components.demoWhitelabel.actions.switchToLight' | translate)
+    "
+  >
+    {{
+      whitelabelState.value().theme === "light"
+        ? ("components.demoWhitelabel.actions.switchToDark" | translate)
+        : ("components.demoWhitelabel.actions.switchToLight" | translate)
+    }}
   </button>
 </div>
 
-<img [src]="whitelabelState.value().icon" class="icon" />
+<img
+  [src]="whitelabelState.value().icon"
+  class="icon"
+  [attr.alt]="'components.demoWhitelabel.iconAlt' | translate"
+/>

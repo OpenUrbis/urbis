@@ -1,6 +1,17 @@
 <h3 mat-dialog-title>
-  {{ organizationId() ? "Editar" : "Criar" }} atribuição
-  {{ organizationId() ? "da organização " + orgControl.value.name : "" }}
+  {{
+    organizationId()
+      ? ("components.userOrganizationManager.dialog.editTitle" | translate)
+      : ("components.userOrganizationManager.dialog.createTitle" | translate)
+  }}
+  @if (organizationId()) {
+    <span>
+      {{
+        "components.userOrganizationManager.dialog.organizationLabel"
+          | translate: { name: orgControl.value.name }
+      }}
+    </span>
+  }
 </h3>
 <form [formGroup]="form" (ngSubmit)="save()">
   <mat-dialog-content class="p-3 d-flex flex-column gap-2">
@@ -11,9 +22,23 @@
     <app-role-selector [control]="rolesControl" [multi]="true" />
   </mat-dialog-content>
   <mat-dialog-actions class="d-flex gap-2">
-    <button matButton="outlined" type="button" mat-dialog-close>
-      Cancelar
+    <button
+      matButton="outlined"
+      type="button"
+      mat-dialog-close
+      [attr.aria-label]="
+        'components.userOrganizationManager.dialog.buttons.cancel' | translate
+      "
+    >
+      {{ "components.userOrganizationManager.dialog.buttons.cancel" | translate }}
     </button>
-    <lib-loading-button [loading]="loading()">Salvar</lib-loading-button>
+    <lib-loading-button
+      [loading]="loading()"
+      [attr.aria-label]="
+        'components.userOrganizationManager.dialog.buttons.save' | translate
+      "
+    >
+      {{ "components.userOrganizationManager.dialog.buttons.save" | translate }}
+    </lib-loading-button>
   </mat-dialog-actions>
 </form>

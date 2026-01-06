@@ -1,0 +1,70 @@
+<lib-loading-content [loading]="contentLoading()">
+  @if (step() === 0) {
+    <form [formGroup]="form" (ngSubmit)="setup()">
+      <h3>{{ "components.twoFactorSetup.initialValidationTitle" | translate }}</h3>
+      <p>
+        {{
+          "components.twoFactorSetup.initialValidationDescription" | translate
+        }}
+      </p>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>{{
+          "components.twoFactorSetup.emailCodeLabel" | translate
+        }}</mat-label>
+        <input
+          matInput
+          [placeholder]="
+            'components.twoFactorSetup.emailCodeLabel' | translate
+          "
+          [attr.aria-label]="
+            'components.twoFactorSetup.emailCodeLabel' | translate
+          "
+          [formControl]="emailOtp"
+        />
+      </mat-form-field>
+
+      <div class="d-flex justify-content-end gap-2">
+        <lib-loading-button
+          [loading]="resendLoading()"
+          apperance="outlined"
+          [disabled]="resendCount() !== 0"
+          type="button"
+          (click)="sendCode(true)"
+          [attr.aria-label]="
+            'components.twoFactorSetup.buttons.resend' | translate
+          "
+        >
+          {{ "components.twoFactorSetup.buttons.resend" | translate }}
+          @if (resendCount() > 0) {
+            ({{ resendCount() }}s)
+          }
+        </lib-loading-button>
+        <lib-loading-button
+          [loading]="loading()"
+          [attr.aria-label]="
+            'components.twoFactorSetup.buttons.validate' | translate
+          "
+        >
+          {{ "components.twoFactorSetup.buttons.validate" | translate }}
+        </lib-loading-button>
+      </div>
+    </form>
+  } @else if (step() === 1 && qrcode()) {
+    <h3>{{ "components.twoFactorSetup.qrcodeTitle" | translate }}</h3>
+    <p style="max-width: 400px">
+      {{ "components.twoFactorSetup.qrcodeDescription" | translate }}
+    </p>
+    <div class="d-flex flex-column align-items-center">
+      <img [src]="qrcode()" class="mb-4 w-50" />
+
+      @if (accessToken()) {
+        <app-two-factor-verify
+          class="w-50"
+          [accessToken]="accessToken()"
+          [useOidcFlow]="useOidcFlow()"
+          (verified)="verified.emit($event)"
+        />
+      }
+    </div>
+  }
+</lib-loading-content>

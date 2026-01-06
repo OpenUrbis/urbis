@@ -1,14 +1,21 @@
-export interface IResponseUser {
+import { UserStatus } from '../enums/user-status.enum';
+
+export interface IUser {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  status: string;
+  firstName: string | null;
+  lastName: string | null;
+  status: UserStatus;
+  avatarUrl: string;
+  phone: string;
+  country: string;
   otpSecret: string | null;
   otpValidated: boolean;
   requires2fa: boolean;
-  createdAt: string;
-  updatedAt: string;
+  isEmailConfirmed: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }
 
 export interface IUpdateUserRequest {

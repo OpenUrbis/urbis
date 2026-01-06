@@ -1,9 +1,10 @@
 import chroma from 'chroma-js';
 import {
   ApplicationTheme,
-  IWhitelabelLocalStorage,
+  IWhitelabelApi,
   IWhitelabelState,
 } from './whitelabel.types';
+import { environment } from '../../../environments/environment';
 
 const m2ToneToM3: Record<number, number> = {
   100: 95,
@@ -189,7 +190,7 @@ export function getWhitelabelDefaultValue() {
   try {
     const raw = localStorage.getItem('whitelabel');
     if (raw) {
-      const parsed: IWhitelabelLocalStorage = JSON.parse(raw);
+      const parsed: IWhitelabelApi = JSON.parse(raw);
       initialState = {
         ...initialState,
         ...parsed,
@@ -201,3 +202,7 @@ export function getWhitelabelDefaultValue() {
 
   return initialState;
 }
+
+export const applicationRedirectDirectionary: Record<string, string> = {
+  docs: environment.docsEndpoint,
+};

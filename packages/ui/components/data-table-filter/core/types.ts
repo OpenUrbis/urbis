@@ -230,7 +230,14 @@ export interface DataTableFilterActions {
 export type FilterStrategy = 'client' | 'server'
 
 /* Operators for text data */
-export type TextFilterOperator = 'contains' | 'does not contain'
+export type TextFilterOperator =
+  | 'is'
+  | 'is not'
+  | 'contains'
+  | 'does not contain'
+  | 'is empty'
+  | 'is not empty'
+  | 'similar to'
 
 /* Operators for number data */
 export type NumberFilterOperator =
@@ -242,6 +249,8 @@ export type NumberFilterOperator =
   | 'is less than or equal to'
   | 'is between'
   | 'is not between'
+  | 'is empty'
+  | 'is not empty'
 
 /* Operators for date data */
 export type DateFilterOperator =
@@ -253,6 +262,8 @@ export type DateFilterOperator =
   | 'is on or before'
   | 'is between'
   | 'is not between'
+  | 'is empty'
+  | 'is not empty'
 
 /* Operators for option data */
 export type OptionFilterOperator = 'is' | 'is not' | 'is any of' | 'is none of'

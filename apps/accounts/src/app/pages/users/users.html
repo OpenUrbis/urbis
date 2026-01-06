@@ -1,32 +1,93 @@
-<lib-loading-content [loading]="loading()">
-  <mat-card>
-    <mat-card-header class="d-flex justify-content-between align-items-center">
-      <mat-card-title>Usuários</mat-card-title>
-      <a matButton="filled" aria-label="Adicionar user" routerLink="create">
+<app-page-structure
+  [title]="!onlyTable() ? ('pages.users.page.title' | translate) : undefined"
+  [subtitle]="
+    !onlyTable() ? ('pages.users.page.subtitle' | translate) : undefined
+  "
+  [containerClasses]="onlyTable() ? [] : ['pt-5']"
+>
+  @if (!onlyTable()) {
+    <section rightActions>
+      <a
+        matButton="filled"
+        [attr.aria-label]="
+          'pages.users.page.buttons.create.ariaLabel' | translate
+        "
+        routerLink="create"
+      >
         <mat-icon class="material-symbols-outlined">add</mat-icon>
-        Criar
+        {{ "pages.users.page.buttons.create.title" | translate }}
       </a>
-    </mat-card-header>
-    <mat-card-content>
-      <mat-list>
-        @for (item of users(); track item.id) {
-          <mat-list-item>
-            <span matListItemTitle
-              >{{ item.firstName }} {{ item.lastName }}</span
-            >
-            <span matListItemLine>{{ item.email }}</span>
-            <span matListItemMeta>
-              <a
-                matIconButton
-                aria-label="Editar usuário"
-                [routerLink]="['edit', item.id]"
-              >
-                <mat-icon class="material-symbols-outlined">create</mat-icon>
-              </a>
-            </span>
-          </mat-list-item>
-        }
-      </mat-list>
-    </mat-card-content>
-  </mat-card>
-</lib-loading-content>
+    </section>
+  }
+
+  <div class="table-box">
+    @if (dataSource.loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <table mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="name">
+          {{ "pages.users.table.columns.name" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let user">
+          {{ user.firstName }} {{ user.lastName }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.users.table.columns.email" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.users.table.columns.status" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let user">
+          {{ "components.shared.status." + user.status | translate }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.users.table.columns.actions" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let user">
+          <a
+            matIconButton
+            [attr.aria-label]="
+              'pages.users.page.buttons.edit.ariaLabel' | translate
+            "
+            [routerLink]="['/users/edit', user.id]"
+          >
+            <mat-icon class="material-symbols-outlined">create</mat-icon>
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="5">
+          @if (dataSource.loading()) {
+            {{ "components.shared.table.loading" | translate }}
+          } @else {
+            {{ "pages.users.table.noData" | translate }}
+          }
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="dataSource.totalCount()"
+      [pageSize]="dataSource.currentParams().limit"
+      [pageIndex]="dataSource.currentParams().page - 1"
+      [pageSizeOptions]="[15, 30, 50]"
+      (page)="onPageChange($event)"
+    />
+  </div>
+</app-page-structure>

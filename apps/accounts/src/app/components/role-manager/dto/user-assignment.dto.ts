@@ -1,4 +1,4 @@
-import { IOrganization } from '../../../shared/dto/organization.dto';
+import { IOrganization } from '../../../pages/organizations/dto/organization.dto';
 import { IRoleResponse } from './role.dto';
 
 export interface IUserAssigmentResponse {

@@ -120,17 +120,17 @@
   --error-99: #fffbff;
   --error-100: #ffffff;
 
-  --slingui-surface: #f7f9ff;
-  --slingui-on-surface: #484646;
+  --monorepo-surface: #f7f9ff;
+  --monorepo-on-surface: #484646;
 }
 
 $divider-color: color.mix(#fff, #003543, 80%);
 
 :root {
-  --mat-sys-surface: var(--slingui-surface);
-  --mat-sys-on-surface: var(--slingui-on-surface);
+  --mat-sys-surface: var(--monorepo-surface);
+  --mat-sys-on-surface: var(--monorepo-on-surface);
 
-  --mat-sys-on-surface-variant: var(--slingui-on-surface);
+  --mat-sys-on-surface-variant: var(--monorepo-on-surface);
 
   --mat-table-divider-color: #{$divider-color};
   --mat-table-row-item-outline-color: #{$divider-color};
@@ -139,5 +139,5 @@ $divider-color: color.mix(#fff, #003543, 80%);
   --mdc-fab-small-container-color: var(--mat-sys-primary);
   --mat-fab-small-foreground-color: var(--mat-sys-on-primary);
 
-  --mdc-dialog-container-color: var(--slingui-surface);
+  --mdc-dialog-container-color: var(--monorepo-surface);
 }

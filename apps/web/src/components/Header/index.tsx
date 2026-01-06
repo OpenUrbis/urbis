@@ -1,31 +1,5 @@
-import { Button } from "@open-urbis/map-ui";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@open-urbis/map-ui";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "@open-urbis/map-ui";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@open-urbis/map-ui";
-import { cn } from "@open-urbis/map-ui";
+import { UrbisHeader } from "@open-urbis/map-ui";
 import { useAuth } from "react-oidc-context";
-
 import { Debugger } from "../Debugger";
 import { MenuToggleButton } from "../MenuToogleButton";
 import { ModeToggle } from "../ModeToggle";
@@ -33,120 +7,35 @@ import { ModeToggle } from "../ModeToggle";
 const Header = () => {
   const auth = useAuth();
 
+  const menuItems = [
+    { label: "Início", href: "/" },
+    { label: "Mapa", href: "#" },
+    { label: "Viabiliza", href: "#" },
+    { label: "Dados Abertos", href: "#" },
+    { label: "GitHub", href: "https://github.com/atlas-cli/monorepo" },
+    { label: "Documentação", href: "/docs" },
+  ];
+
   return (
-    <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center px-4 w-full">
-        <div className="mr-2 flex items-center">
-          <MenuToggleButton />
-        </div>
-        {/* Logo */}
-        <div className="mr-4 flex items-center">
-          <a className="mr-6 flex items-center space-x-2" href="/">
-            <img
-              fetchPriority="high"
-              src="https://urbis.sampa.br/assets/images/logo.webp"
-              className="h-6 w-auto object-contain"
-              alt="Urbis"
-            />
-            <span className="hidden font-bold sm:inline-block text-muted-foreground text-sm">
-              DEMO
-            </span>
-          </a>
-        </div>
-
-        {/* Desktop Menu - NavigationMenu */}
-        <div className="hidden md:flex items-center gap-2">
-          <NavigationMenu>
-            <NavigationMenuList>
-              {["Início", "Mapa", "Viabiliza", "Dados Abertos", "GitHub", "Documentação"].map((item) => (
-                <NavigationMenuItem key={item}>
-                  <NavigationMenuLink
-                    href="#"
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      "rounded-full border border-input h-8 px-4 bg-transparent hover:bg-accent"
-                    )}
-                  >
-                    {item}
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div>
-
-        <div className="flex flex-1 items-center justify-end space-x-2">
-          <div className="flex items-center gap-2">
-             <ModeToggle />
-             <div className="hidden lg:block">
-               <Debugger />
-             </div>
-
-             {/* User Menu */}
-             {auth.isAuthenticated ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full border">
-                       <span className="material-symbols-outlined text-xl">account_circle</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{auth.user?.profile.name || "Usuário"}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {auth.user?.profile.email}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => auth.removeUser()}>
-                      Sair
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-             ) : (
-                <Button variant="outline" size="sm" onClick={() => auth.signinRedirect()}>
-                  Entrar
-                </Button>
-             )}
-             
-             {/* Mobile Menu Drawer */}
-             <div className="md:hidden">
-               <Drawer>
-                 <DrawerTrigger asChild>
-                   <Button variant="ghost" size="icon">
-                     <span className="material-symbols-outlined text-xl">expand_more</span>
-                     <span className="sr-only">Toggle Menu</span>
-                   </Button>
-                 </DrawerTrigger>
-                 <DrawerContent>
-                   <DrawerHeader>
-                     <DrawerTitle>Menu</DrawerTitle>
-                   </DrawerHeader>
-                   <div className="p-4 flex flex-col gap-4">
-                     {["Início", "Mapa", "Viabiliza", "Dados Abertos", "GitHub", "Documentação"].map((item) => (
-                       <a
-                         key={item}
-                         href="#"
-                         className="text-lg font-medium hover:text-primary transition-colors"
-                       >
-                         {item}
-                       </a>
-                     ))}
-                   </div>
-                   <DrawerFooter>
-                     <DrawerClose asChild>
-                       <Button variant="outline">Fechar</Button>
-                     </DrawerClose>
-                   </DrawerFooter>
-                 </DrawerContent>
-               </Drawer>
-             </div>
+    <UrbisHeader
+      menuItems={menuItems}
+      isAuthenticated={auth.isAuthenticated}
+      user={{
+        name: auth.user?.profile.name,
+        email: auth.user?.profile.email
+      }}
+      onLogin={() => auth.signinRedirect()}
+      onLogout={() => auth.removeUser()}
+      leftSlot={<MenuToggleButton />}
+      rightSlot={
+        <>
+          <ModeToggle />
+          <div className="hidden lg:block">
+            <Debugger />
           </div>
-        </div>
-      </div>
-    </header>
+        </>
+      }
+    />
   );
 };
 

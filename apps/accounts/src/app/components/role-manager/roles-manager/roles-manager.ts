@@ -1,12 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { catchError, startWith, Subject, switchMap, tap } from 'rxjs';
-import { IPagination } from '../../../shared/dto/pagination.dto';
+import { PageEvent } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Sort } from '@angular/material/sort';
 import { HandleRole } from '../dialogs/handle-role/handle-role';
 import { IRoleResponse } from '../dto/role.dto';
-import { RoleManagerApi } from '../services/role-manager-api';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { RolesManagerDataSource } from './roles-manager.data-source';
 
 @Component({
   selector: 'app-roles-manager',
@@ -15,39 +14,59 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrl: './roles-manager.scss',
 })
 export class RolesManager {
-  pagination$ = new Subject<IPagination>();
-  loading = signal<boolean>(false);
-
   matSnackBar = inject(MatSnackBar);
-  roleManagerApi = inject(RoleManagerApi);
   dialog = inject(MatDialog);
+  dataSource = inject(RolesManagerDataSource);
+  displayedColumns = [
+    'name',
+    // 'description',
+    // 'allowedActions',
+    'status',
+    'actions',
+  ];
 
-  roles = toSignal(
-    // TO DO: Paginação das roles
-    this.pagination$.pipe(
-      startWith({ page: 0, limit: 10 }),
-      tap(() => this.loading.set(true)),
-      switchMap((pagination) => this.roleManagerApi.listRoles(pagination)),
-      tap(() => this.loading.set(false)),
-    ),
-  );
+  // --- MÉTODOS DE CONTROLE ---
+
+  /** Chamado quando o formulário é submetido para aplicar os filtros. */
+  applyFilters() {
+    // A mudança no valor do formulário já foi capturada pelo AbstractDataSource.
+    // Basta resetar a paginação para que a busca seja refeita do zero.
+    this.dataSource.resetAndReload();
+  }
+
+  /** Chamado quando a paginação Material é alterada. */
+  onPageChange(event: PageEvent) {
+    this.dataSource.goToPage(event.pageIndex + 1);
+    this.dataSource.updatePageSize(event.pageSize);
+  }
+
+  /** Chamado quando a ordenação Material é alterada. */
+  onSortChange(sort: Sort) {
+    if (sort.direction) {
+      this.dataSource.updateSort(sort);
+    }
+  }
 
   createRole() {
     this.editRole();
   }
 
   formatPermissions(role: IRoleResponse) {
-    return role.rolePermissions.map(({permission}) => permission?.name).join(', ');
+    return role.rolePermissions
+      .map(({ permission }) => permission?.name)
+      .join(', ');
   }
 
   editRole(role?: IRoleResponse) {
     const dialogRef = this.dialog.open(HandleRole, {
       data: role,
-      width: '90%',
+      minWidth: '90%',
+      width:'90%',
+      panelClass: 'dialog-lg-content'
     });
 
     dialogRef.afterClosed().subscribe((value: IRoleResponse | any) => {
-      if (value?.id) this.pagination$.next({ page: 0, limit: 10 });
+      if (value?.id) this.dataSource.resetAndReload();
     });
   }
 }

@@ -13,11 +13,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { debounceTime, startWith, switchMap, tap } from 'rxjs';
+import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
 import { PermissionScopePipe } from '../../../../pipes/permission-scope-pipe';
 import { IRoleResponse } from '../../dto/role.dto';
 import { RoleManagerApi } from '../../services/role-manager-api';
 import { LoadingContent } from '../../../../../../projects/shared/src/public-api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-add-role',
@@ -32,7 +33,8 @@ import { LoadingContent } from '../../../../../../projects/shared/src/public-api
     MatListModule,
     MatProgressSpinnerModule,
     PermissionScopePipe,
-    LoadingContent
+    LoadingContent,
+    TranslateModule,
   ],
   templateUrl: './add-role.html',
   styleUrl: './add-role.scss',
@@ -44,6 +46,7 @@ export class AddRole {
 
   matSnackBar = inject(MatSnackBar);
   roleManagerApi = inject(RoleManagerApi);
+  translate = inject(TranslateService);
   readonly dialogRef = inject(MatDialogRef<AddRole>);
   readonly data = inject<{ userId: string; roles: string[] }>(MAT_DIALOG_DATA);
 
@@ -51,7 +54,11 @@ export class AddRole {
     startWith(''),
     debounceTime(300),
     tap(() => this.loading.set(true)),
-    switchMap((search) => this.roleManagerApi.listRoles({ search })),
+    switchMap((search) =>
+      this.roleManagerApi
+        .listRoles({ search })
+        .pipe(map((value) => (value as any)?.data ?? [])),
+    ),
     tap(() => this.loading.set(false)),
   );
 
@@ -65,7 +72,9 @@ export class AddRole {
         },
         error: (err) => {
           this.matSnackBar.open(
-            'Houve um erro ao tentar adicionar o cargo ao usuário',
+            this.translate.instant(
+              'components.roleManager.addRole.errors.assign',
+            ),
           );
           console.error(err);
         },

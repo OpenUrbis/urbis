@@ -23,9 +23,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { debounceTime, startWith, switchMap, tap } from 'rxjs';
-import { IResponseOrganization } from '../../pages/organizations/dto/organization.dto';
+import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
+import { IOrganization } from '../../pages/organizations/dto/organization.dto';
 import { OrganizationsApi } from '../../pages/organizations/services/organizations-api';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-organization-selector',
@@ -37,6 +38,7 @@ import { OrganizationsApi } from '../../pages/organizations/services/organizatio
     MatIconModule,
     ReactiveFormsModule,
     MatInputModule,
+    TranslateModule,
   ],
   templateUrl: './organization-selector.html',
   styleUrl: './organization-selector.scss',
@@ -48,7 +50,7 @@ export class OrganizationSelector implements OnInit {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   search = new FormControl();
   searchLoading = signal<boolean>(false);
-  selectedOrganizations = signal<IResponseOrganization[]>([]);
+  selectedOrganizations = signal<IOrganization[]>([]);
 
   organizationApi = inject(OrganizationsApi);
 
@@ -62,10 +64,12 @@ export class OrganizationSelector implements OnInit {
       debounceTime(300),
       tap(() => this.searchLoading.set(true)),
       switchMap((search) =>
-        this.organizationApi.list({
-          search: typeof search === 'string' ? search : '',
-          exclude: this.multi() ? this.selectedOrganizationIds() : [],
-        }),
+        this.organizationApi
+          .list({
+            search: typeof search === 'string' ? search : '',
+            exclude: this.multi() ? this.selectedOrganizationIds() : [],
+          })
+          .pipe(map((value) => (value as any)?.data ?? [])),
       ),
       tap(() => this.searchLoading.set(false)),
     ),
@@ -100,7 +104,7 @@ export class OrganizationSelector implements OnInit {
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    const newRegister = event.option.value as IResponseOrganization;
+    const newRegister = event.option.value as IOrganization;
     if (this.selectedOrganizationIds().includes(newRegister.id)) return;
 
     this.selectedOrganizations.update((orgs) =>
@@ -112,7 +116,7 @@ export class OrganizationSelector implements OnInit {
     }
   }
 
-  displayFn(org: IResponseOrganization): string {
+  displayFn(org: IOrganization): string {
     return org?.name ?? '';
   }
 }

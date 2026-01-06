@@ -1,7 +1,14 @@
 @if (multi()) {
   <mat-form-field class="example-chip-list" appearance="outline" class="w-100">
-    <mat-label>Organizações</mat-label>
-    <mat-chip-grid #chipGrid aria-label="Selecionar organização">
+    <mat-label>{{
+      "components.organizationSelector.labels.multiple" | translate
+    }}</mat-label>
+    <mat-chip-grid
+      #chipGrid
+      [attr.aria-label]="
+        'components.organizationSelector.aria.select' | translate
+      "
+    >
       @for (
         organization of selectedOrganizations();
         track organization.id;
@@ -11,7 +18,10 @@
           {{ organization.name }}
           <button
             matChipRemove
-            [attr.aria-label]="'Remover ' + organization.name"
+            [attr.aria-label]="
+              'components.organizationSelector.aria.remove'
+                | translate: { name: organization.name }
+            "
           >
             <mat-icon class="material-symbols-outlined">cancel</mat-icon>
           </button>
@@ -20,7 +30,12 @@
     </mat-chip-grid>
     <input
       name="currentOrganization"
-      placeholder="Selecionar organização..."
+      [placeholder]="
+        'components.organizationSelector.placeholders.search' | translate
+      "
+      [attr.aria-label]="
+        'components.organizationSelector.placeholders.search' | translate
+      "
       #organizationInput
       [formControl]="search"
       [matChipInputFor]="chipGrid"
@@ -38,12 +53,17 @@
   </mat-form-field>
 } @else {
   <mat-form-field appearance="outline" class="w-100">
-    <mat-label>Organização</mat-label>
+    <mat-label>{{
+      "components.organizationSelector.labels.single" | translate
+    }}</mat-label>
     <input
       type="text"
       matInput
       [formControl]="search"
       [matAutocomplete]="auto"
+      [attr.aria-label]="
+        'components.organizationSelector.labels.single' | translate
+      "
     />
     <mat-autocomplete
       #auto="matAutocomplete"

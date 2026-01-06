@@ -42,7 +42,10 @@ export class UserRoleManager {
   });
 
   constructor() {
-    effect(() => this.userId$.next(this.userId()));
+    effect(() => {
+      this.userId$.next(this.userId());
+    });
+    effect(() => this.userRoles());
   }
 
   formatPermissions(role: IRoleResponse) {
@@ -53,12 +56,10 @@ export class UserRoleManager {
 
   rmRole(assign: IUserAssigmentResponse) {
     // TO DO: Loading e feedback pro usuário
-    this.roleManagerApi
-      .unassign(assign.id)
-      .subscribe({
-        next: () => this.userId$.next(this.userId()),
-        error: (err) => console.error(err),
-      });
+    this.roleManagerApi.unassign(assign.id).subscribe({
+      next: () => this.userId$.next(this.userId()),
+      error: (err) => console.error(err),
+    });
   }
 
   openAddRole() {

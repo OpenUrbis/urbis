@@ -44,10 +44,14 @@ export class SignInApi {
 
   authenticate(authenticate: any) {
     const { session } = this.getStoredSession();
+    console.log('authenticate', authenticate);
     const data = new HttpParams()
+      .set('recaptcha', authenticate.recaptcha)
       .set('email', authenticate.email)
       .set('password', authenticate.password)
-      .set('session', session);
+      .set('session', session)
+      .set('idToken', authenticate.idToken)
+      .set('accessToken', authenticate.accessToken);
 
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',

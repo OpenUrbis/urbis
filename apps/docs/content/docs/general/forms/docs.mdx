@@ -1,0 +1,380 @@
+---
+title: Forms Overview
+description: Dynamic forms configuration.
+---
+
+## Introdução
+
+Este documento descreve a estrutura e a configuração de um framework de gerenciamento de formulários dinâmicos a partir de uma configuração JSON. O objetivo é fornecer uma maneira flexível e escalável de criar e gerenciar formulários complexos, permitindo a criação de layouts variados, a integração com diferentes fontes de dados e implementação de regras de negócios complexas.
+
+## Estrutura da Configuração JSON
+
+A configuração do formulário é definida em um objeto JSON, que contém uma hierarquia de campos, que podem serem um campo estrutural (bloco) ou simples (de entrada). A seguir, está um exemplo básico de configuração JSON:
+
+A composição de um campo tem os seguintes atributos:
+
+- `key`: identifica o namespace do campo, que deve ser único em todo o formulário. Os dados do campo são armazenados em um objeto JSON, onde a chave é o valor de `key`.
+- `type`: define o tipo do campo, que pode ser um campo estrutural (`block`) ou um campo de entrada (`input`, `select`, `textarea`, entre outros).
+- `options`: define as opções do campo, como título, descrição, layout, tipo de campo, entre outros. Cada tipo de campo tem suas próprias opções.
+- `expressions`: define as expressões do campo, que são regras de negócio que podem ser aplicadas ao campo. Existem vários tipos de expressões, como validação, visibilidade e o próprio valor do campo.
+- `block`: define os campos filhos do campo, que podem ser campos estruturais ou simples. Um campo estrutural pode conter outros campos, formando uma hierarquia de campos.
+
+```json
+{
+  "key": "root",
+  "type": "block",
+  "options": {
+    "title": "Formulário de Exemplo",
+    "description": "Este é um formulário de exemplo."
+  },
+  "expressions": {},
+  "block": [
+    {
+      "key": "Etapa (1)",
+      "type": "block",
+      "options": {
+        "title": "Etapa (1)",
+        "layout": "step"
+      },
+      "block": [
+        {
+          "key": "Nome",
+          "type": "input",
+          "options": {
+            "label": "Nome",
+            "type": "text",
+            "required": true
+          },
+          "expressions": {}
+        },
+        {
+          "key": "Email",
+          "type": "input",
+          "options": {
+            "title": "Email",
+            "type": "email",
+            "required": true
+          },
+          "expressions": {}
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Modelo do formulário
+
+Um formulário é configurado atráves de uma estrutura hierárquica de campos, onde cada campo pode ser um campo estrutural (bloco) ou um campo de entrada (input, select, textarea, entre outros). Seguindo essa mesma estrutura, com os seus respectivos namespaces defindios pelas chaves dos campos, assim é definido o modelo que é retornado pelo formulário que será armazenado no banco de dados após o seu protocolo.
+
+## Tipos de Campos
+
+### Título
+
+O campo de título é um campo estrutural que serve para agrupar outros campos. Ele não possui um valor de entrada, mas contem um título que pode ser exibido no formulário.
+
+- `type`: `title`
+
+Opções:
+
+- `title`: título do campo
+
+### Descrição
+
+O campo de descrição é um campo estrutural que serve para agrupar outros campos. Ele não possui um valor de entrada, mas contem uma descrição que pode ser exibida no formulário. O valor da descrição pode ser um texto simples ou um HTML que será renderizado na tela.
+
+- `type`: `description`
+
+Opções:
+
+- `html`: texto HTML da descrição
+
+### Texto Simples
+
+O campo de texto simples é um campo de entrada que permite a inserção de um texto simples.
+
+- `type`: `input`
+
+Opções:
+
+- `label`: rótulo do campo
+- `mask`: máscara de entrada do campo. Exemplo: `999.999.999-99`. Os valores da máscara são:
+  - `9`: dígito numérico
+  - `a`: letra do alfabeto
+  - `*`: qualquer caractere
+- `placeholder`: texto de ajuda que é exibido no campo
+- `readOnly`: define se o campo é somente leitura
+- `type`: tipo do campo. Pode ser `area` | `currency` | `percentage` | `text` | `entre outros do próprio HTML`
+- `decimalScale`: quantidade de casas decimais para os tipos `area`, `currency` e `percentage`
+
+### Texto em Área
+
+O campo de texto em área é um campo de entrada que permite a inserção de um texto em área.
+
+- `type`: `textarea`
+
+Opções:
+
+- `label`: rótulo do campo
+- `placeholder`: texto de ajuda que é exibido no campo
+- `readOnly`: define se o campo é somente leitura
+
+### Seleção
+
+O campo de seleção é um campo de entrada que permite a seleção de um valor a partir de uma lista de opções.
+
+- `type`: `select`
+
+Opções:
+
+- `label`: rótulo do campo
+- `placeholder`: texto de ajuda que é exibido no campo
+- `readOnly`: define se o campo é somente leitura
+- `items`: lista de opções do campo. Cada item é um objeto com os atributos `key` e `value`. Exemplo: `[{"key": "Opção 1", "value": "1"}, {"key": "Opção 2", "value": "2"}]`
+
+### Escolha
+
+O campo de escolha é um campo de entrada que permite a seleção de um valor a partir de uma lista de opções.
+
+- `type`: `radio`
+
+Opções:
+
+- `label`: rótulo do campo
+- `readOnly`: define se o campo é somente leitura
+- `items`: lista de opções do campo. Cada item é um objeto com os atributos `key` e `value`. Exemplo: `[{"key": "Opção 1", "value": "1"}, {"key": "Opção 2", "value": "2"}]`
+
+### Múltipla Escolha
+
+O campo de múltipla escolha é um campo de entrada que permite a seleção de múltiplos valores a partir de uma lista de opções.
+
+- `type`: `checkbox`
+
+Opções:
+
+- `label`: rótulo do campo
+- `readOnly`: define se o campo é somente leitura
+- `items`: lista de opções do campo. Cada item é um objeto com os atributos `key` e `value`. Exemplo: `[{"key": "Opção 1", "value": "1"}, {"key": "Opção 2", "value": "2"}]`
+
+### Anexo
+
+O campo de anexo é um campo de entrada que permite o envio de arquivos.
+
+- `type`: `upload`
+
+Opções:
+
+- `label`: rótulo do campo
+- `readOnly`: define se o campo é somente leitura
+- `multiple`: define se é permitido o envio de múltiplos arquivos
+- `dir`: define diretório de armazenamento dos arquivos
+- `gallery`: define se sera mostrado como galeria os arquivos enviados
+
+### Integração
+
+O campo de integração é um campo de entrada que permite a integração com um sistema externo.
+
+- `type`: `integration`
+
+Opções:
+
+- Nenhum
+
+O campo de integração tem como única opção de configuração uma expressão `exressions.integration` que é utilizado para fazer a integração com um sistema externo ou outros blocos do mesmo formulário.
+
+### Vínculo
+
+O campo de vínculo é utilizado para relacionar entidades dentro do formulário. Exemplo de relacionamento: `Procurado` e `Procurador`, `Reponsável Técnico` com `Protcolo`.
+
+- `type`: `link`
+
+Opções:
+
+- Nenhum
+
+Ele é configurado pela expressão `expressions.model` que tem os seguintes atributos:
+
+- `{ from: 'FROM', to: 'TO', by: 'RELATION' }`
+
+No caso do aceite, o from seria o `CPF` do usuario que deverá dar o aceite de participação do protocolo, e o `to` fica com valor vazio, implicitamente indicando o próprio protocolo em questão. Nesse caso o `type` não precisa ser informado, pois o sistema já sabe que é um aceite.
+
+### Mapa
+
+O campo de mapa é um campo de entrada que exibir um mapa interativo e mostrar camadas de dados relacionados ao geo referenciamento do municipio.
+
+- `type`: `map`
+
+Opções:
+
+"height" | "label" | "layers" | "table" | "width" | "zoomControl"
+
+- `label`: rótulo do campo
+- `height`: altura do mapa (medida em pixels ou unidade aceita pelo CSS)
+- `width`: largura do mapa (medida em pixels ou unidade aceita pelo CSS)
+- `zoomControl`: define se o controle de zoom será exibido no mapa
+- `layers`: camadas de dados do mapa. Ele configura quais camadas serão exibidas a partir de um retorno padrão definido pelo sistema SAADe. Nele é configuardo uma lista com os nomes das camadas, a lista de atributos que será extraido do conjunto de informações da camada e quais dessas informações serão mostrados em um popup ao clicar na camada no mapa. O formato esperado dos dados é o seguinte:
+
+```typescript
+{
+  "color": "string",
+  "key": "string",
+  "properties": [
+    {
+      "includeOnPopUp": true,
+      "key": "string",
+      "label": "string"
+    }
+  ],
+  "title": "string"
+}[]
+```
+
+### Arranjo
+
+O campo de arranjo é um campo de entrada que permite inserir váris repetições de um mesmo conjunto de campos configurados.
+
+- `type`: `array`
+
+Opções:
+
+- `label`: rótulo do campo
+- `readOnly`: define se o campo é somente leitura
+- `block`: uma lista de campos que serão repetidos. Cada campo é um objeto JSON com os atributos `key`, `type`, `options` e `expressions`.
+- `layout`: define o layout do campo. Pode ser `table` | `list`
+- `hideHeader`: define se o cabeçalho do campo será ocultado
+- `columns`: define o número de colunas do campo caso o layout seja `table`
+- `width`: define a largura da tabela caso o layout seja `table`
+
+### Tabela
+
+O campo de tabela é um campo de entrada que permite inserir vários registros em uma tabela.
+
+- `type`: `table`
+
+Opções:
+
+- `label`: rótulo do campo
+- `columns`: define o número de colunas da tabela
+- `width`: define a largura da tabela
+- `table`: define as colunas da tabela. Cada coluna é um objeto JSON com os atributos `key`, `type`, `options` e `expressions` que define um campo.
+
+### Bloco
+
+O campo de bloco é um campo estrutural que serve para agrupar outros campos.
+
+- `type`: `block`
+
+Opções:
+
+- `label`: rótulo do campo
+- `block`: lista de campos filhos do bloco
+- `open`: define se o bloco será aberto por padrão ou não. Ele tem um toggle para abrir e fechar o bloco.
+- `toggle`: define se o bloco terá um botão para abrir e fechar o bloco.
+
+## Opções padrões dos campos
+
+Todos os campos acima tem as seguintes opções:
+
+- `tooltip`: texto de ajuda que é exibido ao passar o mouse sobre o campo. Aceita um valor HTML.
+
+### Presets
+
+Os campos podem ter presets são com único ou um conjunto de campos pré configurados que podem serem reutilizados em diferentes locais do mesmo formulário ou em formulários diferentes.
+
+A configuração é igual ao JSON de campo de um formulário, com o detalhe que os campos pre configurados ficam localizados dentro de `presets`.
+
+O campo preset uma vez importado no formulário através do type: `preset`, ele não pode ser editado, suas configurações são fixas. O namespace padrão é o próprio `id` do preset armazenado no banco de dados, porém é possível alterar o namespace do preset dentro de `options.key`, evitando conflito de namespaces, caso o mesmo preset seja utilizado duas ou mais vezes no mesmo contexto do formulário.
+
+## Expressões
+
+Os campos podem ter expressões que são regras de negócio que podem ser aplicadas ao campo. Existem vários tipos de expressões, como validação, visibilidade e o próprio valor do campo.
+
+A expressão tem acesso ao um contexto de dados, como os dados da modelo do formulário. No caso, apenas os dados do formulário de campos que compoem um mesmo bloco ou nivél hierárquico são disponibilizados. Ou seja, um campo de um bloco não tem acesso aos dados de outro bloco. Caso isso seja necessário, é preciso criar uma expressão que faça a comunicação entre os blocos, através dos campos especiais do tipo `integration`.
+
+A variável que é disponbilizada em cada expressão é o `context`, que contem os dados do formulário de um determinado bloco.
+
+`context`: `{ CHAVE_CAMPO_1: VALOR_CAMPO_1, CHAVE_CAMPO_2: VALOR_CAMPO_2, ... }`
+
+O `context` tem duas variáveis de uso especial. O `context.$` referencia ao valor do próprio campo, e `context.$global` dos dados globals do formulário, onde este só é disponibilizado nos campos do tipo `integration`.
+
+Além dele, a variável `valid`, contem o estado de validação dos campo do mesmo bloco, que é `true` quando o campo é válido e `false` quando o campo é inválido.
+
+`valid`: `{ CHAVE_CAMPO_1: true, CHAVE_CAMPO_2: false, ... }`
+
+E por fim, as variáveis
+
+- `$user`: contém informações de perfil do usuário logado e acessand o sistema
+
+- `$environment`: contém variáveis de ambiente que são configurados a nível de assunto ou do sistema
+
+- `$library`: contém uma biblioteca de funções que podem ser utilizadas nas expressões, configurados por assunto ou do sistema
+
+- `$tree`: contém um árvore que representa as chaves do formulário contendo as referencias de chaves de outros campos usadas em `expressions.model`
+
+### Modelo
+
+O seu retorno define o valor do campo, que pode ser um valor fixo, um valor de outro campo ou um valor calculado a partir de uma expressão.
+
+```json
+{
+  "model": "context.CHAVE_CAMPO + context.CHAVE_CAMPO_2"
+}
+```
+
+### Validação
+
+A expressão de validação é uma expressão que retorna um valor booleano, que define se o campo é válido ou não. Se o campo for inválido, uma mensagem de erro é exibida ao lado do campo.
+
+```json
+{
+  "validation": "context.$ === 'valor'"
+}
+```
+
+Além do retorno booleano, um objeto pode ser retornado especificando uma mensagem e um estado de validação mais detalhado.
+
+```json
+{
+  "validation": "{ type: 'warning' | 'information' | 'valid' | 'invalid', message: 'MENSAGEM' }"
+}
+```
+
+### Visibilidade
+
+A expressão de visibilidade é uma expressão que retorna um valor booleano, que define se o campo é visível ou não. Se o campo for invisível, ele não é exibido no formulário.
+
+```json
+{
+  "visibility": "context.CHAVE_CAMPO === 'valor'"
+}
+```
+
+### Integração
+
+A expressão de integração é uma expressão que define a integração do campo com um sistema externo ou com outros campos do mesmo formulário. Só configurado nos campos do tipo `integration`.
+
+Caso queira chamar uma integração interna, é possível configurar a integração com um objeto JSON que contém a chave do campo que será integrado.
+
+```json
+{
+  "integration": "context.$global.CHAVE_ETAPA.CHAVE_CAMPO"
+}
+```
+
+Caso queira chamar uma integracão externa atráves de um requisição HTTP, é possível configurar a integração com um objeto JSON que contém a URL, o método, os cabeçalhos e o corpo da requisição.
+
+```json
+{
+    "integration": "{ url: "", method: \"GET\" | \"POST\", headers: { \"key\": \"value\" }, body: { \"key\": \"value\" } }"
+}
+```
+
+### Opções
+
+A expressão de opções é uma expressão que define as opções do campo de forma. Ela é utilizada para configurar as opções do campo dinamicamente, a partir de um retorno de uma expressão.
+
+```json
+{
+  "options": "{ label: context.CHAVE_CAMPO + '/' + context.CHAVE_CAMPO_2, items: [...] }"
+}
+```

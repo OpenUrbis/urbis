@@ -66,7 +66,6 @@ function __FilterValue<TData, TType extends ColumnDataType>({
 }: FilterValueProps<TData, TType>) {
   return (
     <Popover>
-      <PopoverAnchor className="h-full" />
       <PopoverTrigger asChild>
         <Button
           variant="ghost"

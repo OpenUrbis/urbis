@@ -1,11 +1,25 @@
 import { Routes } from '@angular/router';
-import { AutoLoginPartialRoutesGuard } from 'angular-auth-oidc-client';
+import { autoLoginPartialRoutesGuardWithConfig } from 'angular-auth-oidc-client';
+import { AUTH_CONFIG_ID } from '../../projects/shared/src/lib/auth/auth.config';
+import { onboardingGuard } from './shared/auth/guards/onboarding-guard';
 
 export const routes: Routes = [
   {
     path: 'sign-in',
     loadComponent: () =>
       import('./pages/sign-in/sign-in').then((c) => c.SignIn),
+  },
+  {
+    path: 'sign-up',
+    loadComponent: () =>
+      import('./pages/sign-up/sign-up').then((c) => c.SignUp),
+  },
+  {
+    path: 'confirm-account/:hash',
+    loadComponent: () =>
+      import('./pages/confirm-account/confirm-account').then(
+        (c) => c.ConfirmAccount,
+      ),
   },
   {
     path: 'callback',
@@ -24,45 +38,77 @@ export const routes: Routes = [
   {
     path: 'unauthorized',
     loadComponent: () =>
-      import(
-        './../../projects/shared/src/lib/auth/unauthorized/unauthorized'
-      ).then((c) => c.Unauthorized),
+      import('./../../projects/shared/src/lib/auth/unauthorized/unauthorized').then(
+        (c) => c.Unauthorized,
+      ),
   },
   {
     path: 'two-factor',
     loadComponent: () =>
-      import('./pages/sign-in/two-factor/two-factor').then((c) => c.TwoFactor),
+      import('./components/two-factor/two-factor').then((c) => c.TwoFactor),
+  },
+
+  {
+    path: 'forgot-password',
+    loadChildren: () =>
+      import('./pages/forgot-password/forgot-password.routes').then(
+        (m) => m.forgotPasswordRoutes,
+      ),
   },
   {
     path: '',
-    canActivate: [AutoLoginPartialRoutesGuard],
+    canActivate: [autoLoginPartialRoutesGuardWithConfig(AUTH_CONFIG_ID)],
     children: [
       {
+        path: 'onboarding',
+        loadComponent: () =>
+          import('./pages/onboarding/onboarding').then((c) => c.Onboarding),
+      },
+      {
         path: '',
-        loadComponent: () => import('./pages/home/home').then((c) => c.Home),
-      },
-      {
-        path: 'roles',
-        loadComponent: () => import('./pages/roles/roles').then((m) => m.Roles),
-      },
-      {
-        path: 'users',
-        loadChildren: () =>
-          import('./pages/users/users.routes').then((m) => m.usersRoutes),
-      },
-      {
-        path: 'organizations',
-        loadChildren: () =>
-          import('./pages/organizations/organizations.routes').then(
-            (m) => m.organizationsRoutes,
-          ),
+        canActivate: [onboardingGuard],
+        loadComponent: () =>
+          import('./components/drawer/drawer').then((c) => c.Drawer),
+        children: [
+          {
+            path: '',
+            redirectTo: 'profile',
+            pathMatch: 'full',
+          },
+          {
+            path: 'profile',
+            canActivate: [
+              autoLoginPartialRoutesGuardWithConfig(AUTH_CONFIG_ID),
+            ],
+            loadChildren: () =>
+              import('./pages/profile/profile.routes').then(
+                (m) => m.profileRoutes,
+              ),
+          },
+          {
+            path: 'roles',
+            loadComponent: () =>
+              import('./pages/roles/roles').then((m) => m.Roles),
+          },
+          {
+            path: 'users',
+            loadChildren: () =>
+              import('./pages/users/users.routes').then((m) => m.usersRoutes),
+          },
+          {
+            path: 'organizations',
+            loadChildren: () =>
+              import('./pages/organizations/organizations.routes').then(
+                (m) => m.organizationsRoutes,
+              ),
+          },
+          {
+            path: 'whitelabel',
+            loadComponent: () =>
+              import('./pages/whitelabel/whitelabel').then((m) => m.Whitelabel),
+          },
+        ],
       },
     ],
-  },
-  {
-    path: 'profile',
-    canActivate: [AutoLoginPartialRoutesGuard],
-    loadChildren: () =>
-      import('./pages/profile/profile.routes').then((m) => m.profileRoutes),
   },
 ];

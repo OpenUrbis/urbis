@@ -1,0 +1,90 @@
+<div class="row justify-content-center align-items-center h-100">
+  <div class="col-10 col-xl-3 col-lg-4 col-md-6 sign-in-container">
+    <form
+      (ngSubmit)="submit()"
+      class="d-flex justify-content-center align-items-center flex-column"
+      [formGroup]="formGroup"
+      class="h-100 w-100"
+    >
+      <mat-card class="py-3">
+        <mat-card-header class="pt-0 d-flex flex-column">
+          <div class="d-flex flex-row align-items-center">
+            <a
+              matCardAvatar
+              matIconButton
+              [attr.aria-label]="'pages.signUp.actions.back' | translate"
+              href="/"
+              class="me-3"
+            >
+              <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
+            </a>
+            <h1 matCardTitle class="mb-3">
+              {{ "pages.signUp.title" | translate }}
+            </h1>
+          </div>
+        </mat-card-header>
+        <mat-card-content class="d-flex flex-column">
+          <mat-form-field appearance="outline">
+            <mat-label>{{
+              "pages.signUp.form.fields.firstName" | translate
+            }}</mat-label>
+            <input
+              matInput
+              formControlName="firstName"
+              autofocus
+              [attr.aria-label]="
+                'pages.signUp.form.fields.firstName' | translate
+              "
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{
+              "pages.signUp.form.fields.lastName" | translate
+            }}</mat-label>
+            <input
+              matInput
+              formControlName="lastName"
+              [attr.aria-label]="
+                'pages.signUp.form.fields.lastName' | translate
+              "
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{
+              "pages.signUp.form.fields.email" | translate
+            }}</mat-label>
+            <input
+              matInput
+              formControlName="email"
+              [attr.aria-label]="
+                'pages.signUp.form.fields.email' | translate
+              "
+            />
+          </mat-form-field>
+
+          <lib-country-select [formGroup]="formGroup" />
+
+          <lib-phone-form-group [formGroup]="formGroup" />
+
+          <lib-password-form-group [formGroup]="formGroup" />
+        </mat-card-content>
+        <mat-card-actions
+          class="justify-content-center align-items-center d-flex flex-column px-3 gap-3"
+        >
+          <button
+            matButton="filled"
+            class="w-100"
+            [disabled]="formGroup.invalid"
+            [attr.aria-label]="
+              'pages.signUp.form.buttons.submit' | translate
+            "
+          >
+            {{ "pages.signUp.form.buttons.submit" | translate }}
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
+  </div>
+</div>

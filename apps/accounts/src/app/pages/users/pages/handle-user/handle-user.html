@@ -1,80 +1,124 @@
 <lib-loading-content [loading]="loading()">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title class="d-flex justify-content-start align-items-center">
-        <a
+  <app-page-structure
+    [title]="name() ?? ('pages.users.edit.title.create' | translate)"
+  >
+    <section leftActions>
+      <a
+        matIconButton
+        [attr.aria-label]="'pages.users.page.buttons.back' | translate"
+        routerLink="/users"
+        class="me-3"
+      >
+        <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
+      </a>
+    </section>
+
+    <section rightActions>
+      @if (id() && !loading()) {
+        <button
           matIconButton
-          aria-label="Editar usuário"
-          routerLink="/users"
+          [attr.aria-label]="
+            'pages.users.page.buttons.delete.ariaLabel' | translate
+          "
+          (click)="deleteUser(id()!)"
           class="me-3"
         >
-          <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
-        </a>
-        {{ name() ? name() : "Criar usuário" }}
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content class="pt-3">
-      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
-        <mat-tab label="Dados do usuários">
-          <form
-            [formGroup]="form"
-            (ngSubmit)="save()"
-            class="p-3 d-flex flex-column gap-2"
-          >
-            <mat-form-field appearance="outline">
-              <mat-label>Nome</mat-label>
-              <input matInput formControlName="firstName" />
-            </mat-form-field>
+          <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        </button>
+      }
+    </section>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Sobrenome</mat-label>
-              <input matInput formControlName="lastName" />
-            </mat-form-field>
+    <mat-tab-group
+      mat-stretch-tabs="false"
+      mat-align-tabs="start"
+      dynamicHeight
+    >
+      <mat-tab [label]="'pages.users.edit.tabs.dadosDoUsuarios' | translate">
+        <mat-card class="my-3">
+          <form [formGroup]="form" (ngSubmit)="save()">
+            <mat-card-content class="pt-4 d-flex flex-column gap-2">
+              <mat-form-field appearance="outline">
+                <mat-label>{{
+                  "pages.users.edit.fields.firstName" | translate
+                }}</mat-label>
+                <input
+                  matInput
+                  formControlName="firstName"
+                  [attr.aria-label]="
+                    'pages.users.edit.fields.firstName' | translate
+                  "
+                />
+              </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Email</mat-label>
-              <input
-                type="email"
-                matInput
-                formControlName="email"
-                placeholder="Ex. pat@example.com"
-              />
-              @if (
-                getFormControl("email").hasError("email") &&
-                !getFormControl("email").hasError("required")
-              ) {
-                <mat-error> Por favor, insira um email válido </mat-error>
+              <mat-form-field appearance="outline">
+                <mat-label>{{
+                  "pages.users.edit.fields.lastName" | translate
+                }}</mat-label>
+                <input
+                  matInput
+                  formControlName="lastName"
+                  [attr.aria-label]="
+                    'pages.users.edit.fields.lastName' | translate
+                  "
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{
+                  "pages.users.edit.fields.email" | translate
+                }}</mat-label>
+                <input
+                  type="email"
+                  matInput
+                  formControlName="email"
+                  placeholder="{{
+                    'pages.users.edit.placeholders.email' | translate
+                  }}"
+                  [attr.aria-label]="
+                    'pages.users.edit.fields.email' | translate
+                  "
+                />
+                @if (
+                  getFormControl("email").hasError("email") &&
+                  !getFormControl("email").hasError("required")
+                ) {
+                  <mat-error>{{
+                    "pages.users.edit.errors.emailInvalid" | translate
+                  }}</mat-error>
+                }
+                @if (getFormControl("email").hasError("required")) {
+                  <mat-error>{{
+                    "pages.users.edit.errors.emailRequired" | translate
+                  }}</mat-error>
+                }
+              </mat-form-field>
+
+              @if (!id()) {
+                <lib-password-form-group [formGroup]="form.controls.password" />
               }
-              @if (getFormControl("email").hasError("required")) {
-                <mat-error> Email é <strong>obrigatório</strong> </mat-error>
-              }
-            </mat-form-field>
+            </mat-card-content>
 
-            @if (!id()) {
-              <lib-password-form-group [formGroup]="form.controls.password" />
-            }
-
-            <div class="d-flex justify-content-end">
-              <lib-loading-button [loading]="loadingSave()">
-                Salvar
-              </lib-loading-button>
-            </div>
+            <mat-card-actions class="d-flex justify-content-end">
+              <lib-loading-button [loading]="loadingSave()">{{
+                "pages.users.edit.buttons.save" | translate
+              }}</lib-loading-button>
+            </mat-card-actions>
           </form>
+        </mat-card>
+      </mat-tab>
+      @if (id()) {
+        <mat-tab label="{{ 'pages.users.edit.tabs.roles' | translate }}">
+          <div class="pt-4">
+            <app-user-role-manager [userId]="id()!" />
+          </div>
         </mat-tab>
-        @if (id()) {
-          <mat-tab label="Cargos">
-            <div class="p-3">
-              <app-user-role-manager [userId]="id()!" />
-            </div>
-          </mat-tab>
 
-          <mat-tab label="Organizações">
-            <div class="p-3">
-              <app-user-organization-manager [userId]="id()!" />
-            </div>
-          </mat-tab>
-        }
-      </mat-tab-group>
-    </mat-card-content>
-  </mat-card>
+        <mat-tab label="{{ 'pages.users.edit.tabs.organizations' | translate }}">
+          <div class="pt-4">
+            <app-user-organization-manager [userId]="id()!" />
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  </app-page-structure>
 </lib-loading-content>

@@ -16,13 +16,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { firstValueFrom } from 'rxjs';
 import { LoadingButton } from '../../../../../../projects/shared/src/public-api';
 import {
-  IResponseOrganization,
+  IOrganization,
   IResponseOrganizationWithRole,
 } from '../../../../pages/organizations/dto/organization.dto';
 import { OrganizationSelector } from '../../../organization-selector/organization-selector';
 import { IRoleResponse } from '../../../role-manager/dto/role.dto';
 import { RoleManagerApi } from '../../../role-manager/services/role-manager-api';
 import { RoleSelector } from '../../../role-selector/role-selector';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-handle-user-organization',
@@ -34,6 +35,7 @@ import { RoleSelector } from '../../../role-selector/role-selector';
     RoleSelector,
     OrganizationSelector,
     LoadingButton,
+    TranslateModule,
   ],
   templateUrl: './handle-user-organization.html',
   styleUrl: './handle-user-organization.scss',
@@ -48,6 +50,7 @@ export class HandleUserOrganization implements AfterViewInit {
 
   matSnackBar = inject(MatSnackBar);
   roleManagerApi = inject(RoleManagerApi);
+  translate = inject(TranslateService);
   readonly dialogRef = inject(MatDialogRef<HandleUserOrganization>);
   readonly data = inject<{
     userId: string;
@@ -77,17 +80,25 @@ export class HandleUserOrganization implements AfterViewInit {
   async save() {
     const { roles, organization } = this.form.value;
     if (!roles?.length) {
-      this.matSnackBar.open('Selecione ao menos um cargo para este usuário');
+      this.matSnackBar.open(
+        this.translate.instant(
+          'components.userOrganizationManager.dialog.errors.selectRole',
+        ),
+      );
       return;
     }
     if (this.form.invalid) {
-      this.matSnackBar.open('O formulário é inválido');
+      this.matSnackBar.open(
+        this.translate.instant(
+          'components.userOrganizationManager.dialog.errors.invalidForm',
+        ),
+      );
       return;
     }
 
     const organizationId =
       this.organizationId() ??
-      (organization as unknown as IResponseOrganization).id;
+      (organization as unknown as IOrganization).id;
 
     this.loading.set(true);
     try {
@@ -115,7 +126,9 @@ export class HandleUserOrganization implements AfterViewInit {
     } catch (err) {
       console.error(err);
       this.matSnackBar.open(
-        `Houve um erro ao realizar a ${organizationId ? 'atualização' : 'criação'} da atribuição`,
+        this.translate.instant(
+          'components.userOrganizationManager.dialog.errors.save',
+        ),
       );
     } finally {
       this.loading.set(false);

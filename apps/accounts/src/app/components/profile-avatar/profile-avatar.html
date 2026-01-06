@@ -1,0 +1,12 @@
+<div class="avatar-container">
+  @if (canEdit()) {
+    <div class="edit-container">
+      <app-edit-profile-avatar />
+    </div>
+  }
+  <app-user-avatar
+    [src]="avatarSrc()"
+    [firstName]="firstName()"
+    [lastName]="lastName()"
+  />
+</div>

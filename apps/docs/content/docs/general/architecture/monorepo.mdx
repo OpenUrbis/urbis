@@ -1,0 +1,40 @@
+---
+title: Monorepo Structure
+description: Understanding the Turborepo structure and flexibility.
+icon: Package
+---
+
+We use [Turborepo](https://turbo.build/) to manage our monorepo. This structure allows us to host multiple applications and shared packages in a single Git repository, facilitating code sharing and atomic commits.
+
+## Directory Structure
+
+```plaintext
+.
+├── apps/
+│   ├── accounts/       # Angular application for user management
+│   ├── api/            # NestJS backend application
+│   └── docs/general/           # Documentation site (React/Vite)
+├── packages/
+│   ├── eslint-config/  # Shared ESLint configurations
+│   ├── shared/         # Shared types, DTOs, and utilities
+│   ├── typescript-config/ # Shared TSConfigs
+│   └── ui/             # Shared UI component library
+├── package.json        # Root configuration and scripts
+└── turbo.json          # Turborepo pipeline configuration
+```
+
+## Key Benefits
+
+1.  **Shared Code**: The `packages/shared` directory allows us to define TypeScript interfaces (DTOs, Entities) once and consume them in both the API and Frontend applications. This guarantees that the frontend is always in sync with the backend data structures.
+2.  **Unified Tooling**: We use a single lockfile (`pnpm-lock.yaml`) and consistent configurations for ESLint, Prettier, and TypeScript across all projects.
+3.  **Caching**: Turborepo caches build outputs. If you haven't changed a package, Turbo won't rebuild it, significantly speeding up CI/CD pipelines.
+4.  **Dependency Management**: `pnpm` workspaces allow us to link packages locally. Changes in `packages/ui` are instantly reflected in `apps/docs` without needing a publish/install cycle.
+
+## Workspaces
+
+This project is configured as a `pnpm` workspace. The `pnpm-workspace.yaml` file defines the locations of the workspace packages:
+
+```yaml
+packages:
+  - 'apps/*'
+  - 'packages/*'

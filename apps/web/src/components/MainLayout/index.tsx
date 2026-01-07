@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { useLocation } from "wouter";
+import Header from "../Header";
 import { cn } from "@/lib/utils";
-import { Layers, Folder, LogOut, ChevronLeft, ChevronRight, Sun, Moon } from "lucide-react";
+import { Layers, Folder, LogOut, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
 import {
@@ -18,40 +19,29 @@ interface MainLayoutProps {
 
 export const MainLayout = ({ children }: MainLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+
   const auth = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { theme, setTheme } = useTheme();
 
-  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
-
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      {/* Sidebar */}
-      <aside
-        className={cn(
-          "sticky top-0 h-screen flex flex-col border-r bg-card transition-all duration-300 ease-in-out z-20",
-          isCollapsed ? "w-[60px]" : "w-[240px]"
-        )}
-      >
-        <div className="flex h-16 items-center justify-between px-4 border-b">
-           {!isCollapsed && <span className="font-bold text-lg truncate">Urbis</span>}
-           <Button
-             variant="ghost"
-             size="icon"
-             onClick={toggleSidebar}
-             className={cn("shrink-0", isCollapsed && "mx-auto")}
-           >
-             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-           </Button>
-        </div>
-
-        <nav className="flex-1 p-2 space-y-2 overflow-y-auto">
+    <div className="flex flex-col min-h-screen w-full bg-background">
+      <Header onMenuToggle={() => setIsCollapsed(!isCollapsed)} />
+      <div className="flex flex-1 min-h-0">
+        {/* Sidebar */}
+        <aside
+          className={cn(
+            "sticky top-0 h-[calc(100vh-64px)] flex flex-col border-r bg-card transition-all duration-300 ease-in-out z-20",
+            isCollapsed ? "w-[60px]" : "w-[240px]"
+          )}
+        >
+          <nav className="flex-1 p-2 space-y-2 overflow-y-auto">
            {/* Camadas */}
            <TooltipProvider delayDuration={0}>
              <Tooltip>
                <TooltipTrigger asChild>
                  <Button
-                   variant="ghost"
+                   variant={location.startsWith("/layer-manager") ? "secondary" : "ghost"}
                    className={cn(
                      "w-full justify-start",
                      isCollapsed ? "justify-center px-2" : "px-4"
@@ -71,7 +61,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
              <Tooltip>
                <TooltipTrigger asChild>
                  <Button
-                   variant="ghost"
+                   variant={location.startsWith("/group-manager") ? "secondary" : "ghost"}
                    className={cn(
                      "w-full justify-start",
                      isCollapsed ? "justify-center px-2" : "px-4"
@@ -134,10 +124,11 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 relative flex flex-col min-w-0">
-        {children}
-      </main>
+        {/* Main Content */}
+        <main className="flex-1 relative flex flex-col min-w-0">
+          <div className="flex-1 overflow-auto">{children}</div>
+        </main>
+      </div>
     </div>
   );
 };

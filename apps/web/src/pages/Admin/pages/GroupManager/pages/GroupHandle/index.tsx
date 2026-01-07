@@ -55,7 +55,6 @@ const GroupHandlePage = () => {
   });
 
   useEffect(() => {
-    console.log(id)
     if (isEditing && id) {
       setIsLoading(true);
       getLayerGroup(id)
@@ -83,16 +82,27 @@ const GroupHandlePage = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
+
+      const { name, ownerGroup } = values;
+
       if (isEditing && id) {
-        await updateLayerGroup(id, { ...values, id });
+        await updateLayerGroup(id, {
+          name,
+          ownerGroup: ownerGroup ? ownerGroup : undefined,
+          id,
+        });
       } else {
-        const generatedId = values.name
+        const generatedId = `${name
           .toLowerCase()
           .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, "");
-        await createLayerGroup({ ...values, id: generatedId });
+          .replace(/[^a-z0-9-]/g, "")}-${Date.now()}`;
+        await createLayerGroup({
+          name,
+          ownerGroup: ownerGroup ? ownerGroup : undefined,
+          id: generatedId,
+        });
       }
-      setLocation("/admin/group-manager");
+      setLocation("~/admin/group-manager");
     } catch (error) {
       console.error(error);
     } finally {
@@ -119,14 +129,23 @@ const GroupHandlePage = () => {
 
       <div className=" flex items-center justify-center p-0 md:p-6">
         <Card className="w-full md:max-w-lg border-0 md:border shadow-none md:shadow-sm h-full md:h-auto rounded-none md:rounded-lg">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col h-full"
+          >
             <CardHeader>
-              <CardTitle>{isEditing ? "Informações do Grupo" : "Novo Grupo"}</CardTitle>
+              <CardTitle>
+                {isEditing ? "Informações do Grupo" : "Novo Grupo"}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 flex-1">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome</Label>
-                <Input id="name" {...form.register("name")} placeholder="Digite o nome do grupo" />
+                <Input
+                  id="name"
+                  {...form.register("name")}
+                  placeholder="Digite o nome do grupo"
+                />
                 {form.formState.errors.name && (
                   <p className="text-sm text-red-500">
                     {form.formState.errors.name.message}
@@ -206,7 +225,7 @@ const GroupHandlePage = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setLocation("/admin/group-manager")}
+                onClick={() => setLocation("~/admin/group-manager")}
               >
                 Cancelar
               </Button>

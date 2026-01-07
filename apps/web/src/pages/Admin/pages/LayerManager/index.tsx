@@ -71,7 +71,7 @@ const LayerManagerPage = () => {
   return (
     <div className="p-6 space-y-4 overflow-auto h-full flex flex-col">
       <AdminHeader title="Camadas do sistema" subtitle="Camadas globais do mapa">
-        <Button onClick={() => setLocation("/handle")}>
+        <Button onClick={() => setLocation("~/admin/layer-manager/handle")}>
           <Plus className="mr-2 h-4 w-4" />
           Criar Camada
         </Button>
@@ -107,7 +107,7 @@ const LayerManagerPage = () => {
                 key={layer.id}
                 className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted cursor-pointer"
                 onClick={() =>
-                  setLocation(`/admin/layer-manager/${layer.id}`)
+                  setLocation(`~/admin/layer-manager/${layer.id}`)
                 }
               >
                 <td className="p-4 align-middle font-medium">{layer.name}</td>

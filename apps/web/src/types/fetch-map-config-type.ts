@@ -27,6 +27,7 @@ export interface IGetConfigLayerGroup {
   id: string;
   name: string;
   ownerGroup: string;
+  parentGroup?: IGetConfigLayerGroup;
   childGroups: IGetConfigLayerGroup[];
 }
 
@@ -82,6 +83,7 @@ export interface IGetConfigLayerSchema {
   colors: IGetConfigColor[];
   layerGroup: IGetConfigLayerSchemaGroup;
   cqlFilter?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filters?: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: any;

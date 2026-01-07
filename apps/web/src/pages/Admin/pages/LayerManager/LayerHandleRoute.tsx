@@ -22,7 +22,6 @@ const AdminPage = () => {
             }
           >
             <Route path="/">{(<LayerManagerPage />) as ReactNode}</Route>
-            <Route path="/handle">{(<LayerHandlePage />) as ReactNode}</Route>
             <Route path="/:id">{(<LayerHandlePage />) as ReactNode}</Route>
           </Suspense>
         ) as ReactNode

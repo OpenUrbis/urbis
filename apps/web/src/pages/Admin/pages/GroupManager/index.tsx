@@ -33,13 +33,17 @@ const GroupManagerPage = () => {
     return <div className="p-4 text-red-500">Erro ao carregar grupos.</div>;
   }
 
-  const groups: IGetConfigLayerGroup[] = (response && typeof response === 'object' && 'data' in response) 
-    ? (response as { data: IGetConfigLayerGroup[] }).data 
-    : (Array.isArray(response) ? response : []);
-  
-  const totalItems = (response && typeof response === 'object' && 'total' in response)
-    ? (response as { total: number }).total
-    : groups.length;
+  const groups: IGetConfigLayerGroup[] =
+    response && typeof response === "object" && "data" in response
+      ? (response as { data: IGetConfigLayerGroup[] }).data
+      : Array.isArray(response)
+        ? response
+        : [];
+
+  const totalItems =
+    response && typeof response === "object" && "total" in response
+      ? (response as { total: number }).total
+      : groups.length;
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const currentGroups = groups;
@@ -83,8 +87,8 @@ const GroupManagerPage = () => {
                 onClick={() => setLocation(`/${group.id}`)}
               >
                 <td className="p-4 align-middle font-medium">{group.name}</td>
-                <td className="p-4 align-middle">
-                    {group.parentGroup?.name || "-"}
+                <td className="p-4 align-middle font-medium">
+                  {group?.parentGroup?.name ?? "-"}
                 </td>
               </tr>
             ))}

@@ -1,6 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useFormContext } from "react-hook-form";
 import { ChevronRight, Loader2 } from "lucide-react";
 
@@ -19,7 +25,7 @@ export const LayerSelection = ({
   layers,
   onFetch,
   onNext,
-  onLayerSelect
+  onLayerSelect,
 }: LayerSelectionProps) => {
   const form = useFormContext();
 
@@ -33,21 +39,28 @@ export const LayerSelection = ({
             <FormLabel>Link do GeoServer (WMS)</FormLabel>
             <div className="flex gap-2">
               <FormControl>
-                <Input placeholder="https://geoserver.exemplo.com/geoserver/wms" {...field} />
+                <Input
+                  placeholder="https://geoserver.exemplo.com/geoserver/wms"
+                  {...field}
+                />
               </FormControl>
-              <Button 
-                type="button" 
-                onClick={onFetch} 
+              <Button
+                type="button"
+                onClick={onFetch}
                 disabled={loading || !field.value}
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Buscar"}
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Buscar"
+                )}
               </Button>
             </div>
             <FormMessage />
           </FormItem>
         )}
       />
-      
+
       {fetchError && <p className="text-destructive text-sm">{fetchError}</p>}
 
       {layers.length > 0 && (
@@ -58,14 +71,16 @@ export const LayerSelection = ({
             <FormItem>
               <FormLabel>Selecionar Camada</FormLabel>
               <div className="max-h-60 overflow-y-auto border rounded-md p-2 space-y-1">
-                {layers.map(l => (
-                  <div 
+                {layers.map((l) => (
+                  <div
                     key={l.name}
                     className={`p-2 rounded cursor-pointer text-sm ${field.value?.name === l.name ? "bg-primary/10 text-primary border border-primary/20" : "hover:bg-muted"}`}
                     onClick={() => onLayerSelect(l)}
                   >
                     <div className="font-medium">{l.title}</div>
-                    <div className="text-xs text-muted-foreground">{l.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {l.name}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -76,7 +91,11 @@ export const LayerSelection = ({
       )}
 
       <div className="flex justify-end pt-4">
-        <Button type="button" onClick={onNext} disabled={!form.getValues("selectedLayer")}>
+        <Button
+          type="button"
+          onClick={onNext}
+          disabled={!form.getValues("selectedLayer")}
+        >
           Próximo <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
       </div>

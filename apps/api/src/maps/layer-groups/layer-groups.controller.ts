@@ -60,8 +60,9 @@ export class LayerGroupsController {
     return this.service.findOne(id);
   }
 
-  @ApiSecurity('api_key')
-  @UseGuards(AuthGuard('api-key'))
+  // TO DO: Reativar e adicionar access key guard
+  // @ApiSecurity('api_key')
+  // @UseGuards(AuthGuard('api-key'))
   @Post()
   @ApiOperation({ summary: 'Create a new layer group' })
   @ApiResponse({
@@ -82,8 +83,9 @@ export class LayerGroupsController {
     return this.service.create(dto);
   }
 
-  @ApiSecurity('api_key')
-  @UseGuards(AuthGuard('api-key'))
+  // TO DO: Reativar e adicionar access key guard
+  // @ApiSecurity('api_key')
+  // @UseGuards(AuthGuard('api-key'))
   @Put(':id')
   @ApiOperation({ summary: 'Update a layer group by ID' })
   @ApiResponse({

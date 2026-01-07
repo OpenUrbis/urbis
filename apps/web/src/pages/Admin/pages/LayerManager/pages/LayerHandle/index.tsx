@@ -4,10 +4,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form } from "@/components/ui/form";
-import { ChevronRight } from "lucide-react";
+import { AdminHeader } from "@/components/AdminHeader";
+import { cn } from "@/lib/utils";
 import { LayerSelection } from "./steps/LayerSelection";
 import { LayerConfiguration } from "./steps/LayerConfiguration";
 import { LayerStyling } from "./steps/LayerStyling";
+import { useLocation, useRoute } from "wouter";
 
 // Schema Definitions
 const step1Schema = z.object({
@@ -45,7 +47,13 @@ const formSchema = step1Schema.merge(step2Schema).merge(step3Schema);
 type FormValues = z.infer<typeof formSchema>;
 
 const LayerHandlePage = () => {
+  const [isEditMatch, editParams] = useRoute("/:id");
+
+  const isEditing = !!isEditMatch && editParams?.id !== "handle";
+  const id = isEditing ? editParams?.id : undefined;
+
   const [step, setStep] = useState(1);
+  const [maxReachedStep, setMaxReachedStep] = useState(1);
   const [layers, setLayers] = useState<{ name: string; title: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState("");
@@ -150,12 +158,27 @@ const LayerHandlePage = () => {
     }
 
     if (isValid) {
-      setStep((prev) => prev + 1);
+      const nextStep = step + 1;
+      setStep(nextStep);
+      if (nextStep > maxReachedStep) {
+        setMaxReachedStep(nextStep);
+      }
     }
   };
 
   const handleBack = () => {
     setStep((prev) => prev - 1);
+  };
+
+  const goToStep = async (targetStep: number) => {
+    if (targetStep < step) {
+      setStep(targetStep);
+      return;
+    }
+
+    if (targetStep <= maxReachedStep) {
+      setStep(targetStep);
+    }
   };
 
   const handleDynamicChange = (checked: boolean) => {
@@ -172,52 +195,108 @@ const LayerHandlePage = () => {
         return;
     }
     console.log("Form Data:", data);
-    alert("Camada salva com sucesso! (Veja o console)");
   };
 
+  const steps = [
+    { number: 1, label: "Seleção" },
+    { number: 2, label: "Configuração" },
+    { number: 3, label: "Estilização" },
+  ];
+
   return (
-    <div className="container max-w-2xl py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">Adicionar Nova Camada</h1>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className={step >= 1 ? "text-primary font-medium" : ""}>1. Seleção</span>
-          <ChevronRight className="h-4 w-4" />
-          <span className={step >= 2 ? "text-primary font-medium" : ""}>2. Configuração</span>
-          <ChevronRight className="h-4 w-4" />
-          <span className={step >= 3 ? "text-primary font-medium" : ""}>3. Estilização</span>
-        </div>
+    <div className="flex-1 flex flex-col h-full bg-background/50">
+      <div className="px-6 py-4">
+        <AdminHeader
+          title={isEditing ? "Editar Camada" : "Criar Camada"}
+          subtitle={
+            isEditing ? `Editando: ${id}` : "Nova camada de dados espaciais"
+          }
+        />
       </div>
 
-      <div className="bg-card border rounded-lg p-6 shadow-sm">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            
-            {step === 1 && (
-              <LayerSelection 
-                loading={loading}
-                fetchError={fetchError}
-                layers={layers}
-                onFetch={handleFetchCapabilities}
-                onNext={handleNext}
-                onLayerSelect={handleLayerSelect}
-              />
-            )}
+      <div className="flex-1 flex flex-col items-center px-0 md:px-6">
+        <div className="w-full max-w-2xl space-y-12">
+          <nav aria-label="Steps" className="flex justify-center">
+            <ol className="flex items-center w-full max-w-md">
+              {steps.map((s, i) => (
+                <li
+                  key={s.number}
+                  className={cn(
+                    "flex items-center relative",
+                    i !== steps.length - 1 ? "flex-1" : ""
+                  )}
+                >
+                  <div className="flex flex-col items-center relative">
+                    <button
+                      type="button"
+                      onClick={() => goToStep(s.number)}
+                      disabled={s.number > maxReachedStep}
+                      className={cn(
+                        "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors z-10 bg-background",
+                        step === s.number
+                          ? "border-primary text-primary font-bold shadow-sm"
+                          : s.number <= maxReachedStep
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-muted text-muted-foreground cursor-not-allowed"
+                      )}
+                    >
+                      {s.number}
+                    </button>
+                    <span
+                      className={cn(
+                        "absolute top-10 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap",
+                        step === s.number
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      {s.label}
+                    </span>
+                  </div>
+                  {i !== steps.length - 1 && (
+                    <div
+                      className={cn(
+                        "h-0.5 w-full mx-2",
+                        s.number < maxReachedStep ? "bg-primary" : "bg-muted"
+                      )}
+                    />
+                  )}
+                </li>
+              ))}
+            </ol>
+          </nav>
 
-            {step === 2 && (
-              <LayerConfiguration 
-                onNext={handleNext}
-                onBack={handleBack}
-              />
-            )}
+          <div className="bg-card border md:rounded-lg p-6 shadow-sm mb-8">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                {step === 1 && (
+                  <LayerSelection
+                    loading={loading}
+                    fetchError={fetchError}
+                    layers={layers}
+                    onFetch={handleFetchCapabilities}
+                    onNext={handleNext}
+                    onLayerSelect={handleLayerSelect}
+                  />
+                )}
 
-            {step === 3 && (
-              <LayerStyling 
-                onBack={handleBack}
-                onDynamicChange={handleDynamicChange}
-              />
-            )}
-          </form>
-        </Form>
+                {step === 2 && (
+                  <LayerConfiguration onNext={handleNext} onBack={handleBack} />
+                )}
+
+                {step === 3 && (
+                  <LayerStyling
+                    onBack={handleBack}
+                    onDynamicChange={handleDynamicChange}
+                  />
+                )}
+              </form>
+            </Form>
+          </div>
+        </div>
       </div>
     </div>
   );

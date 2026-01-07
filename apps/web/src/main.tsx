@@ -17,6 +17,7 @@ import { AuthProvider } from "./components/AuthProvider";
 
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
+const AdminPage = lazy(() => import("./pages/Admin"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +55,9 @@ const App = () => (
                                   <Route path="/">{(<MapPage />) as ReactNode}</Route>
                                   <Route path="/print">
                                     {(<PrintPage />) as ReactNode}
+                                  </Route>
+                                  <Route path="/admin" nest>
+                                    {(<AdminPage />) as ReactNode}
                                   </Route>
                                 </Suspense>
                               ) as ReactNode

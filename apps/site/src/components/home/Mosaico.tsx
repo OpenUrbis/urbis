@@ -30,7 +30,7 @@ export function Mosaico() {
           
           {/* Search Card - No Border */}
           <Card 
-            className="shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+            className="bg-white dark:bg-card shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
             style={{ animationDelay: '0ms' }}
           >
             <CardContent className="p-4">
@@ -77,7 +77,7 @@ export function Mosaico() {
                {/* Viabiliza - With Border (Increased) */}
               <a href="https://viabiliza.urbis.sampa.br" className="group block no-underline h-full">
                 <Card 
-                  className="h-full hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                  className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '100ms' }}
                 >
                     <CardContent className="p-4">
@@ -94,7 +94,7 @@ export function Mosaico() {
               {/* Dados Abertos - With Border */}
               <a href="https://dadosabertos.urbis.sampa.br" className="group block no-underline h-full">
                 <Card 
-                  className="h-full hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                  className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '150ms' }}
                 >
                     <CardContent className="p-4">
@@ -109,7 +109,7 @@ export function Mosaico() {
               {/* OpenUrbis - With Border */}
                <a href="https://github.com/OpenUrbis" target="_blank" rel="noopener noreferrer" className="group block no-underline h-full relative">
                 <Card 
-                  className="h-full hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                  className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '200ms' }}
                 >
                      <CardContent className="p-4">
@@ -129,7 +129,7 @@ export function Mosaico() {
               {/* Docs Urbis - With Border */}
               <Link to="/doc-tecnica" className="group block no-underline h-full">
                  <Card 
-                   className="h-full hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                   className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                    style={{ animationDelay: '250ms' }}
                  >
                      <CardContent className="p-4">
@@ -150,7 +150,7 @@ export function Mosaico() {
               {/* Carta de Serviços */}
               <Link to="/carta-servicos" className="group flex flex-col flex-1 no-underline h-full">
                  <Card 
-                   className="h-full flex flex-col justify-center hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                   className="h-full bg-white dark:bg-card flex flex-col justify-center hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                    style={{ animationDelay: '100ms' }}
                  >
                     <CardContent className="p-4 flex gap-4 items-center">
@@ -168,7 +168,7 @@ export function Mosaico() {
               {/* Legislação */}
               <Link to="/info-urbis" className="group flex flex-col flex-1 no-underline h-full">
                  <Card 
-                   className="h-full flex flex-col justify-center hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                   className="h-full bg-white dark:bg-card flex flex-col justify-center hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                    style={{ animationDelay: '150ms' }}
                  >
                     <CardContent className="p-4 flex gap-4 items-center">
@@ -190,7 +190,7 @@ export function Mosaico() {
                {/* Licenças */}
               <Link to="/licencas" className="group flex flex-col flex-1 no-underline h-full">
                  <Card 
-                   className="h-full flex flex-col justify-center hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                   className="h-full bg-white dark:bg-card flex flex-col justify-center hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                    style={{ animationDelay: '200ms' }}
                  >
                     <CardContent className="p-4 flex gap-4 items-center">
@@ -214,7 +214,7 @@ export function Mosaico() {
            {/* Mapa Urbis - No Border */}
            <a 
              href="https://mapa.urbis.sampa.br" 
-             className="block relative rounded-sm overflow-hidden group border border-border shadow-sm hover:shadow-md transition-all animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+             className="block relative rounded-sm bg-white dark:bg-card overflow-hidden group border border-border shadow-sm hover:shadow-md transition-all animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
              style={{ animationDelay: '100ms' }}
            >
              <div className="relative aspect-video bg-muted flex items-center justify-center">
@@ -231,7 +231,7 @@ export function Mosaico() {
            {/* Data Lake - With Border */}
            <a href="https://datalake.urbis.sampa.br/" target="_blank" rel="noopener noreferrer" className="group block no-underline">
                 <Card 
-                  className="hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                  className="bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '200ms' }}
                 >
                     <CardContent className="p-4">
@@ -249,7 +249,7 @@ export function Mosaico() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
          {/* FAQ - No Border */}
          <Card 
-           className="shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+           className="bg-white dark:bg-card shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
            style={{ animationDelay: '300ms' }}
          >
             <CardContent className="p-4">
@@ -297,7 +297,7 @@ export function Mosaico() {
 
          {/* Novidades - No Border */}
          <Card 
-           className="shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+           className="bg-white dark:bg-card shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
            style={{ animationDelay: '350ms' }}
          >
             <CardContent className="p-4">

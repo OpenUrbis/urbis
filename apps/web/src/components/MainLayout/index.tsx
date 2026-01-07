@@ -76,52 +76,6 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
              </Tooltip>
            </TooltipProvider>
         </nav>
-
-        <div className="p-2 border-t mt-auto space-y-2">
-           {/* Alternar Tema */}
-           <TooltipProvider delayDuration={0}>
-             <Tooltip>
-               <TooltipTrigger asChild>
-                 <Button
-                   variant="ghost"
-                   className={cn(
-                     "w-full justify-start",
-                     isCollapsed ? "justify-center px-2" : "px-4"
-                   )}
-                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                 >
-                   {theme === "dark" ? (
-                     <Sun className={cn("h-5 w-5", !isCollapsed && "mr-2")} />
-                   ) : (
-                     <Moon className={cn("h-5 w-5", !isCollapsed && "mr-2")} />
-                   )}
-                   {!isCollapsed && <span>Alternar Tema</span>}
-                 </Button>
-               </TooltipTrigger>
-               {isCollapsed && <TooltipContent side="right">Alternar Tema</TooltipContent>}
-             </Tooltip>
-           </TooltipProvider>
-
-           {/* Logout */}
-           <TooltipProvider delayDuration={0}>
-             <Tooltip>
-               <TooltipTrigger asChild>
-                 <Button
-                   variant="ghost"
-                   className={cn(
-                     "w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50",
-                     isCollapsed ? "justify-center px-2" : "px-4"
-                   )}
-                   onClick={() => auth.removeUser()}
-                 >
-                   <LogOut className={cn("h-5 w-5", !isCollapsed && "mr-2")} />
-                   {!isCollapsed && <span>Sair</span>}
-                 </Button>
-               </TooltipTrigger>
-               {isCollapsed && <TooltipContent side="right">Sair</TooltipContent>}
-             </Tooltip>
-           </TooltipProvider>
-        </div>
       </aside>
 
         {/* Main Content */}

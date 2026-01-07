@@ -13,7 +13,7 @@ import {
   createLayerGroup,
   updateLayerGroup,
   getLayerGroup,
-} from "@/integrations/layer-schema-integration";
+} from "@/integrations/layer-group-integration";
 import {
   Card,
   CardContent,

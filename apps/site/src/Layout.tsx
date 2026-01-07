@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { UrbisHeader } from '@open-urbis/map-ui/urbis-header'
 import { Footer } from './components/layout/Footer'
 import { ScrollToTop } from './components/ScrollToTop'
+import { ModeToggle } from './components/mode-toggle'
 
 function Layout() {
   const menuItems = [
@@ -25,6 +26,7 @@ function Layout() {
         badgeText={null}
         menuItems={menuItems}
         showLogin={false}
+        rightSlot={<ModeToggle />}
       />
       <main className="flex-1">
         <Outlet />

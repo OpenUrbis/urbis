@@ -32,6 +32,8 @@ import { CircleUser, Menu } from "lucide-react";
 interface UrbisHeaderProps {
   logoSrc?: string;
   logoAlt?: string;
+  logoHref?: string;
+  badgeText?: string | null;
   menuItems?: { label: string; href: string }[];
   user?: {
     name?: string;
@@ -50,6 +52,8 @@ interface UrbisHeaderProps {
 export const UrbisHeader = ({
   logoSrc = "https://urbis.sampa.br/assets/images/logo.webp",
   logoAlt = "Urbis",
+  logoHref = "/",
+  badgeText = "DEMO",
   menuItems = [],
   user,
   isAuthenticated = false,
@@ -69,16 +73,18 @@ export const UrbisHeader = ({
         </div>
         {/* Logo */}
         <div className="mr-4 flex items-center">
-          <a className="mr-6 flex items-center space-x-2" href="/">
+          <a className="mr-6 flex items-center space-x-2" href={logoHref}>
             <img
               fetchPriority="high"
               src={logoSrc}
               className="h-6 w-auto object-contain"
               alt={logoAlt}
             />
-            <span className="hidden font-bold sm:inline-block text-muted-foreground text-sm">
-              DEMO
-            </span>
+            {badgeText && (
+              <span className="hidden font-bold sm:inline-block text-muted-foreground text-sm">
+                {badgeText}
+              </span>
+            )}
           </a>
         </div>
 

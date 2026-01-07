@@ -18,23 +18,11 @@ const routes: RouteObject[] = [
       { path: 'ajuda', element: <Ajuda /> },
       { path: 'sobre', element: <About /> },
       { path: 'contato', element: <Contact /> },
+      { path: 'doc-tecnica', element: <DocTecnica /> },
+      { path: 'info-urbis', element: <InfoUrbis /> },
+      { path: 'carta-servicos', element: <CartaServicos /> },
+      { path: 'licencas', element: <Licencas /> },
     ],
-  },
-  {
-    path: '/doc-tecnica',
-    element: <DocTecnica />,
-  },
-  {
-    path: '/info-urbis',
-    element: <InfoUrbis />,
-  },
-  {
-    path: '/carta-servicos',
-    element: <CartaServicos />,
-  },
-  {
-    path: '/licencas',
-    element: <Licencas />,
   },
 ]
 

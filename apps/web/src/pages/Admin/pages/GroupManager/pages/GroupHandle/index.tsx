@@ -3,24 +3,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useLocation, useRoute } from "wouter";
-import { Loader2, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { AdminHeader } from "@/components/AdminHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { GroupSelect } from "@/components/GroupSelect";
 import {
   createLayerGroup,
   updateLayerGroup,
   getLayerGroup,
-  getLayerGroups,
 } from "@/integrations/layer-schema-integration";
-import { IGetConfigLayerGroup } from "@/types/fetch-map-config-type";
 import {
   Card,
   CardContent,
@@ -42,9 +35,6 @@ const GroupHandlePage = () => {
   const id = isEditing ? editParams?.id : undefined;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [openCombobox, setOpenCombobox] = useState(false);
-  const [groups, setGroups] = useState<IGetConfigLayerGroup[]>([]);
-  const [searchGroup, setSearchGroup] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,18 +56,6 @@ const GroupHandlePage = () => {
         .finally(() => setIsLoading(false));
     }
   }, [isEditing, id, form]);
-
-  useEffect(() => {
-    getLayerGroups(undefined, undefined, searchGroup).then((res) => {
-      const data =
-        res && typeof res === "object" && "data" in res
-          ? res.data
-          : Array.isArray(res)
-            ? res
-            : [];
-      setGroups(isEditing ? data.filter((g) => g.id !== id) : data);
-    });
-  }, [searchGroup, isEditing, id]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -155,70 +133,12 @@ const GroupHandlePage = () => {
 
               <div className="space-y-2 flex flex-col">
                 <Label>Grupo pai</Label>
-                <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openCombobox}
-                      className="w-full justify-between"
-                    >
-                      {form.watch("ownerGroup")
-                        ? groups.find(
-                            (group) => group.id === form.watch("ownerGroup")
-                          )?.name || "Selecione..."
-                        : "Selecione um grupo..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
-                    <div className="p-2">
-                      <Input
-                        placeholder="Buscar grupo..."
-                        value={searchGroup}
-                        onChange={(e) => setSearchGroup(e.target.value)}
-                        className="mb-2"
-                      />
-                      <div className="max-h-60 overflow-y-auto">
-                        {groups.map((group) => (
-                          <div
-                            key={group.id}
-                            className={cn(
-                              "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                              form.watch("ownerGroup") === group.id
-                                ? "bg-accent"
-                                : ""
-                            )}
-                            onClick={() => {
-                              form.setValue(
-                                "ownerGroup",
-                                group.id === form.watch("ownerGroup")
-                                  ? ""
-                                  : group.id
-                              );
-                              setOpenCombobox(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                form.watch("ownerGroup") === group.id
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {group.name}
-                          </div>
-                        ))}
-                        {groups.length === 0 && (
-                          <div className="p-2 text-sm text-muted-foreground">
-                            Nenhum grupo encontrado.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <GroupSelect
+                  value={form.watch("ownerGroup") || ""}
+                  onChange={(val) => form.setValue("ownerGroup", val)}
+                  excludeId={id}
+                  placeholder="Selecione um grupo pai..."
+                />
               </div>
             </CardContent>
             <CardFooter className="justify-end gap-2 border-t pt-6">

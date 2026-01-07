@@ -47,7 +47,7 @@ export const LayerSelection = ({
               <Button
                 type="button"
                 onClick={onFetch}
-                disabled={loading || !field.value}
+                disabled={loading || !field.value || field.value.trim() === ""}
               >
                 {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

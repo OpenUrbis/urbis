@@ -1,15 +1,15 @@
-import { useState } from "react";
-import axios from "axios";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Form } from "@/components/ui/form";
 import { AdminHeader } from "@/components/AdminHeader";
+import { Form } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
-import { LayerSelection } from "./steps/LayerSelection";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useRoute } from "wouter";
+import * as z from "zod";
 import { LayerConfiguration } from "./steps/LayerConfiguration";
+import { LayerSelection } from "./steps/LayerSelection";
 import { LayerStyling } from "./steps/LayerStyling";
-import { useLocation, useRoute } from "wouter";
 
 // Schema Definitions
 const step1Schema = z.object({
@@ -61,7 +61,7 @@ const LayerHandlePage = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      url: "",
+      url: "https://geoserver.slui.dev/geoserver/slui/ows",
       loadingMethod: "wms",
       groupId: "",
       layerName: "",
@@ -191,11 +191,15 @@ const LayerHandlePage = () => {
 
   const onSubmit = (data: FormValues) => {
     if (!data.selectedLayer) {
-        alert("Selecione uma camada");
-        return;
+      alert("Selecione uma camada");
+      return;
     }
     console.log("Form Data:", data);
   };
+
+  useEffect(() => {
+    handleFetchCapabilities();
+  }, []);
 
   const steps = [
     { number: 1, label: "Seleção" },
@@ -232,12 +236,12 @@ const LayerHandlePage = () => {
                       onClick={() => goToStep(s.number)}
                       disabled={s.number > maxReachedStep}
                       className={cn(
-                        "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors z-10 bg-background",
+                        "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors z-10",
                         step === s.number
-                          ? "border-primary text-primary font-bold shadow-sm"
+                          ? "border-primary bg-primary text-primary-foreground font-bold shadow-sm"
                           : s.number <= maxReachedStep
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-muted text-muted-foreground cursor-not-allowed"
+                            ? "border-primary bg-background text-primary"
+                            : "border-muted bg-background text-muted-foreground cursor-not-allowed"
                       )}
                     >
                       {s.number}

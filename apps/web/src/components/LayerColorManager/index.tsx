@@ -35,12 +35,23 @@ const LayerColorManager = ({
   const updateColor = useCallback(
     (index: number, field: keyof ILayerColor, newValue: any) => {
       const nextColors = [...colors];
+
+      let processedValue = newValue;
+
+      if (
+        field === "fillColor" ||
+        field === "borderColor" ||
+        field === "textColor"
+      ) {
+        processedValue = [
+          ...Color(newValue).rgb().array(),
+          Color(newValue).alpha(),
+        ];
+      }
+
       nextColors[index] = {
         ...nextColors[index],
-        [field]:
-          field !== "pattern"
-            ? [...Color(newValue).rgb().array(), Color(newValue).alpha()]
-            : newValue,
+        [field]: processedValue,
       };
       onChange(nextColors);
     },
@@ -48,8 +59,31 @@ const LayerColorManager = ({
   );
 
   const handleAddColor = () => {
+    const getRandomColor = () => {
+      let newColor;
+      let isDuplicate = true;
+
+      while (isDuplicate) {
+        newColor = [
+          Math.floor(Math.random() * 256),
+          Math.floor(Math.random() * 256),
+          Math.floor(Math.random() * 256),
+          0.5,
+        ];
+
+        isDuplicate = colors.some(
+          (c) =>
+            c.fillColor[0] === newColor![0] &&
+            c.fillColor[1] === newColor![1] &&
+            c.fillColor[2] === newColor![2]
+        );
+      }
+
+      return newColor as number[];
+    };
+
     const newColor: ILayerColor = {
-      fillColor: [255, 0, 0, 0.5],
+      fillColor: getRandomColor(),
       borderColor: [0, 0, 0, 1],
       textColor: [255, 255, 255, 1],
       pattern: "full",

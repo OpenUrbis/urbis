@@ -1,16 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useFormContext } from "react-hook-form";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import { GroupSelect } from "@/components/GroupSelect";
 
 interface LayerConfigurationProps {
   onNext: () => void;
   onBack: () => void;
 }
 
-export const LayerConfiguration = ({ onNext, onBack }: LayerConfigurationProps) => {
+export const LayerConfiguration = ({
+  onNext,
+  onBack,
+}: LayerConfigurationProps) => {
   const form = useFormContext();
 
   return (
@@ -42,21 +58,9 @@ export const LayerConfiguration = ({ onNext, onBack }: LayerConfigurationProps) 
         control={form.control}
         name="groupId"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="flex flex-col">
             <FormLabel>Grupo</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o grupo..." />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="infra">Infraestrutura</SelectItem>
-                <SelectItem value="env">Meio Ambiente</SelectItem>
-                <SelectItem value="social">Social</SelectItem>
-                <SelectItem value="admin">Administrativo</SelectItem>
-              </SelectContent>
-            </Select>
+            <GroupSelect value={field.value} onChange={field.onChange} />
             <FormMessage />
           </FormItem>
         )}

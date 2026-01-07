@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -31,8 +32,12 @@ export class LayerGroupsController {
     description: 'List of layer groups',
     type: [LayerGroup],
   })
-  async findAll(): Promise<LayerGroup[]> {
-    return this.service.findAll();
+  async findAll(
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+    @Query('search') search?: string,
+  ): Promise<LayerGroup[] | { data: LayerGroup[]; total: number }> {
+    return this.service.findAll(page, pageSize, search);
   }
 
   @Get(':id')

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -31,8 +32,11 @@ export class LayerSchemasController {
     description: 'List of layer schemas',
     type: [LayerSchema],
   })
-  async findAll(): Promise<LayerSchema[]> {
-    return this.service.findAll();
+  async findAll(
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+  ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
+    return this.service.findAll(page, pageSize);
   }
 
   @Get(':id')

@@ -19,7 +19,7 @@ import { useDeferredValue } from "preact/compat";
 import { useEffect, useState } from "react";
 
 interface ColorPickerSwatchProps {
-  color: ColorInstance | string | any;
+  color: ColorInstance | string | number[];
   onChange: (color: ColorInstance) => void;
   className?: string;
   children?: React.ReactNode;
@@ -35,19 +35,21 @@ export function ColorPickerSwatch({
 }: ColorPickerSwatchProps) {
   // Local state for input to allow typing without jitter if controlled
   const [internalColor, setInternalColor] = useState(color);
-  const [opacity, setOpacity] = useState(1);
+  const [opacity, setOpacity] = useState(Color(color).alpha());
   const deferredColor = useDeferredValue(internalColor);
   const deferredOpacity = useDeferredValue(opacity);
 
   const handleColorChange = (newColor: ColorLike) => {
-    setInternalColor(Color(newColor).hex());
-    setOpacity(Color(newColor).alpha());
+    const c = Color(newColor);
+    setInternalColor(c.hex());
+    setOpacity(c.alpha());
 
-    onChange(Color(newColor).rgb());
+    onChange(c.rgb());
   };
 
   useEffect(() => {
     setInternalColor(color);
+    setOpacity(Color(color).alpha());
   }, [color]);
 
   return (
@@ -77,7 +79,7 @@ export function ColorPickerSwatch({
       <PopoverContent className="w-64 h-auto p-3" align="start" side="top">
         <ColorPicker
           onChange={handleColorChange}
-          defaultValue={Color(deferredColor).hex()}
+          value={Color(internalColor).alpha(opacity).rgb().string()}
           className="gap-3"
         >
           <div className="h-32 w-full rounded-md border overflow-hidden">

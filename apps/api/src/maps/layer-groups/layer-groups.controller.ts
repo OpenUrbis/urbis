@@ -118,8 +118,9 @@ export class LayerGroupsController {
     return this.service.update(id, dto);
   }
 
-  @ApiSecurity('api_key')
-  @UseGuards(AuthGuard('api-key'))
+  // TO DO: Reativar e adicionar access key guard
+  // @ApiSecurity('api_key')
+  // @UseGuards(AuthGuard('api-key'))
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a layer group by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })

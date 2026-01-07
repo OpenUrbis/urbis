@@ -17,6 +17,7 @@ import {
 import { useFormContext } from "react-hook-form";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { GroupSelect } from "@/components/GroupSelect";
+import { Switch } from "@/components/ui/switch";
 
 interface LayerConfigurationProps {
   onNext: () => void;
@@ -44,9 +45,9 @@ export const LayerConfiguration = ({
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="wms">WMS (Imagem)</SelectItem>
-                <SelectItem value="wfs">WFS (Vetorial)</SelectItem>
-                <SelectItem value="pbf">Vector Tile (PBF)</SelectItem>
+                <SelectItem value="CustomWMSLayer">WMS (Imagem)</SelectItem>
+                <SelectItem value="GeoJsonLayer">WFS (Vetorial)</SelectItem>
+                <SelectItem value="Stream">Vector Tile (PBF)</SelectItem>
               </SelectContent>
             </Select>
             <FormMessage />
@@ -104,6 +105,49 @@ export const LayerConfiguration = ({
                 <Input type="number" placeholder="Ex: 18" {...field} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="isActive"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Ativa</FormLabel>
+                <div className="text-[0.8rem] text-muted-foreground">
+                  Se a camada está disponível para uso
+                </div>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isVisible"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Visível por padrão</FormLabel>
+                <div className="text-[0.8rem] text-muted-foreground">
+                  Se a camada inicia visível no mapa
+                </div>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
             </FormItem>
           )}
         />

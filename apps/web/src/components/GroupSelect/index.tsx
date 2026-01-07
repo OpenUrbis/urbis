@@ -8,7 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getLayerGroups } from "@/integrations/layer-schema-integration";
+import { getLayerGroups } from "@/integrations/layer-group-integration";
 import { IGetConfigLayerGroup } from "@/types/fetch-map-config-type";
 
 interface GroupSelectProps {

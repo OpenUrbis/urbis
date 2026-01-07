@@ -1,25 +1,49 @@
 import { Button } from "@/components/ui/button";
-import { getLayerGroups } from "@/integrations/layer-schema-integration";
+import { deleteLayerGroup, getLayerGroups } from "@/integrations/layer-group-integration";
 import { useQuery } from "@preact-signals/query";
-import { ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { AdminHeader } from "@/components/AdminHeader";
 import { IGetConfigLayerGroup } from "@/types/fetch-map-config-type";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const GroupManagerPage = () => {
   const [, setLocation] = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
 
   const {
     data: response,
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ["layer-groups", currentPage, itemsPerPage],
     queryFn: () => getLayerGroups(currentPage, itemsPerPage),
   });
+
+  const handleDelete = async () => {
+    if (!groupToDelete) return;
+    try {
+      await deleteLayerGroup(groupToDelete);
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete group", error);
+    } finally {
+      setDeleteDialogOpen(false);
+      setGroupToDelete(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -77,25 +101,47 @@ const GroupManagerPage = () => {
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                 Grupo pai
               </th>
+              <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                Ações
+              </th>
             </tr>
           </thead>
           <tbody className="[&_tr:last-child]:border-0">
             {currentGroups.map((group) => (
               <tr
                 key={group.id}
-                className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted cursor-pointer"
-                onClick={() => setLocation(`/${group.id}`)}
+                className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
               >
                 <td className="p-4 align-middle font-medium">{group.name}</td>
                 <td className="p-4 align-middle font-medium">
                   {group?.parentGroup?.name ?? "-"}
+                </td>
+                <td className="p-4 flex align-middle text-right space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setLocation(`/${group.id}`)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => {
+                      setGroupToDelete(group.id);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </td>
               </tr>
             ))}
             {currentGroups.length === 0 && (
               <tr>
                 <td
-                  colSpan={2}
+                  colSpan={3}
                   className="p-4 text-center text-muted-foreground"
                 >
                   Nenhum grupo encontrado.
@@ -137,6 +183,31 @@ const GroupManagerPage = () => {
           </div>
         </div>
       )}
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir Grupo</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir este grupo? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+            >
+              Excluir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

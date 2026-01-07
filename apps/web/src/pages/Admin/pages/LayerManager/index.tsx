@@ -1,11 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { getLayerSchemas } from "@/integrations/layer-schema-integration";
+import { deleteLayerSchema, getLayerSchemas } from "@/integrations/layer-schema-integration";
 import { useQuery } from "@preact-signals/query";
-import { ChevronLeft, ChevronRight, Loader2, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AdminHeader } from "@/components/AdminHeader";
 import { useLocation } from "wouter";
 import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Helper for domain
 const getDomain = (url: string) => {
@@ -21,15 +29,31 @@ const LayerManagerPage = () => {
   const [, setLocation] = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [layerToDelete, setLayerToDelete] = useState<string | null>(null);
 
   const {
     data: response,
     isLoading,
     isError,
+    refetch
   } = useQuery({
     queryKey: ["layer-schemas", currentPage, itemsPerPage],
     queryFn: () => getLayerSchemas(currentPage, itemsPerPage),
   });
+
+  const handleDelete = async () => {
+    if (!layerToDelete) return;
+    try {
+      await deleteLayerSchema(layerToDelete);
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete layer", error);
+    } finally {
+      setDeleteDialogOpen(false);
+      setLayerToDelete(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -99,16 +123,16 @@ const LayerManagerPage = () => {
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                 Status
               </th>
+              <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                Ações
+              </th>
             </tr>
           </thead>
           <tbody className="[&_tr:last-child]:border-0">
             {currentLayers.map((layer) => (
               <tr
                 key={layer.id}
-                className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted cursor-pointer"
-                onClick={() =>
-                  setLocation(`~/admin/layer-manager/${layer.id}`)
-                }
+                className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
               >
                 <td className="p-4 align-middle font-medium">{layer.name}</td>
                 <td className="p-4 align-middle">{getDomain(layer.origin)}</td>
@@ -129,12 +153,32 @@ const LayerManagerPage = () => {
                     </span>
                   )}
                 </td>
+                <td className="p-4 flex align-middle text-right space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setLocation(`~/admin/layer-manager/${layer.id}`)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => {
+                      setLayerToDelete(layer.id);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </td>
               </tr>
             ))}
             {currentLayers.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="p-4 text-center text-muted-foreground"
                 >
                   Nenhuma camada encontrada.
@@ -177,6 +221,31 @@ const LayerManagerPage = () => {
           </div>
         </div>
       )}
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir Camada</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir esta camada? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+            >
+              Excluir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

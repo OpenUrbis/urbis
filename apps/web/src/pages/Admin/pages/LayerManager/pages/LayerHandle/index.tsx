@@ -1,50 +1,18 @@
 import { AdminHeader } from "@/components/AdminHeader";
 import { Form } from "@/components/ui/form";
+import { createLayerSchema, getLayerSchema, updateLayerSchema } from "@/integrations/layer-schema-integration";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRoute } from "wouter";
-import * as z from "zod";
+import { useLocation, useRoute } from "wouter";
+import { Loader2 } from "lucide-react";
 import { LayerConfiguration } from "./steps/LayerConfiguration";
+import { LayerReview } from "./steps/LayerReview";
 import { LayerSelection } from "./steps/LayerSelection";
 import { LayerStyling } from "./steps/LayerStyling";
-
-// Schema Definitions
-const step1Schema = z.object({
-  url: z.string().url("Insira uma URL válida"),
-  selectedLayer: z.object({
-    name: z.string(),
-    title: z.string()
-  }).optional()
-});
-
-const step2Schema = z.object({
-  loadingMethod: z.string().min(1, "Selecione o método de carregamento"),
-  groupId: z.string().min(1, "Selecione um grupo"),
-  layerName: z.string().min(1, "Insira o nome da camada"),
-  minZoom: z.string().optional(),
-  maxZoom: z.string().optional()
-});
-
-const step3Schema = z.object({
-  isDynamic: z.boolean(),
-  layerProperty: z.string().optional(),
-  colors: z.array(z.any()).min(1, "É necessário configurar pelo menos uma cor")
-}).refine((data) => {
-  if (data.isDynamic && !data.layerProperty) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Informe o atributo para classificação",
-  path: ["layerProperty"]
-});
-
-// Combined schema for form type
-const formSchema = step1Schema.merge(step2Schema).merge(step3Schema);
-type FormValues = z.infer<typeof formSchema>;
+import { buildLayerSchema, LayerSchema, LayerSchemaFormSchema, LayerSchemaFormValues, parseLayerSchemaToForm } from "./utils";
 
 const LayerHandlePage = () => {
   const [isEditMatch, editParams] = useRoute("/:id");
@@ -53,17 +21,20 @@ const LayerHandlePage = () => {
   const id = isEditing ? editParams?.id : undefined;
 
   const [step, setStep] = useState(1);
-  const [maxReachedStep, setMaxReachedStep] = useState(1);
+  const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 4 : 1);
   const [layers, setLayers] = useState<{ name: string; title: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState("");
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [originalData, setOriginalData] = useState<LayerSchema | null>(null);
+  const [, setLocation] = useLocation();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<LayerSchemaFormValues>({
+    resolver: zodResolver(LayerSchemaFormSchema),
     defaultValues: {
       url: "https://geoserver.slui.dev/geoserver/slui/ows",
-      loadingMethod: "wms",
-      groupId: "",
+      loadingMethod: "CustomWMSLayer",
+      groupId: "geral",
       layerName: "",
       minZoom: "",
       maxZoom: "",
@@ -77,23 +48,61 @@ const LayerHandlePage = () => {
     mode: "onChange"
   });
 
+  useEffect(() => {
+    const loadData = async () => {
+      if (isEditing && id) {
+        setMaxReachedStep(4);
+        try {
+          const backendData = await getLayerSchema(id);
+          setOriginalData(backendData as unknown as LayerSchema);
+          
+          const formData = parseLayerSchemaToForm(backendData as unknown as LayerSchema);
+          console.log("Parsed Form Data:", formData);
+          form.reset(formData);
+          
+          if (formData.selectedLayer) {
+            form.setValue("selectedLayer", formData.selectedLayer);
+          }
+          
+          setIsDataLoaded(true);
+        } catch (error) {
+          console.error("Failed to load layer schema", error);
+          setLocation("~/admin/layer-manager");
+        }
+      }
+    };
+
+    loadData();
+  }, [isEditing, id]);
+
+  useEffect(() => {
+    if (step === 1 && !isEditing) {
+      handleFetchCapabilities();
+    } else if (step === 1 && isEditing && isDataLoaded) {
+      handleFetchCapabilities(form.getValues("url"));
+    }
+  }, [step, isEditing, isDataLoaded]);
+
   const getBaseUrl = (inputUrl: string) => {
     try {
       const urlObj = new URL(inputUrl);
       return `${urlObj.origin}${urlObj.pathname}`;
-    } catch (e) {
+    } catch {
       return inputUrl;
     }
   };
 
-  const handleFetchCapabilities = async () => {
-    const url = form.getValues("url");
+  const handleFetchCapabilities = async (overrideUrl?: string) => {
+    const url = overrideUrl || form.getValues("url");
     if (!url) return;
-    
+
     setLoading(true);
     setFetchError("");
     setLayers([]);
-    form.setValue("selectedLayer", undefined); // Clear selection
+    
+    if (!isEditing) {
+      form.setValue("selectedLayer", undefined); // Clear selection only when creating
+    }
 
     try {
       const baseUrl = getBaseUrl(url);
@@ -106,22 +115,22 @@ const LayerHandlePage = () => {
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(response.data, "text/xml");
-      
+
       const extractedLayers: { name: string; title: string }[] = [];
       const layerNodes = xmlDoc.getElementsByTagName("Layer");
-      
+
       for (let i = 0; i < layerNodes.length; i++) {
         const node = layerNodes[i];
         const nameNode = node.getElementsByTagName("Name")[0];
         const titleNode = node.getElementsByTagName("Title")[0];
-        
+
         if (nameNode && titleNode) {
-           const name = nameNode.textContent || "";
-           const title = titleNode.textContent || "";
-           
-           if (name && !extractedLayers.some(l => l.name === name)) {
-               extractedLayers.push({ name, title });
-           }
+          const name = nameNode.textContent || "";
+          const title = titleNode.textContent || "";
+
+          if (name && !extractedLayers.some(l => l.name === name)) {
+            extractedLayers.push({ name, title });
+          }
         }
       }
 
@@ -129,6 +138,16 @@ const LayerHandlePage = () => {
         setFetchError("Nenhuma camada encontrada ou resposta inválida.");
       } else {
         setLayers(extractedLayers);
+
+        if (isEditing) {
+          const currentValues = form.getValues();
+          if (currentValues.selectedLayer?.name) {
+            const found = extractedLayers.find(l => l.name === currentValues.selectedLayer?.name);
+            if (found) {
+              form.setValue("selectedLayer", found);
+            }
+          }
+        }
       }
 
     } catch (e) {
@@ -140,9 +159,8 @@ const LayerHandlePage = () => {
   };
 
   const handleLayerSelect = (layer: { name: string; title: string }) => {
-    form.setValue("selectedLayer", layer);
-    form.setValue("layerName", layer.title);
-    form.trigger("selectedLayer"); // Trigger validation
+    form.setValue("selectedLayer", layer, { shouldValidate: true, shouldDirty: true });
+    form.setValue("layerName", layer.title, { shouldDirty: true });
   };
 
   const handleNext = async () => {
@@ -154,7 +172,15 @@ const LayerHandlePage = () => {
         isValid = true;
       }
     } else if (step === 2) {
-      isValid = await form.trigger(["loadingMethod", "groupId", "layerName", "minZoom", "maxZoom"]);
+      isValid = await form.trigger([
+        "loadingMethod",
+        "groupId",
+        "layerName",
+        "minZoom",
+        "maxZoom",
+      ]);
+    } else if (step === 3) {
+      isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]);
     }
 
     if (isValid) {
@@ -171,6 +197,11 @@ const LayerHandlePage = () => {
   };
 
   const goToStep = async (targetStep: number) => {
+    if (isEditing) {
+      setStep(targetStep);
+      return;
+    }
+
     if (targetStep < step) {
       setStep(targetStep);
       return;
@@ -189,23 +220,67 @@ const LayerHandlePage = () => {
     }
   };
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: LayerSchemaFormValues) => {
     if (!data.selectedLayer) {
       alert("Selecione uma camada");
       return;
     }
-    console.log("Form Data:", data);
+
+    setLoading(true);
+    try {
+      const transformed = buildLayerSchema(data);
+      
+      if (isEditing && id && originalData) {
+        // Update
+        const payload = {
+          ...originalData,
+          ...transformed,
+          id, // Keep the same ID
+        };
+        await updateLayerSchema(id, payload);
+      } else {
+        // Create
+        // Generating ID: technm_timestamps
+        const techName = data.selectedLayer.name.split(":").pop() || data.layerName;
+        const generatedId = `${techName.toLowerCase().replace(/[^a-z0-9]/g, "_")}_${Date.now()}`;
+        
+        const payload = {
+          ...transformed,
+          id: generatedId,
+        };
+        
+        await createLayerSchema(payload);
+      }
+      
+      setLocation("~/admin/layer-manager");
+    } catch (error) {
+      console.error("Failed to save layer", error);
+      setLocation("~/admin/layer-manager");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => {
-    handleFetchCapabilities();
-  }, []);
 
   const steps = [
     { number: 1, label: "Seleção" },
     { number: 2, label: "Configuração" },
     { number: 3, label: "Estilização" },
+    { number: 4, label: "Revisão" },
   ];
+
+  if (isEditing && !isDataLoaded) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center h-full bg-background/50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground animate-pulse">
+            Carregando dados da camada...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col h-full bg-background/50">
@@ -213,7 +288,7 @@ const LayerHandlePage = () => {
         <AdminHeader
           title={isEditing ? "Editar Camada" : "Criar Camada"}
           subtitle={
-            isEditing ? `Editando: ${id}` : "Nova camada de dados espaciais"
+            isEditing ? `Editando: ${form.watch('layerName')}` : "Nova camada de dados espaciais"
           }
         />
       </div>
@@ -284,6 +359,7 @@ const LayerHandlePage = () => {
                     onFetch={handleFetchCapabilities}
                     onNext={handleNext}
                     onLayerSelect={handleLayerSelect}
+                    readOnly={isEditing}
                   />
                 )}
 
@@ -294,9 +370,12 @@ const LayerHandlePage = () => {
                 {step === 3 && (
                   <LayerStyling
                     onBack={handleBack}
+                    onNext={handleNext}
                     onDynamicChange={handleDynamicChange}
                   />
                 )}
+
+                {step === 4 && <LayerReview onBack={handleBack} />}
               </form>
             </Form>
           </div>

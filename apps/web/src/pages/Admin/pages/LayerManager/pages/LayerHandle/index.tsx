@@ -14,6 +14,7 @@ import { LayerMapping } from "./steps/LayerMapping";
 import { LayerReview } from "./steps/LayerReview";
 import { LayerSelection } from "./steps/LayerSelection";
 import { LayerStyling } from "./steps/LayerStyling";
+import { LayerTemplate } from "./steps/LayerTemplate";
 import { buildLayerSchema, LayerSchema, LayerSchemaFormSchema, LayerSchemaFormValues, parseLayerSchemaToForm } from "./utils";
 
 const LayerHandlePage = () => {
@@ -23,7 +24,7 @@ const LayerHandlePage = () => {
   const id = isEditing ? editParams?.id : undefined;
 
   const [step, setStep] = useState(1);
-  const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 5 : 1);
+  const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 6 : 1);
   const [layers, setLayers] = useState<{ name: string; title: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState("");
@@ -41,6 +42,7 @@ const LayerHandlePage = () => {
       layerName: "",
       minZoom: "",
       maxZoom: "",
+      clickAction: "none",
       isActive: true,
       isVisible: false,
       isDynamic: false,
@@ -56,7 +58,7 @@ const LayerHandlePage = () => {
   useEffect(() => {
     const loadData = async () => {
       if (isEditing && id) {
-        setMaxReachedStep(5);
+        setMaxReachedStep(6);
         try {
           const backendData = await getLayerSchema(id);
           setOriginalData(backendData as unknown as LayerSchema);
@@ -185,11 +187,15 @@ const LayerHandlePage = () => {
         "layerName",
         "minZoom",
         "maxZoom",
+        "clickAction",
+        "clickActionParams",
       ]);
     } else if (step === 3) {
-      isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]);
+      isValid = true; 
     } else if (step === 4) {
-      isValid = true; // Mapping is optional or always valid (since we pre-fill)
+      isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]);
+    } else if (step === 5) {
+      isValid = true;
     }
 
     if (isValid) {
@@ -280,9 +286,10 @@ const LayerHandlePage = () => {
   const steps = [
     { number: 1, label: "Seleção" },
     { number: 2, label: "Configuração" },
-    { number: 3, label: "Estilização" },
-    { number: 4, label: "Mapeamento" },
-    { number: 5, label: "Revisão" },
+    { number: 3, label: "Template" },
+    { number: 4, label: "Estilização" },
+    { number: 5, label: "Mapeamento" },
+    { number: 6, label: "Revisão" },
   ];
 
   if (isEditing && !isDataLoaded) {
@@ -384,6 +391,10 @@ const LayerHandlePage = () => {
                 )}
 
                 {step === 3 && (
+                  <LayerTemplate onNext={handleNext} onBack={handleBack} />
+                )}
+
+                {step === 4 && (
                   <LayerStyling
                     onBack={handleBack}
                     onNext={handleNext}
@@ -391,11 +402,11 @@ const LayerHandlePage = () => {
                   />
                 )}
 
-                {step === 4 && (
+                {step === 5 && (
                   <LayerMapping onBack={handleBack} onNext={handleNext} />
                 )}
 
-                {step === 5 && <LayerReview onBack={handleBack} />}
+                {step === 6 && <LayerReview onBack={handleBack} />}
               </form>
             </Form>
           </div>

@@ -1,18 +1,20 @@
 import * as z from "zod";
 
 export enum LayerSchemaColorTypeEnum {
-  TEXT = 'text',
-  FILL = 'fill',
-  LINE = 'line',
+  TEXT = "text",
+  FILL = "fill",
+  LINE = "line",
 }
 
 // Schema Definitions
 const step1Schema = z.object({
   url: z.string().url("Insira uma URL válida"),
-  selectedLayer: z.object({
-    name: z.string(),
-    title: z.string()
-  }).optional()
+  selectedLayer: z
+    .object({
+      name: z.string(),
+      title: z.string(),
+    })
+    .optional(),
 });
 
 const step2Schema = z.object({
@@ -21,30 +23,66 @@ const step2Schema = z.object({
   layerName: z.string().min(1, "Insira o nome da camada"),
   minZoom: z.string().optional(),
   maxZoom: z.string().optional(),
+  clickAction: z.enum(["SelectFeature", "setZoom", "openFeature", "none"]),
+  clickActionParams: z
+    .object({
+      zoom: z.string().optional(),
+      template: z.string().optional(),
+    })
+    .optional(),
   isActive: z.boolean(),
-  isVisible: z.boolean()
+  isVisible: z.boolean(),
 });
 
-const step3Schema = z.object({
-  isDynamic: z.boolean(),
-  layerProperty: z.string().optional(),
-  colors: z.array(z.any()).min(1, "É necessário configurar pelo menos uma cor")
-}).refine((data) => {
-  if (data.isDynamic && !data.layerProperty) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Informe o atributo para classificação",
-  path: ["layerProperty"]
-});
+const step2_5Schema = z
+  .object({
+    viewTemplate: z.string().optional(),
+  })
+  .refine((data) => {
+    // We can't access clickAction from previous step here easily in z.object().refine
+    // Validation logic will need to check the combined data or be handled in the step component/index
+    return true;
+  });
+
+const step3Schema = z
+  .object({
+    isDynamic: z.boolean(),
+    layerProperty: z.string().optional(),
+    colors: z
+      .array(z.any())
+      .min(1, "É necessário configurar pelo menos uma cor"),
+  })
+  .refine(
+    (data) => {
+      if (data.isDynamic && !data.layerProperty) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Informe o atributo para classificação",
+      path: ["layerProperty"],
+    }
+  );
 
 const step4Schema = z.object({
-  propertyMapping: z.record(z.string(), z.string()).optional(),
+  propertyMapping: z
+    .record(
+      z.string(),
+      z.object({
+        label: z.string(),
+        description: z.string().optional(),
+      })
+    )
+    .optional(),
 });
 
 // Combined schema for form type
-export const LayerSchemaFormSchema = step1Schema.merge(step2Schema).merge(step3Schema).merge(step4Schema);
+export const LayerSchemaFormSchema = step1Schema
+  .merge(step2Schema)
+  .merge(step2_5Schema)
+  .merge(step3Schema)
+  .merge(step4Schema);
 
 export type LayerSchemaFormValues = z.infer<typeof LayerSchemaFormSchema>;
 
@@ -57,6 +95,9 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     layerName,
     minZoom,
     maxZoom,
+    clickAction,
+    clickActionParams,
+    viewTemplate,
     isActive,
     isVisible,
     isDynamic,
@@ -72,23 +113,58 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
   if (loadingMethod === "CustomWMSLayer") type = "CustomWMSLayer";
   if (loadingMethod === "Stream") type = "Stream";
 
+  let clickActionObj = undefined;
+  if (clickAction && clickAction !== "none") {
+    clickActionObj = {
+      action: clickAction,
+      params: {}, // Initialize params object
+    };
+
+    if (clickAction === "setZoom" && clickActionParams?.zoom) {
+      clickActionObj.params = { zoom: Number(clickActionParams.zoom) };
+    } else if (clickAction === "openFeature" && clickActionParams?.template) {
+      clickActionObj.params = { template: clickActionParams.template };
+    }
+  }
+
   const transformedColors = colors.flatMap((c) => {
     const common = {
       label: isDynamic ? c.label || c.value : "default",
       value: isDynamic ? c.value : undefined,
     };
 
-    const fillAlpha = Math.round(c.fillColor[3] <= 1 ? c.fillColor[3] * 255 : c.fillColor[3]);
-    const lineAlpha = Math.round(c.borderColor[3] <= 1 ? c.borderColor[3] * 255 : c.borderColor[3]);
-    const textAlpha = Math.round(c.textColor[3] <= 1 ? c.textColor[3] * 255 : c.textColor[3]);
+    const fillAlpha = Math.round(
+      c.fillColor[3] <= 1 ? c.fillColor[3] * 255 : c.fillColor[3]
+    );
+    const lineAlpha = Math.round(
+      c.borderColor[3] <= 1 ? c.borderColor[3] * 255 : c.borderColor[3]
+    );
+    const textAlpha = Math.round(
+      c.textColor[3] <= 1 ? c.textColor[3] * 255 : c.textColor[3]
+    );
 
-    const fillColor = [c.fillColor[0], c.fillColor[1], c.fillColor[2], fillAlpha];
-    const borderColor = [c.borderColor[0], c.borderColor[1], c.borderColor[2], lineAlpha];
-    const textColor = [c.textColor[0], c.textColor[1], c.textColor[2], textAlpha];
+    const fillColor = [
+      c.fillColor[0],
+      c.fillColor[1],
+      c.fillColor[2],
+      fillAlpha,
+    ];
+    const borderColor = [
+      c.borderColor[0],
+      c.borderColor[1],
+      c.borderColor[2],
+      lineAlpha,
+    ];
+    const textColor = [
+      c.textColor[0],
+      c.textColor[1],
+      c.textColor[2],
+      textAlpha,
+    ];
 
     // If all three colors are identical, save only as FILL type
-    const areAllEqual = 
-      JSON.stringify(fillColor) === JSON.stringify(borderColor) && 
+    const areAllEqual =
+      JSON.stringify(fillColor) === JSON.stringify(borderColor) &&
       JSON.stringify(fillColor) === JSON.stringify(textColor);
 
     if (areAllEqual) {
@@ -98,7 +174,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
           type: LayerSchemaColorTypeEnum.FILL,
           pattern: c.pattern && c.pattern !== "full" ? c.pattern : undefined,
           color: fillColor,
-        }
+        },
       ];
     }
 
@@ -135,6 +211,8 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     getFillColorPropName: isDynamic ? layerProperty : null,
     getLineColorPropName: isDynamic ? layerProperty : null,
     groupId,
+    clickAction: clickActionObj,
+    viewTemplate: viewTemplate ? JSON.parse(viewTemplate) : undefined,
     colors: transformedColors,
     properties: {
       attributeMapping: propertyMapping,
@@ -161,10 +239,19 @@ export interface LayerSchema {
   isActive: boolean;
   isVisible: boolean;
   colors: LayerSchemaColor[];
+  clickAction?: {
+    action: string;
+    zoom?: number;
+    template?: string;
+    params?: any;
+  };
+  viewTemplate?: any;
   properties?: Record<string, any>;
 }
 
-export const parseLayerSchemaToForm = (data: LayerSchema): LayerSchemaFormValues => {
+export const parseLayerSchemaToForm = (
+  data: LayerSchema
+): LayerSchemaFormValues => {
   const {
     origin,
     name,
@@ -174,6 +261,8 @@ export const parseLayerSchemaToForm = (data: LayerSchema): LayerSchemaFormValues
     getFillColorPropName,
     groupId,
     colors,
+    clickAction,
+    viewTemplate,
     properties,
   } = data;
 
@@ -195,20 +284,23 @@ export const parseLayerSchemaToForm = (data: LayerSchema): LayerSchemaFormValues
   }
 
   // Group colors by label/value to reconstruct form items
-  const colorGroups: Record<string, {
-    label: string;
-    value: string;
-    pattern: string;
-    fillColor?: number[];
-    borderColor?: number[];
-    textColor?: number[];
-  }> = {};
+  const colorGroups: Record<
+    string,
+    {
+      label: string;
+      value: string;
+      pattern: string;
+      fillColor?: number[];
+      borderColor?: number[];
+      textColor?: number[];
+    }
+  > = {};
 
   colors.forEach((c) => {
     const key = c.value || c.label || `default-${c.type}`;
     if (!colorGroups[key]) {
       colorGroups[key] = {
-        label: c.label === "default" ? "" : (c.label || ""),
+        label: c.label === "default" ? "" : c.label || "",
         value: c.value || "",
         pattern: c.pattern || "full",
       };
@@ -248,6 +340,44 @@ export const parseLayerSchemaToForm = (data: LayerSchema): LayerSchemaFormValues
   if (type === "CustomWMSLayer") loadingMethod = "CustomWMSLayer";
   if (type === "Stream") loadingMethod = "Stream";
 
+  let formClickAction = "none";
+  let formClickActionParams = {};
+
+  if (clickAction?.action) {
+    // @ts-ignore
+    formClickAction = clickAction.action;
+
+    if (clickAction.action === "setZoom") {
+      // @ts-ignore
+      formClickActionParams = {
+        zoom:
+          clickAction.zoom?.toString() || clickAction.params?.zoom?.toString(),
+      };
+    } else if (clickAction.action === "openFeature") {
+      // @ts-ignore
+      formClickActionParams = {
+        template: clickAction.template || clickAction.params?.template,
+      };
+    }
+  }
+
+  const rawMapping = properties?.attributeMapping || {};
+  const normalizedMapping: Record<
+    string,
+    { label: string; description?: string }
+  > = {};
+
+  Object.entries(rawMapping).forEach(([key, value]) => {
+    if (typeof value === "string") {
+      normalizedMapping[key] = { label: value };
+    } else if (typeof value === "object" && value !== null) {
+      normalizedMapping[key] = {
+        label: (value as any).label || "",
+        description: (value as any).description,
+      };
+    }
+  });
+
   return {
     url,
     selectedLayer,
@@ -256,11 +386,14 @@ export const parseLayerSchemaToForm = (data: LayerSchema): LayerSchemaFormValues
     layerName: name,
     minZoom: minZoom?.toString() || "",
     maxZoom: maxZoom?.toString() || "",
+    clickAction: formClickAction as any,
+    clickActionParams: formClickActionParams,
+    viewTemplate: viewTemplate ? JSON.stringify(viewTemplate, null, 2) : "",
     isActive: data.isActive ?? true,
     isVisible: data.isVisible ?? true,
     isDynamic: !!getFillColorPropName,
     layerProperty: getFillColorPropName || "",
     colors: formColors,
-    propertyMapping: properties?.attributeMapping || {},
+    propertyMapping: normalizedMapping,
   };
 };

@@ -10,6 +10,7 @@ import { useLocation, useRoute } from "wouter";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { LayerConfiguration } from "./steps/LayerConfiguration";
+import { LayerMapping } from "./steps/LayerMapping";
 import { LayerReview } from "./steps/LayerReview";
 import { LayerSelection } from "./steps/LayerSelection";
 import { LayerStyling } from "./steps/LayerStyling";
@@ -22,7 +23,7 @@ const LayerHandlePage = () => {
   const id = isEditing ? editParams?.id : undefined;
 
   const [step, setStep] = useState(1);
-  const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 4 : 1);
+  const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 5 : 1);
   const [layers, setLayers] = useState<{ name: string; title: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState("");
@@ -55,7 +56,7 @@ const LayerHandlePage = () => {
   useEffect(() => {
     const loadData = async () => {
       if (isEditing && id) {
-        setMaxReachedStep(4);
+        setMaxReachedStep(5);
         try {
           const backendData = await getLayerSchema(id);
           setOriginalData(backendData as unknown as LayerSchema);
@@ -187,6 +188,8 @@ const LayerHandlePage = () => {
       ]);
     } else if (step === 3) {
       isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]);
+    } else if (step === 4) {
+      isValid = true; // Mapping is optional or always valid (since we pre-fill)
     }
 
     if (isValid) {
@@ -241,6 +244,10 @@ const LayerHandlePage = () => {
         const payload = {
           ...originalData,
           ...transformed,
+          properties: {
+            ...(originalData.properties || {}),
+            ...(transformed.properties || {}),
+          },
           id, // Keep the same ID
         };
         await updateLayerSchema(id, payload);
@@ -274,7 +281,8 @@ const LayerHandlePage = () => {
     { number: 1, label: "Seleção" },
     { number: 2, label: "Configuração" },
     { number: 3, label: "Estilização" },
-    { number: 4, label: "Revisão" },
+    { number: 4, label: "Mapeamento" },
+    { number: 5, label: "Revisão" },
   ];
 
   if (isEditing && !isDataLoaded) {
@@ -383,7 +391,11 @@ const LayerHandlePage = () => {
                   />
                 )}
 
-                {step === 4 && <LayerReview onBack={handleBack} />}
+                {step === 4 && (
+                  <LayerMapping onBack={handleBack} onNext={handleNext} />
+                )}
+
+                {step === 5 && <LayerReview onBack={handleBack} />}
               </form>
             </Form>
           </div>

@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import axios from "axios";
+import { fetchAttributes as fetchLayerAttributes } from "@/integrations/layer-attributes-integration";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -46,56 +46,8 @@ export const LayerStyling = ({
 
       setLoadingAttributes(true);
       try {
-        const getBaseUrl = (inputUrl: string) => {
-          try {
-            const urlObj = new URL(inputUrl);
-            return `${urlObj.origin}${urlObj.pathname}`;
-          } catch {
-            return inputUrl;
-          }
-        };
-
-        const baseUrl = getBaseUrl(url);
-        const environment =
-          import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br";
-
-        // Try WFS 2.0.0 first, usually gives clean XSD
-        const response = await axios.get(`${environment}/maps/proxy`, {
-          params: {
-            url: `${baseUrl}?service=WFS&version=2.0.0&request=DescribeFeatureType&typeName=${layer.name}`,
-          },
-        });
-
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(response.data, "text/xml");
-
-        const foundAttributes: string[] = [];
-
-        // Search strategies for XSD
-        const sequences = xmlDoc.getElementsByTagNameNS("*", "sequence");
-        if (sequences.length > 0) {
-          const seqElements = sequences[0].children;
-          for (let i = 0; i < seqElements.length; i++) {
-            // Check if it is an element
-            if (seqElements[i].localName === "element") {
-              const name = seqElements[i].getAttribute("name");
-              if (name) foundAttributes.push(name);
-            }
-          }
-        }
-
-        if (foundAttributes.length === 0) {
-          // Fallback: search all elements
-          const elements = xmlDoc.getElementsByTagNameNS("*", "element");
-          for (let i = 0; i < elements.length; i++) {
-            const name = elements[i].getAttribute("name");
-            if (name && name !== layer.name) {
-              foundAttributes.push(name);
-            }
-          }
-        }
-
-        setAttributes([...new Set(foundAttributes)]);
+        const attributes = await fetchLayerAttributes(url, layer.name);
+        setAttributes(attributes);
       } catch (e) {
         console.error("Failed to fetch attributes", e);
       } finally {
@@ -104,7 +56,7 @@ export const LayerStyling = ({
     };
 
     fetchAttributes();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.watch("isDynamic")]); // Depend only on toggle, or manually check values inside
 
   return (

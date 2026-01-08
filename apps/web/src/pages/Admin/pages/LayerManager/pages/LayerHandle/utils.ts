@@ -39,8 +39,12 @@ const step3Schema = z.object({
   path: ["layerProperty"]
 });
 
+const step4Schema = z.object({
+  propertyMapping: z.record(z.string(), z.string()).optional(),
+});
+
 // Combined schema for form type
-export const LayerSchemaFormSchema = step1Schema.merge(step2Schema).merge(step3Schema);
+export const LayerSchemaFormSchema = step1Schema.merge(step2Schema).merge(step3Schema).merge(step4Schema);
 
 export type LayerSchemaFormValues = z.infer<typeof LayerSchemaFormSchema>;
 
@@ -58,6 +62,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     isDynamic,
     layerProperty,
     colors,
+    propertyMapping,
   } = data;
 
   const id = selectedLayer?.name?.split(":").pop() || "";
@@ -131,6 +136,9 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     getLineColorPropName: isDynamic ? layerProperty : null,
     groupId,
     colors: transformedColors,
+    properties: {
+      attributeMapping: propertyMapping,
+    },
   };
 };
 
@@ -153,6 +161,7 @@ export interface LayerSchema {
   isActive: boolean;
   isVisible: boolean;
   colors: LayerSchemaColor[];
+  properties?: Record<string, any>;
 }
 
 export const parseLayerSchemaToForm = (data: LayerSchema): LayerSchemaFormValues => {
@@ -165,6 +174,7 @@ export const parseLayerSchemaToForm = (data: LayerSchema): LayerSchemaFormValues
     getFillColorPropName,
     groupId,
     colors,
+    properties,
   } = data;
 
   // Extract base URL from origin
@@ -251,5 +261,6 @@ export const parseLayerSchemaToForm = (data: LayerSchema): LayerSchemaFormValues
     isDynamic: !!getFillColorPropName,
     layerProperty: getFillColorPropName || "",
     colors: formColors,
+    propertyMapping: properties?.attributeMapping || {},
   };
 };

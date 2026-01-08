@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useLocation, useRoute } from "wouter";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/useToast";
 import { LayerConfiguration } from "./steps/LayerConfiguration";
 import { LayerReview } from "./steps/LayerReview";
 import { LayerSelection } from "./steps/LayerSelection";
@@ -28,6 +29,7 @@ const LayerHandlePage = () => {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [originalData, setOriginalData] = useState<LayerSchema | null>(null);
   const [, setLocation] = useLocation();
+  const { toastSuccess, toastError, toastWarning } = useToast();
 
   const form = useForm<LayerSchemaFormValues>({
     resolver: zodResolver(LayerSchemaFormSchema),
@@ -38,6 +40,8 @@ const LayerHandlePage = () => {
       layerName: "",
       minZoom: "",
       maxZoom: "",
+      isActive: true,
+      isVisible: false,
       isDynamic: false,
       colors: [{
         fillColor: [255, 0, 0, 0.5],
@@ -67,6 +71,7 @@ const LayerHandlePage = () => {
           setIsDataLoaded(true);
         } catch (error) {
           console.error("Failed to load layer schema", error);
+          toastError("Erro ao carregar esquema da camada");
           setLocation("~/admin/layer-manager");
         }
       }
@@ -153,6 +158,7 @@ const LayerHandlePage = () => {
     } catch (e) {
       console.error("Error fetching capabilities", e);
       setFetchError("Falha ao buscar capacidades. Verifique a URL.");
+      toastError("Falha ao buscar capacidades");
     } finally {
       setLoading(false);
     }
@@ -220,9 +226,9 @@ const LayerHandlePage = () => {
     }
   };
 
-  const onSubmit = async (data: LayerSchemaFormValues) => {
+  const onSubmit: SubmitHandler<LayerSchemaFormValues> = async (data) => {
     if (!data.selectedLayer) {
-      alert("Selecione uma camada");
+      toastWarning("Selecione uma camada");
       return;
     }
 
@@ -252,9 +258,11 @@ const LayerHandlePage = () => {
         await createLayerSchema(payload);
       }
       
+      toastSuccess(isEditing ? "Camada atualizada com sucesso" : "Camada criada com sucesso");
       setLocation("~/admin/layer-manager");
     } catch (error) {
       console.error("Failed to save layer", error);
+      toastError("Erro ao salvar camada");
       setLocation("~/admin/layer-manager");
     } finally {
       setLoading(false);
@@ -348,7 +356,7 @@ const LayerHandlePage = () => {
           <div className="bg-card border md:rounded-lg p-6 shadow-sm mb-8">
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={form.handleSubmit(onSubmit as any)}
                 className="space-y-6"
               >
                 {step === 1 && (

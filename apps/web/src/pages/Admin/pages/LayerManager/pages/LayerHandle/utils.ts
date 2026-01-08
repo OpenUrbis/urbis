@@ -21,8 +21,8 @@ const step2Schema = z.object({
   layerName: z.string().min(1, "Insira o nome da camada"),
   minZoom: z.string().optional(),
   maxZoom: z.string().optional(),
-  isActive: z.boolean().default(true),
-  isVisible: z.boolean().default(true)
+  isActive: z.boolean(),
+  isVisible: z.boolean()
 });
 
 const step3Schema = z.object({

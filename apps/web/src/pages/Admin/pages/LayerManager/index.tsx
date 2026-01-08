@@ -3,6 +3,7 @@ import { deleteLayerSchema, getLayerSchemas } from "@/integrations/layer-schema-
 import { useQuery } from "@preact-signals/query";
 import { ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/useToast";
 import { AdminHeader } from "@/components/AdminHeader";
 import { useLocation } from "wouter";
 import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
@@ -31,6 +32,7 @@ const LayerManagerPage = () => {
   const itemsPerPage = 10;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [layerToDelete, setLayerToDelete] = useState<string | null>(null);
+  const { toastSuccess, toastError } = useToast();
 
   const {
     data: response,
@@ -46,9 +48,11 @@ const LayerManagerPage = () => {
     if (!layerToDelete) return;
     try {
       await deleteLayerSchema(layerToDelete);
+      toastSuccess("Camada excluída com sucesso");
       refetch();
     } catch (error) {
       console.error("Failed to delete layer", error);
+      toastError("Erro ao excluir camada");
     } finally {
       setDeleteDialogOpen(false);
       setLayerToDelete(null);

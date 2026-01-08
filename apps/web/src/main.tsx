@@ -13,6 +13,7 @@ import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { PolygonEditProvider } from "./context/PolygonEditContext";
 import { SearchProvider } from "./context/SearchContext";
+import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./components/AuthProvider";
 
 const MapPage = lazy(() => import("./pages/Map"));
@@ -38,10 +39,11 @@ const App = () => (
             <QueryClientProvider client={queryClient}>
               {
                 (
-                  <NavigationProvider>
-                    <MapProvider>
-                      <SearchProvider>
-                        <PolygonEditProvider>
+                  <ToastProvider>
+                    <NavigationProvider>
+                      <MapProvider>
+                        <SearchProvider>
+                          <PolygonEditProvider>
                           <Router>
                             {
                               (
@@ -63,10 +65,11 @@ const App = () => (
                               ) as ReactNode
                             }
                           </Router>
-                        </PolygonEditProvider>
-                      </SearchProvider>
-                    </MapProvider>
-                  </NavigationProvider>
+                          </PolygonEditProvider>
+                        </SearchProvider>
+                      </MapProvider>
+                    </NavigationProvider>
+                  </ToastProvider>
                 ) as ReactNode
               }
             </QueryClientProvider>

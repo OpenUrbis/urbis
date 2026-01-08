@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useLocation, useRoute } from "wouter";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/useToast";
 import { AdminHeader } from "@/components/AdminHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ const GroupHandlePage = () => {
   const id = isEditing ? editParams?.id : undefined;
 
   const [isLoading, setIsLoading] = useState(false);
+  const { toastSuccess, toastError } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,10 +54,13 @@ const GroupHandlePage = () => {
           form.setValue("name", data.name);
           form.setValue("ownerGroup", data.ownerGroup || "");
         })
-        .catch((err) => console.error(err))
+        .catch((err) => {
+          console.error(err);
+          toastError("Erro ao carregar grupo");
+        })
         .finally(() => setIsLoading(false));
     }
-  }, [isEditing, id, form]);
+  }, [isEditing, id, form, toastError]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -69,6 +74,7 @@ const GroupHandlePage = () => {
           ownerGroup: ownerGroup ? ownerGroup : undefined,
           id,
         });
+        toastSuccess("Grupo atualizado com sucesso");
       } else {
         const generatedId = `${name
           .toLowerCase()
@@ -79,10 +85,12 @@ const GroupHandlePage = () => {
           ownerGroup: ownerGroup ? ownerGroup : undefined,
           id: generatedId,
         });
+        toastSuccess("Grupo criado com sucesso");
       }
       setLocation("~/admin/group-manager");
     } catch (error) {
       console.error(error);
+      toastError("Erro ao salvar grupo");
     } finally {
       setIsLoading(false);
     }

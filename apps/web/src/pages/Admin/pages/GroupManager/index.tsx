@@ -4,6 +4,7 @@ import { useQuery } from "@preact-signals/query";
 import { ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useToast } from "@/hooks/useToast";
 import { AdminHeader } from "@/components/AdminHeader";
 import { IGetConfigLayerGroup } from "@/types/fetch-map-config-type";
 import {
@@ -21,6 +22,7 @@ const GroupManagerPage = () => {
   const itemsPerPage = 10;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+  const { toastSuccess, toastError } = useToast();
 
   const {
     data: response,
@@ -36,9 +38,11 @@ const GroupManagerPage = () => {
     if (!groupToDelete) return;
     try {
       await deleteLayerGroup(groupToDelete);
+      toastSuccess("Grupo excluído com sucesso");
       refetch();
     } catch (error) {
       console.error("Failed to delete group", error);
+      toastError("Erro ao excluir grupo");
     } finally {
       setDeleteDialogOpen(false);
       setGroupToDelete(null);

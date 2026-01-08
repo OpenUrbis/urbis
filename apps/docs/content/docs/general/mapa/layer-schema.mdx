@@ -1,30 +1,31 @@
 ---
 title: Esquema de Camada
 description: Detalhes das propriedades da camada do mapa.
+icon: FileCode
 ---
 
-## Table of Contents
+## Índice
 
-- [Structure of Layers on the Screen](#structure-of-layers-on-the-screen)
-- [Polygon Details Visualization](#polygon-details-visualization)
-- [Actions on Polygon Click](#actions-on-polygon-click)
-- [Color Configurations](#color-configurations)
-- [Layer Object Parameters](#layer-object-parameters)
-- [Example Layer Configurations](#example-layer-configurations)
+- [Estrutura de Camadas na Tela](#estrutura-de-camadas-na-tela)
+- [Visualização de Detalhes do Polígono](#visualização-de-detalhes-do-polígono)
+- [Ações no Clique do Polígono](#ações-no-clique-do-polígono)
+- [Configurações de Cores](#configurações-de-cores)
+- [Parâmetros do Objeto da Camada](#parâmetros-do-objeto-da-camada)
+- [Exemplos de Configuração de Camada](#exemplos-de-configuração-de-camada)
 
-This document outlines the structure and functionality of the map layers system in the layout construction engine. Map layers are organized to display geospatial data, support user interactions, and provide customizable visualizations.
+Este documento descreve a estrutura e funcionalidade do sistema de camadas de mapa no mecanismo de construção de layout. As camadas de mapa são organizadas para exibir dados geoespaciais, suportar interações do usuário e fornecer visualizações personalizáveis.
 
-## Structure of Layers on the Screen
+## Estrutura de Camadas na Tela
 
-The map interface organizes layers into **groups**, which contain **individual layers** and a **legend** displaying associated colors. Each group serves as a container for related layers, allowing users to toggle visibility or interact with specific datasets. Layers within a group can be independently configured for visibility, zoom levels, and styling.
+A interface do mapa organiza camadas em **grupos**, que contêm **camadas individuais** e uma **legenda** exibindo cores associadas. Cada grupo serve como um container para camadas relacionadas, permitindo que usuários alternem a visibilidade ou interajam com conjuntos de dados específicos. Camadas dentro de um grupo podem ser configuradas independentemente para visibilidade, níveis de zoom e estilo.
 
-- **Groups**: Logical collections of layers, e.g., "Public Areas" or "Macrozoning."
-- **Layers**: Individual geospatial datasets, such as "Running or Dormant Waters" or "Lots."
-- **Legend**: Displays color mappings for layers, reflecting either static or dynamic property-based colors.
+- **Grupos**: Coleções lógicas de camadas, ex: "Áreas Públicas" ou "Macrozoneamento".
+- **Camadas**: Conjuntos de dados geoespaciais individuais, como "Águas Correntes ou Dormentes" ou "Lotes".
+- **Legenda**: Exibe mapeamentos de cores para camadas, refletindo cores estáticas ou baseadas em propriedades dinâmicas.
 
-## Polygon Details Visualization
+## Visualização de Detalhes do Polígono
 
-The system allows displaying details of one or more selected polygons on the map when needed. To enable this functionality, the layer must be configured with the `SelectFeature` click action, without requiring additional parameters in `clickAction`:
+O sistema permite exibir detalhes de um ou mais polígonos selecionados no mapa quando necessário. Para habilitar essa funcionalidade, a camada deve ser configurada com a ação de clique `SelectFeature`, sem requerer parâmetros adicionais em `clickAction`:
 
 ```json
 {
@@ -34,52 +35,52 @@ The system allows displaying details of one or more selected polygons on the map
 }
 ```
 
-This configuration indicates that the layer is selectable, enabling the system to process the selection and display detailed polygon information as defined in the `viewTemplate`. For more details on click actions, see the [Actions on Polygon Click](#actions-on-polygon-click) section. The rendering mechanism for this information is detailed in the [viewTemplate Documentation](./view-template).
+Essa configuração indica que a camada é selecionável, permitindo que o sistema processe a seleção e exiba informações detalhadas do polígono conforme definido no `viewTemplate`. Para mais detalhes sobre ações de clique, veja a seção [Ações no Clique do Polígono](#ações-no-clique-do-polígono). O mecanismo de renderização para essas informações é detalhado na [Documentação do viewTemplate](./view-template).
 
-## Actions on Polygon Click
+## Ações no Clique do Polígono
 
-The click action on a polygon is configurable via the `clickAction` property in the layer's JSON schema. The system supports three main actions, described in the table below, enabling everything from polygon selection to navigation to specific views.
+A ação de clique em um polígono é configurável via propriedade `clickAction` no esquema JSON da camada. O sistema suporta três ações principais, descritas na tabela abaixo, permitindo desde seleção de polígono até navegação para visualizações específicas.
 
-| Action            | Description                                                                                   | Usage Context                                         | Required Parameters                                                                                                                                                       |
-| ----------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **SelectFeature** | Selects the polygon on the screen, highlighting it for details display or other interactions. | Used exclusively at the layer root.                   | No additional parameters required. Example: `{ action: "SelectFeature" }`                                                                                                 |
-| **setZoom**       | Zooms to the clicked location, typically on a specific polygon.                               | Used exclusively at the layer root, on polygons.      | Requires the `zoom` parameter to set the zoom level. Example: `{ action: "setZoom", zoom: 15 }`                                                                           |
-| **openFeature**   | Opens the details of a list item, rendering information based on a template.                  | Used exclusively in the `wrapper-list-items` wrapper. | Requires a `template` parameter with a specific template or the string `"root"` to use the layer's `viewTemplate`. Example: `{ action: "openFeature", template: "root" }` |
+| Ação              | Descrição                                                                                                  | Contexto de Uso                                       | Parâmetros Necessários                                                                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **SelectFeature** | Seleciona o polígono na tela, realçando-o para exibição de detalhes ou outras interações.                  | Usado exclusivamente na raiz da camada.               | Nenhum parâmetro adicional necessário. Exemplo: `{ action: "SelectFeature" }`                                                                                                     |
+| **setZoom**       | Aplica zoom na localização clicada, tipicamente em um polígono específico.                                 | Usado exclusivamente na raiz da camada, em polígonos. | Requer o parâmetro `zoom` para definir o nível de zoom. Exemplo: `{ action: "setZoom", zoom: 15 }`                                                                                |
+| **openFeature**   | Abre os detalhes de um item da lista, renderizando informações baseadas em um modelo.                      | Usado exclusivamente no wrapper `wrapper-list-items`. | Requer um parâmetro `template` com um modelo específico ou a string `"root"` para usar o `viewTemplate` da camada. Exemplo: `{ action: "openFeature", template: "root" }`         |
 
-For more information on rendering details with `openFeature`, see the [viewTemplate Documentation](./view-template).
+Para mais informações sobre renderização de detalhes com `openFeature`, veja a [Documentação do viewTemplate](./view-template).
 
-## Color Configurations
+## Configurações de Cores
 
-Layers support color customization for polygons based on their properties, allowing colors to be applied to the **fill**, **line**, or **text** of a polygon. Configurations can be static or dynamic, and the fill can include visual patterns to differentiate areas on the map.
+Camadas suportam customização de cores para polígonos baseada em suas propriedades, permitindo que cores sejam aplicadas ao **preenchimento**, **linha** ou **texto** de um polígono. Configurações podem ser estáticas ou dinâmicas, e o preenchimento pode incluir padrões visuais para diferenciar áreas no mapa.
 
-### Fill Patterns
+### Padrões de Preenchimento
 
-Users can define fill patterns for polygons, specified in the `pattern` field of the `colors` array. The available options are:
+Usuários podem definir padrões de preenchimento para polígonos, especificados no campo `pattern` do array `colors`. As opções disponíveis são:
 
-- **full**: Solid fill, no pattern.
-- **dots**: Scattered dots pattern.
-- **hatch-1x**: Parallel lines pattern.
-- **hatch-cross**: Crossed lines pattern.
+- **full**: Preenchimento sólido, sem padrão.
+- **dots**: Padrão de pontos dispersos.
+- **hatch-1x**: Padrão de linhas paralelas.
+- **hatch-cross**: Padrão de linhas cruzadas.
 
-### Color Types
+### Tipos de Cores
 
-Colors can be applied to different polygon elements, specified by the properties `getFillColorPropName`, `getLineColorPropName`, and `getTextColorPropName`. The color type is implicitly defined by these properties, corresponding to:
+Cores podem ser aplicadas a diferentes elementos do polígono, especificados pelas propriedades `getFillColorPropName`, `getLineColorPropName` e `getTextColorPropName`. O tipo de cor é implicitamente definido por essas propriedades, correspondendo a:
 
-- **fill**: Polygon fill color.
-- **line**: Polygon outline color.
-- **text**: Color of text displayed on the polygon.
+- **fill**: Cor de preenchimento do polígono.
+- **line**: Cor de contorno do polígono.
+- **text**: Cor do texto exibido no polígono.
 
-In the absence of `getLineColorPropName` or `getTextColorPropName`, the system defaults to the color defined by `getFillColorPropName` for both line and text. The default type for any color is always `fill`, ensuring the fill is colored even without specific configurations for line or text.
+Na ausência de `getLineColorPropName` ou `getTextColorPropName`, o sistema padroniza para a cor definida por `getFillColorPropName` tanto para linha quanto para texto. O tipo padrão para qualquer cor é sempre `fill`, garantindo que o preenchimento seja colorido mesmo sem configurações específicas para linha ou texto.
 
-### Usage of `label` and `value` Properties
+### Uso das Propriedades `label` e `value`
 
-The `label` property is primarily used to display descriptions in the legend when a layer has multiple colors. The system uses the `value` field to map a polygon's property to the corresponding color, while `label` defines the text shown in the legend. If the comparison value (used for color mapping) is the same as the legend display value, the user can define only the `label` property, omitting `value`. The `value` property is required only when there is a divergence between the comparison value and the legend text.
+A propriedade `label` é usada principalmente para exibir descrições na legenda quando uma camada tem múltiplas cores. O sistema usa o campo `value` para mapear uma propriedade do polígono para a cor correspondente, enquanto `label` define o texto mostrado na legenda. Se o valor de comparação (usado para mapeamento de cor) for o mesmo que o valor de exibição da legenda, o usuário pode definir apenas a propriedade `label`, omitindo `value`. A propriedade `value` é necessária apenas quando há uma divergência entre o valor de comparação e o texto da legenda.
 
-For example:
+Por exemplo:
 
-- A polygon property might have values like `AI-16` or `AI`, but the legend can display `Area of Influence` or `Area of Influence (2016)`.
-- If the comparison value and legend text are the same (e.g., `AI`), only `label` is needed.
-- Example with distinct values:
+- Uma propriedade de polígono pode ter valores como `AI-16` ou `AI`, mas a legenda pode exibir `Area of Influence` ou `Area of Influence (2016)`.
+- Se o valor de comparação e o texto da legenda forem os mesmos (ex: `AI`), apenas `label` é necessário.
+- Exemplo com valores distintos:
   ```json
   {
     "colors": [
@@ -98,7 +99,7 @@ For example:
     ]
   }
   ```
-- Example with identical values:
+- Exemplo com valores idênticos:
 
   ```json
   {
@@ -112,7 +113,7 @@ For example:
   }
   ```
 
-- **Static Colors**: A single color applied uniformly, e.g., the "Running or Dormant Waters" layer uses:
+- **Cores Estáticas**: Uma única cor aplicada uniformemente, ex: a camada "Running or Dormant Waters" usa:
   ```json
   {
     "colors": [
@@ -124,7 +125,7 @@ For example:
     ]
   }
   ```
-- **Dynamic Colors**: Colors assigned based on polygon properties, e.g., the "Axes" layer maps colors to the `nm_perimetro_divisao_pde` property:
+- **Cores Dinâmicas**: Cores atribuídas com base em propriedades do polígono, ex: a camada "Axes" mapeia cores para a propriedade `nm_perimetro_divisao_pde`:
   ```json
   {
     "getFillColorPropName": "nm_perimetro_divisao_pde",
@@ -146,67 +147,67 @@ For example:
   }
   ```
 
-## Layer Object Parameters
+## Parâmetros do Objeto da Camada
 
-The JSON object that defines a layer contains several parameters that control its functionality, appearance, and behavior. The table below lists all parameters observed in the layer examples, along with their descriptions and examples.
+O objeto JSON que define uma camada contém vários parâmetros que controlam sua funcionalidade, aparência e comportamento. A tabela abaixo lista todos os parâmetros observados nos exemplos de camada, juntamente com suas descrições e exemplos.
 
-| Parameter              | Description                                                                                                                                                                                                                                                                                                                                                                                  | Example                                                                    |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `id`                   | Unique identifier for the layer.                                                                                                                                                                                                                                                                                                                                                             | `"lots"`                                                                   |
-| `name`                 | Descriptive name of the layer, displayed in the interface.                                                                                                                                                                                                                                                                                                                                   | `"Lots"`                                                                   |
-| `origin`               | URL or endpoint of the geospatial data source (e.g., WFS GeoServer).                                                                                                                                                                                                                                                                                                                         | `"https://geoserver.slui.dev/geoserver/slui/ows?...&outputFormat=json"`    |
-| `isActive`             | Boolean indicating whether the layer is active (loaded on the map).                                                                                                                                                                                                                                                                                                                          | `true`                                                                     |
-| `type`                 | Type of the layer, defining the data format and loading method. Available options: <ul><li>**GeoJsonLayer**: Loads an entire GeoJSON, the most common type.</li><li>**Stream**: Loads the layer in parts using the map's bounding box, with sessions to reuse the same areas from the source.</li><li>**CustomWMSLayer**: Used for layers that do not use GeoJSON, such as images.</li></ul> | `"GeoJsonLayer"`                                                           |
-| `isVisible`            | Boolean controlling the initial visibility of the layer on the map.                                                                                                                                                                                                                                                                                                                          | `true`                                                                     |
-| `minZoom`              | Minimum zoom level for the layer to be displayed (or `null` for no limit).                                                                                                                                                                                                                                                                                                                   | `17`                                                                       |
-| `getTextColorPropName` | Name of the polygon property used to map the text color (or `null`).                                                                                                                                                                                                                                                                                                                         | `"nm_perimetro_divisao_pde"`                                               |
-| `getFillColorPropName` | Name of the polygon property used to map the fill color (or `null`).                                                                                                                                                                                                                                                                                                                         | `"nm_perimetro_divisao_pde"`                                               |
-| `getLineColorPropName` | Name of the polygon property used to map the outline color (or `null`).                                                                                                                                                                                                                                                                                                                      | `"nm_perimetro_divisao_pde"`                                               |
-| `groupId`              | Identifier of the group to which the layer belongs.                                                                                                                                                                                                                                                                                                                                          | `"geral"`                                                                  |
-| `clickAction`          | Configuration of the action executed when the layer is clicked (see [Actions on Polygon Click](#actions-on-polygon-click)).                                                                                                                                                                                                                                                                  | `{ "action": "SelectFeature" }`                                            |
-| `properties`           | Object with additional properties for styling and behavior.                                                                                                                                                                                                                                                                                                                                  | `{ "stroked": false, "filled": true, "pickable": true, ... }`              |
-| `colors`               | Array of color configurations for fill, outline, and text.                                                                                                                                                                                                                                                                                                                                   | `[{ "color": [57, 118, 29, 175], "label": "default", "pattern": "full" }]` |
+| Parâmetro              | Descrição                                                                                                                                                                                                                                                                                                                                                                                      | Exemplo                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `id`                   | Identificador único para a camada.                                                                                                                                                                                                                                                                                                                                                             | `"lotes"`                                                                  |
+| `name`                 | Nome descritivo da camada, exibido na interface.                                                                                                                                                                                                                                                                                                                                               | `"Lotes"`                                                                  |
+| `origin`               | URL ou endpoint da fonte de dados geoespaciais (ex: WFS GeoServer).                                                                                                                                                                                                                                                                                                                            | `"https://geoserver.slui.dev/geoserver/slui/ows?...&outputFormat=json"`    |
+| `isActive`             | Booleano indicando se a camada está ativa (carregada no mapa).                                                                                                                                                                                                                                                                                                                                 | `true`                                                                     |
+| `type`                 | Tipo da camada, definindo o formato de dados e método de carregamento. Opções disponíveis: <ul><li>**GeoJsonLayer**: Carrega um GeoJSON inteiro, o tipo mais comum.</li><li>**Stream**: Carrega a camada em partes usando o bounding box do mapa, com sessões para reutilizar as mesmas áreas da fonte.</li><li>**CustomWMSLayer**: Usado para camadas que não usam GeoJSON, como imagens.</li></ul> | `"GeoJsonLayer"`                                                           |
+| `isVisible`            | Booleano controlando a visibilidade inicial da camada no mapa.                                                                                                                                                                                                                                                                                                                                 | `true`                                                                     |
+| `minZoom`              | Nível mínimo de zoom para a camada ser exibida (ou `null` para sem limite).                                                                                                                                                                                                                                                                                                                    | `17`                                                                       |
+| `getTextColorPropName` | Nome da propriedade do polígono usada para mapear a cor do texto (ou `null`).                                                                                                                                                                                                                                                                                                                  | `"nm_perimetro_divisao_pde"`                                               |
+| `getFillColorPropName` | Nome da propriedade do polígono usada para mapear a cor de preenchimento (ou `null`).                                                                                                                                                                                                                                                                                                          | `"nm_perimetro_divisao_pde"`                                               |
+| `getLineColorPropName` | Nome da propriedade do polígono usada para mapear a cor de contorno (ou `null`).                                                                                                                                                                                                                                                                                                               | `"nm_perimetro_divisao_pde"`                                               |
+| `groupId`              | Identificador do grupo ao qual a camada pertence.                                                                                                                                                                                                                                                                                                                                              | `"geral"`                                                                  |
+| `clickAction`          | Configuração da ação executada quando a camada é clicada (veja [Ações no Clique do Polígono](#ações-no-clique-do-polígono)).                                                                                                                                                                                                                                                                   | `{ "action": "SelectFeature" }`                                            |
+| `properties`           | Objeto com propriedades adicionais para estilo e comportamento.                                                                                                                                                                                                                                                                                                                                | `{ "stroked": false, "filled": true, "pickable": true, ... }`              |
+| `colors`               | Array de configurações de cor para preenchimento, contorno e texto.                                                                                                                                                                                                                                                                                                                            | `[{ "color": [57, 118, 29, 175], "label": "default", "pattern": "full" }]` |
 
-### Details of Properties in `properties`
+### Detalhes das Propriedades em `properties`
 
-The `properties` object can contain various additional configurations, depending on the layer. Common examples include:
+O objeto `properties` pode conter várias configurações adicionais, dependendo da camada. Exemplos comuns incluem:
 
-| Property         | Description                                                                                                              | Example                                                                                                                                                                                                                |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `stroked`        | Boolean indicating whether the polygon has an outline.                                                                   | `false`                                                                                                                                                                                                                |
-| `filled`         | Boolean indicating whether the polygon has a fill.                                                                       | `true`                                                                                                                                                                                                                 |
-| `pointType`      | Type of representation for points (e.g., "circle", "circle+text").                                                       | `"circle+text"`                                                                                                                                                                                                        |
-| `pickable`       | Boolean indicating whether the polygon is interactive (selectable).                                                      | `true`                                                                                                                                                                                                                 |
-| `extruded`       | Boolean that enables 3D extrusion of the polygon.                                                                        | `true`                                                                                                                                                                                                                 |
-| `wireframe`      | Boolean that enables wireframe mode for the polygon.                                                                     | `true`                                                                                                                                                                                                                 |
-| `getLineWidth`   | Width of the polygon outline (in pixels).                                                                                | `20`                                                                                                                                                                                                                   |
-| `getPointRadius` | Radius of points (in pixels).                                                                                            | `5`                                                                                                                                                                                                                    |
-| `getTextSize`    | Size of text displayed on the polygon (in pixels).                                                                       | `12`                                                                                                                                                                                                                   |
-| `autoHighlight`  | Boolean that enables automatic highlighting on hover.                                                                    | `true`                                                                                                                                                                                                                 |
-| `highlightColor` | Highlight color when interacting with the polygon (RGBA array).                                                          | `[252, 252, 255, 150]`                                                                                                                                                                                                 |
-| `getElevation`   | JavaScript function that calculates the 3D elevation of the polygon based on properties.                                 | ` "(allotment) => { const { qt_area_construida, qt_area_terreno } = allotment?.properties \|\| {}; if (!qt_area_construida \|\| !qt_area_terreno) return 0; return (qt_area_construida / qt_area_terreno) _ 2 _ 3; }"` |
-| `layerActions`   | Array of action, this actions will be render in right of the layer option                                                | `[ { icon: 'info', action: "() => window.open('https://dadosabertos.urbis.sampa.br/','_blank')" } ]`                                                                                                                   |
-| `maxZoom`        | Maximum zoom level for the Layer to be displayed (or `null` for no limit).                                               | `18`                                                                                                                                                                                                                   |
-| `getText`        | Javascript function that receives the polygon object and must return a string that will be displayed inside the polygon. | `(d) => d.proprierties.name`                                                                                                                                                                                           |
-| `minZoomText`    | Minimum zoom level for the Text to be displayed (or `null` for no limit).                                                | `17`                                                                                                                                                                                                                   |
-| `maxZoomText`    | Maximum zoom level for the Text to be displayed (or `null` for no limit).                                                | `10`                                                                                                                                                                                                                   |
+| Propriedade      | Descrição                                                                                                  | Exemplo                                                                                                                                                                                                                |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `stroked`        | Booleano indicando se o polígono tem contorno.                                                             | `false`                                                                                                                                                                                                                |
+| `filled`         | Booleano indicando se o polígono tem preenchimento.                                                        | `true`                                                                                                                                                                                                                 |
+| `pointType`      | Tipo de representação para pontos (ex: "circle", "circle+text").                                           | `"circle+text"`                                                                                                                                                                                                        |
+| `pickable`       | Booleano indicando se o polígono é interativo (selecionável).                                              | `true`                                                                                                                                                                                                                 |
+| `extruded`       | Booleano que habilita extrusão 3D do polígono.                                                             | `true`                                                                                                                                                                                                                 |
+| `wireframe`      | Booleano que habilita modo wireframe para o polígono.                                                      | `true`                                                                                                                                                                                                                 |
+| `getLineWidth`   | Largura do contorno do polígono (em pixels).                                                               | `20`                                                                                                                                                                                                                   |
+| `getPointRadius` | Raio dos pontos (em pixels).                                                                               | `5`                                                                                                                                                                                                                    |
+| `getTextSize`    | Tamanho do texto exibido no polígono (em pixels).                                                          | `12`                                                                                                                                                                                                                   |
+| `autoHighlight`  | Booleano que habilita realce automático ao passar o mouse.                                                 | `true`                                                                                                                                                                                                                 |
+| `highlightColor` | Cor de realce ao interagir com o polígono (array RGBA).                                                    | `[252, 252, 255, 150]`                                                                                                                                                                                                 |
+| `getElevation`   | Função JavaScript que calcula a elevação 3D do polígono baseada em propriedades.                           | ` "(allotment) => { const { qt_area_construida, qt_area_terreno } = allotment?.properties \|\| {}; if (!qt_area_construida \|\| !qt_area_terreno) return 0; return (qt_area_construida / qt_area_terreno) _ 2 _ 3; }"` |
+| `layerActions`   | Array de ações, essas ações serão renderizadas à direita da opção da camada                                | `[ { icon: 'info', action: "() => window.open('https://dadosabertos.urbis.sampa.br/','_blank')" } ]`                                                                                                                   |
+| `maxZoom`        | Nível máximo de zoom para a Camada ser exibida (ou `null` para sem limite).                                | `18`                                                                                                                                                                                                                   |
+| `getText`        | Função Javascript que recebe o objeto polígono e deve retornar uma string que será exibida dentro dele.    | `(d) => d.proprierties.name`                                                                                                                                                                                           |
+| `minZoomText`    | Nível mínimo de zoom para o Texto ser exibido (ou `null` para sem limite).                                 | `17`                                                                                                                                                                                                                   |
+| `maxZoomText`    | Nível máximo de zoom para o Texto ser exibido (ou `null` para sem limite).                                 | `10`                                                                                                                                                                                                                   |
 
-For more information on these properties, [see the Deck.gl documentation](https://deck.gl/docs/api-reference/layers/geojson-layer).
+Para mais informações sobre essas propriedades, [veja a documentação do Deck.gl](https://deck.gl/docs/api-reference/layers/geojson-layer).
 
-### Details of the `colors` Array
+### Detalhes do Array `colors`
 
-The `colors` array defines the color and pattern configurations, with the following fields:
+O array `colors` define as configurações de cor e padrão, com os seguintes campos:
 
-| Field     | Description                                                             | Example              |
-| --------- | ----------------------------------------------------------------------- | -------------------- |
-| `color`   | Color in RGBA format (array of 4 values).                               | `[57, 118, 29, 175]` |
-| `label`   | Text displayed in the legend.                                           | `"default"`          |
-| `pattern` | Fill pattern (full, dots, hatch-1x, hatch-cross). (Default: **"full"**) | `"full"`             |
-| `value`   | Value of the polygon property for color mapping (optional).             | `"AI"`               |
+| Campo     | Descrição                                                                 | Exemplo              |
+| --------- | ------------------------------------------------------------------------- | -------------------- |
+| `color`   | Cor no formato RGBA (array de 4 valores).                                 | `[57, 118, 29, 175]` |
+| `label`   | Texto exibido na legenda.                                                 | `"default"`          |
+| `pattern` | Padrão de preenchimento (full, dots, hatch-1x, hatch-cross). (Padrão: **"full"**) | `"full"`             |
+| `value`   | Valor da propriedade do polígono para mapeamento de cor (opcional).       | `"AI"`               |
 
-## Example Layer Configurations
+## Exemplos de Configuração de Camada
 
-### Simple Layer (Static Color)
+### Camada Simples (Cor Estática)
 
 ```json
 {
@@ -231,7 +232,7 @@ The `colors` array defines the color and pattern configurations, with the follow
 }
 ```
 
-### Layer with Dynamic Colors
+### Camada com Cores Dinâmicas
 
 ```json
 {
@@ -264,7 +265,7 @@ The `colors` array defines the color and pattern configurations, with the follow
 }
 ```
 
-### Layer with Dynamic Loading and Selection
+### Camada com Carregamento Dinâmico e Seleção
 
 ```json
 {
@@ -304,7 +305,7 @@ The `colors` array defines the color and pattern configurations, with the follow
 }
 ```
 
-### Layer with openFeature Action
+### Camada com Ação openFeature
 
 ```json
 {
@@ -341,7 +342,7 @@ The `colors` array defines the color and pattern configurations, with the follow
 }
 ```
 
-### Layer with type CustomWMSLayer
+### Camada com tipo CustomWMSLayer
 
 ```json
 {

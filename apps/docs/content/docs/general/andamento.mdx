@@ -1,0 +1,145 @@
+---
+title: Relatório 10/01/2025
+description: Relatório de Situação do Projeto (Status Report) – Projeto Urbis
+---
+
+- **Cliente:** AdeSampa
+- **Data do Relatório:** 10 de janeiro
+- **Data de Início da Contagem de Prazos:** 8 de janeiro (Emissão Oficial das OS)
+- **Objetivo:** Reportar a evolução das entregas técnicas e iniciar o processo de validação das funcionalidades desenvolvidas.
+
+---
+
+## 1. Sumário Executivo
+
+O projeto encontra-se na fase inicial de execução massiva, tendo a contagem oficial de prazos iniciada a 8 de janeiro. Observa-se um progresso significativo nas frentes de infraestrutura de identidade (Accounts) e Design System. As frentes de Mapa e Numeração Digital estão em estágios avançados de validação técnica. As atividades de DevOps e o módulo Legis estão programados para início iminente, conforme o cronograma.
+
+Abaixo, detalhamos o progresso por frente de trabalho (Stream).
+
+---
+
+## 2. Detalhe das Entregas por Frente de Trabalho
+
+### 2.1. Accounts & Autenticação (Urbis ID)
+
+**Estado Geral:** 🟡 Em Desenvolvimento
+
+| Item / OS | Descrição Resumida | Prazo | Situação Atual |
+| --- | --- | --- | --- |
+| **OS 1** | Desenvolvimento do serviço *accounts.urbis* (Auth, OIDC, 2FA, RBAC, Base Atlas). | 40 dias | Em desenvolvimento |
+
+* **Realizações:** A base do serviço de autenticação encontra-se **concluída**.
+* **Pontos de Atenção / Próximos Passos:**
+* Implementação das pipelines de CI/CD.
+* Revisão profunda e validação dos fluxos de segurança.
+* Conclusão da revisão do sistema de permissionamento (RBAC).
+
+
+
+---
+
+### 2.2. Design & User Experience (UX/UI)
+
+**Estado Geral:** 🟢 Em Validação / Desenvolvimento
+
+| Item / OS | Descrição Resumida | Prazo | Situação Atual |
+| --- | --- | --- | --- |
+| **OS 2** | Atualização e validação do Design System da Urbis (Figma + Repositório). | 15 dias | Em desenvolvimento |
+| **OS 3** | Reformulação do Mosaico (IA + Design System). | 10 dias | Em validação |
+| **OS 4** | Nova versão do design do mapa (UX/UI). | 10 dias | Em validação |
+
+* **Ações Pendentes para Conclusão:**
+* Finalizar a documentação das decisões de design e o Design System no Figma.
+* Validação final do novo design do mapa com o *stakeholder* (Mauryas).
+* Otimização da ferramenta de busca do mosaico.
+* Criação de mecanismos de Ajuda e Solicitação de Feedback na interface.
+
+
+
+---
+
+### 2.3. Legislação (Legis)
+
+**Estado Geral:** ⚪ Não Iniciado (Aguardando planeamento)
+
+| Item / OS | Descrição Resumida | Prazo | Situação Atual |
+| --- | --- | --- | --- |
+| **OS 7** | Desenvolvimento MVP do Legis (Base de dados, Site, Busca, CMS básico, API). | 52 dias | Não iniciado |
+| **OS 8** | Plataforma Legis (Indexação de leis, IA, uploads de dados complementares). | 30 dias | Não iniciado |
+
+---
+
+### 2.4. Numeração Digital
+
+**Estado Geral:** 🟢 Em Validação
+
+| Item / OS | Descrição Resumida | Prazo | Situação Atual |
+| --- | --- | --- | --- |
+| **OS 9** | Implementação da numeração digital e PlusCode no Mapa Urbis (SIRGAS2000). | 14 dias | Em validação |
+| **OS 29** | Pacote *open source* (npm) para encoding/decoding do Endereço Digital. | 14 dias | Em validação |
+
+* **Ações Pendentes para Conclusão:**
+* Validar o comportamento final do algoritmo.
+* Validar o *layout* da prancha de visualização com o *stakeholder* (Mauryas).
+
+
+
+---
+
+### 2.5. Mapa Urbis & Integrações
+
+**Estado Geral:** 🟡 Misto (Desenvolvimento e Validação)
+
+Esta é a frente com maior volume de funcionalidades simultâneas.
+
+| Item / OS | Descrição Resumida | Prazo | Situação Atual |
+| --- | --- | --- | --- |
+| **OS 10** | Configuração visual do mapa pelo cliente (camadas, perfis, exportação). | 35 dias | Em desenvolvimento |
+| **OS 13** | Importação de dados de outros Geoservers. | 30 dias | Em validação |
+| **OS 14** | Melhorias no motor de busca (concatenação de critérios). | 20 dias | Em validação |
+| **OS 15** | Interface de Administrador para gestão de camadas. | 30 dias | Em desenvolvimento |
+| **OS 16** | Migração de Projeção (SIRGAS 2000 UTM 23S) e SEO. | 15 dias | Em desenvolvimento |
+| **OS 30** | Integração do Mapa Base Maxar (Imaginary API). | 21 dias | Em desenvolvimento |
+| **OS 11** | Integração com Viabiliza (Volumetrias/Plantas MAPData). | 50 dias | ⚪ Não iniciado |
+| **OS 31** | Integração com QGis. | 30 dias | ⚪ Não iniciado |
+
+* **Pontos Críticos e Bloqueios:**
+* **OS 10:** Necessário habilitar configuração de camadas importadas e partilha de configurações de busca.
+* **OS 16 (SEO/Projeção):** Criar documentação técnica e validar com Mauryas.
+* **OS 11 (Viabiliza):** Verificar documentação existente ou solicitar acesso à API do MAPData.
+* **OS 30 (Maxar):** Ajustar integração com a API de imagens e manter a *pipeline* de dados ativa para garantir o funcionamento do mapa base.
+* **OS 14 (Busca):** Pendente resolução de "para" (parâmetros/paragem).
+
+
+
+---
+
+### 2.6. Dados (Datalake)
+
+**Estado Geral:** 🟡 Em Desenvolvimento
+
+| Item / OS | Descrição Resumida | Prazo | Situação Atual |
+| --- | --- | --- | --- |
+| **OS 20** | Validação e Conformidade das Camadas (Bronze, Silver, Gold). | 40 dias | Em desenvolvimento |
+
+---
+
+### 2.7. Infraestrutura & DevOps
+
+**Estado Geral:** ⚪ Não Iniciado (Planeado)
+
+| Item / OS | Descrição Resumida | Prazo | Situação Atual |
+| --- | --- | --- | --- |
+| **OS 28** | Migração de Infraestrutura (All2Net -> Prodam) e Gestão SSL. | 21 dias | Não iniciado |
+
+---
+
+## 3. Considerações Finais e Encaminhamentos
+
+Para a próxima semana, os esforços da equipa estarão concentrados em três pilares:
+
+1. **Fecho de Validações:** Concluir a aprovação de *design* e funcionalidades de Numeração Digital com o cliente e *stakeholders* chave (Mauryas).
+2. **Desbloqueio Técnico:** Resolver as pendências de integração (API MAPData e Maxar) para avançar nas OS 11 e 30.
+3. **Qualidade e Segurança:** Finalizar o permissionamento e CI/CD do módulo *Accounts* para garantir um ambiente seguro e estável.
+
+Estamos à disposição para detalhar qualquer item técnico acima mencionado.

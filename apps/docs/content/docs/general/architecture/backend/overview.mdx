@@ -1,28 +1,28 @@
 ---
-title: Backend Overview
-description: Overview of the NestJS backend architecture.
+title: Visão Geral do Backend
+description: Visão geral da arquitetura backend NestJS.
 icon: Server
 ---
 
-The backend is built with **NestJS**, providing a modular, testable, and scalable architecture.
+O backend é construído com **NestJS**, fornecendo uma arquitetura modular, testável e escalável.
 
-## Structure
+## Estrutura
 
-The `apps/api/src` directory is organized into logical modules:
+O diretório `apps/api/src` é organizado em módulos lógicos:
 
--   **`app.module.ts`**: The root module that imports all other modules.
--   **`common/`**: Shared utilities, guards, decorators, and configuration that are used across the entire application.
--   **`auth/`**: Authentication logic (OIDC, Strategies, Guards).
--   **`user/`**: User management (profiles, updates).
--   **`role/`**: Role and permission management.
--   **`organization/`**: Multi-tenancy support (organizations/teams).
--   **`files/`**: File upload and management (S3 integration).
--   **`whitelabel/`**: Theming and whitelabel configuration.
+-   **`app.module.ts`**: O módulo raiz que importa todos os outros módulos.
+-   **`common/`**: Utilitários compartilhados, guards, decorators e configurações usados em toda a aplicação.
+-   **`auth/`**: Lógica de autenticação (OIDC, Strategies, Guards).
+-   **`user/`**: Gerenciamento de usuários (perfis, atualizações).
+-   **`role/`**: Gerenciamento de cargos e permissões.
+-   **`organization/`**: Suporte a multi-tenancy (organizações/times).
+-   **`files/`**: Upload e gerenciamento de arquivos (integração S3).
+-   **`whitelabel/`**: Configuração de temas e whitelabel.
 
-## Dependency Injection
+## Injeção de Dependência
 
-We heavily utilize NestJS's dependency injection system. Services are injected into controllers and other services, making the code easy to test and maintain.
+Utilizamos intensamente o sistema de injeção de dependência do NestJS. Serviços são injetados em controllers e outros serviços, facilitando o teste e a manutenção do código.
 
-## Configuration
+## Configuração
 
-Configuration is managed using `@nestjs/config`. Environment variables are loaded from `.env` files and validated using `Joi` or `class-validator` to ensure the application starts with a valid configuration.
+A configuração é gerenciada usando `@nestjs/config`. Variáveis de ambiente são carregadas de arquivos `.env` e validadas usando `Joi` ou `class-validator` para garantir que a aplicação inicie com uma configuração válida.

@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -13,6 +14,7 @@ import {
 import { LayerSchema } from './../../layer-schemas/entities/layer-schema.entity';
 
 @Entity('layer_groups')
+@Index(['id'], { unique: true, where: '"deletedAt" IS NULL' })
 export class LayerGroup {
   @ApiProperty({ description: 'Unique identifier', example: 'geral' })
   @PrimaryColumn()

@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -21,6 +22,7 @@ export interface IClickAction {
 }
 
 @Entity('layer_schemas')
+@Index(['id'], { unique: true, where: '"deletedAt" IS NULL' })
 export class LayerSchema {
   @ApiProperty({
     example: 'lotes',

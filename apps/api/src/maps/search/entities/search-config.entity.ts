@@ -5,7 +5,9 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
@@ -97,13 +99,14 @@ export class SearchConfig {
     example: 'lotes',
   })
   @Column({ nullable: true })
+  @Index({ unique: true, where: '"deletedAt" IS NULL' })
   layerSchemaId?: string;
 
   @ApiPropertyOptional({
     description: 'Layer schema object',
     example: LayerSchema,
   })
-  @OneToOne(() => LayerSchema, { nullable: true })
+  @ManyToOne(() => LayerSchema, { nullable: true })
   @JoinColumn({ name: 'layerSchemaId' })
   layerSchema?: LayerSchema;
 

@@ -1,70 +1,78 @@
 :root {
-  /* Light - M3 */
-  --background: 210 50% 98%; /* #F6FAFE */
-  --foreground: 210 14% 11%; /* #181C20 */
+  --font-family: "Noto Sans", Verdana, sans-serif;
+  --background: 0 0% 100%; /* #F6FAFE */
+  --foreground: 223 0% 3.9%; /* #181C20 */
 
-  --card: 210 33% 96%; /* #F0F4F8 (Surface Container Low) */
-  --card-foreground: 210 14% 11%;
+  --card: 240 100% 99.4%; /* #F0F4F8 */
+  --card-foreground: 223 0% 3.9%; /* #181C20 */
 
-  --popover: 0 0% 100%; /* #FFFFFF (Surface Container Lowest) */
-  --popover-foreground: 210 14% 11%;
+  --popover: 0 0% 100%; /* #FFFFFF */
+  --popover-foreground: 210 14% 11%; /* #181C20 */
 
-  --primary: 201 61% 33%; /* #216487 */
+  --primary: 232.84 87.01% 54.71%; /* #1E6FF9 */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
 
-  --secondary: 205 16% 37%; /* #4F616E */
-  --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+  --secondary: 114.74 78.08% 85.69%; /* #A8F0B8 */
+  --secondary-foreground: 118.33 64.29% 10.98%; /* #0A1F0E */
 
-  --muted: 212 23% 89%; /* #DDE3EA (Surface Variant) */
-  --muted-foreground: 210 8% 28%; /* #41474D (On Surface Variant) */
+  --muted: 212 23% 89%; /* #DDE3EA */
+  --muted-foreground: 210 8% 28%; /* #41474D */
 
-  --accent: 125 30% 32%; /* #38693C (Tertiary) - Using Tertiary as Accent */
-  --accent-foreground: 0 0% 100%; /* #FFFFFF */
+  --accent: 114.74 78.08% 85.69%; /* #A8F0B8 */
+  --accent-foreground: 118.33 64.29% 10.98%; /* #0A1F0E */
 
   --destructive: 0 75% 42%; /* #BA1A1A */
   --destructive-foreground: 0 0% 100%; /* #FFFFFF */
 
-  --border: 212 11% 78%; /* #C1C7CE (Outline Variant) */
-  --input: 212 11% 78%;
-  --ring: 201 61% 33%; /* Primary */
+  --border: 212 11% 78%; /* #C1C7CE */
+  --input: 212 11% 78%; /* #C1C7CE */
+  --ring: 201 61% 33%; /* #1E88E5 */
 
   --radius: 1rem;
-  
+
   /* --app-logo: url('http://localhost:5174/geocultural.svg'); */
 }
 
-.urbis-logo {
-  content: var(--app-logo);
-}
-
 .dark {
-  /* Dark - M3 */
   --background: 206 18% 8%; /* #101417 */
   --foreground: 210 14% 89%; /* #DFE3E7 */
 
-  --card: 202 13% 12%; /* #1B2023 (Surface Container) */
-  --card-foreground: 210 14% 89%;
+  --card: 222 15% 9.8%; /* #1B2023 */
+  --card-foreground: 210 14% 89%; /* #DFE3E7 */
 
-  --popover: 202 29% 5%; /* #0A0F12 (Surface Container Lowest) */
-  --popover-foreground: 210 14% 89%;
+  --popover: 202 29% 5%; /* #0A0F12 */
+  --popover-foreground: 210 14% 89%; /* #DFE3E7 */
 
-  --primary: 204 83% 77%; /* #92CEF5 */
-  --primary-foreground: 200 100% 15%; /* #00344C */
+  --primary: 221.49 100% 81.57%; /* #92CEF5 */
+  --primary-foreground: 236.8 94.9% 7.6%; /* #00344C */
 
-  --secondary: 206 28% 78%; /* #B6C9D8 */
-  --secondary-foreground: 205 30% 19%; /* #21323E */
+  --secondary: 118.33 64.29% 10.98%; /* #0A1F0E */
+  --secondary-foreground: 111.43 77.78% 96.47%; /* #E8FBE7 */
 
-  --muted: 210 8% 28%; /* #41474D (Surface Variant) */
-  --muted-foreground: 212 11% 78%; /* #C1C7CE (On Surface Variant) */
+  --muted: 210 8% 28%; /* #41474D */
+  --muted-foreground: 212 11% 78%; /* #C1C7CE */
 
-  --accent: 119 41% 73%; /* #9ED49D (Tertiary) */
+  --accent: 119 41% 73%; /* #9ED49D */
   --accent-foreground: 137 90% 12%; /* #033912 */
 
   --destructive: 6 100% 84%; /* #FFB4AB */
   --destructive-foreground: 357 100% 21%; /* #690005 */
 
+  --border: 210 8% 28%; /* #41474D */
+  --input: 210 8% 28%; /* #41474D */
+  --ring: 204 83% 77%; /* #6EE7E7 */
+
+  /* --app-logo: url('http://localhost:5174/geocultural_dark.svg'); */
+}
+
+.high-contrast {
   --border: 210 8% 28%; /* #41474D (Outline Variant) */
   --input: 210 8% 28%;
   --ring: 204 83% 77%;
-  /* --app-logo: url('http://localhost:5174/geocultural_dark.svg'); */
+}
+
+.dark.high-contrast {
+  --border: 212 11% 85%; /* Light High Contrast */
+  --input: 212 11% 85%;
+  --ring: 212 11% 85%;
 }

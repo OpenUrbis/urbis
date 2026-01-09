@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Button } from "./ui/button";
+import { Switch } from "./ui/switch";
 import {
   SettingsIcon,
   LightModeIcon,
@@ -40,12 +41,19 @@ export function UrbisSettings({
   
   // Font Size Logic
   const [fontSize, setFontSize] = React.useState(100);
+  const [highContrast, setHighContrast] = React.useState(false);
 
   React.useEffect(() => {
     // Load font size
     const savedFontSize = localStorage.getItem("urbis-ui-font-size");
     if (savedFontSize) {
       setFontSize(parseInt(savedFontSize));
+    }
+
+    // Load high contrast
+    const savedHighContrast = localStorage.getItem("urbis-ui-high-contrast");
+    if (savedHighContrast) {
+      setHighContrast(savedHighContrast === "true");
     }
 
     // Only apply default logic if no external theme is provided
@@ -85,6 +93,16 @@ export function UrbisSettings({
     document.documentElement.style.fontSize = `${fontSize}%`;
     localStorage.setItem("urbis-ui-font-size", fontSize.toString());
   }, [fontSize]);
+
+  React.useEffect(() => {
+    const root = window.document.documentElement;
+    if (highContrast) {
+      root.classList.add("high-contrast");
+    } else {
+      root.classList.remove("high-contrast");
+    }
+    localStorage.setItem("urbis-ui-high-contrast", highContrast.toString());
+  }, [highContrast]);
 
   const increaseFont = () => setFontSize((prev) => Math.min(prev + 5, 125));
   const decreaseFont = () => setFontSize((prev) => Math.max(prev - 5, 85));
@@ -181,6 +199,13 @@ export function UrbisSettings({
               <AddIcon className="h-[18px] w-[18px]" />
             </Button>
           </div>
+        </div>
+
+        <DropdownMenuSeparator />
+
+        <div className="px-2 py-1.5 flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">Alto contraste</div>
+          <Switch checked={highContrast} onCheckedChange={setHighContrast} />
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

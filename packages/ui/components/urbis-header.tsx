@@ -80,7 +80,7 @@ export const UrbisHeader = ({
             <img
               className="urbis-logo h-6 w-auto object-contain"
               alt={logoAlt}
-              src="https://urbis.sampa.br/assets/images/logo.webp"
+              src="/logo.png"
               style={logoSrc ? ({ '--app-logo': `url('${logoSrc}')` } as React.CSSProperties) : undefined}
             />
             {badgeText && (

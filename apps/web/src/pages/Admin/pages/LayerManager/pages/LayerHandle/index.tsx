@@ -14,6 +14,7 @@ import { LayerMapping } from "./steps/LayerMapping";
 import { LayerReview } from "./steps/LayerReview";
 import { LayerSelection } from "./steps/LayerSelection";
 import { LayerStyling } from "./steps/LayerStyling";
+import { StepsNavigation } from "@/pages/Admin/components/StepsNavigation";
 import { LayerTemplate } from "./steps/LayerTemplate";
 import { buildLayerSchema, LayerSchema, LayerSchemaFormSchema, LayerSchemaFormValues, parseLayerSchemaToForm } from "./utils";
 
@@ -318,55 +319,12 @@ const LayerHandlePage = () => {
 
       <div className="flex-1 flex flex-col items-center px-0 md:px-6">
         <div className="w-full max-w-2xl space-y-12">
-          <nav aria-label="Steps" className="flex justify-center">
-            <ol className="flex items-center w-full max-w-md">
-              {steps.map((s, i) => (
-                <li
-                  key={s.number}
-                  className={cn(
-                    "flex items-center relative",
-                    i !== steps.length - 1 ? "flex-1" : ""
-                  )}
-                >
-                  <div className="flex flex-col items-center relative">
-                    <button
-                      type="button"
-                      onClick={() => goToStep(s.number)}
-                      disabled={s.number > maxReachedStep}
-                      className={cn(
-                        "flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors z-10",
-                        step === s.number
-                          ? "border-primary bg-primary text-primary-foreground font-bold shadow-sm"
-                          : s.number <= maxReachedStep
-                            ? "border-primary bg-background text-primary"
-                            : "border-muted bg-background text-muted-foreground cursor-not-allowed"
-                      )}
-                    >
-                      {s.number}
-                    </button>
-                    <span
-                      className={cn(
-                        "absolute top-10 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap",
-                        step === s.number
-                          ? "text-primary"
-                          : "text-muted-foreground"
-                      )}
-                    >
-                      {s.label}
-                    </span>
-                  </div>
-                  {i !== steps.length - 1 && (
-                    <div
-                      className={cn(
-                        "h-0.5 w-full mx-2",
-                        s.number < maxReachedStep ? "bg-primary" : "bg-muted"
-                      )}
-                    />
-                  )}
-                </li>
-              ))}
-            </ol>
-          </nav>
+          <StepsNavigation
+            steps={steps}
+            currentStep={step}
+            maxReachedStep={maxReachedStep}
+            onStepClick={goToStep}
+          />
 
           <div className="bg-card border md:rounded-lg p-6 shadow-sm mb-8">
             <Form {...form}>

@@ -51,14 +51,15 @@ export const deleteLayerSchema = async (id: string): Promise<void> => {
 
 export const getLayerSchemas = async (
   page?: number,
-  pageSize?: number
+  pageSize?: number,
+  search?: string
 ): Promise<IGetConfigLayerSchema[] | { data: IGetConfigLayerSchema[]; total: number }> => {
-  let url = `${environment}/layer-schemas`;
-  if (page && pageSize) {
-    url += `?page=${page}&pageSize=${pageSize}`;
-  }
+  const url = new URL(`${environment}/layer-schemas`);
+  if (page) url.searchParams.append("page", page.toString());
+  if (pageSize) url.searchParams.append("pageSize", pageSize.toString());
+  if (search) url.searchParams.append("search", search);
 
-  const response = await fetch(url);
+  const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error("Failed to fetch layer schemas");
   }

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LayerGroupsService } from 'maps/layer-groups/layer-groups.service';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { LayerSchemaDto } from './dto/layer-schema.dto';
 import { LayerSchema } from './entities/layer-schema.entity';
 
@@ -21,11 +21,15 @@ export class LayerSchemasService {
   async findAll(
     page?: number,
     pageSize?: number,
+    search?: string,
   ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
+    const where = search ? { name: ILike(`%${search}%`) } : {};
+
     if (page && pageSize) {
       const take = pageSize;
       const skip = (page - 1) * pageSize;
       const [data, total] = await this.repository.findAndCount({
+        where,
         relations: ['colors', 'layerGroup'],
         order: { isActive: 'DESC' },
         take,
@@ -34,6 +38,7 @@ export class LayerSchemasService {
       return { data, total };
     }
     return this.repository.find({
+      where,
       relations: ['colors', 'layerGroup'],
       order: { isActive: 'DESC' },
     });

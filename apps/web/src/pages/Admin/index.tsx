@@ -13,6 +13,9 @@ const LayerHandleRoute = lazy(
 const GroupHandleRoute = lazy(
   () => import("./pages/GroupManager/GroupHandleRoute")
 );
+const SearchHandleRoute = lazy(
+  () => import("./pages/SearchManager/SearchHandleRoute")
+);
 
 const AdminPage = () => {
   return (
@@ -32,6 +35,9 @@ const AdminPage = () => {
               </Route>
               <Route path="/group-manager" nest>
                 {(<GroupHandleRoute />) as ReactNode}
+              </Route>
+              <Route path="/search-manager" nest>
+                {(<SearchHandleRoute />) as ReactNode}
               </Route>
             </Suspense>
           ) as ReactNode

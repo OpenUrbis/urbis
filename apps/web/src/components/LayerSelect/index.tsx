@@ -9,38 +9,37 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getLayerGroups } from "@/integrations/layer-group-integration";
-import { IGetConfigLayerGroup } from "@/types/fetch-map-config-type";
+import { getLayerSchemas } from "@/integrations/layer-schema-integration";
+import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
 
-interface GroupSelectProps {
+interface LayerSelectProps {
   value: string;
   onChange: (value: string) => void;
-  excludeId?: string;
   placeholder?: string;
 }
 
-export const GroupSelect = ({
+export const LayerSelect = ({
   value,
   onChange,
-  excludeId,
-  placeholder = "Selecione um grupo...",
-}: GroupSelectProps) => {
+  placeholder = "Selecione uma camada...",
+}: LayerSelectProps) => {
   const [open, setOpen] = useState(false);
-  const [groups, setGroups] = useState<IGetConfigLayerGroup[]>([]);
+  const [layers, setLayers] = useState<IGetConfigLayerSchema[]>([]);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 300);
 
   useEffect(() => {
-    getLayerGroups(undefined, undefined, debouncedSearch).then((res) => {
+    // Using search term in getLayerSchemas if it supports it
+    getLayerSchemas(1, 100, debouncedSearch).then((res) => {
       const data =
         res && typeof res === "object" && "data" in res
-          ? (res.data as IGetConfigLayerGroup[])
+          ? (res.data as IGetConfigLayerSchema[])
           : Array.isArray(res)
             ? res
             : [];
-      setGroups(excludeId ? data.filter((g) => g.id !== excludeId) : data);
+      setLayers(data);
     });
-  }, [debouncedSearch, excludeId]);
+  }, [debouncedSearch]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -52,7 +51,7 @@ export const GroupSelect = ({
           className="w-full justify-between"
         >
           {value
-            ? groups.find((group) => group.id === value)?.name || "Selecione..."
+            ? layers.find((layer) => layer.id === value)?.name || "Selecione..."
             : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -60,36 +59,36 @@ export const GroupSelect = ({
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
         <div className="p-2">
           <Input
-            placeholder="Buscar grupo..."
+            placeholder="Buscar camada..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="mb-2"
           />
           <div className="max-h-60 overflow-y-auto">
-            {groups.map((group) => (
+            {layers.map((layer) => (
               <div
-                key={group.id}
+                key={layer.id}
                 className={cn(
                   "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                  value === group.id ? "bg-accent" : ""
+                  value === layer.id ? "bg-accent" : ""
                 )}
                 onClick={() => {
-                  onChange(group.id === value ? "" : group.id);
+                  onChange(layer.id === value ? "" : layer.id);
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === group.id ? "opacity-100" : "opacity-0"
+                    value === layer.id ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {group.name}
+                {layer.name}
               </div>
             ))}
-            {groups.length === 0 && (
+            {layers.length === 0 && (
               <div className="p-2 text-sm text-muted-foreground">
-                Nenhum grupo encontrado.
+                Nenhuma camada encontrada.
               </div>
             )}
           </div>

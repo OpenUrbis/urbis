@@ -35,8 +35,9 @@ export class LayerSchemasController {
   async findAll(
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
+    @Query('search') search?: string,
   ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
-    return this.service.findAll(page, pageSize);
+    return this.service.findAll(page, pageSize, search);
   }
 
   @Get(':id')

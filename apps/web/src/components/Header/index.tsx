@@ -4,7 +4,11 @@ import { Debugger } from "../Debugger";
 import { MenuToggleButton } from "../MenuToogleButton";
 import { useTheme } from "../ThemeProvider";
 
-const Header = () => {
+interface HeaderProps {
+  onMenuToggle?: () => void;
+}
+
+const Header = ({ onMenuToggle }: HeaderProps) => {
   const auth = useAuth();
   const { theme, setTheme } = useTheme();
 

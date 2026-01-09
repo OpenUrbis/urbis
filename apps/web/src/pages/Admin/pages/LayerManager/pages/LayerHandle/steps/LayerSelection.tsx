@@ -111,7 +111,7 @@ export const LayerSelection = ({
               {!readOnly && (
                 <Button
                   type="button"
-                  onClick={onFetch}
+                  onClick={() => onFetch()}
                   disabled={
                     loading || !field.value || field.value.trim() === ""
                   }

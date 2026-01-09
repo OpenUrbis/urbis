@@ -93,7 +93,7 @@ export class LayerGroupsService {
 
   async delete(id: string): Promise<void> {
     await this.findOne(id);
-    await this.repository.delete(id);
+    await this.repository.softDelete(id);
   }
 
   async upsert(dto: LayerGroupDto): Promise<LayerGroup> {

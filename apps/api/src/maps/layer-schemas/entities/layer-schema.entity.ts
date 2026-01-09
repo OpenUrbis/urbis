@@ -2,11 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ClickActionEnum } from '@open-urbis/map-shared';
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { LayerGroup } from './../../layer-groups/entities/layer-group.entity';
 import { LayerSchemaTypeEnum } from './../enums/layer-schema.enum';
@@ -174,4 +177,13 @@ export class LayerSchema {
     },
   )
   colors?: LayerSchemaColors[];
+
+  @CreateDateColumn()
+  createdAt?: Date;
+
+  @UpdateDateColumn()
+  updatedAt?: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

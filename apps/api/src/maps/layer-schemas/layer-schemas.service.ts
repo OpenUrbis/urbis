@@ -152,7 +152,7 @@ export class LayerSchemasService {
   }
 
   async delete(id: string): Promise<void> {
-    await this.repository.delete(id);
+    await this.repository.softDelete(id);
   }
 
   async upsert(dto: LayerSchemaDto): Promise<LayerSchema> {

@@ -1,6 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ClickActionEnum } from '@open-urbis/map-shared';
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { LayerSchema } from '../../layer-schemas/entities/layer-schema.entity';
 import { SearchConfigMethodEnum } from '../enums/search-config.enum';
 
@@ -97,4 +106,13 @@ export class SearchConfig {
   @OneToOne(() => LayerSchema, { nullable: true })
   @JoinColumn({ name: 'layerSchemaId' })
   layerSchema?: LayerSchema;
+
+  @CreateDateColumn()
+  createdAt?: Date;
+
+  @UpdateDateColumn()
+  updatedAt?: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

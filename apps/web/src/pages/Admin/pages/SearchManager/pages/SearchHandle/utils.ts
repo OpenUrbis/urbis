@@ -52,9 +52,9 @@ export const buildSearchSchema = (data: SearchSchemaFormValues): Partial<IGetSea
     layerSchemaId: data.layerId || undefined,
     isActive: data.isActive,
     clickAction: clickActionObj,
-    transformParams: data.transformParams,
-    transformRequest: data.transformRequest,
-    transformResponse: data.transformResponse,
+    ...(data.transformParams ? { transformParams: data.transformParams } : {}),
+    ...(data.transformRequest ? { transformRequest: data.transformRequest } : {}),
+    ...(data.transformResponse ? { transformResponse: data.transformResponse } : {}),
   };
 };
 

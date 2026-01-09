@@ -102,7 +102,7 @@ const LayerHandlePage = () => {
   };
 
   const handleFetchCapabilities = async (overrideUrl?: string) => {
-    const url = overrideUrl || form.getValues("url");
+    const url = typeof overrideUrl === "string" ? overrideUrl : form.getValues("url");
     if (!url) return;
 
     setLoading(true);

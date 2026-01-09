@@ -60,7 +60,8 @@ const GroupHandlePage = () => {
         })
         .finally(() => setIsLoading(false));
     }
-  }, [isEditing, id, form, toastError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, id]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {

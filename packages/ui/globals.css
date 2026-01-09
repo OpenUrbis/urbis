@@ -29,6 +29,12 @@
   --ring: 201 61% 33%; /* Primary */
 
   --radius: 1rem;
+  
+  /* --app-logo: url('http://localhost:5174/geocultural.svg'); */
+}
+
+.urbis-logo {
+  content: var(--app-logo);
 }
 
 .dark {
@@ -60,4 +66,5 @@
   --border: 210 8% 28%; /* #41474D (Outline Variant) */
   --input: 210 8% 28%;
   --ring: 204 83% 77%;
+  /* --app-logo: url('http://localhost:5174/geocultural_dark.svg'); */
 }

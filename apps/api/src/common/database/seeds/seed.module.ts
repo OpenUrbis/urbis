@@ -12,6 +12,11 @@ import adminConfig from './../../config/admin.config';
 import { WhitelabelModuleEntities } from '../../../whitelabel/index.entity';
 import { systemSeedProviders } from './system';
 import { AppSettingsModuleEntities } from '../../../app-settings/index.entity';
+import { LayerSeedService } from './layer-seed.service';
+import { MapConfigSeedService } from './map-config-seed.service';
+import { SearchConfigSeedService } from './search-config-seed.service';
+import { UserSeedService } from './user-seed/user-seed.service';
+import { MapsModuleEntities } from '../../../maps/index.entity';
 
 @Module({
   imports: [
@@ -27,6 +32,7 @@ import { AppSettingsModuleEntities } from '../../../app-settings/index.entity';
       ...RoleModuleEntities,
       ...WhitelabelModuleEntities,
       ...AppSettingsModuleEntities,
+      ...MapsModuleEntities,
     ]),
     TypeOrmModule.forFeature([
       ...AuthModuleEntities,
@@ -35,8 +41,15 @@ import { AppSettingsModuleEntities } from '../../../app-settings/index.entity';
       ...RoleModuleEntities,
       ...WhitelabelModuleEntities,
       ...AppSettingsModuleEntities,
+      ...MapsModuleEntities,
     ]),
   ],
-  providers: [...systemSeedProviders],
+  providers: [
+    ...systemSeedProviders,
+    LayerSeedService,
+    MapConfigSeedService,
+    SearchConfigSeedService,
+    UserSeedService,
+  ],
 })
-export class SeedModule {}
+export class SeedModule { }

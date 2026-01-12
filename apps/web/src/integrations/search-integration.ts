@@ -23,9 +23,9 @@ export const getSearchConfig = async (): Promise<
 };
 
 // CRUD Methods
-export const getSearchConfigs = async (page = 1, limit = 10): Promise<{ data: IGetSearchConfigResponse[], total: number } | IGetSearchConfigResponse[]> => {
+export const getSearchConfigs = async (page = 1, limit = 10, orderBy?: string, orderType?: 'ASC' | 'DESC'): Promise<{ data: IGetSearchConfigResponse[], total: number } | IGetSearchConfigResponse[]> => {
   const response = await axios.get(`${environment}/search`, {
-    params: { page, limit }
+    params: { page, limit, pageSize: limit, orderBy, orderType }
   });
   return response.data;
 };

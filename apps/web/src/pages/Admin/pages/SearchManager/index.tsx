@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { deleteSearchConfig, getSearchConfigs } from "@/integrations/search-integration";
 import { useQuery } from "@preact-signals/query";
-import { ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/useToast";
 import { AdminHeader } from "@/components/AdminHeader";
@@ -16,12 +16,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+type SortOrder = 'ASC' | 'DESC';
+
 const SearchManagerPage = () => {
   const [, setLocation] = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [searchToDelete, setSearchToDelete] = useState<string | null>(null);
+  
+  // Sorting state
+  const [sortBy, setSortBy] = useState<string>('index');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
+
   const { toastSuccess, toastError } = useToast();
 
   const {
@@ -30,8 +37,8 @@ const SearchManagerPage = () => {
     isError,
     refetch
   } = useQuery({
-    queryKey: ["search-configs", currentPage, itemsPerPage],
-    queryFn: () => getSearchConfigs(currentPage, itemsPerPage),
+    queryKey: ["search-configs", currentPage, itemsPerPage, sortBy, sortOrder],
+    queryFn: () => getSearchConfigs(currentPage, itemsPerPage, sortBy, sortOrder),
   });
 
   const handleDelete = async () => {
@@ -49,13 +56,19 @@ const SearchManagerPage = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-auto">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      setSortBy(column);
+      setSortOrder('ASC');
+    }
+  };
+
+  const renderSortIcon = (column: string) => {
+    if (sortBy !== column) return null;
+    return sortOrder === 'ASC' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />;
+  };
 
   if (isError) {
     return <div className="p-4 text-red-500">Erro ao carregar pesquisas.</div>;
@@ -95,21 +108,39 @@ const SearchManagerPage = () => {
         </Button>
       </AdminHeader>
 
-      <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-auto">
+      <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-auto relative min-h-[200px]">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 sticky top-0 z-10">
             <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-              <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                Nome
+              <th 
+                className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
+                onClick={() => handleSort('name')}
+              >
+                <div className="flex items-center">
+                  Nome
+                  {renderSortIcon('name')}
+                </div>
               </th>
-              <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                Método
+              <th 
+                className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
+                onClick={() => handleSort('method')}
+              >
+                <div className="flex items-center">
+                  Método
+                  {renderSortIcon('method')}
+                </div>
               </th>
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                 Camada Vinculada
               </th>
-              <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                Status
+              <th 
+                className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
+                onClick={() => handleSort('isActive')}
+              >
+                <div className="flex items-center">
+                  Status
+                  {renderSortIcon('isActive')}
+                </div>
               </th>
               <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                 Ações
@@ -117,56 +148,68 @@ const SearchManagerPage = () => {
             </tr>
           </thead>
           <tbody className="[&_tr:last-child]:border-0">
-            {currentItems.map((item) => (
-              <tr
-                key={item.id}
-                className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-              >
-                <td className="p-4 align-middle font-medium">{item.name}</td>
-                <td className="p-4 align-middle">{item.method || "GET"}</td>
-                <td className="p-4 align-middle">{item.layerSchema?.name || "-"}</td>
-                <td className="p-4 align-middle">
-                  {item.isActive ? (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                      Ativa
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
-                      Inativa
-                    </span>
-                  )}
-                </td>
-                <td className="p-4 flex align-middle justify-end space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setLocation(`~/admin/search-manager/${item.id}`)}
+            {isLoading ? (
+               <tr>
+                 <td colSpan={5} className="h-24 text-center">
+                   <div className="flex items-center justify-center">
+                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                   </div>
+                 </td>
+               </tr>
+            ) : (
+              <>
+                {currentItems.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                   >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => {
-                      setSearchToDelete(item.id);
-                      setDeleteDialogOpen(true);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-            {currentItems.length === 0 && (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="p-4 text-center text-muted-foreground"
-                >
-                  Nenhuma pesquisa encontrada.
-                </td>
-              </tr>
+                    <td className="p-4 align-middle font-medium">{item.name}</td>
+                    <td className="p-4 align-middle">{item.method || "GET"}</td>
+                    <td className="p-4 align-middle">{item.layerSchema?.name || "-"}</td>
+                    <td className="p-4 align-middle">
+                      {item.isActive ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                          Ativa
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
+                          Inativa
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4 flex align-middle justify-end space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setLocation(`~/admin/search-manager/${item.id}`)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setSearchToDelete(item.id);
+                          setDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+                {currentItems.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="p-4 text-center text-muted-foreground"
+                    >
+                      Nenhuma pesquisa encontrada.
+                    </td>
+                  </tr>
+                )}
+              </>
             )}
           </tbody>
         </table>
@@ -184,7 +227,7 @@ const SearchManagerPage = () => {
               variant="outline"
               size="sm"
               onClick={handlePreviousPage}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || isLoading}
             >
               <ChevronLeft className="h-4 w-4" />
               Anterior
@@ -196,7 +239,7 @@ const SearchManagerPage = () => {
               variant="outline"
               size="sm"
               onClick={handleNextPage}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || isLoading}
             >
               Próxima
               <ChevronRight className="h-4 w-4" />

@@ -6,12 +6,16 @@ const environment =
 export const getLayerGroups = async (
   page?: number,
   pageSize?: number,
-  search?: string
+  search?: string,
+  orderBy?: string,
+  orderType?: 'ASC' | 'DESC',
 ): Promise<IGetConfigLayerGroup[] | { data: IGetConfigLayerGroup[]; total: number }> => {
   const url = new URL(`${environment}/layer-groups`);
   if (page) url.searchParams.append("page", page.toString());
   if (pageSize) url.searchParams.append("pageSize", pageSize.toString());
   if (search) url.searchParams.append("search", search);
+  if (orderBy) url.searchParams.append("orderBy", orderBy);
+  if (orderType) url.searchParams.append("orderType", orderType);
 
   const response = await fetch(url.toString());
   if (!response.ok) {

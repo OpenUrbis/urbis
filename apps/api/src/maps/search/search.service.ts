@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { LayerSchema } from 'maps/layer-schemas/entities/layer-schema.entity';
 import { LayerSchemasService } from 'maps/layer-schemas/layer-schemas.service';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { SearchConfigDto } from './dto/search.dto';
 import { SearchConfig } from './entities/search-config.entity';
 
@@ -19,10 +19,33 @@ export class SearchService {
     private readonly layerSchemaService: LayerSchemasService,
   ) {}
 
-  async findAll(): Promise<SearchConfig[]> {
+  async findAll(
+    page?: number,
+    pageSize?: number,
+    search?: string,
+    orderBy?: string,
+    orderType?: 'ASC' | 'DESC',
+  ): Promise<SearchConfig[] | { data: SearchConfig[]; total: number }> {
+    const where = search ? { name: ILike(`%${search}%`) } : {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const order: any = orderBy ? { [orderBy]: orderType ?? 'ASC' } : { index: 'ASC' };
+
+    if (page && pageSize) {
+      const take = pageSize;
+      const skip = (page - 1) * pageSize;
+      const [data, total] = await this.repository.findAndCount({
+        where,
+        relations: ['layerSchema'],
+        order,
+        take,
+        skip,
+      });
+      return { data, total };
+    }
     return this.repository.find({
+      where,
       relations: ['layerSchema'],
-      order: { index: 'ASC' },
+      order,
     });
   }
 

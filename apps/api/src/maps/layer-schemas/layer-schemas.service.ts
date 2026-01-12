@@ -22,8 +22,12 @@ export class LayerSchemasService {
     page?: number,
     pageSize?: number,
     search?: string,
+    orderBy?: string,
+    orderType?: 'ASC' | 'DESC',
   ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
     const where = search ? { name: ILike(`%${search}%`) } : {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const order: any = orderBy ? { [orderBy]: orderType ?? 'ASC' } : { isActive: 'DESC' };
 
     if (page && pageSize) {
       const take = pageSize;
@@ -31,7 +35,7 @@ export class LayerSchemasService {
       const [data, total] = await this.repository.findAndCount({
         where,
         relations: ['colors', 'layerGroup'],
-        order: { isActive: 'DESC' },
+        order,
         take,
         skip,
       });
@@ -40,7 +44,7 @@ export class LayerSchemasService {
     return this.repository.find({
       where,
       relations: ['colors', 'layerGroup'],
-      order: { isActive: 'DESC' },
+      order,
     });
   }
 

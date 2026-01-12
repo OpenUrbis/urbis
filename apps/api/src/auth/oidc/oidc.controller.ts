@@ -35,7 +35,7 @@ export class OidcController {
     private readonly authService: AuthService,
     private readonly twoFactorService: TwoFactorService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   @ApiBearerAuth()
   @SerializeOptions({
@@ -47,7 +47,15 @@ export class OidcController {
   public async me(@Req() request) {
     const user = await this.authService.me(request.user);
 
-    return { sub: user.id, _id: user.id };
+    return {
+      sub: user.id,
+      id: user.id,
+      _id: user.id,
+      email: user.email,
+      name: `${user.firstName} ${user.lastName}`.trim(),
+      given_name: user.firstName,
+      family_name: user.lastName,
+    };
   }
 
   @Get('interaction/:uuid')

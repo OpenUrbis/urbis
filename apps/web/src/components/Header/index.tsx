@@ -3,6 +3,7 @@ import { useAuth } from "react-oidc-context";
 import { Debugger } from "../Debugger";
 import { MenuToggleButton } from "../MenuToogleButton";
 import { useTheme } from "../ThemeProvider";
+import { userProfile } from "../../auth/user-state";
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -33,8 +34,8 @@ const Header = ({ onMenuToggle }: HeaderProps) => {
       menuItems={menuItems}
       isAuthenticated={auth.isAuthenticated}
       user={{
-        name: auth.user?.profile.name,
-        email: auth.user?.profile.email
+        name: userProfile.value?.name,
+        email: userProfile.value?.email
       }}
       onLogin={() => auth.signinRedirect()}
       onLogout={() => auth.removeUser()}

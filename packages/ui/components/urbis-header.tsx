@@ -115,83 +115,99 @@ export const UrbisHeader = ({
 
         <div className="flex flex-1 items-center justify-end space-x-2">
           <div className="flex items-center gap-2">
-             {/* Right Slot for Debugger, ModeToggle etc */}
-             <UrbisSettings theme={theme} setTheme={setTheme} />
-             {rightSlot}
+            {/* Right Slot for Debugger, ModeToggle etc */}
+            <UrbisSettings theme={theme} setTheme={setTheme} />
+            {rightSlot}
 
-             {/* User Menu */}
-             {isAuthenticated ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full border">
-                       <CircleUser className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
+            {/* User Menu */}
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative flex items-center gap-2 h-9 px-2 rounded-full border">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs uppercase">
+                      {user?.name?.[0] || "U"}
+                    </div>
+                    <span className="hidden sm:inline-block text-sm font-medium">
+                      {user?.name?.split(" ")[0]}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex items-center gap-3 py-1">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-base uppercase">
+                        {user?.name?.[0] || "U"}
+                      </div>
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{user?.name || "Usuário"}</p>
                         <p className="text-xs leading-none text-muted-foreground">
                           {user?.email}
                         </p>
                       </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={onLogout}>
-                      Sair
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-             ) : showLogin ? (
-                <Button variant="outline" size="sm" onClick={onLogin}>
-                  Entrar
-                </Button>
-             ) : null}
-             
-             {/* Mobile Menu Drawer */}
-             {showMobileMenu && (
-               <div className="md:hidden">
-                 {onMobileMenuClick ? (
-                   <Button variant="ghost" size="icon" onClick={onMobileMenuClick}>
-                     <Menu className="h-5 w-5" />
-                     <span className="sr-only">Toggle Menu</span>
-                   </Button>
-                 ) : (
-                   <Drawer>
-                     <DrawerTrigger asChild>
-                       <Button variant="ghost" size="icon">
-                         <Menu className="h-5 w-5" />
-                         <span className="sr-only">Toggle Menu</span>
-                       </Button>
-                     </DrawerTrigger>
-                     <DrawerContent>
-                       <DrawerHeader>
-                         <DrawerTitle>Menu</DrawerTitle>
-                       </DrawerHeader>
-                       <div className="p-4 flex flex-col gap-4">
-                       {menuItems.map((item) => (
-                         <a
-                           key={item.label}
-                           href={item.href}
-                           className={cn(
-                             "text-lg font-medium hover:text-primary transition-colors",
-                             item.active && "text-primary"
-                           )}
-                         >
-                           {item.label}
-                         </a>
-                       ))}
-                       </div>
-                       <DrawerFooter>
-                         <DrawerClose asChild>
-                           <Button variant="outline">Fechar</Button>
-                         </DrawerClose>
-                       </DrawerFooter>
-                     </DrawerContent>
-                   </Drawer>
-                 )}
-               </div>
-             )}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <a href="http://localhost:4200" className="cursor-pointer">
+                      Perfil
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={onLogout} className="cursor-pointer">
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : showLogin ? (
+              <Button variant="outline" size="sm" onClick={onLogin}>
+                Entrar
+              </Button>
+            ) : null}
+
+            {/* Mobile Menu Drawer */}
+            {showMobileMenu && (
+              <div className="md:hidden">
+                {onMobileMenuClick ? (
+                  <Button variant="ghost" size="icon" onClick={onMobileMenuClick}>
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle Menu</span>
+                  </Button>
+                ) : (
+                  <Drawer>
+                    <DrawerTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Menu className="h-5 w-5" />
+                        <span className="sr-only">Toggle Menu</span>
+                      </Button>
+                    </DrawerTrigger>
+                    <DrawerContent>
+                      <DrawerHeader>
+                        <DrawerTitle>Menu</DrawerTitle>
+                      </DrawerHeader>
+                      <div className="p-4 flex flex-col gap-4">
+                        {menuItems.map((item) => (
+                          <a
+                            key={item.label}
+                            href={item.href}
+                            className={cn(
+                              "text-lg font-medium hover:text-primary transition-colors",
+                              item.active && "text-primary"
+                            )}
+                          >
+                            {item.label}
+                          </a>
+                        ))}
+                      </div>
+                      <DrawerFooter>
+                        <DrawerClose asChild>
+                          <Button variant="outline">Fechar</Button>
+                        </DrawerClose>
+                      </DrawerFooter>
+                    </DrawerContent>
+                  </Drawer>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

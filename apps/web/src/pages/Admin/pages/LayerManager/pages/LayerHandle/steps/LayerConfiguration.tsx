@@ -111,30 +111,9 @@ export const LayerConfiguration = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>SRS / CRS</FormLabel>
-              {selectedLayer?.crs && selectedLayer.crs.length > 0 ? (
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o SRS" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {selectedLayer.crs.map((crs: string) => (
-                      <SelectItem key={crs} value={crs}>
-                        {crs}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
                 <FormControl>
                   <Input placeholder="EPSG:4326" {...field} />
                 </FormControl>
-              )}
               <FormMessage />
             </FormItem>
           )}

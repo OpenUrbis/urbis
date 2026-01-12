@@ -1,0 +1,24 @@
+---
+description: Rules for shared packages in packages/ directory
+globs: ["packages/**"]
+---
+
+# Packages Rules
+
+## General Structure
+- All shared code lives in `packages/`.
+- Use pnpm and pnpm-workspace.yaml to manage dependencies.
+- Packages should be focused and have a single responsibility.
+
+## Exports
+- Use `package.json` `exports` field to define public entry points today.
+- Avoid default exports where possible; prefer named exports.
+- main entry point usually: `src/index.ts`.
+
+## Building
+- Packages should be buildable via `turbo build`.
+- If a package is just TypeScript configurations or styles, it might not need a build step, just `exports`.
+
+## Internal Dependencies
+- Packages can depend on other packages using `workspace:*`.
+- Avoid circular dependencies between packages.

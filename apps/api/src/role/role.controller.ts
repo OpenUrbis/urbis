@@ -60,7 +60,7 @@ export class RoleController {
     example: "['role:create','user:create']",
   })
   list(
-    @Query('page', new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search') search: string,
     @Query('exclude') exclude: string[] | string,
@@ -119,8 +119,11 @@ export class RoleController {
       scope: RolePermissionScopeEnum.ANY,
     },
   })
-  assign(@Body() data: AssignRoleDto) {
-    return this.service.assign(data);
+  assign(
+    @Body() data: AssignRoleDto,
+    @OrganizationData() organization: Organization,
+  ) {
+    return this.service.assign(data, organization);
   }
 
   @Patch('unassign/:id')

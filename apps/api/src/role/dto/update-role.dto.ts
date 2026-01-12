@@ -25,7 +25,7 @@ export class UpdateRoleDto {
   })
   @IsString()
   @IsOptional()
-  description?: string | null;
+  description?: string;
 
   @IsOptional()
   @IsEnum(RoleStatusEnum)

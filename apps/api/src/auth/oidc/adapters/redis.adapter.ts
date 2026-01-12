@@ -17,24 +17,24 @@ const consumable = new Set([
   'BackchannelAuthenticationRequest',
 ]);
 
-function grantKeyFor(id) {
+function grantKeyFor(id: string) {
   return `grant:${id}`;
 }
 
-function userCodeKeyFor(userCode) {
+function userCodeKeyFor(userCode: string) {
   return `userCode:${userCode}`;
 }
 
-function uidKeyFor(uid) {
+function uidKeyFor(uid: string) {
   return `uid:${uid}`;
 }
 
 export class RedisAdapter {
   constructor(
-    public name,
-    redisClient,
+    public name: string,
+    redisClient: any,
     configService: ConfigService,
-    public client,
+    public client: any,
   ) {
     this.name = name;
     this.client = new redisClient(configService.get('app.cacheHost'), {
@@ -42,7 +42,7 @@ export class RedisAdapter {
     });
   }
 
-  async upsert(id, payload, expiresIn) {
+  async upsert(id: string, payload: any, expiresIn: number) {
     const key = this.key(id);
     const store = consumable.has(this.name)
       ? { payload: JSON.stringify(payload) }
@@ -56,7 +56,7 @@ export class RedisAdapter {
     }
 
     if (grantable.has(this.name) && payload.grantId) {
-      const grantKey = grantKeyFor(payload.grantId);
+      const grantKey = grantKeyFor(payload.grantId as string);
       multi.rpush(grantKey, key);
       // if you're seeing grant key lists growing out of acceptable proportions consider using LTRIM
       // here to trim the list to an appropriate length
@@ -67,13 +67,13 @@ export class RedisAdapter {
     }
 
     if (payload.userCode) {
-      const userCodeKey = userCodeKeyFor(payload.userCode);
+      const userCodeKey = userCodeKeyFor(payload.userCode as string);
       multi.set(userCodeKey, id);
       multi.expire(userCodeKey, expiresIn);
     }
 
     if (payload.uid) {
-      const uidKey = uidKeyFor(payload.uid);
+      const uidKey = uidKeyFor(payload.uid as string);
       multi.set(uidKey, id);
       multi.expire(uidKey, expiresIn);
     }
@@ -81,7 +81,7 @@ export class RedisAdapter {
     await multi.exec();
   }
 
-  async find(id) {
+  async find(id: string) {
     const data = consumable.has(this.name)
       ? await this.client.hgetall(this.key(id))
       : await this.client.get(this.key(id));
@@ -96,34 +96,38 @@ export class RedisAdapter {
     const { payload, ...rest } = data;
     return {
       ...rest,
-      ...JSON.parse(payload),
+      ...JSON.parse(payload as string),
     };
   }
 
-  async findByUid(uid) {
+  async findByUid(uid: string) {
     const id = await this.client.get(uidKeyFor(uid));
-    return this.find(id);
+    return this.find(id as string);
   }
 
-  async findByUserCode(userCode) {
+  async findByUserCode(userCode: string) {
     const id = await this.client.get(userCodeKeyFor(userCode));
-    return this.find(id);
+    return this.find(id as string);
   }
 
-  async destroy(id) {
+  async destroy(id: string) {
     const key = this.key(id);
     await this.client.del(key);
   }
 
-  async revokeByGrantId(grantId) {
-    const multi = this.client.multi();
-    const tokens = await this.client.lrange(grantKeyFor(grantId), 0, -1);
+  async revokeByGrantId(grantId: string) {
+    const multi: any = this.client.multi();
+    const tokens = (await this.client.lrange(
+      grantKeyFor(grantId),
+      0,
+      -1,
+    )) as string[];
     tokens.forEach((token) => multi.del(token));
     multi.del(grantKeyFor(grantId));
     await multi.exec();
   }
 
-  async consume(id) {
+  async consume(id: string) {
     await this.client.hset(
       this.key(id),
       'consumed',
@@ -131,7 +135,7 @@ export class RedisAdapter {
     );
   }
 
-  key(id) {
+  key(id: string) {
     return `${this.name}:${id}`;
   }
 }

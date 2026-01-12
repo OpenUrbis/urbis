@@ -26,6 +26,8 @@ interface DefaultPropertiesDestination {
 
 interface DefaultLayerProperties {
   filled: boolean;
+  stroked?: boolean;
+  lineWidthMinPixels?: number;
   getText: () => string;
   getTextSize: number;
 }
@@ -78,6 +80,8 @@ export const MAP_CONFIGS: MapConfigs = {
   },
   DEFAULT_LAYER_PROPERTIES: {
     filled: true,
+    stroked: true,
+    lineWidthMinPixels: 1,
     getText: () => "",
     getTextSize: 12,
   },

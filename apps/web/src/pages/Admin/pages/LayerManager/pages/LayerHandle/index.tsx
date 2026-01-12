@@ -4,7 +4,7 @@ import { createLayerSchema, getLayerSchema, updateLayerSchema } from "@/integrat
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useLocation, useRoute } from "wouter";
 import { Loader2 } from "lucide-react";
@@ -17,6 +17,9 @@ import { LayerStyling } from "./steps/LayerStyling";
 import { StepsNavigation } from "@/pages/Admin/components/StepsNavigation";
 import { LayerTemplate } from "./steps/LayerTemplate";
 import { buildLayerSchema, LayerSchema, LayerSchemaFormSchema, LayerSchemaFormValues, parseLayerSchemaToForm } from "./utils";
+import { MapView } from "@/components/MapView";
+import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
+import { useMapContext } from "@/hooks/useMapContext";
 
 const LayerHandlePage = () => {
   const [isEditMatch, editParams] = useRoute("/:id");
@@ -26,26 +29,32 @@ const LayerHandlePage = () => {
 
   const [step, setStep] = useState(1);
   const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 6 : 1);
-  const [layers, setLayers] = useState<{ name: string; title: string }[]>([]);
+  const [layers, setLayers] = useState<{ name: string; title: string; crs?: string[]; bbox?: number[] }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchedServiceVersion, setFetchedServiceVersion] = useState<string>("");
   const [fetchError, setFetchError] = useState("");
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [originalData, setOriginalData] = useState<LayerSchema | null>(null);
+  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const [previewData, setPreviewData] = useState<LayerSchemaFormValues | null>(null);
   const [, setLocation] = useLocation();
   const { toastSuccess, toastError, toastWarning } = useToast();
+  const { overlayRef } = useMapContext();
 
   const form = useForm<LayerSchemaFormValues>({
     resolver: zodResolver(LayerSchemaFormSchema),
     defaultValues: {
       url: "https://geoserver.slui.dev/geoserver/slui/ows",
       loadingMethod: "CustomWMSLayer",
+      version: "1.1.0",
+      srs: "EPSG:4326",
       groupId: "geral",
       layerName: "",
       minZoom: "",
       maxZoom: "",
       clickAction: "none",
       isActive: true,
-      isVisible: false,
+      isVisible: true,
       isDynamic: false,
       colors: [{
         fillColor: [255, 0, 0, 0.5],
@@ -55,6 +64,45 @@ const LayerHandlePage = () => {
     },
     mode: "onChange"
   });
+
+  const previewSchema = useMemo(() => {
+    if (!previewData || !previewData.selectedLayer) return null;
+    try {
+      const schema = buildLayerSchema(previewData);
+      
+      // Merge with original data to preserve unedited properties (cqlFilter, wms props, etc.)
+      const mergedSchema = {
+        ...(originalData || {}),
+        ...schema,
+        properties: {
+          ...(originalData?.properties || {}),
+          ...(schema.properties || {}),
+        },
+      };
+
+      // Force visibility for preview
+      mergedSchema.isVisible = true;
+
+      // Fix for CustomWMSLayer: MapView expects base URL, not full GetMap URL
+      if (mergedSchema.type === "CustomWMSLayer" && previewData.url) {
+        try {
+          const urlObj = new URL(previewData.url);
+          mergedSchema.origin = `${urlObj.origin}${urlObj.pathname}`;
+        } catch {
+          mergedSchema.origin = previewData.url;
+        }
+      }
+
+      return mergedSchema as unknown as IGetConfigLayerSchema;
+    } catch (e) {
+      return null;
+    }
+  }, [previewData, originalData]);
+
+  const handleUpdatePreview = () => {
+    setPreviewData(form.getValues());
+    setIsPreviewVisible(true);
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -92,6 +140,41 @@ const LayerHandlePage = () => {
     }
   }, [step, isEditing, isDataLoaded]);
 
+  // Reset preview visibility on step change
+  useEffect(() => {
+    setIsPreviewVisible(false);
+  }, [step]);
+
+  const shouldShowPreview = isPreviewVisible && (step === 2 || step === 4 || step === 6);
+
+  useEffect(() => {
+    if (shouldShowPreview && overlayRef?.current) {
+      const timer = setTimeout(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const map = (overlayRef.current as any)._map;
+        if (map) {
+          map.resize();
+
+          if (previewData?.selectedLayer?.bbox) {
+            const bbox = previewData.selectedLayer.bbox;
+            try {
+              map.fitBounds(
+                [
+                  [bbox[0], bbox[1]], // [minLng, minLat]
+                  [bbox[2], bbox[3]], // [maxLng, maxLat]
+                ],
+                { padding: 50, duration: 1000 }
+              );
+            } catch (e) {
+              console.error("Error fitting bounds", e);
+            }
+          }
+        }
+      }, 350); // Wait for transition animation
+      return () => clearTimeout(timer);
+    }
+  }, [shouldShowPreview, previewData, overlayRef]);
+
   const getBaseUrl = (inputUrl: string) => {
     try {
       const urlObj = new URL(inputUrl);
@@ -125,7 +208,11 @@ const LayerHandlePage = () => {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(response.data, "text/xml");
 
-      const extractedLayers: { name: string; title: string }[] = [];
+      const root = xmlDoc.documentElement;
+      const serviceVersion = root.getAttribute("version") || "1.1.1";
+      setFetchedServiceVersion(serviceVersion);
+
+      const extractedLayers: { name: string; title: string; crs: string[]; bbox?: number[] }[] = [];
       const layerNodes = xmlDoc.getElementsByTagName("Layer");
 
       for (let i = 0; i < layerNodes.length; i++) {
@@ -137,8 +224,39 @@ const LayerHandlePage = () => {
           const name = nameNode.textContent || "";
           const title = titleNode.textContent || "";
 
+          const crsList: string[] = [];
+          const crsNodes = node.getElementsByTagName("CRS");
+          const srsNodes = node.getElementsByTagName("SRS");
+          
+          for (let j = 0; j < crsNodes.length; j++) {
+            if (crsNodes[j].textContent) crsList.push(crsNodes[j].textContent!);
+          }
+          for (let j = 0; j < srsNodes.length; j++) {
+            if (srsNodes[j].textContent) crsList.push(srsNodes[j].textContent!);
+          }
+
+          // Extract BBox
+          let bbox: number[] | undefined;
+          const exBbox = node.getElementsByTagName("EX_GeographicBoundingBox")[0];
+          if (exBbox) {
+             const west = parseFloat(exBbox.getElementsByTagName("westBoundLongitude")[0]?.textContent || "0");
+             const east = parseFloat(exBbox.getElementsByTagName("eastBoundLongitude")[0]?.textContent || "0");
+             const south = parseFloat(exBbox.getElementsByTagName("southBoundLatitude")[0]?.textContent || "0");
+             const north = parseFloat(exBbox.getElementsByTagName("northBoundLatitude")[0]?.textContent || "0");
+             bbox = [west, south, east, north];
+          } else {
+             const llBbox = node.getElementsByTagName("LatLonBoundingBox")[0];
+             if (llBbox) {
+                const minx = parseFloat(llBbox.getAttribute("minx") || "0");
+                const miny = parseFloat(llBbox.getAttribute("miny") || "0");
+                const maxx = parseFloat(llBbox.getAttribute("maxx") || "0");
+                const maxy = parseFloat(llBbox.getAttribute("maxy") || "0");
+                bbox = [minx, miny, maxx, maxy];
+             }
+          }
+
           if (name && !extractedLayers.some(l => l.name === name)) {
-            extractedLayers.push({ name, title });
+            extractedLayers.push({ name, title, crs: Array.from(new Set(crsList)), bbox });
           }
         }
       }
@@ -168,9 +286,19 @@ const LayerHandlePage = () => {
     }
   };
 
-  const handleLayerSelect = (layer: { name: string; title: string }) => {
+  const handleLayerSelect = (layer: { name: string; title: string; crs?: string[]; bbox?: number[] }) => {
     form.setValue("selectedLayer", layer, { shouldValidate: true, shouldDirty: true });
     form.setValue("layerName", layer.title, { shouldDirty: true });
+
+    if (fetchedServiceVersion) {
+      form.setValue("version", fetchedServiceVersion);
+    }
+    
+    if (layer.crs && layer.crs.length > 0) {
+      const preferred = ["EPSG:4326", "EPSG:3857", "CRS:84"];
+      const found = preferred.find(p => layer.crs!.includes(p));
+      form.setValue("srs", found || layer.crs[0]);
+    }
   };
 
   const handleNext = async () => {
@@ -184,6 +312,8 @@ const LayerHandlePage = () => {
     } else if (step === 2) {
       isValid = await form.trigger([
         "loadingMethod",
+        "version",
+        "srs",
         "groupId",
         "layerName",
         "minZoom",
@@ -309,65 +439,103 @@ const LayerHandlePage = () => {
   return (
     <div className="flex-1 flex flex-col h-full bg-background/50">
       <div className="px-6 py-4">
-        <AdminHeader
-          title={isEditing ? "Editar Camada" : "Criar Camada"}
-          subtitle={
-            isEditing ? `Editando: ${form.watch('layerName')}` : "Nova camada de dados espaciais"
-          }
-        />
+        <div className="flex justify-between items-center">
+          <AdminHeader
+            title={isEditing ? "Editar Camada" : "Criar Camada"}
+            subtitle={
+              isEditing ? `Editando: ${form.watch('layerName')}` : "Nova camada de dados espaciais"
+            }
+          />
+          {(step === 2 || step === 4 || step === 6) && (
+             <button
+               type="button"
+               onClick={handleUpdatePreview}
+               className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md flex items-center gap-2 text-sm font-medium"
+             >
+               {isPreviewVisible ? "Atualizar Visualização" : "Visualizar Camada"}
+             </button>
+          )}
+        </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-0 md:px-6">
-        <div className="w-full max-w-2xl space-y-12">
-          <StepsNavigation
-            steps={steps}
-            currentStep={step}
-            maxReachedStep={maxReachedStep}
-            onStepClick={goToStep}
-          />
+      <div className="flex-1 flex relative overflow-hidden">
+        {/* Main Content Area */}
+        <div className={cn(
+          "flex flex-col items-center px-0 md:px-6 overflow-y-auto transition-all duration-300 scrollbar-thin scrollbar-thumb-muted-foreground/20",
+          shouldShowPreview 
+            ? "w-1/2 h-full border-r" 
+            : "w-full h-full"
+        )}>
+          <div className={cn("w-full space-y-12 py-6", step === 6 ? "max-w-full px-6" : "max-w-2xl")}>
+            <StepsNavigation
+              steps={steps}
+              currentStep={step}
+              maxReachedStep={maxReachedStep}
+              onStepClick={goToStep}
+            />
 
-          <div className="bg-card border md:rounded-lg p-6 shadow-sm mb-8">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit as any)}
-                className="space-y-6"
-              >
-                {step === 1 && (
-                  <LayerSelection
-                    loading={loading}
-                    fetchError={fetchError}
-                    layers={layers}
-                    onFetch={handleFetchCapabilities}
-                    onNext={handleNext}
-                    onLayerSelect={handleLayerSelect}
-                    readOnly={isEditing}
-                  />
-                )}
+            <div className="bg-card border md:rounded-lg p-6 shadow-sm mb-8">
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit as any)}
+                  className="space-y-6"
+                >
+                  {step === 1 && (
+                    <LayerSelection
+                      loading={loading}
+                      fetchError={fetchError}
+                      layers={layers}
+                      onFetch={handleFetchCapabilities}
+                      onNext={handleNext}
+                      onLayerSelect={handleLayerSelect}
+                      readOnly={isEditing}
+                    />
+                  )}
 
-                {step === 2 && (
-                  <LayerConfiguration onNext={handleNext} onBack={handleBack} />
-                )}
+                  {step === 2 && (
+                    <LayerConfiguration onNext={handleNext} onBack={handleBack} />
+                  )}
 
-                {step === 3 && (
-                  <LayerTemplate onNext={handleNext} onBack={handleBack} />
-                )}
+                  {step === 3 && (
+                    <LayerTemplate onNext={handleNext} onBack={handleBack} />
+                  )}
 
-                {step === 4 && (
-                  <LayerStyling
-                    onBack={handleBack}
-                    onNext={handleNext}
-                    onDynamicChange={handleDynamicChange}
-                  />
-                )}
+                  {step === 4 && (
+                    <LayerStyling
+                      onBack={handleBack}
+                      onNext={handleNext}
+                      onDynamicChange={handleDynamicChange}
+                    />
+                  )}
 
-                {step === 5 && (
-                  <LayerMapping onBack={handleBack} onNext={handleNext} />
-                )}
+                  {step === 5 && (
+                    <LayerMapping onBack={handleBack} onNext={handleNext} />
+                  )}
 
-                {step === 6 && <LayerReview onBack={handleBack} />}
-              </form>
-            </Form>
+                  {step === 6 && (
+                    <LayerReview
+                      onBack={handleBack}
+                      originalData={originalData}
+                      previewSchema={previewSchema}
+                    />
+                  )}
+                </form>
+              </Form>
+            </div>
           </div>
+        </div>
+
+        {/* Preview Area */}
+        <div className={cn(
+          "transition-all duration-300 h-full",
+          shouldShowPreview ? "w-1/2 border-l" : "w-0 hidden border-none"
+        )}>
+          {step > 1 && (
+            <MapView 
+              previewLayers={previewSchema ? [previewSchema] : undefined} 
+              hideControls={true}
+            />
+          )}
         </div>
       </div>
     </div>

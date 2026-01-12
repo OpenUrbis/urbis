@@ -33,35 +33,23 @@ export const LayerConfiguration = ({
 }: LayerConfigurationProps) => {
   const form = useFormContext();
   const loadingMethod = form.watch("loadingMethod");
-  const urlParameterType = form.watch("urlParameterType");
   const url = form.watch("url");
   const selectedLayer = form.watch("selectedLayer");
   const origin = form.watch("origin");
+  const version = form.watch("version");
+  const srs = form.watch("srs");
 
   const [suggestedOrigin, setSuggestedOrigin] = useState("");
 
-  // Auto-select parameter type based on loading method
   useEffect(() => {
-    if (loadingMethod) {
-      if (loadingMethod === "CustomWMSLayer") {
-        // For WMS, default to WMS if not set
-        if (!urlParameterType) {
-          form.setValue("urlParameterType", "WMS");
-        }
-      } else {
-        // For GeoJson/Stream, ALWAYS force WFS
-        if (urlParameterType !== "WFS") {
-          form.setValue("urlParameterType", "WFS");
-        }
-      }
-    }
-  }, [loadingMethod, urlParameterType, form]);
-
-  const isWMSLayer = loadingMethod === "CustomWMSLayer";
-
-  useEffect(() => {
-    if (url && urlParameterType) {
-      const suggested = generateOriginUrl(url, selectedLayer, urlParameterType);
+    if (url && loadingMethod) {
+      const suggested = generateOriginUrl(
+        url,
+        selectedLayer,
+        loadingMethod,
+        version,
+        srs
+      );
       setSuggestedOrigin(suggested);
 
       // Auto-set on first load if empty
@@ -69,7 +57,7 @@ export const LayerConfiguration = ({
         form.setValue("origin", suggested);
       }
     }
-  }, [url, selectedLayer, urlParameterType]);
+  }, [url, selectedLayer, loadingMethod, version, srs]);
 
   const handleApplySuggestion = () => {
     form.setValue("origin", suggestedOrigin);
@@ -79,57 +67,57 @@ export const LayerConfiguration = ({
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+      <FormField
+        control={form.control}
+        name="loadingMethod"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Forma de carregar os dados</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="CustomWMSLayer">WMS (Imagem)</SelectItem>
+                <SelectItem value="GeoJsonLayer">WFS (Vetorial)</SelectItem>
+                <SelectItem value="Stream">Vector Tile (PBF)</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
-          name="loadingMethod"
+          name="version"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Forma de carregar os dados</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="CustomWMSLayer">WMS (Imagem)</SelectItem>
-                  <SelectItem value="GeoJsonLayer">WFS (Vetorial)</SelectItem>
-                  <SelectItem value="Stream">Vector Tile (PBF)</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormLabel>Versão (Service Version)</FormLabel>
+              <FormControl>
+                <Input placeholder="1.0.0" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {isWMSLayer && (
-          <FormField
-            control={form.control}
-            name="urlParameterType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Padrão de Parâmetros</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="WFS">
-                      WFS (service, request...)
-                    </SelectItem>
-                    <SelectItem value="WMS">
-                      WMS (LAYERS, FORMAT...)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+        <FormField
+          control={form.control}
+          name="srs"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>SRS / CRS</FormLabel>
+                <FormControl>
+                  <Input placeholder="EPSG:4326" {...field} />
+                </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
       <FormField

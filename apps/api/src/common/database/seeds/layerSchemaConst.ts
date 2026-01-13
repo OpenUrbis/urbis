@@ -9,6 +9,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'aguas_correntes_estimadas',
     name: 'Águas Correntes Estimadas',
+    index: 10,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?LAYERS=slui%3Aaguas_correntes_estimadas&FORMAT=image%2Fjpeg&TRANSPARENT=true',
     isActive: false,
@@ -29,6 +30,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'aguas_correntes_ou_dormentes',
     name: 'Águas Correntes ou Dormentes',
+    index: 20,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:aguas_correntes_ou_dormentes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -49,6 +51,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'areas_contaminadas',
     name: 'Áreas Contaminadas',
+    index: 30,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:areas_contaminadas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -69,6 +72,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'distrito_municipal',
     name: 'Distritos',
+    index: 40,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:distrito_municipal&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -123,6 +127,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'eixos',
     name: 'Eixos',
+    index: 50,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:eixos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -151,6 +156,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'lotes',
     name: 'Lotes',
+    index: 60,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui%3Aview_lote_cidadao&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -566,6 +572,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'macroareas',
     name: 'Macroáreas',
+    index: 70,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:macroareas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -632,6 +639,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'macrozonas',
     name: 'Macrozonas',
+    index: 80,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:macrozonas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -660,6 +668,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'minianel_viario',
     name: 'Minianel Viário',
+    index: 90,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:minianel_viario&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -680,6 +689,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'parques_unidades_conservacao',
     name: 'Parques e Unidades de Conservação',
+    index: 100,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:parques_unidades_de_conservacao_e_apa&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -695,6 +705,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'pracas_e_canteiros',
     name: 'Praças e Canteiros',
+    index: 110,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?LAYERS=slui%3Apracas_e_canteiros&FORMAT=image%2Fjpeg&TRANSPARENT=true',
     isActive: false,
@@ -715,6 +726,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'represas',
     name: 'Represas',
+    index: 120,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:represas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -730,6 +742,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'restricoes_geotecnicas',
     name: 'Restrições Geotécnicas',
+    index: 130,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:restricoes_geotecnicas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -750,6 +763,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'risco_geologico',
     name: 'Risco Geológico',
+    index: 140,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:risco_geologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -770,6 +784,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'risco_hidrologico',
     name: 'Risco Hidrológico',
+    index: 150,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:risco_hidrologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -790,6 +805,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'setores_subsetores',
     name: 'Setores e Subsetores',
+    index: 160,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:setores_e_subsetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -872,6 +888,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'subprefeitura',
     name: 'Subprefeituras',
+    index: 170,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:subprefeitura&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -892,6 +909,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'sujeicao_a_alagamentos',
     name: 'Sujeição a Alagamentos',
+    index: 180,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:sujeicao_a_alagamentos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -912,6 +930,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'terras_indigenas',
     name: 'Terras Indígenas',
+    index: 190,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:terras_indigenas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -932,6 +951,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
     name: "Terrenos Marginais aos Cursos D'Água Navegáveis",
+    index: 200,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:terrenos_marginais_aos_cursos_dagua_navegaveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -952,6 +972,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'tombamentos-areas',
     name: 'Ambientais e Urbanísticos',
+    index: 210,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-areas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -972,6 +993,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'tombamentos-envoltorias-de-imoveis',
     name: 'Envoltorias de Imóveis',
+    index: 220,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-envoltorias-de-imoveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -992,6 +1014,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'tombamentos-imoveis',
     name: 'Imóveis',
+    index: 230,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-imoveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -1012,6 +1035,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'zeis_pde',
     name: 'ZEIS - Lei nº 16.050/14',
+    index: 240,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:ZEIS_(PDE)&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -1058,6 +1082,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'zoneamento_geral',
     name: 'Urbano Geral',
+    index: 250,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento_geral&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,
@@ -1086,6 +1111,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'zoneamento_lei_16402_18177',
     name: 'Zoneamento - Lei nº 16.402/16+18.177/24',
+    index: 260,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: false,

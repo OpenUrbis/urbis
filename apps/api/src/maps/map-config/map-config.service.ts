@@ -27,7 +27,7 @@ export class MapConfigService {
 
     result.layerGroups = await this.layerGroup.find({
       where: { ownerGroup: IsNull() },
-      order: { name: 'ASC' },
+      order: { index: 'ASC', name: 'ASC' },
       relations: [
         'childGroups',
         'childGroups.childGroups',
@@ -36,7 +36,7 @@ export class MapConfigService {
     });
 
     result.layerSchemas = await this.layerSchemas.find({
-      order: { name: 'ASC' },
+      order: { index: 'ASC', name: 'ASC' },
       relations: ['colors'],
     });
 

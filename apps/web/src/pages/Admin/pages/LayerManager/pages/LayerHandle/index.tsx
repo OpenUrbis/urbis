@@ -268,11 +268,23 @@ const LayerHandlePage = () => {
 
         if (isEditing) {
           const currentValues = form.getValues();
-          if (currentValues.selectedLayer?.name) {
-            const found = extractedLayers.find(l => l.name === currentValues.selectedLayer?.name);
-            if (found) {
-              form.setValue("selectedLayer", found);
-            }
+          const targetName = currentValues.selectedLayer?.name;
+          const targetTitle = currentValues.layerName;
+
+          let found = undefined;
+
+          // Try match by technical name (ID)
+          if (targetName) {
+            found = extractedLayers.find((l) => l.name === targetName);
+          }
+
+          // Fallback: Try match by title (Layer Name)
+          if (!found && targetTitle) {
+            found = extractedLayers.find((l) => l.title === targetTitle);
+          }
+
+          if (found) {
+            form.setValue("selectedLayer", found);
           }
         }
       }

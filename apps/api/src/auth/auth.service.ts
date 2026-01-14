@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import { UserService } from 'user/user.service';
 import { User } from '../user/entities/user.entity';
+import { RoleService } from '../role/role.service';
 import { MailService } from './../common/mail/mail.service';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthExternalStrategyDto } from './dto/auth-external-strategy.dto';
@@ -22,6 +23,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private userService: UserService,
+    private roleService: RoleService,
     private forgotService: ForgotService,
     private mailService: MailService,
     private configService: ConfigService,
@@ -69,6 +71,18 @@ export class AuthService {
       email: dto.email,
       emailHashConfirm,
     } as any);
+
+    const defaultRole = await this.roleService.findDefault();
+    const defaultOrgId = this.configService.get('admin.organization.id');
+
+    if (defaultRole) {
+      await this.roleService.assign({
+        userId: user.id,
+        roleId: defaultRole.id,
+        organizationId: defaultOrgId,
+      });
+    }
+
     if (emailConfirmation) {
       await this.mailService.userSignUp({
         to: user.email,

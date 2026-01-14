@@ -1,93 +1,62 @@
-<div class="row justify-content-center align-items-center h-100">
-  <div class="col-10 col-xl-3 col-lg-4 col-md-6 sign-in-container">
-    <form
-      (ngSubmit)="onSubmit()"
-      class="d-flex justify-content-center align-items-center flex-column"
-      [formGroup]="formGroup"
-      class="h-100 w-100"
-    >
-      <mat-card class="py-3">
-        <mat-card-header class="mb-5">
-          <mat-card-title>
+<div class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-6 overflow-y-auto">
+  <div class="w-full max-w-[400px]">
+    <form (ngSubmit)="onSubmit()" [formGroup]="formGroup" class="w-full">
+      <section hlmCard class="w-full p-2 shadow-lg border-border">
+        <div hlmCardHeader>
+          <h2 hlmCardTitle class="text-xl m-0 p-0 font-bold tracking-tight text-primary">
             {{ "pages.signIn.title" | translate }}
-          </mat-card-title>
-          <mat-card-subtitle>
+          </h2>
+          <p hlmCardDescription class="text-xs text-muted-foreground m-0 p-0 mt-2">
             {{ "pages.signIn.subtitle" | translate }}
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="d-flex flex-column">
-          <mat-form-field appearance="outline">
-            <mat-label>{{
-              "pages.signIn.form.fields.email" | translate
-            }}</mat-label>
-            <input
-              matInput
-              [placeholder]="
-                'pages.signIn.form.placeholders.email' | translate
-              "
-              [attr.aria-label]="
-                'pages.signIn.form.fields.email' | translate
-              "
-              formControlName="email"
-            />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>{{
-              "pages.signIn.form.fields.password" | translate
-            }}</mat-label>
-            <input
-              matInput
-              [placeholder]="
-                'pages.signIn.form.placeholders.password' | translate
-              "
-              [attr.aria-label]="
-                'pages.signIn.form.fields.password' | translate
-              "
-              type="password"
-              formControlName="password"
-            />
-          </mat-form-field>
+          </p>
+        </div>
 
-          <div class="d-flex justify-content-end py-1">
-            <a href="/forgot-password" matButton="text">
+        <div hlmCardContent class="p-2 pt-2 flex flex-col gap-3">
+          <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="email" class="text-xs">{{ "pages.signIn.form.fields.email" | translate }}</label>
+            <input hlmInput id="email" type="email"
+              placeholder="{{ 'pages.signIn.form.placeholders.email' | translate }}" formControlName="email"
+              class="w-full h-9 text-sm" />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="password" class="text-xs">{{ "pages.signIn.form.fields.password" | translate }}</label>
+            <input hlmInput id="password" type="password"
+              placeholder="{{ 'pages.signIn.form.placeholders.password' | translate }}" formControlName="password"
+              class="w-full h-9 text-sm" />
+          </div>
+
+          <div class="flex justify-end">
+            <a href="/forgot-password"
+              class="text-xs font-medium text-primary hover:underline transition-all no-underline">
               {{ "pages.signIn.form.links.forgotPassword" | translate }}
             </a>
           </div>
-        </mat-card-content>
-        <mat-card-actions
-          class="justify-content-center align-items-center d-flex flex-column px-3 gap-3"
-        >
-          <button
-            matButton="filled"
-            class="w-100"
-            [disabled]="formGroup.invalid"
-            [attr.aria-label]="
-              'pages.signIn.form.buttons.submit' | translate
-            "
-          >
+        </div>
+
+        <div hlmCardFooter class="flex flex-col gap-3 p-2 pt-0">
+          <button hlmBtn class="w-full font-semibold h-9 text-sm" [disabled]="formGroup.invalid">
             {{ "pages.signIn.form.buttons.submit" | translate }}
           </button>
-          <a
-            href="/sign-up"
-            matButton="outlined"
-            class="w-100"
-            [attr.aria-label]="
-              'pages.signIn.form.links.signUp' | translate
-            "
-          >
+
+          <a hlmBtn variant="outline" href="/sign-up" class="w-full font-semibold h-9 text-sm no-underline">
             {{ "pages.signIn.form.links.signUp" | translate }}
           </a>
 
-          <div class="divider">
-            <span>{{ "pages.signIn.form.divider" | translate }}</span>
+          <div class="relative py-1">
+            <div class="absolute inset-0 flex items-center">
+              <span class="w-full border-t border-border"></span>
+            </div>
+            <div class="relative flex justify-center text-[10px] uppercase">
+              <span class="bg-card px-2 text-muted-foreground">
+                {{ "pages.signIn.form.divider" | translate }}
+              </span>
+            </div>
           </div>
 
-          <lib-sign-in-gov-br-btn
-            (click)="signInWithExternalOidc()"
-            class="w-100"
-          />
-        </mat-card-actions>
-      </mat-card>
+          <lib-sign-in-gov-br-btn (click)="signInWithExternalOidc()" class="w-full" />
+        </div>
+      </section>
     </form>
   </div>
 </div>

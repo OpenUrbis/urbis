@@ -56,6 +56,9 @@ export class Role extends BaseEntity {
   @Column({ nullable: true })
   organizationId?: string;
 
+  @Column({ name: 'is_default', default: false })
+  isDefault: boolean;
+
   @ManyToOne(
     () => Organization,
     (organization) => organization.userRoleAssignments,

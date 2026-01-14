@@ -33,4 +33,3 @@ globs: ["apps/accounts/src/**"]
 
 ## Styling
 - SCSS is used.
-- Angular Material is integrated (`@angular/material`).

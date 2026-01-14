@@ -1,125 +1,201 @@
 <div class="container custom-branding-edit">
   <div [class.loading]="loading()">
-    <div *ngIf="loading()" class="loading-indicator">
-      <mat-spinner diameter="26"></mat-spinner>
-    </div>
-    <div class="custom-branding-edit-content">
-      <div class="d-flex flex-column">
-        <div *ngIf="!loading()" class="text-center mb-1">
-          <!-- Form -->
-          <form
-            (ngSubmit)="onSubmit()"
-            [formGroup]="formGroup"
-            class="form mx-auto"
-          >
-            <!-- Brand Color -->
-            <mat-form-field appearance="outline">
-              <mat-label>Brand Color</mat-label>
-              <input
-                matInput
-                formControlName="brandColor"
-                placeholder="#89C540"
-              />
-              <div matSuffix class="color-picker-wrapper">
-                <input
-                  type="color"
-                  formControlName="brandColor"
-                  class="color-picker-suffix"
-                />
-              </div>
-              <mat-hint
-                *ngIf="
-                  formGroup.controls.brandColor.invalid &&
-                  formGroup.controls.brandColor.touched
-                "
-              >
-                Invalid Hex Color
-              </mat-hint>
-            </mat-form-field>
-
-            <!-- Default Theme -->
-            <div class="mb-4 text-start">
-              <mat-label class="d-block mb-2 font-weight-bold"
-                >Default Theme</mat-label
-              >
-              <mat-radio-group formControlName="defaultTheme">
-                <mat-radio-button value="light" class="me-3"
-                  >Light</mat-radio-button
-                >
-                <mat-radio-button value="dark">Dark</mat-radio-button>
-              </mat-radio-group>
-            </div>
-
-            <div class="row">
-              <!-- Logo (Light Background) -->
-              <div class="col-6 mb-4">
-                <lib-file-uploader
-                  id="logo"
-                  label="Logomark (for Light Background)"
-                  [organizationId]="organizationId()!"
-                  [uploadStrategy]="logomark()"
-                  [currentUrl]="logomarkSrc()"
-                >
-                </lib-file-uploader>
+    @if (loading()) {
+      <div class="flex justify-center items-center h-full min-h-[200px]">
+        <hlm-icon name="lucideLoader2" class="animate-spin h-8 w-8 text-primary" />
+      </div>
+    } @else {
+      <div class="custom-branding-edit-content">
+        <div class="flex flex-col">
+          <div class="text-center mb-1">
+            <!-- Form -->
+            <form (ngSubmit)="onSubmit()" [formGroup]="formGroup" class="form mx-auto flex flex-col gap-6">
+              
+              <!-- Brand Color -->
+              <div class="flex flex-col gap-1.5 text-left">
+                <label hlmLabel for="brandColor">Brand Color</label>
+                <div class="relative flex items-center">
+                  <input hlmInput id="brandColor" formControlName="brandColor" placeholder="#89C540" class="w-full pr-12" />
+                  <div class="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 overflow-hidden rounded-full border border-border">
+                    <input type="color" formControlName="brandColor" class="h-[150%] w-[150%] -translate-x-1/4 -translate-y-1/4 cursor-pointer p-0 border-0" />
+                  </div>
+                </div>
+                @if (formGroup.controls.brandColor.invalid && formGroup.controls.brandColor.touched) {
+                  <p class="text-destructive text-sm font-medium">Invalid Hex Color</p>
+                }
               </div>
 
-              <!-- Logo (Dark Background) -->
-              <div class="col-6 mb-4">
-                <lib-file-uploader
-                  id="logoDark"
-                  label="Logomark (for Dark Background)"
-                  previewBackground="dark"
-                  [uploadStrategy]="logomark()"
-                  [organizationId]="organizationId()!"
-                  [currentUrl]="logomarkDarkSrc()"
-                >
-                </lib-file-uploader>
-              </div>
-            </div>
-
-            <div class="row">
-              <!-- Logo (Light Background) -->
-              <div class="col-6 mb-4">
-                <lib-file-uploader
-                  id="logo"
-                  label="Logotype (for Light Background)"
-                  [organizationId]="organizationId()!"
-                  [uploadStrategy]="logotype()"
-                  [currentUrl]="logotypeSrc()"
-                >
-                </lib-file-uploader>
+              <!-- Organization Info -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                  <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="organizationName">Nome da Organização Principal</label>
+                    <input hlmInput id="organizationName" formControlName="organizationName" placeholder="Ex. Prefeitura Municipal de ..." />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <label hlmLabel for="organizationType">Tipo da Organização Principal</label>
+                    <div class="relative">
+                        <select hlmInput id="organizationType" formControlName="organizationType" class="w-full appearance-none">
+                            <option value="" disabled selected>Selecione um tipo</option>
+                            @for (type of formGroup.get('organizationTypes')?.value; track type) {
+                                <option [value]="type">{{ type }}</option>
+                            }
+                        </select>
+                        <hlm-icon name="lucideChevronsUpDown" size="16" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                    </div>
+                    @if (formGroup.get('tenantType')?.value === 'multi' && !formGroup.get('organizationTypes')?.value?.length) {
+                        <p class="text-xs text-muted-foreground mt-1">Adicione tipos de organização abaixo para selecionar.</p>
+                    }
+                  </div>
               </div>
 
-              <!-- Logo (Dark Background) -->
-              <div class="col-6 mb-4">
-                <lib-file-uploader
-                  id="logoDark"
-                  label="Logotype (for Dark Background)"
-                  previewBackground="dark"
-                  [organizationId]="organizationId()!"
-                  [uploadStrategy]="logotype()"
-                  [currentUrl]="logotypeDarkSrc()"
-                >
-                </lib-file-uploader>
-              </div>
-            </div>
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                  <!-- Tenant Management -->
+                  <div class="flex flex-col gap-4 text-left">
+                    <label hlmLabel class="block font-bold text-lg">Modo de Organização</label>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Mono Mode Card -->
+                        <label class="relative flex cursor-pointer rounded-lg border bg-card p-4 shadow-sm focus:outline-none hover:bg-accent/50 transition-colors"
+                            [class.border-primary]="formGroup.get('tenantType')?.value === 'mono'">
+                            <input type="radio" name="tenantType" value="mono" formControlName="tenantType" class="sr-only" />
+                            <span class="flex flex-1">
+                                <span class="flex flex-col">
+                                    <span class="block text-sm font-medium text-foreground mb-1">Modo Única Organização</span>
+                                    <span class="block text-sm text-muted-foreground leading-relaxed mb-2">
+                                        Estrutura unificada onde todos os usuários e recursos pertencem a uma única entidade principal.
+                                    </span>
+                                    <span class="block text-xs text-muted-foreground bg-muted/50 p-2 rounded border border-border/50">
+                                        <strong>Exemplo de uso:</strong> Ideal para prefeituras ou empresas unificadas: Um administrador gerencia todo o sistema e usuários (sejam servidores, munícipes ou funcionários) interagem em um ambiente único.
+                                    </span>
+                                </span>
+                            </span>
+                            <div class="ml-4 shrink-0 self-start" *ngIf="formGroup.get('tenantType')?.value === 'mono'">
+                                <hlm-icon name="lucideCheck" class="h-5 w-5 text-primary" />
+                            </div>
+                        </label>
 
-            <div class="buttons">
-              <button
-                [disabled]="!formGroup.valid"
-                mat-flat-button
-                type="submit"
-                color="primary"
-              >
-                Save
-                <mat-icon class="material-symbols-outlined" iconPositionEnd
-                  >save</mat-icon
+                        <!-- Multi Mode Card -->
+                        <label class="relative flex cursor-pointer rounded-lg border bg-card p-4 shadow-sm focus:outline-none hover:bg-accent/50 transition-colors"
+                            [class.border-primary]="formGroup.get('tenantType')?.value === 'multi'">
+                            <input type="radio" name="tenantType" value="multi" formControlName="tenantType" class="sr-only" />
+                            <span class="flex flex-1">
+                                <span class="flex flex-col">
+                                    <span class="block text-sm font-medium text-foreground mb-1">Modo Múltiplas Organizações</span>
+                                    <span class="block text-sm text-muted-foreground leading-relaxed mb-2">
+                                        Estrutura hierárquica composta por uma organização principal e múltiplas sub-organizações autônomas (filiais, departamentos, secretarias).
+                                    </span>
+                                    <span class="block text-xs text-muted-foreground bg-muted/50 p-2 rounded border border-border/50 mb-4">
+                                        <strong>Exemplo de uso:</strong> Ideal para estruturas complexas, como uma Prefeitura com Secretarias/Autarquias ou uma Holding com suas Filiais/Subsidiárias. Usuários podem ter papéis distintos em cada unidade (ex: Gerente na Matriz e Visitante na Filial), com dados e acessos segregados.
+                                    </span>
+                                    
+                                </span>
+                            </span>
+                            <div class="ml-4 shrink-0 self-start" *ngIf="formGroup.get('tenantType')?.value === 'multi'">
+                                <hlm-icon name="lucideCheck" class="h-5 w-5 text-primary" />
+                            </div>
+                        </label>
+                    </div>
+                  </div>
+
+                  <!-- Organization Types -->
+                  <div class="flex flex-col gap-2 p-4 border border-border rounded-lg bg-background h-full">
+                        <label hlmLabel class="block mb-2 font-semibold">Gerenciar Tipos de Organização</label>
+                        <div class="flex gap-2 mb-3">
+                            <input hlmInput [formControl]="formGroup.controls.newOrgType" placeholder="Novo tipo (ex: Secretaria)" class="flex-1 h-9" (keydown.enter)="$event.preventDefault(); addOrgType()" />
+                            <button hlmBtn variant="secondary" type="button" (click)="addOrgType()" class="h-9">Adicionar</button>
+                        </div>
+                        
+                        <div class="flex flex-col gap-2 overflow-y-auto max-h-[300px]">
+                            @for (type of formGroup.get('organizationTypes')?.value; track $index) {
+                                <div class="flex items-center justify-between p-2 rounded bg-muted/50 border border-border/50">
+                                    <span class="text-sm">{{ type }}</span>
+                                    <button hlmBtn variant="ghost" size="icon" type="button" (click)="removeOrgType($index)" class="h-6 w-6 text-destructive hover:text-destructive">
+                                        <hlm-icon name="lucideX" size="14" />
+                                    </button>
+                                </div>
+                            }
+                            @if (!formGroup.get('organizationTypes')?.value?.length) {
+                                <span class="text-sm text-muted-foreground italic text-center py-2">Nenhum tipo adicionado.</span>
+                            }
+                        </div>
+                  </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Logo (Light Background) -->
+                <!--
+                <div>
+                  <lib-file-uploader
+                    id="logo"
+                    label="Logomark (for Light Background)"
+                    [organizationId]="organizationId()!"
+                    [uploadStrategy]="logomark()"
+                    [currentUrl]="logomarkSrc()"
+                  >
+                  </lib-file-uploader>
+                </div>
+                -->
+
+                <!-- Logo (Dark Background) -->
+                <!--
+                <div>
+                  <lib-file-uploader
+                    id="logoDark"
+                    label="Logomark (for Dark Background)"
+                    previewBackground="dark"
+                    [uploadStrategy]="logomark()"
+                    [organizationId]="organizationId()!"
+                    [currentUrl]="logomarkDarkSrc()"
+                  >
+                  </lib-file-uploader>
+                </div>
+                -->
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Logo (Light Background) -->
+                <!--
+                <div>
+                  <lib-file-uploader
+                    id="logo"
+                    label="Logotype (for Light Background)"
+                    [organizationId]="organizationId()!"
+                    [uploadStrategy]="logotype()"
+                    [currentUrl]="logotypeSrc()"
+                  >
+                  </lib-file-uploader>
+                </div>
+                -->
+
+                <!-- Logo (Dark Background) -->
+                <!--
+                <div>
+                  <lib-file-uploader
+                    id="logoDark"
+                    label="Logotype (for Dark Background)"
+                    previewBackground="dark"
+                    [uploadStrategy]="logotype()"
+                    [currentUrl]="logotypeDarkSrc()"
+                  >
+                  </lib-file-uploader>
+                </div>
+                -->
+              </div>
+
+              <div class="flex justify-end pt-4">
+                <button
+                  hlmBtn
+                  type="submit"
+                  [disabled]="!formGroup.valid"
                 >
-              </button>
-            </div>
-          </form>
+                  <hlm-icon name="lucideSave" class="mr-2 h-4 w-4" />
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    }
   </div>
 </div>

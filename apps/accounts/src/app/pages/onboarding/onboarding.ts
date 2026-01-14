@@ -1,54 +1,73 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { Router } from '@angular/router';
-import { LoadingContent } from '../../../../projects/shared/src/public-api';
+import {
+  HlmCardDirective,
+  HlmCardContentDirective,
+  HlmCardHeaderDirective,
+  HlmCardTitleDirective,
+  HlmIconComponent,
+  LoadingContent,
+} from '../../../../projects/shared/src/public-api';
+import { Router, RouterModule } from '@angular/router';
 import { CreateOrganization } from '../../components/create-organization/create-organization';
-import { OrganizationSwitcher } from '../../components/organization-switcher/organization-switcher';
 import { OrganizationState } from '../../states/organization/organization.state';
 import { IOrganization } from '../organizations/dto/organization.dto';
-import { MatIconModule } from '@angular/material/icon';
-import { NgClass } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ProfileState } from '../../states/profile/profile.state';
+import { AuthState } from '../../states/auth/auth.state';
 import { TranslateModule } from '@ngx-translate/core';
+import { provideIcons } from '@ng-icons/core';
+import { lucideLoader2 } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-onboarding',
+  standalone: true,
   imports: [
+    CommonModule,
+    RouterModule,
     LoadingContent,
-    OrganizationSwitcher,
     CreateOrganization,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    NgClass,
+    HlmCardDirective,
+    HlmCardContentDirective,
+    HlmCardHeaderDirective,
+    HlmCardTitleDirective,
+    HlmIconComponent,
     TranslateModule,
   ],
+  providers: [provideIcons({ lucideLoader2 })],
   templateUrl: './onboarding.html',
-  styleUrl: './onboarding.scss',
 })
 export class Onboarding {
-  step = signal<number>(0);
-  loading = signal<boolean>(false);
-
+  authState = inject(AuthState);
   organizationState = inject(OrganizationState);
   profileState = inject(ProfileState);
   router = inject(Router);
 
-  name = computed(() => this.profileState.value()?.firstName)
+  name = computed(() => this.profileState.value()?.firstName);
+
+  isLoading = computed(() => 
+    !this.authState.isAuthenticated() ||
+    this.profileState.loading() || 
+    this.organizationState.loading()
+  );
+
+  hasOrganizations = computed(() => 
+    this.organizationState.value().myOrganizations.length > 0
+  );
 
   constructor() {
+    this.profileState.refresh();
+    this.organizationState.refresh();
+    
     effect(() => {
       const selectedOrganization =
         this.organizationState.selectedOrganization();
-      if (selectedOrganization) this.goToDashboard();
-    });
-
-    effect(() => {
-      const organizations = this.organizationState.value().myOrganizations;
-      if (organizations.length === 1)
-        this.organizationState.selectOrganization(organizations[0]);
-      else if (organizations.length > 1) this.step.set(1);
+      if (selectedOrganization) {
+        this.goToDashboard();
+      } else if (this.hasOrganizations() && !this.organizationState.loading()) {
+        // If has organizations but none selected, select first
+        const orgs = this.organizationState.value().myOrganizations;
+        this.organizationState.selectOrganization(orgs[0]);
+      }
     });
   }
 
@@ -58,5 +77,10 @@ export class Onboarding {
 
   goToDashboard() {
     this.router.navigate(['/'], { replaceUrl: true });
+  }
+
+  retry() {
+    this.profileState.refresh();
+    this.organizationState.refresh();
   }
 }

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
@@ -26,6 +31,7 @@ export class OrganizationService {
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
 
+    @Inject(forwardRef(() => RoleService))
     private readonly roleService: RoleService,
   ) {}
 

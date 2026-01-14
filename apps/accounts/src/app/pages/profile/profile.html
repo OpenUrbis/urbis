@@ -1,101 +1,99 @@
 <lib-loading-content [loading]="profileState.loading()">
-  <div class="row pt-5 justify-content-center">
-    <div class="col-12 col-sm-12 col-md-8 col-xl-6">
-      <div
-        class="d-flex pt-5 flex-column justify-items-center align-items-center header pb-5"
-      >
-        <app-profile-avatar />
-        <h3>{{ "profile.page.title" | translate: { name: fullName() } }}</h3>
-        <p>{{ "profile.page.subtitle" | translate }}</p>
+  <div class="max-w-3xl mx-auto p-4 md:p-6">
+    <div hlmCard class="overflow-hidden">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row items-start md:items-center gap-6 p-6 border-b border-border bg-muted/10">
+        <app-profile-avatar [size]="80" class="rounded-full border-4 border-background shadow-sm" />
+        
+        <div class="flex-1 space-y-1">
+          <div class="flex items-center gap-2">
+            <h3 class="text-2xl font-semibold tracking-tight">{{ fullName() }}</h3>
+            <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 capitalize">
+                {{ "components.shared.status." + status() | translate }}
+            </span>
+          </div>
+          <p class="text-muted-foreground">{{ email() }}</p>
+          @if (isEmailConfirmed()) {
+            <div class="flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-500 pt-1">
+              <hlm-icon name="lucideCheck" size="14" />
+              <span>{{ "pages.profile.email.verified" | translate }}</span>
+            </div>
+          }
+        </div>
+
+        <a hlmBtn variant="outline" size="sm" routerLink="/profile/edit" class="gap-2 shadow-sm">
+            <hlm-icon name="lucidePencil" size="14" />
+            {{ 'pages.profile.page.actions.edit' | translate }}
+        </a>
       </div>
 
-      <mat-card class="profile-content">
-        <mat-card-content>
-          <div class="w-100 d-flex justify-content-between align-items-center">
-            <p class="date-info">
-              {{ "pages.profile.page.accountInfoCreated" | translate }}
-              {{ createdAt() | date: "dd/MM/yyyy" }},
-              {{ "pages.profile.page.accountInfoUpdated" | translate }}
-              {{ updatedAt() | date: "dd/MM/yyyy" }},
-              {{ "pages.profile.page.accountInfoStatus" | translate }}
-              {{ "components.shared.status." + status() | translate }}
-            </p>
-            <a
-              matIconButton
-              routerLink="/profile/edit"
-              [attr.aria-label]="
-                'pages.profile.page.actions.edit' | translate
-              "
-            >
-              <mat-icon class="material-symbols-outlined">create</mat-icon>
-            </a>
-          </div>
+      <!-- Content -->
+      <div hlmCardContent class="p-6 grid gap-8 md:grid-cols-2">
+         <!-- Contact Info -->
+         <div class="space-y-4">
+             <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+               {{ "pages.profile.fields.email" | translate }}
+             </h4>
+             
+             <!-- Email -->
+             <div class="flex items-start gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-foreground">
+                   <hlm-icon name="lucideMail" size="16" />
+                </div>
+                <div class="grid gap-0.5">
+                   <span class="text-sm font-medium leading-none">{{ "pages.profile.fields.email" | translate }}</span>
+                   <span class="text-sm text-muted-foreground">{{ email() }}</span>
+                </div>
+             </div>
 
-          <mat-list class="user-info">
-            <mat-list-item class="info-item">
-              <mat-icon
-                class="material-symbols-outlined profile-icon-info"
-                matListItemIcon
-              >
-                badge
-              </mat-icon>
-              <span matListItemTitle>
-                {{ "pages.profile.fields.name" | translate }}
-              </span>
-              <span matListItemLine>{{ fullName() }}</span>
-            </mat-list-item>
-            <mat-divider />
-            <mat-list-item class="info-item">
-              <mat-icon
-                class="material-symbols-outlined profile-icon-info"
-                matListItemIcon
-              >
-                mail
-              </mat-icon>
-              <span matListItemTitle>
-                {{ "pages.profile.fields.email" | translate }}
-              </span>
-              <span matListItemLine>
-                {{ email() }}
-                @if (isEmailConfirmed()) {
-                  <span class="verified">
-                    {{ "pages.profile.email.verified" | translate }}
-                  </span>
-                }
-              </span>
-              @if (!isEmailConfirmed()) {
-                <span matListItemMeta>
-                  <lib-loading-button
-                    apperance="outlined"
-                    [loading]="loadingResend()"
-                    (click)="resendEmailConfirmation()"
-                    [attr.aria-label]="
-                      'pages.profile.email.resend' | translate
-                    "
-                  >
-                    {{ "pages.profile.email.resend" | translate }}
-                  </lib-loading-button>
-                </span>
-              }
-            </mat-list-item>
-            <mat-divider />
-            <mat-list-item class="info-item">
-              <mat-icon
-                class="material-symbols-outlined profile-icon-info"
-                matListItemIcon
-              >
-                public
-              </mat-icon>
-              <span matListItemTitle>
-                {{ "pages.profile.fields.country" | translate }}
-              </span>
-              <span matListItemLine>
-                {{ country() }}
-              </span>
-            </mat-list-item>
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
+             <!-- Country -->
+             <div class="flex items-start gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-foreground">
+                   <hlm-icon name="lucideGlobe" size="16" />
+                </div>
+                <div class="grid gap-0.5">
+                   <span class="text-sm font-medium leading-none">{{ "pages.profile.fields.country" | translate }}</span>
+                   <span class="text-sm text-muted-foreground">{{ country() || '-' }}</span>
+                </div>
+             </div>
+             
+             <!-- Resend Action -->
+             @if (!isEmailConfirmed()) {
+                <div class="pt-2 pl-11">
+                    <lib-loading-button apperance="outlined" [loading]="loadingResend()" (click)="resendEmailConfirmation()">
+                      {{ "pages.profile.email.resend" | translate }}
+                    </lib-loading-button>
+                </div>
+             }
+         </div>
+
+         <!-- Account Meta -->
+         <div class="space-y-4">
+             <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+               {{ "pages.profile.page.accountInfoStatus" | translate }}
+             </h4>
+             
+             <div class="flex items-start gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                   <hlm-icon name="lucideCalendar" size="16" />
+                </div>
+                <div class="grid gap-0.5">
+                   <span class="text-sm font-medium leading-none">{{ "pages.profile.page.accountInfoCreated" | translate }}</span>
+                   <span class="text-sm text-muted-foreground">{{ createdAt() | date: "mediumDate" }}</span>
+                </div>
+             </div>
+
+             <div class="flex items-start gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                   <hlm-icon name="lucideCalendar" size="16" />
+                </div>
+                <div class="grid gap-0.5">
+                   <span class="text-sm font-medium leading-none">{{ "pages.profile.page.accountInfoUpdated" | translate }}</span>
+                   <span class="text-sm text-muted-foreground">{{ updatedAt() | date: "mediumDate" }}</span>
+                </div>
+             </div>
+         </div>
+      </div>
     </div>
   </div>
 </lib-loading-content>

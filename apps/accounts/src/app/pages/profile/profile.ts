@@ -1,14 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -16,7 +8,14 @@ import {
   LoadingButton,
   LoadingContent,
   phoneFormGroup,
+  HlmToasterService,
+  HlmButtonDirective,
+  HlmCardDirective,
+  HlmCardContentDirective,
+  HlmIconComponent,
 } from '../../../../projects/shared/src/public-api';
+import { provideIcons } from '@ng-icons/core';
+import { lucidePencil, lucideUser, lucideMail, lucideGlobe, lucideCheck, lucideCalendar } from '@ng-icons/lucide';
 import { mergeFormGroups } from '../../shared/utils/merge-form-groups';
 import { ProfileState } from '../../states/profile/profile.state';
 import { UsersApi } from '../users/services/users-api';
@@ -26,24 +25,31 @@ import { ProfileAvatarComponent } from '../../components/profile-avatar/profile-
 
 @Component({
   selector: 'app-profile',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCardModule,
+    HlmCardDirective,
+    HlmCardContentDirective,
+    HlmButtonDirective,
+    HlmIconComponent,
     LoadingContent,
-    MatButtonModule,
-    MatIconModule,
-    MatDividerModule,
-    MatListModule,
     LoadingButton,
     RouterModule,
     TranslateModule,
     ProfileAvatarComponent,
   ],
+  providers: [
+    provideIcons({
+      lucidePencil,
+      lucideUser,
+      lucideMail,
+      lucideGlobe,
+      lucideCheck,
+      lucideCalendar,
+    })
+  ],
   templateUrl: './profile.html',
-  styleUrl: './profile.scss',
 })
 export class Profile {
   loadingResend = signal<boolean>(false);
@@ -74,7 +80,7 @@ export class Profile {
 
   profileState = inject(ProfileState);
   userApi = inject(UsersApi);
-  matSnackBar = inject(MatSnackBar);
+  toaster = inject(HlmToasterService);
   translate = inject(TranslateService);
 
   constructor() {
@@ -97,10 +103,13 @@ export class Profile {
 
     try {
       await firstValueFrom(this.userApi.resendEmailConfirmation());
+      this.toaster.success(
+        this.translate.instant('pages.profile.email.resendSuccess')
+      );
     } catch (err) {
       console.error(err);
-      this.matSnackBar.open(
-        this.translate.instant('pages.profile.email.resendError'),
+      this.toaster.error(
+        this.translate.instant('pages.profile.email.resendError')
       );
     } finally {
       this.loadingResend.set(false);

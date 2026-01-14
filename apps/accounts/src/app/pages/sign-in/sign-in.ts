@@ -7,12 +7,18 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+  HlmButtonDirective,
+  HlmCardDirective,
+  HlmCardContentDirective,
+  HlmCardFooterDirective,
+  HlmCardHeaderDirective,
+  HlmCardTitleDirective,
+  HlmCardDescriptionDirective,
+  HlmInputDirective,
+  HlmLabelDirective,
+} from '../../../../projects/shared/src/public-api';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import {
@@ -28,13 +34,19 @@ import { SignInApi } from './services/sign-in-api';
 
 @Component({
   selector: 'app-sign-in',
+  standalone: true,
   imports: [
     CommonModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatFormFieldModule,
-    MatCardModule,
+    RouterModule,
+    HlmInputDirective,
+    HlmButtonDirective,
+    HlmLabelDirective,
+    HlmCardDirective,
+    HlmCardContentDirective,
+    HlmCardFooterDirective,
+    HlmCardHeaderDirective,
+    HlmCardTitleDirective,
+    HlmCardDescriptionDirective,
     ReactiveFormsModule,
     TranslateModule,
     RecaptchaV3Module,
@@ -49,7 +61,6 @@ import { SignInApi } from './services/sign-in-api';
     },
   ],
   templateUrl: './sign-in.html',
-  styleUrl: './sign-in.scss',
 })
 export class SignIn implements OnInit {
   formGroup = new FormGroup({

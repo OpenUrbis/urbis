@@ -50,6 +50,15 @@ export class RoleService {
     return role;
   }
 
+  async findDefault(organizationId?: string): Promise<Role | null> {
+    return this.roleRepository.findOne({
+      where: {
+        isDefault: true,
+        organizationId: organizationId ? organizationId : IsNull(),
+      },
+    });
+  }
+
   private async syncPermissions(
     roleId: string,
     dtos: AddPermissionToRoleDto[],
@@ -76,9 +85,17 @@ export class RoleService {
   }
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
-    const { permissions, name, description, organizationId } = createRoleDto;
+    const { permissions, name, description, organizationId, isDefault } =
+      createRoleDto;
 
-    const role = this.roleRepository.create({ name, description });
+    if (isDefault && organizationId) {
+      await this.roleRepository.update(
+        { organization: { id: organizationId } },
+        { isDefault: false },
+      );
+    }
+
+    const role = this.roleRepository.create({ name, description, isDefault });
     if (organizationId) {
       role.organization = { id: organizationId } as Organization;
     }
@@ -94,6 +111,18 @@ export class RoleService {
   async update(id: string, updateRoleDto: UpdateRoleDto): Promise<Role> {
     const { permissions, ...roleData } = updateRoleDto;
     const role = await this.findOne(id);
+
+    if (
+      roleData.isDefault &&
+      (roleData.organizationId || role.organizationId)
+    ) {
+      const orgId = roleData.organizationId || role.organizationId;
+      await this.roleRepository.update(
+        { organization: { id: orgId } },
+        { isDefault: false },
+      );
+    }
+
     Object.assign(role, roleData);
     if (roleData.organizationId) {
       role.organization = { id: roleData.organizationId } as Organization;
@@ -109,10 +138,10 @@ export class RoleService {
 
   async assign(
     data: AssignRoleDto,
-    organization: Organization,
+    organization?: Organization,
     entityManager?: EntityManager,
   ) {
-    const { userId, roleId, organizationId = organization.id } = data;
+    const { userId, roleId, organizationId = organization?.id } = data;
     const assign = await this.userRoleAssignmentRepository.findOne({
       where: {
         userId,

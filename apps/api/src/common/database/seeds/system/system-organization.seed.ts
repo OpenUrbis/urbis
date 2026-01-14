@@ -9,7 +9,6 @@ export class SystemOrganizationSeedService {
   constructor(
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
-
     private configService: ConfigService,
   ) {}
 
@@ -25,7 +24,12 @@ export class SystemOrganizationSeedService {
 
     const org = this.organizationRepository.create({
       id: organizationId,
-      name: this.configService.get('admin.organization.name'),
+      name: 'Codata',
+      metadata: {
+        tenantType: 'mono',
+        organizationType: 'Secretaria',
+        organizationTypes: ['Secretaria', 'Empresa', 'Autarquia'],
+      },
     });
 
     return this.organizationRepository.save(org);

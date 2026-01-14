@@ -6,32 +6,33 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { firstValueFrom } from 'rxjs';
 import {
+  HlmInputDirective,
+  HlmLabelDirective,
   LoadingButton,
   LoadingContent,
 } from '../../../../../../projects/shared/src/public-api';
+import { HlmToasterService } from '../../../../../../projects/shared/src/public-api';
+import { firstValueFrom } from 'rxjs';
 import { TwoFactorApi } from '../../services/two-factor-api';
 import { TwoFactorVerify } from '../two-factor-verify/two-factor-verify';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-two-factor-setup',
+  standalone: true,
   imports: [
-    MatInputModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
     CommonModule,
+    ReactiveFormsModule,
+    HlmInputDirective,
+    HlmLabelDirective,
     LoadingContent,
     LoadingButton,
     TwoFactorVerify,
     TranslateModule,
+
   ],
   templateUrl: './two-factor-setup.html',
-  styleUrl: './two-factor-setup.scss',
 })
 export class TwoFactorSetup {
   useOidcFlow = input<boolean>(true);
@@ -54,7 +55,7 @@ export class TwoFactorSetup {
 
 
   twoFactorApi = inject(TwoFactorApi);
-  matSnackBar = inject(MatSnackBar);
+  toaster = inject(HlmToasterService);
   translate = inject(TranslateService);
 
   constructor() {
@@ -85,8 +86,8 @@ export class TwoFactorSetup {
       this.resendCount.set(60);
     } catch (err) {
       console.error(err);
-      this.matSnackBar.open(
-        this.translate.instant('components.twoFactorSetup.errors.resend'),
+      this.toaster.error(
+        this.translate.instant('components.twoFactorSetup.errors.resend')
       );
     } finally {
       this.contentLoading.set(false);
@@ -96,10 +97,10 @@ export class TwoFactorSetup {
 
   async setup(): Promise<any> {
     if (this.emailOtp.invalid)
-      return this.matSnackBar.open(
+      return this.toaster.error(
         this.translate.instant(
-          'components.twoFactorSetup.errors.emailOtpInvalid',
-        ),
+          'components.twoFactorSetup.errors.emailOtpInvalid'
+        )
       );
     this.loading.set(true);
 
@@ -113,12 +114,12 @@ export class TwoFactorSetup {
     } catch (err: any) {
       console.error(err);
       const isInvalid = err?.error?.isInvalid;
-      this.matSnackBar.open(
+      this.toaster.error(
         isInvalid
           ? this.translate.instant(
-              'components.twoFactorSetup.errors.invalidCode',
-            )
-          : this.translate.instant('components.twoFactorSetup.errors.validate'),
+            'components.twoFactorSetup.errors.invalidCode'
+          )
+          : this.translate.instant('components.twoFactorSetup.errors.validate')
       );
     } finally {
       this.loading.set(false);

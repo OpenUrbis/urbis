@@ -1,40 +1,40 @@
-<div class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-6 overflow-y-auto">
-  <div class="w-full max-w-[400px]">
+<div class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-2 sm:p-2 overflow-y-auto">
+  <div class="w-full max-w-[380px]">
     <form (ngSubmit)="onSubmit()" [formGroup]="formGroup" class="w-full">
-      <section hlmCard class="w-full p-2 shadow-lg border-border">
-        <div hlmCardHeader>
-          <h2 hlmCardTitle class="text-xl m-0 p-0 font-bold tracking-tight text-primary">
+      <section hlmCard class="w-full border-border">
+        <header hlmCardHeader class="pb-2">
+          <h1 hlmCardTitle class="text-xl m-0 p-0 font-bold text-primary">
             {{ "pages.signIn.title" | translate }}
-          </h2>
+          </h1>
           <p hlmCardDescription class="text-xs text-muted-foreground m-0 p-0 mt-2">
             {{ "pages.signIn.subtitle" | translate }}
           </p>
-        </div>
+        </header>
 
-        <div hlmCardContent class="p-2 pt-2 flex flex-col gap-3">
+        <div hlmCardContent class="flex flex-col gap-3 pt-3">
           <div class="flex flex-col gap-1.5">
-            <label hlmLabel for="email" class="text-xs">{{ "pages.signIn.form.fields.email" | translate }}</label>
+            <label hlmLabel for="email" class="text-xs text-foreground">{{ "pages.signIn.form.fields.email" | translate }}</label>
             <input hlmInput id="email" type="email"
               placeholder="{{ 'pages.signIn.form.placeholders.email' | translate }}" formControlName="email"
-              class="w-full h-9 text-sm" />
+              class="w-full h-9 text-sm bg-background text-foreground" />
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label hlmLabel for="password" class="text-xs">{{ "pages.signIn.form.fields.password" | translate }}</label>
+            <label hlmLabel for="password" class="text-xs text-foreground">{{ "pages.signIn.form.fields.password" | translate }}</label>
             <input hlmInput id="password" type="password"
               placeholder="{{ 'pages.signIn.form.placeholders.password' | translate }}" formControlName="password"
-              class="w-full h-9 text-sm" />
+              class="w-full h-9 text-sm bg-background text-foreground" />
           </div>
 
           <div class="flex justify-end">
-            <a href="/forgot-password"
-              class="text-xs font-medium text-primary hover:underline transition-all no-underline">
+            <a hlmBtn variant="outline" size="sm" href="/forgot-password"
+              class="text-xs font-medium no-underline">
               {{ "pages.signIn.form.links.forgotPassword" | translate }}
             </a>
           </div>
         </div>
 
-        <div hlmCardFooter class="flex flex-col gap-3 p-2 pt-0">
+        <div hlmCardFooter class="flex flex-col gap-3 pt-0">
           <button hlmBtn class="w-full font-semibold h-9 text-sm" [disabled]="formGroup.invalid">
             {{ "pages.signIn.form.buttons.submit" | translate }}
           </button>

@@ -1,18 +1,18 @@
 <div class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-6 overflow-y-auto">
-  <div class="w-full max-w-[512px]">
+  <div class="w-full max-w-[424px]">
     <form (ngSubmit)="submit()" [formGroup]="formGroup" class="w-full">
-      <section hlmCard class="w-full shadow-lg border-border">
-        <header hlmCardHeader class="pt-6 pb-2 flex flex-row items-center gap-2">
+      <section hlmCard class="w-full border-border">
+        <header hlmCardHeader class="pt-2 pb-2 flex flex-row items-center gap-0">
           <a hlmBtn variant="ghost" size="icon" [attr.aria-label]="'pages.signUp.actions.back' | translate" href="/"
-            class="shrink-0 rounded-full h-8 w-8">
+            class="shrink-0 rounded-full h-8 w-8 mt-2">
             <hlm-icon name="lucideArrowLeft" size="18" />
           </a>
-          <h1 hlmCardTitle class="text-xl font-bold tracking-tight text-primary">
+          <h1 hlmCardTitle class="text-xl ml-4 mt-0 font-bold tracking-tight text-primary">
             {{ "pages.signUp.title" | translate }}
           </h1>
         </header>
 
-        <div hlmCardContent class="flex flex-col gap-3 p-6 pt-2">
+        <div hlmCardContent class="flex flex-col gap-3 p-2 pt-2">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="flex flex-col gap-1.5">
               <label hlmLabel for="firstName" class="text-xs">{{ "pages.signUp.form.fields.firstName" | translate }}</label>
@@ -39,7 +39,7 @@
           <lib-password-form-group [formGroup]="formGroup" />
         </div>
 
-        <div class="flex items-center p-6 pt-0">
+        <div class="flex items-center p-2 pt-0">
           <button hlmBtn class="w-full font-semibold h-9 text-sm" [disabled]="formGroup.invalid"
             [attr.aria-label]="'pages.signUp.form.buttons.submit' | translate">
             {{ "pages.signUp.form.buttons.submit" | translate }}

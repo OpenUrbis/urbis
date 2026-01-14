@@ -1,7 +1,7 @@
 <app-page-structure
   [title]="!onlyTable() ? ('pages.users.page.title' | translate) : undefined"
   [subtitle]="!onlyTable() ? ('pages.users.page.subtitle' | translate) : undefined"
-  [containerClasses]="onlyTable() ? [] : ['pt-5']"
+  [containerClasses]="onlyTable() ? [] : ['']"
 >
   @if (!onlyTable()) {
     <section rightActions>
@@ -49,7 +49,7 @@
               </td>
               <td class="p-4 align-middle">{{ user.email }}</td>
               <td class="p-4 align-middle">
-                {{ "components.shared.status." + user.status | translate }}
+                <app-status-badge [status]="user.status" />
               </td>
               <td class="p-4 align-middle text-right">
                 <a

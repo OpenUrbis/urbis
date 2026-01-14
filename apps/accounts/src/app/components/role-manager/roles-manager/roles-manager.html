@@ -46,6 +46,11 @@
             <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
               <td class="p-4 align-middle font-medium">
                 {{ role.name }}
+                @if (role.isDefault) {
+                  <span class="ml-2 inline-flex items-center rounded-full border border-transparent bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                    {{ "components.roleManager.default" | translate }}
+                  </span>
+                }
               </td>
               <td class="p-4 align-middle text-muted-foreground">
                 {{ role.description }}
@@ -54,7 +59,7 @@
                 {{ formatPermissions(role) }}
               </td>
               <td class="p-4 align-middle">
-                {{ "components.shared.status." + role.status | translate }}
+                <app-status-badge [status]="role.status" />
               </td>
               <td class="p-4 align-middle text-right">
                 <a

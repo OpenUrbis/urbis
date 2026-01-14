@@ -59,7 +59,7 @@ export interface NavItem {
             hlmBtn
             variant="ghost"
             size="icon"
-            class="h-9 w-9 rounded-md"
+            class="h-9 w-9 rounded-md hidden md:inline-flex"
             aria-label="Toggle Navigation"
           >
             <hlm-icon name="lucideMenu" size="18" />
@@ -83,10 +83,10 @@ export interface NavItem {
           <nav class="hidden items-center gap-1 md:flex">
             <a *ngFor="let item of menuItems" 
                [href]="item.href"
-               class="flex h-7 items-center justify-center rounded-full border px-3 text-sm font-medium transition-all"
+               class="flex h-8 items-center justify-center rounded-full border px-3 text-sm font-medium transition-all"
                [ngClass]="item.active ? 
                  'border-primary bg-primary/10 text-primary font-semibold' : 
-                 'border-border bg-transparent text-foreground hover:border-secondary hover:bg-secondary/10 hover:text-secondary-foreground hover:shadow-sm'"
+                 'border-border bg-transparent text-foreground hover:border-secondary hover:bg-secondary hover:text-secondary-foreground hover:shadow-sm'"
             >
               {{ item.label }}
             </a>

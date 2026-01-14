@@ -2,7 +2,7 @@ import { LogLevel, OpenIdConfiguration } from 'angular-auth-oidc-client';
 import { environment } from '../../../../../src/environments/environment';
 
 export const AUTH_CONFIG_ID = '718acb98-5696-48a6-881a-2ae454b71e16';
-export const EXTERNAL_OIDC_AUTH_CONFIG_ID = '2c131fd6-3cf1-4275-b829-ff4a0813223c';
+export const EXTERNAL_OIDC_AUTH_CONFIG_ID = '2c131fd6-3cf1-4275-b829-ff4a0813223d';
 
 const commomAuthConfig: Partial<OpenIdConfiguration> = {
   forbiddenRoute: '/forbidden',
@@ -10,7 +10,7 @@ const commomAuthConfig: Partial<OpenIdConfiguration> = {
   refreshTokenRetryInSeconds: 10,
   logLevel: LogLevel.Error,
   postLogoutRedirectUri: window.location.origin,
-  scope: 'openid offline_access',
+  scope: 'openid profile email offline_access',
   responseType: 'code',
   maxIdTokenIatOffsetAllowedInSeconds: 4200,
   ignoreNonceAfterRefresh: true,
@@ -34,7 +34,7 @@ export const externalOidcAuthConfig: OpenIdConfiguration = {
   secureRoutes: environment.externalOidcSecureRoutes,
   authority: environment.externalOidcAuthority,
   redirectUrl: `${window.location.origin}/callback`,
-  authWellknownUrlSuffix: '/auth/oidc/.well-known/openid-configuration',
+  authWellknownUrlSuffix: '/.well-known/openid-configuration',
   clientId: environment.externalOidcClientId,
   triggerAuthorizationResultEvent: true,
 };

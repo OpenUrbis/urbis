@@ -12,95 +12,107 @@
         --font-family: 'Noto Sans', sans-serif;
         --radius: 16px;
 
-        --background:        #f6fafe;
-        --foreground:        #181c20;
+        --background: #f6fafe;
+        --foreground: #181c20;
 
-        --card:              #f0f4f8;
-        --card-foreground:   #181c20;
+        --card: #f0f4f8;
+        --card-foreground: #181c20;
 
-        --popover:           #ffffff;
-        --popover-foreground:#181c20;
+        --popover: #ffffff;
+        --popover-foreground: #181c20;
 
-        --primary:           #1e6ff9;
-        --primary-foreground:#ffffff;
+        --primary: #1e6ff9;
+        --primary-foreground: #ffffff;
 
-        --secondary:         #a8f0b8;
-        --secondary-foreground:#0a1f0e;
+        --secondary: #a8f0b8;
+        --secondary-foreground: #0a1f0e;
 
-        --muted:             #dde3ea;
-        --muted-foreground:  #41474d;
+        --muted: #dde3ea;
+        --muted-foreground: #41474d;
 
-        --accent:            #a8f0b8;
+        --accent: #a8f0b8;
         --accent-foreground: #0a1f0e;
 
-        --destructive:       #ba1a1a;
-        --destructive-foreground:#ffffff;
+        --destructive: #ba1a1a;
+        --destructive-foreground: #ffffff;
 
-        --border:            #c1c7ce;
-        --input:             #c1c7ce;
-        --ring:              #1e88e5;
+        --border: #c1c7ce;
+        --input: #c1c7ce;
+        --ring: #1e88e5;
 
         /* Sidebar matches main theme */
-        --sidebar:           #f6fafe;
-        --sidebar-foreground:#181c20;
-        --sidebar-primary:   #1e6ff9;
+        --sidebar: #f6fafe;
+        --sidebar-foreground: #181c20;
+        --sidebar-primary: #1e6ff9;
         --sidebar-primary-foreground: #ffffff;
-        --sidebar-accent:    #a8f0b8;
+        --sidebar-accent: #a8f0b8;
         --sidebar-accent-foreground: #0a1f0e;
-        --sidebar-border:    #c1c7ce;
-        --sidebar-ring:      #1e88e5;
+        --sidebar-border: #c1c7ce;
+        --sidebar-ring: #1e88e5;
+
+        body {
+            --background: #f6fafe;
+            --foreground: #181c20;
+            --primary: #1e6ff9;
+        }
     }
 
     .dark {
-        --background:        #101417;
-        --foreground:        #dfe3e7;
+        --background: #101417;
+        --foreground: #dfe3e7;
 
-        --card:              #1b2023;
-        --card-foreground:   #dfe3e7;
+        --card: #1b2023;
+        --card-foreground: #dfe3e7;
 
-        --popover:           #0a0f12;
-        --popover-foreground:#dfe3e7;
+        --popover: #0a0f12;
+        --popover-foreground: #dfe3e7;
 
-        --primary:           #92cef5;
-        --primary-foreground:#00344c;
+        --primary: #92cef5;
+        --primary-foreground: #00344c;
 
-        --secondary:         #0a1f0e;
-        --secondary-foreground:#e8fbe7;
+        --secondary: #0a1f0e;
+        --secondary-foreground: #e8fbe7;
 
-        --muted:             #41474d;
-        --muted-foreground:  #c1c7ce;
+        --muted: #41474d;
+        --muted-foreground: #c1c7ce;
 
-        --accent:            #9ed49d;
+        --accent: #9ed49d;
         --accent-foreground: #033912;
 
-        --destructive:       #ffb4ab;
-        --destructive-foreground:#690005;
+        --destructive: #ffb4ab;
+        --destructive-foreground: #690005;
 
-        --border:            #41474d;
-        --input:             #41474d;
-        --ring:              #6ee7e7;
+        --border: #41474d;
+        --input: #41474d;
+        --ring: #6ee7e7;
 
         /* Sidebar matches dark theme */
-        --sidebar:           #101417;
-        --sidebar-foreground:#dfe3e7;
-        --sidebar-primary:   #92cef5;
+        --sidebar: #101417;
+        --sidebar-foreground: #dfe3e7;
+        --sidebar-primary: #92cef5;
         --sidebar-primary-foreground: #00344c;
-        --sidebar-accent:    #9ed49d;
+        --sidebar-accent: #9ed49d;
         --sidebar-accent-foreground: #033912;
-        --sidebar-border:    #41474d;
-        --sidebar-ring:      #6ee7e7;
+        --sidebar-border: #41474d;
+        --sidebar-ring: #6ee7e7;
+
+        body {
+            --background: #101417;
+            --foreground: #dfe3e7;
+            --primary: #92cef5;
+        }
     }
 
     .high-contrast {
         --border: #41474d;
-        --input:  #41474d;
-        --ring:   #6ee7e7;
+        --input: #41474d;
+        --ring: #6ee7e7;
     }
 
     .dark.high-contrast {
         --border: #d9e0e8;
-        --input:  #d9e0e8;
-        --ring:   #d9e0e8;
+        --input: #d9e0e8;
+        --ring: #d9e0e8;
     }
 
     * {

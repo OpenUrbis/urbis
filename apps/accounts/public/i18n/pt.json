@@ -1,16 +1,16 @@
 {
   "pages": {
     "signIn": {
-      "title": "Acessar conta",
-      "subtitle": "Insira os dados abaixo.",
+      "title": "Identifique-se no sistema",
+      "subtitle": "Insira os dados abaixo para acessar sua conta na Urbis.",
       "form": {
         "fields": {
-          "email": "Email",
+          "email": "E-mail",
           "password": "Senha"
         },
         "placeholders": {
-          "email": "Placeholder",
-          "password": "Placeholder"
+          "email": "example@prefeitura.gov.br",
+          "password": "******"
         },
         "buttons": {
           "govbr": "Entrar com GovBR",
@@ -395,8 +395,8 @@
         "loading": "Carregando..."
       },
       "status": {
-        "active": "ativo",
-        "inactive": "inativo"
+        "active": "Ativo",
+        "inactive": "Inativo"
       }
     },
     "lib": {

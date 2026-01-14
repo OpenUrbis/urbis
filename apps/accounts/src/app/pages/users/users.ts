@@ -8,6 +8,7 @@ import { HlmButtonDirective, HlmIconComponent } from '../../../../projects/share
 import { provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
 import { CommonModule } from '@angular/common';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 
 @Component({
   selector: 'app-users',
@@ -18,7 +19,8 @@ import { CommonModule } from '@angular/common';
     TranslateModule,
     PageStructure,
     HlmButtonDirective,
-    HlmIconComponent
+    HlmIconComponent,
+    StatusBadgeComponent
   ],
   providers: [provideIcons({ lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight })],
   templateUrl: './users.html',

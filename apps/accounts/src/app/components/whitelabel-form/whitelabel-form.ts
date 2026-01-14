@@ -112,6 +112,8 @@ export class WhitelabelFormComponent {
           this.formGroup.patchValue({
             brandColor: value.shared?.primaryColor ?? '#1840dc',
             defaultTheme: value.application?.theme ?? 'light',
+            organizationName: organization.name,
+            organizationType: organization.metadata?.organizationType,
             tenantType: organization.metadata?.tenantType ?? 'mono',
             organizationTypes: (organization.metadata?.organizationTypes?.length > 0) 
               ? organization.metadata.organizationTypes 

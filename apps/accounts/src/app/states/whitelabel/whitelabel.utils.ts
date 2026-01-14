@@ -39,28 +39,28 @@ export function applyDynamicColorPalette(
 
   const base = chroma(baseColor);
   
-  // Use base color for primary.
-  const primary = base;
+  // // Use base color for primary.
+  // const primary = base;
 
-  // Calculate contrast for foreground
-  const white = '#ffffff';
-  const black = '#000000';
-  const threshold = 4.5;
-  const onPrimary = chroma.contrast(primary, white) >= threshold ? white : black;
+  // // Calculate contrast for foreground
+  // const white = '#f6fafe';
+  // const black = '#000000';
+  // const threshold = 4.5;
+  // const onPrimary = chroma.contrast(primary, white) >= threshold ? white : black;
 
-  const cssProperties: { [key: string]: string } = {
-    '--primary': primary.css(),
-    '--primary-foreground': onPrimary,
-    '--ring': primary.css(),
-    '--sidebar-primary': primary.css(),
-    '--sidebar-primary-foreground': onPrimary,
-    '--sidebar-ring': primary.css(),
-  };
+  // const cssProperties: { [key: string]: string } = {
+  //   '--primary': primary.css(),
+  //   '--primary-foreground': onPrimary,
+  //   '--ring': primary.css(),
+  //   '--sidebar-primary': primary.css(),
+  //   '--sidebar-primary-foreground': onPrimary,
+  //   '--sidebar-ring': primary.css(),
+  // };
 
-  Object.entries(cssProperties).forEach(([key, value]) => {
-      htmlStyle.setProperty(key, value);
-      bodyStyle.setProperty(key, value);
-  });
+  // Object.entries(cssProperties).forEach(([key, value]) => {
+  //     htmlStyle.setProperty(key, value);
+  //     bodyStyle.setProperty(key, value);
+  // });
 }
 
 export const oppositeTheme: Record<ApplicationTheme, ApplicationTheme> = {

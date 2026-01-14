@@ -61,6 +61,7 @@ import { SignInApi } from './services/sign-in-api';
     },
   ],
   templateUrl: './sign-in.html',
+  styleUrls: ['./sign-in.scss'],
 })
 export class SignIn implements OnInit {
   formGroup = new FormGroup({

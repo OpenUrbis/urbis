@@ -8,6 +8,7 @@ import { lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevr
 import { PageStructure } from '../../page-structure/page-structure';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
+import { StatusBadgeComponent } from '../../status-badge/status-badge.component';
 
 @Component({
   selector: 'app-roles-manager',
@@ -17,7 +18,8 @@ import { CommonModule } from '@angular/common';
     TranslateModule,
     PageStructure,
     HlmButtonDirective,
-    HlmIconComponent
+    HlmIconComponent,
+    StatusBadgeComponent
   ],
   providers: [provideIcons({ lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight })],
   templateUrl: './roles-manager.html',

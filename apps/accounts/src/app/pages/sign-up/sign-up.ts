@@ -68,6 +68,7 @@ import { SignUpApi } from './services/sign-up-api';
     RecaptchaV3Module,
   ],
   templateUrl: './sign-up.html',
+  styleUrls: ['./sign-up.scss'],
 })
 export class SignUp {
   loading = signal<boolean>(false);

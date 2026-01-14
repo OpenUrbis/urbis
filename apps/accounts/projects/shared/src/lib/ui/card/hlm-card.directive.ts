@@ -9,7 +9,7 @@ export class HlmCardDirective {
     @Input() class: string = '';
     @HostBinding('class')
     get columnClass() {
-        return hlm('rounded-lg border bg-card text-card-foreground shadow-sm block', this.class);
+        return hlm('rounded-lg border bg-card p-2 px-3 text-card-foreground block', this.class);
     }
 }
 

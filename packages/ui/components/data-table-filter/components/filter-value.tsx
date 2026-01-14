@@ -185,7 +185,10 @@ export function FilterValueOptionDisplay<TData>({
           (isValidElement(Icon) ? (
             Icon
           ) : (
-            <Icon className="size-4 text-primary" />
+            (() => {
+              const ValidIcon = Icon as React.ElementType
+              return <ValidIcon className="size-4 text-primary" />
+            })()
           ))}
         <span>{label}</span>
       </span>
@@ -202,11 +205,9 @@ export function FilterValueOptionDisplay<TData>({
       {hasOptionIcons &&
         take(selected, 3).map(({ value, icon }) => {
           const Icon = icon!
-          return isValidElement(Icon) ? (
-            Icon
-          ) : (
-            <Icon key={value} className="size-4" />
-          )
+          if (isValidElement(Icon)) return Icon
+          const ValidIcon = Icon as React.ElementType
+          return <ValidIcon key={value} className="size-4" />
         })}
       <span className={cn(hasOptionIcons && 'ml-1.5')}>
         {selected.length} {pluralName}
@@ -233,7 +234,10 @@ export function FilterValueMultiOptionDisplay<TData>({
           (isValidElement(Icon) ? (
             Icon
           ) : (
-            <Icon className="size-4 text-primary" />
+            (() => {
+              const ValidIcon = Icon as React.ElementType
+              return <ValidIcon className="size-4 text-primary" />
+            })()
           ))}
 
         <span>{label}</span>
@@ -251,11 +255,9 @@ export function FilterValueMultiOptionDisplay<TData>({
         <div key="icons" className="inline-flex items-center gap-0.5">
           {take(selected, 3).map(({ value, icon }) => {
             const Icon = icon!
-            return isValidElement(Icon) ? (
-              cloneElement(Icon, { key: value })
-            ) : (
-              <Icon key={value} className="size-4" />
-            )
+            if (isValidElement(Icon)) return cloneElement(Icon, { key: value })
+            const ValidIcon = Icon as React.ElementType
+            return <ValidIcon key={value} className="size-4" />
           })}
         </div>
       )}
@@ -462,8 +464,12 @@ const OptionItem = memo(function OptionItem({
           (isValidElement(Icon) ? (
             Icon
           ) : (
-            <Icon className="size-4 text-primary" />
+            (() => {
+              const ValidIcon = Icon as React.ElementType
+              return <ValidIcon className="size-4 text-primary" />
+            })()
           ))}
+
         <span>
           {label}
           <sup

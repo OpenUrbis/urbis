@@ -49,6 +49,7 @@ import { CommonModule } from '@angular/common';
     TranslateModule,
   ],
   templateUrl: './forgot-password.html',
+  styleUrls: ['./forgot-password.scss'],
 })
 export class ForgotPassword {
   private readonly api = inject(ForgotServiceApi);

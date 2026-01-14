@@ -15,7 +15,7 @@ import {
   HlmIconComponent,
 } from '../../../../projects/shared/src/public-api';
 import { provideIcons } from '@ng-icons/core';
-import { lucidePencil, lucideUser, lucideMail, lucideGlobe, lucideCheck, lucideCalendar } from '@ng-icons/lucide';
+import { lucidePencil, lucideUser, lucideMail, lucideGlobe, lucideCheck, lucideCalendar, lucideLogIn } from '@ng-icons/lucide';
 import { mergeFormGroups } from '../../shared/utils/merge-form-groups';
 import { ProfileState } from '../../states/profile/profile.state';
 import { UsersApi } from '../users/services/users-api';
@@ -47,6 +47,7 @@ import { ProfileAvatarComponent } from '../../components/profile-avatar/profile-
       lucideGlobe,
       lucideCheck,
       lucideCalendar,
+      lucideLogIn,
     })
   ],
   templateUrl: './profile.html',
@@ -77,6 +78,11 @@ export class Profile {
   createdAt = computed(() => this.profileState.value().createdAt);
   updatedAt = computed(() => this.profileState.value().updatedAt);
   status = computed(() => this.profileState.value().status);
+
+  cpf = computed(() => this.profileState.value().cpf);
+  govBrData = computed(() => this.profileState.value().govBrData);
+  lastGovBrLoginAt = computed(() => this.profileState.value().lastGovBrLoginAt);
+  govBrFirstLoginAt = computed(() => this.profileState.value().govBrFirstLoginAt);
 
   profileState = inject(ProfileState);
   userApi = inject(UsersApi);

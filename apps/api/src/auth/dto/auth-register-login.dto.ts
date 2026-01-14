@@ -41,4 +41,24 @@ export class AuthRegisterLoginDto {
   @ApiProperty({ example: 'Doe' })
   @IsNotEmpty()
   lastName: string;
+
+  @ApiProperty()
+  @IsOptional()
+  cpf?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  govBrData?: any;
+
+  @ApiProperty()
+  @IsOptional()
+  lastGovBrLoginAt?: Date;
+
+  @ApiProperty()
+  @IsOptional()
+  govBrFirstLoginAt?: Date;
+
+  @ApiProperty()
+  @IsOptional()
+  avatarUrl?: string;
 }

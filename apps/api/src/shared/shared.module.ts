@@ -11,6 +11,7 @@ import appConfig from './../common/config/app.config';
 import authConfig from './../common/config/auth.config';
 import databaseConfig from './../common/config/database.config';
 import geocodingConfig from './../common/config/geocoding.config';
+import mapsConfig from './../common/config/maps.config';
 import recaptchaConfig from './../common/config/recaptcha.config';
 
 @Module({
@@ -23,6 +24,7 @@ import recaptchaConfig from './../common/config/recaptcha.config';
         authConfig,
         databaseConfig,
         geocodingConfig,
+        mapsConfig,
         recaptchaConfig,
       ],
       envFilePath: ['.env'],

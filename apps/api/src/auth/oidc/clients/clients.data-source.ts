@@ -13,6 +13,8 @@ export const buildClientsDataSource = (
       redirect_uris: [
         'http://localhost:4200',
         'http://localhost:4200/callback',
+        'http://conta.urbis.sampa.br/callback',
+        'https://conta.urbis.sampa.br/callback',
         'https://accounts.atlascli.io',
         'https://accounts.atlascli.io/callback',
       ],
@@ -21,6 +23,8 @@ export const buildClientsDataSource = (
       post_logout_redirect_uris: [
         'http://localhost:4200',
         'http://localhost:4200/callback',
+        'https://conta.urbis.sampa.br',
+        'https://conta.urbis.sampa.br/callback',
         'https://accounts.atlascli.io',
         'https://accounts.atlascli.io/callback',
       ],

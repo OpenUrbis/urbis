@@ -38,7 +38,7 @@ export class Callback implements OnInit {
       checkedAuths.forEach(async (auth) => {
         const { isAuthenticated, userData, errorMessage, configId } = auth;
 
-        if (configId !== AUTH_CONFIG_ID) return
+        if (configId !== AUTH_CONFIG_ID) return;
 
         if (isAuthenticated) {
           this.router.navigate(['/']);

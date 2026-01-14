@@ -287,9 +287,12 @@ export class AuthService {
 
   async createOrValidateExternalOidcUser(payload: AuthExternalStrategyDto) {
     payload.email = payload.email.toLowerCase();
-    const user = await this.userService.findOne({
+    let user = await this.userService.findOne({
       email: payload.email,
     });
+
+    const now = new Date();
+
     if (user === null) {
       await this.register(
         {
@@ -298,13 +301,47 @@ export class AuthService {
           lastName: payload.lastName,
           country: payload.country,
           password: null,
+          cpf: payload.cpf,
+          govBrData: payload.govBrData,
+          lastGovBrLoginAt: now,
+          govBrFirstLoginAt: now,
+          avatarUrl: payload.picture,
         },
         false,
       );
-      const user = await this.userService.findOne({ email: payload.email });
+      user = await this.userService.findOne({ email: payload.email });
       return { ...user, isNewUser: true };
     } else {
-      return user;
+      const updateData: any = {
+        lastGovBrLoginAt: now,
+      };
+
+      if (!user.govBrFirstLoginAt) {
+        updateData.govBrFirstLoginAt = now;
+      }
+
+      if (payload.govBrData) {
+        updateData.govBrData = payload.govBrData;
+      }
+
+      if (!user.cpf && payload.cpf) {
+        updateData.cpf = payload.cpf;
+      }
+
+      if (payload.firstName && !user.firstName) {
+        updateData.firstName = payload.firstName;
+      }
+
+      if (payload.lastName && !user.lastName) {
+        updateData.lastName = payload.lastName;
+      }
+
+      if (payload.picture) {
+        updateData.avatarUrl = payload.picture;
+      }
+
+      await this.userService.update(user.id, updateData);
+      return await this.userService.findOne({ id: user.id });
     }
   }
 }

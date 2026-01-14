@@ -4,4 +4,7 @@ export interface AuthExternalStrategyDto {
   lastName?: string;
   country?: string;
   email?: string;
+  cpf?: string;
+  picture?: string;
+  govBrData?: any;
 }

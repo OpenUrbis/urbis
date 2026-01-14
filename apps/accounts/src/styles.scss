@@ -1,13 +1,17 @@
-@use "@uppy/core/css/style.scss" as uppyCore;
-@use "@uppy/status-bar/css/style.scss" as uppyStatusBar;
-@use "@uppy/dashboard/css/style.scss" as uppyDashboard;
-@use "@uppy/image-editor/css/style.css" as uppyImageEditor;
+@use "@uppy/core/dist/style.min.css" as *;
+@use "@uppy/status-bar/dist/style.min.css" as *;
+@use "@uppy/dashboard/dist/style.min.css" as *;
+@use "@uppy/image-editor/dist/style.min.css" as *;
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/utilities";
 
 @layer base {
+    html, body {
+        --font-family: 'Noto Sans', sans-serif;
+        font-family: var(--font-family);
+        font-weight: 500;
+}
     :root {
         --font-family: 'Noto Sans', sans-serif;
         --radius: 16px;
@@ -51,6 +55,7 @@
         --sidebar-ring: #1e88e5;
 
         body {
+            --font-family: 'Noto Sans', sans-serif;
             --background: #f6fafe;
             --foreground: #181c20;
             --primary: #1e6ff9;
@@ -120,7 +125,7 @@
     }
 
     body {
-        @apply bg-background text-foreground;
+        --font-family: 'Noto Sans', sans-serif;
         font-family: var(--font-family);
         font-weight: 500;
         overflow-x: hidden;

@@ -117,13 +117,15 @@ export class SignIn implements OnInit {
 
   async signInWithExternalOidc() {
     try {
-      const { idToken, isAuthenticated, accessToken } = await firstValueFrom(
+      const { idToken, isAuthenticated, accessToken, ...all } = await firstValueFrom(
         this.oidcSecurityService.authorizeWithPopUp(
           undefined,
           undefined,
           EXTERNAL_OIDC_AUTH_CONFIG_ID,
         ),
       );
+      console.log('all', all);
+      console.log('accessToken', accessToken);
 
       if (isAuthenticated) {
         this.resolveCaptcha(

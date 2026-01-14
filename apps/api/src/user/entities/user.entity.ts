@@ -65,6 +65,18 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   phone?: string;
 
+  @Column({ nullable: true, unique: true })
+  cpf?: string;
+
+  @Column('jsonb', { nullable: true })
+  govBrData?: any;
+
+  @Column({ nullable: true })
+  lastGovBrLoginAt?: Date;
+
+  @Column({ nullable: true })
+  govBrFirstLoginAt?: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 

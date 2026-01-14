@@ -94,6 +94,68 @@
              </div>
          </div>
       </div>
+
+      <!-- Gov.br Section -->
+      @if (govBrData()) {
+        <div class="border-t border-border p-6 bg-muted/5">
+            <div class="flex items-center gap-2 mb-6">
+                 <img src="https://www.gov.br/++theme++padrao_govbr/img/govbr-colorido-b.png" alt="Gov.br" class="h-6" />
+                 <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                   Integração Gov.br
+                 </h4>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                 <!-- Last Login -->
+                 <div class="flex items-start gap-3">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                       <hlm-icon name="lucideLogIn" size="16" />
+                    </div>
+                    <div class="grid gap-0.5">
+                       <span class="text-sm font-medium leading-none">Último Login</span>
+                       <span class="text-sm text-muted-foreground">{{ lastGovBrLoginAt() | date: "medium" }}</span>
+                    </div>
+                 </div>
+
+                 <!-- First Login -->
+                 <div class="flex items-start gap-3">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                       <hlm-icon name="lucideCalendar" size="16" />
+                    </div>
+                    <div class="grid gap-0.5">
+                       <span class="text-sm font-medium leading-none">Vinculado em</span>
+                       <span class="text-sm text-muted-foreground">{{ govBrFirstLoginAt() | date: "medium" }}</span>
+                    </div>
+                 </div>
+                 
+                 <!-- CPF -->
+                 @if (cpf()) {
+                     <div class="flex items-start gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                           <hlm-icon name="lucideUser" size="16" />
+                        </div>
+                        <div class="grid gap-0.5">
+                           <span class="text-sm font-medium leading-none">CPF</span>
+                           <span class="text-sm text-muted-foreground">{{ cpf() }}</span>
+                        </div>
+                     </div>
+                 }
+            </div>
+
+            <!-- Raw Data -->
+            <div class="mt-6">
+                <details class="group">
+                    <summary class="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors select-none">
+                        <span class="group-open:rotate-90 transition-transform">▶</span>
+                        Ver dados brutos (JSON)
+                    </summary>
+                    <div class="mt-2 p-3 bg-muted/50 rounded-lg border overflow-auto max-h-60">
+                        <pre class="text-[10px] font-mono leading-relaxed">{{ govBrData() | json }}</pre>
+                    </div>
+                </details>
+            </div>
+        </div>
+      }
     </div>
   </div>
 </lib-loading-content>

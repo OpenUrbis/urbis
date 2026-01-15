@@ -719,22 +719,90 @@ export function Footer() {
             </a>
           </div>
 
-          {/* Right: Info & Action */}
-          <div className="flex flex-col items-center md:items-end text-center md:text-right gap-4">
-            <div className="text-primary-foreground/60 text-xs leading-relaxed font-light">
-              <p>Prefeitura Municipal de São Paulo - Viaduto do Chá, 15 - Centro - CEP: 01002-020</p>
-              <p className="mt-1">© 2025 - Projeto de Código Aberto sob licença MIT</p>
-            </div>
-            <a
-              href="mailto:codata@prefeitura.sp.gov.br"
-              className="group flex items-center gap-2 text-xs font-medium text-primary-foreground/80 hover:text-white transition-colors bg-primary-foreground/5 hover:bg-primary-foreground/10 px-4 py-2 rounded-full border border-primary-foreground/10"
-            >
-              <span>Encontrou um erro?</span>
-              <span className="underline decoration-primary-foreground/30 group-hover:decoration-white underline-offset-2">
-                Entre em contato
-              </span>
-            </a>
-          </div>
+           {/* Right: Info & Action */}
+<div className="flex flex-col items-center justify-center text-center gap-1">
+
+  <div className="inline-flex flex-col items-center justify-center text-center gap-1">
+
+    {/* Título */}
+    <p className="
+      text-[22px] md:text-[26px]
+      font-bold leading-tight tracking-tight
+      text-white dark:text-black
+      whitespace-nowrap
+    ">
+      Município de São Paulo © 2024
+    </p>
+
+    {/* Licenças */}
+    <div
+      className="
+        flex flex-wrap items-center justify-center
+        gap-x-3 gap-y-1
+        text-[14px] md:text-[14px]
+        font-medium
+        whitespace-nowrap
+      "
+    >
+
+      {/* AGPL v3 */}
+      <a
+        href="https://www.gnu.org/licenses/agpl-3.0.html"
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1 text-white dark:text-black hover:underline"
+      >
+        <img
+          src="/sa.svg"
+          className="w-4 h-4 opacity-80 text-white dark:text-black"
+        />
+        <span>AGPL v3</span>
+        <span className="font-normal opacity-70 text-[12px]">(software)</span>
+      </a>
+
+      <span className="opacity-40 dark:opacity-50 text-white dark:text-black">•</span>
+
+      {/* CC BY-SA */}
+      <a
+        href="https://creativecommons.org/licenses/by-sa/4.0/"
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1 text-white dark:text-black hover:underline"
+      >
+        <img
+  src="/cc.svg"
+  className="w-4 h-4 opacity-90 text-white dark:text-black"
+/>  
+        <img src="/by.svg" className="w-4 h-4 opacity-80 text-white dark:text-black" />
+        <img src="/sa.svg" className="w-4 h-4 opacity-80 text-white dark:text-black" />
+
+        <span>CC BY-SA 4.0</span>
+        <span className="font-normal opacity-70 text-[12px]">(outros)</span>
+      </a>
+
+    </div>
+
+  </div>
+
+
+
+
+
+  {/* Botão "Encontrou um erro?" */}
+  <a
+    href="mailto:codata@prefeitura.sp.gov.br"
+    className="group mt-1 inline-flex items-center gap-2 text-xs font-medium
+               text-white dark:text-black transition-colors
+               bg-white/10 dark:bg-black/10
+               hover:bg-white/20 dark:hover:bg-black/20
+               px-4 py-2 rounded-full border border-white/20 dark:border-black/20"
+  >
+    <span>Encontrou um erro?</span>
+    <span className="underline decoration-white/40 dark:decoration-black/40 underline-offset-2">
+      Entre em contato
+    </span>
+  </a>
+</div>
         </div>
       </div>
     </footer>

@@ -1,6 +1,7 @@
 ---
 title: Armazenamento
 description: Documentação de integração para upload de arquivos.
+icon: Cloud
 ---
 
 ### Documentação de Integração: Upload de Arquivos para o Mapa da Urbis
@@ -9,8 +10,7 @@ description: Documentação de integração para upload de arquivos.
 
 Esta documentação detalha o processo de integração de requisições para envio de arquivos ao mapa da Urbis. O serviço permite o upload eficiente de arquivos e sua associação direta ao mapa, garantindo uma experiência fluida e otimizada para o usuário.
 
-Motivação: serviço foi a necessidade de integração com o Map Data, permitindo que os arquivos enviados sejam processados e utilizados no contexto do mapa, ampliando suas funcionalidades.
-
+Motivação: A motivação para este serviço foi a necessidade de integração com o Map Data, permitindo que os arquivos enviados sejam processados e utilizados no contexto do mapa, ampliando suas funcionalidades.
 
 Para consultar a especificação completa da API, incluindo endpoints, parâmetros e exemplos adicionais, acesse a documentação OpenAPI em:  
 [**https://api.mapa.urbis.sampa.br/swagger/docs**](https://api.mapa.urbis.sampa.br/swagger/docs)
@@ -179,5 +179,5 @@ curl -X 'GET' \
 
 - **Segurança**: Mantenha a chave de API em segredo e substitua `secret` pela chave real em produção.
 - **Tempo de Expiração**: As URLs assinadas expiram após o período especificado (ex.: 900 segundos). Realize as operações dentro desse prazo.
-- **Documentação OpenAPI**: Consulte a especificação completa da API in [https://```https://api.mapa.urbis.sampa.br/swagger/docs``` para mais detalhes sobre endpoints e parâmetros.
+- **Documentação OpenAPI**: Consulte a especificação completa da API em [https://api.mapa.urbis.sampa.br/swagger/docs](https://api.mapa.urbis.sampa.br/swagger/docs) para mais detalhes sobre endpoints e parâmetros.
 - **Suporte**: Para dúvidas ou problemas, contate o suporte técnico da Urbis.

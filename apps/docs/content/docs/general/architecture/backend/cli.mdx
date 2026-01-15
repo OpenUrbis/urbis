@@ -1,30 +1,30 @@
 ---
-title: CLI & Scripts
-description: Available CLI tools and scripts for development.
+title: CLI e Scripts
+description: Ferramentas de CLI e scripts disponíveis para desenvolvimento.
 icon: Terminal
 ---
 
-We provide a set of scripts to automate common development tasks. These are defined in the root `package.json` and `apps/api/package.json`.
+Fornecemos um conjunto de scripts para automatizar tarefas comuns de desenvolvimento. Estes são definidos no `package.json` raiz e em `apps/api/package.json`.
 
-## Root Commands
+## Comandos Raiz
 
-Run these from the root of the monorepo:
+Execute-os a partir da raiz do monorepo:
 
--   `pnpm dev`: Starts all applications in development mode.
--   `pnpm build`: Builds all applications and packages.
--   `pnpm lint`: Runs ESLint across the entire codebase.
--   `pnpm test`: Runs unit tests for all workspaces.
--   `pnpm composer:up`: Starts Docker containers (Postgres, Redis).
--   `pnpm migration:run`: Runs database migrations.
--   `pnpm db:seed`: Seeds the database.
+-   `pnpm dev`: Inicia todas as aplicações em modo de desenvolvimento.
+-   `pnpm build`: Constrói todas as aplicações e pacotes.
+-   `pnpm lint`: Executa o ESLint em todo o codebase.
+-   `pnpm test`: Executa testes unitários para todos os workspaces.
+-   `pnpm composer:up`: Inicia os containers Docker (Postgres, Redis).
+-   `pnpm migration:run`: Executa migrações de banco de dados.
+-   `pnpm db:seed`: Popula o banco de dados (seed).
 
-## API Specific Commands
+## Comandos Específicos da API
 
-You can also run commands specifically for the API workspace (`apps/api`):
+Você também pode executar comandos especificamente para o workspace da API (`apps/api`):
 
--   `migration:generate`: Generates a new migration file based on TypeORM entities.
--   `migration:create`: Creates a blank migration file.
--   `migration:revert`: Reverts the last applied migration.
--   `schema:drop`: Drops the entire database schema (CAUTION: Data loss).
--   `documentation`: Generates Compodoc documentation.
--   `documentation:serve`: Serves the Compodoc documentation.
+-   `migration:generate`: Gera um novo arquivo de migração baseado nas entidades TypeORM.
+-   `migration:create`: Cria um arquivo de migração em branco.
+-   `migration:revert`: Reverte a última migração aplicada.
+-   `schema:drop`: Remove todo o esquema do banco de dados (CUIDADO: Perda de dados).
+-   `documentation`: Gera documentação Compodoc.
+-   `documentation:serve`: Serve a documentação Compodoc.

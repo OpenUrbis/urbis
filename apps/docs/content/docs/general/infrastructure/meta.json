@@ -1,4 +1,4 @@
 {
   "title": "Infraestrutura",
-  "pages": ["deploy", "docker"]
+  "pages": ["costs", "deploy", "docker"]
 }

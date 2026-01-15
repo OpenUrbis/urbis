@@ -104,18 +104,21 @@ const generateGetColorFns = (
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFillColor = (d: any): Color => {
+    const key = getFillColorPropName ?? "default";
+    const keyToFind = d?.properties?.[key] ?? "default";
+    const color = fillColors?.[keyToFind] ?? MAP_CONFIGS.DEFAULT_LAYER_COLOR;
+
     const isSelected =
       MAP_CONFIGS.CHECKER_POLYGON_IS_SELECTED.CHECK_ARRAY_OF_PROPERTIES(
         selectedFeatureIds,
         d
       );
-    if (isSelected) return isSelected;
 
-    const key = getFillColorPropName ?? "default";
-    const keyToFind = d?.properties?.[key] ?? "default";
-    const color = fillColors?.[keyToFind];
+    if (isSelected) {
+      return [color[0], color[1], color[2], 255];
+    }
 
-    return color ?? MAP_CONFIGS.DEFAULT_LAYER_COLOR;
+    return color;
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

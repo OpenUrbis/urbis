@@ -12,6 +12,8 @@ interface HeaderProps {
 const Header = ({ onMenuToggle }: HeaderProps) => {
   const auth = useAuth();
   const { theme, setTheme } = useTheme();
+  const s3Endpoint =
+    import.meta.env.VITE_S3_ENDPOINT_PUBLIC || "http://localhost:9000/public";
 
   const menuItems = [
     { label: "Mosaico", href: "https://urbis.prefeitura.sp.gov.br" },
@@ -35,7 +37,10 @@ const Header = ({ onMenuToggle }: HeaderProps) => {
       isAuthenticated={auth.isAuthenticated}
       user={{
         name: userProfile.value?.name,
-        email: userProfile.value?.email
+        email: userProfile.value?.email,
+        avatarUrl: userProfile.value?.id
+          ? `${s3Endpoint}/avatars/${userProfile.value.id}`
+          : undefined,
       }}
       onLogin={() => auth.signinRedirect()}
       onLogout={() => auth.removeUser()}

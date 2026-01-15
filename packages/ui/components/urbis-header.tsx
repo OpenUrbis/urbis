@@ -30,6 +30,44 @@ import React from "react";
 import { CircleUser, Menu } from "lucide-react";
 import { UrbisSettings, UrbisSettingsProps } from "./urbis-settings";
 
+const UserAvatar = ({
+  src,
+  name,
+  className,
+}: {
+  src?: string;
+  name?: string;
+  className?: string;
+}) => {
+  const [error, setError] = React.useState(false);
+  const dicebearUrl = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+    (name || "User").replace(/\s+/g, "-")
+  )}&radius=50`;
+
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden bg-primary/10 text-primary font-bold uppercase flex items-center justify-center",
+        className
+      )}
+    >
+      <img
+        src={dicebearUrl}
+        alt={name || "User"}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      {src && !error && (
+        <img
+          src={src}
+          alt={name || "User"}
+          className="relative h-full w-full object-cover"
+          onError={() => setError(true)}
+        />
+      )}
+    </div>
+  );
+};
+
 interface UrbisHeaderProps extends UrbisSettingsProps {
   logoSrc?: string;
   logoAlt?: string;
@@ -39,6 +77,7 @@ interface UrbisHeaderProps extends UrbisSettingsProps {
   user?: {
     name?: string;
     email?: string;
+    avatarUrl?: string;
   };
   isAuthenticated?: boolean;
   onLogin?: () => void;
@@ -77,12 +116,19 @@ export const UrbisHeader = ({
         {/* Logo */}
         <div className="mr-4 flex items-center">
           <a className="mr-6 flex items-center space-x-2" href={logoHref}>
-            <img
-              className="urbis-logo h-6 w-auto object-contain"
-              alt={logoAlt}
-              src="/logo.png"
-              style={logoSrc ? ({ '--app-logo': `url('${logoSrc}')` } as React.CSSProperties) : undefined}
-            />
+            {logoSrc ? (
+              <img
+                className="h-8 w-auto object-contain"
+                alt={logoAlt}
+                src={logoSrc}
+              />
+            ) : (
+              <img
+                className="h-8 w-auto object-contain"
+                alt={logoAlt}
+                src={theme === 'dark' ? '/logo-alt.svg' : '/logo.svg'}
+              />
+            )}
             {badgeText && (
               <span className="hidden font-bold sm:inline-block text-muted-foreground text-sm">
                 {badgeText}
@@ -123,10 +169,15 @@ export const UrbisHeader = ({
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative flex items-center gap-2 h-9 px-2 rounded-full border">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs uppercase">
-                      {user?.name?.[0] || "U"}
-                    </div>
+                  <Button
+                    variant="ghost"
+                    className="relative flex items-center gap-2 h-9 px-2 rounded-full border"
+                  >
+                    <UserAvatar
+                      src={user?.avatarUrl}
+                      name={user?.name}
+                      className="h-7 w-7 rounded-full text-xs"
+                    />
                     <span className="hidden sm:inline-block text-sm font-medium">
                       {user?.name?.split(" ")[0]}
                     </span>
@@ -135,9 +186,11 @@ export const UrbisHeader = ({
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex items-center gap-3 py-1">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-base uppercase">
-                        {user?.name?.[0] || "U"}
-                      </div>
+                      <UserAvatar
+                        src={user?.avatarUrl}
+                        name={user?.name}
+                        className="h-9 w-9 rounded-full text-base"
+                      />
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{user?.name || "Usuário"}</p>
                         <p className="text-xs leading-none text-muted-foreground">

@@ -1,22 +1,9 @@
-// Tema customizado RMWC baseado no seu tema Angular
-* {
-    --mdc-theme-primary: #0167a8;
-    --mdc-theme-secondary: #216A4D;
-    --mdc-theme-background: #F7F9FF;
-    --mdc-theme-surface: #ffffff;
-    --mdc-theme-error: #8D4959;
-    --mdc-theme-on-primary: #fff;
-    --mdc-theme-on-secondary: #fff;
-    --mdc-theme-on-surface: #181c20;
-    --mdc-theme-on-error: #fff;
-}
-
 html {
     background-color: #F7F9FF;
 }
 
 * {
-    font-family: "DM Sans", "Helvetica Neue", sans-serif;
+    font-family: "Noto Sans", "Helvetica Neue", sans-serif;
 }
 
 .map-container {

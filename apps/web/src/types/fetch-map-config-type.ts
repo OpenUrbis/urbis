@@ -86,5 +86,8 @@ export interface IGetConfigLayerSchema {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filters?: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filterTree?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: any;
+  attributeMapping?: Record<string, { name: string; description?: string }>;
 }

@@ -8,6 +8,8 @@ export interface IGetSearchConfigResponse {
   index?: number;
   isActive?: boolean;
   transformParams?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filterTree?: any;
   transformRequest?: string;
   transformResponse?: string;
   layerSchemaId?: string;

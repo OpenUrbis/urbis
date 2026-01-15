@@ -9,6 +9,7 @@ import { cn } from "@open-urbis/map-ui";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { useMapContext } from "../../hooks/useMapContext";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { LayerController } from "../LayerController";
 import { DeckGLOverlay } from "./DeckGLOverlay";
@@ -43,8 +44,19 @@ export const MapView = ({
   const mapContext = useMapContext();
   const { theme } = useTheme();
   const { drawerOpen, navigateTo } = useNavigationContext();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const sidebarOpen = isDesktop && drawerOpen.value;
 
   const isPickingLocation = useSignal(false);
+
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.classList.add("sidebar-open");
+    } else {
+      document.body.classList.remove("sidebar-open");
+    }
+    return () => document.body.classList.remove("sidebar-open");
+  }, [sidebarOpen]);
 
   const {
     layerSchemas,
@@ -76,7 +88,7 @@ export const MapView = ({
       return transformSchemaLayers(previewLayers, {
         zoom: zoom.value,
         boundingBox: boundingBox.value,
-        selectedFeatureIds: selectedFeatures.value,
+        selectedFeature: selectedFeatures.value,
         is3DActive: is3DActive.value,
       }).flat();
     }
@@ -84,7 +96,7 @@ export const MapView = ({
     const baseLayers = transformSchemaLayers(layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
-      selectedFeatureIds: selectedFeatures.value,
+      selectedFeature: selectedFeatures.value,
       is3DActive: is3DActive.value,
     }).flat();
 
@@ -118,7 +130,7 @@ export const MapView = ({
                 "maxar-wms": {
                   type: "raster",
                   tiles: [
-                    `${baseUrl}/maps/geoserver-proxy/maxar?service=WMS&request=GetMap&layers=DigitalGlobe:ImageryTileService&styles=&format=image/jpeg&transparent=false&version=1.1.1&width=256&height=256&srs=EPSG:3857&bbox={bbox-epsg-3857}`
+                    `${baseUrl}/maps/geoserver-proxy/maxar?service=WMS&request=GetMap&layers=Maxar:Imagery&styles=&format=image/jpeg&transparent=false&version=1.3.0&width=256&height=256&crs=EPSG:3857&bbox={bbox-epsg-3857}`
                   ],
                   tileSize: 256
                 }

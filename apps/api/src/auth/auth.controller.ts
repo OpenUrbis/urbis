@@ -94,6 +94,14 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
+  @Get('permissions')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  public async permissions(@Request() request) {
+    return this.service.getPermissions(request.user as User);
+  }
+
+  @ApiBearerAuth()
   @Patch('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)

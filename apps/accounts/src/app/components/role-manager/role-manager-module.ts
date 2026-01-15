@@ -15,6 +15,7 @@ import { UserRoleManager } from './user-role-manager/user-role-manager';
 import { TranslateModule } from '@ngx-translate/core';
 import { PageStructure } from '../page-structure/page-structure';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 
 @NgModule({
   declarations: [UserRoleManager, RolesManager],
@@ -34,6 +35,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     LoadingContent,
     TranslateModule,
     PageStructure,
+    HasPermissionDirective,
   ],
 })
 export class RoleManagerModule {}

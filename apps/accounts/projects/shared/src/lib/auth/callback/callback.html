@@ -1,22 +1,21 @@
 <div class="callback-page text-center">
   <div class="callback-content">
     @if (loading && errorMessage == undefined) {
-      <div class="callback-loading">
-        <mat-spinner diameter="32"></mat-spinner>
+      <div class="callback-loading flex justify-center p-4">
+        <hlm-icon name="lucideLoader2" class="animate-spin h-8 w-8 text-primary" />
       </div>
     }
     @if (errorMessage) {
       <div>
-        <h1 style="font-size: 72px" class="mb-4">:(</h1>
-        <h4>{{ "pages.auth.callback.title" | translate }}</h4>
-        <p>
+        <h1 style="font-size: 72px" class="mb-4 text-foreground">:(</h1>
+        <h4 class="text-xl font-semibold mb-2">{{ "pages.auth.callback.title" | translate }}</h4>
+        <p class="text-muted-foreground mb-2">
           {{ errorMessage }}
         </p>
-        <p>{{ "pages.auth.callback.description" | translate }}</p>
+        <p class="text-muted-foreground mb-4">{{ "pages.auth.callback.description" | translate }}</p>
         <div class="mt-4">
           <a
-            mat-flat-button
-            color="primary"
+            hlmBtn
             routerLink="/"
             [attr.aria-label]="'pages.auth.callback.button' | translate"
           >

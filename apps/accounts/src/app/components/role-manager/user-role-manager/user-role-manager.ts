@@ -7,18 +7,31 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatDialog } from '@angular/material/dialog';
 import { Subject, switchMap, tap } from 'rxjs';
 import { AddRole } from '../dialogs/add-role/add-role';
 import { IRoleResponse } from '../dto/role.dto';
 import { IUserAssigmentResponse } from '../dto/user-assignment.dto';
 import { RoleManagerApi } from '../services/role-manager-api';
+import { LoadingContent, HlmButtonDirective, HlmIconComponent, HlmDialogService } from '../../../../../projects/shared/src/public-api';
+import { CommonModule } from '@angular/common';
+import { PageStructure } from '../../page-structure/page-structure';
+import { TranslateModule } from '@ngx-translate/core';
+import { provideIcons } from '@ng-icons/core';
+import { lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-user-role-manager',
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    LoadingContent,
+    PageStructure,
+    TranslateModule,
+    HlmButtonDirective,
+    HlmIconComponent
+  ],
+  providers: [provideIcons({ lucidePlus, lucideTrash2 })],
   templateUrl: './user-role-manager.html',
-  styleUrl: './user-role-manager.scss',
 })
 export class UserRoleManager {
   userId = input.required<string>();
@@ -27,7 +40,7 @@ export class UserRoleManager {
   loading = signal<boolean>(false);
 
   roleManagerApi = inject(RoleManagerApi);
-  dialog = inject(MatDialog);
+  dialogService = inject(HlmDialogService);
 
   userRoles = toSignal(
     this.userId$.pipe(
@@ -55,18 +68,19 @@ export class UserRoleManager {
   }
 
   rmRole(assign: IUserAssigmentResponse) {
-    // TO DO: Loading e feedback pro usuário
     this.roleManagerApi.unassign(assign.id).subscribe({
       next: () => this.userId$.next(this.userId()),
       error: (err) => console.error(err),
     });
   }
 
-  openAddRole() {
-    const dialogRef = this.dialog.open(AddRole, {
+  async openAddRole() {
+    const dialogRef = this.dialogService.open(AddRole, {
       data: { userId: this.userId(), roles: this.userRoleIds() },
+      width: '500px',
     });
 
-    dialogRef.afterClosed().subscribe(() => this.userId$.next(this.userId()));
+    await dialogRef.afterClosed();
+    this.userId$.next(this.userId());
   }
 }

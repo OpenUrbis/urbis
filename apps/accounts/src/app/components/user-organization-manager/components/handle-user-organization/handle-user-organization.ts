@@ -6,15 +6,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { firstValueFrom } from 'rxjs';
-import { LoadingButton } from '../../../../../../projects/shared/src/public-api';
+import { LoadingButton, LoadingContent, HlmButtonDirective, HlmLabelDirective, HlmToasterService, DialogRef, DIALOG_DATA } from '../../../../../../projects/shared/src/public-api';
 import {
   IOrganization,
   IResponseOrganizationWithRole,
@@ -24,21 +17,25 @@ import { IRoleResponse } from '../../../role-manager/dto/role.dto';
 import { RoleManagerApi } from '../../../role-manager/services/role-manager-api';
 import { RoleSelector } from '../../../role-selector/role-selector';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { provideIcons } from '@ng-icons/core';
+import { lucidePlus, lucideX } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-handle-user-organization',
+  standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule,
-    MatButtonModule,
     ReactiveFormsModule,
     RoleSelector,
     OrganizationSelector,
     LoadingButton,
+    LoadingContent,
     TranslateModule,
+    HlmButtonDirective,
+    HlmLabelDirective,
   ],
+  providers: [provideIcons({ lucidePlus, lucideX })],
   templateUrl: './handle-user-organization.html',
-  styleUrl: './handle-user-organization.scss',
 })
 export class HandleUserOrganization implements AfterViewInit {
   form = new FormGroup({
@@ -48,14 +45,14 @@ export class HandleUserOrganization implements AfterViewInit {
   loading = signal<boolean>(false);
   organizationId = signal<string | undefined>(undefined);
 
-  matSnackBar = inject(MatSnackBar);
+  toaster = inject(HlmToasterService);
   roleManagerApi = inject(RoleManagerApi);
   translate = inject(TranslateService);
-  readonly dialogRef = inject(MatDialogRef<HandleUserOrganization>);
+  readonly dialogRef = inject(DialogRef<HandleUserOrganization>);
   readonly data = inject<{
     userId: string;
     organization: IResponseOrganizationWithRole | undefined;
-  }>(MAT_DIALOG_DATA);
+  }>(DIALOG_DATA);
 
   get orgControl() {
     return this.form.get('organization') as FormControl;
@@ -66,7 +63,7 @@ export class HandleUserOrganization implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    const organization = this.data.organization;
+    const organization = this.data?.organization;
     if (organization) {
       this.organizationId.set(organization.id);
       const roles =
@@ -80,7 +77,7 @@ export class HandleUserOrganization implements AfterViewInit {
   async save() {
     const { roles, organization } = this.form.value;
     if (!roles?.length) {
-      this.matSnackBar.open(
+      this.toaster.error(
         this.translate.instant(
           'components.userOrganizationManager.dialog.errors.selectRole',
         ),
@@ -88,7 +85,7 @@ export class HandleUserOrganization implements AfterViewInit {
       return;
     }
     if (this.form.invalid) {
-      this.matSnackBar.open(
+      this.toaster.error(
         this.translate.instant(
           'components.userOrganizationManager.dialog.errors.invalidForm',
         ),
@@ -125,7 +122,7 @@ export class HandleUserOrganization implements AfterViewInit {
       this.dialogRef.close();
     } catch (err) {
       console.error(err);
-      this.matSnackBar.open(
+      this.toaster.error(
         this.translate.instant(
           'components.userOrganizationManager.dialog.errors.save',
         ),

@@ -21,7 +21,7 @@ export class Permission extends BaseEntity {
   name: string;
 
   @Column({ nullable: true })
-  description?: string | null;
+  description?: string;
 
   @Column()
   action: string;

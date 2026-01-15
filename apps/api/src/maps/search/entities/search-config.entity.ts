@@ -1,6 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ClickActionEnum } from '@open-urbis/map-shared';
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { LayerSchema } from '../../layer-schemas/entities/layer-schema.entity';
 import { SearchConfigMethodEnum } from '../enums/search-config.enum';
 
@@ -88,13 +99,23 @@ export class SearchConfig {
     example: 'lotes',
   })
   @Column({ nullable: true })
+  @Index({ unique: true, where: '"deletedAt" IS NULL' })
   layerSchemaId?: string;
 
   @ApiPropertyOptional({
     description: 'Layer schema object',
     example: LayerSchema,
   })
-  @OneToOne(() => LayerSchema, { nullable: true })
+  @ManyToOne(() => LayerSchema, { nullable: true })
   @JoinColumn({ name: 'layerSchemaId' })
   layerSchema?: LayerSchema;
+
+  @CreateDateColumn()
+  createdAt?: Date;
+
+  @UpdateDateColumn()
+  updatedAt?: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

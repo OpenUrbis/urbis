@@ -8,8 +8,6 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { firstValueFrom } from 'rxjs';
 import AwsS3 from '@uppy/aws-s3';
 import Compressor from '@uppy/compressor';
@@ -20,14 +18,20 @@ import {
   UploaderApi,
   UploadStrategyPathEnum,
 } from '../../../../../projects/shared/src/lib/components/file-uploader/services/uploader.service';
+import { HlmButtonDirective, HlmIconComponent } from '../../../../../projects/shared/src/public-api';
+import { provideIcons } from '@ng-icons/core';
+import { lucidePencil } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-edit-profile-avatar',
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, HlmButtonDirective, HlmIconComponent],
+  providers: [provideIcons({ lucidePencil })],
   template: `
-    <button matMiniFab (click)="handleOpen()">
-      <mat-icon class="material-symbols-outlined">create</mat-icon>
-    </button>
+    @if (!disabled()) {
+      <button hlmBtn size="icon" class="rounded-full shadow-md h-8 w-8" (click)="handleOpen()">
+        <hlm-icon name="lucidePencil" size="16" />
+      </button>
+    }
     <div #dashboardContainer></div>
   `,
 })
@@ -38,6 +42,7 @@ export class EditProfileAvatarComponent implements OnDestroy, OnInit {
   readonly dashboardContainer =
     viewChild.required<ElementRef>('dashboardContainer');
   readonly uploadKey = signal('');
+  readonly disabled = signal(true);
 
   ngOnInit() {
     this.uppy = new Uppy({

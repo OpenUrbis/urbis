@@ -51,6 +51,11 @@
     "@deck.gl/arcgis": "9.2.5"
   },
   "dependencies": {
-    "proj4": "^2.20.2"
+    "@ng-icons/core": "^33.0.0",
+    "@ng-icons/lucide": "^33.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "proj4": "^2.20.2",
+    "tailwind-merge": "^3.4.0"
   }
 }

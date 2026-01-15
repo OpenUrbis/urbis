@@ -1,70 +1,61 @@
 <lib-loading-content [loading]="contentLoading()">
   @if (step() === 0) {
-    <form [formGroup]="form" (ngSubmit)="setup()">
-      <h3>{{ "components.twoFactorSetup.initialValidationTitle" | translate }}</h3>
-      <p>
-        {{
-          "components.twoFactorSetup.initialValidationDescription" | translate
-        }}
+  <form [formGroup]="form" (ngSubmit)="setup()" class="flex flex-col gap-2">
+    <div class="space-y-1">
+      <h3 class="text-lg font-semibold leading-none tracking-tight">
+        {{ "components.twoFactorSetup.initialValidationTitle" | translate }}
+      </h3>
+      <p class="text-sm text-muted-foreground pb-4">
+        {{ "components.twoFactorSetup.initialValidationDescription" | translate }}
       </p>
-      <mat-form-field appearance="outline" class="w-100">
-        <mat-label>{{
-          "components.twoFactorSetup.emailCodeLabel" | translate
-        }}</mat-label>
-        <input
-          matInput
-          [placeholder]="
-            'components.twoFactorSetup.emailCodeLabel' | translate
-          "
-          [attr.aria-label]="
-            'components.twoFactorSetup.emailCodeLabel' | translate
-          "
-          [formControl]="emailOtp"
-        />
-      </mat-form-field>
+    </div>
 
-      <div class="d-flex justify-content-end gap-2">
-        <lib-loading-button
-          [loading]="resendLoading()"
-          apperance="outlined"
-          [disabled]="resendCount() !== 0"
-          type="button"
-          (click)="sendCode(true)"
-          [attr.aria-label]="
+    <div class="flex flex-col gap-1.5">
+      <label hlmLabel for="emailOtp">{{ "components.twoFactorSetup.emailCodeLabel" | translate }}</label>
+      <input hlmInput id="emailOtp" placeholder="{{ 'components.twoFactorSetup.emailCodeLabel' | translate }}"
+        [formControl]="emailOtp" class="w-full" />
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+      <lib-loading-button [loading]="resendLoading()" apperance="outlined" [disabled]="resendCount() !== 0"
+        type="button" (click)="sendCode(true)" class="w-full sm:w-auto" [attr.aria-label]="
             'components.twoFactorSetup.buttons.resend' | translate
-          "
-        >
-          {{ "components.twoFactorSetup.buttons.resend" | translate }}
-          @if (resendCount() > 0) {
-            ({{ resendCount() }}s)
-          }
-        </lib-loading-button>
-        <lib-loading-button
-          [loading]="loading()"
-          [attr.aria-label]="
+          ">
+        {{ "components.twoFactorSetup.buttons.resend" | translate }}
+        @if (resendCount() > 0) {
+        ({{ resendCount() }}s)
+        }
+      </lib-loading-button>
+      <lib-loading-button [loading]="loading()" class="w-full sm:w-auto font-semibold" [attr.aria-label]="
             'components.twoFactorSetup.buttons.validate' | translate
-          "
-        >
-          {{ "components.twoFactorSetup.buttons.validate" | translate }}
-        </lib-loading-button>
-      </div>
-    </form>
+          ">
+        {{ "components.twoFactorSetup.buttons.validate" | translate }}
+      </lib-loading-button>
+    </div>
+  </form>
   } @else if (step() === 1 && qrcode()) {
-    <h3>{{ "components.twoFactorSetup.qrcodeTitle" | translate }}</h3>
-    <p style="max-width: 400px">
-      {{ "components.twoFactorSetup.qrcodeDescription" | translate }}
-    </p>
-    <div class="d-flex flex-column align-items-center">
-      <img [src]="qrcode()" class="mb-4 w-50" />
+  <div class="flex flex-col gap-6">
+    <div class="space-y-1 text-center sm:text-left">
+      <h3 class="text-lg font-semibold leading-none tracking-tight">
+        {{ "components.twoFactorSetup.qrcodeTitle" | translate }}
+      </h3>
+      <p class="text-sm text-muted-foreground">
+        {{ "components.twoFactorSetup.qrcodeDescription" | translate }}
+      </p>
+    </div>
+
+    <div class="flex flex-col items-center gap-6">
+      <div class="p-4 bg-white rounded-lg shadow-sm border border-border">
+        <img [src]="qrcode()" class="w-48 h-48 sm:w-64 sm:h-64 object-contain" alt="QR Code" />
+      </div>
 
       @if (accessToken()) {
-        <app-two-factor-verify
-          class="w-50"
-          [accessToken]="accessToken()"
-          [useOidcFlow]="useOidcFlow()"
-          (verified)="verified.emit($event)"
-        />
+      <div class="w-full max-w-sm">
+        <app-two-factor-verify [accessToken]="accessToken()" [useOidcFlow]="useOidcFlow()"
+          (verified)="verified.emit($event)" />
+      </div>
       }
     </div>
+  </div>
   }
 </lib-loading-content>

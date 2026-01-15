@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   postgres:
     image: postgres:16.2
@@ -31,6 +29,45 @@ services:
     networks:
       - app-network
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    restart: unless-stopped
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set myminio http://minio:9000 minioadmin minioadmin123;
+      mc mb myminio/public --ignore-existing;
+      mc mb myminio/private --ignore-existing;
+      mc anonymous set download myminio/public;
+      exit 0;
+      "
+    restart: on-failure
+
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  minio_data:
+    driver: local

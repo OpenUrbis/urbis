@@ -1,12 +1,14 @@
 import {
   ClassSerializerInterceptor,
+  DynamicModule,
   INestApplication,
+  Type,
   ValidationPipe,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AppModule } from 'app.module';
 import { useContainer } from 'class-validator';
-import { json, urlencoded } from 'express';
+import { GoogleRecaptchaFilter } from './google/recaptcha/recaptcha.filter';
 import validationOptions from './utils/validation-options';
 /**
  * Core bootstrap module should be loaded here.
@@ -14,13 +16,18 @@ import validationOptions from './utils/validation-options';
  *
  */
 
-export default function commonBootstrap(app: INestApplication) {
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+export default function commonBootstrap(
+  app: INestApplication,
+  module: DynamicModule | Type<unknown> = AppModule,
+) {
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+  });
 
-  app.enableCors();
+  useContainer(app.select(module), { fallbackOnErrors: true });
+
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-
-  app.use(json({ limit: '2000mb' }));
-  app.use(urlencoded({ extended: true, limit: '2000mb' }));
+  app.useGlobalFilters(new GoogleRecaptchaFilter());
 }

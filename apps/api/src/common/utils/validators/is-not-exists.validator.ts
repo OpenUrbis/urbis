@@ -7,11 +7,9 @@ import { ValidationArguments } from 'class-validator/types/validation/Validation
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 
-type ValidationEntity =
-  | {
-      id?: number | string;
-    }
-  | undefined;
+type ValidationEntity = {
+  id?: number | string;
+};
 
 @Injectable()
 @ValidatorConstraint({ name: 'IsNotExist', async: true })

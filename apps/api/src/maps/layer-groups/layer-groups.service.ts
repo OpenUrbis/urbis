@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { LayerGroupDto } from './dto/layer-group.dto';
 import { LayerGroup } from './entities/layer-group.entity';
 
@@ -15,8 +15,30 @@ export class LayerGroupsService {
     private readonly repository: Repository<LayerGroup>,
   ) {}
 
-  async findAll(): Promise<LayerGroup[]> {
-    return this.repository.find();
+  async findAll(
+    page?: number,
+    pageSize?: number,
+    search?: string,
+    orderBy?: string,
+    orderType?: 'ASC' | 'DESC',
+  ): Promise<LayerGroup[] | { data: LayerGroup[]; total: number }> {
+    const where = search ? { name: ILike(`%${search}%`) } : {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const order: any = orderBy ? { [orderBy]: orderType ?? 'ASC' } : { name: 'ASC' };
+
+    if (page && pageSize) {
+      const take = pageSize;
+      const skip = (page - 1) * pageSize;
+      const [data, total] = await this.repository.findAndCount({
+        where,
+        relations: ['parentGroup'],
+        order,
+        take,
+        skip,
+      });
+      return { data, total };
+    }
+    return this.repository.find({ where, relations: ['parentGroup'], order });
   }
 
   async findOne(id: string): Promise<LayerGroup> {
@@ -76,7 +98,7 @@ export class LayerGroupsService {
 
   async delete(id: string): Promise<void> {
     await this.findOne(id);
-    await this.repository.delete(id);
+    await this.repository.softDelete(id);
   }
 
   async upsert(dto: LayerGroupDto): Promise<LayerGroup> {

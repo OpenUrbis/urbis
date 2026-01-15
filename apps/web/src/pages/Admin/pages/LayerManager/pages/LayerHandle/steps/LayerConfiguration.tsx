@@ -23,13 +23,17 @@ import { generateOriginUrl, fetchCapabilities } from "../utils";
 import { useEffect, useState } from "react";
 
 interface LayerConfigurationProps {
-  onNext: () => void;
-  onBack: () => void;
+  onNext?: () => void;
+  onBack?: () => void;
+  hideNavigation?: boolean;
+  simpleMode?: boolean;
 }
 
 export const LayerConfiguration = ({
   onNext,
   onBack,
+  hideNavigation = false,
+  simpleMode = false,
 }: LayerConfigurationProps) => {
   const form = useFormContext();
   const loadingMethod = form.watch("loadingMethod");
@@ -95,112 +99,116 @@ export const LayerConfiguration = ({
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-      <FormField
-        control={form.control}
-        name="loadingMethod"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Forma de carregar os dados</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="CustomWMSLayer">WMS (Imagem)</SelectItem>
-                <SelectItem value="GeoJsonLayer">WFS (Vetorial)</SelectItem>
-                <SelectItem value="Stream">Vector Tile (PBF)</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="version"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Versão (Service Version)</FormLabel>
-              <FormControl>
-                <Input placeholder="1.0.0" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="srs"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>SRS / CRS</FormLabel>
-              <div className="flex flex-col gap-2">
-                <Select
-                  value={srsSelectValue}
-                  onValueChange={(val) => {
-                    if (val === "custom") {
-                      setForceCustomSrs(true);
-                    } else {
-                      setForceCustomSrs(false);
-                      field.onChange(val);
-                    }
-                  }}
-                >
+      {!simpleMode && (
+        <>
+          <FormField
+            control={form.control}
+            name="loadingMethod"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Forma de carregar os dados</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {selectedLayer?.crs?.map((crs: string) => (
-                      <SelectItem key={crs} value={crs}>
-                        {crs}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="custom">Personalizada</SelectItem>
+                    <SelectItem value="CustomWMSLayer">WMS (Imagem)</SelectItem>
+                    <SelectItem value="GeoJsonLayer">WFS (Vetorial)</SelectItem>
+                    <SelectItem value="Stream">Vector Tile (PBF)</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                {(showCustomSrsInput || !hasCrsOptions) && (
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="version"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Versão (Service Version)</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="EPSG:4326"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        // If user types something that matches list, we could auto-switch back to select mode?
-                        // But maybe keep custom mode to avoid jumping UI.
-                      }}
-                    />
+                    <Input placeholder="1.0.0" {...field} />
                   </FormControl>
-                )}
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-      <FormField
-        control={form.control}
-        name="origin"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>URL Final da Camada (Origin)</FormLabel>
-            <div className="flex gap-2">
-              <FormControl>
-                <Input placeholder="URL completa..." {...field} />
-              </FormControl>
-            </div>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+            <FormField
+              control={form.control}
+              name="srs"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>SRS / CRS</FormLabel>
+                  <div className="flex flex-col gap-2">
+                    <Select
+                      value={srsSelectValue}
+                      onValueChange={(val) => {
+                        if (val === "custom") {
+                          setForceCustomSrs(true);
+                        } else {
+                          setForceCustomSrs(false);
+                          field.onChange(val);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {selectedLayer?.crs?.map((crs: string) => (
+                          <SelectItem key={crs} value={crs}>
+                            {crs}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="custom">Personalizada</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {(showCustomSrsInput || !hasCrsOptions) && (
+                      <FormControl>
+                        <Input
+                          placeholder="EPSG:4326"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            // If user types something that matches list, we could auto-switch back to select mode?
+                            // But maybe keep custom mode to avoid jumping UI.
+                          }}
+                        />
+                      </FormControl>
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="origin"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>URL Final da Camada (Origin)</FormLabel>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input placeholder="URL completa..." {...field} />
+                  </FormControl>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      )}
 
       <FormField
         control={form.control}
@@ -242,7 +250,7 @@ export const LayerConfiguration = ({
         )}
       />
 
-      <ClickActionConfiguration />
+      {!simpleMode && <ClickActionConfiguration />}
 
       <div className="grid grid-cols-2 gap-4">
         <FormField
@@ -273,57 +281,61 @@ export const LayerConfiguration = ({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="isActive"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Ativa</FormLabel>
-                <div className="text-[0.8rem] text-muted-foreground">
-                  Se a camada está disponível para uso
+      {!simpleMode && (
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Ativa</FormLabel>
+                  <div className="text-[0.8rem] text-muted-foreground">
+                    Se a camada está disponível para uso
+                  </div>
                 </div>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="isVisible"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Visível por padrão</FormLabel>
-                <div className="text-[0.8rem] text-muted-foreground">
-                  Se a camada inicia visível no mapa
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="isVisible"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Visível por padrão</FormLabel>
+                  <div className="text-[0.8rem] text-muted-foreground">
+                    Se a camada inicia visível no mapa
+                  </div>
                 </div>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+      )}
 
-      <div className="flex justify-between pt-4">
-        <Button type="button" variant="outline" onClick={onBack}>
-          <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
-        </Button>
-        <Button type="button" onClick={onNext}>
-          Próximo <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
+      {!hideNavigation && (
+        <div className="flex justify-between pt-4">
+          <Button type="button" variant="outline" onClick={onBack}>
+            <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
+          </Button>
+          <Button type="button" onClick={onNext}>
+            Próximo <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

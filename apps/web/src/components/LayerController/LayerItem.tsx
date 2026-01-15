@@ -12,8 +12,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@open-urbis/map-ui";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { getLayerNameFromConfig } from "../../utils/layer-utils";
+import { Pencil } from "lucide-react";
+import { LayerEditModal } from "@/pages/Admin/pages/LayerManager/pages/LayerHandle/steps/LayerEditModal";
+import { buildLayerSchema, LayerSchemaFormValues, parseLayerSchemaToForm } from "@/pages/Admin/pages/LayerManager/pages/LayerHandle/utils";
 
 export const LayerItem = ({ 
   item, 
@@ -26,9 +29,29 @@ export const LayerItem = ({
   className?: string;
   onClick?: (id: string) => void;
 }) => {
-  const { zoom } = useMapContext();
+  const { zoom, layerSchemas } = useMapContext();
   const showMetadata = useSignal(false);
   const showFilter = useSignal(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const handleSaveConfig = (formValues: LayerSchemaFormValues) => {
+    const schema = buildLayerSchema(formValues);
+    
+    // Merge updates into the existing layer
+    const updatedLayer = {
+      ...item,
+      ...schema,
+      // Preserve properties that might be lost or handled differently
+      properties: {
+        ...(item.properties || {}),
+        ...(schema.properties || {}),
+      },
+    };
+
+    layerSchemas.value = layerSchemas.value.map((l) =>
+      l.id === item.id ? (updatedLayer as unknown as IGetConfigLayerSchema) : l
+    );
+  };
 
   const canFilter = useMemo(() => {
       const id = item.id.toString();
@@ -178,6 +201,27 @@ export const LayerItem = ({
                 className="h-6 w-6 rounded-full hover:bg-muted"
                 onClick={(e) => {
                   e.stopPropagation();
+                  setShowEditModal(true);
+                }}
+              >
+                <Pencil className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Editar Camada</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 rounded-full hover:bg-muted"
+                onClick={(e) => {
+                  e.stopPropagation();
                   showMetadata.value = true;
                 }}
               >
@@ -204,6 +248,20 @@ export const LayerItem = ({
         onOpenChange={(v) => (showFilter.value = v)}
         layer={item}
       />
+
+      {showEditModal && (
+        <LayerEditModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          layer={{
+            name: item.name,
+            title: item.name,
+          }}
+          url={item.origin}
+          initialConfig={parseLayerSchemaToForm(item as any)}
+          onSave={handleSaveConfig}
+        />
+      )}
     </div>
   );
 };

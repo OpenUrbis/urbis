@@ -5,14 +5,15 @@ import { buildLayerSchema, LayerSchema } from "../utils";
 import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
 
 interface LayerReviewProps {
-  onBack: () => void;
+  onBack?: () => void;
   originalData?: LayerSchema | null;
   previewSchema?: IGetConfigLayerSchema | null;
+  hideNavigation?: boolean;
 }
 
-export const LayerReview = ({ onBack, originalData, previewSchema }: LayerReviewProps) => {
-  const { getValues } = useFormContext();
-  const values = getValues();
+export const LayerReview = ({ onBack, originalData, previewSchema, hideNavigation = false }: LayerReviewProps) => {
+  const { watch } = useFormContext();
+  const values = watch();
 
   let finalJson: any = previewSchema;
 
@@ -90,14 +91,16 @@ export const LayerReview = ({ onBack, originalData, previewSchema }: LayerReview
         </div>
       </div>
 
-      <div className="flex justify-between pt-4 flex-shrink-0">
-        <Button type="button" variant="outline" onClick={onBack}>
-          <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
-        </Button>
-        <Button type="submit">
-          <Save className="mr-2 h-4 w-4" /> Confirmar e Salvar
-        </Button>
-      </div>
+      {!hideNavigation && (
+        <div className="flex justify-between pt-4 flex-shrink-0">
+          <Button type="button" variant="outline" onClick={onBack}>
+            <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
+          </Button>
+          <Button type="submit">
+            <Save className="mr-2 h-4 w-4" /> Confirmar e Salvar
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

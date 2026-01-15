@@ -22,15 +22,17 @@ import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 interface LayerStylingProps {
-  onBack: () => void;
-  onNext: () => void;
+  onBack?: () => void;
+  onNext?: () => void;
   onDynamicChange: (checked: boolean) => void;
+  hideNavigation?: boolean;
 }
 
 export const LayerStyling = ({
   onBack,
   onNext,
   onDynamicChange,
+  hideNavigation = false,
 }: LayerStylingProps) => {
   const form = useFormContext();
   const [attributes, setAttributes] = useState<string[]>([]);
@@ -136,14 +138,16 @@ export const LayerStyling = ({
         )}
       />
 
-      <div className="flex justify-between pt-4">
-        <Button type="button" variant="outline" onClick={onBack}>
-          <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
-        </Button>
-        <Button type="button" onClick={onNext}>
-          Próximo <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
+      {!hideNavigation && (
+        <div className="flex justify-between pt-4">
+          <Button type="button" variant="outline" onClick={onBack}>
+            <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
+          </Button>
+          <Button type="button" onClick={onNext}>
+            Próximo <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet, CommonModule } from '@angular/common';
 import {
   Component,
   effect,
@@ -9,11 +9,17 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatCardModule } from '@angular/material/card';
+import {
+  HlmCardDirective,
+  HlmCardContentDirective,
+  HlmCardFooterDirective,
+  HlmCardHeaderDirective,
+  HlmCardTitleDirective,
+  LoadingContent,
+} from '../../../../projects/shared/src/public-api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { AUTH_CONFIG_ID } from '../../../../projects/shared/src/lib/auth/auth.config';
-import { LoadingContent } from '../../../../projects/shared/src/public-api';
 import { SignInApi } from '../../pages/sign-in/services/sign-in-api';
 import { TwoFactorSetup } from './components/two-factor-setup/two-factor-setup';
 import { TwoFactorVerify } from './components/two-factor-verify/two-factor-verify';
@@ -21,16 +27,18 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-two-factor',
+  standalone: true,
   imports: [
+    CommonModule,
     TwoFactorSetup,
     TwoFactorVerify,
-    MatCardModule,
+    HlmCardDirective,
+    HlmCardContentDirective,
     LoadingContent,
     NgTemplateOutlet,
     TranslateModule,
   ],
   templateUrl: './two-factor.html',
-  styleUrl: './two-factor.scss',
 })
 export class TwoFactor implements OnInit {
   accessToken = input<string | undefined>(undefined);

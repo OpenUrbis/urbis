@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { WhitelabelState } from '../../states/whitelabel/whitelabel.state';
 import { TranslateModule } from '@ngx-translate/core';
+import { HlmButtonDirective } from '../../../../projects/shared/src/public-api';
 
 @Component({
   selector: 'app-demo-whitelabel',
-  imports: [MatButtonModule, TranslateModule],
+  imports: [TranslateModule, HlmButtonDirective],
   templateUrl: './demo-whitelabel.html',
-  styleUrl: './demo-whitelabel.scss',
 })
 export class DemoWhitelabelComponent {
   constructor(readonly whitelabelState: WhitelabelState) {}

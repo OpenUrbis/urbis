@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PermissionController } from './permission.controller';
+import { PermissionService } from './permission.service';
+import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 
 describe('PermissionController', () => {
   let controller: PermissionController;
@@ -7,7 +9,16 @@ describe('PermissionController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PermissionController],
-    }).compile();
+      providers: [
+        {
+          provide: PermissionService,
+          useValue: {},
+        },
+      ],
+    })
+      .overrideGuard(AccessControlGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<PermissionController>(PermissionController);
   });

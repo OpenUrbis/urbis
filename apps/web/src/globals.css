@@ -10,7 +10,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Hanken Grotesk', sans-serif;
+    font-family: var(--font-family);
   }
 }
 

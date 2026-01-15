@@ -1,24 +1,22 @@
-<div class="file-uploader-container">
-  <div class="mb-2 text-start">
-    <label class="d-block mb-2 font-weight-bold" *ngIf="label">{{
-      label
-    }}</label>
+<div class="w-full">
+  <div class="mb-2 text-left">
+    @if (label) {
+      <label class="block mb-2 font-bold text-sm">{{ label }}</label>
+    }
 
-    <div
-      *ngIf="currentUrl"
-      class="mb-3 image-preview-container"
-      [ngClass]="{
-        'bg-dark': previewBackground === 'dark',
-        'bg-light': previewBackground === 'light',
-      }"
-    >
-      <img
-        [src]="currentUrl"
-        alt="Preview"
-        class="img-fluid"
-        style="max-height: 150px; object-fit: contain"
-      />
-    </div>
+    @if (currentUrl) {
+      <div
+        class="mb-3 rounded-md overflow-hidden p-4 border border-border flex justify-center items-center h-[150px]"
+        [class.bg-background]="previewBackground === 'light'"
+        [class.bg-foreground]="previewBackground === 'dark'"
+      >
+        <img
+          [src]="currentUrl"
+          alt="Preview"
+          class="max-h-full max-w-full object-contain"
+        />
+      </div>
+    }
 
     <uppy-dashboard [uppy]="uppy" [props]="dashboardProps"></uppy-dashboard>
   </div>

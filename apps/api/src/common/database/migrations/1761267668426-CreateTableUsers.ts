@@ -8,7 +8,25 @@ export class CreateTableUsers1761267668426 implements MigrationInterface {
       `CREATE TYPE "public"."users_status_enum" AS ENUM('active', 'inactive')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "email" character varying, "password" character varying, "firstName" character varying, "lastName" character varying, "status" "public"."users_status_enum" NOT NULL DEFAULT 'active', "emailHashConfirm" character varying, "otpSecret" character varying, "otpValidated" boolean NOT NULL DEFAULT false, "requires2fa" boolean NOT NULL DEFAULT false, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP, CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "users" (
+        "id" uuid NOT NULL DEFAULT uuid_generate_v4(), 
+        "email" character varying, 
+        "password" character varying, 
+        "firstName" character varying, 
+        "lastName" character varying,
+        "status" "public"."users_status_enum" NOT NULL DEFAULT 'active', 
+        "emailHashConfirm" character varying, 
+        "otpSecret" character varying, 
+        "otpValidated" boolean NOT NULL DEFAULT false, 
+        "requires2fa" boolean NOT NULL DEFAULT false, 
+        "country" character varying NOT NULL DEFAULT 'BR', 
+        "phone" character varying NOT NULL,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT now(), 
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), 
+        "deletedAt" TIMESTAMP, 
+        CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), 
+        CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id")
+    )`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_5372672fbfd1677205e0ce3ece" ON "users" ("firstName") `,

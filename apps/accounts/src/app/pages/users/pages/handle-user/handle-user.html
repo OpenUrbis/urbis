@@ -4,72 +4,108 @@
   >
     <section leftActions>
       <a
-        matIconButton
+        hlmBtn
+        variant="ghost"
+        size="icon"
         [attr.aria-label]="'pages.users.page.buttons.back' | translate"
         routerLink="/users"
-        class="me-3"
+        class="mr-3"
       >
-        <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
+        <hlm-icon name="lucideArrowLeft" size="18" />
       </a>
     </section>
 
     <section rightActions>
       @if (id() && !loading()) {
         <button
-          matIconButton
+          hlmBtn
+          variant="ghost"
+          size="icon"
           [attr.aria-label]="
             'pages.users.page.buttons.delete.ariaLabel' | translate
           "
           (click)="deleteUser(id()!)"
-          class="me-3"
+          class="mr-3 text-destructive hover:text-destructive hover:bg-destructive/10"
         >
-          <mat-icon class="material-symbols-outlined">delete</mat-icon>
+          <hlm-icon name="lucideTrash2" size="16" />
         </button>
       }
     </section>
 
-    <mat-tab-group
-      mat-stretch-tabs="false"
-      mat-align-tabs="start"
-      dynamicHeight
-    >
-      <mat-tab [label]="'pages.users.edit.tabs.dadosDoUsuarios' | translate">
-        <mat-card class="my-3">
-          <form [formGroup]="form" (ngSubmit)="save()">
-            <mat-card-content class="pt-4 d-flex flex-column gap-2">
-              <mat-form-field appearance="outline">
-                <mat-label>{{
-                  "pages.users.edit.fields.firstName" | translate
-                }}</mat-label>
+    <div class="border-b border-border mb-4">
+        <nav class="-mb-px flex space-x-4">
+            <button
+                type="button"
+                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                [class.border-primary]="selectedTab() === 0"
+                [class.text-primary]="selectedTab() === 0"
+                [class.border-transparent]="selectedTab() !== 0"
+                [class.text-muted-foreground]="selectedTab() !== 0"
+                [class.hover:text-foreground]="selectedTab() !== 0"
+                (click)="selectedTab.set(0)"
+            >
+                {{ 'pages.users.edit.tabs.dadosDoUsuarios' | translate }}
+            </button>
+            
+            @if (id()) {
+                <button
+                    type="button"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                    [class.border-primary]="selectedTab() === 1"
+                    [class.text-primary]="selectedTab() === 1"
+                    [class.border-transparent]="selectedTab() !== 1"
+                    [class.text-muted-foreground]="selectedTab() !== 1"
+                    [class.hover:text-foreground]="selectedTab() !== 1"
+                    (click)="selectedTab.set(1)"
+                >
+                    {{ 'pages.users.edit.tabs.roles' | translate }}
+                </button>
+                <button
+                    type="button"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                    [class.border-primary]="selectedTab() === 2"
+                    [class.text-primary]="selectedTab() === 2"
+                    [class.border-transparent]="selectedTab() !== 2"
+                    [class.text-muted-foreground]="selectedTab() !== 2"
+                    [class.hover:text-foreground]="selectedTab() !== 2"
+                    (click)="selectedTab.set(2)"
+                >
+                    {{ 'pages.users.edit.tabs.organizations' | translate }}
+                </button>
+            }
+        </nav>
+    </div>
+
+    @if (selectedTab() === 0) {
+        <div class="my-3 p-6 border border-border rounded-lg bg-card text-card-foreground shadow-sm">
+          <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label hlmLabel>{{ "pages.users.edit.fields.firstName" | translate }}</label>
                 <input
-                  matInput
+                  hlmInput
                   formControlName="firstName"
                   [attr.aria-label]="
                     'pages.users.edit.fields.firstName' | translate
                   "
                 />
-              </mat-form-field>
+              </div>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{
-                  "pages.users.edit.fields.lastName" | translate
-                }}</mat-label>
+              <div class="flex flex-col gap-1.5">
+                <label hlmLabel>{{ "pages.users.edit.fields.lastName" | translate }}</label>
                 <input
-                  matInput
+                  hlmInput
                   formControlName="lastName"
                   [attr.aria-label]="
                     'pages.users.edit.fields.lastName' | translate
                   "
                 />
-              </mat-form-field>
+              </div>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{
-                  "pages.users.edit.fields.email" | translate
-                }}</mat-label>
+              <div class="flex flex-col gap-1.5">
+                <label hlmLabel>{{ "pages.users.edit.fields.email" | translate }}</label>
                 <input
                   type="email"
-                  matInput
+                  hlmInput
                   formControlName="email"
                   placeholder="{{
                     'pages.users.edit.placeholders.email' | translate
@@ -82,43 +118,41 @@
                   getFormControl("email").hasError("email") &&
                   !getFormControl("email").hasError("required")
                 ) {
-                  <mat-error>{{
+                  <p class="text-sm font-medium text-destructive">{{
                     "pages.users.edit.errors.emailInvalid" | translate
-                  }}</mat-error>
+                  }}</p>
                 }
                 @if (getFormControl("email").hasError("required")) {
-                  <mat-error>{{
+                  <p class="text-sm font-medium text-destructive">{{
                     "pages.users.edit.errors.emailRequired" | translate
-                  }}</mat-error>
+                  }}</p>
                 }
-              </mat-form-field>
+              </div>
 
               @if (!id()) {
                 <lib-password-form-group [formGroup]="form.controls.password" />
               }
-            </mat-card-content>
 
-            <mat-card-actions class="d-flex justify-content-end">
+            <div class="flex justify-end pt-4">
               <lib-loading-button [loading]="loadingSave()">{{
                 "pages.users.edit.buttons.save" | translate
               }}</lib-loading-button>
-            </mat-card-actions>
+            </div>
           </form>
-        </mat-card>
-      </mat-tab>
-      @if (id()) {
-        <mat-tab label="{{ 'pages.users.edit.tabs.roles' | translate }}">
-          <div class="pt-4">
-            <app-user-role-manager [userId]="id()!" />
-          </div>
-        </mat-tab>
+        </div>
+    }
 
-        <mat-tab label="{{ 'pages.users.edit.tabs.organizations' | translate }}">
-          <div class="pt-4">
+    @if (id() && selectedTab() === 1) {
+        <div class="pt-4">
+            <app-user-role-manager [userId]="id()!" />
+        </div>
+    }
+
+    @if (id() && selectedTab() === 2) {
+        <div class="pt-4">
             <app-user-organization-manager [userId]="id()!" />
-          </div>
-        </mat-tab>
-      }
-    </mat-tab-group>
+        </div>
+    }
+
   </app-page-structure>
 </lib-loading-content>

@@ -11,11 +11,16 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
+import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
+import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
+import { OrGuard } from 'common/guards/or-guard/or.guard';
+import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 import { LayerSchemaDto } from './dto/layer-schema.dto';
 import { LayerSchema } from './entities/layer-schema.entity';
 import { LayerSchemasService } from './layer-schemas.service';
@@ -58,9 +63,16 @@ export class LayerSchemasController {
     return this.service.findOne(id);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @ApiBearerAuth()
+  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
+  @RequirePermission({
+    permissions: {
+      action: 'create',
+      resource: 'layer-schema',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @Post()
   @ApiOperation({ summary: 'Create a new layer schema' })
   @ApiResponse({
@@ -81,9 +93,16 @@ export class LayerSchemasController {
     return this.service.create(dto);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @ApiBearerAuth()
+  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
+  @RequirePermission({
+    permissions: {
+      action: 'update',
+      resource: 'layer-schema',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @Put(':id')
   @ApiOperation({ summary: 'Update a layer schema by ID' })
   @ApiResponse({
@@ -116,9 +135,16 @@ export class LayerSchemasController {
     return this.service.update(id, dto);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @ApiBearerAuth()
+  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
+  @RequirePermission({
+    permissions: {
+      action: 'delete',
+      resource: 'layer-schema',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a layer schema by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })
@@ -136,7 +162,23 @@ export class LayerSchemasController {
   }
 
   @ApiSecurity('api_key')
-  @UseGuards(AuthGuard('api-key'))
+  @ApiBearerAuth()
+  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
+  @RequirePermission({
+    permissions: [
+      {
+        action: 'update',
+        resource: 'layer-schema',
+        scope: RolePermissionScopeEnum.ANY,
+      },
+      {
+        action: 'create',
+        resource: 'layer-schema',
+        scope: RolePermissionScopeEnum.ANY,
+      },
+    ],
+    mode: 'AND',
+  })
   @Post('upsert')
   @ApiOperation({ summary: 'Create or update a layer schema based on ID' })
   @ApiResponse({

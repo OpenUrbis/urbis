@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LayerGroupsService } from 'maps/layer-groups/layer-groups.service';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { LayerSchemaDto } from './dto/layer-schema.dto';
 import { LayerSchema } from './entities/layer-schema.entity';
 
@@ -18,8 +18,36 @@ export class LayerSchemasService {
     private readonly layerGroupsService: LayerGroupsService,
   ) {}
 
-  async findAll(): Promise<LayerSchema[]> {
-    return this.repository.find({ relations: ['colors'] });
+  async findAll(
+    page?: number,
+    pageSize?: number,
+    search?: string,
+    orderBy?: string,
+    orderType?: 'ASC' | 'DESC',
+  ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
+    const where = search ? { name: ILike(`%${search}%`) } : {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const order: any = orderBy
+      ? { [orderBy]: orderType ?? 'ASC' }
+      : { index: 'ASC', isActive: 'DESC' };
+
+    if (page && pageSize) {
+      const take = pageSize;
+      const skip = (page - 1) * pageSize;
+      const [data, total] = await this.repository.findAndCount({
+        where,
+        relations: ['colors', 'layerGroup'],
+        order,
+        take,
+        skip,
+      });
+      return { data, total };
+    }
+    return this.repository.find({
+      where,
+      relations: ['colors', 'layerGroup'],
+      order,
+    });
   }
 
   async findOne(id: string): Promise<LayerSchema> {
@@ -49,6 +77,7 @@ export class LayerSchemasService {
     properties,
     groupId,
     colors,
+    index,
   }: LayerSchemaDto): Promise<LayerSchema> {
     const another = await this.repository.findOneBy({ id: id });
     if (another)
@@ -73,6 +102,7 @@ export class LayerSchemasService {
       groupId,
       layerGroup,
       colors,
+      index,
     });
 
     return this.repository.save(entity);
@@ -95,6 +125,7 @@ export class LayerSchemasService {
       properties,
       groupId,
       colors,
+      index,
 
       ...dto
     }: LayerSchemaDto,
@@ -125,12 +156,13 @@ export class LayerSchemasService {
     layerSchema.groupId = groupId;
     layerSchema.layerGroup = layerGroup;
     layerSchema.colors = colors;
+    layerSchema.index = index;
 
     return await this.repository.save(layerSchema);
   }
 
   async delete(id: string): Promise<void> {
-    await this.repository.delete(id);
+    await this.repository.softDelete(id);
   }
 
   async upsert(dto: LayerSchemaDto): Promise<LayerSchema> {

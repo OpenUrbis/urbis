@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { HlmToasterService } from '../../../../../projects/shared/src/public-api';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { IPaginationResponse } from '../../../shared/dto/pagination.dto';
@@ -13,14 +13,14 @@ const API_BASE = `${environment.api}/user`;
 })
 export class UsersApi {
   httpClient = inject(HttpClient);
-  matSnackBar = inject(MatSnackBar);
+  toaster = inject(HlmToasterService);
 
   list() {
     return this.httpClient.get<IPaginationResponse<IUser>>(`${API_BASE}`).pipe(
       catchError((err) => {
         console.error(err);
-        this.matSnackBar.open('Houve um erro ao carregar os usuários');
-        return of([]);
+        this.toaster.error('Houve um erro ao carregar os usuários');
+        return of({ data: [], total: 0 } as IPaginationResponse<IUser>);
       }),
     );
   }

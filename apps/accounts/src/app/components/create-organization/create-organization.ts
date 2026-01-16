@@ -6,11 +6,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { firstValueFrom } from 'rxjs';
-import { LoadingButton } from '../../../../projects/shared/src/public-api';
+import { LoadingButton, HlmToasterService, HlmInputDirective, HlmLabelDirective, HlmButtonDirective, HlmIconComponent } from '../../../../projects/shared/src/public-api';
+import { provideIcons } from '@ng-icons/core';
+import { lucideLoader2 } from '@ng-icons/lucide';
 import {
   IRequestCreateOrganization,
   IOrganization,
@@ -20,16 +19,19 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-create-organization',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
     LoadingButton,
     TranslateModule,
+    HlmInputDirective,
+    HlmLabelDirective,
+    HlmButtonDirective,
+    HlmIconComponent
   ],
+  providers: [provideIcons({ lucideLoader2 })],
   templateUrl: './create-organization.html',
-  styleUrl: './create-organization.scss',
 })
 export class CreateOrganization {
   form = new FormGroup({
@@ -44,7 +46,7 @@ export class CreateOrganization {
   loading = signal<boolean>(false);
 
   organizationApi = inject(OrganizationsApi);
-  matSnackBar = inject(MatSnackBar);
+  toaster = inject(HlmToasterService);
   translate = inject(TranslateService);
 
   async save() {
@@ -62,7 +64,7 @@ export class CreateOrganization {
       this.created.emit(organization);
     } catch (err) {
       console.error(err);
-      this.matSnackBar.open(
+      this.toaster.error(
         this.translate.instant('components.createOrganization.errors.create'),
       );
     } finally {

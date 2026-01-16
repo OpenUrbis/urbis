@@ -2,12 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
   MinLength,
   Validate,
-  IsOptional,
 } from 'class-validator';
 import { IsNotExist } from './../../common/utils/validators/is-not-exists.validator';
 import { Transform } from 'class-transformer';
+import { IsCountryCode } from './validators/isCountry.validator';
 
 export class AuthRegisterLoginDto {
   @ApiProperty({ example: 'test1@example.com' })
@@ -20,11 +22,17 @@ export class AuthRegisterLoginDto {
 
   @ApiProperty()
   @MinLength(6)
-  password: string;
+  @IsOptional()
+  password?: string;
 
-  @ApiProperty()
-  @MinLength(1)
-  country?: string;
+  @ApiProperty({ example: 'BR' })
+  @IsCountryCode()
+  country: string;
+
+  @ApiProperty({ example: '+554599900000' })
+  @IsPhoneNumber()
+  @IsOptional()
+  phone?: string;
 
   @ApiProperty({ example: 'John' })
   @IsNotEmpty()
@@ -33,4 +41,24 @@ export class AuthRegisterLoginDto {
   @ApiProperty({ example: 'Doe' })
   @IsNotEmpty()
   lastName: string;
+
+  @ApiProperty()
+  @IsOptional()
+  cpf?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  govBrData?: any;
+
+  @ApiProperty()
+  @IsOptional()
+  lastGovBrLoginAt?: Date;
+
+  @ApiProperty()
+  @IsOptional()
+  govBrFirstLoginAt?: Date;
+
+  @ApiProperty()
+  @IsOptional()
+  avatarUrl?: string;
 }

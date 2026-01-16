@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
 import { OrganizationService } from 'organization/organization.service';
 import {
@@ -28,11 +28,14 @@ import { PermissionService } from './permission/permission.service';
 export class RoleService {
   constructor(
     @InjectRepository(Role)
-    private roleRepository: Repository<Role>,
+    private readonly roleRepository: Repository<Role>,
     @InjectRepository(RolePermission)
-    private rolePermissionRepository: Repository<RolePermission>,
+    private readonly rolePermissionRepository: Repository<RolePermission>,
     @InjectRepository(UserRoleAssignment)
-    private userRoleAssignmentRepository: Repository<UserRoleAssignment>,
+    private readonly userRoleAssignmentRepository: Repository<UserRoleAssignment>,
+
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
 
     private readonly permissionService: PermissionService,
     @Inject({ forwardRef: () => OrganizationService })
@@ -45,6 +48,15 @@ export class RoleService {
     if (!role) throw new NotFoundException({ message: 'Role is not found' });
 
     return role;
+  }
+
+  async findDefault(organizationId?: string): Promise<Role | null> {
+    return this.roleRepository.findOne({
+      where: {
+        isDefault: true,
+        organizationId: organizationId ? organizationId : IsNull(),
+      },
+    });
   }
 
   private async syncPermissions(
@@ -73,9 +85,17 @@ export class RoleService {
   }
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
-    const { permissions, name, description, organizationId } = createRoleDto;
+    const { permissions, name, description, organizationId, isDefault } =
+      createRoleDto;
 
-    const role = this.roleRepository.create({ name, description });
+    if (isDefault && organizationId) {
+      await this.roleRepository.update(
+        { organization: { id: organizationId } },
+        { isDefault: false },
+      );
+    }
+
+    const role = this.roleRepository.create({ name, description, isDefault });
     if (organizationId) {
       role.organization = { id: organizationId } as Organization;
     }
@@ -91,6 +111,18 @@ export class RoleService {
   async update(id: string, updateRoleDto: UpdateRoleDto): Promise<Role> {
     const { permissions, ...roleData } = updateRoleDto;
     const role = await this.findOne(id);
+
+    if (
+      roleData.isDefault &&
+      (roleData.organizationId || role.organizationId)
+    ) {
+      const orgId = roleData.organizationId || role.organizationId;
+      await this.roleRepository.update(
+        { organization: { id: orgId } },
+        { isDefault: false },
+      );
+    }
+
     Object.assign(role, roleData);
     if (roleData.organizationId) {
       role.organization = { id: roleData.organizationId } as Organization;
@@ -104,8 +136,12 @@ export class RoleService {
     return this.findOne(id);
   }
 
-  async assign(data: AssignRoleDto, entityManager?: EntityManager) {
-    const { userId, roleId, organizationId } = data;
+  async assign(
+    data: AssignRoleDto,
+    organization?: Organization,
+    entityManager?: EntityManager,
+  ) {
+    const { userId, roleId, organizationId = organization?.id } = data;
     const assign = await this.userRoleAssignmentRepository.findOne({
       where: {
         userId,
@@ -141,30 +177,22 @@ export class RoleService {
     const { roleIds, userId } = data;
     const organization = await this.organizationService.findOne(organizationId);
 
-    const dataSource = this.userRoleAssignmentRepository.manager.connection;
-    const queryRunner = dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
+    return this.entityManager.transaction(async (manager) => {
       const assignPromises = [];
       roleIds.forEach((roleId) =>
         assignPromises.push(
-          this.assign({ roleId, organizationId: organization.id, userId }),
+          this.assign(
+            { roleId, organizationId: organization.id, userId },
+            organization,
+            manager,
+          ),
         ),
       );
       await Promise.all(assignPromises);
 
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
-    }
-
-    return await this.userRoleAssignmentRepository.find({
-      where: { organizationId, userId },
+      return await this.userRoleAssignmentRepository.find({
+        where: { organizationId, userId },
+      });
     });
   }
 
@@ -178,36 +206,28 @@ export class RoleService {
       where: { organizationId, userId },
     });
 
-    const dataSource = this.userRoleAssignmentRepository.manager.connection;
-    const queryRunner = dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
+    return this.entityManager.transaction(async (manager) => {
       const unassignPromises = [];
       assigns.forEach((assign) =>
-        unassignPromises.push(this.unassign(assign.id)),
+        unassignPromises.push(this.unassign(assign.id, manager)),
       );
       await Promise.all(unassignPromises);
 
       const assignPromises = [];
       roleIds.forEach((roleId) =>
         assignPromises.push(
-          this.assign({ roleId, organizationId: organization.id, userId }),
+          this.assign(
+            { roleId, organizationId: organization.id, userId },
+            organization,
+            manager,
+          ),
         ),
       );
       await Promise.all(assignPromises);
 
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
-    }
-
-    return await this.userRoleAssignmentRepository.find({
-      where: { organizationId, userId },
+      return await this.userRoleAssignmentRepository.find({
+        where: { organizationId, userId },
+      });
     });
   }
 
@@ -223,11 +243,12 @@ export class RoleService {
     return assignments;
   }
 
-  list(
+  async list(
     pagination: IPaginationOptions,
     search?: string,
     exclude?: string[],
-  ): Promise<Role[]> {
+  ): Promise<{ data: Role[]; total: number }> {
+    if (pagination.page > 0) pagination.page--;
     const { limit, page } = pagination;
     const where: FindOptionsWhere<Role> = {};
 
@@ -235,11 +256,13 @@ export class RoleService {
 
     if (exclude && exclude?.length > 0) where.id = Not(In(exclude));
 
-    return this.roleRepository.find({
+    const [data, total] = await this.roleRepository.findAndCount({
       where: where,
       take: limit,
       skip: page * limit,
       relations: ['rolePermissions', 'rolePermissions.permission'],
     });
+
+    return { data, total };
   }
 }

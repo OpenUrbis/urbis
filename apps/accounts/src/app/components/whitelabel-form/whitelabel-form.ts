@@ -5,6 +5,7 @@ import {
   signal,
   computed,
   effect,
+  inject,
 } from '@angular/core';
 import {
   FormControl,
@@ -12,42 +13,39 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { OrganizationState } from '../../states/organization/organization.state';
+import { OrganizationsApi } from '../../pages/organizations/services/organizations-api';
 import { WhitelabelApi } from '../../states/whitelabel/whitelabel.service';
 import { WhitelabelState } from '../../states/whitelabel/whitelabel.state';
 import { ApplicationTheme } from '../../states/whitelabel/whitelabel.types';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatRadioModule } from '@angular/material/radio';
+import { forkJoin } from 'rxjs';
 import {
   FileUploaderComponent,
   UploadStrategyPathEnum,
+  HlmInputDirective,
+  HlmLabelDirective,
+  HlmButtonDirective,
+  HlmIconComponent,
+  HlmToasterService,
 } from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
+import { provideIcons } from '@ng-icons/core';
+import { lucideLoader2, lucideSave, lucideCheck, lucideX, lucideChevronsUpDown } from '@ng-icons/lucide';
 
 @Component({
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatRadioModule,
-    MatCardModule,
-    MatSnackBarModule,
     FileUploaderComponent,
+    HlmInputDirective,
+    HlmLabelDirective,
+    HlmButtonDirective,
+    HlmIconComponent,
   ],
+  providers: [provideIcons({ lucideLoader2, lucideSave, lucideCheck, lucideX, lucideChevronsUpDown })],
   selector: 'app-whitelabel-form',
   templateUrl: './whitelabel-form.html',
-  styleUrls: ['./whitelabel-form.scss'],
 })
 export class WhitelabelFormComponent {
   loadingStep = signal(0);
@@ -62,6 +60,11 @@ export class WhitelabelFormComponent {
       Validators.pattern(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/),
     ]),
     defaultTheme: new FormControl('light', [Validators.required]),
+    organizationName: new FormControl('', [Validators.required]),
+    organizationType: new FormControl(''),
+    tenantType: new FormControl('mono'),
+    organizationTypes: new FormControl<string[]>([]),
+    newOrgType: new FormControl(''),
   });
 
   logotypeDarkSrc = computed(
@@ -91,12 +94,13 @@ export class WhitelabelFormComponent {
     return UploadStrategyPathEnum.LOGOTYPE;
   });
 
-  constructor(
-    private matSnackBar: MatSnackBar,
-    private organizationState: OrganizationState,
-    private whitelabelState: WhitelabelState,
-    private whitelabelApi: WhitelabelApi,
-  ) {
+  private toaster = inject(HlmToasterService);
+  private organizationState = inject(OrganizationState);
+  private organizationsApi = inject(OrganizationsApi);
+  private whitelabelState = inject(WhitelabelState);
+  private whitelabelApi = inject(WhitelabelApi);
+
+  constructor() {
     this.addLoadingStep();
     this.organizationState.refresh();
     effect(() => {
@@ -108,6 +112,12 @@ export class WhitelabelFormComponent {
           this.formGroup.patchValue({
             brandColor: value.shared?.primaryColor ?? '#1840dc',
             defaultTheme: value.application?.theme ?? 'light',
+            organizationName: organization.name,
+            organizationType: organization.metadata?.organizationType,
+            tenantType: organization.metadata?.tenantType ?? 'mono',
+            organizationTypes: (organization.metadata?.organizationTypes?.length > 0) 
+              ? organization.metadata.organizationTypes 
+              : ['Secretaria'],
           });
           this.removeLoadingStep();
         });
@@ -119,27 +129,41 @@ export class WhitelabelFormComponent {
 
     this.addLoadingStep();
     const formValue = this.formGroup.value;
+    const organizationId = this.organizationState.selectedOrganization()!.id;
 
-    this.whitelabelApi
-      .updateOrganizationWhitelabel(
-        this.organizationState.selectedOrganization()!.id,
-        {
-          primaryColor: formValue.brandColor,
-          theme: formValue.defaultTheme as ApplicationTheme,
-        },
-      )
-      .subscribe({
-        error: () => {
-          this.removeLoadingStep();
-        },
-        next: () => {
-          this.removeLoadingStep();
-          this.whitelabelState.reload();
-          this.success.next({
-            organizationId: this.organizationState.selectedOrganization()!.id,
-          });
-        },
-      });
+    const updateWhitelabel$ = this.whitelabelApi.updateOrganizationWhitelabel(
+      organizationId,
+      {
+        primaryColor: formValue.brandColor,
+        theme: formValue.defaultTheme as ApplicationTheme,
+      },
+    );
+
+    const updateOrg$ = this.organizationsApi.update(organizationId, {
+      name: formValue.organizationName!,
+      metadata: {
+        ...this.organizationState.selectedOrganization()!.metadata,
+        organizationType: formValue.organizationType,
+        tenantType: formValue.tenantType,
+        organizationTypes: formValue.organizationTypes,
+      },
+    });
+
+    forkJoin([updateWhitelabel$, updateOrg$]).subscribe({
+      error: () => {
+        this.removeLoadingStep();
+        this.toaster.error('Error updating settings');
+      },
+      next: () => {
+        this.removeLoadingStep();
+        this.whitelabelState.reload();
+        this.organizationState.refresh();
+        this.toaster.success('Settings updated successfully');
+        this.success.next({
+          organizationId,
+        });
+      },
+    });
   }
 
   addLoadingStep() {
@@ -148,5 +172,24 @@ export class WhitelabelFormComponent {
 
   removeLoadingStep() {
     this.loadingStep.set(this.loadingStep() - 1);
+  }
+
+  addOrgType() {
+    const newType = this.formGroup.get('newOrgType')?.value?.trim();
+    if (!newType) return;
+
+    const currentTypes = this.formGroup.get('organizationTypes')?.value || [];
+    if (!currentTypes.includes(newType)) {
+      this.formGroup.get('organizationTypes')?.setValue([...currentTypes, newType]);
+      this.formGroup.get('organizationTypes')?.markAsDirty();
+    }
+    this.formGroup.get('newOrgType')?.setValue('');
+  }
+
+  removeOrgType(index: number) {
+    const currentTypes = this.formGroup.get('organizationTypes')?.value || [];
+    currentTypes.splice(index, 1);
+    this.formGroup.get('organizationTypes')?.setValue([...currentTypes]);
+    this.formGroup.get('organizationTypes')?.markAsDirty();
   }
 }

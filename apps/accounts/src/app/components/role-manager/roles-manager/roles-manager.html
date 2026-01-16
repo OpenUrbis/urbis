@@ -4,96 +4,116 @@
 >
   <section rightActions>
     <a
-      matButton="filled"
-      [attr.aria-label]="
-        'pages.roles.page.buttons.create.ariaLabel' | translate
-      "
+      *hasPermission="'role:create'"
+      hlmBtn
+      [attr.aria-label]="'pages.roles.page.buttons.create.ariaLabel' | translate"
       (click)="createRole()"
     >
-      <mat-icon class="material-symbols-outlined">add</mat-icon>
+      <hlm-icon name="lucidePlus" size="16" class="mr-2" />
       {{ "pages.roles.page.buttons.create.title" | translate }}
     </a>
   </section>
 
-  <div class="table-box">
+  <div class="rounded-md border border-border overflow-hidden bg-card text-card-foreground shadow-sm">
     @if (dataSource.loading()) {
-      <mat-progress-bar mode="indeterminate" />
+        <div class="w-full flex justify-center p-4">
+            <hlm-icon name="lucideLoader2" class="animate-spin h-6 w-6 text-primary" />
+        </div>
     }
 
-    <table mat-table [dataSource]="dataSource">
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>
-          {{ "pages.roles.table.columns.name" | translate }}
-        </th>
-        <td mat-cell *matCellDef="let role">
-          {{ role.name }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef>
-          {{ "pages.roles.table.columns.description" | translate }}
-        </th>
-        <td mat-cell *matCellDef="let role">
-          {{ role.description }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="allowedActions">
-        <th mat-header-cell *matHeaderCellDef>
-          {{ "pages.roles.table.columns.allowedActions" | translate }}
-        </th>
-        <td mat-cell *matCellDef="let role">
-          {{ formatPermissions(role) }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>
-          {{ "pages.roles.table.columns.status" | translate }}
-        </th>
-        <td mat-cell *matCellDef="let role">
-          {{ "components.shared.status." + role.status | translate }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>
-          {{ "pages.roles.table.columns.actions" | translate }}
-        </th>
-        <td mat-cell *matCellDef="let role">
-          <a
-            matIconButton
-            [attr.aria-label]="
-              'pages.roles.page.buttons.edit.ariaLabel' | translate
-            "
-            (click)="editRole(role)"
-          >
-            <mat-icon class="material-symbols-outlined">create</mat-icon>
-          </a>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="5">
-          @if (dataSource.loading()) {
-            {{ "components.shared.table.loading" | translate }}
-          } @else {
-            {{ "pages.roles.table.noData" | translate }}
+    <div class="relative w-full overflow-auto">
+      <table class="w-full caption-bottom text-sm text-left">
+        <thead class="[&_tr]:border-b">
+          <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
+              {{ "pages.roles.table.columns.name" | translate }}
+            </th>
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
+              {{ "pages.roles.table.columns.description" | translate }}
+            </th>
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
+              {{ "pages.roles.table.columns.allowedActions" | translate }}
+            </th>
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
+              {{ "pages.roles.table.columns.status" | translate }}
+            </th>
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground text-right">
+              {{ "pages.roles.table.columns.actions" | translate }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="[&_tr:last-child]:border-0">
+          @for (role of dataSource.data(); track role.id) {
+            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+              <td class="p-4 align-middle font-medium">
+                {{ role.name }}
+                @if (role.isDefault) {
+                  <span class="ml-2 inline-flex items-center rounded-full border border-transparent bg-secondary px-2 py-0.5 text-xs font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                    {{ "components.roleManager.default" | translate }}
+                  </span>
+                }
+              </td>
+              <td class="p-4 align-middle text-muted-foreground">
+                {{ role.description }}
+              </td>
+              <td class="p-4 align-middle text-muted-foreground max-w-xs truncate" [title]="formatPermissions(role)">
+                {{ formatPermissions(role) }}
+              </td>
+              <td class="p-4 align-middle">
+                <app-status-badge [status]="role.status" />
+              </td>
+              <td class="p-4 align-middle text-right">
+                <a
+                  hlmBtn
+                  variant="ghost"
+                  size="icon"
+                  [attr.aria-label]="'pages.roles.page.buttons.edit.ariaLabel' | translate"
+                  (click)="editRole(role)"
+                >
+                  <hlm-icon name="lucidePencil" size="16" />
+                </a>
+              </td>
+            </tr>
+          } @empty {
+            @if (!dataSource.loading()) {
+                <tr>
+                    <td colspan="5" class="p-4 align-middle text-center text-muted-foreground">
+                        {{ "pages.roles.table.noData" | translate }}
+                    </td>
+                </tr>
+            }
           }
-        </td>
-      </tr>
-    </table>
+        </tbody>
+      </table>
+    </div>
 
-    <mat-paginator
-      [length]="dataSource.totalCount()"
-      [pageSize]="dataSource.currentParams().limit"
-      [pageIndex]="dataSource.currentParams().page - 1"
-      [pageSizeOptions]="[15, 30, 50]"
-      (page)="onPageChange($event)"
-    />
+    <!-- Pagination -->
+    <div class="flex items-center justify-end space-x-2 py-4 px-4 border-t border-border">
+        <div class="flex-1 text-sm text-muted-foreground">
+            {{ (dataSource.currentParams().page - 1) * dataSource.currentParams().limit + 1 }} -
+            {{ (dataSource.currentParams().page * dataSource.currentParams().limit) > dataSource.totalCount() ? dataSource.totalCount() : (dataSource.currentParams().page * dataSource.currentParams().limit) }}
+            of {{ dataSource.totalCount() }}
+        </div>
+        <div class="space-x-2">
+            <button
+                hlmBtn
+                variant="outline"
+                size="sm"
+                (click)="prevPage()"
+                [disabled]="dataSource.currentParams().page <= 1 || dataSource.loading()"
+            >
+                <hlm-icon name="lucideChevronLeft" size="16" />
+            </button>
+            <button
+                hlmBtn
+                variant="outline"
+                size="sm"
+                (click)="nextPage()"
+                [disabled]="(dataSource.currentParams().page * dataSource.currentParams().limit) >= dataSource.totalCount() || dataSource.loading()"
+            >
+                <hlm-icon name="lucideChevronRight" size="16" />
+            </button>
+        </div>
+    </div>
   </div>
 </app-page-structure>

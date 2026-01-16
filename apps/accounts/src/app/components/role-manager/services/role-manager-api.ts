@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { HlmToasterService } from '../../../../../projects/shared/src/public-api';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
@@ -23,7 +23,7 @@ const API_BASE = `${environment.api}/role`;
 })
 export class RoleManagerApi {
   httpClient = inject(HttpClient);
-  matSnackBar = inject(MatSnackBar);
+  toaster = inject(HlmToasterService);
 
   create(data: ICreateRoleRequest) {
     return this.httpClient.post(`${API_BASE}`, data);
@@ -49,7 +49,7 @@ export class RoleManagerApi {
       .pipe(
         catchError((err) => {
           console.error(err);
-          this.matSnackBar.open(
+          this.toaster.error(
             'Houve um erro ao carregar as permissões do sistema',
           );
 
@@ -68,11 +68,11 @@ export class RoleManagerApi {
       .pipe(
         catchError((err) => {
           console.error(err);
-          this.matSnackBar.open(
+          this.toaster.error(
             'Houve um erro ao carregar os cargos do sistema',
           );
 
-          return of([]);
+          return of({ data: [], total: 0 } as IPaginationResponse<IRoleResponse>);
         }),
       );
   }

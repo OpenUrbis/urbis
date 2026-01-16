@@ -1,47 +1,45 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { DialogRef, DIALOG_DATA } from '../../ui/dialog/hlm-dialog.service';
+import { HlmButtonDirective } from '../../ui/button/hlm-button.directive';
 import { ConfirmDialogData } from './dto/confirm-dialog.dto';
 
 @Component({
   selector: 'lib-confirm-dialog',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, HlmButtonDirective],
   template: `
-    <h2 mat-dialog-title>{{ data.title }}</h2>
+    <h2 class="text-lg font-semibold mb-2">{{ data.title }}</h2>
     @if (data.description) {
-      <mat-dialog-content>{{ data.description }}</mat-dialog-content>
+      <div class="text-muted-foreground mb-6">{{ data.description }}</div>
     }
-    <mat-dialog-actions align="end">
+    <div class="flex justify-end gap-2">
       <button
-        mat-button
-        [color]="data.cancelColor || 'basic'"
+        hlmBtn
+        variant="outline"
         (click)="onCancel()"
+        class="border-input hover:bg-accent hover:text-accent-foreground"
       >
         {{ data.cancelText || 'Não' }}
       </button>
       <button
-        mat-button
-        [color]="data.confirmColor || 'primary'"
+        hlmBtn
+        [variant]="data.confirmColor === 'warn' ? 'destructive' : 'default'"
         (click)="onConfirm()"
       >
         {{ data.confirmText || 'Sim' }}
       </button>
-    </mat-dialog-actions>
+    </div>
   `,
 })
 export class ConfirmDialog {
-  readonly dialogRef = inject(MatDialogRef<ConfirmDialog>);
-  readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
+  readonly dialogRef = inject(DialogRef<ConfirmDialog>);
+  readonly data = inject<ConfirmDialogData>(DIALOG_DATA);
 
-  /**
-   * Handles the confirm action by closing the dialog with true.
-   */
   onConfirm(): void {
     this.dialogRef.close(true);
   }
 
-  /**
-   * Handles the cancel action by closing the dialog with false.
-   */
   onCancel(): void {
     this.dialogRef.close(false);
   }

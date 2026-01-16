@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { autoLoginPartialRoutesGuardWithConfig } from 'angular-auth-oidc-client';
 import { AUTH_CONFIG_ID } from '../../projects/shared/src/lib/auth/auth.config';
 import { onboardingGuard } from './shared/auth/guards/onboarding-guard';
+import { permissionGuard } from './shared/guards/permission.guard';
 
 export const routes: Routes = [
   {
@@ -87,6 +88,8 @@ export const routes: Routes = [
           },
           {
             path: 'roles',
+            canActivate: [permissionGuard],
+            data: { permission: 'role:list' },
             loadComponent: () =>
               import('./pages/roles/roles').then((m) => m.Roles),
           },
@@ -103,7 +106,7 @@ export const routes: Routes = [
               ),
           },
           {
-            path: 'whitelabel',
+            path: 'settings',
             loadComponent: () =>
               import('./pages/whitelabel/whitelabel').then((m) => m.Whitelabel),
           },

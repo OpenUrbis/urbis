@@ -5,10 +5,12 @@ export interface IGetSearchConfigResponse {
   name: string;
   origin: string;
   method?: string;
+  index?: number;
   isActive?: boolean;
   transformParams?: string;
   transformRequest?: string;
   transformResponse?: string;
+  layerSchemaId?: string;
   clickAction?: {
     action: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

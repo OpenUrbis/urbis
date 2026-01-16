@@ -1,0 +1,21 @@
+---
+description: Rules for Shared UI package
+globs: ["packages/ui/**"]
+---
+
+# Shared UI Rules
+
+## Tech Stack
+- **React** (or Preact/React compatible).
+- **Radix UI** primitives for accessible interactive components.
+- **Tailwind CSS** for styling (via `class-variance-authority`).
+- **Lucide React** for icons.
+
+## Component Structure
+- Export components from named files.
+- Use `shadcn/ui` pattern: `components/ui/<component>.tsx`.
+- Ensure components are highly reusable and not bound to specific business logic.
+
+## Exports
+- All public components must be exported in `package.json`.
+- Do not export internal utilities unless necessary.

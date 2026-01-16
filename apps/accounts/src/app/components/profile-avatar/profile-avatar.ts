@@ -9,7 +9,6 @@ import { environment } from '../../../environments/environment';
   selector: 'app-profile-avatar',
   imports: [CommonModule, UserAvatarComponent, EditProfileAvatarComponent],
   templateUrl: './profile-avatar.html',
-  styleUrl: './profile-avatar.scss',
 })
 export class ProfileAvatarComponent {
   private readonly profileState = inject(ProfileState);
@@ -26,4 +25,5 @@ export class ProfileAvatarComponent {
     return `${environment.s3EndpointPublic}/avatars/${profile.id}`;
   });
   canEdit = input(true);
+  size = input(120);
 }

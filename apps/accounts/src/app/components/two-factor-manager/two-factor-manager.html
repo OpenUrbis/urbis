@@ -1,8 +1,8 @@
 <lib-loading-content [loading]="loading()">
   <div class="p-3">
     @if (step() === 0) {
-      <div class="d-flex align-items-center flex-column">
-        <p class="text-center">
+      <div class="flex flex-col items-center">
+        <p class="text-center mb-4">
           {{
             "components.twoFactorManager.status.label"
               | translate: {
@@ -14,26 +14,28 @@
         </p>
         @if (isActive()) {
           <button
-            matButton="outlined"
-            class="w-75"
+            hlmBtn
+            variant="outline"
+            class="w-3/4"
             (click)="step.set(2)"
             [attr.aria-label]="
               'components.twoFactorManager.buttons.disable' | translate
             "
           >
-            <mat-icon class="material-symbols-outlined">lock_open</mat-icon>
+            <hlm-icon name="lucideUnlock" size="sm" class="mr-2" />
             {{ "components.twoFactorManager.buttons.disable" | translate }}
           </button>
         } @else {
           <button
-            matButton="outlined"
-            class="w-75"
+            hlmBtn
+            variant="outline"
+            class="w-3/4"
             (click)="step.set(1)"
             [attr.aria-label]="
               'components.twoFactorManager.buttons.enable' | translate
             "
           >
-            <mat-icon class="material-symbols-outlined">lock</mat-icon>
+            <hlm-icon name="lucideLock" size="sm" class="mr-2" />
             {{ "components.twoFactorManager.buttons.enable" | translate }}
           </button>
         }
@@ -45,8 +47,8 @@
         (verified)="validated($event)"
       />
     } @else if (step() === 2 && accessToken()) {
-      <h3>{{ "components.twoFactorManager.verification.title" | translate }}</h3>
-      <p>
+      <h3 class="text-lg font-semibold mb-2">{{ "components.twoFactorManager.verification.title" | translate }}</h3>
+      <p class="text-muted-foreground mb-4">
         {{ "components.twoFactorManager.verification.description" | translate }}
       </p>
       <app-two-factor-verify

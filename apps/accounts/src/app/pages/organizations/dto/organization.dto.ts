@@ -22,4 +22,5 @@ export interface IRequestCreateOrganization {
 export interface IRequestUpdateOrganization {
   name?: string;
   description?: string;
+  metadata?: any;
 }

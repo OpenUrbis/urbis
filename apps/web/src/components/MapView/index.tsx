@@ -19,6 +19,7 @@ import { MapCoordinates } from "./MapCoordinates";
 import { getDigitalAddressLayers } from "./digital-address-layer";
 import { encode, getPolygon } from "@open-urbis/numeracao-digital";
 import { DigitalAddressDetails } from "../LocationSelectionCard/DigitalAddressDetails";
+import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 // @ts-ignore
 import { OpenLocationCode } from "open-location-code";
 import proj4 from "proj4";
@@ -28,7 +29,13 @@ proj4.defs("EPSG:4674", "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_d
 
 const olc = new OpenLocationCode();
 
-export const MapView = () => {
+export const MapView = ({
+  previewLayers,
+  hideControls,
+}: {
+  previewLayers?: IGetConfigLayerSchema[];
+  hideControls?: boolean;
+}) => {
   const accessToken =
     import.meta.env.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN ||
     "your-mapbox-access-token";
@@ -65,10 +72,22 @@ export const MapView = () => {
   const clickActions = CLICK_ACTIONS_CONFIG();
 
   const layers = computed(() => {
+    if (previewLayers) {
+      return transformSchemaLayers(previewLayers, {
+        zoom: zoom.value,
+        boundingBox: boundingBox.value,
+        selectedFeatureIds: [],
+        is3DActive: is3DActive.value,
+      }).flat();
+    }
+
     const baseLayers = transformSchemaLayers(layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
-      selectedFeature: selectedFeatures.value,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      selectedFeatureIds: selectedFeatures.value as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      selectedFeature: selectedFeatures.value as any,
       is3DActive: is3DActive.value,
     }).flat();
 
@@ -266,12 +285,13 @@ export const MapView = () => {
                 longitude: evt.lngLat.lng,
               };
             }}
-            onMoveEnd={() =>
-              handleViewportChange(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (overlayRef!.current as any)._deck.getViewports()[0]
-              )
-            }
+            onMoveEnd={() => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const viewport = (overlayRef?.current as any)?._deck?.getViewports()?.[0];
+              if (viewport) {
+                handleViewportChange(viewport);
+              }
+            }}
           >
             <DeckGLOverlay
               ref={overlayRef}
@@ -281,7 +301,7 @@ export const MapView = () => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 addMapControls((overlayRef.current as any)._map, polygonEdit, () => {
                     isPickingLocation.value = !isPickingLocation.value;
-                });
+                }, hideControls);
               }}
               style={{ cursor: isPickingLocation.value ? 'crosshair' : 'default' }}
             />
@@ -291,9 +311,9 @@ export const MapView = () => {
             <span className="material-symbols-outlined text-4xl animate-spin">progress_activity</span>
           </div>
         )}
-        <MapCoordinates />
+        {!hideControls && <MapCoordinates />}
       </div>
-      {isEditing.value ? saveButton() : <LayerController />}
+      {!hideControls && (isEditing.value ? saveButton() : <LayerController />)}
     </>
   );
 };

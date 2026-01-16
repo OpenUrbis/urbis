@@ -8,10 +8,16 @@ import { randomStringGenerator } from '@nestjs/common/utils/random-string-genera
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
+import {
+  AccessControl,
+  IAccessControlPermission,
+} from '../common/guards/access-control/access-control';
 import { UserService } from 'user/user.service';
+import { RoleService } from '../role/role.service';
 import { User } from '../user/entities/user.entity';
 import { MailService } from './../common/mail/mail.service';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
+import { AuthExternalStrategyDto } from './dto/auth-external-strategy.dto';
 import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
 import { AuthUpdateDto } from './dto/auth-update.dto';
 import { ForgotService } from './forgot/forgot.service';
@@ -21,6 +27,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private userService: UserService,
+    private roleService: RoleService,
     private forgotService: ForgotService,
     private mailService: MailService,
     private configService: ConfigService,
@@ -30,7 +37,6 @@ export class AuthService {
     const user = await this.userService.findOne({
       email: loginDto.email,
     });
-    console.log(user);
     if (!user || !(await user.validatePassword(loginDto.password))) {
       throw new BadRequestException({
         message: 'Email is not found or password is wrong',
@@ -63,11 +69,24 @@ export class AuthService {
     if (!emailConfirmation) {
       emailHashConfirm = null;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const user = await this.userService.create({
       ...dto,
       email: dto.email,
       emailHashConfirm,
-    });
+    } as any);
+
+    const defaultRole = await this.roleService.findDefault();
+    const defaultOrgId = this.configService.get('admin.organization.id');
+
+    if (defaultRole) {
+      await this.roleService.assign({
+        userId: user.id,
+        roleId: defaultRole.id,
+        organizationId: defaultOrgId,
+      });
+    }
+
     if (emailConfirmation) {
       await this.mailService.userSignUp({
         to: user.email,
@@ -268,5 +287,71 @@ export class AuthService {
         firstName: user.firstName,
       },
     });
+  }
+
+  async getPermissions(user: User): Promise<IAccessControlPermission[]> {
+    const assignments = await this.roleService.listUserRoles(user.id);
+    const accessControl = new AccessControl(assignments);
+    return accessControl.permissions;
+  }
+
+  async createOrValidateExternalOidcUser(payload: AuthExternalStrategyDto) {
+    payload.email = payload.email.toLowerCase();
+    let user = await this.userService.findOne({
+      email: payload.email,
+    });
+
+    const now = new Date();
+
+    if (user === null) {
+      await this.register(
+        {
+          email: payload.email,
+          firstName: payload.firstName,
+          lastName: payload.lastName,
+          country: payload.country,
+          password: null,
+          cpf: payload.cpf,
+          govBrData: payload.govBrData,
+          lastGovBrLoginAt: now,
+          govBrFirstLoginAt: now,
+          avatarUrl: payload.picture,
+        },
+        false,
+      );
+      user = await this.userService.findOne({ email: payload.email });
+      return { ...user, isNewUser: true };
+    } else {
+      const updateData: any = {
+        lastGovBrLoginAt: now,
+      };
+
+      if (!user.govBrFirstLoginAt) {
+        updateData.govBrFirstLoginAt = now;
+      }
+
+      if (payload.govBrData) {
+        updateData.govBrData = payload.govBrData;
+      }
+
+      if (!user.cpf && payload.cpf) {
+        updateData.cpf = payload.cpf;
+      }
+
+      if (payload.firstName && !user.firstName) {
+        updateData.firstName = payload.firstName;
+      }
+
+      if (payload.lastName && !user.lastName) {
+        updateData.lastName = payload.lastName;
+      }
+
+      if (payload.picture) {
+        updateData.avatarUrl = payload.picture;
+      }
+
+      await this.userService.update(user.id, updateData);
+      return await this.userService.findOne({ id: user.id });
+    }
   }
 }

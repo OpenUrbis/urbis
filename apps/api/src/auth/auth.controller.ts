@@ -17,8 +17,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserData } from 'common/decorators/user-data/user-data.decorator';
-import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
+import { Recaptcha } from '@nestlab/google-recaptcha';
 import { User } from 'user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { AuthConfirmEmailDto } from './dto/auth-confirm-email.dto';
@@ -47,7 +46,11 @@ export class AuthController {
   } */
 
   @Post('email/register')
-  // To do: Recaptcha
+  @Recaptcha({
+    response: (req) => req.body.recaptcha,
+    action: 'signup',
+    score: 0.5,
+  })
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() createUserDto: AuthRegisterLoginDto) {
     return await this.service.register(createUserDto);
@@ -94,6 +97,14 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
+  @Get('permissions')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  public async permissions(@Request() request) {
+    return this.service.getPermissions(request.user as User);
+  }
+
+  @ApiBearerAuth()
   @Patch('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
@@ -119,7 +130,7 @@ export class AuthController {
         (key) => `${encodeURIComponent(key)}=${encodeURIComponent(query[key])}`,
       )
       .join('&');
-    const redirectUrl = `com.slingui.app:/callback?${params}`;
+    const redirectUrl = `com.application-name.app:/callback?${params}`;
     return res.redirect(redirectUrl);
   }
 }

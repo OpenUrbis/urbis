@@ -1,16 +1,19 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -38,8 +41,26 @@ export class UserController {
   }
 
   @Get()
-  list() {
-    return this.service.list();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: String,
+    description: 'Page of pagination',
+    example: 0,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: String,
+    description: 'Limit of registers',
+    example: 100,
+  })
+  list(
+    @Query('page', new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('organizationId') organizationId?: string,
+  ) {
+    return this.service.list({ page, limit }, organizationId);
   }
 
   @Get(':id')

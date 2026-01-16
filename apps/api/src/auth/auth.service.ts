@@ -8,7 +8,10 @@ import { randomStringGenerator } from '@nestjs/common/utils/random-string-genera
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
-import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
+import {
+  AccessControl,
+  IAccessControlPermission,
+} from '../common/guards/access-control/access-control';
 import { UserService } from 'user/user.service';
 import { RoleService } from '../role/role.service';
 import { User } from '../user/entities/user.entity';
@@ -286,54 +289,10 @@ export class AuthService {
     });
   }
 
-  async getPermissions(
-    user: User,
-  ): Promise<{ id: string; scope: RolePermissionScopeEnum }[]> {
-    const userWithRoles = await this.userService.findOne(
-      { id: user.id },
-      {
-        relations: [
-          'userRoleAssignments.role',
-          'userRoleAssignments.role.rolePermissions',
-          'userRoleAssignments.role.rolePermissions.permission',
-        ],
-      },
-    );
-
-    const permissionsMap = new Map<string, RolePermissionScopeEnum>();
-
-    if (userWithRoles?.userRoleAssignments) {
-      for (const assignment of userWithRoles.userRoleAssignments) {
-        if (assignment.role?.rolePermissions) {
-          for (const rolePermission of assignment.role.rolePermissions) {
-            const permissionId = rolePermission.permission?.id;
-            const scope = rolePermission.scope;
-
-            if (permissionId && scope) {
-              const currentScope = permissionsMap.get(permissionId);
-              if (!currentScope) {
-                permissionsMap.set(permissionId, scope);
-              } else {
-                // Upgrade scope: GLOBAL > ANY > OWN
-                if (scope === RolePermissionScopeEnum.GLOBAL) {
-                  permissionsMap.set(permissionId, scope);
-                } else if (
-                  scope === RolePermissionScopeEnum.ANY &&
-                  currentScope !== RolePermissionScopeEnum.GLOBAL
-                ) {
-                  permissionsMap.set(permissionId, scope);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return Array.from(permissionsMap.entries()).map(([id, scope]) => ({
-      id,
-      scope,
-    }));
+  async getPermissions(user: User): Promise<IAccessControlPermission[]> {
+    const assignments = await this.roleService.listUserRoles(user.id);
+    const accessControl = new AccessControl(assignments);
+    return accessControl.permissions;
   }
 
   async createOrValidateExternalOidcUser(payload: AuthExternalStrategyDto) {

@@ -89,7 +89,7 @@ export const routes: Routes = [
           {
             path: 'roles',
             canActivate: [permissionGuard],
-            data: { permission: 'role:read' },
+            data: { permission: 'role:list' },
             loadComponent: () =>
               import('./pages/roles/roles').then((m) => m.Roles),
           },

@@ -1,5 +1,5 @@
 {
-  "extends": "@open-urbis/typescript-config/react-library.json",
+  "extends": "@open-urbis/map-typescript-config/react-library.json",
   "include": ["."],
   "exclude": ["node_modules"]
 }

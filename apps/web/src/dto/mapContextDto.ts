@@ -45,7 +45,7 @@ export type MapLayerGroup = {
   id: string;
   name: string;
   subGroups?: MapLayerGroup[];
-}
+};
 
 export interface MapContextType {
   layersSchema: Signal<MapLayerSchema[]>;

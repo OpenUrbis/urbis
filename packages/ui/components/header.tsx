@@ -1,10 +1,8 @@
-import React from "react";
-
 interface HeaderProps {
   title: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ title }) => {
+export const Header = ({ title }: HeaderProps) => {
   return (
     <header id="header">
       <h1>{title}</h1>

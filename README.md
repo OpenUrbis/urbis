@@ -3,7 +3,7 @@
 ![Capa do Repositório](docs/cover.png)
 
 [![CI Pipeline](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml)
-[![Build and Push](https://github.com/OpenUrbis/urbis-map/actions/workflows/build-and-deploy.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/build-and-deploy.yaml)
+[![Docker Build and Push - API](https://github.com/OpenUrbis/urbis-map/actions/workflows/docker-deploy-api.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/docker-deploy-api.yaml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Version](https://img.shields.io/github/v/release/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/releases)
 [![Contribute](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/OpenUrbis/urbis-map/blob/main/docs/CONTRIBUTING.md)
@@ -94,17 +94,31 @@ pnpm build
 
 ---
 
-## Documentation
+## Database Management
 
-Explore the documentation to learn how to set up, use, and extend Urbis Map:
+We use TypeORM for database interactions. To manage the database schema and data, you can use the following commands:
 
-- [Full Documentation](http://docs.urbis.sampa.br/)
-- [Layers Configuration](docs/layer-schema.md)
-- [Search Configuration](docs/search-config.md)
-- [Contributing Guide](docs/CONTRIBUTING.md)
-- [Commit Guidelines](docs/commit-guidelines.md)
-- [Pull Request Guidelines](docs/pull-request-guidelines.md)
-- [Deploy Guidelines](docs/DEPLOY.md)
+### Migrations
+
+To run pending migrations:
+
+```bash
+pnpm --filter @open-urbis/map-api migration:run
+```
+
+To revert the last applied migration:
+
+```bash
+pnpm --filter @open-urbis/map-api migration:revert
+```
+
+### Seeds
+
+To populate the database with initial data:
+
+```bash
+pnpm --filter @open-urbis/map-api seed:run
+```
 
 ---
 

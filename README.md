@@ -3,7 +3,7 @@
 ![Capa do Repositório](apps/docs/public/cover.png)
 
 [![CI Pipeline](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml)
-[![Docker Build and Push - API](https://github.com/OpenUrbis/urbis-map/actions/workflows/docker-deploy-api.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/docker-deploy-api.yml)
+[![Docker Build and Push - API](https://github.com/OpenUrbis/urbis-map/actions/workflows/docker-deploy-api.yml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/docker-deploy-api.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Version](https://img.shields.io/github/v/release/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/releases)
 [![Contribute](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/OpenUrbis/urbis-map/blob/main/docs/CONTRIBUTING.md)

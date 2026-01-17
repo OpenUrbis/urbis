@@ -1,6 +1,6 @@
 import { computed, useSignal } from "@preact/signals";
-import { PickingInfo } from "deck.gl";
-import mapboxgl from "mapbox-gl";
+import type { PickingInfo } from "deck.gl";
+import type { Style } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo } from "react";
 import { Map } from "react-map-gl/mapbox";
@@ -122,21 +122,21 @@ export const MapView = ({
                   type: "raster",
                   tiles: [
                     `${baseUrl}/maps/geoserver-proxy/maxar?service=WMS&request=GetMap&layers=DigitalGlobe:ImageryTileService&styles=&format=image/jpeg&transparent=false&version=1.1.1&width=256&height=256&srs=EPSG:3857&bbox={bbox-epsg-3857}`
-                  ],
-                  tileSize: 256
-                }
-              },
-              layers: [
-                {
-                  id: "maxar-wms",
-                  type: "raster",
-                  source: "maxar-wms",
-                  paint: {}
-                }
-              ]
-            } as mapboxgl.Style;
-          }
-          default: return "mapbox://styles/mapbox/light-v9";
+              ],
+              tileSize: 256
+            }
+          },
+          layers: [
+            {
+              id: "maxar-wms",
+              type: "raster",
+              source: "maxar-wms",
+              paint: {}
+            }
+          ]
+        } as Style;
+      }
+      default: return "mapbox://styles/mapbox/light-v9";
       }
   }, [theme, selectedBaseMap.value]);
 

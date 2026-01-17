@@ -2,8 +2,7 @@ import { FeatureCollection } from 'geojson';
 import * as proj4 from 'proj4';
 
 export function convertToDxf(fc: FeatureCollection): string {
-  let dxf =
-    '0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n';
+  let dxf = '0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n';
 
   // Projections
   const projWGS84 = '+proj=longlat +datum=WGS84';

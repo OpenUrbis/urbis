@@ -1,4 +1,11 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ExchangeTokenDto } from './dto/exchange-token.dto';
 import { ExternalOidcService } from './external-oidc.service';

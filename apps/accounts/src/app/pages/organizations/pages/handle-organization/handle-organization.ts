@@ -9,7 +9,6 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, firstValueFrom, of, switchMap, tap } from 'rxjs';
 import {
-  LoadingButton,
   LoadingContent,
   HlmToasterService
 } from '../../../../../../projects/shared/src/public-api';
@@ -39,7 +38,6 @@ import { lucideArrowLeft, lucideTrash2, lucideLoader2 } from '@ng-icons/lucide';
     CommonModule,
     RouterLink,
     LoadingContent,
-    LoadingButton,
     Users,
     TranslateModule,
     PageStructure,

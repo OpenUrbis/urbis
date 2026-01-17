@@ -5,11 +5,7 @@ import { MenuToggleButton } from "../MenuToogleButton";
 import { useTheme } from "../ThemeProvider";
 import { userProfile } from "../../auth/user-state";
 
-interface HeaderProps {
-  onMenuToggle?: () => void;
-}
-
-const Header = ({ onMenuToggle }: HeaderProps) => {
+const Header = () => {
   const auth = useAuth();
   const { theme, setTheme } = useTheme();
 

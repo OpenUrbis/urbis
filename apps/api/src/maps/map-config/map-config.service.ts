@@ -62,7 +62,7 @@ export class MapConfigService {
 
     return data.features.map(({ id, geometry, properties }) => {
       const { coordinates } = geometry;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
       const polygon = turf.polygon(coordinates);
       const centroid = turf.centroid(polygon);
 

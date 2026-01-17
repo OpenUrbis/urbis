@@ -42,7 +42,7 @@ const LayerHandlePage = () => {
   const { overlayRef } = useMapContext();
 
   const form = useForm<LayerSchemaFormValues>({
-    resolver: zodResolver(LayerSchemaFormSchema),
+    resolver: zodResolver(LayerSchemaFormSchema) as any,
     defaultValues: {
       url: "https://geoserver.slui.dev/geoserver/slui/ows",
       loadingMethod: "CustomWMSLayer",
@@ -173,6 +173,7 @@ const LayerHandlePage = () => {
       }, 350); // Wait for transition animation
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [shouldShowPreview, previewData, overlayRef]);
 
   const getBaseUrl = (inputUrl: string) => {

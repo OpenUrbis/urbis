@@ -88,10 +88,10 @@ export class TwoFactorService {
     const { base32, otpauth_url } = speakeasy.generateSecret({
       name: `${this.configService.get('auth.twoFactorAppName')} - ${user.email}`,
     });
-    const otpSecret = this.encrypt(base32 as string);
+    const otpSecret = this.encrypt(base32);
 
     await this.userService.saveOtpSecret(user.id, otpSecret);
-    const qrcode = await QRCode.toDataURL(otpauth_url as string);
+    const qrcode = await QRCode.toDataURL(otpauth_url);
 
     return {
       message: '2FA key generated successfully',

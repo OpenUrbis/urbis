@@ -8,7 +8,6 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';

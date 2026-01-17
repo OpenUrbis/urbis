@@ -61,12 +61,14 @@ export const filtersToCQL = (filters: any[]): string => {
       
       // Option
       case 'is any of':
-      case 'include any of':
+      case 'include any of': {
         const opts = values.map(formatValue).join(', ');
         return `${columnId} IN (${opts})`;
-      case 'is none of':
+      }
+      case 'is none of': {
         const notOpts = values.map(formatValue).join(', ');
         return `${columnId} NOT IN (${notOpts})`;
+      }
       
       default:
         console.warn(`Unsupported operator: ${operator}`);

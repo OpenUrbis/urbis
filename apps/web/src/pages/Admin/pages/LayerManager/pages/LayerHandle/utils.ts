@@ -13,7 +13,7 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
   try {
     const urlObj = new URL(url);
     baseUrlStr = `${urlObj.origin}${urlObj.pathname}`;
-  } catch (e) {
+  } catch {
     // Keep original URL
   }
 
@@ -126,7 +126,7 @@ const step2_5Schema = z
   .object({
     viewTemplate: z.string().optional(),
   })
-  .refine((data) => {
+  .refine(() => {
     // We can't access clickAction from previous step here easily in z.object().refine
     // Validation logic will need to check the combined data or be handled in the step component/index
     return true;
@@ -186,7 +186,7 @@ export const generateOriginUrl = (
   try {
     const urlObj = new URL(url);
     baseUrl = `${urlObj.origin}${urlObj.pathname}`;
-  } catch (e) {
+  } catch {
     // Keep original URL if parsing fails
   }
 
@@ -418,7 +418,6 @@ export const parseLayerSchemaToForm = (
 
   if (urlParts[1]) {
     const params = new URLSearchParams(urlParts[1]);
-    const typeName = params.get("typeName") || params.get("layers"); // Note: WMS uses 'layers' (lowercase check recommended but URLSearchParams is case sensitive usually, though keys might be uppercase)
     // Actually URLSearchParams keys are case sensitive. WMS keys are case insensitive but usually uppercase in generated URLs.
     
     // Check various casing for LAYERS/layers/typeName
@@ -511,17 +510,14 @@ export const parseLayerSchemaToForm = (
   let formClickActionParams = {};
 
   if (clickAction?.action) {
-    // @ts-ignore
     formClickAction = clickAction.action;
 
     if (clickAction.action === "setZoom") {
-      // @ts-ignore
       formClickActionParams = {
         zoom:
           clickAction.zoom?.toString() || clickAction.params?.zoom?.toString(),
       };
     } else if (clickAction.action === "openFeature") {
-      // @ts-ignore
       formClickActionParams = {
         template: clickAction.template || clickAction.params?.template,
       };

@@ -41,6 +41,14 @@ jobs:
       - name: Build packages
         run: pnpm exec turbo run build
 
+      - name: Create .npmrc
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+          //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish to npm
         run: |
           pnpm changeset version

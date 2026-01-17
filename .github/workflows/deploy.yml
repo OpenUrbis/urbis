@@ -19,16 +19,21 @@ jobs:
         with:
           submodules: true
           lfs: false
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          run_install: false
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'yarn'
-      - name: Install Yarn
-        run: npm install -g yarn
+          cache: 'pnpm'
+
       - name: Install Dependencies
-        run: yarn install
-        working-directory: ./apps/web 
+        run: pnpm install
+        
       - name: Create .env file
         run: |
           echo "VITE_PUBLIC_MAPBOX_ACCESS_TOKEN=${{ secrets.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN }}" > apps/web/.env
@@ -42,7 +47,7 @@ jobs:
           action: "upload"
           app_location: "/"
           output_location: "/apps/web/dist"
-          app_build_command: "yarn build"
+          app_build_command: "pnpm build"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

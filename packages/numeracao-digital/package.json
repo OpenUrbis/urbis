@@ -1,8 +1,10 @@
 {
   "name": "@open-urbis/numeracao-digital",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Pacote para codificação e decodificação de Endereçamento Digital, convertendo coordenadas geográficas em códigos curtos Base27.",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "SEPLAN/SIME/CODATA",
   "license": "MIT",
   "keywords": [

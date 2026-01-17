@@ -84,6 +84,7 @@ jobs:
             openurbis/urbis-map:${{ startsWith(github.ref_name, 'staging/') && 'staging' || 'latest' }}
 
   restart_deployment:
+    if: false
     name: Restart Deployment - Web
     runs-on: ubuntu-latest
     environment: ${{ startsWith(github.ref_name, 'staging/') && 'staging' || 'production' }}

@@ -18,6 +18,7 @@ import { PageStructure } from '../../page-structure/page-structure';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-user-role-manager',
@@ -28,7 +29,8 @@ import { lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
     PageStructure,
     TranslateModule,
     HlmButtonDirective,
-    HlmIconComponent
+    HlmIconComponent,
+    HasPermissionDirective
   ],
   providers: [provideIcons({ lucidePlus, lucideTrash2 })],
   templateUrl: './user-role-manager.html',

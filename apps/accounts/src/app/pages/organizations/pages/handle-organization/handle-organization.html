@@ -29,6 +29,7 @@
             (click)="selectedTab.set(0)">
             {{ 'pages.organizations.form.tabs.details' | translate }}
         </button>
+        @if(id()) {
         <button 
             *ngIf="id()"
             hlmBtn variant="ghost" 
@@ -39,6 +40,7 @@
             (click)="selectedTab.set(1)">
             {{ 'pages.organizations.form.tabs.users' | translate }}
         </button>
+        }
     </div>
 
     <!-- Tab Content 0: Details -->

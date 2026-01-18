@@ -1,24 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsString,
-  IsBoolean,
-  IsNumber,
-  IsArray,
-  IsOptional,
-  ValidateNested,
-  IsEnum,
-  Validate,
-  ArrayMinSize,
-  ArrayMaxSize,
-} from 'class-validator';
 import { Type } from 'class-transformer';
-
-// Enum for layer types
-export enum LayerType {
-  Custom = 'Custom',
-  GeoJsonLayer = 'GeoJsonLayer',
-  CustomWMSLayer = 'CustomWMSLayer',
-}
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Validate,
+  ValidateNested,
+} from 'class-validator';
 
 // DTO for mapLegend items
 export class MapLegendItemDto {
@@ -42,6 +35,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { LayerSchemaTypeEnum } from 'layer-schemas/enums/layer-schema.enum';
 
 @ValidatorConstraint({ name: 'isColor', async: false })
 export class IsColorConstraint implements ValidatorConstraintInterface {
@@ -65,11 +59,11 @@ export class IsColorConstraint implements ValidatorConstraintInterface {
 export class LayerSchemaDto {
   @ApiProperty({
     description: 'Type of the layer',
-    enum: LayerType,
+    enum: LayerSchemaTypeEnum,
     example: 'GeoJsonLayer',
   })
-  @IsEnum(LayerType)
-  '@@type': LayerType;
+  @IsEnum(LayerSchemaTypeEnum)
+  '@@type': LayerSchemaTypeEnum;
 
   @ApiProperty({
     description: 'Unique identifier for the layer',

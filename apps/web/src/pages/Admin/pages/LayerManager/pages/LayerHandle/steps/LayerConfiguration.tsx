@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { generateOriginUrl, fetchCapabilities } from "../utils";
 import { useEffect, useState } from "react";
@@ -44,12 +44,10 @@ export const LayerConfiguration = ({
   const srs = form.watch("srs");
 
   const [forceCustomSrs, setForceCustomSrs] = useState(false);
-  const [isFetchingCrs, setIsFetchingCrs] = useState(false);
 
   useEffect(() => {
     const fetchCrs = async () => {
       if (url && selectedLayer?.name && (!selectedLayer.crs || selectedLayer.crs.length === 0)) {
-        setIsFetchingCrs(true);
         try {
           const { layers } = await fetchCapabilities(url);
           const found = layers.find(l => l.name === selectedLayer.name || l.title === selectedLayer.name);
@@ -63,8 +61,6 @@ export const LayerConfiguration = ({
           }
         } catch (error) {
           console.error("Failed to fetch CRS options", error);
-        } finally {
-          setIsFetchingCrs(false);
         }
       }
     };

@@ -62,7 +62,6 @@ export class GeocodingService {
     const config = this.configService.get('geocoding');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const { data } = await axios.get(config.nominatimUrl, {
         params: {
           q: search,
@@ -83,9 +82,9 @@ export class GeocodingService {
           id: feature.place_id,
           name: feature.display_name,
           type: feature.addresstype,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
           latitude: parseFloat(feature.lat),
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
           longitude: parseFloat(feature.lon),
         }),
       );

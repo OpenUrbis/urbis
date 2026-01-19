@@ -66,10 +66,8 @@ export const parseSearchSchemaToForm = (data: IGetSearchConfigResponse): SearchS
     formClickAction = data.clickAction.action;
     
     if (formClickAction === "setZoom") {
-       // @ts-ignore
       formClickActionParams = { zoom: data.clickAction.params?.zoom?.toString() };
     } else if (formClickAction === "openFeature") {
-       // @ts-ignore
       formClickActionParams = { template: data.clickAction.params?.template };
     }
   }

@@ -18,7 +18,6 @@ import {
   HlmInputDirective,
   HlmLabelDirective,
   HlmToasterService,
-  LoadingButton,
   LoadingContent,
 } from '../../../../../../projects/shared/src/public-api';
 import { PageStructure } from '../../../../components/page-structure/page-structure';
@@ -38,7 +37,6 @@ import { OrganizationsApi } from '../../services/organizations-api';
     CommonModule,
     RouterLink,
     LoadingContent,
-    LoadingButton,
     Users,
     TranslateModule,
     PageStructure,

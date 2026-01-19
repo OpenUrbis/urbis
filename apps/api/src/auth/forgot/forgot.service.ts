@@ -26,7 +26,6 @@ export class ForgotService {
 
   async create(data: DeepPartial<Forgot>) {
     return this.forgotRepository.save(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       this.forgotRepository.create(data as any),
     );
   }

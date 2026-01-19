@@ -6,7 +6,6 @@ import { firstValueFrom } from 'rxjs';
 import { ExportGeoJsonDto } from './dto/export-geojson.dto';
 import { LayerSchema } from '../layer-schemas/entities/layer-schema.entity';
 import { FeatureCollection, Feature } from 'geojson';
-import * as proj4 from 'proj4';
 import { convertToDxf } from './dxf-utils';
 
 @Injectable()
@@ -29,7 +28,7 @@ export class ExportService {
   ): Promise<FeatureCollection | string> {
     const { bounds, layers: layerIds, zoom, format } = dto;
     this.logger.log(
-      `Export request for layers: ${layerIds.join(', ')}, zoom: ${zoom}, bounds: ${bounds}`,
+      `Export request for layers: ${layerIds.join(', ')}, zoom: ${zoom}, bounds: ${bounds.join(',')}`,
     );
 
     const features: Feature[] = [];
@@ -53,7 +52,9 @@ export class ExportService {
       this.logger.log(`Processing layer: ${schema.id}`);
 
       if (features.length >= MAX_FEATURES) {
-        this.logger.warn(`Max features limit reached before layer ${schema.id}`);
+        this.logger.warn(
+          `Max features limit reached before layer ${schema.id}`,
+        );
         throw new BadRequestException(
           `Limite de ${MAX_FEATURES} feições excedido. Por favor, aproxime mais o mapa para reduzir a quantidade de dados.`,
         );
@@ -74,7 +75,9 @@ export class ExportService {
 
       const wfsInfo = this.extractWfsInfo(schema);
       if (!wfsInfo) {
-        this.logger.warn(`Layer ${schema.id} is not WFS exportable (missing info).`);
+        this.logger.warn(
+          `Layer ${schema.id} is not WFS exportable (missing info).`,
+        );
         continue;
       }
 
@@ -102,7 +105,9 @@ export class ExportService {
           limit,
         );
 
-        this.logger.log(`Fetched ${layerFeatures.length} features for ${schema.id}`);
+        this.logger.log(
+          `Fetched ${layerFeatures.length} features for ${schema.id}`,
+        );
 
         if (features.length + layerFeatures.length > MAX_FEATURES) {
           throw new BadRequestException(
@@ -221,7 +226,7 @@ export class ExportService {
             urlObj.searchParams.get('CQL_FILTER') ||
             urlObj.searchParams.get('cql_filter');
         }
-      } catch (e) {
+      } catch (_e) {
         // ignore
       }
     }
@@ -249,24 +254,32 @@ export class ExportService {
         typeName: typeName,
         outputFormat: 'application/json',
       };
-      
+
       const response = await firstValueFrom(
         this.httpService.get(wfsUrl, { params }),
       );
 
-      if (response.data && response.data.featureTypes && response.data.featureTypes[0]) {
+      if (
+        response.data &&
+        response.data.featureTypes &&
+        response.data.featureTypes[0]
+      ) {
         const properties = response.data.featureTypes[0].properties;
-        const geomProp = properties.find((p: any) => 
-          p.type.includes('gml:') || 
-          p.type.includes('Geometry') || 
-          p.type.includes('Point') || 
-          p.type.includes('Curve') || 
-          p.type.includes('Surface')
+        const geomProp = properties.find(
+          (p: any) =>
+            p.type.includes('gml:') ||
+            p.type.includes('Geometry') ||
+            p.type.includes('Point') ||
+            p.type.includes('Curve') ||
+            p.type.includes('Surface'),
         );
         return geomProp ? geomProp.name : 'the_geom';
       }
     } catch (e) {
-      this.logger.warn(`Failed to describe feature type for ${typeName}, defaulting to 'the_geom'`, e);
+      this.logger.warn(
+        `Failed to describe feature type for ${typeName}, defaulting to 'the_geom'`,
+        e,
+      );
     }
     return 'the_geom';
   }
@@ -283,7 +296,7 @@ export class ExportService {
   ): Promise<Feature[]> {
     let wfsUrl =
       layer.wfsUrl || 'https://geoserver.slui.dev/geoserver/slui/ows';
-    let originParams: Record<string, string> = {};
+    const originParams: Record<string, string> = {};
 
     // Parse URL to extract base and existing params
     try {
@@ -346,7 +359,9 @@ export class ExportService {
     } catch (e) {
       this.logger.error(`Error fetching layer ${layer.typeName}`, e);
       if (e.response) {
-         this.logger.error(`WFS Error Response: ${JSON.stringify(e.response.data)}`);
+        this.logger.error(
+          `WFS Error Response: ${JSON.stringify(e.response.data)}`,
+        );
       }
       throw e;
     }

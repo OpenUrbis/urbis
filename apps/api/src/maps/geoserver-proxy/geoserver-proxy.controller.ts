@@ -12,7 +12,7 @@ export class GeoserverProxyController {
   @ApiOperation({ summary: 'Get layer attributes from GeoServer' })
   async getAttributes(
     @Param('workspace') workspace: string,
-    @Param('layerName') layerName: string
+    @Param('layerName') layerName: string,
   ) {
     return this.service.getLayerAttributes(workspace, layerName);
   }

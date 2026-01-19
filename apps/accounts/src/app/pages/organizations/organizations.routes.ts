@@ -5,8 +5,8 @@ export const organizationsRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('./organizations').then((c) => c.Organizations),
-    /* canActivate: [permissionGuard],
-    data: { permission: 'organization:list' }, */
+    canActivate: [permissionGuard],
+    data: { permission: 'organization:list' },
   },
   {
     path: 'create',

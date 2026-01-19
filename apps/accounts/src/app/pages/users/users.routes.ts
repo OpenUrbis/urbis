@@ -5,8 +5,8 @@ export const usersRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('./users').then((c) => c.Users),
-/*     canActivate: [permissionGuard],
-    data: { permission: 'user:list' }, */
+    canActivate: [permissionGuard],
+    data: { permission: 'user:list' },
   },
   {
     path: 'create',

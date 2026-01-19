@@ -45,19 +45,19 @@
       <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.myProfile" | translate }}</span>
     </a>
 
-    <a routerLink="/roles" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
+    <a *hasPermission="'role:list'" routerLink="/roles" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
       hlmSidebarMenuButton [attr.aria-label]="'components.profileMenu.roles' | translate">
       <hlm-icon name="lucideShieldCheck" size="18px" />
       <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.roles" | translate }}</span>
     </a>
 
-    <a routerLink="/users" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
+    <a *hasPermission="'user:list'" routerLink="/users" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
       hlmSidebarMenuButton [attr.aria-label]="'components.profileMenu.users' | translate">
       <hlm-icon name="lucideUsers" size="18px" />
       <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.users" | translate }}</span>
     </a>
 
-    <a routerLink="/organizations" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
+    <a *hasPermission="'organization:list'" routerLink="/organizations" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
       hlmSidebarMenuButton [attr.aria-label]="'components.profileMenu.organizations' | translate">
       <hlm-icon name="lucideBuilding2" size="18px" />
       <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.organizations" | translate

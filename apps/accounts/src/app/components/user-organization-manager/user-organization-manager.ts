@@ -11,6 +11,7 @@ import { PageStructure } from '../page-structure/page-structure';
 import { TranslateService } from '@ngx-translate/core';
 import { provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucidePencil } from '@ng-icons/lucide';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-user-organization-manager',
@@ -20,7 +21,8 @@ import { lucidePlus, lucidePencil } from '@ng-icons/lucide';
     TranslateModule,
     PageStructure,
     HlmButtonDirective,
-    HlmIconComponent
+    HlmIconComponent,
+    HasPermissionDirective
   ],
   providers: [provideIcons({ lucidePlus, lucidePencil })],
   templateUrl: './user-organization-manager.html',

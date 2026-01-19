@@ -4,6 +4,7 @@
 >
   <section rightActions>
     <a
+      *hasPermission="'organization:create'"
       hlmBtn
       [attr.aria-label]="
         'pages.organizations.page.buttons.create.ariaLabel' | translate
@@ -46,7 +47,7 @@
               <td class="p-4 align-middle text-muted-foreground">
                 {{ organization.description }}
               </td>
-              <td class="p-4 align-middle text-right">
+              <td class="p-4 align-middle text-right" *hasPermission="'organization:update'">
                 <a
                   hlmBtn
                   variant="ghost"

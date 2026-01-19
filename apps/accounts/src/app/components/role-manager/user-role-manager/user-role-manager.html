@@ -4,6 +4,7 @@
 >
   <section rightActions>
     <button
+      *hasPermission="'role:assign'"
       hlmBtn
       [attr.aria-label]="'components.userRoleManager.buttons.add' | translate"
       (click)="openAddRole()"
@@ -33,6 +34,7 @@
           </div>
 
           <button
+            *hasPermission="'role:unassign'"
             hlmBtn
             variant="ghost"
             size="icon"

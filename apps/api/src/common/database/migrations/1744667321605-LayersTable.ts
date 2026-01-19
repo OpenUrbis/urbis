@@ -1,17 +1,17 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class LayersTable1744699851863 implements MigrationInterface {
-  name = 'LayersTable1744699851863';
+export class LayersTable1744667321605 implements MigrationInterface {
+  name = 'LayersTable1744667321605';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `CREATE TABLE "layer_groups" ("id" character varying NOT NULL, "name" character varying NOT NULL, "ownerGroup" character varying, CONSTRAINT "PK_2c27349d11a020df9711a0daa07" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TABLE "layer_schemas_colors" ("id" SERIAL NOT NULL, "color" jsonb NOT NULL, "pattern" character varying NOT NULL DEFAULT 'full', "label" character varying NOT NULL, "value" character varying, "layerSchemaId" character varying, CONSTRAINT "PK_facc0039f7ad96f142333c27230" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "layer_schemas_colors" ("id" SERIAL NOT NULL, "color" jsonb NOT NULL, "pattern" character varying NOT NULL DEFAULT 'full', "label" character varying NOT NULL, "value" character varying, "layerSchemaId" character varying NOT NULL, CONSTRAINT "PK_facc0039f7ad96f142333c27230" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."layer_schemas_type_enum" AS ENUM('Stream', 'CustomWMSLayer', 'GeoJsonLayer')`,
+      `CREATE TYPE "public"."layer_schemas_type_enum" AS ENUM('Custom', 'CustomWMSLayer', 'GeoJsonLayer')`,
     );
     await queryRunner.query(
       `CREATE TABLE "layer_schemas" ("id" character varying NOT NULL, "name" character varying NOT NULL, "origin" character varying NOT NULL, "isActive" boolean NOT NULL DEFAULT true, "type" "public"."layer_schemas_type_enum" NOT NULL DEFAULT 'GeoJsonLayer', "isVisible" boolean, "canEditFeature" boolean, "minZoom" integer, "getTextColorPropName" character varying, "getFillColorPropName" character varying, "getLineColorPropName" character varying, "clickAction" jsonb, "viewTemplate" jsonb, "groupId" character varying, CONSTRAINT "PK_899628df9b11575bf527b829f1e" PRIMARY KEY ("id"))`,

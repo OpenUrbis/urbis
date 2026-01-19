@@ -6,7 +6,6 @@ import "preact/debug";
 import "preact/devtools";
 
 import preact from "@preact/preset-vite";
-import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -21,7 +20,6 @@ export default defineConfig({
     alias: {
       react: "preact/compat",
       "react-dom": "preact/compat",
-      fs: path.resolve(__dirname, "./src/stubs/fs.js"),
     },
   },
   css: {

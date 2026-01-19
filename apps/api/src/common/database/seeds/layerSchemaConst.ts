@@ -1,12 +1,7 @@
-import { LayerSchemaColors } from 'layer-schemas/entities/layer-schema-color.entity';
 import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
-import {
-  LayerSchemaClickActionEnum,
-  LayerSchemaColorTypeEnum,
-  LayerSchemaTypeEnum,
-} from 'layer-schemas/enums/layer-schema.enum';
+import { LayerSchemaTypeEnum } from 'layer-schemas/enums/layer-schema.enum';
 
-export const layerSchemaColors: LayerSchemaColors[] = [
+export const layerSchemaColors = [
   // Para zeis_pde
   {
     color: [196, 80, 80, 240],
@@ -498,326 +493,6 @@ export const layerSchemaColors: LayerSchemaColors[] = [
     value: 'ZPR',
     layerSchemaId: 'zoneamento_lei_16402_18177',
   },
-  {
-    color: [153, 203, 255, 120],
-    label: 'default',
-    layerSchemaId: 'distrito_municipal',
-    type: LayerSchemaColorTypeEnum.FILL,
-  },
-  {
-    color: [153, 203, 255, 255],
-    label: 'default',
-    layerSchemaId: 'distrito_municipal',
-    type: LayerSchemaColorTypeEnum.TEXT,
-  },
-  {
-    color: [0, 0, 0, 120],
-    label: 'default',
-    layerSchemaId: 'distrito_municipal',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [57, 118, 29, 175],
-    label: 'default',
-    layerSchemaId: 'lotes',
-  },
-  {
-    color: [0, 0, 0, 255],
-    label: 'default',
-    layerSchemaId: 'zeis_pde',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_estimadas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [65, 120, 216, 240],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_estimadas',
-  },
-  {
-    color: [65, 120, 216, 240],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_estimadas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_ou_dormentes',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [56, 85, 204, 240],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_ou_dormentes',
-  },
-  {
-    color: [56, 85, 204, 240],
-    label: 'default',
-    layerSchemaId: 'aguas_correntes_ou_dormentes',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [0, 0, 0, 255],
-    label: 'default',
-    layerSchemaId: 'areas_contaminadas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [180, 95, 6, 240],
-    label: 'default',
-    layerSchemaId: 'areas_contaminadas',
-  },
-  {
-    color: [180, 95, 6, 240],
-    label: 'default',
-    layerSchemaId: 'areas_contaminadas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'eixos',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'macroareas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'macrozonas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'minianel_viario',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [217, 234, 211, 240],
-    label: 'default',
-    layerSchemaId: 'minianel_viario',
-  },
-  {
-    color: [217, 234, 211, 240],
-    label: 'default',
-    layerSchemaId: 'minianel_viario',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [0, 0, 0, 255],
-    label: 'default',
-    layerSchemaId: 'pracas_e_canteiros',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [147, 196, 125, 240],
-    label: 'default',
-    layerSchemaId: 'pracas_e_canteiros',
-  },
-  {
-    color: [147, 196, 125, 240],
-    label: 'default',
-    layerSchemaId: 'pracas_e_canteiros',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'restricoes_geotecnicas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [153, 2, 0, 240],
-    label: 'default',
-    layerSchemaId: 'restricoes_geotecnicas',
-  },
-  {
-    color: [153, 2, 0, 240],
-    label: 'default',
-    layerSchemaId: 'restricoes_geotecnicas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'risco_geologico',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 0, 0, 240],
-    label: 'default',
-    layerSchemaId: 'risco_geologico',
-  },
-  {
-    color: [255, 0, 0, 240],
-    label: 'default',
-    layerSchemaId: 'risco_geologico',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'risco_hidrologico',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [204, 0, 1, 240],
-    label: 'default',
-    layerSchemaId: 'risco_hidrologico',
-  },
-  {
-    color: [204, 0, 1, 240],
-    label: 'default',
-    layerSchemaId: 'risco_hidrologico',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'setores_subsetores',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'subprefeitura',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [183, 183, 183, 240],
-    label: 'default',
-    layerSchemaId: 'subprefeitura',
-  },
-  {
-    color: [183, 183, 183, 240],
-    label: 'default',
-    layerSchemaId: 'subprefeitura',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [0, 0, 0, 255],
-    label: 'default',
-    layerSchemaId: 'sujeicao_a_alagamentos',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [133, 32, 12, 240],
-    label: 'default',
-    layerSchemaId: 'sujeicao_a_alagamentos',
-  },
-  {
-    color: [133, 32, 12, 240],
-    label: 'default',
-    layerSchemaId: 'sujeicao_a_alagamentos',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'terras_indigenas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [191, 144, 0, 240],
-    label: 'default',
-    layerSchemaId: 'terras_indigenas',
-  },
-  {
-    color: [191, 144, 0, 240],
-    label: 'default',
-    layerSchemaId: 'terras_indigenas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [241, 194, 50, 240],
-    label: 'default',
-    layerSchemaId: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
-  },
-  {
-    color: [241, 194, 50, 240],
-    label: 'default',
-    layerSchemaId: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'tombamentos-areas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 165, 0, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-areas',
-  },
-  {
-    color: [255, 165, 0, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-areas',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'tombamentos-envoltorias-de-imoveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [247, 217, 103, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-envoltorias-de-imoveis',
-  },
-  {
-    color: [247, 217, 103, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-envoltorias-de-imoveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'tombamentos-imoveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [249, 255, 0, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-imoveis',
-  },
-  {
-    color: [249, 255, 0, 240],
-    label: 'default',
-    layerSchemaId: 'tombamentos-imoveis',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'zoneamento_geral',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
-  {
-    color: [255, 255, 255, 255],
-    label: 'default',
-    layerSchemaId: 'zoneamento_lei_16402_18177',
-    type: LayerSchemaColorTypeEnum.LINE,
-  },
 ];
 
 export const layerSchemas: LayerSchema[] = [
@@ -869,9 +544,9 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'distrito_municipal',
     name: 'Distritos',
-    origin: '/distritos.json',
+    origin: '',
     isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    type: LayerSchemaTypeEnum.Custom,
     isVisible: true,
     canEditFeature: false,
     minZoom: null,
@@ -879,27 +554,6 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: null,
     getLineColorPropName: null,
     groupId: null,
-    clickAction: {
-      action: LayerSchemaClickActionEnum.SetZoom,
-      params: {
-        zoom: 17.1,
-      },
-    },
-    properties: {
-      stroked: true,
-      filled: true,
-      pointType: 'circle+text',
-      pickable: true,
-      wireframe: true,
-      getLineWidth: 12,
-      getPointRadius: 12,
-      getTextAnchor: 'middle',
-      getElevation: -10,
-      getTextSize: 12,
-      autoHighlight: true,
-      highlightColor: [153, 203, 255, 140],
-      maxZoom: 17,
-    },
   },
   {
     id: 'eixos',
@@ -919,174 +573,16 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'lotes',
     name: 'Lotes',
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui%3Aview_lote_cidadao&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    origin: '',
     isActive: true,
-    type: LayerSchemaTypeEnum.Stream,
+    type: LayerSchemaTypeEnum.Custom,
     isVisible: true,
     canEditFeature: false,
-    minZoom: 17,
+    minZoom: 18,
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    clickAction: { action: LayerSchemaClickActionEnum.OpenProps, params: {} },
-    viewTemplate: [
-      {
-        type: 'wrapper-card',
-        templates: [
-          {
-            type: 'label-value',
-            label: 'Identificação',
-            value: `<h3>#<%- properties.id.replace("lote_cidadao.", "") %></h3>`,
-          },
-          {
-            type: 'label-value',
-            label: 'Logradouro',
-            value: "<%- properties?.nm_logradouro_completo ?? '-' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Número de Porta',
-            value: "<%- properties?.cd_numero_porta ?? '-' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Tipo de Imóvel',
-            value: "<%- properties?.dc_tipo_uso_imovel ?? '-' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Categoria SIAAU',
-            value: "<%- properties?.tx_tipo_lote ?? '-' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Mapinha',
-          },
-          {
-            type: 'label-value',
-            label: 'Distrito',
-            value: "<%- properties?.cd_setor_fiscal ?? '-' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Subprefeitura',
-            value: 'Não disponível',
-          },
-        ],
-      },
-      {
-        type: 'wrapper-card',
-        label: 'Informações',
-        templates: [
-          {
-            type: 'wrapper-row',
-            templates: [
-              {
-                type: 'label-value',
-                label: 'Área do Terreno',
-                value: "<%- properties?.qt_area_terreno ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Área Construída',
-                value: "<%- properties?.qt_area_construida ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Situação do Lote',
-                value: "<%- properties?.tx_situ_lote ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Condomínio',
-                value: "<%- properties?.cd_condominio ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Tipo de Quadra',
-                value: "<%- properties?.tx_tipo_quadra ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Numeração',
-                value: "<%- properties?.cd_quadra_fiscal ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-            ],
-          },
-        ],
-      },
-      {
-        type: 'wrapper-card',
-        label: 'Restrições',
-        templates: [
-          {
-            type: 'label-value',
-            label: 'IPTU',
-            value: "<%= 'Não disponivel' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'ITBI',
-            value: "<%= 'Não disponivel' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Tombamento',
-            value: "<%= 'Não disponivel' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Área de Preservação Ambiental',
-            value: "<%= 'Não disponivel' %>",
-          },
-          {
-            type: 'label-value',
-            label: 'Árvores no Imóvel',
-            value: "<%= 'Não disponivel' %>",
-          },
-        ],
-      },
-    ],
     groupId: null,
-    properties: {
-      stroked: false,
-      filled: true,
-      pointType: 'circle+text',
-      pickable: true,
-      extruded: true,
-      wireframe: true,
-      getLineWidth: 20,
-      getPointRadius: 0,
-      getTextSize: 12,
-      autoHighlight: true,
-      highlightColor: [252, 252, 255, 150],
-      getElevation: `(allotment) => {
-        const { qt_area_construida, qt_area_terreno } =
-          allotment?.properties || {};
-        if (!qt_area_construida || !qt_area_terreno) return 0;
-
-        return (qt_area_construida / qt_area_terreno) * 2 * 3;
-      }`,
-    },
   },
   {
     id: 'macroareas',
@@ -1376,13 +872,12 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'zoneamento_lei_16402_18177',
     name: 'Zoneamento - Lei nº 16.402/16+18.177/24',
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    origin: '',
     isActive: true,
-    type: LayerSchemaTypeEnum.Stream,
+    type: LayerSchemaTypeEnum.Custom,
     isVisible: false,
     canEditFeature: false,
-    minZoom: 17,
+    minZoom: 18,
     getTextColorPropName: 'cd_zoneamento_perimetro',
     getFillColorPropName: 'cd_zoneamento_perimetro',
     getLineColorPropName: 'cd_zoneamento_perimetro',

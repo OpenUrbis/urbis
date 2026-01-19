@@ -1,22 +1,25 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { TileLayer } from "@deck.gl/geo-layers";
-import { GeoJsonLayer } from "@deck.gl/layers";
 import { Signal } from "@preact/signals";
-import { CustomWMSLayer } from "../components/MapView/CustomWMSLayer";
-import { ITemplate } from "../components/ViewTemplate/dto/templatesDto";
-import {
-  IGetConfigLayerSchema,
-  IGetConfigLayerSchemaTypeEnum,
-} from "../services/mapService";
 
 export type MapBoundingBox = [number, number, number, number];
 
-export type MapLayerSchemaColor = MapBoundingBox;
+export type MapLayerSchemaColor = [number, number, number, number];
 
-/* export type MapLayerSchema = {
+export type MapLayerSchemaLegend = {
+  label: string;
+  color: MapLayerSchemaColor;
+  pattern?: MapLayerSchemaFillPattern;
+};
+
+export type MapLayerSchemaFillPattern =
+  | "dots"
+  | "hatch-1x"
+  | "full"
+  | "hatch-cross";
+
+export type MapLayerSchema = {
   id: string;
   name: string;
-  "@@type": MapContextLayerSchemaType;
+  "@@type": any;
   labelColor?: MapLayerSchemaColor | MapLayerSchemaColor[];
   urlTemplate?: string;
   data?: string;
@@ -36,7 +39,7 @@ export type MapLayerSchemaColor = MapBoundingBox;
   autoHighlight?: boolean;
   highlightColor?: MapLayerSchemaColor | ((info: any) => MapLayerSchemaColor);
   mapLegend?: MapLayerSchemaLegend[];
-}; */
+};
 
 export type MapLayerGroup = {
   id: string;
@@ -45,40 +48,12 @@ export type MapLayerGroup = {
 };
 
 export interface MapContextType {
-  layersSchema: Signal<IGetConfigLayerSchema[]>;
+  layersSchema: Signal<MapLayerSchema[]>;
   layerGroups: Signal<MapLayerGroup[]>;
-  selectedFeatures: Signal<MapContextSelectedFeature[]>;
+  features: Signal<any[]>;
+  selectedFeatures: Signal<any[]>;
   boundingBox: Signal<MapBoundingBox>;
   viewport: Signal<any>;
   zoom: Signal<number>;
   editionFeatures: Signal<any[]>;
-}
-
-export type MapContextLayerSchemaType =
-  | "TileLayer"
-  | "GeoJsonLayer"
-  | "CustomWMSLayer"
-  | "Custom";
-
-export type MapContextRenderedLayer =
-  | TileLayer
-  | GeoJsonLayer
-  | CustomWMSLayer
-  | null;
-
-export type MapContextLayerSchemaTypeMapProps = {
-  zoom: number;
-  boundingBox: MapBoundingBox;
-};
-
-export type MapContextLayerSchemaTypeMap = {
-  [K in IGetConfigLayerSchemaTypeEnum]?: (
-    layer: IGetConfigLayerSchema,
-    props: MapContextLayerSchemaTypeMapProps
-  ) => MapContextRenderedLayer[];
-};
-
-export interface MapContextSelectedFeature {
-  feature: any;
-  template: ITemplate | any;
 }

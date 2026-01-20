@@ -34,8 +34,8 @@ export class SystemRoleSeedService {
     }
 
     await this.roleRepository.update(
-        { id: Not(roleId), isDefault: true },
-        { isDefault: false }
+      { id: Not(roleId), isDefault: true },
+      { isDefault: false },
     );
   }
 

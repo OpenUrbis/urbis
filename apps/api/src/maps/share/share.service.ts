@@ -20,7 +20,11 @@ export class ShareService {
     return this.sharedMapRepository.save(sharedMap);
   }
 
-  async findAllByUser(userId: string, page: number = 1, limit: number = 10): Promise<{ items: SharedMap[], total: number }> {
+  async findAllByUser(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ items: SharedMap[]; total: number }> {
     const [items, total] = await this.sharedMapRepository.findAndCount({
       where: { userId },
       order: { createdAt: 'DESC' },
@@ -38,7 +42,10 @@ export class ShareService {
     return sharedMap;
   }
 
-  async update(id: string, updateSharedMapDto: UpdateSharedMapDto): Promise<SharedMap> {
+  async update(
+    id: string,
+    updateSharedMapDto: UpdateSharedMapDto,
+  ): Promise<SharedMap> {
     const sharedMap = await this.findOne(id);
     Object.assign(sharedMap, updateSharedMapDto);
     return this.sharedMapRepository.save(sharedMap);

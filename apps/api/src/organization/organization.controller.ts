@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { UserData } from 'common/decorators/user-data/user-data.decorator';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
@@ -21,6 +21,7 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { OrganizationService } from './organization.service';
 
 @ApiTags('Organization')
+@ApiBearerAuth()
 @UseGuards(AccessControlGuard)
 @Controller('organization')
 export class OrganizationController {

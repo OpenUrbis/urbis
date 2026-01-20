@@ -3,8 +3,8 @@
 @use "@uppy/dashboard/dist/style.min.css" as *;
 @use "@uppy/image-editor/dist/style.min.css" as *;
 
-@import "tailwindcss/base";
-@import "tailwindcss/utilities";
+@tailwind base;
+@tailwind utilities;
 
 @layer base {
     html, body {

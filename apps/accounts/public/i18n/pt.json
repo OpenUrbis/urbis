@@ -484,6 +484,7 @@
       }
     },
     "roleManager": {
+      "default": "Padrão",
       "handleRole": {
         "selectedTitle": "Permissões selecionadas",
         "emptyState": "Adicione permissões pelo campo permissões acima"

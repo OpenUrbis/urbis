@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { SupportTicketType } from '../enums/support-ticket.enum';
 
 @Entity('support_tickets')
@@ -20,5 +20,4 @@ export class SupportTicket {
 
   @Column()
   type: SupportTicketType;
-
 }

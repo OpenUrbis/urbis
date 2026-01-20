@@ -18,9 +18,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // Enable Swagger documentation
-  if (configService.get('app.swaggerEnabled') === 'true') {
-    setupSwagger(app);
-  }
+  // if (configService.get('app.swaggerEnabled') === 'true') {
+  setupSwagger(app);
+  // }
 
   // Common bootstrap
   commonBootstrap(app, AppModule);

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UploadUrlDto {
@@ -6,4 +6,9 @@ export class UploadUrlDto {
   @IsString()
   @IsNotEmpty()
   contentType: string;
+
+  @ApiProperty({ description: 'Folder path in S3', example: 'uploads/' })
+  @IsString()
+  @IsOptional()
+  folderPath?: string;
 }

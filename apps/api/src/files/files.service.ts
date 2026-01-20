@@ -1,11 +1,11 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
-  S3Client,
-  PutObjectCommand,
   GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as mime from 'mime-types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -18,6 +18,7 @@ export class FilesService {
 
   async getUploadUrl(
     contentType: string,
+    folderPath?: string,
   ): Promise<{ uploadURL: string; key: string }> {
     const bucketName = this.configService.get('S3_BUCKET_NAME');
     const extension = mime.extension(contentType);
@@ -25,7 +26,10 @@ export class FilesService {
       throw new Error('Content type inválido');
     }
     const uuid = uuidv4();
-    const key = `uploads/${uuid}.${extension}`;
+    const filename = `${+new Date()}-${uuid}.${extension}`;
+    const key = folderPath
+      ? `uploads/${folderPath}/${filename}`
+      : `uploads/${filename}`;
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: key,

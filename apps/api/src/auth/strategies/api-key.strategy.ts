@@ -10,7 +10,7 @@ export class ApiKeyStrategy extends PassportStrategy(Strategy, 'api-key') {
     super();
   }
 
-  async validate(req: Request): Promise<boolean> {
+  validate(req: Request): boolean {
     const apiKey = req.headers['x-api-key'] as string;
     const validApiKey = this.configService.get('auth.apiKey');
 

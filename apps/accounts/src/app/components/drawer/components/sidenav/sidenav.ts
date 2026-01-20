@@ -1,43 +1,42 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { provideIcons } from '@ng-icons/core';
+import {
+  lucideBuilding2,
+  lucideCheck,
+  lucideChevronsUpDown,
+  lucideLogOut,
+  lucidePalette,
+  lucidePlus,
+  lucideSettings,
+  lucideShieldCheck,
+  lucideShuffle,
+  lucideUser,
+  lucideUsers,
+} from '@ng-icons/lucide';
+import { TranslateModule } from '@ngx-translate/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { firstValueFrom } from 'rxjs';
+import { AUTH_CONFIG_ID } from '../../../../../../projects/shared/src/lib/auth/auth.config';
 import {
-  HlmIconComponent,
   HlmButtonDirective,
-  HlmSidebarMenuDirective,
-  HlmSidebarMenuButtonDirective,
-  HlmSidebarGroupDirective,
-  HlmSidebarService,
   HlmDialogService,
   HlmDropdownMenuDirective,
-  HlmDropdownMenuTriggerDirective,
+  HlmDropdownMenuGroupDirective,
   HlmDropdownMenuItemDirective,
   HlmDropdownMenuLabelDirective,
   HlmDropdownMenuSeparatorDirective,
-  HlmDropdownMenuGroupDirective
+  HlmDropdownMenuTriggerDirective,
+  HlmIconComponent,
+  HlmSidebarGroupDirective,
+  HlmSidebarMenuButtonDirective,
+  HlmSidebarMenuDirective,
+  HlmSidebarService,
 } from '../../../../../../projects/shared/src/public-api';
-import { provideIcons } from '@ng-icons/core';
-import {
-  lucideUser,
-  lucideShieldCheck,
-  lucideUsers,
-  lucideBuilding2,
-  lucidePalette,
-  lucideSettings,
-  lucideShuffle,
-  lucideLogOut,
-  lucideChevronsUpDown,
-  lucideCheck,
-  lucidePlus
-} from '@ng-icons/lucide';
-import {
-  AUTH_CONFIG_ID,
-} from '../../../../../../projects/shared/src/lib/auth/auth.config';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { OrganizationState } from '../../../../states/organization/organization.state';
 import { SwitchOrganizationDialog } from '../../../switch-organization-dialog/switch-organization-dialog';
-import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-sidenav',
@@ -56,7 +55,8 @@ import { TranslateModule } from '@ngx-translate/core';
     HlmDropdownMenuItemDirective,
     HlmDropdownMenuLabelDirective,
     HlmDropdownMenuSeparatorDirective,
-    HlmDropdownMenuGroupDirective
+    HlmDropdownMenuGroupDirective,
+    HasPermissionDirective,
   ],
   providers: [
     provideIcons({
@@ -70,8 +70,8 @@ import { TranslateModule } from '@ngx-translate/core';
       lucideLogOut,
       lucideChevronsUpDown,
       lucideCheck,
-      lucidePlus
-    })
+      lucidePlus,
+    }),
   ],
   templateUrl: './sidenav.html',
 })

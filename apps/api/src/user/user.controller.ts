@@ -13,19 +13,29 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
+import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
+import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 
 @UseGuards(AccessControlGuard)
 @ApiTags('Users')
+@ApiBearerAuth()
 @Controller('user')
 export class UserController {
   constructor(private readonly service: UserService) {}
 
   @Post()
+  @RequirePermission({
+    permissions: {
+      action: 'create',
+      resource: 'user',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createProfileDto: CreateUserDto) {
     return this.service.create(createProfileDto);

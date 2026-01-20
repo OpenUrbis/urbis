@@ -1,7 +1,5 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
-import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 import {
   ApiBody,
   ApiOperation,

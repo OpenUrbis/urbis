@@ -31,20 +31,6 @@ export class SyncPermissions1767807173873 implements MigrationInterface {
       resource: 'auth',
     },
     {
-      action: 'generate-download-url',
-      name: 'Gerar URL de download de arquivos',
-      description:
-        'Permite ao usuario gerar URLs assinadas de download de arquivos',
-      resource: 'file',
-    },
-    {
-      action: 'generate-upload-url',
-      name: 'Gerar URL de upload de arquivos',
-      description:
-        'Permite ao usuario gerar URLs assinadas de upload de arquivos',
-      resource: 'file',
-    },
-    {
       action: 'list',
       name: 'Listar organizacoes',
       description: 'Permite ao usuario listar organizacoes no sistema',

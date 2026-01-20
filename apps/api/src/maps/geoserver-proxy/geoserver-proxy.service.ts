@@ -50,18 +50,35 @@ export class GeoserverProxyService {
 
   async proxyMaxarWms(query: any, res: Response) {
     const MAXAR_API_KEY = this.configService.get<string>('maps.maxarApiKey');
-    const baseUrl = 'https://api.maxar.com/streaming/v1/services/Basic/WMS';
+    const baseUrl = 'https://api.maxar.com/streaming/v1/ogc/wms';
 
     if (!MAXAR_API_KEY) {
       throw new InternalServerErrorException('Maxar API Key not configured');
     }
 
+    const referer = this.configService.get<string>('app.accountsUrl') || this.configService.get<string>('FRONTEND_DOMAIN');
+    const cleanApiKey = MAXAR_API_KEY.trim();
+
     try {
       const response = await axios.get(baseUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; UrbisMap/1.0)',
+          ...(referer && { 'Referer': referer }),
+          'maxar-api-key': cleanApiKey,
+        },
         params: {
           ...query,
-          connectId: MAXAR_API_KEY,
-          profile: 'Most_Aesthetic_Color',
+          maxar_api_key: cleanApiKey,
+        },
+        paramsSerializer: (params) => {
+          const searchParams = new URLSearchParams();
+          Object.keys(params).forEach((key) => {
+            searchParams.append(key, params[key]);
+          });
+          return searchParams.toString()
+            .replace(/%2C/g, ',')
+            .replace(/%3A/g, ':')
+            .replace(/%2F/g, '/');
         },
         responseType: 'stream',
       });

@@ -13,14 +13,18 @@ const MapPage = () => {
     navigateTo(<LocationSelectionCard />);
   });
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background">
-      <Header />
-      <div className="flex flex-1 overflow-hidden relative">
-        <LeftNav />
-        <div className="flex-1 relative h-full w-full">
+    <div className="h-screen w-full overflow-hidden bg-background relative">
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Header />
+      </div>
+      <div className="absolute inset-0 z-0">
+        <div className="relative h-full w-full">
           <MapLegend />
           <MapView />
         </div>
+      </div>
+      <div className="absolute inset-y-0 left-0 z-40 pointer-events-none">
+        <LeftNav />
       </div>
     </div>
   );

@@ -122,7 +122,7 @@ export const MapView = ({
           case "satellite": return "mapbox://styles/mapbox/satellite-v9";
           case "satellite-streets": return "mapbox://styles/mapbox/satellite-streets-v9";
           case "maxar-satellite": {
-            const baseUrl = (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br");
+            const baseUrl = (import.meta.env.VITE_API_URL || "/api");
             return {
               version: 8,
               sources: {

@@ -5,6 +5,7 @@ import { SupportService } from './support.service';
 
 describe('SupportService', () => {
   let service: SupportService;
+  let module: TestingModule;
 
   const mockRepository = {
     create: jest.fn(),
@@ -12,7 +13,7 @@ describe('SupportService', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         SupportService,
         {
@@ -23,6 +24,12 @@ describe('SupportService', () => {
     }).compile();
 
     service = module.get<SupportService>(SupportService);
+  });
+
+  afterAll(async () => {
+    if (module) {
+      await module.close();
+    }
   });
 
   it('should be defined', () => {

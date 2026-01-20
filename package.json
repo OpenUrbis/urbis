@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "turbo run build --filter=!urbis-site",
+    "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:ssl": "turbo run dev:ssl --filter=accounts & turbo run dev --filter=!accounts",
     "lint": "turbo run lint",

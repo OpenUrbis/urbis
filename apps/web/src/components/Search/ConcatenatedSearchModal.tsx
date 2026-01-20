@@ -61,9 +61,8 @@ export const ConcatenatedSearchModal = () => {
   const [isShareHistoryOpen, setIsShareHistoryOpen] = useState(false);
   const { toastSuccess, toastError } = useToast();
 
-  const environment =
-    (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") +
-    "/maps";
+const environment =
+  (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
   const handleLayerChange = async (layerId: string) => {
     setSelectedLayerId(layerId);

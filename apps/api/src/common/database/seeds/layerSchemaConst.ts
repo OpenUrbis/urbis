@@ -323,7 +323,7 @@ export const layerSchemas: LayerSchema[] = [
       {
         type: 'wrapper-request',
         properties: {
-          url: 'https://api.mapa.urbis.sampa.br/geospatial-intersections',
+          url: '/geospatial-intersections',
           method: 'post',
           data: `({data}) => data`,
           transformResponse: `(response) => {

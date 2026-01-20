@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const environment =
-  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
+  (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
 export interface SyncData {
   root: {

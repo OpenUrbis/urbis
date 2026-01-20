@@ -9,7 +9,7 @@ import { normalizeTerm } from "../utils/layer-utils";
 import { getAuthHeaders } from "../utils/auth-headers";
 
 const environment =
-  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
+  (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
 // Public config fetch (probably for map usage)
 export const getSearchConfig = async (): Promise<

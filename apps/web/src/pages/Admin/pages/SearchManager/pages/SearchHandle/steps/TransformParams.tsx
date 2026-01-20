@@ -33,8 +33,8 @@ export const TransformParams = ({ onBack, onNext }: TransformParamsProps) => {
   const [layerFields, setLayerFields] = useState<FilterField[]>([]);
   const layerId = form.watch("layerId");
 
-  const environment =
-    (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") +
+    const environment =
+    (import.meta.env.VITE_API_URL || "/api") +
     "/maps";
 
   useEffect(() => {

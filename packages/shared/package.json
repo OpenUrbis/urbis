@@ -2,11 +2,15 @@
   "name": "@open-urbis/map-shared",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "exports": {
     ".": "./index.ts"
   },
+  "main": "./index.ts",
+  "module": "./index.ts",
   "license": "MIT",
   "scripts": {
+    "lint": "eslint \"**/*.ts*\""
   },
   "dependencies": {},
   "devDependencies": {

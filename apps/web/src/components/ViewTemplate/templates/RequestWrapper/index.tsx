@@ -53,7 +53,9 @@ export const RequestWrapper: ITemplatesDeclaration = {
         }
 
         try {
-          const { data: axiosData } = await axios(axiosConfig);
+          const baseUrl = (import.meta.env.VITE_API_URL || "/api");
+          const url = axiosConfig.url?.startsWith("/") ? `${baseUrl}${axiosConfig.url}` : axiosConfig.url;
+          const { data: axiosData } = await axios({ ...axiosConfig, url });
 
           responseData.value = axiosData;
         } catch (error) {

@@ -323,7 +323,7 @@ export const layerSchemas: LayerSchema[] = [
       {
         type: 'wrapper-request',
         properties: {
-          url: '/geospatial-intersections',
+          url: '/maps/geospatial-intersections',
           method: 'post',
           data: `({data}) => data`,
           transformResponse: `(response) => {

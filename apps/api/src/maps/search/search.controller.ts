@@ -7,8 +7,20 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger';
+import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
+import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
+import { OrGuard } from 'common/guards/or-guard/or.guard';
+import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 import { SearchConfigDto } from './dto/search.dto';
 import { SearchConfig } from './entities/search-config.entity';
 import { SearchService } from './search.service';
@@ -51,9 +63,16 @@ export class SearchController {
     return this.service.findOne(id);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @ApiBearerAuth()
+  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
+  @RequirePermission({
+    permissions: {
+      action: 'create',
+      resource: 'search-config',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @Post()
   @ApiOperation({ summary: 'Create a new search config' })
   @ApiResponse({
@@ -74,9 +93,16 @@ export class SearchController {
     return this.service.create(dto);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @ApiBearerAuth()
+  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
+  @RequirePermission({
+    permissions: {
+      action: 'update',
+      resource: 'search-config',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @Put(':id')
   @ApiOperation({ summary: 'Update a search config by ID' })
   @ApiResponse({
@@ -109,9 +135,16 @@ export class SearchController {
     return this.service.update(id, dto);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @ApiBearerAuth()
+  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
+  @RequirePermission({
+    permissions: {
+      action: 'delete',
+      resource: 'search-config',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a search config by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })
@@ -128,9 +161,24 @@ export class SearchController {
     return this.service.delete(id);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @ApiBearerAuth()
+  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
+  @RequirePermission({
+    permissions: [
+      {
+        action: 'create',
+        resource: 'search-config',
+        scope: RolePermissionScopeEnum.ANY,
+      },
+      {
+        action: 'update',
+        resource: 'search-config',
+        scope: RolePermissionScopeEnum.ANY,
+      },
+    ],
+    mode: 'AND',
+  })
   @Post('upsert')
   @ApiOperation({ summary: 'Create or update a search config based on ID' })
   @ApiResponse({

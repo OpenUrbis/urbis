@@ -1,3 +1,4 @@
+import { getAuthHeaders } from "../utils/auth-headers";
 import { IGetConfigLayerGroup } from "../types/fetch-map-config-type";
 
 const environment =
@@ -35,9 +36,10 @@ export const getLayerGroup = async (id: string): Promise<IGetConfigLayerGroup> =
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createLayerGroup = async (data: any): Promise<IGetConfigLayerGroup> => {
+  const headers = await getAuthHeaders();
   const response = await fetch(`${environment}/layer-groups`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
   if (!response.ok) {
@@ -48,9 +50,10 @@ export const createLayerGroup = async (data: any): Promise<IGetConfigLayerGroup>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const updateLayerGroup = async (id: string, data: any): Promise<IGetConfigLayerGroup> => {
+  const headers = await getAuthHeaders();
   const response = await fetch(`${environment}/layer-groups/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
   if (!response.ok) {
@@ -60,8 +63,10 @@ export const updateLayerGroup = async (id: string, data: any): Promise<IGetConfi
 };
 
 export const deleteLayerGroup = async (id: string): Promise<void> => {
+  const headers = await getAuthHeaders();
   const response = await fetch(`${environment}/layer-groups/${id}`, {
     method: "DELETE",
+    headers,
   });
   if (!response.ok) {
     throw new Error("Failed to delete layer group");

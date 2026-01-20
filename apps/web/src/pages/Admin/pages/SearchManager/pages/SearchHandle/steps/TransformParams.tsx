@@ -8,7 +8,7 @@ import {
 import { useFormContext } from "react-hook-form";
 import { SearchSchemaFormValues } from "../utils";
 import { CodeEditor } from "@/components/CodeEditor";
-import { FilterBuilder } from "@/components/FilterBuilder";
+import { FilterBuilder, FilterField } from "@/components/FilterBuilder";
 import { FilterGroup } from "@/components/FilterBuilder/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@open-urbis/map-ui";
 import { useEffect, useState } from "react";
@@ -30,7 +30,7 @@ const DEFAULT_TREE: FilterGroup = {
 export const TransformParams = ({ onBack, onNext }: TransformParamsProps) => {
   const form = useFormContext<SearchSchemaFormValues>();
   const [activeTab, setActiveTab] = useState("code");
-  const [layerFields, setLayerFields] = useState<string[]>([]);
+  const [layerFields, setLayerFields] = useState<FilterField[]>([]);
   const layerId = form.watch("layerId");
 
   const environment =
@@ -88,7 +88,12 @@ export const TransformParams = ({ onBack, onNext }: TransformParamsProps) => {
           `${environment}/geoserver-proxy/layers/${workspace}/${layerName}/attributes`
         );
         const attributes = response.data;
-        setLayerFields(attributes.map((a: any) => a.name));
+        setLayerFields(
+          attributes.map((a: any) => ({
+            name: a.name,
+            type: "text", // Fallback to text
+          }))
+        );
       } catch (error) {
         console.error("Failed to fetch layer fields", error);
       }

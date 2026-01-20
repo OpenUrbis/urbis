@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@open-urbis/map-ui/ui/button'
-import { UrbisFooter } from '@open-urbis/map-ui'
 
 export function Footer() {
   return (

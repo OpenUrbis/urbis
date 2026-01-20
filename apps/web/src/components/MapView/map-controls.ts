@@ -48,10 +48,8 @@ const addDrawControls = (
 
 class SpacerControl implements mapboxgl.IControl {
   private container!: HTMLElement;
-  private map?: mapboxgl.Map;
 
-  onAdd(map: mapboxgl.Map) {
-    this.map = map;
+  onAdd(_map: mapboxgl.Map) {
     this.container = document.createElement("div");
     this.container.className = "mapboxgl-ctrl";
     this.container.style.height = "132px";
@@ -61,7 +59,6 @@ class SpacerControl implements mapboxgl.IControl {
 
   onRemove() {
     this.container.parentNode?.removeChild(this.container);
-    this.map = undefined;
   }
 }
 

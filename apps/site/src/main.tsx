@@ -5,6 +5,8 @@ import './globals.css'
 
 export const createApp = ViteReactSSG(
   {
-    routes, // ✅ só isso aqui
+    routes,
   }
 )
+
+export default createApp

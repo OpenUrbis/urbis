@@ -12,7 +12,7 @@ import { IGetConfigLayerSchema } from "../../../types/fetch-map-config-type";
 import { filterNodeToCQL } from "../../../utils/cql-builder-advanced";
 import { getLayerNameFromConfig } from "../../../utils/layer-utils";
 import { useMapContext } from "../../../hooks/useMapContext";
-import { FilterBuilder } from "../../FilterBuilder";
+import { FilterBuilder, FilterField } from "../../FilterBuilder";
 import { FilterGroup } from "../../FilterBuilder/types";
 
 interface LayerFilterModalProps {
@@ -35,7 +35,7 @@ export const LayerFilterModal = ({
 }: LayerFilterModalProps) => {
   const { layerSchemas } = useMapContext();
   const [loadingAttributes, setLoadingAttributes] = useState(false);
-  const [fields, setFields] = useState<string[]>([]);
+  const [fields, setFields] = useState<FilterField[]>([]);
   const [filterTree, setFilterTree] = useState<FilterGroup>(DEFAULT_TREE);
 
   const environment =
@@ -72,7 +72,12 @@ export const LayerFilterModal = ({
         `${environment}/geoserver-proxy/layers/${workspace}/${layerName}/attributes`
       );
       const attributes = response.data;
-      setFields(attributes.map((a: any) => a.name));
+      setFields(
+        attributes.map((a: any) => ({
+          name: a.name,
+          type: "text", // Fallback to text
+        }))
+      );
     } catch (error) {
       console.error("Failed to fetch attributes", error);
     } finally {

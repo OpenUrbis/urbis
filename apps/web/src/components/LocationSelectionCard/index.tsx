@@ -4,13 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@open-urbis/map-ui";
 import { Input } from "@open-urbis/map-ui";
 import { Label } from "@open-urbis/map-ui";
 import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from "@open-urbis/map-ui";
-import {
   Select,
   SelectContent,
   SelectItem,

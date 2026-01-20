@@ -166,7 +166,10 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    clickAction: { action: ClickActionEnum.SelectFeature, params: { zoom: 19.5 } },
+    clickAction: {
+      action: ClickActionEnum.SelectFeature,
+      params: { zoom: 19.5 },
+    },
     viewTemplate: [
       {
         type: 'wrapper-card',

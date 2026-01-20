@@ -1,9 +1,4 @@
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
-import { Button } from '@open-urbis/map-ui/ui/button'
-
 export default function CartaServicos() {
-  const navigate = useNavigate()
 
   const scrollTo = (id: string) => {
     const element = document.getElementById(id)

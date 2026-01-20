@@ -11,7 +11,6 @@ import { Plus, Trash2 } from "lucide-react";
 import { getIcon } from "../../utils/layer-utils";
 import {
   FilterCondition,
-  FilterConditionOperator,
   FilterGroup,
   FilterNode,
 } from "./types";

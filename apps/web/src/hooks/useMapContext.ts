@@ -118,7 +118,6 @@ const getMapHandlers = (context: MapContextType) => {
       longitude,
       bearing,
       pitch,
-      padding,
       layerSchemas: cLayerSchemas,
       layerGroups: cLayerGroups,
       zoom: cZoom,
@@ -172,8 +171,9 @@ const getMapHandlers = (context: MapContextType) => {
     handleActiveLayer,
     populateMapContext,
     selectFeature,
-    handleViewportChange,
-    flyTo,
+  handleViewportChange,
+  flyTo,
+  flyToWithPadding: flyTo,
   };
 };
 

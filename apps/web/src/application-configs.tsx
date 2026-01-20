@@ -132,7 +132,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
   ) => void;
 } => {
   const { selectFeature, flyTo } = useMapContext();
-  const { navigateTo, toggleDrawer, drawerOpen } = useNavigationContext();
+  const { navigateTo, toggleDrawer } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return {

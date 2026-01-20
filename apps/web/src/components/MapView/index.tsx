@@ -1,6 +1,5 @@
 import { computed, useSignal } from "@preact/signals";
 import { PickingInfo } from "deck.gl";
-import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo } from "react";
 import { Map } from "react-map-gl/mapbox";

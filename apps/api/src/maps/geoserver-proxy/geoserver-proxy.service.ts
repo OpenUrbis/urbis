@@ -56,14 +56,16 @@ export class GeoserverProxyService {
       throw new InternalServerErrorException('Maxar API Key not configured');
     }
 
-    const referer = this.configService.get<string>('app.accountsUrl') || this.configService.get<string>('FRONTEND_DOMAIN');
+    const referer =
+      this.configService.get<string>('app.accountsUrl') ||
+      this.configService.get<string>('FRONTEND_DOMAIN');
     const cleanApiKey = MAXAR_API_KEY.trim();
 
     try {
       const response = await axios.get(baseUrl, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; UrbisMap/1.0)',
-          ...(referer && { 'Referer': referer }),
+          ...(referer && { Referer: referer }),
           'maxar-api-key': cleanApiKey,
         },
         params: {
@@ -75,7 +77,8 @@ export class GeoserverProxyService {
           Object.keys(params).forEach((key) => {
             searchParams.append(key, params[key]);
           });
-          return searchParams.toString()
+          return searchParams
+            .toString()
             .replace(/%2C/g, ',')
             .replace(/%3A/g, ':')
             .replace(/%2F/g, '/');

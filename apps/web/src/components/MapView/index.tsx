@@ -32,9 +32,11 @@ const olc = new OpenLocationCode();
 export const MapView = ({
   previewLayers,
   hideControls,
+  disablePadding,
 }: {
   previewLayers?: IGetConfigLayerSchema[];
   hideControls?: boolean;
+  disablePadding?: boolean;
 }) => {
   const accessToken =
     import.meta.env.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN ||
@@ -149,7 +151,7 @@ export const MapView = ({
   }, [theme, selectedBaseMap.value]);
 
   useEffect(() => {
-    populateMapContext();
+    populateMapContext({ disablePadding });
   }, []);
 
   useEffect(() => {
@@ -280,7 +282,10 @@ export const MapView = ({
 
   return (
     <>
-      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <div 
+        className={cn("relative w-full h-full", disablePadding && "disable-map-padding")}
+        style={{ position: "relative", width: "100%", height: "100%" }}
+      >
         {viewport.value ? (
           <Map
             style={{ width: "100%", height: "100%" }}

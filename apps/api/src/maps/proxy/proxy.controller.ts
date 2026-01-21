@@ -17,14 +17,28 @@ export class ProxyController {
     summary: 'Proxy requests to external services to avoid CORS',
   })
   @ApiQuery({ name: 'url', required: true, description: 'Target URL' })
-  async proxy(@Query('url') url: string, @Res() res: Response) {
+  async proxy(
+    @Query('url') url: string,
+    @Res() res: Response,
+    @Query() allQuery: Record<string, string>,
+  ) {
     if (!url) {
       throw new BadRequestException('URL is required');
     }
 
     try {
-      console.log(`[Proxy] Requesting: ${url}`);
-      const response = await axios.get(url, {
+      // Reconstruct the full target URL including all query parameters except 'url' itself
+      const urlObj = new URL(url);
+      Object.entries(allQuery).forEach(([key, value]) => {
+        if (key !== 'url') {
+          urlObj.searchParams.set(key, value);
+        }
+      });
+
+      const targetUrl = urlObj.toString();
+      console.log(`[Proxy] Requesting: ${targetUrl}`);
+
+      const response = await axios.get(targetUrl, {
         responseType: 'stream',
         timeout: 10000, // 10s timeout
         headers: {

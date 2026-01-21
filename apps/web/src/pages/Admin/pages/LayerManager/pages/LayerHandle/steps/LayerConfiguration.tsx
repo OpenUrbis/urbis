@@ -120,7 +120,7 @@ export const LayerConfiguration = ({
             )}
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={`grid ${loadingMethod === "CustomWMSLayer" ? "grid-cols-1" : "grid-cols-2"} gap-4`}>
             <FormField
               control={form.control}
               name="version"
@@ -135,57 +135,59 @@ export const LayerConfiguration = ({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="srs"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>SRS / CRS</FormLabel>
-                  <div className="flex flex-col gap-2">
-                    <Select
-                      value={srsSelectValue}
-                      onValueChange={(val) => {
-                        if (val === "custom") {
-                          setForceCustomSrs(true);
-                        } else {
-                          setForceCustomSrs(false);
-                          field.onChange(val);
-                        }
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {selectedLayer?.crs?.map((crs: string) => (
-                          <SelectItem key={crs} value={crs}>
-                            {crs}
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="custom">Personalizada</SelectItem>
-                      </SelectContent>
-                    </Select>
+            {loadingMethod !== "CustomWMSLayer" && (
+              <FormField
+                control={form.control}
+                name="srs"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>SRS / CRS</FormLabel>
+                    <div className="flex flex-col gap-2">
+                      <Select
+                        value={srsSelectValue}
+                        onValueChange={(val) => {
+                          if (val === "custom") {
+                            setForceCustomSrs(true);
+                          } else {
+                            setForceCustomSrs(false);
+                            field.onChange(val);
+                          }
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {selectedLayer?.crs?.map((crs: string) => (
+                            <SelectItem key={crs} value={crs}>
+                              {crs}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="custom">Personalizada</SelectItem>
+                        </SelectContent>
+                      </Select>
 
-                    {(showCustomSrsInput || !hasCrsOptions) && (
-                      <FormControl>
-                        <Input
-                          placeholder="EPSG:4326"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            // If user types something that matches list, we could auto-switch back to select mode?
-                            // But maybe keep custom mode to avoid jumping UI.
-                          }}
-                        />
-                      </FormControl>
-                    )}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      {(showCustomSrsInput || !hasCrsOptions) && (
+                        <FormControl>
+                          <Input
+                            placeholder="EPSG:4326"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              // If user types something that matches list, we could auto-switch back to select mode?
+                              // But maybe keep custom mode to avoid jumping UI.
+                            }}
+                          />
+                        </FormControl>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
 
           <FormField
@@ -246,36 +248,38 @@ export const LayerConfiguration = ({
         )}
       />
 
-      {!simpleMode && <ClickActionConfiguration />}
+      {!simpleMode && loadingMethod !== "CustomWMSLayer" && <ClickActionConfiguration />}
 
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="minZoom"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Min Zoom (Opcional)</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="Ex: 10" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="maxZoom"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Max Zoom (Opcional)</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="Ex: 18" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      {loadingMethod !== "CustomWMSLayer" && (
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="minZoom"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Min Zoom (Opcional)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Ex: 10" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="maxZoom"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Max Zoom (Opcional)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Ex: 18" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      )}
 
       {!simpleMode && (
         <div className="grid grid-cols-2 gap-4">

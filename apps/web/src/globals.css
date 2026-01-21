@@ -150,3 +150,23 @@
 .sidebar-open .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
   margin-left: calc(var(--sidebar-width) + 12px) !important;
 }
+
+.disable-map-padding .mapboxgl-ctrl-top-left .mapboxgl-ctrl,
+.disable-map-padding .mapboxgl-ctrl-top-right .mapboxgl-ctrl,
+.disable-map-padding .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl,
+.disable-map-padding .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+.disable-map-padding .mapboxgl-ctrl-top-left,
+.disable-map-padding .mapboxgl-ctrl-bottom-left {
+  left: 0 !important;
+}
+
+.disable-map-padding .mapboxgl-ctrl-top-right,
+.disable-map-padding .mapboxgl-ctrl-bottom-right {
+  right: 0 !important;
+}

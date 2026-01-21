@@ -203,7 +203,7 @@ const LayerHandlePage = () => {
       const params = `service=WMS&version=1.3.0&request=GetCapabilities`;
 
       const response = await axios.get(`${environment}/maps/proxy`, {
-        params: { url: `${baseUrl}?${params}` }
+        params: { url: baseUrl, service: 'WMS', version: '1.3.0', request: 'GetCapabilities' }
       });
 
       const parser = new DOMParser();
@@ -314,6 +314,9 @@ const LayerHandlePage = () => {
     }
   };
 
+  const loadingMethod = form.watch("loadingMethod");
+  const isWms = loadingMethod === "CustomWMSLayer";
+
   const handleNext = async () => {
     let isValid = false;
     if (step === 1) {
@@ -335,7 +338,7 @@ const LayerHandlePage = () => {
         "clickActionParams",
       ]);
     } else if (step === 3) {
-      isValid = true; 
+      isValid = true;
     } else if (step === 4) {
       isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]);
     } else if (step === 5) {
@@ -343,7 +346,11 @@ const LayerHandlePage = () => {
     }
 
     if (isValid) {
-      const nextStep = step + 1;
+      let nextStep = step + 1;
+      // Skip Template (3) and Styling (4) for WMS
+      if (isWms && nextStep === 3) {
+        nextStep = 5;
+      }
       setStep(nextStep);
       if (nextStep > maxReachedStep) {
         setMaxReachedStep(nextStep);
@@ -352,7 +359,12 @@ const LayerHandlePage = () => {
   };
 
   const handleBack = () => {
-    setStep((prev) => prev - 1);
+    let prevStep = step - 1;
+    // Skip Styling (4) and Template (3) for WMS
+    if (isWms && prevStep === 4) {
+      prevStep = 2;
+    }
+    setStep(prevStep);
   };
 
   const goToStep = async (targetStep: number) => {
@@ -430,8 +442,10 @@ const LayerHandlePage = () => {
   const steps = [
     { number: 1, label: "Seleção" },
     { number: 2, label: "Configuração" },
-    { number: 3, label: "Template" },
-    { number: 4, label: "Estilização" },
+    ...(isWms ? [] : [
+      { number: 3, label: "Template" },
+      { number: 4, label: "Estilização" },
+    ]),
     { number: 5, label: "Mapeamento" },
     { number: 6, label: "Revisão" },
   ];
@@ -547,6 +561,7 @@ const LayerHandlePage = () => {
             <MapView 
               previewLayers={previewSchema ? [previewSchema] : undefined} 
               hideControls={true}
+              disablePadding={true}
             />
           )}
         </div>

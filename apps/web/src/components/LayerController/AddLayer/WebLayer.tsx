@@ -57,14 +57,12 @@ export const WebLayer = ({ onBack, onClose }: WebLayerProps) => {
         params = `service=WFS&version=1.1.0&request=GetCapabilities`;
       }
 
-      const separator = baseUrl.includes("?") ? "&" : "?";
-      const fullUrl = `${baseUrl}${separator}${params}`;
-      
-      console.log(`[WebLayer] Fetching capabilities from: ${fullUrl}`);
-
       const response = await axios.get(`${environment}/maps/proxy`, {
         params: {
-          url: fullUrl
+          url: baseUrl,
+          service: serviceType.value,
+          version: serviceType.value === "WMS" ? "1.3.0" : "1.1.0",
+          request: "GetCapabilities"
         }
       });
 

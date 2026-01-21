@@ -1,10 +1,12 @@
 import { signal } from "@preact/signals";
 import { ComponentChildren, createContext } from "preact";
-import { useContext } from "preact/hooks";
-import { NavigationContextType } from "../dto/navigationContextDto";
+import { NavigationContextType } from "../types/navigation-context-type";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const currentPage = signal<any>({});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const lastPage = signal<any>({});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const history = signal<any[]>([]);
 
 const navigationState: NavigationContextType = {
@@ -15,19 +17,6 @@ const navigationState: NavigationContextType = {
 
 export const NavigationContext =
   createContext<NavigationContextType>(navigationState);
-
-export const useNavigationContext = () => {
-  const context = useContext(NavigationContext);
-
-  // Logica
-
-  if (!context)
-    throw new Error(
-      "useNavigationContext must be used within a NavigationProvider",
-    );
-
-  return context;
-};
 
 export const NavigationProvider = ({
   children,

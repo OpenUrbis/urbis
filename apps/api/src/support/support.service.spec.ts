@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { MailService } from 'common/mail/mail.service';
 import { SupportTicket } from './entities/support-ticket.entity';
 import { SupportService } from './support.service';
 
@@ -12,6 +13,10 @@ describe('SupportService', () => {
     save: jest.fn(),
   };
 
+  const mockMailService = {
+    sendSupportTicket: jest.fn(),
+  };
+
   beforeEach(async () => {
     module = await Test.createTestingModule({
       providers: [
@@ -19,6 +24,10 @@ describe('SupportService', () => {
         {
           provide: getRepositoryToken(SupportTicket),
           useValue: mockRepository,
+        },
+        {
+          provide: MailService,
+          useValue: mockMailService,
         },
       ],
     }).compile();

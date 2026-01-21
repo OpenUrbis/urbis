@@ -5,9 +5,13 @@ import { MapLegend } from "../../components/MapLegend";
 import { MapView } from "../../components/MapView";
 import { LocationSelectionCard } from "../../components/LocationSelectionCard";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
+import { useLayerPersistence } from "../../hooks/useLayerPersistence";
 
 const MapPage = () => {
   const { navigateTo } = useNavigationContext();
+  
+  // Enable state restoration and persistence logic
+  useLayerPersistence();
 
   useEffect(() => {
     navigateTo(<LocationSelectionCard />);

@@ -50,6 +50,7 @@ export class OrganizationService {
     pagination: IPaginationOptions,
     search?: string,
     exclude?: string[],
+    allowedIds?: string[],
   ): Promise<{ data: Organization[]; total: number }> {
     if (pagination.page > 0) pagination.page--;
     const { limit, page } = pagination;
@@ -57,7 +58,18 @@ export class OrganizationService {
 
     if (search) where.name = Or(ILike(`%${search}%`));
 
-    if (exclude && exclude?.length > 0) where.id = Not(In(exclude));
+    if (allowedIds) {
+      let finalIds = allowedIds;
+      if (exclude && exclude.length > 0) {
+        const excludeSet = new Set(exclude);
+        finalIds = allowedIds.filter((id) => !excludeSet.has(id));
+      }
+
+      if (finalIds.length === 0) return { data: [], total: 0 };
+      where.id = In(finalIds);
+    } else if (exclude && exclude?.length > 0) {
+      where.id = Not(In(exclude));
+    }
 
     const [data, total] = await this.organizationRepository.findAndCount({
       where: where,

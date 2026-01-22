@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
-import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
+import { FindOneOptions, FindOptionsWhere, In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -19,12 +19,32 @@ export class UserService {
     );
   }
 
-  async list(pagination: IPaginationOptions, organizationId?: string) {
+  async list(
+    pagination: IPaginationOptions,
+    organizationId?: string,
+    allowedOrganizationIds?: string[],
+  ) {
     if (pagination.page > 0) pagination.page--;
     const { limit, page } = pagination;
     const where: FindOptionsWhere<User> = {};
 
-    if (organizationId) where.userRoleAssignments = { organizationId };
+    if (organizationId) {
+      // If specific org requested, ensure it is allowed (though controller should check too)
+      if (
+        allowedOrganizationIds &&
+        !allowedOrganizationIds.includes(organizationId)
+      ) {
+        return { data: [], total: 0 };
+      }
+      where.userRoleAssignments = { organizationId };
+    } else if (allowedOrganizationIds) {
+      if (allowedOrganizationIds.length === 0) {
+        return { data: [], total: 0 };
+      }
+      where.userRoleAssignments = {
+        organizationId: In(allowedOrganizationIds),
+      };
+    }
 
     const [data, total] = await this.usersRepository.findAndCount({
       where,

@@ -8,10 +8,13 @@ export interface IAccessControlPermission {
   resource: string;
   action: string;
   scope: RolePermissionScopeEnum;
+  organizationId?: string;
 }
 
 export interface AccessControlOptions {
-  permissions: IAccessControlPermission | IAccessControlPermission[];
+  permissions:
+    | Partial<IAccessControlPermission>
+    | Partial<IAccessControlPermission>[];
   mode?: 'AND' | 'OR'; // Default: 'AND'
 }
 
@@ -65,6 +68,7 @@ export class AccessControl {
               resource: rp.permission.resource,
               action: rp.permission.action,
               scope: rp.scope,
+              organizationId: assignment.organizationId,
             }),
           ),
         );
@@ -74,7 +78,7 @@ export class AccessControl {
     });
   }
 
-  private hasSinglePermission(req: IAccessControlPermission): boolean {
+  private hasSinglePermission(req: Partial<IAccessControlPermission>): boolean {
     return this._permissions.some(
       (prm) =>
         (prm.id === req.id ||
@@ -86,14 +90,24 @@ export class AccessControl {
 
   private isScopeCompatible(
     userScope: RolePermissionScopeEnum,
-    requiredScope: RolePermissionScopeEnum,
+    requiredScope?: RolePermissionScopeEnum,
   ): boolean {
-    if (
-      userScope === RolePermissionScopeEnum.GLOBAL ||
-      userScope === RolePermissionScopeEnum.ANY
-    )
-      return true;
-    return userScope === requiredScope;
+    if (!requiredScope) return true;
+
+    if (userScope === RolePermissionScopeEnum.GLOBAL) return true;
+
+    if (userScope === RolePermissionScopeEnum.ANY) {
+      return (
+        requiredScope === RolePermissionScopeEnum.ANY ||
+        requiredScope === RolePermissionScopeEnum.OWN
+      );
+    }
+
+    if (userScope === RolePermissionScopeEnum.OWN) {
+      return requiredScope === RolePermissionScopeEnum.OWN;
+    }
+
+    return false;
   }
 
   hasPermission(options: AccessControlOptions): boolean {
@@ -108,6 +122,86 @@ export class AccessControl {
       return requirements.some((req) => this.hasSinglePermission(req));
     }
     return false;
+  }
+
+  getContextualOrganizations(options?: AccessControlOptions): Organization[] {
+    if (!options || !options.permissions) return this.organizations;
+
+    const mode = options.mode || 'AND';
+    const requirements = Array.isArray(options.permissions)
+      ? options.permissions
+      : [options.permissions];
+
+    if (requirements.length === 0) return this.organizations;
+
+    // Helper to get allowed org IDs for a single requirement
+    const getAllowedOrgIdsForRequirement = (
+      req: Partial<IAccessControlPermission>,
+    ): Set<string> => {
+      const allowed = new Set<string>();
+
+      for (const prm of this._permissions) {
+        // Check match
+        const isMatch =
+          prm.id === req.id ||
+          (prm.resource === req.resource && prm.action === req.action) ||
+          prm.id === `${req.resource}:${req.action}`;
+
+        if (isMatch && this.isScopeCompatible(prm.scope, req.scope)) {
+          if (
+            prm.scope === RolePermissionScopeEnum.GLOBAL ||
+            !prm.organizationId
+          ) {
+            allowed.add('ALL');
+          } else {
+            allowed.add(prm.organizationId);
+          }
+        }
+      }
+      return allowed;
+    };
+
+    if (mode === 'OR') {
+      const finalIds = new Set<string>();
+      let allAccess = false;
+      for (const req of requirements) {
+        const allowed = getAllowedOrgIdsForRequirement(req);
+        if (allowed.has('ALL')) allAccess = true;
+        allowed.forEach((id) => {
+          if (id !== 'ALL') finalIds.add(id);
+        });
+      }
+      if (allAccess) return this.organizations;
+      return this.organizations.filter((o) => finalIds.has(o.id));
+    } else {
+      // AND - Intersection
+      let intersectionIds: Set<string> | null = null;
+
+      for (const req of requirements) {
+        const allowed = getAllowedOrgIdsForRequirement(req);
+        const hasAll = allowed.has('ALL');
+
+        const currentIds = new Set<string>();
+        if (hasAll) {
+          this.organizations.forEach((o) => currentIds.add(o.id));
+        } else {
+          allowed.forEach((id) => {
+            if (id !== 'ALL') currentIds.add(id);
+          });
+        }
+
+        if (intersectionIds === null) {
+          intersectionIds = currentIds;
+        } else {
+          intersectionIds = new Set(
+            [...intersectionIds].filter((x) => currentIds.has(x)),
+          );
+        }
+      }
+
+      if (!intersectionIds) return [];
+      return this.organizations.filter((o) => intersectionIds!.has(o.id));
+    }
   }
 
   hasOrganization(orgId: string): boolean {

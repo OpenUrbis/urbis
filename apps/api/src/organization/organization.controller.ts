@@ -3,6 +3,7 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -11,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { PermissionsData } from 'common/decorators/permissions-data/permissions-data.decorator';
 import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { UserData } from 'common/decorators/user-data/user-data.decorator';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
@@ -55,7 +57,7 @@ export class OrganizationController {
     permissions: {
       action: 'list',
       resource: 'organization',
-      scope: RolePermissionScopeEnum.ANY,
+      scope: RolePermissionScopeEnum.OWN,
     },
   })
   @ApiQuery({
@@ -91,11 +93,15 @@ export class OrganizationController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search') search: string,
     @Query('exclude') exclude: string[] | string,
+    @PermissionsData() permissionsData,
   ) {
+    const allowedIds = permissionsData.organizations.map((o) => o.id);
+
     return this.service.list(
       { page, limit },
       search,
       typeof exclude === 'string' ? [exclude] : exclude,
+      allowedIds,
     );
   }
 
@@ -104,10 +110,15 @@ export class OrganizationController {
     permissions: {
       action: 'view',
       resource: 'organization',
-      scope: RolePermissionScopeEnum.ANY,
+      scope: RolePermissionScopeEnum.OWN,
     },
   })
-  get(@Param('id') id: string) {
+  get(@Param('id') id: string, @PermissionsData() permissionsData) {
+    const allowedIds = permissionsData.organizations.map((o) => o.id);
+    if (!allowedIds.includes(id)) {
+      throw new NotFoundException({ message: 'Organization is not found' });
+    }
+
     return this.service.findOne(id);
   }
 
@@ -133,10 +144,19 @@ export class OrganizationController {
     permissions: {
       action: 'update',
       resource: 'organization',
-      scope: RolePermissionScopeEnum.ANY,
+      scope: RolePermissionScopeEnum.OWN,
     },
   })
-  update(@Param('id') id: string, @Body() data: UpdateOrganizationDto) {
+  update(
+    @Param('id') id: string,
+    @Body() data: UpdateOrganizationDto,
+    @PermissionsData() permissionsData,
+  ) {
+    const allowedIds = permissionsData.organizations.map((o) => o.id);
+    if (!allowedIds.includes(id)) {
+      throw new NotFoundException({ message: 'Organization is not found' });
+    }
+
     return this.service.update(id, data);
   }
 }

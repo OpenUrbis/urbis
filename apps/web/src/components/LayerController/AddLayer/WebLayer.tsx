@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useSignal, useComputed } from "@preact/signals";
-import { createElement } from "react";
+import { createElement, useEffect } from "react";
 import ReactJson from "react-json-view";
 import { Button } from "@open-urbis/map-ui";
 import { Input } from "@open-urbis/map-ui";
@@ -30,6 +30,13 @@ export const WebLayer = ({ onBack, onClose }: WebLayerProps) => {
   const pendingSchema = useSignal<IGetConfigLayerSchema | null>(null);
 
   const flatGroups = useComputed(() => flattenLayerGroups(layerGroups.value));
+
+  // Pre-select the first group (usually "Geral")
+  useEffect(() => {
+    if (flatGroups.value.length > 0 && !selectedGroupId.value) {
+      selectedGroupId.value = flatGroups.value[0].id;
+    }
+  }, [flatGroups.value]);
 
   const getBaseUrl = (inputUrl: string) => {
     try {

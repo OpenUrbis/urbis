@@ -28,14 +28,10 @@ interface DigitalAddressDetailsProps {
 }
 
 export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceType }: DigitalAddressDetailsProps) => {
-  const { navigatePop } = useNavigationContext();
+  const { clearCurrentPage } = useNavigationContext();
   const { digitalAddressFeature } = useMapContext();
   const address = encode(latitude, longitude);
   const [prefix, code] = address.split(' ');
-
-  const utm = proj4("EPSG:4326", "EPSG:31983", [longitude, latitude]);
-  const utmX = utm[0];
-  const utmY = utm[1];
 
   const handleDownloadPDF = async () => {
     const element = document.getElementById('digital-address-plate');
@@ -77,14 +73,13 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
             className="rounded-full h-8 w-8" 
             onClick={() => {
               digitalAddressFeature.value = null;
-              navigatePop();
+              clearCurrentPage();
             }}
           >
             <span className="material-symbols-outlined text-lg">arrow_back</span>
           </Button>
           <CardTitle className="text-lg font-bold">Endereço Digital</CardTitle>
         </div>
-        <img src="/endereco_digital_logo.png" alt="Logo Endereço Digital" className="h-8" />
       </CardHeader>
       <CardContent className="p-4 space-y-6">
         
@@ -107,16 +102,29 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
         </div>
 
         {/* Espaço Representado */}
-        <div className="space-y-2 pt-2 border-t">
-          <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Coordenadas (SIRGAS 2000 / UTM 23S)</h3>
-          <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-md border border-border/50">
-            <div>
-              <span className="block text-[10px] uppercase font-medium text-muted-foreground mb-1">Easting (X)</span>
-              <span className="font-mono text-sm">{utmX.toFixed(2)} m</span>
-            </div>
-            <div>
-              <span className="block text-[10px] uppercase font-medium text-muted-foreground mb-1">Northing (Y)</span>
-              <span className="font-mono text-sm">{utmY.toFixed(2)} m</span>
+        <div className="space-y-3 pt-2 border-t">
+          <div className="space-y-1">
+            <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">
+              Abrangência do Endereço (1m²)
+            </h3>
+            <p className="text-[11px] text-muted-foreground leading-tight">
+              O polígono destacado no mapa representa o metro quadrado exato identificado por este Endereço Digital.
+            </p>
+          </div>
+          
+          <div className="bg-muted/30 p-3 rounded-md border border-border/50">
+            <span className="block text-[10px] uppercase font-bold text-primary/70 mb-2 tracking-tighter">
+              Coordenada Selecionada (SIRGAS 2000 / Graus decimais)
+            </span>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="block text-[10px] uppercase font-medium text-muted-foreground mb-1">Latitude</span>
+                <span className="font-mono text-sm font-semibold">{latitude.toLocaleString('pt-BR', { minimumFractionDigits: 6, maximumFractionDigits: 6 })}°</span>
+              </div>
+              <div>
+                <span className="block text-[10px] uppercase font-medium text-muted-foreground mb-1">Longitude</span>
+                <span className="font-mono text-sm font-semibold">{longitude.toLocaleString('pt-BR', { minimumFractionDigits: 6, maximumFractionDigits: 6 })}°</span>
+              </div>
             </div>
           </div>
         </div>
@@ -134,9 +142,15 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
                  <DialogTitle>Placa Virtual</DialogTitle>
                </DialogHeader>
                <div className="flex flex-col items-center justify-center p-6 gap-6 w-full">
-                 <DigitalAddressPlate address={address} prefix={prefix} code={code} utm={{x: utmX, y: utmY}} />
+                 <DigitalAddressPlate 
+                    address={address} 
+                    prefix={prefix} 
+                    code={code} 
+                    latitude={latitude} 
+                    longitude={longitude} 
+                 />
                  
-                 <Button onClick={handleDownloadPDF} variant="default" className="w-full max-w-sm rounded-full">
+                 <Button onClick={handleDownloadPDF} variant="default" className="w-full max-w-sm rounded-full mt-4">
                     <span className="material-symbols-outlined mr-2">download</span>
                     Baixar PDF (A4)
                  </Button>

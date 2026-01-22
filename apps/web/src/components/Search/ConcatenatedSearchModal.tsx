@@ -26,7 +26,7 @@ import {
   TooltipTrigger,
 } from "@open-urbis/map-ui";
 import { Info, Loader2 } from "lucide-react";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { ConcatenatedSearchState } from "../../types/search-context-type";

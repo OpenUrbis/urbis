@@ -3,6 +3,7 @@ import Header from "../../components/Header";
 import { LeftNav } from "../../components/LeftNav";
 import { MapLegend } from "../../components/MapLegend";
 import { MapView } from "../../components/MapView";
+import { ViewSelector } from "../../components/ViewSelector";
 import { LocationSelectionCard } from "../../components/LocationSelectionCard";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useLayerPersistence } from "../../hooks/useLayerPersistence";
@@ -25,6 +26,7 @@ const MapPage = () => {
         <div className="relative h-full w-full">
           <MapLegend />
           <MapView />
+          <ViewSelector />
         </div>
       </div>
       <div className="absolute inset-y-0 left-0 z-40 pointer-events-none">

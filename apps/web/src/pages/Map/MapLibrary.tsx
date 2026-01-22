@@ -3,8 +3,6 @@ import { useAuth } from "react-oidc-context";
 import { shareService, SharedMapItem } from "../../integrations/share-service";
 import { Button, Separator, Card, CardHeader, CardTitle, CardContent } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
-import { useMapContext } from "../../hooks/useMapContext";
-import { useSearchContext } from "../../hooks/useSearchContext";
 import { Loader2, Map as MapIcon, Search as SearchIcon, ArrowLeft, Globe, History } from "lucide-react";
 import { AuthRequiredModal } from "../../components/AuthRequiredModal";
 import { ShareHistoryModal } from "../../components/LayerController/modals/ShareHistoryModal";

@@ -3,7 +3,7 @@ import { Button, Card, CardContent } from "@open-urbis/map-ui";
 import { Helper } from "../../components/helper";
 import { ITemplatesDeclaration } from "../../types/templates-type";
 import { ViewTemplateEngine } from "../../ViewTemplateEngine";
-import { Copy, FileJson } from "lucide-react";
+import { FileJson } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 
 export const CardWrapper: ITemplatesDeclaration = {

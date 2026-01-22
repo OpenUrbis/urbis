@@ -19,7 +19,7 @@ import {
   CheckCircle,
   Share2,
   Save,
-  Link,
+  ShieldCheck,
 } from "lucide-react";
 import { shareService } from "../../../integrations/share-service";
 import { useMapContext, currentShare } from "../../../hooks/useMapContext";
@@ -43,7 +43,6 @@ export const ShareModal = ({
   isOpen,
   onOpenChange,
   type = "map",
-  data,
 }: ShareModalProps) => {
   const typeLabel = type === "map" ? "Visualização" : "Busca";
   const mapContext = useMapContext();
@@ -195,19 +194,38 @@ export const ShareModal = ({
     >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Save className="h-5 w-5 text-primary" />
             {isOwner
-              ? "Atualizar Compartilhamento"
-              : `Compartilhar ${typeLabel}`}
+              ? `Atualizar ${typeLabel} Salva`
+              : `Salvar e Compartilhar ${typeLabel}`}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 p-4 rounded-lg flex gap-3 text-sm text-blue-700 dark:text-blue-300">
-          <Info className="h-5 w-5 shrink-0" />
-          <p>
-            Estes links não incluem anotações, medições ou camadas
-            personalizadas adicionadas ao mapa.
-          </p>
+        <div className="space-y-4">
+          <div className="bg-muted/50 border border-border p-4 rounded-lg space-y-2 text-sm">
+            <div className="flex items-center gap-2 font-semibold text-foreground">
+              <Info className="h-4 w-4 text-blue-500" />
+              O que será salvo?
+            </div>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-1">
+              {type === "map" ? (
+                <>
+                  <li>Estado atual das camadas (ligadas/desligadas)</li>
+                  <li>Filtros aplicados e configurações de estilo</li>
+                  <li>Posicionamento e zoom atual do mapa</li>
+                </>
+              ) : (
+                <>
+                  <li>Termos da busca concatenada</li>
+                  <li>Configurações de histórico de pesquisa</li>
+                </>
+              )}
+            </ul>
+            <p className="text-[11px] text-orange-600 dark:text-orange-400 font-medium pt-1">
+              * Dados temporários como uploads locais, medições ou anotações de tela não são persistidos.
+            </p>
+          </div>
         </div>
 
         {type === "search" && !shortUrl.value && (
@@ -259,12 +277,14 @@ export const ShareModal = ({
                 />
               </div>
               {userProfile.value?.position === "Administrador" && (
-                <div className="flex items-center justify-between space-x-2 py-2">
-                  <Label htmlFor="is-public" className="flex flex-col space-y-1">
-                    <span>Tornar Público</span>
-                    <span className="font-normal text-xs text-muted-foreground">
-                      Permite que qualquer pessoa acesse este compartilhamento
-                      sem autenticação.
+                <div className="flex items-center justify-between space-x-2 py-3 bg-primary/5 border border-primary/10 rounded-lg px-3">
+                  <Label htmlFor="is-public" className="flex flex-col space-y-1 cursor-pointer">
+                    <div className="flex items-center gap-2 text-primary">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span className="font-bold">Tornar Público</span>
+                    </div>
+                    <span className="font-normal text-[11px] text-muted-foreground leading-tight">
+                      Esta é uma permissão administrativa. Ao ativar, qualquer pessoa com o link poderá acessar os dados sem necessidade de login.
                     </span>
                   </Label>
                   <Switch
@@ -281,11 +301,11 @@ export const ShareModal = ({
                   disabled={loading.value || !name.value.trim()}
                 >
                   {loading.value ? (
-                    "Gerando..."
+                    "Salvando..."
                   ) : (
                     <>
-                      <Link className="h-4 w-4" />
-                      Gerar Link
+                      <Save className="h-4 w-4" />
+                      Salvar e Gerar Link
                     </>
                   )}
                 </Button>

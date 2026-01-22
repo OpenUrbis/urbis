@@ -26,11 +26,6 @@ function LayoutInner() {
     return () => observer.disconnect();
   }, []);
 
-  const lightLogo =
-    "https://cdn.prod.website-files.com/67865f11fa887f4b5ad6611a/67939d8b8a93192ceb8c26d0_LOGOTIPO_PREFEITURA_HORIZONTAL_FUNDO_CLARO-p-1080.png";
-
-  const darkLogo = "/Fundo=Escuro.svg";
-
   const menuItems = [
     { label: "Início", href: "/" },
     { label: "Mapa", href: "https://mapa.urbis.sampa.br" },
@@ -46,7 +41,7 @@ function LayoutInner() {
       <ScrollToTop />
 
       <UrbisHeader
-        logoSrc={isDark ? darkLogo : lightLogo}
+        theme={isDark ? "dark" : "light"}
         logoAlt="Prefeitura de São Paulo"
         logoHref="https://www.prefeitura.sp.gov.br/"
         badgeText={null}

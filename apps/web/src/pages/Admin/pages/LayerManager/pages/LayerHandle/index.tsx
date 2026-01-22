@@ -24,6 +24,7 @@ import { useMapContext } from "@/hooks/useMapContext";
 const LayerHandlePage = () => {
   const [isEditMatch, editParams] = useRoute("/:id");
 
+  // @ts-ignore
   const isEditing = !!isEditMatch && editParams?.id !== "handle";
   const id = isEditing ? editParams?.id : undefined;
 
@@ -200,7 +201,6 @@ const LayerHandlePage = () => {
     try {
       const baseUrl = getBaseUrl(url);
       const environment = import.meta.env.VITE_API_URL || "/api";
-      const params = `service=WMS&version=1.3.0&request=GetCapabilities`;
 
       const response = await axios.get(`${environment}/maps/proxy`, {
         params: { url: baseUrl, service: 'WMS', version: '1.3.0', request: 'GetCapabilities' }

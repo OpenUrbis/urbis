@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/compat";
 import { Card, CardContent } from "@open-urbis/map-ui";
 import { Input } from "@open-urbis/map-ui";
-import { Button, cn } from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,6 @@ import {
   IGetSearchItem,
   IGetSearchItemError,
 } from "../../types/fetch-search-config-type";
-import { ITemplate } from "../ViewTemplate/types/templates-type";
 import { ConcatenatedSearchModal } from "./ConcatenatedSearchModal";
 import proj4 from "proj4";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -123,7 +122,7 @@ export const Search = () => {
     const clickAction = clickActionsRoot?.action
       ? clickActionsRoot
       : layerSchema?.clickAction;
-    const template: ITemplate[] = layerSchema?.viewTemplate ?? [];
+    const template = layerSchema?.viewTemplate ?? [];
 
     if (!clickAction) return;
 
@@ -146,11 +145,11 @@ export const Search = () => {
     list: IGetSearchItemError[] = []
   ) => {
     return (
-      <div className="mt-6">
-        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
+      <div className="mt-4 px-1">
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
           {config.name} (0)
         </span>
-        <div className="text-destructive mt-2 p-3 bg-destructive/10 rounded-xl text-sm border border-destructive/20 shadow-sm backdrop-blur-sm">
+        <div className="text-destructive mt-1.5 p-2 bg-destructive/10 rounded-lg text-xs border border-destructive/20 shadow-sm">
           {list?.[0]?.message ||
             "Erro ao buscar os dados."}
         </div>
@@ -167,38 +166,38 @@ export const Search = () => {
     const totalCount = (list as any).totalCount ?? list.length;
 
     return (
-      <div className="mt-6 first:mt-2">
-        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
+      <div className="mt-4 first:mt-2 px-1">
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
           {config.name} ({totalCount})
         </span>
-        <ul className="mt-2 space-y-1">
+        <ul className="mt-1.5 space-y-0.5">
           {list.map((result) => {
             const content = result as IGetSearchItem;
 
             return (
               <li
                 key={content.id}
-                className="p-2 cursor-pointer hover:bg-accent/50 rounded-lg transition-all flex items-center justify-between group border border-transparent hover:border-border/50"
+                className="p-1.5 cursor-pointer hover:bg-accent/50 rounded-lg transition-all flex items-center justify-between group border border-transparent hover:border-border/50"
                 onClick={() => {
                   handleClickItem(config, content);
                   resetSearch();
                   clearResults();
                 }}
               >
-                <span className="line-clamp-2 text-sm flex-1 mr-2 text-foreground/90 group-hover:text-foreground">
+                <span className="line-clamp-2 text-xs flex-1 mr-2 text-foreground/90 group-hover:text-foreground">
                   {content.name}
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 rounded-full"
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 rounded-full"
                   onClick={(e) => {
                     e.stopPropagation();
                     setJsonFeature(convertFeatureToSirgas(content.rawData));
                   }}
                   title="Ver JSON"
                 >
-                  <span className="material-symbols-outlined text-xs">data_object</span>
+                  <span className="material-symbols-outlined text-[14px]">data_object</span>
                 </Button>
               </li>
             )
@@ -210,7 +209,7 @@ export const Search = () => {
 
   return (
     <div className="space-y-4">
-      <Card className="rounded-2xl border shadow-sm bg-background/50 backdrop-blur-sm">
+      <Card className="rounded-2xl border shadow-sm bg-background/50 backdrop-blur-sm overflow-hidden">
         <CardContent className="p-3">
               <form
                 onSubmit={(e) => {
@@ -325,16 +324,16 @@ export const Search = () => {
                   </p>
                 </div>
               )}
+
+              {data && (
+                <div className="mt-2 max-h-[50vh] overflow-y-auto pr-1">
+                  {searchConfig.value
+                    .filter((config) => config.isActive !== false)
+                    .map((config) => buildList(config, data?.[config.id] ?? []))}
+                </div>
+              )}
         </CardContent>
       </Card>
-
-      {data && (
-        <div className="max-h-[60vh] overflow-y-auto pr-1">
-          {searchConfig.value
-            .filter((config) => config.isActive !== false)
-            .map((config) => buildList(config, data?.[config.id] ?? []))}
-        </div>
-      )}
 
       <Dialog open={!!jsonFeature} onOpenChange={(open) => !open && setJsonFeature(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-6">

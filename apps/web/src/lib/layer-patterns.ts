@@ -7,7 +7,7 @@ export const patterns: { value: ILayerPattern; label: string; x: number; y: numb
   { value: "dots", label: "Pontos", x: 132, y: 132 },
 ];
 
-export const getPatternStyle = (pattern: ILayerPattern | undefined, color: string, scale = 0.26) => {
+export const getPatternStyle = (pattern: ILayerPattern | undefined, color: string, scale = 0.026) => {
     const p = patterns.find(x => x.value === pattern) || patterns[0];
     
     // Scale for 32px/48px icons. 

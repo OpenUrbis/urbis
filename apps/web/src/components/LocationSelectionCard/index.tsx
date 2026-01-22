@@ -34,7 +34,7 @@ export const LocationSelectionCard = () => {
   const { flyTo, layerSchemas, digitalAddressFeature } = useMapContext();
   const { editFeature, editFeatureTemplate, layerWithRootEditTemplate } =
     usePolygonEditContext();
-  const { navigateTo } = useNavigationContext();
+  const { navigateTo, navigateReplace } = useNavigationContext();
 
   const step = useSignal(1);
   const geoJsonFile = useSignal<File | null>(null);
@@ -268,7 +268,7 @@ export const LocationSelectionCard = () => {
 
         flyTo(destination);
         
-        navigateTo(
+        navigateReplace(
             <DigitalAddressDetails 
                 latitude={lat} 
                 longitude={lon} 

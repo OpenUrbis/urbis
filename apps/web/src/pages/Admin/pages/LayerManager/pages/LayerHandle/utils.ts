@@ -18,7 +18,6 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
   }
 
   const environment = import.meta.env.VITE_API_URL || "/api";
-  const params = `service=WMS&version=1.3.0&request=GetCapabilities`;
 
   const response = await axios.get(`${environment}/maps/proxy`, {
     params: { url: baseUrlStr, service: 'WMS', version: '1.3.0', request: 'GetCapabilities' }

@@ -264,13 +264,13 @@ export class UserSeedService {
     await assign(userGlobalA, roleGlobal, orgA);
     await assign(userGlobalB, roleGlobal, orgB);
     await assign(userGlobalC, roleGlobal, orgC);
-    
+
     await assign(userAnyB, roleAny, orgB);
     await assign(userOwnB, roleOwn, orgB);
-    
+
     await assign(userGlobalD, roleGlobal, orgD);
     await assign(userGlobalE, roleGlobal, orgE);
-    
+
     await assign(userAnyE, roleAny, orgE);
 
     console.log('Test scenarios created.');

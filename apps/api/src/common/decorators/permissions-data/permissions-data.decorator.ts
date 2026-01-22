@@ -21,7 +21,8 @@ export const PermissionsData = createParamDecorator(
 
     return {
       permissions: accessControl.permissions,
-      organizations: accessControl.getContextualOrganizations(requiredPermissions),
+      organizations:
+        accessControl.getContextualOrganizations(requiredPermissions),
     };
   },
 );

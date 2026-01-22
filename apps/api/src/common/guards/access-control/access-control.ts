@@ -250,7 +250,7 @@ export class AccessControl {
       }
 
       if (!intersectionIds) return [];
-      return this.organizations.filter((o) => intersectionIds!.has(o.id));
+      return this.organizations.filter((o) => intersectionIds.has(o.id));
     }
   }
 

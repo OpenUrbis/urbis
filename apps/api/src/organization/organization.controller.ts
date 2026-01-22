@@ -48,8 +48,13 @@ export class OrganizationController {
       resource: 'organization',
     },
   })
-  getByUser(@Param('id') userId: string) {
-    return this.service.getByUser(userId);
+  async getByUser(
+    @Param('id') userId: string,
+    @PermissionsData() permissionsData,
+  ) {
+    const allowedIds = permissionsData.organizations.map((o) => o.id);
+    const organizations = await this.service.getByUser(userId);
+    return organizations.filter((o) => allowedIds.includes(o.id));
   }
 
   @Get()

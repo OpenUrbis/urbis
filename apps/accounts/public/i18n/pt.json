@@ -215,6 +215,10 @@
           },
           "delete": {
             "ariaLabel": "Deletar usuário"
+          },
+          "viewTree": {
+            "all": "Visualizar Árvore Completa",
+            "current": "Visualizar Organização Atual"
           }
         }
       },
@@ -277,9 +281,11 @@
       "table": {
         "columns": {
           "name": "Nome",
+          "parent": "Organização Pai",
           "description": "Descrição",
           "actions": "Ações"
         },
+        "rootOrg": "Raiz",
         "noData": "Nenhuma organização encontrada com os filtros aplicados."
       },
       "form": {
@@ -292,7 +298,8 @@
         },
         "fields": {
           "name": "Nome",
-          "description": "Descrição"
+          "description": "Descrição",
+          "parent": "Organização Pai"
         },
         "buttons": {
           "save": "Salvar",
@@ -450,10 +457,13 @@
         "select": "Selecionar organização",
         "remove": "Remover organização {{name}}"
       },
-      "placeholders": {
-        "search": "Selecionar organização..."
-      }
-    },
+        "placeholders": {
+          "search": "Selecionar organização..."
+        },
+        "actions": {
+          "select": "Selecionar"
+        }
+      },
     "permissionSelector": {
       "labels": {
         "single": "Permissão",

@@ -75,6 +75,7 @@ export class OrganizationService {
       where: where,
       take: limit,
       skip: page * limit,
+      relations: ['parent'],
     });
 
     return { data, total };
@@ -95,8 +96,69 @@ export class OrganizationService {
     if (data.description !== undefined)
       organization.description = data.description;
     if (data.metadata !== undefined) organization.metadata = data.metadata;
+    if (data.parentId !== undefined) organization.parentId = data.parentId;
 
     return await this.organizationRepository.save(organization);
+  }
+
+  async findDescendants(orgIds: string[]): Promise<Organization[]> {
+    if (orgIds.length === 0) return [];
+
+    const rawData = await this.organizationRepository.query(
+      `
+      WITH RECURSIVE org_tree AS (
+          SELECT id, "parentId", name, description, metadata, "createdAt", "updatedAt", "deletedAt"
+          FROM organizations
+          WHERE id = ANY($1) AND "deletedAt" IS NULL
+          UNION ALL
+          SELECT o.id, o."parentId", o.name, o.description, o.metadata, o."createdAt", o."updatedAt", o."deletedAt"
+          FROM organizations o
+          INNER JOIN org_tree ot ON ot.id = o."parentId"
+          WHERE o."deletedAt" IS NULL
+      )
+      SELECT * FROM org_tree;
+      `,
+      [orgIds],
+    );
+
+    return this.organizationRepository.create(rawData);
+  }
+
+  async findHierarchy(orgIds: string[]): Promise<Organization[]> {
+    if (orgIds.length === 0) return [];
+
+    const rawData = await this.organizationRepository.query(
+      `
+      WITH RECURSIVE 
+      ancestors AS (
+          SELECT id, "parentId" as parent_id
+          FROM organizations
+          WHERE id = ANY($1) AND "deletedAt" IS NULL
+          UNION ALL
+          SELECT o.id, o."parentId" as parent_id
+          FROM organizations o
+          INNER JOIN ancestors a ON a.parent_id = o.id
+          WHERE o."deletedAt" IS NULL
+      ),
+      roots AS (
+          SELECT DISTINCT id FROM ancestors WHERE parent_id IS NULL
+      ),
+      tree AS (
+          SELECT id, "parentId", name, description, metadata, "createdAt", "updatedAt", "deletedAt"
+          FROM organizations
+          WHERE id IN (SELECT id FROM roots) AND "deletedAt" IS NULL
+          UNION ALL
+          SELECT o.id, o."parentId", o.name, o.description, o.metadata, o."createdAt", o."updatedAt", o."deletedAt"
+          FROM organizations o
+          INNER JOIN tree t ON t.id = o."parentId"
+          WHERE o."deletedAt" IS NULL
+      )
+      SELECT * FROM tree;
+      `,
+      [orgIds],
+    );
+
+    return this.organizationRepository.create(rawData);
   }
 
   async my(userId: string) {

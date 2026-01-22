@@ -4,6 +4,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -23,6 +25,16 @@ export class Organization extends BaseEntity {
 
   @Column({ type: 'json', default: {} })
   metadata: any;
+
+  @Column({ nullable: true })
+  parentId?: string;
+
+  @ManyToOne(() => Organization, (org) => org.children, { nullable: true })
+  @JoinColumn({ name: 'parentId' })
+  parent: Organization;
+
+  @OneToMany(() => Organization, (org) => org.parent)
+  children: Organization[];
 
   @OneToMany(() => UserRoleAssignment, (ura) => ura.organization)
   userRoleAssignments: UserRoleAssignment[];

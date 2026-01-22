@@ -16,4 +16,9 @@ export class CreateOrganizationDto {
   @IsObject()
   @IsOptional()
   metadata: any;
+
+  @ApiProperty({ example: 'uuid' })
+  @IsString()
+  @IsOptional()
+  parentId: string;
 }

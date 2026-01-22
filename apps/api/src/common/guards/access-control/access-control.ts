@@ -124,6 +124,49 @@ export class AccessControl {
     return false;
   }
 
+  public addOrganizations(orgs: Organization[]) {
+    orgs.forEach((o) => this._organizations.add(o));
+  }
+
+  private getDescendantsOf(rootId: string): string[] {
+    const descendants: string[] = [];
+    const queue = [rootId];
+    // Build adjacency list from current organizations
+    const childrenMap = new Map<string, string[]>();
+    this.organizations.forEach((o) => {
+      if (o.parentId) {
+        if (!childrenMap.has(o.parentId)) childrenMap.set(o.parentId, []);
+        childrenMap.get(o.parentId).push(o.id);
+      }
+    });
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      const children = childrenMap.get(current);
+      if (children) {
+        descendants.push(...children);
+        queue.push(...children);
+      }
+    }
+    return descendants;
+  }
+
+  private getRootOf(id: string): string {
+    let currentId = id;
+    const parentMap = new Map<string, string>();
+    this.organizations.forEach((o) => {
+      if (o.parentId) parentMap.set(o.id, o.parentId);
+    });
+
+    const visited = new Set<string>();
+    while (parentMap.has(currentId)) {
+      if (visited.has(currentId)) break;
+      visited.add(currentId);
+      currentId = parentMap.get(currentId)!;
+    }
+    return currentId;
+  }
+
   getContextualOrganizations(options?: AccessControlOptions): Organization[] {
     if (!options || !options.permissions) return this.organizations;
 
@@ -148,13 +191,20 @@ export class AccessControl {
           prm.id === `${req.resource}:${req.action}`;
 
         if (isMatch && this.isScopeCompatible(prm.scope, req.scope)) {
-          if (
-            prm.scope === RolePermissionScopeEnum.GLOBAL ||
-            !prm.organizationId
-          ) {
+          if (!prm.organizationId) {
             allowed.add('ALL');
+          } else if (prm.scope === RolePermissionScopeEnum.GLOBAL) {
+            const root = this.getRootOf(prm.organizationId);
+            allowed.add(root);
+            const descendants = this.getDescendantsOf(root);
+            descendants.forEach((d) => allowed.add(d));
           } else {
             allowed.add(prm.organizationId);
+            // If scope is ANY, expand hierarchy
+            if (prm.scope === RolePermissionScopeEnum.ANY) {
+              const descendants = this.getDescendantsOf(prm.organizationId);
+              descendants.forEach((d) => allowed.add(d));
+            }
           }
         }
       }

@@ -5,6 +5,20 @@
 >
   @if (!onlyTable()) {
     <section rightActions>
+      <button
+        hlmBtn
+        variant="outline"
+        (click)="toggleTree()"
+        class="mr-2"
+        [class.bg-primary]="showAllTree"
+        [class.text-primary-foreground]="showAllTree"
+      >
+        {{
+          showAllTree
+            ? ("pages.users.page.buttons.viewTree.all" | translate)
+            : ("pages.users.page.buttons.viewTree.current" | translate)
+        }}
+      </button>
       <a
         *hasPermission="'user:create'"
         hlmBtn

@@ -183,21 +183,29 @@ export class UserSeedService {
     );
 
     // 3. Create Organizations
-    const createOrg = async (name: string) => {
+    const createOrg = async (name: string, parent?: Organization) => {
       let org = await this.organizationRepository.findOne({ where: { name } });
       if (!org) {
         org = await this.organizationRepository.save(
           this.organizationRepository.create({
             name,
             metadata: { tenantType: 'mono' },
+            parent,
           }),
         );
+      } else if (parent && (!org.parent || org.parent.id !== parent.id)) {
+        org.parent = parent;
+        await this.organizationRepository.save(org);
       }
       return org;
     };
 
     const orgA = await createOrg('Organization A');
-    const orgB = await createOrg('Organization B');
+    const orgB = await createOrg('Organization B', orgA);
+    const orgC = await createOrg('Organization C', orgB);
+
+    const orgD = await createOrg('Organization D');
+    const orgE = await createOrg('Organization E', orgD);
 
     // 4. Create Users
     const createUser = async (email: string) => {
@@ -222,11 +230,15 @@ export class UserSeedService {
       return user;
     };
 
-    const userGlobal = await createUser('global@test.com');
-    const userAny = await createUser('any@test.com');
-    const userOwn = await createUser('own@test.com');
-    const userMixed = await createUser('mixed@test.com');
-    const userB = await createUser('userB@test.com');
+    const userGlobalA = await createUser('global-a@test.com');
+    const userGlobalB = await createUser('global-b@test.com');
+    const userGlobalC = await createUser('global-c@test.com');
+    const userGlobalD = await createUser('global-d@test.com');
+    const userGlobalE = await createUser('global-e@test.com');
+
+    const userAnyB = await createUser('any-b@test.com');
+    const userOwnB = await createUser('own-b@test.com');
+    const userAnyE = await createUser('any-e@test.com');
 
     // 5. Assign Roles
     const assign = async (user: User, role: Role, org: Organization | null) => {
@@ -249,12 +261,17 @@ export class UserSeedService {
       }
     };
 
-    await assign(userGlobal, roleGlobal, orgA);
-    await assign(userAny, roleAny, orgA);
-    await assign(userOwn, roleOwn, orgA);
-    await assign(userMixed, roleAny, orgA);
-    await assign(userMixed, roleAny, orgB);
-    await assign(userB, roleAny, orgB);
+    await assign(userGlobalA, roleGlobal, orgA);
+    await assign(userGlobalB, roleGlobal, orgB);
+    await assign(userGlobalC, roleGlobal, orgC);
+    
+    await assign(userAnyB, roleAny, orgB);
+    await assign(userOwnB, roleOwn, orgB);
+    
+    await assign(userGlobalD, roleGlobal, orgD);
+    await assign(userGlobalE, roleGlobal, orgE);
+    
+    await assign(userAnyE, roleAny, orgE);
 
     console.log('Test scenarios created.');
   }

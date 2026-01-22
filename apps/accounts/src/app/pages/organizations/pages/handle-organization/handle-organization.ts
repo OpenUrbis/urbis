@@ -20,10 +20,12 @@ import {
   HlmToasterService,
   LoadingContent,
 } from '../../../../../../projects/shared/src/public-api';
+import { OrganizationSelector } from '../../../../components/organization-selector/organization-selector';
 import { PageStructure } from '../../../../components/page-structure/page-structure';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { Users } from '../../../users/users';
 import {
+  IOrganization,
   IRequestCreateOrganization,
   IRequestUpdateOrganization,
 } from '../../dto/organization.dto';
@@ -46,6 +48,7 @@ import { OrganizationsApi } from '../../services/organizations-api';
     HlmLabelDirective,
     HlmIconComponent,
     HasPermissionDirective,
+    OrganizationSelector,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideTrash2, lucideLoader2 })],
   templateUrl: './handle-organization.html',
@@ -54,6 +57,7 @@ export class HandleOrganization {
   form = new FormGroup({
     name: new FormControl('', Validators.required),
     description: new FormControl(''),
+    parent: new FormControl<IOrganization | null>(null),
   });
 
   id = signal<string | undefined>(undefined);
@@ -88,7 +92,7 @@ export class HandleOrganization {
           }),
           tap(() => this.loading.set(false)),
         )
-        .subscribe((organization) => {
+        .subscribe(async (organization) => {
           if (organization) {
             this.name.set(organization.name);
 
@@ -96,6 +100,17 @@ export class HandleOrganization {
               name: organization.name,
               description: organization.description,
             });
+
+            if (organization.parentId) {
+              try {
+                const parent = await firstValueFrom(
+                  this.organizationApi.get(organization.parentId),
+                );
+                this.form.patchValue({ parent });
+              } catch (e) {
+                console.error('Failed to load parent organization', e);
+              }
+            }
           }
         });
     });
@@ -104,8 +119,15 @@ export class HandleOrganization {
   async save() {
     if (this.form.invalid) return;
 
-    const data: IRequestCreateOrganization | IRequestUpdateOrganization = this
-      .form.value as IRequestCreateOrganization | IRequestUpdateOrganization;
+    const formValue = this.form.value;
+    const parent = formValue.parent;
+
+    const data: IRequestCreateOrganization | IRequestUpdateOrganization = {
+      name: formValue.name!,
+      description: formValue.description!,
+      parentId: parent?.id,
+    };
+
     const id = this.id();
 
     try {

@@ -26,31 +26,33 @@ export class UserService {
   ) {
     if (pagination.page > 0) pagination.page--;
     const { limit, page } = pagination;
-    const where: FindOptionsWhere<User> = {};
+
+    const query = this.usersRepository.createQueryBuilder('user');
+    query.leftJoin('user.userRoleAssignments', 'ura');
 
     if (organizationId) {
-      // If specific org requested, ensure it is allowed (though controller should check too)
       if (
         allowedOrganizationIds &&
         !allowedOrganizationIds.includes(organizationId)
       ) {
         return { data: [], total: 0 };
       }
-      where.userRoleAssignments = { organizationId };
+      query.andWhere('ura.organizationId = :organizationId', {
+        organizationId,
+      });
     } else if (allowedOrganizationIds) {
       if (allowedOrganizationIds.length === 0) {
         return { data: [], total: 0 };
       }
-      where.userRoleAssignments = {
-        organizationId: In(allowedOrganizationIds),
-      };
+      query.andWhere('ura.organizationId IN (:...allowedIds)', {
+        allowedIds: allowedOrganizationIds,
+      });
     }
 
-    const [data, total] = await this.usersRepository.findAndCount({
-      where,
-      take: limit,
-      skip: page * limit,
-    });
+    query.skip(page * limit).take(limit);
+    query.orderBy('user.firstName', 'ASC');
+
+    const [data, total] = await query.getManyAndCount();
 
     return { data, total };
   }

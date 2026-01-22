@@ -55,6 +55,10 @@
                 <label hlmLabel for="org-desc">{{ 'pages.organizations.form.fields.description' | translate }}</label>
                 <input hlmInput id="org-desc" formControlName="description" [attr.aria-label]="'pages.organizations.form.fields.description' | translate" />
             </div>
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel>{{ 'pages.organizations.form.fields.parent' | translate }}</label>
+                <app-organization-selector [control]="form.controls.parent" />
+            </div>
             <div class="flex justify-end mt-4">
                 <button hlmBtn type="submit" [disabled]="loadingSave() || form.invalid">
                     <hlm-icon name="lucideLoader2" class="mr-2 animate-spin" *ngIf="loadingSave()" />

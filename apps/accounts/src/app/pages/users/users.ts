@@ -54,6 +54,8 @@ export class Users {
   // Columns are now handled in template, but good to keep track
   displayedColumns = ['name', 'email', 'status', 'actions'];
 
+  showAllTree = false;
+
   constructor() {
     effect(() => {
       const organizationId = this.organizationId();
@@ -67,6 +69,21 @@ export class Users {
         );
       this.dataSource.resetAndReload();
     });
+  }
+
+  toggleTree() {
+    this.showAllTree = !this.showAllTree;
+    if (this.showAllTree) {
+      this.dataSource.filterFormGroup.get('organizationId')?.setValue(undefined);
+    } else {
+      this.dataSource.filterFormGroup
+        .get('organizationId')
+        ?.setValue(
+          this.organizationId() ??
+            this.organizationState.selectedOrganization()?.id ??
+            undefined,
+        );
+    }
   }
 
   nextPage() {

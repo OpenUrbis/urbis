@@ -51,6 +51,10 @@ export class OrganizationSelector implements OnInit {
     this.selectedOrganizations().map(({ id }) => id),
   );
 
+  onFocus() {}
+
+  onBlur() {}
+
   organizations = toSignal(
     this.search.valueChanges.pipe(
       startWith(''),
@@ -85,17 +89,20 @@ export class OrganizationSelector implements OnInit {
           }
           return;
       }
-      
+
       if (this.multi() && !value?.length) {
           this.selectedOrganizations.set([]);
           return;
       }
 
-      this.selectedOrganizations.update(() =>
-        Array.isArray(value) ? value : [value],
-      );
+      if (Array.isArray(value)) {
+        this.selectedOrganizations.set(value);
+      } else {
+        this.selectedOrganizations.set([value]);
+        this.search.setValue(value.name, { emitEvent: false });
+      }
       // Ensure search doesn't clear immediately if we want to show selected? No, separate state.
-      
+
       subs.unsubscribe();
     });
   }
@@ -113,6 +120,10 @@ export class OrganizationSelector implements OnInit {
     this.selectedOrganizations.update((orgs) =>
       this.multi() ? [...orgs, org] : [org],
     );
-    this.search.setValue('');
+    if (this.multi()) {
+      this.search.setValue('');
+    } else {
+      this.search.setValue(org.name, { emitEvent: false });
+    }
   }
 }

@@ -31,6 +31,9 @@
               {{ "pages.organizations.table.columns.name" | translate }}
             </th>
             <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
+              {{ "pages.organizations.table.columns.parent" | translate }}
+            </th>
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
               {{ "pages.organizations.table.columns.description" | translate }}
             </th>
             <th class="h-12 px-4 align-middle font-medium text-muted-foreground text-right">
@@ -43,6 +46,9 @@
             <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
               <td class="p-4 align-middle font-medium">
                 {{ organization.name }}
+              </td>
+              <td class="p-4 align-middle text-sm">
+                {{ organization.parent?.name ?? ("pages.organizations.table.rootOrg" | translate) }}
               </td>
               <td class="p-4 align-middle text-muted-foreground">
                 {{ organization.description }}
@@ -64,7 +70,7 @@
           } @empty {
             @if (!dataSource.loading()) {
                 <tr>
-                    <td colspan="3" class="p-4 align-middle text-center text-muted-foreground">
+                    <td colspan="4" class="p-4 align-middle text-center text-muted-foreground">
                         {{ "pages.organizations.table.noData" | translate }}
                     </td>
                 </tr>

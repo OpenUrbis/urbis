@@ -9,11 +9,13 @@
   } @else {
     <div class="relative">
         <hlm-icon name="lucideSearch" size="sm" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input 
-            hlmInput 
-            [formControl]="search" 
+        <input
+            hlmInput
+            [formControl]="search"
             placeholder="{{ 'components.organizationSelector.placeholders.search' | translate }}"
             class="pl-9 w-full"
+            (focus)="onFocus()"
+            (blur)="onBlur()"
         />
     </div>
   }
@@ -32,17 +34,22 @@
   }
 
   @if (organizations()?.length && (!(!multi() && selectedOrganizations().length > 0))) {
-    <div class="border border-border rounded-md max-h-40 overflow-y-auto mt-1">
+    <div class="border border-border rounded-md max-h-40 overflow-y-auto -mt-2 border-t-0 rounded-t-none bg-card">
         @for (org of organizations(); track org.id) {
-        <button 
-            type="button" 
-            class="w-full text-left px-3 py-2 hover:bg-muted/50 text-sm transition-colors border-b border-border/50 last:border-0"
+        <button
+            type="button"
+            class="w-full text-left px-3 py-2 hover:bg-muted/50 text-sm transition-colors border-b border-border/50 last:border-0 flex items-center justify-between group/item"
             (click)="select(org)"
         >
-            <div class="font-medium">{{ org.name }}</div>
-            @if (org.description) {
-                <div class="text-xs text-muted-foreground">{{ org.description }}</div>
-            }
+            <div>
+                <div class="font-medium">{{ org.name }}</div>
+                @if (org.description) {
+                    <div class="text-xs text-muted-foreground">{{ org.description }}</div>
+                }
+            </div>
+            <span class="text-xs text-muted-foreground opacity-0 group-hover/item:opacity-100 transition-opacity">
+                {{ 'components.organizationSelector.actions.select' | translate }}
+            </span>
         </button>
         }
     </div>

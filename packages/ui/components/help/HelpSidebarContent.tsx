@@ -86,17 +86,10 @@ function mergeHeaders(a: Record<string, string>, b: Record<string, string>) {
   return out;
 }
 
-/**
- * API base (DEV)
- */
 function getApiBase() {
   return "http://localhost:3000";
 }
 
-/**
- * API key (DEV) - usado para criar ticket e pegar download-url
- * (upload público normalmente não precisa)
- */
 function getApiKey() {
   return "secret";
 }
@@ -120,28 +113,20 @@ function normalizeFolderPath(p: string) {
 }
 
 function normalizeKeyMaybe(k: string) {
-  // backend às vezes retorna "uploads/..." e às vezes "protocolos/..."
-  // vamos manter como vier
   return (k || "").replace(/^\/+/, "");
 }
 
 function normalizePublicUrlMaybe(url: string) {
-  // não mexe, só garante string
   return String(url || "");
 }
 
-/**
- * ==========================
- * TICKET (SEM async/await)
- * ==========================
- */
 function createSupportTicket(params: {
   endpoint?: string;
   payload: {
     name: string;
     email: string;
     message: string;
-    files: string[]; // keys do S3/MinIO
+    files: string[];
     type: FeedbackType;
     includeSectionData?: boolean;
     sectionData?: ReturnType<typeof buildSectionData>;
@@ -175,21 +160,13 @@ function createSupportTicket(params: {
   });
 }
 
-/**
- * ==========================
- * UPLOAD PUBLICO (DEV) - sem async/await
- * POST /files/public/upload-url
- * Retorna { uploadURL, key } ou { url, key } e opcional fields
- * ==========================
- */
 function requestPublicUploadUrl(params: { contentType: string; folderPath: string }) {
   var base = getApiBase().replace(/\/$/, "");
   var url = base + "/files/public/upload-url";
-  
 
   return fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" }, // público: sem x-api-key
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contentType: params.contentType,
       folderPath: normalizeFolderPath(params.folderPath),
@@ -226,9 +203,6 @@ function requestPublicUploadUrl(params: { contentType: string; folderPath: strin
   });
 }
 
-/**
- * Preview: pegue uma URL assinada de download (privado)
- */
 function requestDownloadUrl(key: string) {
   var base = getApiBase().replace(/\/$/, "");
   var url = base + "/files/download-url?key=" + encodeURIComponent(key);
@@ -288,8 +262,7 @@ function crc32OfUint8(arr: Uint8Array) {
 function crc32Base64FromFile(file: File) {
   return file.arrayBuffer().then(function (buf) {
     var u8 = new Uint8Array(buf);
-    var crc = crc32OfUint8(u8); // uint32
-    // 4 bytes big-endian
+    var crc = crc32OfUint8(u8);
     var b0 = (crc >>> 24) & 0xff;
     var b1 = (crc >>> 16) & 0xff;
     var b2 = (crc >>> 8) & 0xff;
@@ -299,7 +272,6 @@ function crc32Base64FromFile(file: File) {
 }
 
 function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string }, file: File) {
-  // POST policy (se vier fields de verdade)
   if (uploadInfo.fields && typeof uploadInfo.fields === "object" && Object.keys(uploadInfo.fields).length) {
     var form = new FormData();
     Object.keys(uploadInfo.fields).forEach(function (k) {
@@ -315,9 +287,8 @@ function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string },
     });
   }
 
-  // PUT presigned (MinIO)
   var url = uploadInfo.uploadURL;
-  var algo = getQueryParam(url, "x-amz-sdk-checksum-algorithm"); // ex: CRC32
+  var algo = getQueryParam(url, "x-amz-sdk-checksum-algorithm");
   var needsCrc32 = algo && algo.toUpperCase() === "CRC32";
 
   function doPut(headers: Record<string, string>) {
@@ -334,8 +305,6 @@ function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string },
     });
   }
 
-  // ⚠️ Não mande Content-Type aqui no primeiro teste.
-  // Em vários presigns, Content-Type não foi assinado e pode dar mismatch/erro.
   if (needsCrc32) {
     return crc32Base64FromFile(file).then(function (crcB64) {
       return doPut({
@@ -345,14 +314,10 @@ function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string },
     });
   }
 
-  // Se não precisar checksum, manda super limpo
   return doPut({
     "x-amz-content-sha256": "UNSIGNED-PAYLOAD",
   });
 }
-
-
-
 
 function uploadFilesSequentially(params: { files: File[]; folderPath: string }) {
   var outKeys: string[] = [];
@@ -385,12 +350,6 @@ function uploadFilesSequentially(params: { files: File[]; folderPath: string }) 
   return next();
 }
 
-/**
- * ==========================
- * UI COMPONENTS
- * ==========================
- */
-
 function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
   var id = props.id;
   var title = props.title;
@@ -406,7 +365,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
 
-  const [files, setFiles] = React.useState<string[]>([]); // keys
+  const [files, setFiles] = React.useState<string[]>([]);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [selectedFileNames, setSelectedFileNames] = React.useState<string[]>([]);
 
@@ -432,7 +391,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
       "image/webp": true,
     } as any;
 
-    const MAX_BYTES = 1024 * 1024; // 1MB
+    const MAX_BYTES = 1024 * 1024;
 
     setSuccess(null);
     setError(null);
@@ -580,7 +539,6 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
           <p className="text-xs text-muted-foreground">{description}</p>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Nome */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">Nome</label>
               <input
@@ -598,7 +556,6 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
               />
             </div>
 
-            {/* Email */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">E-mail</label>
               <input
@@ -620,7 +577,6 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
               )}
             </div>
 
-            {/* Mensagem */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">Descrição</label>
               <textarea
@@ -637,7 +593,6 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
               />
             </div>
 
-            {/* Arquivos */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">Anexos (opcional)</label>
               <input
@@ -700,7 +655,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
 
-  const [files, setFiles] = React.useState<string[]>([]); // keys
+  const [files, setFiles] = React.useState<string[]>([]);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [selectedFileNames, setSelectedFileNames] = React.useState<string[]>([]);
 
@@ -727,7 +682,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
       "image/webp": true,
     } as any;
 
-    const MAX_BYTES = 1024 * 1024; // 1MB
+    const MAX_BYTES = 1024 * 1024;
 
     setSuccess(null);
     setError(null);
@@ -879,7 +834,6 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Nome */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">Nome</label>
               <input
@@ -897,7 +851,6 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
               />
             </div>
 
-            {/* Email */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">E-mail</label>
               <input
@@ -919,7 +872,6 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
               )}
             </div>
 
-            {/* Mensagem */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">Descrição do erro</label>
               <textarea
@@ -936,7 +888,6 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
               />
             </div>
 
-            {/* Arquivos */}
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">Anexos (opcional)</label>
               <input
@@ -1012,7 +963,6 @@ export function HelpSidebarContent() {
 
   return (
     <div className="space-y-3">
-      {/* FAQ */}
       <div className="border border-border rounded-md bg-card text-card-foreground">
         <button
           type="button"
@@ -1039,14 +989,14 @@ export function HelpSidebarContent() {
                   >
                     <span className="text-xs font-medium">{item.question}</span>
                     <ChevronDown
-                      className={"w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")}
+                      className={
+                        "w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")
+                      }
                     />
                   </button>
 
                   {isOpen && (
-                    <div className="px-3 pb-3 pt-1 text-xs text-muted-foreground">
-                      {item.answer}
-                    </div>
+                    <div className="px-3 pb-3 pt-1 text-xs text-muted-foreground">{item.answer}</div>
                   )}
                 </div>
               );
@@ -1055,7 +1005,6 @@ export function HelpSidebarContent() {
         )}
       </div>
 
-      {/* Dúvidas -> inquiry */}
       <CollapsibleFeedbackSection
         id="duvidas"
         title="Dúvidas"
@@ -1066,7 +1015,6 @@ export function HelpSidebarContent() {
         folderPath="protocolos/arquivos"
       />
 
-      {/* Sugestões -> suggestion */}
       <CollapsibleFeedbackSection
         id="sugestoes"
         title="Sugestões"
@@ -1077,7 +1025,6 @@ export function HelpSidebarContent() {
         folderPath="protocolos/arquivos"
       />
 
-      {/* Erro -> bug-report */}
       <ErrorFeedbackSection endpoint="/support/create-ticket" folderPath="protocolos/arquivos" />
     </div>
   );

@@ -15,9 +15,9 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "O que é a plataforma Urbis?",
     answer: (
       <p className="text-xs text-muted-foreground">
-        A plataforma Urbis é um conjunto de ferramentas digitais da Prefeitura de São Paulo
-        para consulta de mapas, dados urbanísticos, ambientais e serviços relacionados ao
-        planejamento urbano da cidade.
+        A plataforma Urbis é um conjunto de ferramentas digitais da Prefeitura de São Paulo para
+        consulta de mapas, dados urbanísticos, ambientais e serviços relacionados ao planejamento
+        urbano da cidade.
       </p>
     ),
   },
@@ -26,8 +26,8 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "Como usar o mapa para consultar um endereço ou lote?",
     answer: (
       <p className="text-xs text-muted-foreground">
-        Utilize a barra de busca do Mapa.Urbis para digitar o endereço, número de contribuinte
-        ou inscrição cadastral e visualize informações usando as camadas disponíveis.
+        Utilize a barra de busca do Mapa.Urbis para digitar o endereço, número de contribuinte ou
+        inscrição cadastral e visualize informações usando as camadas disponíveis.
       </p>
     ),
   },
@@ -36,8 +36,8 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "Onde encontro documentos e certidões urbanísticas?",
     answer: (
       <p className="text-xs text-muted-foreground">
-        Os links estão nas seções &quot;Doc. técnica&quot; e &quot;+Info&quot;, além dos
-        sistemas específicos da Prefeitura.
+        Os links estão nas seções &quot;Doc. técnica&quot; e &quot;+Info&quot;, além dos sistemas
+        específicos da Prefeitura.
       </p>
     ),
   },
@@ -88,89 +88,50 @@ function buildSectionData() {
 }
 
 /**
- * API de URL assinada (Urbis)
- * POST https://api.urbis.sampa.br/files/public/upload-url
- * body: { contentType, folderPath }
- *
- * IMPORTANT: não tipar retorno como Promise<...> pra evitar erro do seu lib
+ * API base (confirmado por você)
+ * POST http://localhost:3000/support/create-ticket
  */
-function requestUploadUrl(params: { contentType: string; folderPath: string }): any {
-  return fetch("https://api.urbis.sampa.br/files/public/upload-url", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contentType: params.contentType,
-      folderPath: params.folderPath,
-    }),
-  }).then(function (res) {
-    if (!res.ok) throw new Error("Erro ao obter URL de upload.");
-    return res.json();
-  });
+function getApiBase() {
+  return "http://localhost:3000";
 }
 
 /**
- * PUT direto no S3 com uploadUrl
+ * MinIO/S3 public base (se você tiver)
+ * Se não usar upload, pode deixar assim mesmo.
  */
-function uploadToS3(uploadUrl: string, file: File): any {
-  return fetch(uploadUrl, {
-    method: "PUT",
-    headers: {
-      "Content-Type": file.type || "application/octet-stream",
-    },
-    body: file,
-  }).then(function (res) {
-    if (!res.ok) throw new Error("Falha ao enviar o arquivo.");
-  });
+function getPublicBucketBaseUrl() {
+  return "http://localhost:9000/public";
 }
 
-/**
- * Upload sequencial
- * Retorna lista de URLs finais (fileUrl) para anexar no ticket.
- *
- * Sem Promise.resolve / new Promise
- */
-function uploadFilesSequentially(params: { files: File[]; folderPath: string }): any {
-  var out: string[] = [];
-  var i = 0;
+/** Se você NÃO usa api key, deixe vazio */
+function getApiKey() {
+  return "secret";
+}
 
-  function next(): any {
-    if (i >= params.files.length) {
-      // Evita Promise.resolve(out) (que usa Promise como valor)
-      return fetch("data:application/json,{}").then(function () {
-        return out;
-      });
-    }
+function buildApiKeyHeaders() {
+  var key = getApiKey();
+  if (!key) return {};
+  return {
+    "x-api-key": key,
+    Authorization: "Bearer " + key,
+  } as any;
+}
 
-    var f = params.files[i];
-    i++;
-
-    var contentType = f && f.type ? f.type : "application/octet-stream";
-
-    return requestUploadUrl({
-      contentType: contentType,
-      folderPath: params.folderPath,
-    }).then(function (data: any) {
-      if (!data || !data.uploadUrl || !data.fileUrl) {
-        throw new Error("Resposta inválida da API de upload.");
-      }
-
-      return uploadToS3(data.uploadUrl, f).then(function () {
-        out.push(data.fileUrl);
-        return next();
-      });
-    });
+function safeJsonParse(text: string) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
   }
-
-  return next();
 }
 
 /**
- * Envia ticket (JSON) conforme sua API:
- * POST /support/create-ticket
- * { name, email, message, files: string[], type, includeSectionData?, sectionData? }
+ * ==========================
+ * TICKET (SEM async/await)
+ * ==========================
  */
 function createSupportTicket(params: {
-  endpoint: string;
+  endpoint?: string;
   payload: {
     name: string;
     email: string;
@@ -180,26 +141,198 @@ function createSupportTicket(params: {
     includeSectionData?: boolean;
     sectionData?: ReturnType<typeof buildSectionData>;
   };
-}): any {
-  return fetch(params.endpoint, {
+}) {
+  var base = getApiBase().replace(/\/$/, "");
+  var raw = params.endpoint || "/support/create-ticket";
+  var ep =
+    raw.indexOf("http://") === 0 || raw.indexOf("https://") === 0 ? raw : base + raw;
+
+  return fetch(ep, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params.payload),
   }).then(function (res) {
     if (res.ok) return;
 
-    return res
-      .json()
-      .then(function (data: any) {
+    return res.text().then(function (text) {
+      try {
+        var data = text ? JSON.parse(text) : null;
         var msg =
-          data && typeof data.message === "string" ? data.message : "Erro ao criar o ticket.";
+          data && typeof data.message === "string"
+            ? data.message
+            : data && Array.isArray(data.message)
+              ? data.message.join(", ")
+              : "Erro ao criar o ticket.";
         throw new Error(msg);
-      })
-      .catch(function () {
+      } catch (e) {
         throw new Error("Erro ao criar o ticket.");
-      });
+      }
+    });
   });
 }
+
+/**
+ * ==========================
+ * UPLOAD (OPCIONAL) - sem async/await
+ * Se sua rota de upload não existir, vai dar erro ao anexar,
+ * mas o usuário pode enviar só a mensagem (sem anexos).
+ * ==========================
+ */
+function requestUploadUrl(params: { contentType: string; folderPath: string }) {
+  // use SEMPRE absoluto (senão pode virar POST no server do front)
+  var API_BASE = "https://api.urbis.sampa.br";
+
+  // rotas candidatas (com e sem prefixo /api e variações comuns)
+  var candidates = [
+    API_BASE + "/files/public/upload-url",
+    API_BASE + "/api/files/public/upload-url",
+    API_BASE + "/files/upload-url",
+    API_BASE + "/api/files/upload-url",
+  ];
+
+  var i = 0;
+
+  function tryNext(): any {
+    if (i >= candidates.length) {
+      throw new Error("Não encontrei um endpoint válido para gerar URL assinada (upload-url).");
+    }
+
+    var url = candidates[i];
+    i++;
+
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // se o backend exigir api-key, deixe ligado:
+        // "x-api-key": "secret",
+      },
+      body: JSON.stringify({
+        contentType: params.contentType,
+        folderPath: params.folderPath,
+      }),
+    })
+      .then(function (res) {
+        return res.text().then(function (t) {
+          var data = t ? safeJsonParse(t) : null;
+
+          if (!res.ok) {
+            // se deu 404, tenta a próxima rota
+            if (res.status === 404) throw new Error("ROUTE_NOT_FOUND");
+            var msg =
+              (data && typeof data.message === "string" && data.message) ||
+              ("Erro HTTP " + res.status);
+            throw new Error(msg);
+          }
+
+          // Aceita vários formatos de retorno
+          var uploadURL = data && (data.uploadURL || data.uploadUrl || data.url);
+          var key = data && data.key;
+          var fields = data && data.fields;
+
+          if (!uploadURL || !key) throw new Error("Resposta inválida da API de upload.");
+
+          return { uploadURL: uploadURL, key: key, fields: fields || null };
+        });
+      })
+      .catch(function (err: any) {
+        // 404 => tenta próximo
+        if (err && err.message === "ROUTE_NOT_FOUND") return tryNext();
+        // outros erros também tentamos a próxima rota, porque pode ser /api
+        return tryNext();
+      });
+  }
+
+  return tryNext();
+}
+
+
+
+function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string }, file: File) {
+  // Se vier fields => é POST policy
+  if (uploadInfo.fields) {
+    var form = new FormData();
+
+    // campos assinados (policy, x-amz-*, key etc.)
+    Object.keys(uploadInfo.fields).forEach(function (k) {
+      form.append(k, uploadInfo.fields[k]);
+    });
+
+    // arquivo tem que ser no campo "file"
+    form.append("file", file);
+
+    return fetch(uploadInfo.uploadURL, {
+      method: "POST",
+      mode: "cors",
+      body: form,
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.text().then(function (t) {
+          throw new Error("Falha ao enviar o arquivo (POST). " + (t || ("HTTP " + res.status)));
+        });
+      }
+    });
+  }
+
+  // senão => tenta PUT presigned
+  return fetch(uploadInfo.uploadURL, {
+    method: "PUT",
+    mode: "cors",
+    headers: {
+      "Content-Type": file.type || "application/octet-stream",
+    },
+    body: file,
+  }).then(function (res) {
+    if (!res.ok) {
+      return res.text().then(function (t) {
+        throw new Error("Falha ao enviar o arquivo (PUT). " + (t || ("HTTP " + res.status)));
+      });
+    }
+  });
+}
+
+function uploadFilesSequentially(params: { files: File[]; folderPath: string }) {
+  var out: string[] = [];
+  var idx = 0;
+
+  function next(): any {
+    if (idx >= params.files.length) {
+      return fetch("data:application/json,{}").then(function () {
+        return out;
+      });
+    }
+
+    var f = params.files[idx];
+    idx++;
+
+    var contentType = (f && f.type) || "application/octet-stream";
+
+    return requestUploadUrl({ contentType: contentType, folderPath: params.folderPath }).then(
+      function (info: any) {
+        var uploadURL = info.uploadURL;
+        var key = info.key;
+        var fields = info.fields || null;
+
+        if (!uploadURL || !key) throw new Error("Resposta inválida da API de upload.");
+
+        return uploadToS3({ uploadURL: uploadURL, fields: fields, key: key }, f).then(function () {
+          // URL final pública (ajuste se seu público for outro domínio)
+          out.push("http://localhost:9000/uploads/" + key);
+          return next();
+        });
+      }
+    );
+  }
+
+  return next();
+}
+
+
+/**
+ * ==========================
+ * UI COMPONENTS
+ * ==========================
+ */
 
 function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
   var id = props.id;
@@ -216,94 +349,93 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
 
-  // Agora files = string[] (URLs finais)
   const [files, setFiles] = React.useState<string[]>([]);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
-
-  // só pra mostrar nome/contagem selecionados (UX)
   const [selectedFileNames, setSelectedFileNames] = React.useState<string[]>([]);
 
   const [submitting, setSubmitting] = React.useState(false);
   const [success, setSuccess] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const toggle = () => setOpen(function (o) { return !o; });
+  const toggle = () =>
+    setOpen(function (o) {
+      return !o;
+    });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const fileList = e.target.files;
+    const fileList = e.target.files;
 
-  const list: File[] = [];
-  const names: string[] = [];
+    const list: File[] = [];
+    const names: string[] = [];
 
-  const allowed = {
-    "image/png": true,
-    "image/svg+xml": true,
-    "image/jpeg": true,
-    "image/webp": true,
-  } as any;
+    const allowed = {
+      "image/png": true,
+      "image/svg+xml": true,
+      "image/jpeg": true,
+      "image/webp": true,
+    } as any;
 
-  const MAX_BYTES = 1024 * 1024; // 1MB
+    const MAX_BYTES = 1024 * 1024; // 1MB
 
-  setSuccess(null);
-  setError(null);
-  setPreviewUrl(null);
+    setSuccess(null);
+    setError(null);
+    setPreviewUrl(null);
 
-  if (!fileList || !fileList.length) {
-    setFiles([]);
-    setSelectedFileNames([]);
-    return;
-  }
-
-  for (let i = 0; i < fileList.length; i++) {
-    const f = fileList.item(i);
-    if (!f) continue;
-
-    const typeOk = !!(f.type && allowed[f.type]);
-    if (!typeOk) {
-      setError("Formato inválido. Envie apenas PNG, SVG, JPEG ou WEBP (máx. 1MB).");
+    if (!fileList || !fileList.length) {
       setFiles([]);
       setSelectedFileNames([]);
-      // limpa input para permitir selecionar o mesmo arquivo novamente
-      e.currentTarget.value = "";
       return;
     }
 
-    if (typeof f.size === "number" && f.size > MAX_BYTES) {
-      setError("Arquivo muito grande. Tamanho máximo: 1MB (PNG, SVG, JPEG ou WEBP).");
+    for (let i = 0; i < fileList.length; i++) {
+      const f = fileList.item(i);
+      if (!f) continue;
+
+      const typeOk = !!(f.type && allowed[f.type]);
+      if (!typeOk) {
+        setError("Formato inválido. Envie apenas PNG, SVG, JPEG ou WEBP (máx. 1MB).");
+        setFiles([]);
+        setSelectedFileNames([]);
+        e.currentTarget.value = "";
+        return;
+      }
+
+      if (typeof f.size === "number" && f.size > MAX_BYTES) {
+        setError("Arquivo muito grande. Tamanho máximo: 1MB (PNG, SVG, JPEG ou WEBP).");
+        setFiles([]);
+        setSelectedFileNames([]);
+        e.currentTarget.value = "";
+        return;
+      }
+
+      list.push(f);
+      names.push(f.name);
+    }
+
+    if (!list.length) {
       setFiles([]);
       setSelectedFileNames([]);
-      e.currentTarget.value = "";
       return;
     }
 
-    list.push(f);
-    names.push(f.name);
-  }
+    setSubmitting(true);
+    setSelectedFileNames(names);
 
-  if (!list.length) {
-    setFiles([]);
-    setSelectedFileNames([]);
-    return;
-  }
-
-  setSubmitting(true);
-  setSelectedFileNames(names);
-
-  uploadFilesSequentially({ files: list, folderPath: folderPath })
-    .then(function (urls: any) {
-      setFiles(urls || []);
-      var firstUrl = urls && urls.length ? urls[0] : null;
-      setPreviewUrl(firstUrl ? firstUrl : null);
-      setSubmitting(false);
-    })
-    .catch(function (err: any) {
-      setError(err && err.message ? err.message : "Falha ao enviar anexos.");
-      setFiles([]);
-      setSelectedFileNames([]);
-      setPreviewUrl(null);
-      setSubmitting(false);
-    });
-};
+    uploadFilesSequentially({ files: list, folderPath: folderPath })
+      .then(function (urls: any) {
+        setFiles(urls || []);
+        var firstUrl = urls && urls.length ? urls[0] : null;
+        setPreviewUrl(firstUrl ? firstUrl : null);
+        setSubmitting(false);
+      })
+      .catch(function (err: any) {
+        setError(err && err.message ? err.message : "Falha ao enviar anexos.");
+        setFiles([]);
+        setSelectedFileNames([]);
+        setPreviewUrl(null);
+        setSubmitting(false);
+      });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -355,8 +487,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
       });
   };
 
-  const firstFileName =
-    selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
+  const firstFileName = selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
   const extraCount =
     selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
 
@@ -368,7 +499,9 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
         className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
       >
         <span className="text-xs font-semibold">{title}</span>
-        <ChevronDown className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")} />
+        <ChevronDown
+          className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")}
+        />
       </button>
 
       {open && (
@@ -437,14 +570,14 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">Anexos (opcional)</label>
               <input
-  type="file"
-  accept=".png,.svg,.jpeg,.jpg,.webp,image/png,image/svg+xml,image/jpeg,image/webp"
-  multiple
-  onChange={handleFileChange}
-  className="block w-full text-[11px] text-muted-foreground file:mr-2 file:py-1.5 file:px-3
-             file:rounded-md file:border-0 file:text-[11px] file:font-medium
-             file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-/>
+                type="file"
+                accept=".png,.svg,.jpeg,.jpg,.webp,image/png,image/svg+xml,image/jpeg,image/webp"
+                multiple
+                onChange={handleFileChange}
+                className="block w-full text-[11px] text-muted-foreground file:mr-2 file:py-1.5 file:px-3
+                           file:rounded-md file:border-0 file:text-[11px] file:font-medium
+                           file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+              />
 
               {previewUrl && (
                 <div className="mt-2 flex items-center gap-2">
@@ -505,7 +638,10 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
   const [success, setSuccess] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const toggle = () => setOpen(function (o) { return !o; });
+  const toggle = () =>
+    setOpen(function (o) {
+      return !o;
+    });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -605,8 +741,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
       });
   };
 
-  const firstFileName =
-    selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
+  const firstFileName = selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
   const extraCount =
     selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
 
@@ -618,7 +753,9 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
         className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
       >
         <span className="text-xs font-semibold">Relatar erro</span>
-        <ChevronDown className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")} />
+        <ChevronDown
+          className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")}
+        />
       </button>
 
       {open && (
@@ -689,14 +826,14 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
             <div className="space-y-1">
               <label className="text-[11px] font-medium text-foreground">Anexos (opcional)</label>
               <input
-  type="file"
-  accept=".png,.svg,.jpeg,.jpg,.webp,image/png,image/svg+xml,image/jpeg,image/webp"
-  multiple
-  onChange={handleFileChange}
-  className="block w-full text-[11px] text-muted-foreground file:mr-2 file:py-1.5 file:px-3
-             file:rounded-md file:border-0 file:text-[11px] file:font-medium
-             file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-/>
+                type="file"
+                accept=".png,.svg,.jpeg,.jpg,.webp,image/png,image/svg+xml,image/jpeg,image/webp"
+                multiple
+                onChange={handleFileChange}
+                className="block w-full text-[11px] text-muted-foreground file:mr-2 file:py-1.5 file:px-3
+                           file:rounded-md file:border-0 file:text-[11px] file:font-medium
+                           file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+              />
 
               {previewUrl && (
                 <div className="mt-2 flex items-center gap-2">

@@ -1,5 +1,8 @@
-import { UrbisHeader } from "@open-urbis/map-ui";
+import { UrbisHeader, Button } from "@open-urbis/map-ui";
 import { useAuth } from "react-oidc-context";
+import { useLocation } from "wouter";
+import { accessControl } from "../../auth/user-state";
+import { RolePermissionScopeEnum } from "../../utils/access-control";
 import { Debugger } from "../Debugger";
 import { MenuToggleButton } from "../MenuToogleButton";
 import { useTheme } from "../ThemeProvider";
@@ -44,7 +47,42 @@ const Header = () => {
       theme={theme}
       setTheme={(t) => setTheme(t as "light" | "dark" | "system")}
       rightSlot={
-        <div className="hidden lg:block">
+        <div className="hidden lg:flex items-center gap-4">
+          {accessControl.value.hasPermission({
+            permissions: [
+              {
+                resource: "layer-schema",
+                action: "create",
+                scope: RolePermissionScopeEnum.ANY,
+                id: "layer-schema:create",
+              },
+              {
+                resource: "layer-schema",
+                action: "update",
+                scope: RolePermissionScopeEnum.ANY,
+                id: "layer-schema:update",
+              },
+              {
+                resource: "layer-schema",
+                action: "delete",
+                scope: RolePermissionScopeEnum.ANY,
+                id: "layer-schema:delete",
+              },
+            ],
+            mode: "OR",
+          }) && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 rounded-full"
+              onClick={() => (window.location.href = "/admin/layer-manager")}
+            >
+              <span className="material-symbols-outlined text-base">
+                admin_panel_settings
+              </span>
+              Administração
+            </Button>
+          )}
           <Debugger />
         </div>
       }

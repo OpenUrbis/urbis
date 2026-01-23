@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@open-urbis/map-ui";
-import { Switch } from "@open-urbis/map-ui";
+import { Switch, cn } from "@open-urbis/map-ui";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
@@ -209,7 +209,12 @@ export const Search = () => {
 
   return (
     <div className="space-y-4">
-      <Card className="rounded-2xl border shadow-sm bg-background/50 backdrop-blur-sm overflow-hidden">
+      <Card
+        className={cn(
+          "rounded-2xl border shadow-sm backdrop-blur-sm overflow-hidden transition-colors duration-300",
+          data ? "bg-background/95" : "bg-background/50"
+        )}
+      >
         <CardContent className="p-3">
               <form
                 onSubmit={(e) => {

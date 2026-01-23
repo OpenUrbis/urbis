@@ -80,10 +80,11 @@ class PickLocationControl implements mapboxgl.IControl {
   onAdd(_map: mapboxgl.Map) {
     this.container = document.createElement("div");
     this.container.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
+    this.container.style.zIndex = "100000000000";
     
     this.button = document.createElement("button");
     this.button.type = "button";
-    this.button.title = "Identificar Local";
+    this.button.title = "Numeração Digital";
     this.button.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; line-height: 29px;">pin_drop</span>';
     this.button.addEventListener("click", () => {
         this.onPick();
@@ -102,7 +103,8 @@ export const addMapControls = (
   map: mapboxgl.Map,
   polygonEdit: IPolygonEditContextActions,
   onPickLocation?: () => void,
-  hideControls?: boolean
+  hideControls?: boolean,
+  isDrawerOpen?: boolean
 ) => {
   // Clear header AND layer management buttons for top-right
   map.addControl(new SpacerControl("124px"), "top-right");
@@ -115,10 +117,12 @@ export const addMapControls = (
   }
 
   // Clear header for both sides
-  map.addControl(new SpacerControl("76px"), "top-left");
+  const isDesktop = window.innerWidth >= 768;
+  const spacerHeight = isDesktop && !isDrawerOpen ? "192px" : "76px";
+  map.addControl(new SpacerControl(spacerHeight), "top-left");
 
   if (onPickLocation) {
-      map.addControl(new PickLocationControl(onPickLocation), "top-right");
+      map.addControl(new PickLocationControl(onPickLocation), "top-left");
   }
 
   // Controle de escala

@@ -128,7 +128,7 @@ export const LayerSortableList = () => {
           items={visibleLayers.map(l => l.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="pb-20">
+          <div className="pb-0">
             {visibleLayers.length === 0 && (
               <div className="text-center text-muted-foreground text-sm p-8 flex flex-col items-center gap-2">
                 <Layers className="h-8 w-8 opacity-20" />

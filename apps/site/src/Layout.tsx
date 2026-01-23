@@ -32,7 +32,7 @@ function LayoutInner() {
     { label: "Viabiliza", href: "https://viabiliza.urbis.sampa.br" },
     { label: "Dados Abertos", href: "https://dadosabertos.urbis.sampa.br" },
     { label: "Doc. técnica", href: "/doc-tecnica" },
-    { label: "+Info", href: "/info-urbis" },
+    { label: "Legis", href: "/info-urbis" },
     { label: "Data Lake", href: "https://datalake.urbis.sampa.br/" },
   ];
 

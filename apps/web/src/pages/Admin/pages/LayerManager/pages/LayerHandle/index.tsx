@@ -465,13 +465,14 @@ const LayerHandlePage = () => {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-background/50">
-      <div className="px-6 py-4">
+      <div className="px-6 pt-6">
         <div className="flex justify-between items-center">
           <AdminHeader
             title={isEditing ? "Editar Camada" : "Criar Camada"}
             subtitle={
               isEditing ? `Editando: ${form.watch('layerName')}` : "Nova camada de dados espaciais"
             }
+            className="mb-0 pb-0"
           />
           {(step === 2 || step === 4 || step === 6) && (
              <button

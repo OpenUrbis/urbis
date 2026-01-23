@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useSignal, useComputed } from "@preact/signals";
-import { createElement } from "react";
+import { createElement, useEffect } from "react";
 import ReactJson from "react-json-view";
 import { Button } from "@open-urbis/map-ui";
 import { Input } from "@open-urbis/map-ui";

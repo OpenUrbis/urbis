@@ -23,6 +23,8 @@ import { Toaster } from "@/components/ui/toaster";
 
 // ✅ Provider do sidebar global (pra useSidebar funcionar em qualquer página)
 import { SidebarProvider } from "@open-urbis/map-ui";
+import { UrbisFooter } from "@open-urbis/map-ui";
+
 
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
@@ -46,46 +48,56 @@ const FullscreenLoader = () => (
 
 const App = () => (
   <AuthProvider>
-    <div id="app">
-      <ThemeProvider defaultTheme="dark" storageKey="urbis-ui-theme">
-        <QueryClientProvider client={queryClient}>
-          <SidebarProvider>
-            <NavigationProvider>
-              <MapProvider>
-                <SearchProvider>
-                  <PolygonEditProvider>
-                    <Router>
-                      <Suspense fallback={<FullscreenLoader />}>
-                        <Route path="/callback">
-                          <FullscreenLoader />
-                        </Route>
+    <ThemeProvider defaultTheme="dark" storageKey="urbis-ui-theme">
+      <QueryClientProvider client={queryClient}>
+        <SidebarProvider>
+          <NavigationProvider>
+            <MapProvider>
+              <SearchProvider>
+                <PolygonEditProvider>
+                  {/* 🔥 Layout principal */}
+                  <div className="min-h-screen flex flex-col">
+                    
+                    {/* Conteúdo */}
+                    <main className="flex-1">
+                      <Router>
+                        <Suspense fallback={<FullscreenLoader />}>
+                          <Route path="/callback">
+                            <FullscreenLoader />
+                          </Route>
 
-                        <Route path="/">
-                          <MapPage />
-                        </Route>
+                          <Route path="/">
+                            <MapPage />
+                          </Route>
 
-                        <Route path="/print">
-                          <PrintPage />
-                        </Route>
+                          <Route path="/print">
+                            <PrintPage />
+                          </Route>
 
-                        <Route path="/admin" nest>
-                          <RequireAuth>
-                            <AdminPage />
-                          </RequireAuth>
-                        </Route>
-                      </Suspense>
-                    </Router>
-                  </PolygonEditProvider>
-                </SearchProvider>
-              </MapProvider>
-            </NavigationProvider>
+                          <Route path="/admin" nest>
+                            <RequireAuth>
+                              <AdminPage />
+                            </RequireAuth>
+                          </Route>
+                        </Suspense>
+                      </Router>
+                    </main>
 
-            <Toaster />
-          </SidebarProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </div>
+                    {/* ✅ Footer SEMPRE no final */}
+                    <UrbisFooter />
+
+                  </div>
+                </PolygonEditProvider>
+              </SearchProvider>
+            </MapProvider>
+          </NavigationProvider>
+
+          <Toaster />
+        </SidebarProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </AuthProvider>
 );
+
 
 render(<App />, document.getElementById("app")!);

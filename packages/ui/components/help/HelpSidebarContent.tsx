@@ -60,15 +60,7 @@ type CollapsibleFeedbackSectionProps = {
   description: string;
   placeholder: string;
   type: FeedbackType;
-  /**
-   * Endpoint do ticket
-   * default: "/support/create-ticket"
-   */
   endpoint?: string;
-  /**
-   * Pasta do S3 (via API de upload-url)
-   * default: "protocolos/arquivos"
-   */
   folderPath?: string;
 };
 
@@ -87,34 +79,32 @@ function buildSectionData() {
   };
 }
 
+function mergeHeaders(a: Record<string, string>, b: Record<string, string>) {
+  var out: Record<string, string> = {};
+  for (var k in a) out[k] = a[k];
+  for (var k2 in b) out[k2] = b[k2];
+  return out;
+}
+
 /**
- * API base (confirmado por você)
- * POST http://localhost:3000/support/create-ticket
+ * API base (DEV)
  */
 function getApiBase() {
   return "http://localhost:3000";
 }
 
 /**
- * MinIO/S3 public base (se você tiver)
- * Se não usar upload, pode deixar assim mesmo.
+ * API key (DEV) - usado para criar ticket e pegar download-url
+ * (upload público normalmente não precisa)
  */
-function getPublicBucketBaseUrl() {
-  return "http://localhost:9000/public";
-}
-
-/** Se você NÃO usa api key, deixe vazio */
 function getApiKey() {
   return "secret";
 }
 
-function buildApiKeyHeaders() {
+function buildApiKeyHeaders(): Record<string, string> {
   var key = getApiKey();
   if (!key) return {};
-  return {
-    "x-api-key": key,
-    Authorization: "Bearer " + key,
-  } as any;
+  return { "x-api-key": key };
 }
 
 function safeJsonParse(text: string) {
@@ -123,6 +113,21 @@ function safeJsonParse(text: string) {
   } catch {
     return null;
   }
+}
+
+function normalizeFolderPath(p: string) {
+  return (p || "").replace(/^\/+/, "").replace(/\/+$/, "");
+}
+
+function normalizeKeyMaybe(k: string) {
+  // backend às vezes retorna "uploads/..." e às vezes "protocolos/..."
+  // vamos manter como vier
+  return (k || "").replace(/^\/+/, "");
+}
+
+function normalizePublicUrlMaybe(url: string) {
+  // não mexe, só garante string
+  return String(url || "");
 }
 
 /**
@@ -136,7 +141,7 @@ function createSupportTicket(params: {
     name: string;
     email: string;
     message: string;
-    files: string[];
+    files: string[]; // keys do S3/MinIO
     type: FeedbackType;
     includeSectionData?: boolean;
     sectionData?: ReturnType<typeof buildSectionData>;
@@ -144,12 +149,11 @@ function createSupportTicket(params: {
 }) {
   var base = getApiBase().replace(/\/$/, "");
   var raw = params.endpoint || "/support/create-ticket";
-  var ep =
-    raw.indexOf("http://") === 0 || raw.indexOf("https://") === 0 ? raw : base + raw;
+  var ep = raw.indexOf("http://") === 0 || raw.indexOf("https://") === 0 ? raw : base + raw;
 
   return fetch(ep, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: mergeHeaders({ "Content-Type": "application/json" }, buildApiKeyHeaders()),
     body: JSON.stringify(params.payload),
   }).then(function (res) {
     if (res.ok) return;
@@ -164,7 +168,7 @@ function createSupportTicket(params: {
               ? data.message.join(", ")
               : "Erro ao criar o ticket.";
         throw new Error(msg);
-      } catch (e) {
+      } catch {
         throw new Error("Erro ao criar o ticket.");
       }
     });
@@ -173,132 +177,191 @@ function createSupportTicket(params: {
 
 /**
  * ==========================
- * UPLOAD (OPCIONAL) - sem async/await
- * Se sua rota de upload não existir, vai dar erro ao anexar,
- * mas o usuário pode enviar só a mensagem (sem anexos).
+ * UPLOAD PUBLICO (DEV) - sem async/await
+ * POST /files/public/upload-url
+ * Retorna { uploadURL, key } ou { url, key } e opcional fields
  * ==========================
  */
-function requestUploadUrl(params: { contentType: string; folderPath: string }) {
-  // use SEMPRE absoluto (senão pode virar POST no server do front)
-  var API_BASE = "https://api.urbis.sampa.br";
+function requestPublicUploadUrl(params: { contentType: string; folderPath: string }) {
+  var base = getApiBase().replace(/\/$/, "");
+  var url = base + "/files/public/upload-url";
+  
 
-  // rotas candidatas (com e sem prefixo /api e variações comuns)
-  var candidates = [
-    API_BASE + "/files/public/upload-url",
-    API_BASE + "/api/files/public/upload-url",
-    API_BASE + "/files/upload-url",
-    API_BASE + "/api/files/upload-url",
-  ];
-
-  var i = 0;
-
-  function tryNext(): any {
-    if (i >= candidates.length) {
-      throw new Error("Não encontrei um endpoint válido para gerar URL assinada (upload-url).");
-    }
-
-    var url = candidates[i];
-    i++;
-
-    return fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // se o backend exigir api-key, deixe ligado:
-        // "x-api-key": "secret",
-      },
-      body: JSON.stringify({
-        contentType: params.contentType,
-        folderPath: params.folderPath,
-      }),
-    })
-      .then(function (res) {
-        return res.text().then(function (t) {
-          var data = t ? safeJsonParse(t) : null;
-
-          if (!res.ok) {
-            // se deu 404, tenta a próxima rota
-            if (res.status === 404) throw new Error("ROUTE_NOT_FOUND");
-            var msg =
-              (data && typeof data.message === "string" && data.message) ||
-              ("Erro HTTP " + res.status);
-            throw new Error(msg);
-          }
-
-          // Aceita vários formatos de retorno
-          var uploadURL = data && (data.uploadURL || data.uploadUrl || data.url);
-          var key = data && data.key;
-          var fields = data && data.fields;
-
-          if (!uploadURL || !key) throw new Error("Resposta inválida da API de upload.");
-
-          return { uploadURL: uploadURL, key: key, fields: fields || null };
-        });
-      })
-      .catch(function (err: any) {
-        // 404 => tenta próximo
-        if (err && err.message === "ROUTE_NOT_FOUND") return tryNext();
-        // outros erros também tentamos a próxima rota, porque pode ser /api
-        return tryNext();
-      });
-  }
-
-  return tryNext();
-}
-
-
-
-function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string }, file: File) {
-  // Se vier fields => é POST policy
-  if (uploadInfo.fields) {
-    var form = new FormData();
-
-    // campos assinados (policy, x-amz-*, key etc.)
-    Object.keys(uploadInfo.fields).forEach(function (k) {
-      form.append(k, uploadInfo.fields[k]);
-    });
-
-    // arquivo tem que ser no campo "file"
-    form.append("file", file);
-
-    return fetch(uploadInfo.uploadURL, {
-      method: "POST",
-      mode: "cors",
-      body: form,
-    }).then(function (res) {
-      if (!res.ok) {
-        return res.text().then(function (t) {
-          throw new Error("Falha ao enviar o arquivo (POST). " + (t || ("HTTP " + res.status)));
-        });
-      }
-    });
-  }
-
-  // senão => tenta PUT presigned
-  return fetch(uploadInfo.uploadURL, {
-    method: "PUT",
-    mode: "cors",
-    headers: {
-      "Content-Type": file.type || "application/octet-stream",
-    },
-    body: file,
+  return fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }, // público: sem x-api-key
+    body: JSON.stringify({
+      contentType: params.contentType,
+      folderPath: normalizeFolderPath(params.folderPath),
+    }),
   }).then(function (res) {
-    if (!res.ok) {
-      return res.text().then(function (t) {
-        throw new Error("Falha ao enviar o arquivo (PUT). " + (t || ("HTTP " + res.status)));
-      });
-    }
+    return res.text().then(function (t) {
+      var data = t ? safeJsonParse(t) : null;
+
+      if (!res.ok) {
+        var msg =
+          (data && typeof data.message === "string" && data.message) ||
+          (data && Array.isArray(data.message) ? data.message.join(", ") : "") ||
+          ("Erro HTTP " + res.status);
+        throw new Error(msg);
+      }
+
+      var uploadURL = data && (data.uploadURL || data.uploadUrl || data.url);
+      var key = data && data.key;
+
+      var rawFields = data && data.fields;
+      var fields =
+        rawFields && typeof rawFields === "object" && Object.keys(rawFields).length > 0
+          ? rawFields
+          : null;
+
+      if (!uploadURL || !key) throw new Error("Resposta inválida da API pública de upload.");
+
+      return {
+        uploadURL: normalizePublicUrlMaybe(uploadURL),
+        key: normalizeKeyMaybe(key),
+        fields: fields,
+      };
+    });
   });
 }
 
+/**
+ * Preview: pegue uma URL assinada de download (privado)
+ */
+function requestDownloadUrl(key: string) {
+  var base = getApiBase().replace(/\/$/, "");
+  var url = base + "/files/download-url?key=" + encodeURIComponent(key);
+
+  return fetch(url, {
+    method: "GET",
+    headers: mergeHeaders({ Accept: "application/json" }, buildApiKeyHeaders()),
+  }).then(function (res) {
+    return res.text().then(function (t) {
+      var data = t ? safeJsonParse(t) : null;
+
+      if (!res.ok) {
+        var msg =
+          (data && typeof data.message === "string" && data.message) || ("Erro HTTP " + res.status);
+        throw new Error(msg);
+      }
+
+      var downloadURL = data && (data.downloadURL || data.downloadUrl || data.url);
+      if (!downloadURL) throw new Error("Resposta inválida da API de download.");
+      return downloadURL as string;
+    });
+  });
+}
+
+function getQueryParam(url: string, name: string) {
+  try {
+    return new URL(url).searchParams.get(name);
+  } catch {
+    return null;
+  }
+}
+
+function crc32Table() {
+  var c = 0;
+  var table = new Array(256);
+  for (var n = 0; n < 256; n++) {
+    c = n;
+    for (var k = 0; k < 8; k++) {
+      c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    }
+    table[n] = c >>> 0;
+  }
+  return table;
+}
+
+var __CRC32_TABLE: number[] | null = null;
+
+function crc32OfUint8(arr: Uint8Array) {
+  if (!__CRC32_TABLE) __CRC32_TABLE = crc32Table();
+  var crc = 0xffffffff;
+  for (var i = 0; i < arr.length; i++) {
+    crc = (__CRC32_TABLE![(crc ^ arr[i]) & 0xff] ^ (crc >>> 8)) >>> 0;
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function crc32Base64FromFile(file: File) {
+  return file.arrayBuffer().then(function (buf) {
+    var u8 = new Uint8Array(buf);
+    var crc = crc32OfUint8(u8); // uint32
+    // 4 bytes big-endian
+    var b0 = (crc >>> 24) & 0xff;
+    var b1 = (crc >>> 16) & 0xff;
+    var b2 = (crc >>> 8) & 0xff;
+    var b3 = crc & 0xff;
+    return btoa(String.fromCharCode(b0, b1, b2, b3));
+  });
+}
+
+function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string }, file: File) {
+  // POST policy (se vier fields de verdade)
+  if (uploadInfo.fields && typeof uploadInfo.fields === "object" && Object.keys(uploadInfo.fields).length) {
+    var form = new FormData();
+    Object.keys(uploadInfo.fields).forEach(function (k) {
+      form.append(k, uploadInfo.fields[k]);
+    });
+    form.append("file", file);
+
+    return fetch(uploadInfo.uploadURL, { method: "POST", body: form }).then(function (res) {
+      if (res.ok) return;
+      return res.text().then(function (t) {
+        throw new Error("Falha ao enviar o arquivo (POST). " + (t || "HTTP " + res.status));
+      });
+    });
+  }
+
+  // PUT presigned (MinIO)
+  var url = uploadInfo.uploadURL;
+  var algo = getQueryParam(url, "x-amz-sdk-checksum-algorithm"); // ex: CRC32
+  var needsCrc32 = algo && algo.toUpperCase() === "CRC32";
+
+  function doPut(headers: Record<string, string>) {
+    return fetch(url, {
+      method: "PUT",
+      mode: "cors",
+      headers: headers,
+      body: file,
+    }).then(function (res) {
+      if (res.ok) return;
+      return res.text().then(function (t) {
+        throw new Error("Falha ao enviar o arquivo (PUT). " + (t || "HTTP " + res.status));
+      });
+    });
+  }
+
+  // ⚠️ Não mande Content-Type aqui no primeiro teste.
+  // Em vários presigns, Content-Type não foi assinado e pode dar mismatch/erro.
+  if (needsCrc32) {
+    return crc32Base64FromFile(file).then(function (crcB64) {
+      return doPut({
+        "x-amz-checksum-crc32": crcB64,
+        "x-amz-content-sha256": "UNSIGNED-PAYLOAD",
+      });
+    });
+  }
+
+  // Se não precisar checksum, manda super limpo
+  return doPut({
+    "x-amz-content-sha256": "UNSIGNED-PAYLOAD",
+  });
+}
+
+
+
+
 function uploadFilesSequentially(params: { files: File[]; folderPath: string }) {
-  var out: string[] = [];
+  var outKeys: string[] = [];
   var idx = 0;
 
   function next(): any {
     if (idx >= params.files.length) {
       return fetch("data:application/json,{}").then(function () {
-        return out;
+        return outKeys;
       });
     }
 
@@ -307,26 +370,20 @@ function uploadFilesSequentially(params: { files: File[]; folderPath: string }) 
 
     var contentType = (f && f.type) || "application/octet-stream";
 
-    return requestUploadUrl({ contentType: contentType, folderPath: params.folderPath }).then(
+    return requestPublicUploadUrl({ contentType: contentType, folderPath: params.folderPath }).then(
       function (info: any) {
-        var uploadURL = info.uploadURL;
-        var key = info.key;
-        var fields = info.fields || null;
-
-        if (!uploadURL || !key) throw new Error("Resposta inválida da API de upload.");
-
-        return uploadToS3({ uploadURL: uploadURL, fields: fields, key: key }, f).then(function () {
-          // URL final pública (ajuste se seu público for outro domínio)
-          out.push("http://localhost:9000/uploads/" + key);
-          return next();
-        });
+        return uploadToS3({ uploadURL: info.uploadURL, fields: info.fields, key: info.key }, f).then(
+          function () {
+            outKeys.push(info.key);
+            return next();
+          }
+        );
       }
     );
   }
 
   return next();
 }
-
 
 /**
  * ==========================
@@ -349,7 +406,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
 
-  const [files, setFiles] = React.useState<string[]>([]);
+  const [files, setFiles] = React.useState<string[]>([]); // keys
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [selectedFileNames, setSelectedFileNames] = React.useState<string[]>([]);
 
@@ -422,10 +479,24 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
     setSelectedFileNames(names);
 
     uploadFilesSequentially({ files: list, folderPath: folderPath })
-      .then(function (urls: any) {
-        setFiles(urls || []);
-        var firstUrl = urls && urls.length ? urls[0] : null;
-        setPreviewUrl(firstUrl ? firstUrl : null);
+      .then(function (keys: any) {
+        var ks = keys || [];
+        setFiles(ks);
+
+        var firstKey = ks && ks.length ? ks[0] : null;
+        if (firstKey) {
+          return requestDownloadUrl(firstKey)
+            .then(function (dl: string) {
+              setPreviewUrl(dl);
+              setSubmitting(false);
+            })
+            .catch(function () {
+              setPreviewUrl(null);
+              setSubmitting(false);
+            });
+        }
+
+        setPreviewUrl(null);
         setSubmitting(false);
       })
       .catch(function (err: any) {
@@ -629,7 +700,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
   const [email, setEmail] = React.useState("");
   const [message, setMessage] = React.useState("");
 
-  const [files, setFiles] = React.useState<string[]>([]);
+  const [files, setFiles] = React.useState<string[]>([]); // keys
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [selectedFileNames, setSelectedFileNames] = React.useState<string[]>([]);
 
@@ -645,22 +716,53 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
+
     const list: File[] = [];
     const names: string[] = [];
 
-    if (fileList && fileList.length) {
-      for (let i = 0; i < fileList.length; i++) {
-        const f = fileList.item(i);
-        if (f) {
-          list.push(f);
-          names.push(f.name);
-        }
-      }
-    }
+    const allowed = {
+      "image/png": true,
+      "image/svg+xml": true,
+      "image/jpeg": true,
+      "image/webp": true,
+    } as any;
+
+    const MAX_BYTES = 1024 * 1024; // 1MB
 
     setSuccess(null);
     setError(null);
     setPreviewUrl(null);
+
+    if (!fileList || !fileList.length) {
+      setFiles([]);
+      setSelectedFileNames([]);
+      return;
+    }
+
+    for (let i = 0; i < fileList.length; i++) {
+      const f = fileList.item(i);
+      if (!f) continue;
+
+      const typeOk = !!(f.type && allowed[f.type]);
+      if (!typeOk) {
+        setError("Formato inválido. Envie apenas PNG, SVG, JPEG ou WEBP (máx. 1MB).");
+        setFiles([]);
+        setSelectedFileNames([]);
+        e.currentTarget.value = "";
+        return;
+      }
+
+      if (typeof f.size === "number" && f.size > MAX_BYTES) {
+        setError("Arquivo muito grande. Tamanho máximo: 1MB (PNG, SVG, JPEG ou WEBP).");
+        setFiles([]);
+        setSelectedFileNames([]);
+        e.currentTarget.value = "";
+        return;
+      }
+
+      list.push(f);
+      names.push(f.name);
+    }
 
     if (!list.length) {
       setFiles([]);
@@ -672,12 +774,24 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
     setSelectedFileNames(names);
 
     uploadFilesSequentially({ files: list, folderPath: folderPath })
-      .then(function (urls: any) {
-        setFiles(urls || []);
+      .then(function (keys: any) {
+        var ks = keys || [];
+        setFiles(ks);
 
-        var firstUrl = urls && urls.length ? urls[0] : null;
-        setPreviewUrl(firstUrl ? firstUrl : null);
+        var firstKey = ks && ks.length ? ks[0] : null;
+        if (firstKey) {
+          return requestDownloadUrl(firstKey)
+            .then(function (dl: string) {
+              setPreviewUrl(dl);
+              setSubmitting(false);
+            })
+            .catch(function () {
+              setPreviewUrl(null);
+              setSubmitting(false);
+            });
+        }
 
+        setPreviewUrl(null);
         setSubmitting(false);
       })
       .catch(function (err: any) {
@@ -852,7 +966,6 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
               )}
             </div>
 
-            {/* boolean extra */}
             <div className="flex items-start gap-2">
               <input
                 id="include-section-data"
@@ -926,9 +1039,7 @@ export function HelpSidebarContent() {
                   >
                     <span className="text-xs font-medium">{item.question}</span>
                     <ChevronDown
-                      className={
-                        "w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")
-                      }
+                      className={"w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")}
                     />
                   </button>
 

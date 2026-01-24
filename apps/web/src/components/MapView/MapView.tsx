@@ -21,6 +21,7 @@ export const MapView = () => {
     boundingBox,
     populateMapContext,
     handleViewportChange,
+    selectedFeatures,
     // eslint-disable-next-line react-hooks/rules-of-hooks
     overlayRef = useRef(null),
   } = mapContext;
@@ -30,6 +31,7 @@ export const MapView = () => {
     transformSchemaLayers(layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
+      selectedFeature: selectedFeatures.value,
     }).flat()
   );
 

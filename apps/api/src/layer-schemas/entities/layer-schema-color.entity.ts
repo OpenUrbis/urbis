@@ -1,5 +1,3 @@
-import { LayerSchema } from 'layer-schemas/entities/layer-schema.entity';
-import { LayerSchemaColorTypeEnum } from 'layer-schemas/enums/layer-schema.enum';
 import {
   Column,
   Entity,
@@ -7,6 +5,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { LayerSchemaColorTypeEnum } from './../enums/layer-schema.enum';
+import { LayerSchema } from './layer-schema.entity';
 
 @Entity('layer_schemas_colors')
 export class LayerSchemaColors {

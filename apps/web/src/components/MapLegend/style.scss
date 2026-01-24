@@ -1,0 +1,121 @@
+.map-legend-main-button {
+  position: absolute;
+  z-index: 100;
+  left: 16px;
+  bottom: 16px;
+  top: auto;
+  right: auto;
+}
+
+.map-legend {
+  position: absolute;
+  z-index: 1000;
+  left: 16px;
+  top: auto;
+  bottom: 16px;
+  right: auto;
+  width: 450px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: auto;
+  max-height: 600px;
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    background-color: #fff;
+
+    padding: 8px 16px;
+    border-bottom: 1px solid #000;
+
+    h5 {
+      margin: 0 !important;
+    }
+  }
+
+  .content {
+    padding: 8px 16px;
+    display: grid;
+    gap: 8px;
+
+    .layer-legend-item {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 8px;
+
+      .color {
+        width: 20px;
+        height: 20px;
+      }
+
+      .pattern {
+        mask-image: url('/pattern.png');
+        -webkit-mask-image: url('/pattern.png');
+      }
+
+      .hatch-1x {
+        mask-size: 200% 200%;
+        mask-position: 0 0;
+        /* Quadrante superior esquerdo */
+        mask-repeat: repeat;
+
+        -webkit-mask-size: 200% 200%;
+        -webkit-mask-position: 0 0;
+        -webkit-mask-repeat: repeat;
+      }
+
+      /* Esquerda inferior: hatch-cross (quadrante inferior esquerdo) */
+      .hatch-cross {
+        mask-size: 200% 200%;
+        mask-position: 0 100%;
+        /* Quadrante inferior esquerdo */
+        mask-repeat: repeat;
+
+        -webkit-mask-size: 200% 200%;
+        -webkit-mask-position: 0 100%;
+        -webkit-mask-repeat: repeat;
+      }
+
+      /* Direita superior: full (quadrante superior direito) */
+      .full {
+        mask-size: 200% 200%;
+        mask-position: 100% 0;
+        /* Quadrante superior direito */
+        mask-repeat: repeat;
+
+        -webkit-mask-size: 200% 200%;
+        -webkit-mask-position: 100% 0;
+        -webkit-mask-repeat: repeat;
+      }
+
+      /* Direita inferior: dots (quadrante inferior direito) */
+      .dots {
+        mask-size: 200% 200%;
+        mask-position: 100% 100%;
+        /* Quadrante inferior direito */
+        mask-repeat: repeat;
+
+        -webkit-mask-size: 200% 200%;
+        -webkit-mask-position: 100% 100%;
+        -webkit-mask-repeat: repeat;
+      }
+
+      .label {
+        margin: 0 8px;
+        color: black;
+        font-size: 14px;
+      }
+    }
+
+    .rmwc-select__default-width {
+      width: 100% !important;
+    }
+
+
+  }
+}

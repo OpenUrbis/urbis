@@ -1,5 +1,4 @@
-import { LayerGroup } from 'layer-groups/entities/layer-group.entity';
-import { LayerSchemaTypeEnum } from 'layer-schemas/enums/layer-schema.enum';
+import { ClickActionEnum } from '@open-urbis/map-shared';
 import {
   Column,
   Entity,
@@ -8,7 +7,8 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
-import { ClickActionEnum } from '@open-urbis/map-shared';
+import { LayerGroup } from './../../layer-groups/entities/layer-group.entity';
+import { LayerSchemaTypeEnum } from './../enums/layer-schema.enum';
 import { LayerSchemaColors } from './layer-schema-color.entity';
 
 export interface IClickAction {

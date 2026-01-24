@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD - Urbis Site
+name: Azure Static Web Apps CI/CD - urbis-site
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    name: Build and Deploy urbis-site
     permissions:
       id-token: write
       contents: read
@@ -35,21 +35,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Site (Next.js)
-        run: pnpm turbo run build --filter=@open-urbis/site   # ← ajuste o nome do pacote se necessário (veja no package.json de apps/site)
+      - name: Build urbis-site (Vite SSG)
+        run: pnpm turbo run build --filter=urbis-site   # ajuste o --filter se o nome do pacote for diferente (veja package.json de apps/site)
 
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_BEACH_081268510 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}           # opcional, mas útil para comentários em PR
+          repo_token: ${{ secrets.GITHUB_TOKEN }}           # útil para comentários em PRs
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "/"                                 # raiz do repo clonado
-          api_location: ""                                  # sem API por enquanto
-          output_location: "apps/site/.next"                # ← mude para "apps/site/out" se usar next export
-          skip_app_build: true                              # pulamos build dentro da action (já fizemos com turbo)
+          app_location: "/"                                 # raiz do repositório clonado
+          api_location: ""                                  # sem API (se adicionar Functions depois, mude aqui)
+          output_location: "apps/site/dist"                 # pasta padrão do Vite build (confirme localmente)
+          skip_app_build: true                              # build já feito manualmente via turbo/vite
           ###### End of Configurations ######
 
   close_pull_request_job:

@@ -46,9 +46,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}           # útil para comentários em PRs
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "/"                                 # raiz do repositório clonado
+          app_location: "apps/site/dist"                                 # raiz do repositório clonado
           api_location: ""                                  # sem API (se adicionar Functions depois, mude aqui)
-          output_location: "apps/site/dist"                 # pasta padrão do Vite build (confirme localmente)
+          output_location: ""                 # pasta padrão do Vite build (confirme localmente)
           skip_app_build: true                              # build já feito manualmente via turbo/vite
           ###### End of Configurations ######
 
@@ -63,3 +63,4 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_BEACH_081268510 }}
           action: "close"
+

@@ -145,11 +145,22 @@ export class HandleOrganization {
       this.toaster.success(
         `Organização ${id ? 'atualizada' : 'criada'} com sucesso`,
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      this.toaster.error(
-        `Houve um erro ao ${id ? 'atualizar' : 'criar'} a organização`,
-      );
+      const message = error?.error?.message;
+
+      if (message === 'Cannot set a descendant as parent (cycle detected)') {
+        this.translate
+          .get('pages.organizations.form.errors.cycleDetected')
+          .subscribe((msg) => {
+            this.toaster.error(msg);
+          });
+      } else {
+        this.toaster.error(
+          message ||
+            `Houve um erro ao ${id ? 'atualizar' : 'criar'} a organização`,
+        );
+      }
     } finally {
       this.loadingSave.set(false);
     }

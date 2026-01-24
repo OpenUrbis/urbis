@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -92,6 +93,23 @@ export class OrganizationService {
   async update(id: string, data: UpdateOrganizationDto) {
     const organization = await this.findOne(id);
 
+    if (
+      data.parentId !== undefined &&
+      data.parentId !== organization.parentId &&
+      data.parentId !== null
+    ) {
+      if (data.parentId === id) {
+        throw new BadRequestException('Organization cannot be its own parent');
+      }
+      const descendants = await this.findDescendants([id]);
+      const isDescendant = descendants.some((d) => d.id === data.parentId);
+      if (isDescendant) {
+        throw new BadRequestException(
+          'Cannot set a descendant as parent (cycle detected)',
+        );
+      }
+    }
+
     if (data.name !== undefined) organization.name = data.name;
     if (data.description !== undefined)
       organization.description = data.description;
@@ -107,11 +125,11 @@ export class OrganizationService {
     const rawData = await this.organizationRepository.query(
       `
       WITH RECURSIVE org_tree AS (
-          SELECT id, "parentId", name, description, metadata, "createdAt", "updatedAt", "deletedAt"
+          SELECT id, "parentId", "deletedAt"
           FROM organizations
           WHERE id = ANY($1) AND "deletedAt" IS NULL
-          UNION ALL
-          SELECT o.id, o."parentId", o.name, o.description, o.metadata, o."createdAt", o."updatedAt", o."deletedAt"
+          UNION
+          SELECT o.id, o."parentId", o."deletedAt"
           FROM organizations o
           INNER JOIN org_tree ot ON ot.id = o."parentId"
           WHERE o."deletedAt" IS NULL
@@ -134,7 +152,7 @@ export class OrganizationService {
           SELECT id, "parentId" as parent_id
           FROM organizations
           WHERE id = ANY($1) AND "deletedAt" IS NULL
-          UNION ALL
+          UNION
           SELECT o.id, o."parentId" as parent_id
           FROM organizations o
           INNER JOIN ancestors a ON a.parent_id = o.id
@@ -144,11 +162,11 @@ export class OrganizationService {
           SELECT DISTINCT id FROM ancestors WHERE parent_id IS NULL
       ),
       tree AS (
-          SELECT id, "parentId", name, description, metadata, "createdAt", "updatedAt", "deletedAt"
+          SELECT id, "parentId", "deletedAt"
           FROM organizations
           WHERE id IN (SELECT id FROM roots) AND "deletedAt" IS NULL
-          UNION ALL
-          SELECT o.id, o."parentId", o.name, o.description, o.metadata, o."createdAt", o."updatedAt", o."deletedAt"
+          UNION
+          SELECT o.id, o."parentId", o."deletedAt"
           FROM organizations o
           INNER JOIN tree t ON t.id = o."parentId"
           WHERE o."deletedAt" IS NULL

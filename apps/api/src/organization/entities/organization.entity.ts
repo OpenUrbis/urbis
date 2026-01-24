@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -26,6 +27,7 @@ export class Organization extends BaseEntity {
   @Column({ type: 'json', default: {} })
   metadata: any;
 
+  @Index()
   @Column({ nullable: true })
   parentId?: string;
 

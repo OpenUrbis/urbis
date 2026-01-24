@@ -307,6 +307,9 @@
         },
         "actions": {
           "back": "Voltar"
+        },
+        "errors": {
+          "cycleDetected": "Não é possível selecionar uma organização descendente como pai (ciclo detectado)."
         }
       }
     },

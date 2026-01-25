@@ -1,0 +1,14 @@
+node_modules
+.turbo
+src
+public
+content
+scripts
+tsconfig.json
+package.json
+next.config.mjs
+postcss.config.mjs
+biome.json
+components.json
+source.config.ts
+.env*

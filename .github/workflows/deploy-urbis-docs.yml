@@ -46,9 +46,10 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "/"
+          app_location: "apps/docs"
           api_location: ""
-          output_location: "apps/docs"
+          output_location: ".next"
+          skip_app_build: true
           ###### End of Configurations ######
         env:
           NODE_VERSION: 20

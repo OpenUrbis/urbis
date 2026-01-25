@@ -48,8 +48,8 @@ jobs:
           ###### Repository/Build Configurations ######
           app_location: "apps/docs"
           api_location: ""
-          output_location: ".next"
-          skip_app_build: false
+          output_location: "" # Deixamos vazio pois o skip_app_build: true e o motor do SWA para Next.js cuidará do resto se apontarmos para a pasta certa
+          skip_app_build: true
           ###### End of Configurations ######
 
   close_pull_request_job:

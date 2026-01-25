@@ -1,7 +1,7 @@
 "use client";
 
-import { fallbackSchema, openapi } from "@/lib/openapi";
 import { createAPIPage } from "fumadocs-openapi/ui";
+import { fallbackSchema, openapi } from "@/lib/openapi";
 import client from "./api-page.client";
 
 // Ensure openapi has required fields for createAPIPage
@@ -23,7 +23,7 @@ export function APIPage(props: any) {
       props.document ??
       (typeof window === "undefined"
         ? fallbackSchema
-        : props.document ?? safeOpenapi),
+        : (props.document ?? safeOpenapi)),
   };
 
   return <BaseAPIPage {...safeProps} />;

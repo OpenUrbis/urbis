@@ -1,5 +1,3 @@
-import { APIPage } from "@/components/api-page";
-import { fallbackSchema } from "@/lib/openapi";
 import {
   DocsBody,
   DocsDescription,
@@ -9,8 +7,10 @@ import {
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getMDXComponents } from "src/mdx-components";
 import { getPageImage, source } from "src/lib/source";
+import { getMDXComponents } from "src/mdx-components";
+import { APIPage } from "@/components/api-page";
+import { fallbackSchema } from "@/lib/openapi";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;

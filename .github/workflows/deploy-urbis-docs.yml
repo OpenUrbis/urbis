@@ -58,7 +58,7 @@ jobs:
           mkdir -p deploy-docs/.next/static
           cp -r apps/docs/.next/static/* deploy-docs/.next/static/
           
-          # Lidar com a pasta public (pode ser arquivo ou pasta dependendo do conteúdo)
+          # Lidar com a pasta public
           if [ -d "apps/docs/public" ]; then
             cp -r apps/docs/public/* deploy-docs/public/ 2>/dev/null || cp -r apps/docs/public deploy-docs/
           fi
@@ -66,13 +66,15 @@ jobs:
           # Copiar arquivos de configuração do SWA para a pasta de deploy
           cp apps/docs/staticwebapps.config.json deploy-docs/ 2>/dev/null || true
           
-          # Garantir que o package.json e next.config.mjs estejam na raiz para o SWA detector
-          cp apps/docs/package.json deploy-docs/
-          cp apps/docs/next.config.mjs deploy-docs/ || true
-          
           # O SWA as vezes exige um index.html para sites "estáticos" se ele falhar em detectar o framework.
-          # Como estamos em modo standalone (SSR), o SWA deveria detectar o Next.js, mas o index.html garante que ele n reclame de pasta vazia.
           echo "<!-- SWA Next.js Standalone Mode -->" > deploy-docs/index.html
+          
+          # CORREÇÃO PARA "npm install" do SWA: 
+          # O SWA Action roda npm install se ele vir um package.json.
+          # Em monorepos, o package.json tem "workspace:*", o que faz o npm falhar.
+          # Como o standalone ja vem com node_modules pronto, vamos apagar o package.json
+          # da pasta de deploy para que o SWA trate apenas como artefatos prontos.
+          rm deploy-docs/package.json
 
       - name: Build And Deploy
         id: builddeploy
@@ -82,11 +84,16 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "deploy-docs" # Pasta preparada com a estrutura correta
-          api_location: "" # Standalone lida com a API internamente
-          output_location: "" # Deixar SWA detectar o build
+          app_location: "deploy-docs"
+          api_location: ""
+          output_location: ""
           skip_app_build: true
+          skip_api_build: true
+          is_static_export: false
           ###### End of Configurations ######
+        env:
+          SKIP_NPM_INSTALL: "true"
+          DEPLOYMENT_ENABLE_ORYX_BUILD: "false"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

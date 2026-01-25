@@ -1,5 +1,5 @@
 {
-  "name": "accounts",
+  "name": "@open-urbis/map-accounts",
   "version": "0.0.0",
   "scripts": {
     "lint": "eslint \"src/**/*.ts\"",

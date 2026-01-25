@@ -1,5 +1,5 @@
 {
-  "name": "docs",
+  "name": "@open-urbis/map-docs",
   "version": "0.0.0",
   "private": true,
   "scripts": {

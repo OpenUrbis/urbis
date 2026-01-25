@@ -46,11 +46,14 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "apps/docs/out"
+          app_location: "/"
           api_location: ""
-          output_location: ""
-          skip_app_build: true
+          output_location: "apps/docs"
           ###### End of Configurations ######
+        env:
+          NODE_VERSION: 20
+          PRE_BUILD_COMMAND: npm install -g pnpm
+          CUSTOM_BUILD_COMMAND: pnpm install && pnpm turbo run build --filter=@open-urbis/map-docs
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

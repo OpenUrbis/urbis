@@ -23,6 +23,23 @@ jobs:
           submodules: true
           lfs: false
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: |
+          pnpm config set node-linker hoisted
+          pnpm install --frozen-lockfile
+
+      - name: Build urbis-docs (Next.js)
+        run: pnpm turbo run build --filter=@open-urbis/map-docs
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -31,13 +48,11 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "/"
+          app_location: "apps/docs"
           api_location: ""
-          output_location: "apps/docs/.next"
-          app_build_command: "pnpm turbo run build --filter=@open-urbis/map-docs"
+          output_location: "" # Deixamos vazio pois o skip_app_build: true e o motor do SWA para Next.js cuidará do resto se apontarmos para a pasta certa
+          skip_app_build: true
           ###### End of Configurations ######
-        env:
-          PRE_BUILD_COMMAND: "corepack enable && pnpm install --frozen-lockfile"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

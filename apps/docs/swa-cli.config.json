@@ -1,0 +1,12 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "urbis-docs": {
+      "appLocation": "apps/docs/.next/standalone/urbis/apps/docs",
+      "outputLocation": "apps/docs/.next/standalone/urbis/apps/docs/.next/static",
+      "appBuildCommand": "pnpm build",
+      "run": "node server.js",
+      "appDevserverUrl": "http://localhost:3000"
+    }
+  }
+}

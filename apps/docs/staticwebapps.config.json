@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/staticwebapps.config.json",
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  },
+  "platform": {
+    "apiLanguage": "node",
+    "apiVersion": "20"
+  },
+  "routes": [
+    {
+      "route": "/_next/static/*",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    }
+  ],
+  "globalHeaders": {
+    "content-security-policy": "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data: blob:; font-src 'self' https: data:;"
+  }
+}

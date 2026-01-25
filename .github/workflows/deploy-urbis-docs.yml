@@ -37,8 +37,14 @@ jobs:
           pnpm config set node-linker hoisted
           pnpm install --frozen-lockfile
 
-      - name: Build urbis-docs (Next.js)
-        run: pnpm turbo run build --filter=@open-urbis/map-docs
+      - name: Build urbis-docs (Next.js Standalone)
+        run: |
+          pnpm turbo run build --filter=@open-urbis/map-docs
+          # Prepare standalone bundle for SWA
+          # Copy static files to the standalone directory
+          mkdir -p apps/docs/.next/standalone/urbis/apps/docs/.next
+          cp -r apps/docs/.next/static apps/docs/.next/standalone/urbis/apps/docs/.next/static
+          cp -r apps/docs/public apps/docs/.next/standalone/urbis/apps/docs/public
 
       - name: Build And Deploy
         id: builddeploy
@@ -48,9 +54,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "apps/docs"
-          api_location: ""
-          output_location: ".next"
+          app_location: "apps/docs/.next/standalone/urbis/apps/docs"
+          api_location: "" # Em modo standalone o SWA não deve tentar gerenciar uma API separada
+          output_location: ".next/static"
           skip_app_build: true
           ###### End of Configurations ######
 

@@ -2,7 +2,6 @@ import { Outlet } from "react-router-dom";
 import { UrbisHeader } from "@open-urbis/map-ui/urbis-header";
 import { Footer } from "./components/layout/Footer";
 import { ScrollToTop } from "./components/ScrollToTop";
-import { ModeToggle } from "./components/mode-toggle";
 import { useEffect, useState } from "react";
 import { HelpSidebarContent } from "@open-urbis/map-ui";
 
@@ -10,21 +9,30 @@ import { SidebarProvider, useSidebar } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui/ui/button";
 
 function LayoutInner() {
-  const [isDark, setIsDark] = useState(false);
+  const [theme, setTheme] = useState<string>("system");
+  const [_isDark, setIsDark] = useState(false);
   const { openSidebar } = useSidebar();
 
   useEffect(() => {
-    const root = document.documentElement;
-    const observer = new MutationObserver(() => {
-      setIsDark(root.classList.contains("dark"));
-    });
-
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-
-    setIsDark(root.classList.contains("dark"));
-
-    return () => observer.disconnect();
+    const savedTheme = localStorage.getItem("theme") || "system";
+    setTheme(savedTheme);
   }, []);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+
+    const activeTheme =
+      theme === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : theme;
+
+    root.classList.add(activeTheme);
+    setIsDark(activeTheme === "dark");
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   const menuItems = [
     { label: "Início", href: "/" },
@@ -41,7 +49,6 @@ function LayoutInner() {
       <ScrollToTop />
 
       <UrbisHeader
-        theme={isDark ? "dark" : "light"}
         logoAlt="Prefeitura de São Paulo"
         logoHref="https://www.prefeitura.sp.gov.br/"
         badgeText={null}
@@ -75,9 +82,10 @@ function LayoutInner() {
               Ajuda
             </Button>
 
-            <ModeToggle />
           </div>
         }
+        theme={theme}
+        setTheme={setTheme}
       />
 
       <main className="flex-1">

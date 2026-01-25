@@ -18,8 +18,6 @@ import {
   TableHeader,
   TableRow,
   TableHead,
-  TableBody,
-  TableCell,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -27,6 +25,10 @@ import {
 } from "@open-urbis/map-ui";
 import { Info, Loader2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import * as ReactWindow from "react-window";
+
+// @ts-ignore
+const List = (ReactWindow.FixedSizeList || (ReactWindow as any).default?.FixedSizeList || (ReactWindow as any).default || ReactWindow) as any;
 import axios from "axios";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { ConcatenatedSearchState } from "../../types/search-context-type";
@@ -50,6 +52,7 @@ const DEFAULT_TREE: FilterGroup = {
 };
 
 export const ConcatenatedSearchModal = () => {
+  // @ts-ignore
   const { searchConfig, concatenatedSearch } = useSearchContext();
   const { layerSchemas } = useMapContext();
   const auth = useAuth();
@@ -424,63 +427,73 @@ export const ConcatenatedSearchModal = () => {
                 </Button>
               </div>
               <div className="border rounded-xl overflow-hidden shadow-sm bg-background">
-                <div className="overflow-auto max-h-[400px] relative">
-                  <Table>
-                    <TableHeader className="sticky top-0 bg-muted/50 z-10 backdrop-blur-md">
-                      <TableRow>
-                        {Object.keys(searchResults[0]).map((key) => {
-                          const layer = searchConfig.value.find(
-                            (c) => c.id === selectedLayerId
-                          );
-                          const mapping =
-                            (layer?.layerSchema?.properties as any)?.attributeMapping?.[key];
-                          const displayName = mapping?.label || mapping?.name || key;
-                          const description = mapping?.description;
+                <div className="relative overflow-x-auto">
+                  <div className="min-w-max">
+                    <Table className="w-full table-fixed border-separate border-spacing-0">
+                      <TableHeader className="sticky top-0 bg-muted/50 z-20 backdrop-blur-md">
+                        <TableRow>
+                          {Object.keys(searchResults[0]).map((key) => {
+                            const layer = searchConfig.value.find(
+                              (c) => c.id === selectedLayerId
+                            );
+                            const mapping =
+                              (layer?.layerSchema?.properties as any)?.attributeMapping?.[key];
+                            const displayName = mapping?.label || mapping?.name || key;
+                            const description = mapping?.description;
 
-                          return (
-                            <TableHead
-                              key={key}
-                              className="whitespace-nowrap h-10 text-[10px] uppercase font-bold tracking-wider text-muted-foreground px-4"
-                            >
-                              {description ? (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger className="flex items-center gap-1 cursor-help">
-                                      {displayName}
-                                      <Info className="h-3 w-3" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="max-w-xs">{description}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              ) : (
-                                displayName
-                              )}
-                            </TableHead>
-                          );
-                        })}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {searchResults.map((row, i) => (
-                        <TableRow
-                          key={row.id || i}
-                          className="h-10 hover:bg-muted/30 transition-colors"
-                        >
-                          {Object.values(row).map((val: any, j) => (
-                            <TableCell
-                              key={j}
-                              className="whitespace-nowrap max-w-[200px] truncate text-[11px] py-2 px-4"
-                              title={String(val)}
-                            >
-                              {String(val)}
-                            </TableCell>
-                          ))}
+                            return (
+                              <TableHead
+                                key={key}
+                                className="whitespace-nowrap h-10 text-[10px] uppercase font-bold tracking-wider text-muted-foreground px-4 border-b w-[200px] min-w-[200px]"
+                              >
+                                {description ? (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger className="flex items-center gap-1 cursor-help">
+                                        {displayName}
+                                        <Info className="h-3 w-3" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="max-w-xs">{description}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                ) : (
+                                  displayName
+                                )}
+                              </TableHead>
+                            );
+                          })}
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                    </Table>
+                    <List
+                      height={400}
+                      itemCount={searchResults.length}
+                      itemSize={40}
+                      width={Object.keys(searchResults[0]).length * 200}
+                    >
+                      {({ index, style }: { index: number; style: any }) => {
+                        const row = searchResults[index];
+                        return (
+                          <div
+                            style={style}
+                            className="flex border-b hover:bg-muted/30 transition-colors items-center"
+                          >
+                            {Object.values(row).map((val: any, j) => (
+                              <div
+                                key={j}
+                                className="whitespace-nowrap w-[200px] min-w-[200px] truncate text-[11px] py-2 px-4 shrink-0"
+                                title={String(val)}
+                              >
+                                {String(val)}
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }}
+                    </List>
+                  </div>
                 </div>
               </div>
             </div>

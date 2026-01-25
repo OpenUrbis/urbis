@@ -1,16 +1,12 @@
 import { docs } from "fumadocs-mdx:collections/server";
 import { type InferPageType, loader, multiple } from "fumadocs-core/source";
 import { lucideIconsPlugin } from "fumadocs-core/source/lucide-icons";
-import { openapiPlugin, openapiSource } from "fumadocs-openapi/server";
-import { openapi } from "./openapi";
+import { openapiPlugin } from "fumadocs-openapi/server";
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader(
   multiple({
     docs: docs.toFumadocsSource(),
-    openapi: await openapiSource(openapi, {
-      baseDir: "openapi",
-    }),
   }),
   {
     baseUrl: "/docs",
@@ -28,12 +24,9 @@ export function getPageImage(page: InferPageType<typeof source>) {
 }
 
 export async function getLLMText(page: InferPageType<typeof source>) {
-  if (page.data.type === "openapi") {
-    return page.data.title;
-  }
-  const processed = await page.data.getText("processed");
+  const processed = await (page.data as any).getText("processed");
 
-  return `# ${page.data.title}
+  return `# ${(page.data as any).title}
 
 ${processed}`;
 }

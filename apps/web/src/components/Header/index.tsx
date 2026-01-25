@@ -1,6 +1,5 @@
 import { UrbisHeader, Button } from "@open-urbis/map-ui";
 import { useAuth } from "react-oidc-context";
-import { useLocation } from "wouter";
 import { accessControl } from "../../auth/user-state";
 import { RolePermissionScopeEnum } from "../../utils/access-control";
 import { Debugger } from "../Debugger";

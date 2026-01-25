@@ -1,3 +1,5 @@
+import { APIPage } from "@/components/api-page";
+import { fallbackSchema } from "@/lib/openapi";
 import {
   DocsBody,
   DocsDescription,
@@ -7,10 +9,8 @@ import {
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPageImage, source } from "src/lib/source";
 import { getMDXComponents } from "src/mdx-components";
-import { openapi, fallbackSchema } from "@/lib/openapi";
-import { APIPage } from "@/components/api-page";
+import { getPageImage, source } from "src/lib/source";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
@@ -21,9 +21,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   if (isOpenApiSlug) {
     return (
       <DocsPage full>
-        <h1 className="text-[1.75em] font-semibold">
-          API Reference
-        </h1>
+        <h1 className="text-[1.75em] font-semibold">API Reference</h1>
         <DocsBody>
           <APIPage document={fallbackSchema as any} />
         </DocsBody>
@@ -69,14 +67,14 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 export async function generateStaticParams() {
   const params = await source.generateParams();
   // Filter out any params that start with openapi
-  return params.filter(p => !p.slug || p.slug[0] !== "openapi");
+  return params.filter((p) => !p.slug || p.slug[0] !== "openapi");
 }
 
 export async function generateMetadata(
   props: PageProps<"/docs/[[...slug]]">,
 ): Promise<Metadata> {
   const params = await props.params;
-  
+
   if (params.slug && params.slug[0] === "openapi") {
     return {
       title: "API Reference",

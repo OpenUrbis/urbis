@@ -49,7 +49,7 @@ export const openapi = createOpenAPI({
 
       const schema = await res.json();
 
-      if (schema && schema.openapi) {
+      if (schema?.openapi) {
         // Ensure servers is a valid array with at least one element
         const servers =
           Array.isArray(schema.servers) && schema.servers.length > 0

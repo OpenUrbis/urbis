@@ -48,6 +48,7 @@ jobs:
           output_location: "apps/docs/.next"
           ###### End of Configurations ######
         env:
+          NODE_VERSION: 20
           PRE_BUILD_COMMAND: npm install -g pnpm
           CUSTOM_BUILD_COMMAND: pnpm install && pnpm turbo run build --filter=@open-urbis/map-docs
 

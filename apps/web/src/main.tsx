@@ -13,6 +13,7 @@ import { MapView } from "./components/MapView/MapView";
 import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { SearchProvider } from "./context/SearchContext";
+import Header from "./components/Header";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,11 +32,18 @@ const App = () => (
         <NavigationProvider>
           <MapProvider>
             <SearchProvider>
-              <LeftNav />
-              <MapLegend />
-              <LayerController />
-              <MapView />
-              <Debugger />
+              <div id="app">
+                <header class="app-header">
+                  <Header />
+                </header>
+                <div class="map-container">
+                  <LeftNav />
+                  <MapLegend />
+                  <LayerController />
+                  <MapView />
+                  <Debugger />
+                </div>
+              </div>
             </SearchProvider>
           </MapProvider>
         </NavigationProvider>

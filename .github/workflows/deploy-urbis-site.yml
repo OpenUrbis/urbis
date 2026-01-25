@@ -46,9 +46,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "apps/site"
+          app_location: "apps/site/dist"
           api_location: ""
-          output_location: "dist"
+          output_location: ""
           skip_app_build: true
           ###### End of Configurations ######
 

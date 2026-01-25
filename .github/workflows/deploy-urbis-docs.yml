@@ -40,11 +40,6 @@ jobs:
       - name: Build urbis-docs (Next.js)
         run: pnpm turbo run build --filter=@open-urbis/map-docs
 
-      - name: Prepare Standalone Output for SWA
-        run: |
-          cp -r apps/docs/public apps/docs/.next/standalone/apps/docs/
-          cp -r apps/docs/.next/static apps/docs/.next/standalone/apps/docs/.next/
-
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -53,9 +48,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "apps/docs/.next/standalone"
+          app_location: "apps/docs"
           api_location: ""
-          output_location: ""
+          output_location: ".next"
           skip_app_build: true
           ###### End of Configurations ######
 

@@ -1,30 +1,28 @@
 "use client";
 
-import { createAPIPage } from "fumadocs-openapi/ui";
 import { fallbackSchema, openapi } from "@/lib/openapi";
 import client from "./api-page.client";
+import dynamic from "next/dynamic";
 
-// Ensure openapi has required fields for createAPIPage
-const safeOpenapi = {
-  ...openapi,
-  servers: (openapi as any).servers ?? fallbackSchema.servers,
-};
-
-const BaseAPIPage = createAPIPage(safeOpenapi as any, {
-  client,
-});
+const BaseAPIPage = dynamic(
+  async () => {
+    const { createAPIPage } = await import("fumadocs-openapi/ui");
+    const Component = await createAPIPage(openapi, { client });
+    return () => Component as any;
+  },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-4 animate-pulse">
+        <div className="h-8 bg-muted rounded w-1/4" />
+        <div className="h-4 bg-muted rounded w-full" />
+        <div className="h-4 bg-muted rounded w-full" />
+        <div className="h-4 bg-muted rounded w-3/4" />
+      </div>
+    ),
+  },
+);
 
 export function APIPage(props: any) {
-  // Always use fallbackSchema during prerendering/hydration to avoid issues
-  // The client will eventually re-render with the correct data if needed.
-  const safeProps = {
-    ...props,
-    document:
-      props.document ??
-      (typeof window === "undefined"
-        ? fallbackSchema
-        : (props.document ?? safeOpenapi)),
-  };
-
-  return <BaseAPIPage {...safeProps} />;
+  return <BaseAPIPage {...props} />;
 }

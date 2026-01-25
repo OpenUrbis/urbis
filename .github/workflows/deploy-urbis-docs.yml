@@ -35,9 +35,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build urbis-docs (Next.js)
-        run: pnpm turbo run build --filter=@open-urbis/map-docs
-
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -46,10 +43,10 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "apps/docs/out"
+          app_location: "apps/docs"
           api_location: ""
-          output_location: ""
-          skip_app_build: true
+          output_location: ".next"
+          app_build_command: "pnpm turbo run build --filter=@open-urbis/map-docs"
           ###### End of Configurations ######
 
   close_pull_request_job:

@@ -42,11 +42,17 @@ jobs:
       - name: Build urbis-docs
         run: |
           pnpm turbo run build --filter=@open-urbis/map-docs
-          mkdir -p apps/docs/.next/standalone/apps/docs
-          cp -r apps/docs/.next/standalone/apps/docs/. apps/docs/.next/standalone
+          # Next.js 16 standalone structure fix for monorepo
+          # Note: structure might be .next/standalone/urbis/apps/docs
+          if [ -d "apps/docs/.next/standalone/urbis/apps/docs" ]; then
+            cp -r apps/docs/.next/standalone/urbis/apps/docs/. apps/docs/.next/standalone/
+          elif [ -d "apps/docs/.next/standalone/apps/docs" ]; then
+            cp -r apps/docs/.next/standalone/apps/docs/. apps/docs/.next/standalone/
+          fi
+          
           cp -r apps/docs/public apps/docs/.next/standalone/public || true
+          mkdir -p apps/docs/.next/standalone/.next
           cp -r apps/docs/.next/static apps/docs/.next/standalone/.next/static || true
-          # SWA Standalone next server needs package.json to identify app type
           cp apps/docs/package.json apps/docs/.next/standalone/package.json
           cp apps/docs/staticwebapp.config.json apps/docs/.next/standalone || true
           rm -rf apps/docs/.next/standalone/node_modules/.pnpm
@@ -75,5 +81,5 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_HAPPY_WAVE_0A47E7A0F }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WITTY_WATER_09D2CCE10 }}
           action: "close"

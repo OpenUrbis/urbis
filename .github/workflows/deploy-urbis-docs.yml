@@ -54,7 +54,7 @@ jobs:
           app_location: "apps/docs"
           api_location: ""
           output_location: ""
-          skip_app_build: true
+          skip_app_build: false
           skip_api_build: true
           ###### End of Configurations ######
 

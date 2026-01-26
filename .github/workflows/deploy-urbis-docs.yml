@@ -46,6 +46,8 @@ jobs:
           cp -r apps/docs/.next/standalone/apps/docs/. apps/docs/.next/standalone
           cp -r apps/docs/public apps/docs/.next/standalone/public || true
           cp -r apps/docs/.next/static apps/docs/.next/standalone/.next/static || true
+          # SWA Standalone next server needs package.json to identify app type
+          cp apps/docs/package.json apps/docs/.next/standalone/package.json
           cp apps/docs/staticwebapp.config.json apps/docs/.next/standalone || true
           rm -rf apps/docs/.next/standalone/node_modules/.pnpm
 

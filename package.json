@@ -3,7 +3,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "dev:ssl": "turbo run dev:ssl --filter=accounts & turbo run dev --filter=!accounts",
+    "dev:ssl": "turbo run dev:ssl --filter=@open-urbis/map-accounts & turbo run dev --filter=!@open-urbis/map-accounts",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "composer:up": "docker-compose -f apps/api/docker-compose.yaml up -d",

@@ -33,6 +33,8 @@
     "@angular/material": "^20.2.10",
     "@angular/platform-browser": "^20.0.0",
     "@angular/router": "^20.0.0",
+    "@ng-icons/core": "25.1.0",
+    "@ng-icons/lucide": "25.1.0",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@open-urbis/numeracao-digital": "workspace:^",

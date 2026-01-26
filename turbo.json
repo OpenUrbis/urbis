@@ -6,6 +6,11 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**", ".next/**", "out/**"]
     },
+    "build:prod": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**", ".next/**", "out/**"]
+    },
     "lint": {
       "dependsOn": [],
       "outputs": []

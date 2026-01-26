@@ -108,6 +108,7 @@ const LayerColorManager = ({
       <div className="grid grid-cols-4 gap-2 mt-2">
         {patterns.map((p) => {
           const isSelected = (currentPattern || "full") === p.value;
+          const isLight = Color(fillColor).isLight();
 
           return (
             <div
@@ -116,10 +117,19 @@ const LayerColorManager = ({
               className="flex flex-col items-center gap-1 cursor-pointer group"
             >
               <div
-                className={`w-12 h-12 border rounded-md transition-all bg-muted/20 ${isSelected ? "ring-2 ring-primary border-primary" : "hover:border-primary/50"}`}
-                style={getPatternStyle(p.value, Color(fillColor).hex(), 0.4)}
+                className={`w-12 h-12 border rounded-md transition-all overflow-hidden ${isSelected ? "ring-2 ring-primary border-primary" : "hover:border-primary/50"}`}
+                style={{ backgroundColor: isLight ? "#000" : "#fff" }}
                 title={p.label}
-              />
+              >
+                <div
+                  className="w-full h-full"
+                  style={
+                    p.value === "full"
+                      ? { backgroundColor: Color(fillColor).hex() }
+                      : getPatternStyle(p.value, Color(fillColor).hex(), 0.4)
+                  }
+                />
+              </div>
               <span
                 className={`text-[9px] text-center w-full truncate ${isSelected ? "font-medium" : "text-muted-foreground"}`}
               >

@@ -39,32 +39,9 @@ jobs:
           pnpm config set node-linker hoisted
           pnpm install --frozen-lockfile
 
-      - name: Build urbis-docs (Next.js Standalone)
+      - name: Build urbis-docs
         run: |
           pnpm turbo run build --filter=@open-urbis/map-docs
-          
-          # Preparar bundle standalone para o SWA seguindo a estrutura validada localmente
-          mkdir -p deploy-docs
-          
-          # 1. Copiar o servidor standalone e dependências resolvendo symlinks
-          cp -rL apps/docs/.next/standalone/. deploy-docs/
-          
-          # 2. Achatamento: Trazer o conteúdo de urbis/apps/docs para a raiz do deploy
-          if [ -d "deploy-docs/urbis/apps/docs" ]; then
-            cp -rL deploy-docs/urbis/apps/docs/. deploy-docs/
-            rm -rf deploy-docs/urbis
-          fi
-          
-          # 3. Injetar assets estáticos em _next/static para roteamento correto no SWA
-          mkdir -p deploy-docs/_next
-          cp -rL apps/docs/.next/static deploy-docs/_next/static
-          cp -rL apps/docs/public deploy-docs/public
-          
-          # 4. Configuração SWA
-          cp apps/docs/staticwebapps.config.json deploy-docs/
-          # Usar o package.json original mas limpar protocolos workspace:*
-          cp apps/docs/package.json deploy-docs/
-          sed -i 's/workspace:\*/*/g' deploy-docs/package.json
 
       - name: Build And Deploy
         id: builddeploy
@@ -74,10 +51,10 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "deploy-docs" # Pasta preparada com tudo na raiz
+          app_location: "apps/docs"
           api_location: ""
-          output_location: "" # Deixamos vazio para o SWA aceitar o app_location como a raiz do site
-          skip_app_build: true
+          output_location: "" # O SWA detectará automaticamente o build do Next.js
+          skip_app_build: false # Permitir que o SWA execute o build ou detecte o output
           skip_api_build: true
           ###### End of Configurations ######
 

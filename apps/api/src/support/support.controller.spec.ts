@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
 import { SupportController } from './support.controller';
 import { SupportService } from './support.service';
 
@@ -19,7 +20,10 @@ describe('SupportController', () => {
           useValue: mockSupportService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(GoogleRecaptchaGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<SupportController>(SupportController);
   });

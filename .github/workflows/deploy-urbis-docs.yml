@@ -43,7 +43,7 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         env:
-          PRE_BUILD_COMMAND: node -v && npm install -g pnpm && pnpm install --no-frozen-lockfile
+          PRE_BUILD_COMMAND: node -v && npm install -g pnpm && pnpm config set node-linker hoisted && pnpm install --frozen-lockfile
           CUSTOM_BUILD_COMMAND: pnpm turbo run build --filter=@open-urbis/map-docs && mkdir -p apps/docs/.next/standalone/apps/docs && cp -r apps/docs/.next/standalone/apps/docs/. apps/docs/.next/standalone && (cp apps/docs/staticwebapp.config.json apps/docs/.next/standalone || true)
           VERBOSE: true
           # Forçar o uso de Node 20 no Oryx/SWA

@@ -305,6 +305,9 @@ importers:
       ejs:
         specifier: ^3.1.10
         version: 3.1.10
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       fix-esm:
         specifier: ^1.0.1
         version: 1.0.1
@@ -426,6 +429,9 @@ importers:
       '@types/mime-types':
         specifier: ^3.0.1
         version: 3.0.1
+      '@types/minimatch':
+        specifier: ^6.0.0
+        version: 6.0.0
       '@types/node':
         specifier: ^20.3.1
         version: 20.19.27

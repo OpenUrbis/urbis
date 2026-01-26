@@ -1,7 +1,6 @@
-import { computed, useSignal } from "@preact/signals";
+import { useSignal } from "@preact/signals";
 import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
-import { LayerItemAction } from "./LayerItemAction";
 import { LayerMetadataModal } from "./modals/LayerMetadataModal";
 import { LayerFilterModal } from "./modals/LayerFilterModal";
 import { cn } from "@open-urbis/map-ui";
@@ -14,7 +13,13 @@ import {
 } from "@open-urbis/map-ui";
 import { useMemo, useState } from "react";
 import { getLayerNameFromConfig } from "../../utils/layer-utils";
-import { Pencil } from "lucide-react";
+import { Pencil, MoreVertical, Trash2, Eye, EyeOff, Info, Filter } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@open-urbis/map-ui";
 import { LayerEditModal } from "@/pages/Admin/pages/LayerManager/pages/LayerHandle/steps/LayerEditModal";
 import { buildLayerSchema, LayerSchemaFormValues, parseLayerSchemaToForm } from "@/pages/Admin/pages/LayerManager/pages/LayerHandle/utils";
 
@@ -29,7 +34,7 @@ export const LayerItem = ({
   className?: string;
   onClick?: (id: string) => void;
 }) => {
-  const { zoom, layerSchemas } = useMapContext();
+  const { zoom, layerSchemas, handleActiveLayer } = useMapContext();
   const showMetadata = useSignal(false);
   const showFilter = useSignal(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -83,7 +88,7 @@ export const LayerItem = ({
     );
   };
 
-  const renderVisibilityIcon = computed(() => {
+  const renderVisibilityButton = () => {
     const minZoom = item.minZoom;
     const maxZoom = item?.properties?.maxZoom;
 
@@ -101,23 +106,33 @@ export const LayerItem = ({
       }
     }
 
-    if (!item.isVisible) {
-      return (
-        <span className="material-symbols-outlined text-base text-muted-foreground">
-          visibility_off
-        </span>
-      );
-    }
+    const icon = !item.isVisible ? (
+      <EyeOff className="h-4 w-4 text-muted-foreground" />
+    ) : !isVisibleByZoom ? (
+      <EyeOff className="h-4 w-4 text-muted-foreground opacity-50" />
+    ) : (
+      <Eye className="h-4 w-4 text-muted-foreground" />
+    );
 
-    if (!isVisibleByZoom) {
+    const button = (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 rounded-full hover:bg-muted"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.(item.id);
+        }}
+      >
+        {icon}
+      </Button>
+    );
+
+    if (item.isVisible && !isVisibleByZoom) {
       return (
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
-              <span className="material-symbols-outlined text-base text-muted-foreground opacity-50">
-                visibility_off
-              </span>
-            </TooltipTrigger>
+            <TooltipTrigger asChild>{button}</TooltipTrigger>
             <TooltipContent>
               <p>{tooltipText}</p>
             </TooltipContent>
@@ -127,26 +142,14 @@ export const LayerItem = ({
     }
 
     return (
-      <span className="material-symbols-outlined text-base text-muted-foreground">
-        visibility
-      </span>
-    );
-  });
-
-  const renderActions = () => {
-    const { properties } = item;
-    if (!properties?.layerActions || !properties?.layerActions.length)
-      return null;
-
-    return (
-      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-        {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          properties.layerActions.map(({ icon, action }: any, i: number) => (
-            <LayerItemAction key={`${icon}-${i}`} icon={icon} action={action} />
-          ))
-        }
-      </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>{button}</TooltipTrigger>
+          <TooltipContent>
+            <p>{item.isVisible ? "Ocultar Camada" : "Mostrar Camada"}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     );
   };
 
@@ -165,77 +168,77 @@ export const LayerItem = ({
          <span className={cn("text-sm truncate", item.isVisible ? "font-medium text-foreground" : "font-normal text-muted-foreground")}>{item.name}</span>
       </div>
       
-      <div className="flex items-center shrink-0 ml-2 gap-2">
-        {renderActions()}
-        {canFilter && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn("h-6 w-6 rounded-full hover:bg-muted", item.cqlFilter ? "text-primary bg-primary/10" : "")}
+      <div className="flex items-center shrink-0 ml-2 gap-1">
+        {renderVisibilityButton()}
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full hover:bg-muted"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            {canFilter && (
+              <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
                   showFilter.value = true;
                 }}
               >
-                <span className={cn("material-symbols-outlined text-base", item.cqlFilter ? "text-primary" : "text-muted-foreground")}>
-                  filter_alt
-                </span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Filtrar Camada</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        )}
+                <Filter className="mr-2 h-4 w-4" />
+                <span>Filtrar Camada</span>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowEditModal(true);
+              }}
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              <span>Editar Camada</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                showMetadata.value = true;
+              }}
+            >
+              <Info className="mr-2 h-4 w-4" />
+              <span>Informações</span>
+            </DropdownMenuItem>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 rounded-full hover:bg-muted"
+            {item.properties?.layerActions?.map(({ icon, action, label }: any, i: number) => (
+              <DropdownMenuItem
+                key={`${icon}-${i}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setShowEditModal(true);
+                  const actionFn = (window as any).createFn(action, false);
+                  actionFn();
                 }}
               >
-                <Pencil className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Editar Camada</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+                <span className="material-symbols-outlined mr-2 text-base">{icon}</span>
+                <span>{label || 'Ação'}</span>
+              </DropdownMenuItem>
+            ))}
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 rounded-full hover:bg-muted"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  showMetadata.value = true;
-                }}
-              >
-                <span className="material-symbols-outlined text-base text-muted-foreground">
-                  info
-                </span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Informações da Camada</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        {renderVisibilityIcon.value}
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleActiveLayer(item.id);
+              }}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              <span>Remover</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <LayerMetadataModal

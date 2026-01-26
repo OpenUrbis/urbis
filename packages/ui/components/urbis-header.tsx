@@ -94,7 +94,7 @@ export const UrbisHeader = ({
   logoSrc,
   logoAlt = "Urbis",
   logoHref = "/",
-  badgeText = "DEMO",
+  badgeText = "",
   menuItems = [],
   user,
   isAuthenticated = false,

@@ -1,5 +1,6 @@
 import { getLLMText, source } from "src/lib/source";
 
+export const dynamic = "force-static";
 export const revalidate = false;
 
 export async function GET() {

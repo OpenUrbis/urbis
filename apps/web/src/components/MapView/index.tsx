@@ -311,9 +311,15 @@ export const MapView = ({
               onClick={(i) => handleClick(i)}
               onLoad={() => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                addMapControls((overlayRef.current as any)._map, polygonEdit, () => {
+                addMapControls(
+                  (overlayRef.current as any)._map,
+                  polygonEdit,
+                  () => {
                     isPickingLocation.value = !isPickingLocation.value;
-                });
+                  },
+                  hideControls,
+                  drawerOpen.value
+                );
               }}
               style={{ cursor: isPickingLocation.value ? 'crosshair' : 'default' }}
             />

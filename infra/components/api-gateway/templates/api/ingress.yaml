@@ -9,10 +9,6 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "2g"
     cert-manager.io/issue-temporary-certificate: "true"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      if ($request_uri ~* "^/\.well-known/acme-challenge/") {
-        return 200 "challenge-bypassed";
-      }
 spec:
   ingressClassName: nginx-map
   tls:

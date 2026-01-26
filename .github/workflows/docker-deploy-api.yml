@@ -35,7 +35,7 @@ jobs:
         run: pnpm install
 
       - name: Build with Turborepo
-        run: pnpm exec turbo build
+        run: pnpm turbo run build --filter=@open-urbis/map-api
 
       - name: Turborepo Cache
         uses: actions/cache@v4

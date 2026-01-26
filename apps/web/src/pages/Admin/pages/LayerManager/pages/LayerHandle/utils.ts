@@ -98,7 +98,7 @@ const step1Schema = z.object({
       bbox: z.array(z.number()).optional(),
     })
     .optional(),
-});
+}) as any;
 
 const step2Schema = z.object({
   version: z.string().min(1, "Informe a versão"),
@@ -119,7 +119,7 @@ const step2Schema = z.object({
     .optional(),
   isActive: z.boolean(),
   isVisible: z.boolean(),
-});
+}) as any;
 
 const step2_5Schema = z
   .object({
@@ -129,7 +129,7 @@ const step2_5Schema = z
     // We can't access clickAction from previous step here easily in z.object().refine
     // Validation logic will need to check the combined data or be handled in the step component/index
     return true;
-  });
+  }) as any;
 
 const step3Schema = z
   .object({
@@ -147,10 +147,10 @@ const step3Schema = z
       return true;
     },
     {
-      message: "Informe o atributo para classificação",
+      message: "Informe o atributo para classification",
       path: ["layerProperty"],
     }
-  );
+  ) as any;
 
 const step4Schema = z.object({
   propertyMapping: z
@@ -162,7 +162,7 @@ const step4Schema = z.object({
       })
     )
     .optional(),
-});
+}) as any;
 
 // Combined schema for form type
 export const LayerSchemaFormSchema = step1Schema
@@ -260,7 +260,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     }
   }
 
-  const transformedColors = colors.flatMap((c) => {
+  const transformedColors = (colors as any[]).flatMap((c) => {
     const common = {
       label: isDynamic ? c.label || c.value : "default",
       value: isDynamic ? c.value : undefined,

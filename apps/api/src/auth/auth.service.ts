@@ -301,30 +301,27 @@ export class AuthService {
 
   async createOrValidateExternalOidcUser(payload: AuthExternalStrategyDto) {
     payload.email = payload.email.toLowerCase();
-    let user = await this.userService.findOne({
+    const user = await this.userService.findOne({
       email: payload.email,
     });
 
     const now = new Date();
 
     if (user === null) {
-      await this.register(
+      throw new HttpException(
         {
-          email: payload.email,
-          firstName: payload.firstName,
-          lastName: payload.lastName,
-          country: payload.country,
-          password: null,
-          cpf: payload.cpf,
-          govBrData: payload.govBrData,
-          lastGovBrLoginAt: now,
-          govBrFirstLoginAt: now,
-          avatarUrl: payload.picture,
+          status: HttpStatus.UNAUTHORIZED,
+          message: 'USER_NOT_FOUND',
+          data: {
+            email: payload.email,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            cpf: payload.cpf,
+            picture: payload.picture,
+          },
         },
-        false,
+        HttpStatus.UNAUTHORIZED,
       );
-      user = await this.userService.findOne({ email: payload.email });
-      return { ...user, isNewUser: true };
     } else {
       const updateData: any = {
         lastGovBrLoginAt: now,

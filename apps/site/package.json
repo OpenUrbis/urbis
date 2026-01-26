@@ -1,5 +1,5 @@
 {
-  "name": "urbis-site",
+  "name": "@open-urbis/map-site",
   "private": true,
   "version": "0.0.0",
   "type": "module",

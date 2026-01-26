@@ -41,23 +41,29 @@ jobs:
         run: |
           pnpm turbo run build --filter=@open-urbis/map-docs
           
-          # Preparar os assets dentro da pasta standalone para o servidor Next.js
-          mkdir -p apps/docs/.next/standalone/urbis/apps/docs/.next
-          cp -r apps/docs/.next/static apps/docs/.next/standalone/urbis/apps/docs/.next/static
-          cp -r apps/docs/public apps/docs/.next/standalone/urbis/apps/docs/public
+          # Preparar bundle standalone para o SWA
+          # No monorepo, o standalone gera: apps/docs/.next/standalone/urbis/apps/docs/server.js
           
-          # Copiar configuração do SWA para onde o SWA Action vai ler (raiz do app_location)
-          cp apps/docs/staticwebapps.config.json apps/docs/.next/standalone/urbis/apps/docs/
+          mkdir -p deploy-docs
           
-          # SWA Action exige um index.html se não detectar Next.js automaticamente.
-          # Vamos criar um arquivo dummy para passar na validação de "app artifacts".
-          echo "<!-- SWA Entry Point -->" > apps/docs/.next/standalone/urbis/apps/docs/index.html
+          # 1. Copiar o servidor standalone e dependências (usando -L para seguir symlinks do pnpm)
+          cp -rL apps/docs/.next/standalone/* deploy-docs/
           
-          # Manter o package.json gerado pelo Next.js standalone mas remover as dependências complexas
-          # que causam erro no npm install do Azure. O arquivo standalone/.next/standalone/urbis/apps/docs/package.json
-          # já existe, mas vamos garantir que ele seja "limpo" para o Azure não tentar instalar nada.
-          # Usamos jq para limpar se disponível, ou apenas sobrescrevemos com o essencial.
-          echo '{"name":"docs","version":"0.0.0","scripts":{"start":"node server.js"}}' > apps/docs/.next/standalone/urbis/apps/docs/package.json
+          # 2. Mover o conteúdo da aplicação para a raiz do deploy-docs
+          # Estrutura inicial em deploy-docs: node_modules/, urbis/apps/docs/{server.js, .next/, etc}
+          if [ -d "deploy-docs/urbis/apps/docs" ]; then
+            cp -rL deploy-docs/urbis/apps/docs/* deploy-docs/
+            rm -rf deploy-docs/urbis
+          fi
+          
+          # 3. Injetar assets estáticos (.next/static e public) onde o server.js espera (dentro de .next)
+          mkdir -p deploy-docs/.next/static
+          cp -rL apps/docs/.next/static/* deploy-docs/.next/static/
+          cp -rL apps/docs/public deploy-docs/public
+          
+          # 4. Garantir configuração do SWA e package.json mínimo para o detector
+          cp apps/docs/staticwebapps.config.json deploy-docs/
+          echo '{"name":"docs","version":"0.0.0","scripts":{"start":"node server.js"}}' > deploy-docs/package.json
 
       - name: Build And Deploy
         id: builddeploy
@@ -67,16 +73,21 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "apps/docs/.next/standalone/urbis/apps/docs"
+          app_location: "deploy-docs" # Pasta preparada com tudo na raiz
           api_location: ""
-          output_location: "" # Deixamos vazio para o SWA considerar a pasta de artifacts como a raiz
+          output_location: ""
           skip_app_build: true
           skip_api_build: true
-          is_static_export: false
           ###### End of Configurations ######
-        env:
-          # Reforçar para o SWA Action não tentar buildar nada
-          SKIP_APP_BUILD: "true"
-          SKIP_API_BUILD: "true"
-          SKIP_NPM_INSTALL: "true"
-          DEPLOYMENT_ENABLE_ORYX_BUILD: "false"
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BRAVE_SMOKE_097CB1810 }}
+          action: "close"

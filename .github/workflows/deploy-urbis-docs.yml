@@ -54,7 +54,7 @@ jobs:
           action: "upload"
           ###### Repository/Build Configurations ######
           app_location: "apps/docs"
-          config_file_location: "apps/docs"
+          config_file_location: "/"
           api_location: ""
           output_location: ""
           skip_app_build: false

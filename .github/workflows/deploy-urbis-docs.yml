@@ -55,10 +55,10 @@ jobs:
             rm -rf deploy-docs/urbis
           fi
           
-          # 3. Injetar assets estáticos (.next/static e public) onde o server.js espera
-          mkdir -p deploy-docs/.next/static
-          cp -rL apps/docs/.next/static/. deploy-docs/.next/static/
-          cp -rL apps/docs/public/. deploy-docs/public/
+          # 3. Injetar assets estáticos em _next/static para roteamento correto no SWA
+          mkdir -p deploy-docs/_next
+          cp -rL apps/docs/.next/static deploy-docs/_next/static
+          cp -rL apps/docs/public deploy-docs/public
           
           # 4. Configuração SWA
           cp apps/docs/staticwebapps.config.json deploy-docs/

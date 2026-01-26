@@ -41,40 +41,20 @@ jobs:
         run: |
           pnpm turbo run build --filter=@open-urbis/map-docs
           
-          # No monorepo com standalone, o Next.js gera uma estrutura complexa em .next/standalone.
-          # Para o Azure SWA detectar corretamente o Next.js, precisamos que o package.json e o .next estejam na raiz do app_location.
+          # ESPELHAR EXATAMENTE O QUE FUNCIONOU NA CLI LOCAL:
+          # Pasta standalone: apps/docs/.next/standalone/urbis/apps/docs
+          # Pasta static: apps/docs/.next/static
+          # Pasta public: apps/docs/public
           
-          mkdir -p deploy-docs
+          # Preparar os assets dentro da pasta standalone exata
+          mkdir -p apps/docs/.next/standalone/urbis/apps/docs/.next
+          cp -r apps/docs/.next/static apps/docs/.next/standalone/urbis/apps/docs/.next/static
+          cp -r apps/docs/public apps/docs/.next/standalone/urbis/apps/docs/public
           
-          # Copiar o core do standalone
-          cp -r apps/docs/.next/standalone/* deploy-docs/
-          
-          # Mover o conteúdo da app para a raiz do deploy-docs para simplificar para o SWA
-          # Estrutura inicial em deploy-docs: node_modules/, apps/docs/{server.js, .next/, etc}
-          cp -r deploy-docs/apps/docs/* deploy-docs/
-          rm -rf deploy-docs/apps
-          
-          # Copiar assets estáticos e públicos para a raiz do deploy-docs (onde o server.js e .next agora estão)
-          mkdir -p deploy-docs/.next/static
-          cp -r apps/docs/.next/static/* deploy-docs/.next/static/
-          
-          # Lidar com a pasta public
-          if [ -d "apps/docs/public" ]; then
-            cp -r apps/docs/public/* deploy-docs/public/ 2>/dev/null || cp -r apps/docs/public deploy-docs/
-          fi
-          
-          # Copiar arquivos de configuração do SWA para a pasta de deploy
-          cp apps/docs/staticwebapps.config.json deploy-docs/ 2>/dev/null || true
-          
-          # O SWA as vezes exige um index.html para sites "estáticos" se ele falhar em detectar o framework.
-          echo "<!-- SWA Next.js Standalone Mode -->" > deploy-docs/index.html
-          
-          # CORREÇÃO PARA "npm install" do SWA: 
-          # O SWA Action roda npm install se ele vir um package.json.
-          # Em monorepos, o package.json tem "workspace:*", o que faz o npm falhar.
-          # Como o standalone ja vem com node_modules pronto, vamos apagar o package.json
-          # da pasta de deploy para que o SWA trate apenas como artefatos prontos.
-          rm deploy-docs/package.json
+          # O SWA Action precisa de um package.json para detectar Next.js
+          # Mas o package.json original tem workspace:*, vamos criar um simplificado
+          # apenas para o detector do SWA, sem dependências que disparem install
+          echo '{"name":"urbis-docs","version":"0.0.0","scripts":{"start":"node server.js"}}' > apps/docs/.next/standalone/urbis/apps/docs/package.json
 
       - name: Build And Deploy
         id: builddeploy
@@ -84,16 +64,12 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "deploy-docs"
+          app_location: "apps/docs/.next/standalone/urbis/apps/docs"
           api_location: ""
-          output_location: ""
+          output_location: ".next/static" # Definir onde os assets estão para o SWA otimizar
           skip_app_build: true
           skip_api_build: true
-          is_static_export: false
           ###### End of Configurations ######
-        env:
-          SKIP_NPM_INSTALL: "true"
-          DEPLOYMENT_ENABLE_ORYX_BUILD: "false"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

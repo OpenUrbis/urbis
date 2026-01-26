@@ -39,15 +39,17 @@ jobs:
           pnpm config set node-linker hoisted
           pnpm install --frozen-lockfile
 
+      - name: Build urbis-docs
+        run: |
+          pnpm turbo run build --filter=@open-urbis/map-docs
+          mkdir -p apps/docs/.next/standalone/apps/docs
+          cp -r apps/docs/.next/standalone/apps/docs/. apps/docs/.next/standalone
+          cp apps/docs/staticwebapp.config.json apps/docs/.next/standalone || true
+          rm -rf apps/docs/.next/standalone/node_modules/.pnpm
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
-        env:
-          PRE_BUILD_COMMAND: node -v && npm install -g pnpm && pnpm install --frozen-lockfile
-          CUSTOM_BUILD_COMMAND: pnpm turbo run build --filter=@open-urbis/map-docs && mkdir -p apps/docs/.next/standalone/apps/docs && cp -r apps/docs/.next/standalone/apps/docs/. apps/docs/.next/standalone && (cp apps/docs/staticwebapp.config.json apps/docs/.next/standalone || true) && rm -rf apps/docs/.next/standalone/node_modules/.pnpm
-          VERBOSE: true
-          # Forçar o uso de Node 20 no Oryx/SWA
-          NODE_VERSION: 20
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BRAVE_SMOKE_097CB1810 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -56,7 +58,7 @@ jobs:
           app_location: "apps/docs"
           api_location: ""
           output_location: ""
-          skip_app_build: false
+          skip_app_build: true
           skip_api_build: true
           ###### End of Configurations ######
 

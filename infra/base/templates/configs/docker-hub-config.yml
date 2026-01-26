@@ -5,4 +5,4 @@ metadata:
   namespace: urbis-map
 type: kubernetes.io/dockerconfigjson
 data:
-  .dockerconfigjson: {{ .Values.dockerConfig | b64enc }}
+  .dockerconfigjson: {{ .Values.dockerConfig | default "{}" | b64enc }}

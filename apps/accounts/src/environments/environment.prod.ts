@@ -1,11 +1,11 @@
 export const environment = {
-  api: 'https://api.atlascli.io',
+  api: 'https://api.mapa.urbis.sampa.br',
 
   appClientId: '0375600b-cd37-4b89-82e1-68fd374b83e8',
 
   externalOidcClientId: '0375600b-cd37-4b89-82e1-68fd374b83e8',
-  externalOidcSecureRoutes: ['https://api.atlascli.io'],
-  externalOidcAuthority: 'https://api.atlascli.io',
+  externalOidcSecureRoutes: ['https://api.mapa.urbis.sampa.br'],
+  externalOidcAuthority: 'https://api.mapa.urbis.sampa.br',
 
   terms: [
     {
@@ -22,6 +22,6 @@ export const environment = {
 
   googleRecaptchaSiteKey: '6LfwDx4sAAAAABrm5sINZvaY9Fq3pFttsX-wikjG',
 
-  s3EndpointPublic: 'https://files.atlascli.io',
-  docsEndpoint: 'https://docs.atlascli.io',
+  s3EndpointPublic: 'https://files.mapa.urbis.sampa.br',
+  docsEndpoint: 'https://docs.mapa.urbis.sampa.br',
 };

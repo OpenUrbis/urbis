@@ -68,7 +68,11 @@ export async function generateStaticParams() {
   // Filter out any params that start with openapi and manually add them
   // to ensure they are included in the static export
   const filtered = params.filter((p) => !p.slug || p.slug[0] !== "openapi");
-  return [...filtered, { slug: ["openapi"] }, { slug: ["openapi", "reference"] }];
+  return [
+    ...filtered,
+    { slug: ["openapi"] },
+    { slug: ["openapi", "reference"] },
+  ];
 }
 
 export async function generateMetadata(

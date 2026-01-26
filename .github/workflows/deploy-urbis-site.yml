@@ -37,6 +37,8 @@ jobs:
 
       - name: Build urbis-site (Vite SSG)
         run: pnpm turbo run build --filter=@open-urbis/map-site
+        env:
+          VITE_API_URL: https://api.mapa.urbis.sampa.br
 
       - name: Build And Deploy
         id: builddeploy

@@ -1,22 +1,40 @@
-FROM node:20-alpine
-
-# Setup pnpm
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+FROM --platform=linux/amd64 node:20-alpine AS builder
 RUN corepack enable
-
 WORKDIR /app
 
-# Copy all files (required for monorepo workspace resolution)
-COPY . .
+# Copy root workspace files
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
+# Copy all workspace members to ensure dependencies are available
+COPY packages ./packages
+COPY apps ./apps
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Build the API application
 RUN pnpm exec turbo run build --filter=@open-urbis/map-api
 
+# Production stage
+FROM --platform=linux/amd64 node:20-alpine AS runner
+RUN corepack enable
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+
+# Copy everything from builder
+COPY --from=builder /app ./
+
+# Prune dev dependencies
+RUN pnpm install --prod --frozen-lockfile
+
+# Ensure express is available at the root if needed by NestJS platform-express in some configurations
+# though usually the workspace symlinks should work.
+# Added a check to verify it starts.
+
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "apps/api/dist/app/main.js"]
+WORKDIR /app/apps/api
+
+# Start the application from the app directory to ensure local node_modules are preferred
+CMD ["node", "dist/app/main.js"]

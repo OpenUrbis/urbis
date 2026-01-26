@@ -41,29 +41,27 @@ jobs:
         run: |
           pnpm turbo run build --filter=@open-urbis/map-docs
           
-          # Preparar bundle standalone para o SWA
-          # No monorepo, o standalone gera: apps/docs/.next/standalone/urbis/apps/docs/server.js
-          
+          # Preparar bundle standalone para o SWA seguindo a estrutura validada localmente
           mkdir -p deploy-docs
           
-          # 1. Copiar o servidor standalone e dependências (usando -L para seguir symlinks do pnpm)
-          cp -rL apps/docs/.next/standalone/* deploy-docs/
+          # 1. Copiar o servidor standalone e dependências resolvendo symlinks
+          cp -rL apps/docs/.next/standalone/. deploy-docs/
           
-          # 2. Mover o conteúdo da aplicação para a raiz do deploy-docs
-          # Estrutura inicial em deploy-docs: node_modules/, urbis/apps/docs/{server.js, .next/, etc}
+          # 2. Achatamento: Mover o conteúdo da aplicação para a raiz do deploy-docs
           if [ -d "deploy-docs/urbis/apps/docs" ]; then
-            cp -rL deploy-docs/urbis/apps/docs/* deploy-docs/
+            cp -rL deploy-docs/urbis/apps/docs/. deploy-docs/
             rm -rf deploy-docs/urbis
           fi
           
-          # 3. Injetar assets estáticos (.next/static e public) onde o server.js espera (dentro de .next)
+          # 3. Injetar assets estáticos (.next/static e public) onde o server.js espera
           mkdir -p deploy-docs/.next/static
-          cp -rL apps/docs/.next/static/* deploy-docs/.next/static/
-          cp -rL apps/docs/public deploy-docs/public
+          cp -rL apps/docs/.next/static/. deploy-docs/.next/static/
+          cp -rL apps/docs/public/. deploy-docs/public/
           
-          # 4. Garantir configuração do SWA e package.json mínimo para o detector
+          # 4. Configuração SWA e index.html para satisfazer o detector de artefatos
           cp apps/docs/staticwebapps.config.json deploy-docs/
           echo '{"name":"docs","version":"0.0.0","scripts":{"start":"node server.js"}}' > deploy-docs/package.json
+          echo "<!-- SWA Entry point -->" > deploy-docs/index.html
 
       - name: Build And Deploy
         id: builddeploy
@@ -73,21 +71,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations ######
-          app_location: "deploy-docs" # Pasta preparada com tudo na raiz
+          app_location: "deploy-docs"
           api_location: ""
           output_location: ""
           skip_app_build: true
           skip_api_build: true
           ###### End of Configurations ######
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BRAVE_SMOKE_097CB1810 }}
-          action: "close"

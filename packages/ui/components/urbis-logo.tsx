@@ -44,6 +44,8 @@ export const UrbisLogo = ({
       src={src || (isDark ? darkLogo : lightLogo)}
       alt={alt}
       className={cn("h-8 w-auto object-contain", className)}
+      width="104"
+      height="32"
     />
   );
 };

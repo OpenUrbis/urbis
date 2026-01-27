@@ -263,9 +263,9 @@ export function Footer() {
         {/* Prefeitura Links */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 border-t border-primary-foreground/30 pt-8 pb-6 text-primary-foreground/90 text-sm">
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Prefeitura de São Paulo
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a href="https://capital.sp.gov.br/agenda-do-prefeito" className="hover:underline">
@@ -312,9 +312,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Serviços para o Cidadão
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -416,9 +416,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Serviços para Empresas
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -520,9 +520,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Serviços para o Servidor
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -592,9 +592,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Acontece na cidade
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a href="https://capital.sp.gov.br/noticias" className="hover:underline">

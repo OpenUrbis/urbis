@@ -238,7 +238,7 @@ export function Mosaico() {
                    Mapa.urbis <ExternalLink className="h-3.5 w-3.5" />
                  </div>
                  <img
-                   src="/sp-here-map.webp"
+                   src="/sp-here-map.jpg"
                    alt="Mapa Urbano"
                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                    loading="lazy"

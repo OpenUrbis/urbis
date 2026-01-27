@@ -21,7 +21,7 @@ export class FilesController {
   @Post('public/upload-url')
   @Recaptcha({
     response: (req) => req.body.recaptcha,
-    action: 'upload-file',
+    action: 'upload_file',
     score: 0.5,
   })
   @ApiOperation({ summary: 'Generate S3 upload URL with Recaptcha' })
@@ -57,8 +57,6 @@ export class FilesController {
   }
 
   @Get('download-url')
-  @UseGuards(AuthGuard('api-key'))
-  @ApiSecurity('api_key')
   @ApiOperation({ summary: 'Generate S3 download URL' })
   @ApiQuery({
     name: 'key',

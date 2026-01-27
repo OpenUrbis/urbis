@@ -702,6 +702,9 @@ export function Footer() {
                 src="https://github.com/FernandoDorstSilva/imagens-publicas/blob/main/67ed4d18b423c93557cb4b9b_logo-prefeitura.png?raw=true"
                 alt="Prefeitura SP"
                 className="h-24 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
+                loading="lazy"
+                width="200"
+                height="96"
               />
             </a>
             <div className="h-12 w-px bg-primary-foreground/20" />
@@ -715,6 +718,9 @@ export function Footer() {
                 src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/25e3fad688128822ab408216cab33a8eb7d255ff/logo%20codata%20negativo.svg"
                 alt="Codata"
                 className="h-14 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
+                loading="lazy"
+                width="140"
+                height="56"
               />
             </a>
           </div>

@@ -237,7 +237,14 @@ export function Mosaico() {
                  <div className="absolute bottom-3 right-3 bg-background/90 backdrop-blur text-primary text-sm px-3 py-1 rounded-sm font-bold shadow-sm z-10 flex items-center gap-1 border border-border">
                    Mapa.urbis <ExternalLink className="h-3.5 w-3.5" />
                  </div>
-                 <img src="/sp-here-map.webp" alt="Mapa Urbano" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                 <img
+                   src="/sp-here-map.webp"
+                   alt="Mapa Urbano"
+                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                   loading="lazy"
+                   width="800"
+                   height="450"
+                 />
                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
                     <span className="sr-only">Acessar Mapa</span>
                  </div>

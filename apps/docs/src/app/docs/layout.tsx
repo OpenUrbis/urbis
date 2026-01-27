@@ -8,11 +8,11 @@ import { UrbisHeaderWrapper } from "./urbis-header-wrapper";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const menuItems = [
-    { label: "Mosaico", href: "https://urbis.prefeitura.sp.gov.br" },
-    { label: "Mapa", href: "https://mapa.urbis.prefeitura.sp.gov.br" },
+    { label: "Mosaico", href: "https://urbis.sampa.br" },
+    { label: "Mapa", href: "https://mapa.urbis.sampa.br" },
     {
       label: "Dados Abertos",
-      href: "https://dadosabertos.urbis.prefeitura.sp.gov.br",
+      href: "https://dadosabertos.urbis.sampa.br",
     },
     {
       label: "Legis",

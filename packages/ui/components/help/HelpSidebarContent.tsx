@@ -9,6 +9,7 @@ interface FaqItem {
   answer: React.ReactNode;
 }
 
+
 const FAQ_ITEMS: FaqItem[] = [
   {
     id: "o-que-e-urbis",
@@ -86,20 +87,6 @@ function mergeHeaders(a: Record<string, string>, b: Record<string, string>) {
   return out;
 }
 
-function getApiBase() {
-  return "http://localhost:3000";
-}
-
-function getApiKey() {
-  return "secret";
-}
-
-function buildApiKeyHeaders(): Record<string, string> {
-  var key = getApiKey();
-  if (!key) return {};
-  return { "x-api-key": key };
-}
-
 function safeJsonParse(text: string) {
   try {
     return JSON.parse(text);
@@ -122,75 +109,111 @@ function normalizePublicUrlMaybe(url: string) {
 
 /**
  * =========================
- * reCAPTCHA v3 (SEM Promise)
+ * CONFIG FIXO (sem .env)
  * =========================
- *
- * Observação:
- * - Não usamos "Promise" em nenhum lugar aqui (nem new Promise, nem Promise.resolve/reject),
- *   para evitar o erro TS2585 quando o lib não inclui ES2015+.
- * - O token fica em cache por "reuseMs". Assim, se você fez reCAPTCHA no upload,
- *   o submit do ticket pode reutilizar o mesmo token (se estiver recente).
+ */
+const API_BASE = "http://localhost:3000";
+
+// ✅ TROQUE PELA SUA SITE KEY V3 CORRETA
+const RECAPTCHA_SITE_KEY = "6LfwDx4sAAAAABrm5sINZvaY9Fq3pFttsX-wikjG";
+
+function getApiBase() {
+  return API_BASE;
+}
+
+function getApiKey() {
+  // opcional: se você usa x-api-key no backend
+  return "";
+}
+
+function buildApiKeyHeaders(): Record<string, string> {
+  var key = getApiKey();
+  if (!key) return {};
+  return { "x-api-key": key };
+}
+
+/**
+ * =========================
+ * reCAPTCHA v3 (loader único no JS)
+ * =========================
+ * -> NÃO coloque script no index.html
+ * -> este loader garante 1 script só
  */
 declare global {
   interface Window {
     grecaptcha?: {
       ready: (cb: () => void) => void;
-      execute: (siteKey: string, opts: { action: string }) => {
-        then: (cb: (token: string) => void) => any;
-        catch?: (cb: (err: any) => void) => any;
-      };
+      execute: (
+        siteKey: string,
+        opts: { action: string }
+      ) => { then: (cb: (token: string) => void) => any; catch?: (cb: (err: any) => void) => any };
     };
   }
 }
 
 function getRecaptchaSiteKey() {
-  // TODO: trocar por env/config real
-  return "YOUR_RECAPTCHA_SITE_KEY";
+  return RECAPTCHA_SITE_KEY;
 }
 
 type RecaptchaCallback = (err: Error | null, token?: string) => void;
 
 let recaptchaCache: { token: string; at: number } | null = null;
 
+let recaptchaScriptLoading = false;
+let recaptchaScriptLoaded = false;
+let recaptchaWaiters: Array<(err: Error | null) => void> = [];
+
+
+
 function getRecaptchaToken(action: string, callback: RecaptchaCallback, reuseMs: number) {
-  // reutiliza se ainda válido
   if (recaptchaCache && Date.now() - recaptchaCache.at < reuseMs) {
     callback(null, recaptchaCache.token);
     return;
   }
 
-  if (!window.grecaptcha) {
-    callback(new Error("reCAPTCHA não carregado (grecaptcha)."));
-    return;
-  }
-
-  var siteKey = getRecaptchaSiteKey();
-  if (!siteKey) {
-    callback(new Error("Site key do reCAPTCHA não configurada."));
-    return;
-  }
-
-  window.grecaptcha.ready(function () {
-    try {
-      var p = window.grecaptcha!.execute(siteKey, { action: action });
-
-      // execute retorna um "thenable"
-      p.then(function (token: string) {
-        recaptchaCache = { token: token, at: Date.now() };
-        callback(null, token);
-      });
-
-      if (typeof p.catch === "function") {
-        p.catch(function (err: any) {
-          callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
-        });
-      }
-    } catch (err: any) {
-      callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
+  ensureRecaptchaScriptLoaded(function (loadErr) {
+    if (loadErr) {
+      callback(loadErr);
+      return;
     }
+
+    if (!window.grecaptcha) {
+      callback(new Error("reCAPTCHA não carregado (grecaptcha)."));
+      return;
+    }
+
+    var siteKey = getRecaptchaSiteKey();
+    if (!siteKey) {
+      callback(new Error("Site key do reCAPTCHA não configurada."));
+      return;
+    }
+
+    window.grecaptcha.ready(function () {
+      try {
+        var p = window.grecaptcha!.execute(siteKey, { action: action });
+
+        p.then(function (token: string) {
+          recaptchaCache = { token: token, at: Date.now() };
+          callback(null, token);
+        });
+
+        if (typeof p.catch === "function") {
+          p.catch(function (err: any) {
+            callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
+          });
+        }
+      } catch (err: any) {
+        callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
+      }
+    });
   });
 }
 
+/**
+ * =========================
+ * API calls
+ * =========================
+ */
 function createSupportTicket(params: {
   endpoint?: string;
   payload: {
@@ -199,7 +222,7 @@ function createSupportTicket(params: {
     message: string;
     files: string[];
     type: FeedbackType;
-    recaptcha: string; // ✅ obrigatório para o @Recaptcha no backend
+    recaptcha: string;
     includeSectionData?: boolean;
     sectionData?: ReturnType<typeof buildSectionData>;
   };
@@ -238,11 +261,11 @@ function requestPublicUploadUrl(params: { contentType: string; folderPath: strin
 
   return fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: mergeHeaders({ "Content-Type": "application/json" }, buildApiKeyHeaders()),
     body: JSON.stringify({
       contentType: params.contentType,
       folderPath: normalizeFolderPath(params.folderPath),
-      recaptcha: params.recaptcha, // ✅ necessário para action 'upload-file'
+      recaptcha: params.recaptcha,
     }),
   }).then(function (res) {
     return res.text().then(function (t) {
@@ -261,9 +284,7 @@ function requestPublicUploadUrl(params: { contentType: string; folderPath: strin
 
       var rawFields = data && data.fields;
       var fields =
-        rawFields && typeof rawFields === "object" && Object.keys(rawFields).length > 0
-          ? rawFields
-          : null;
+        rawFields && typeof rawFields === "object" && Object.keys(rawFields).length > 0 ? rawFields : null;
 
       if (!uploadURL || !key) throw new Error("Resposta inválida da API pública de upload.");
 
@@ -288,8 +309,7 @@ function requestDownloadUrl(key: string) {
       var data = t ? safeJsonParse(t) : null;
 
       if (!res.ok) {
-        var msg =
-          (data && typeof data.message === "string" && data.message) || ("Erro HTTP " + res.status);
+        var msg = (data && typeof data.message === "string" && data.message) || "Erro HTTP " + res.status;
         throw new Error(msg);
       }
 
@@ -345,11 +365,7 @@ function crc32Base64FromFile(file: File) {
 }
 
 function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string }, file: File) {
-  if (
-    uploadInfo.fields &&
-    typeof uploadInfo.fields === "object" &&
-    Object.keys(uploadInfo.fields).length
-  ) {
+  if (uploadInfo.fields && typeof uploadInfo.fields === "object" && Object.keys(uploadInfo.fields).length) {
     var form = new FormData();
     Object.keys(uploadInfo.fields).forEach(function (k) {
       form.append(k, uploadInfo.fields[k]);
@@ -397,11 +413,7 @@ function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string },
 }
 
 /**
- * ======================================
  * Upload sequencial COM reCAPTCHA v3
- * ======================================
- * - Antes de pedir o upload-url: executa reCAPTCHA action 'upload-file'
- * - Não cria Promise manualmente; usa apenas o fluxo de then/catch já existente de fetch.
  */
 type UploadCb = (err: Error | null, keys?: string[]) => void;
 
@@ -420,30 +432,33 @@ function uploadFilesSequentiallyWithRecaptcha(params: { files: File[]; folderPat
 
     var contentType = (f && f.type) || "application/octet-stream";
 
-    // ✅ reCAPTCHA antes do upload-url
-    getRecaptchaToken("upload-file", function (err, token) {
-      if (err || !token) {
-        cb(err || new Error("Falha ao validar reCAPTCHA no upload."));
-        return;
-      }
+    getRecaptchaToken(
+      "upload-file",
+      function (err, token) {
+        if (err || !token) {
+          cb(err || new Error("Falha ao validar reCAPTCHA no upload."));
+          return;
+        }
 
-      requestPublicUploadUrl({
-        contentType: contentType,
-        folderPath: params.folderPath,
-        recaptcha: token,
-      })
-        .then(function (info: any) {
-          return uploadToS3({ uploadURL: info.uploadURL, fields: info.fields, key: info.key }, f).then(
-            function () {
-              outKeys.push(info.key);
-              next();
-            }
-          );
+        requestPublicUploadUrl({
+          contentType: contentType,
+          folderPath: params.folderPath,
+          recaptcha: token,
         })
-        .catch(function (e: any) {
-          cb(new Error(e && e.message ? String(e.message) : "Falha ao enviar anexos."));
-        });
-    }, 90_000);
+          .then(function (info: any) {
+            return uploadToS3({ uploadURL: info.uploadURL, fields: info.fields, key: info.key }, f).then(
+              function () {
+                outKeys.push(info.key);
+                next();
+              }
+            );
+          })
+          .catch(function (e: any) {
+            cb(new Error(e && e.message ? String(e.message) : "Falha ao enviar anexos."));
+          });
+      },
+      90_000
+    );
   }
 
   next();
@@ -472,10 +487,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
   const [success, setSuccess] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const toggle = () =>
-    setOpen(function (o) {
-      return !o;
-    });
+  const toggle = () => setOpen((o) => !o);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -590,8 +602,6 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
 
     setSubmitting(true);
 
-    // ✅ reCAPTCHA antes de criar ticket (action 'create-ticket')
-    // ✅ Reusa token recente (se veio do upload), conforme pedido.
     getRecaptchaToken(
       "create-ticket",
       function (err, token) {
@@ -625,7 +635,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
             setSubmitting(false);
           })
           .catch(function (err2: any) {
-            setError(err2 && err2.message ? err2.message : "Falha ao enviar. Tente novamente.");
+            setError(err2 && err2.message ? String(err2.message) : "Falha ao enviar. Tente novamente.");
             setSubmitting(false);
           });
       },
@@ -634,8 +644,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
   };
 
   const firstFileName = selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
-  const extraCount =
-    selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
+  const extraCount = selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
 
   return (
     <div key={id} className="border border-border rounded-md bg-card text-card-foreground">
@@ -778,10 +787,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
   const [success, setSuccess] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const toggle = () =>
-    setOpen(function (o) {
-      return !o;
-    });
+  const toggle = () => setOpen((o) => !o);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -896,8 +902,6 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
 
     setSubmitting(true);
 
-    // ✅ reCAPTCHA antes de criar ticket (action 'create-ticket')
-    // ✅ Reusa token recente (se veio do upload), conforme pedido.
     getRecaptchaToken(
       "create-ticket",
       function (err, token) {
@@ -933,7 +937,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
             setSubmitting(false);
           })
           .catch(function (err2: any) {
-            setError(err2 && err2.message ? err2.message : "Falha ao enviar. Tente novamente.");
+            setError(err2 && err2.message ? String(err2.message) : "Falha ao enviar. Tente novamente.");
             setSubmitting(false);
           });
       },
@@ -942,8 +946,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
   };
 
   const firstFileName = selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
-  const extraCount =
-    selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
+  const extraCount = selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
 
   return (
     <div className="border border-border rounded-md bg-card text-card-foreground">
@@ -1120,9 +1123,7 @@ export function HelpSidebarContent() {
                     />
                   </button>
 
-                  {isOpen && (
-                    <div className="px-3 pb-3 pt-1 text-xs text-muted-foreground">{item.answer}</div>
-                  )}
+                  {isOpen && <div className="px-3 pb-3 pt-1 text-xs text-muted-foreground">{item.answer}</div>}
                 </div>
               );
             })}

@@ -39,6 +39,7 @@ export const LeftNav = () => {
           </div>
         </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <div
           className={cn(
             "w-[420px] transition-all duration-300",
@@ -51,6 +52,8 @@ export const LeftNav = () => {
         </div>
 =======
 >>>>>>> e4cd745 (adjusting footer on web)
+=======
+>>>>>>> 160c23a77887189628a4c976f2e6af7024ad6327
       </div>
     );
   }

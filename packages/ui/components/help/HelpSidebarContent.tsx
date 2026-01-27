@@ -9,16 +9,14 @@ interface FaqItem {
   answer: React.ReactNode;
 }
 
-
 const FAQ_ITEMS: FaqItem[] = [
   {
     id: "o-que-e-urbis",
     question: "O que é a plataforma Urbis?",
     answer: (
       <p className="text-xs text-muted-foreground">
-        A plataforma Urbis é um conjunto de ferramentas digitais da Prefeitura de São Paulo para
-        consulta de mapas, dados urbanísticos, ambientais e serviços relacionados ao planejamento
-        urbano da cidade.
+        A plataforma Urbis é um conjunto de ferramentas digitais da Prefeitura de São Paulo para consulta de mapas, dados
+        urbanísticos, ambientais e serviços relacionados ao planejamento urbano da cidade.
       </p>
     ),
   },
@@ -27,8 +25,8 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "Como usar o mapa para consultar um endereço ou lote?",
     answer: (
       <p className="text-xs text-muted-foreground">
-        Utilize a barra de busca do Mapa.Urbis para digitar o endereço, número de contribuinte ou
-        inscrição cadastral e visualize informações usando as camadas disponíveis.
+        Utilize a barra de busca do Mapa.Urbis para digitar o endereço, número de contribuinte ou inscrição cadastral e
+        visualize informações usando as camadas disponíveis.
       </p>
     ),
   },
@@ -37,8 +35,8 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "Onde encontro documentos e certidões urbanísticas?",
     answer: (
       <p className="text-xs text-muted-foreground">
-        Os links estão nas seções &quot;Doc. técnica&quot; e &quot;+Info&quot;, além dos sistemas
-        específicos da Prefeitura.
+        Os links estão nas seções &quot;Doc. técnica&quot; e &quot;+Info&quot;, além dos sistemas específicos da
+        Prefeitura.
       </p>
     ),
   },
@@ -46,9 +44,7 @@ const FAQ_ITEMS: FaqItem[] = [
     id: "como-enviar-sugestoes",
     question: "Como posso enviar sugestões?",
     answer: (
-      <p className="text-xs text-muted-foreground">
-        Utilize a seção de Sugestões ou +Info para compartilhar melhorias para a plataforma.
-      </p>
+      <p className="text-xs text-muted-foreground">Utilize a seção de Sugestões ou +Info para compartilhar melhorias para a plataforma.</p>
     ),
   },
 ];
@@ -113,8 +109,6 @@ function normalizePublicUrlMaybe(url: string) {
  * =========================
  */
 const API_BASE = "http://localhost:3000";
-
-// ✅ TROQUE PELA SUA SITE KEY V3 CORRETA
 const RECAPTCHA_SITE_KEY = "6LfwDx4sAAAAABrm5sINZvaY9Fq3pFttsX-wikjG";
 
 function getApiBase() {
@@ -134,10 +128,11 @@ function buildApiKeyHeaders(): Record<string, string> {
 
 /**
  * =========================
- * reCAPTCHA v3 (loader único no JS)
+ * reCAPTCHA v3 (script no index.html)
  * =========================
- * -> NÃO coloque script no index.html
- * -> este loader garante 1 script só
+ * ✅ NÃO injeta script aqui
+ * ✅ NÃO usa useEffect
+ * ✅ apenas espera window.grecaptcha existir
  */
 declare global {
   interface Window {
@@ -159,11 +154,30 @@ type RecaptchaCallback = (err: Error | null, token?: string) => void;
 
 let recaptchaCache: { token: string; at: number } | null = null;
 
-let recaptchaScriptLoading = false;
-let recaptchaScriptLoaded = false;
-let recaptchaWaiters: Array<(err: Error | null) => void> = [];
+function waitForGrecaptcha(timeoutMs: number, cb: (err: Error | null) => void) {
+  if (window.grecaptcha) {
+    cb(null);
+    return;
+  }
 
+  var start = Date.now();
+  var timer = setInterval(function () {
+    if (window.grecaptcha) {
+      clearInterval(timer);
+      cb(null);
+      return;
+    }
 
+    if (Date.now() - start > timeoutMs) {
+      clearInterval(timer);
+      cb(
+        new Error(
+          "reCAPTCHA não carregou. Confirme que o script está no index.html do site e não foi bloqueado."
+        )
+      );
+    }
+  }, 50);
+}
 
 function getRecaptchaToken(action: string, callback: RecaptchaCallback, reuseMs: number) {
   if (recaptchaCache && Date.now() - recaptchaCache.at < reuseMs) {
@@ -171,7 +185,7 @@ function getRecaptchaToken(action: string, callback: RecaptchaCallback, reuseMs:
     return;
   }
 
-  ensureRecaptchaScriptLoaded(function (loadErr) {
+  waitForGrecaptcha(6000, function (loadErr) {
     if (loadErr) {
       callback(loadErr);
       return;
@@ -334,7 +348,7 @@ function crc32Table() {
   for (var n = 0; n < 256; n++) {
     c = n;
     for (var k = 0; k < 8; k++) {
-      c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
     }
     table[n] = c >>> 0;
   }
@@ -446,12 +460,10 @@ function uploadFilesSequentiallyWithRecaptcha(params: { files: File[]; folderPat
           recaptcha: token,
         })
           .then(function (info: any) {
-            return uploadToS3({ uploadURL: info.uploadURL, fields: info.fields, key: info.key }, f).then(
-              function () {
-                outKeys.push(info.key);
-                next();
-              }
-            );
+            return uploadToS3({ uploadURL: info.uploadURL, fields: info.fields, key: info.key }, f).then(function () {
+              outKeys.push(info.key);
+              next();
+            });
           })
           .catch(function (e: any) {
             cb(new Error(e && e.message ? String(e.message) : "Falha ao enviar anexos."));
@@ -695,9 +707,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
                 autoComplete="email"
                 inputMode="email"
               />
-              {email.trim() && !isValidEmail(email) && (
-                <p className="text-[11px] text-destructive">E-mail inválido.</p>
-              )}
+              {email.trim() && !isValidEmail(email) && <p className="text-[11px] text-destructive">E-mail inválido.</p>}
             </div>
 
             <div className="space-y-1">
@@ -731,11 +741,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
               {previewUrl && (
                 <div className="mt-2 flex items-center gap-2">
                   <div className="relative h-12 w-12 overflow-hidden rounded-md border border-border">
-                    <img
-                      src={previewUrl}
-                      alt="Pré-visualização do primeiro anexo"
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={previewUrl} alt="Pré-visualização do primeiro anexo" className="h-full w-full object-cover" />
                   </div>
                   <span className="text-[11px] text-muted-foreground truncate max-w-[180px]">
                     {firstFileName}
@@ -758,9 +764,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
               {submitting ? "Enviando..." : "Enviar"}
             </button>
 
-            <p className="text-[10px] text-muted-foreground">
-              Um e-mail de confirmação será enviado para o endereço cadastrado.
-            </p>
+            <p className="text-[10px] text-muted-foreground">Um e-mail de confirmação será enviado para o endereço cadastrado.</p>
           </form>
         </div>
       )}
@@ -961,9 +965,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
 
       {open && (
         <div className="px-3 pb-3 pt-1 space-y-3">
-          <p className="text-xs text-muted-foreground">
-            Relate problemas de funcionamento, erros de informação ou comportamentos inesperados.
-          </p>
+          <p className="text-xs text-muted-foreground">Relate problemas de funcionamento, erros de informação ou comportamentos inesperados.</p>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="space-y-1">
@@ -999,9 +1001,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
                 autoComplete="email"
                 inputMode="email"
               />
-              {email.trim() && !isValidEmail(email) && (
-                <p className="text-[11px] text-destructive">E-mail inválido.</p>
-              )}
+              {email.trim() && !isValidEmail(email) && <p className="text-[11px] text-destructive">E-mail inválido.</p>}
             </div>
 
             <div className="space-y-1">
@@ -1035,11 +1035,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
               {previewUrl && (
                 <div className="mt-2 flex items-center gap-2">
                   <div className="relative h-12 w-12 overflow-hidden rounded-md border border-border">
-                    <img
-                      src={previewUrl}
-                      alt="Pré-visualização do primeiro anexo"
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={previewUrl} alt="Pré-visualização do primeiro anexo" className="h-full w-full object-cover" />
                   </div>
                   <span className="text-[11px] text-muted-foreground truncate max-w-[180px]">
                     {firstFileName}
@@ -1075,9 +1071,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
               {submitting ? "Enviando..." : "Enviar"}
             </button>
 
-            <p className="text-[10px] text-muted-foreground">
-              Um e-mail de confirmação será enviado para o endereço cadastrado.
-            </p>
+            <p className="text-[10px] text-muted-foreground">Um e-mail de confirmação será enviado para o endereço cadastrado.</p>
           </form>
         </div>
       )}
@@ -1118,9 +1112,7 @@ export function HelpSidebarContent() {
                     className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
                   >
                     <span className="text-xs font-medium">{item.question}</span>
-                    <ChevronDown
-                      className={"w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")}
-                    />
+                    <ChevronDown className={"w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")} />
                   </button>
 
                   {isOpen && <div className="px-3 pb-3 pt-1 text-xs text-muted-foreground">{item.answer}</div>}

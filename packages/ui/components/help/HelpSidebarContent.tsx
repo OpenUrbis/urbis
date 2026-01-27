@@ -120,6 +120,77 @@ function normalizePublicUrlMaybe(url: string) {
   return String(url || "");
 }
 
+/**
+ * =========================
+ * reCAPTCHA v3 (SEM Promise)
+ * =========================
+ *
+ * Observação:
+ * - Não usamos "Promise" em nenhum lugar aqui (nem new Promise, nem Promise.resolve/reject),
+ *   para evitar o erro TS2585 quando o lib não inclui ES2015+.
+ * - O token fica em cache por "reuseMs". Assim, se você fez reCAPTCHA no upload,
+ *   o submit do ticket pode reutilizar o mesmo token (se estiver recente).
+ */
+declare global {
+  interface Window {
+    grecaptcha?: {
+      ready: (cb: () => void) => void;
+      execute: (siteKey: string, opts: { action: string }) => {
+        then: (cb: (token: string) => void) => any;
+        catch?: (cb: (err: any) => void) => any;
+      };
+    };
+  }
+}
+
+function getRecaptchaSiteKey() {
+  // TODO: trocar por env/config real
+  return "YOUR_RECAPTCHA_SITE_KEY";
+}
+
+type RecaptchaCallback = (err: Error | null, token?: string) => void;
+
+let recaptchaCache: { token: string; at: number } | null = null;
+
+function getRecaptchaToken(action: string, callback: RecaptchaCallback, reuseMs: number) {
+  // reutiliza se ainda válido
+  if (recaptchaCache && Date.now() - recaptchaCache.at < reuseMs) {
+    callback(null, recaptchaCache.token);
+    return;
+  }
+
+  if (!window.grecaptcha) {
+    callback(new Error("reCAPTCHA não carregado (grecaptcha)."));
+    return;
+  }
+
+  var siteKey = getRecaptchaSiteKey();
+  if (!siteKey) {
+    callback(new Error("Site key do reCAPTCHA não configurada."));
+    return;
+  }
+
+  window.grecaptcha.ready(function () {
+    try {
+      var p = window.grecaptcha!.execute(siteKey, { action: action });
+
+      // execute retorna um "thenable"
+      p.then(function (token: string) {
+        recaptchaCache = { token: token, at: Date.now() };
+        callback(null, token);
+      });
+
+      if (typeof p.catch === "function") {
+        p.catch(function (err: any) {
+          callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
+        });
+      }
+    } catch (err: any) {
+      callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
+    }
+  });
+}
+
 function createSupportTicket(params: {
   endpoint?: string;
   payload: {
@@ -128,6 +199,7 @@ function createSupportTicket(params: {
     message: string;
     files: string[];
     type: FeedbackType;
+    recaptcha: string; // ✅ obrigatório para o @Recaptcha no backend
     includeSectionData?: boolean;
     sectionData?: ReturnType<typeof buildSectionData>;
   };
@@ -160,7 +232,7 @@ function createSupportTicket(params: {
   });
 }
 
-function requestPublicUploadUrl(params: { contentType: string; folderPath: string }) {
+function requestPublicUploadUrl(params: { contentType: string; folderPath: string; recaptcha: string }) {
   var base = getApiBase().replace(/\/$/, "");
   var url = base + "/files/public/upload-url";
 
@@ -170,6 +242,7 @@ function requestPublicUploadUrl(params: { contentType: string; folderPath: strin
     body: JSON.stringify({
       contentType: params.contentType,
       folderPath: normalizeFolderPath(params.folderPath),
+      recaptcha: params.recaptcha, // ✅ necessário para action 'upload-file'
     }),
   }).then(function (res) {
     return res.text().then(function (t) {
@@ -272,7 +345,11 @@ function crc32Base64FromFile(file: File) {
 }
 
 function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string }, file: File) {
-  if (uploadInfo.fields && typeof uploadInfo.fields === "object" && Object.keys(uploadInfo.fields).length) {
+  if (
+    uploadInfo.fields &&
+    typeof uploadInfo.fields === "object" &&
+    Object.keys(uploadInfo.fields).length
+  ) {
     var form = new FormData();
     Object.keys(uploadInfo.fields).forEach(function (k) {
       form.append(k, uploadInfo.fields[k]);
@@ -319,15 +396,23 @@ function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string },
   });
 }
 
-function uploadFilesSequentially(params: { files: File[]; folderPath: string }) {
+/**
+ * ======================================
+ * Upload sequencial COM reCAPTCHA v3
+ * ======================================
+ * - Antes de pedir o upload-url: executa reCAPTCHA action 'upload-file'
+ * - Não cria Promise manualmente; usa apenas o fluxo de then/catch já existente de fetch.
+ */
+type UploadCb = (err: Error | null, keys?: string[]) => void;
+
+function uploadFilesSequentiallyWithRecaptcha(params: { files: File[]; folderPath: string }, cb: UploadCb) {
   var outKeys: string[] = [];
   var idx = 0;
 
-  function next(): any {
+  function next() {
     if (idx >= params.files.length) {
-      return fetch("data:application/json,{}").then(function () {
-        return outKeys;
-      });
+      cb(null, outKeys);
+      return;
     }
 
     var f = params.files[idx];
@@ -335,19 +420,33 @@ function uploadFilesSequentially(params: { files: File[]; folderPath: string }) 
 
     var contentType = (f && f.type) || "application/octet-stream";
 
-    return requestPublicUploadUrl({ contentType: contentType, folderPath: params.folderPath }).then(
-      function (info: any) {
-        return uploadToS3({ uploadURL: info.uploadURL, fields: info.fields, key: info.key }, f).then(
-          function () {
-            outKeys.push(info.key);
-            return next();
-          }
-        );
+    // ✅ reCAPTCHA antes do upload-url
+    getRecaptchaToken("upload-file", function (err, token) {
+      if (err || !token) {
+        cb(err || new Error("Falha ao validar reCAPTCHA no upload."));
+        return;
       }
-    );
+
+      requestPublicUploadUrl({
+        contentType: contentType,
+        folderPath: params.folderPath,
+        recaptcha: token,
+      })
+        .then(function (info: any) {
+          return uploadToS3({ uploadURL: info.uploadURL, fields: info.fields, key: info.key }, f).then(
+            function () {
+              outKeys.push(info.key);
+              next();
+            }
+          );
+        })
+        .catch(function (e: any) {
+          cb(new Error(e && e.message ? String(e.message) : "Falha ao enviar anexos."));
+        });
+    }, 90_000);
   }
 
-  return next();
+  next();
 }
 
 function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
@@ -437,34 +536,36 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
     setSubmitting(true);
     setSelectedFileNames(names);
 
-    uploadFilesSequentially({ files: list, folderPath: folderPath })
-      .then(function (keys: any) {
-        var ks = keys || [];
-        setFiles(ks);
-
-        var firstKey = ks && ks.length ? ks[0] : null;
-        if (firstKey) {
-          return requestDownloadUrl(firstKey)
-            .then(function (dl: string) {
-              setPreviewUrl(dl);
-              setSubmitting(false);
-            })
-            .catch(function () {
-              setPreviewUrl(null);
-              setSubmitting(false);
-            });
-        }
-
-        setPreviewUrl(null);
-        setSubmitting(false);
-      })
-      .catch(function (err: any) {
-        setError(err && err.message ? err.message : "Falha ao enviar anexos.");
+    uploadFilesSequentiallyWithRecaptcha({ files: list, folderPath: folderPath }, function (err, keys) {
+      if (err) {
+        setError(err.message || "Falha ao enviar anexos.");
         setFiles([]);
         setSelectedFileNames([]);
         setPreviewUrl(null);
         setSubmitting(false);
-      });
+        return;
+      }
+
+      var ks = keys || [];
+      setFiles(ks);
+
+      var firstKey = ks && ks.length ? ks[0] : null;
+      if (firstKey) {
+        requestDownloadUrl(firstKey)
+          .then(function (dl: string) {
+            setPreviewUrl(dl);
+            setSubmitting(false);
+          })
+          .catch(function () {
+            setPreviewUrl(null);
+            setSubmitting(false);
+          });
+        return;
+      }
+
+      setPreviewUrl(null);
+      setSubmitting(false);
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -489,32 +590,47 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
 
     setSubmitting(true);
 
-    createSupportTicket({
-      endpoint: endpoint,
-      payload: {
-        name: name.trim(),
-        email: email.trim(),
-        message: message.trim(),
-        files: files || [],
-        type: type,
+    // ✅ reCAPTCHA antes de criar ticket (action 'create-ticket')
+    // ✅ Reusa token recente (se veio do upload), conforme pedido.
+    getRecaptchaToken(
+      "create-ticket",
+      function (err, token) {
+        if (err || !token) {
+          setError(err ? err.message : "Falha ao validar reCAPTCHA no envio.");
+          setSubmitting(false);
+          return;
+        }
+
+        createSupportTicket({
+          endpoint: endpoint,
+          payload: {
+            name: name.trim(),
+            email: email.trim(),
+            message: message.trim(),
+            files: files || [],
+            type: type,
+            recaptcha: token,
+          },
+        })
+          .then(function () {
+            setSuccess("Mensagem enviada com sucesso. Uma cópia foi enviada para o seu e-mail cadastrado.");
+
+            setName("");
+            setEmail("");
+            setMessage("");
+            setFiles([]);
+            setSelectedFileNames([]);
+            setPreviewUrl(null);
+
+            setSubmitting(false);
+          })
+          .catch(function (err2: any) {
+            setError(err2 && err2.message ? err2.message : "Falha ao enviar. Tente novamente.");
+            setSubmitting(false);
+          });
       },
-    })
-      .then(function () {
-        setSuccess("Mensagem enviada com sucesso. Uma cópia foi enviada para o seu e-mail cadastrado.");
-
-        setName("");
-        setEmail("");
-        setMessage("");
-        setFiles([]);
-        setSelectedFileNames([]);
-        setPreviewUrl(null);
-
-        setSubmitting(false);
-      })
-      .catch(function (err: any) {
-        setError(err && err.message ? err.message : "Falha ao enviar. Tente novamente.");
-        setSubmitting(false);
-      });
+      90_000
+    );
   };
 
   const firstFileName = selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
@@ -529,9 +645,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
         className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
       >
         <span className="text-xs font-semibold">{title}</span>
-        <ChevronDown
-          className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")}
-        />
+        <ChevronDown className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")} />
       </button>
 
       {open && (
@@ -728,34 +842,36 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
     setSubmitting(true);
     setSelectedFileNames(names);
 
-    uploadFilesSequentially({ files: list, folderPath: folderPath })
-      .then(function (keys: any) {
-        var ks = keys || [];
-        setFiles(ks);
-
-        var firstKey = ks && ks.length ? ks[0] : null;
-        if (firstKey) {
-          return requestDownloadUrl(firstKey)
-            .then(function (dl: string) {
-              setPreviewUrl(dl);
-              setSubmitting(false);
-            })
-            .catch(function () {
-              setPreviewUrl(null);
-              setSubmitting(false);
-            });
-        }
-
-        setPreviewUrl(null);
-        setSubmitting(false);
-      })
-      .catch(function (err: any) {
-        setError(err && err.message ? err.message : "Falha ao enviar anexos.");
+    uploadFilesSequentiallyWithRecaptcha({ files: list, folderPath: folderPath }, function (err, keys) {
+      if (err) {
+        setError(err.message || "Falha ao enviar anexos.");
         setFiles([]);
         setSelectedFileNames([]);
         setPreviewUrl(null);
         setSubmitting(false);
-      });
+        return;
+      }
+
+      var ks = keys || [];
+      setFiles(ks);
+
+      var firstKey = ks && ks.length ? ks[0] : null;
+      if (firstKey) {
+        requestDownloadUrl(firstKey)
+          .then(function (dl: string) {
+            setPreviewUrl(dl);
+            setSubmitting(false);
+          })
+          .catch(function () {
+            setPreviewUrl(null);
+            setSubmitting(false);
+          });
+        return;
+      }
+
+      setPreviewUrl(null);
+      setSubmitting(false);
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -780,34 +896,49 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
 
     setSubmitting(true);
 
-    createSupportTicket({
-      endpoint: endpoint,
-      payload: {
-        name: name.trim(),
-        email: email.trim(),
-        message: message.trim(),
-        files: files || [],
-        type: "bug-report",
-        includeSectionData: includeSectionData,
-        sectionData: includeSectionData ? buildSectionData() : undefined,
+    // ✅ reCAPTCHA antes de criar ticket (action 'create-ticket')
+    // ✅ Reusa token recente (se veio do upload), conforme pedido.
+    getRecaptchaToken(
+      "create-ticket",
+      function (err, token) {
+        if (err || !token) {
+          setError(err ? err.message : "Falha ao validar reCAPTCHA no envio.");
+          setSubmitting(false);
+          return;
+        }
+
+        createSupportTicket({
+          endpoint: endpoint,
+          payload: {
+            name: name.trim(),
+            email: email.trim(),
+            message: message.trim(),
+            files: files || [],
+            type: "bug-report",
+            recaptcha: token,
+            includeSectionData: includeSectionData,
+            sectionData: includeSectionData ? buildSectionData() : undefined,
+          },
+        })
+          .then(function () {
+            setSuccess("Erro reportado com sucesso. Uma cópia foi enviada para o seu e-mail cadastrado.");
+
+            setName("");
+            setEmail("");
+            setMessage("");
+            setFiles([]);
+            setSelectedFileNames([]);
+            setPreviewUrl(null);
+
+            setSubmitting(false);
+          })
+          .catch(function (err2: any) {
+            setError(err2 && err2.message ? err2.message : "Falha ao enviar. Tente novamente.");
+            setSubmitting(false);
+          });
       },
-    })
-      .then(function () {
-        setSuccess("Erro reportado com sucesso. Uma cópia foi enviada para o seu e-mail cadastrado.");
-
-        setName("");
-        setEmail("");
-        setMessage("");
-        setFiles([]);
-        setSelectedFileNames([]);
-        setPreviewUrl(null);
-
-        setSubmitting(false);
-      })
-      .catch(function (err: any) {
-        setError(err && err.message ? err.message : "Falha ao enviar. Tente novamente.");
-        setSubmitting(false);
-      });
+      90_000
+    );
   };
 
   const firstFileName = selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
@@ -822,9 +953,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
         className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
       >
         <span className="text-xs font-semibold">Relatar erro</span>
-        <ChevronDown
-          className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")}
-        />
+        <ChevronDown className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")} />
       </button>
 
       {open && (
@@ -970,9 +1099,7 @@ export function HelpSidebarContent() {
           className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
         >
           <span className="text-xs font-semibold">FAQ</span>
-          <ChevronDown
-            className={"w-4 h-4 transition-transform " + (faqOpen ? "rotate-180" : "rotate-0")}
-          />
+          <ChevronDown className={"w-4 h-4 transition-transform " + (faqOpen ? "rotate-180" : "rotate-0")} />
         </button>
 
         {faqOpen && (
@@ -989,9 +1116,7 @@ export function HelpSidebarContent() {
                   >
                     <span className="text-xs font-medium">{item.question}</span>
                     <ChevronDown
-                      className={
-                        "w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")
-                      }
+                      className={"w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")}
                     />
                   </button>
 

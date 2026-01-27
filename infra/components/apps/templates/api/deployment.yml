@@ -32,7 +32,7 @@ spec:
         - name: APP_HEADER_LANGUAGE
           value: "x-custom-lang"
         - name: FRONTEND_DOMAIN
-          value: "https://conta.mapa.urbis.sampa.br"
+          value: "https://conta.urbis.sampa.br"
         - name: BACKEND_DOMAIN
           value: "https://api.mapa.urbis.sampa.br"
         - name: SWAGGER_ENABLED

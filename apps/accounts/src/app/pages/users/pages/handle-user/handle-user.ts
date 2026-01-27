@@ -30,7 +30,6 @@ import {
 import { PageStructure } from '../../../../components/page-structure/page-structure';
 import { UserRoleManager } from '../../../../components/role-manager/user-role-manager/user-role-manager';
 import { UserOrganizationManager } from '../../../../components/user-organization-manager/user-organization-manager';
-import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { ICreateUserRequest, IUpdateUserRequest } from '../../dto/user.dto';
 import { UsersApi } from '../../services/users-api';
 
@@ -53,8 +52,6 @@ import { UsersApi } from '../../services/users-api';
     HlmLabelDirective,
     HlmIconComponent,
     HlmSwitchComponent,
-    HasPermissionDirective,
-    PageStructure,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideTrash2, lucideMap, lucideChevronDown })],
   templateUrl: './handle-user.html',

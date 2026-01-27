@@ -22,9 +22,9 @@ export class App {
     { label: 'Mosaico', href: 'https://urbis.prefeitura.sp.gov.br'},
     { label: 'Mapa', href: 'https://mapa.urbis.prefeitura.sp.gov.br' },
     { label: 'Dados Abertos', href: 'https://dadosabertos.urbis.prefeitura.sp.gov.br' },
-    { label: 'Legis', href: 'https://docs.urbis.prefeitura.sp.gov.br/docs/legis' },
-    { label: 'Viabiliza', href: 'https://viabiliza.urbis.prefeitura.sp.gov.br/docs/legis' },
-    { label: 'Doc. técnica', href: 'https://docs.urbis.prefeitura.sp.gov.br/' },
+    { label: 'Legis', href: 'https://docs.urbis.sampa.br/docs/legis' },
+    { label: 'Viabiliza', href: 'https://viabiliza.urbis.sampa.br/docs/legis' },
+    { label: 'Doc. técnica', href: 'https://docs.urbis.sampa.br/' },
   ];
 
   currentUrl = toSignal(

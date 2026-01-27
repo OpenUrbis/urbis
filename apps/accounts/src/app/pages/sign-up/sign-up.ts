@@ -33,7 +33,6 @@ import {
   PasswordFormGroup,
   passwordFormGroup,
   phoneFormGroup,
-  PhoneFormGroup,
 } from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
 import { mergeFormGroups } from '../../shared/utils/merge-form-groups';
@@ -68,7 +67,6 @@ import { PrivacyPolicyComponent } from '../../components/legal/privacy-policy';
     HlmIconComponent,
     ReactiveFormsModule,
     PasswordFormGroup,
-    PhoneFormGroup,
     TranslateModule,
     RecaptchaV3Module,
     HlmSwitchComponent,

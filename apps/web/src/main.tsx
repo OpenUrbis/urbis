@@ -6,14 +6,14 @@ import "bootstrap/dist/css/bootstrap.css";
 import { render } from "preact";
 import { ReactNode } from "react";
 import { Debugger } from "./components/Debugger";
-import { LayerController } from "./components/LayerController";
+import Header from "./components/Header";
 import { LeftNav } from "./components/LeftNav";
 import { MapLegend } from "./components/MapLegend";
-import { MapView } from "./components/MapView/MapView";
+import { MapView } from "./components/MapView";
 import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
+import { PolygonEditProvider } from "./context/PolygonEditContext";
 import { SearchProvider } from "./context/SearchContext";
-import Header from "./components/Header";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,18 +32,19 @@ const App = () => (
         <NavigationProvider>
           <MapProvider>
             <SearchProvider>
-              <div id="app">
-                <header class="app-header">
-                  <Header />
-                </header>
-                <div class="map-container">
-                  <LeftNav />
-                  <MapLegend />
-                  <LayerController />
-                  <MapView />
-                  <Debugger />
+              <PolygonEditProvider>
+                <div id="app">
+                  <header className="app-header">
+                    <Header />
+                  </header>
+                  <div className="map-container">
+                    <LeftNav />
+                    <MapLegend />
+                    <MapView />
+                    <Debugger />
+                  </div>
                 </div>
-              </div>
+              </PolygonEditProvider>
             </SearchProvider>
           </MapProvider>
         </NavigationProvider>

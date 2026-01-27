@@ -41,9 +41,6 @@ export class LayerSchema {
   isVisible?: boolean;
 
   @Column({ nullable: true })
-  canEditFeature?: boolean;
-
-  @Column({ nullable: true })
   minZoom?: number;
 
   @Column({ nullable: true })

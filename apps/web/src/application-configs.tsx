@@ -1,6 +1,9 @@
 import { FillStyleExtension } from "@deck.gl/extensions";
-import { ClickActionEnum } from '@open-urbis/map-shared';
-import { IMapActionProps, IMapContextActions } from "./types/map-context-type";
+import { ClickActionEnum } from "@open-urbis/map-shared";
+import { FeaturesView } from "./components/FeaturesView";
+import { useMapContext } from "./hooks/useMapContext";
+import { useNavigationContext } from "./hooks/useNavigationContext";
+import { IMapActionProps } from "./types/map-context-type";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const MAP_CONFIGS: any = {
@@ -46,16 +49,15 @@ export const MAP_CONFIGS: any = {
   },
 };
 
-export const CLICK_ACTIONS_CONFIG = (
-  mapContext: IMapContextActions
-): {
+export const CLICK_ACTIONS_CONFIG = (): {
   [key in ClickActionEnum]: (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clickActionParams: any,
     informations: IMapActionProps
   ) => void;
 } => {
-  const { selectFeature, flyTo } = mapContext;
+  const { selectFeature, flyTo } = useMapContext();
+  const { navigateTo, addOnPage, rmOnPage } = useNavigationContext();
 
   return {
     [ClickActionEnum.SelectFeature]: function (
@@ -77,6 +79,7 @@ export const CLICK_ACTIONS_CONFIG = (
         zoom,
         ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
       });
+      navigateTo(<FeaturesView />);
     },
     [ClickActionEnum.SetZoom]: function (
       { zoom },
@@ -94,6 +97,12 @@ export const CLICK_ACTIONS_CONFIG = (
           ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
         });
       });
+    },
+    [ClickActionEnum.openFeature]: function ({ template }, { feature }) {
+      rmOnPage();
+      addOnPage(
+        <FeaturesView feature={{ template: template ?? [], feature }} />
+      );
     },
   };
 };

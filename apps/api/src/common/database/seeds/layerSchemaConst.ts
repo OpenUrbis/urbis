@@ -14,7 +14,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.CustomWMSLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -35,7 +34,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -56,7 +54,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -76,7 +73,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: true,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -129,7 +125,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: 'nm_perimetro_divisao_pde',
     getFillColorPropName: 'nm_perimetro_divisao_pde',
@@ -158,7 +153,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: true,
-    canEditFeature: false,
     minZoom: 17,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -194,8 +188,31 @@ export const layerSchemas: LayerSchema[] = [
             value: "<%- properties?.tx_tipo_lote ?? '-' %>",
           },
           {
-            type: 'label-value',
-            label: 'Mapinha',
+            type: 'polygon-map',
+            properties: {
+              initialViewState: `(data) => {
+                const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
+              
+                return {
+                  longitude: centroid[0],
+                  latitude: centroid[1],
+                  zoom: 16.5,
+                  pitch: 0,
+                  bearing: 0,
+                };
+              }`,
+              polygonProps: `(data) => ({
+                id: "polygon-layer",
+                data: [{ coordinates: data.geometry.coordinates }],
+                pickable: false,
+                stroked: true,
+                filled: true,
+                lineWidthMinPixels: 2,
+                getPolygon: (d) => d.coordinates,
+                getFillColor: [255, 165, 0, 100],
+                getLineColor: [255, 140, 0],
+              })`,
+            },
           },
           {
             type: 'label-value',
@@ -206,6 +223,126 @@ export const layerSchemas: LayerSchema[] = [
             type: 'label-value',
             label: 'Subprefeitura',
             value: 'Não disponível',
+          },
+          {
+            type: 'protocol-action',
+            polygonTemplate: [
+              {
+                type: 'wrapper-card',
+                label: 'Área selecionada',
+                templates: [
+                  {
+                    type: 'polygon-map',
+                    properties: {
+                      initialViewState: `(data) => {
+                        const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
+                      
+                        return {
+                          longitude: centroid[0],
+                          latitude: centroid[1],
+                          zoom: 16.5,
+                          pitch: 0,
+                          bearing: 0,
+                        };
+                      }`,
+                      polygonProps: `(data) => ({
+                        id: "polygon-layer",
+                        data: [{ coordinates: data.geometry.coordinates }],
+                        pickable: false,
+                        stroked: true,
+                        filled: true,
+                        lineWidthMinPixels: 2,
+                        getPolygon: (d) => d.coordinates,
+                        getFillColor: [255, 165, 0, 100],
+                        getLineColor: [255, 140, 0],
+                      })`,
+                    },
+                  },
+                ],
+              },
+              {
+                type: 'wrapper-card',
+                label: 'Intersesões no perimetro',
+                templates: [
+                  {
+                    type: 'wrapper-list-items',
+                    properties: {
+                      twoLine: true,
+                      data: `(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))`,
+                    },
+                    templates: [
+                      {
+                        type: 'primary-item',
+                        value: `
+                          <% if (id.includes("macroareas")) { %>
+                            <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else if (id.includes("minianel_viario")) { %>
+                            <%- properties.nm_restricao_circulacao_veiculo %>
+                          <% } else if (id.includes("subprefeitura")) { %>
+                            <%- properties.nm_subprefeitura %>
+                          <% } else if (id.includes("macrozonas")) { %>
+                            <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else if (id.includes("tombamentos-areas")) { %>
+                            <%- properties.nm_bairro %>
+                          <% } else if (id.includes("zoneamento_geral")) { %>
+                            <%- properties.nm_perimetro_divisao_pde %>
+                          <% } else { %>
+                            Não mapeado
+                          <% } %>
+                        `,
+                      },
+                      {
+                        type: 'secondary-item',
+                        value: `
+                          <% if (id.includes("macroareas")) { %>
+                            Macroarea
+                          <% } else if (id.includes("minianel_viario")) { %>
+                            Minianel Viario
+                          <% } else if (id.includes("subprefeitura")) { %>
+                            Sub-Prefeitura
+                          <% } else if (id.includes("macrozonas")) { %>
+                            Macrozona
+                          <% } else if (id.includes("tombamentos-areas")) { %>
+                            <%- properties.tx_resolucao_condephaat %>
+                          <% } else if (id.includes("zoneamento_geral")) { %>
+                            Zoneamento
+                          <% } else { %>
+                            Não mapeado
+                          <% } %>
+                        `,
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: 'wrapper-card',
+                label: 'Lotes no Perímetro',
+                templates: [
+                  {
+                    type: 'wrapper-list-items',
+                    properties: {
+                      twoLine: true,
+                      data: `(data) => data.response.features.filter(({ id }) => id.includes("lote_cidadao"))`,
+                      onItemClick: {
+                        action: ClickActionEnum.openFeature,
+                        params: { template: 'root' },
+                      },
+                    },
+                    templates: [
+                      {
+                        type: 'primary-item',
+                        value: `Identificador #<%- properties.id.replace("lote_cidadao.", "") %>`,
+                      },
+                      {
+                        type: 'secondary-item',
+                        value: `SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>`,
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
           },
         ],
       },
@@ -336,7 +473,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: 'nm_perimetro_divisao_pde',
     getFillColorPropName: 'nm_perimetro_divisao_pde',
@@ -403,7 +539,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: 'nm_perimetro_divisao_pde',
     getFillColorPropName: 'nm_perimetro_divisao_pde',
@@ -432,7 +567,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -453,7 +587,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -469,7 +602,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.CustomWMSLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -490,7 +622,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: false,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -506,7 +637,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -527,7 +657,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -548,7 +677,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: 'tx_tipo_processo',
     getFillColorPropName: null,
@@ -569,7 +697,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: 'subsetor',
     getFillColorPropName: 'subsetor',
@@ -652,7 +779,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -673,7 +799,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.CustomWMSLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -694,7 +819,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -715,7 +839,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -736,7 +859,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -757,7 +879,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -778,7 +899,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: null,
     getFillColorPropName: null,
@@ -799,7 +919,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: 'cd_zoneamento_perimetro',
     getFillColorPropName: 'cd_zoneamento_perimetro',
@@ -846,7 +965,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
-    canEditFeature: false,
     minZoom: null,
     getTextColorPropName: 'nm_perimetro_divisao_pde',
     getFillColorPropName: 'nm_perimetro_divisao_pde',
@@ -875,7 +993,6 @@ export const layerSchemas: LayerSchema[] = [
     isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: false,
-    canEditFeature: false,
     minZoom: 17,
     getTextColorPropName: 'cd_zoneamento_perimetro',
     getFillColorPropName: 'cd_zoneamento_perimetro',

@@ -3,10 +3,16 @@ import { ViewTemplateEngine } from "./ViewTemplateEngine";
 
 export interface IViewTemplate {
   templates: ITemplate[];
+  rootTemplate?: ITemplate[];
   data: unknown;
 }
 
-export const ViewTemplate = ({ templates, data }: IViewTemplate) => {
+export const ViewTemplate = ({
+  templates,
+  data,
+  rootTemplate,
+}: IViewTemplate) => {
+
   return (
     <div
       style={{
@@ -19,6 +25,7 @@ export const ViewTemplate = ({ templates, data }: IViewTemplate) => {
           key={`renderTemplate-${i}`}
           template={template}
           data={data}
+          rootTemplate={rootTemplate}
         />
       ))}
     </div>

@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { ITemplate, ITemplateProps, ITemplatesMap } from "./types/templates-type";
 import { VIEW_TEMPLATE_TEMPLATES } from "./templates";
 
-export const ViewTemplateEngine = ({ template, data }: ITemplateProps) => {
+export const ViewTemplateEngine = ({ template, data, rootTemplate }: ITemplateProps) => {
   const templateTypes: ITemplatesMap = useMemo(() => {
     const templates: ITemplatesMap = {};
 
@@ -19,18 +19,18 @@ export const ViewTemplateEngine = ({ template, data }: ITemplateProps) => {
 
       try {
         if (!templateType || !templateTypes?.[templateType])
-          throw new Error("Template Type is not exist");
+          throw new Error("Template Type is not exist: " + templateType);
 
         const Template = templateTypes[templateType];
 
-        return <Template template={props} data={data} />;
+        return <Template template={props} data={data} rootTemplate={rootTemplate} />;
       } catch (e) {
         console.error(e);
 
         return <div>Error on loading template</div>;
       }
     },
-    [templateTypes, data]
+    [templateTypes, data, rootTemplate]
   );
 
   return <>{renderTemplate(template)}</>;

@@ -1,12 +1,10 @@
-import { computed } from "@preact/signals-react";
 import "@rmwc/card/styles";
 import "@rmwc/circular-progress/styles";
 import "@rmwc/textfield/styles";
-import { TargetedEvent, useEffect } from "preact/compat";
+import { useEffect } from "preact/compat";
 import { createElement, ReactNode } from "react";
-import { Card, CircularProgress, List, ListItem, TextField } from "rmwc";
+import { Card, CircularProgress, Fab, List, ListItem, TextField } from "rmwc";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
-import { useMapContext } from "../../hooks/useMapContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import {
   IGetSearchConfigResponse,
@@ -18,28 +16,18 @@ import "./style.scss";
 export const Search = () => {
   const {
     currentTerm,
-    results,
     searchConfig,
     resetSearch,
     populateSearchConfig,
     searchQuery,
   } = useSearchContext();
-  const mapContext = useMapContext();
-  const clickActions = CLICK_ACTIONS_CONFIG(mapContext);
+  const { data, error, fetchData, loading } = searchQuery;
+  const clickActions = CLICK_ACTIONS_CONFIG();
 
   useEffect(() => {
     populateSearchConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const hasTerm = computed(
-    () => !!(currentTerm.value && currentTerm.value.length >= 3)
-  );
-
-  const handleSearch = (e: TargetedEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // O search é acionado automaticamente pelo react-query quando o searchTerm é alterado
-  };
 
   const handleClickItem = (
     config: IGetSearchConfigResponse,
@@ -57,12 +45,6 @@ export const Search = () => {
     const actionFn = clickActions[action as keyof typeof clickActions];
     if (actionFn) {
       const { latitude, longitude, rawData } = item;
-      console.log({
-        latitude,
-        longitude,
-        feature: rawData,
-        template,
-      });
       actionFn(params, {
         latitude,
         longitude,
@@ -119,7 +101,11 @@ export const Search = () => {
         (
           <div className="search-card-container">
             <form
-              onSubmit={handleSearch}
+              onSubmit={(e) => {
+                e.preventDefault();
+
+                fetchData(currentTerm.value);
+              }}
               style={{ display: "flex", alignItems: "center", gap: "8px" }}
             >
               <TextField
@@ -127,37 +113,35 @@ export const Search = () => {
                 placeholder="Digite para buscar..."
                 value={currentTerm.value}
                 outlined
-                onChange={(e: { target: { value: string } }) =>
+                onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
                   (currentTerm.value = e.target.value)
                 }
                 style={{ flex: 1, width: "100%" }}
               />
-              {searchQuery.isLoading && <CircularProgress width="24px" />}
+              {createElement(Fab, {
+                raised: true,
+                icon: loading
+                  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    createElement(CircularProgress as any, { width: "24px" })
+                  : "search",
+                type: "submit",
+                class: "search-button",
+              })}
             </form>
 
-            {searchQuery.error && (
-              <p style={{ color: "red", marginTop: "8px" }}>
-                {(searchQuery.error as { message: string }).message}
-              </p>
-            )}
+            {error && <p style={{ color: "red", marginTop: "8px" }}>{error}</p>}
 
-            {!currentTerm.value && (
+            {!data && (
               <p className="search-placeholder">
                 Busque por IPTU, endereço, coordenadas, bairros ou regiões de
                 São Paulo:
               </p>
             )}
 
-            {currentTerm.value && !hasTerm.value && (
-              <p className="search-placeholder">
-                Digite ao menos 3 caracteres para buscar.
-              </p>
-            )}
-
-            {hasTerm.value && (
+            {data && (
               <>
                 {searchConfig.value.map((config) =>
-                  buildList(config, results.value[config.id])
+                  buildList(config, data?.[config.id] ?? [])
                 )}
               </>
             )}

@@ -9,15 +9,21 @@
   span.text {
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    /* Limita a 2 linhas */
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    /* Ajuste conforme necessário */
     white-space: normal;
   }
 
+  .mdc-fab {
+    background-color: #FFFFFF !important;
+
+    .mdc-fab__icon {
+      color: #007bff !important;
+    }
+  }
 }
 
 .search-placeholder {

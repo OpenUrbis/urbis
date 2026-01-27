@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { IListItemsProperties } from "./list-items-type";
+import { IPolygonMapProperties } from "./polygon-map-type";
 import { IRowWrapperProperties } from "./row-wrapper-type";
 
 export type ITemplateRender = (props: ITemplateProps) => any;
@@ -18,11 +20,17 @@ export interface ITemplate {
   templates?: ITemplate[];
   label?: string;
   value?: string;
-  properties?: IRowWrapperProperties | unknown;
+  polygonTemplate?: ITemplate[];
+  properties?:
+    | IRowWrapperProperties
+    | IPolygonMapProperties
+    | IListItemsProperties
+    | unknown;
 }
 
 export interface ITemplateProps {
   template: ITemplate;
   data: unknown;
   key?: string;
+  rootTemplate?: ITemplate[];
 }

@@ -22,9 +22,7 @@ export interface MapContextType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   viewport: Signal<any>;
   zoom: Signal<number>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  editionFeatures: Signal<any[]>;
-  overlayRef?: React.RefObject<MapboxOverlay | null>;
+  overlayRef: React.RefObject<MapboxOverlay | null>;
 }
 
 export type MapContextLayerSchemaType =
@@ -42,8 +40,8 @@ export type MapContextRenderedLayer =
 export type MapContextLayerSchemaTypeMapProps = {
   zoom: number;
   boundingBox: MapBoundingBox;
-  selectedFeature?: MapContextSelectedFeature[]
-  selectedFeatureIds?: string[]
+  selectedFeature?: MapContextSelectedFeature[];
+  selectedFeatureIds?: string[];
 };
 
 export type MapContextLayerSchemaTypeMap = {

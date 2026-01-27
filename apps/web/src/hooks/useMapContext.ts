@@ -5,7 +5,7 @@ import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 import {
   IMapContextActions,
   MapContextSelectedFeature,
-  MapContextType
+  MapContextType,
 } from "../types/map-context-type";
 
 export const calculateCenterId = (polygon: number[][]) => {

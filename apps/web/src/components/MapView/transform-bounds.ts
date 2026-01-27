@@ -16,6 +16,7 @@ export function transformBoundsToUTM(coordinates: any) {
 }
 
 // Função para formatar os limites transformados para o formato da URL
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function formatBoundsForURL(bounds: any) {
   // Formatando os limites para o formato da URL
   const formattedBounds = bounds.join(",");
@@ -24,6 +25,7 @@ export function formatBoundsForURL(bounds: any) {
 }
 
 // Função para transformar coordenadas UTM (EPSG:31983) em WGS84
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function transformUTMToWGS84(coordinates: any) {
   // Definindo a projeção de origem (UTM zone 23S - EPSG:31983)
   const source =
@@ -37,6 +39,7 @@ export function transformUTMToWGS84(coordinates: any) {
   return transformedCoordinates;
 }
 // Função para converter as coordenadas do GeoJSON
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertGeoJsonCoordinates(geoJson: any): any {
   // Definindo a projeção de origem (EPSG:31983)
   const source =
@@ -45,15 +48,20 @@ export function convertGeoJsonCoordinates(geoJson: any): any {
   // Definindo a projeção de destino (EPSG:4326)
   const destination = "+proj=longlat +datum=WGS84";
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const convertedFeatures = geoJson.features.map((feature: any) => {
     const convertedCoordinates = feature.geometry.coordinates.map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (coordinates: any) => {
         if (feature.geometry.type === "Polygon") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return coordinates.map((ring: any) =>
             ring.map((coord: number[]) => proj4(source, destination, coord))
           );
         } else if (feature.geometry.type === "MultiPolygon") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return coordinates.map((polygon: any) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             polygon.map((ring: any) =>
               ring.map((coord: number[]) => proj4(source, destination, coord))
             )

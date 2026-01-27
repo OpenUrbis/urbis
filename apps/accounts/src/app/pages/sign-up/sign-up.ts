@@ -39,7 +39,7 @@ import { mergeFormGroups } from '../../shared/utils/merge-form-groups';
 import { SignInApi } from '../sign-in/services/sign-in-api';
 import { SignUpApi } from './services/sign-up-api';
 import { HttpClient } from '@angular/common/http';
-import { decode } from '@open-urbis/numeracao-digital';
+import { decode } from '@open-urbis/endereco-digital';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TermsOfUseComponent } from '../../components/legal/terms-of-use';
 import { PrivacyPolicyComponent } from '../../components/legal/privacy-policy';

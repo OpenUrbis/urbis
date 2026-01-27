@@ -4,7 +4,7 @@ import { ProfileState } from '../../../states/profile/profile.state';
 import { ProfileEditApi } from '../services/profile-edit-api';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { decode } from '@open-urbis/numeracao-digital';
+import { decode } from '@open-urbis/endereco-digital';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { provideIcons } from '@ng-icons/core';

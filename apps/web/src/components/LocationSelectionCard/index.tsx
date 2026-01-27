@@ -19,7 +19,7 @@ import { transformFileToJson } from "../../utils/transformFileToJson";
 import { calculateCentroid } from "../MapView/utils";
 import { PolygonDetails } from "../PolygonDetails";
 import { DigitalAddressDetails } from "./DigitalAddressDetails";
-import { decode, getPolygon, encode } from "@open-urbis/numeracao-digital";
+import { decode, getPolygon, encode } from "@open-urbis/endereco-digital";
 // @ts-ignore
 import { OpenLocationCode } from "open-location-code";
 import proj4 from "proj4";

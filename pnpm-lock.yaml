@@ -112,7 +112,7 @@ importers:
       '@ngx-translate/http-loader':
         specifier: ^17.0.0
         version: 17.0.0(@angular/common@20.3.15(@angular/core@20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@20.3.15(@angular/compiler@20.3.15)(rxjs@7.8.2)(zone.js@0.15.1))
-      '@open-urbis/numeracao-digital':
+      '@open-urbis/endereco-digital':
         specifier: workspace:^
         version: link:../../packages/numeracao-digital
       '@uppy/angular':
@@ -752,15 +752,15 @@ importers:
       '@monaco-editor/react':
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.55.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@open-urbis/endereco-digital':
+        specifier: workspace:*
+        version: link:../../packages/numeracao-digital
       '@open-urbis/map-shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@open-urbis/map-ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@open-urbis/numeracao-digital':
-        specifier: workspace:*
-        version: link:../../packages/numeracao-digital
       '@preact-signals/query':
         specifier: ^2.1.1
         version: 2.1.2(@preact/signals-core@1.12.1)(@preact/signals-react@3.6.1(react@18.3.1))(@preact/signals@2.5.1(preact@10.28.1))(hotscript@1.0.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

@@ -35,7 +35,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@open-urbis/map-shared": "workspace:*",
     "@open-urbis/map-ui": "workspace:*",
-    "@open-urbis/numeracao-digital": "workspace:*",
+    "@open-urbis/endereco-digital": "workspace:*",
     "@preact-signals/query": "^2.1.1",
     "@preact/signals": "^2.0.3",
     "@preact/signals-react": "^3.0.1",

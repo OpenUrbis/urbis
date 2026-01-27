@@ -64,7 +64,7 @@
         }}</span>
     </a>
 
-    <a routerLink="/settings" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
+    <a *hasPermission="'app-settings:list'" routerLink="/settings" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
       hlmSidebarMenuButton [attr.aria-label]="'components.profileMenu.whitelabel' | translate">
       <hlm-icon name="lucideSettings" size="18px" />
       <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.whitelabel" | translate }}</span>

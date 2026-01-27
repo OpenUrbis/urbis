@@ -653,7 +653,7 @@ export function Footer() {
         {/* Partners Section */}
         <div className="border-t border-primary-foreground/10 py-12 mt-12">
           <div className="flex flex-col items-center gap-8">
-            <span className="text-primary-foreground/60 text-xs font-bold uppercase tracking-[0.2em]">
+            <span className="text-primary-foreground/80 text-xs font-bold uppercase tracking-[0.2em]">
               Parceiros e Colaboradores
             </span>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
@@ -754,10 +754,11 @@ export function Footer() {
                 >
                   <img
                     src="/sa.svg"
+                    alt="AGPL v3"
                     className="w-4 h-4 opacity-80 text-white dark:text-black"
                   />
                   <span>AGPL v3</span>
-                  <span className="font-normal opacity-70 text-[12px]">(software)</span>
+                  <span className="font-normal opacity-90 text-[12px]">(software)</span>
                 </a>
 
                 <span className="opacity-40 dark:opacity-50 text-white dark:text-black">•</span>
@@ -771,13 +772,22 @@ export function Footer() {
                 >
                   <img
                     src="/cc.svg"
+                    alt="CC"
                     className="w-4 h-4 opacity-90 text-white dark:text-black"
                   />
-                  <img src="/by.svg" className="w-4 h-4 opacity-80 text-white dark:text-black" />
-                  <img src="/sa.svg" className="w-4 h-4 opacity-80 text-white dark:text-black" />
+                  <img
+                    src="/by.svg"
+                    alt="BY"
+                    className="w-4 h-4 opacity-80 text-white dark:text-black"
+                  />
+                  <img
+                    src="/sa.svg"
+                    alt="SA"
+                    className="w-4 h-4 opacity-80 text-white dark:text-black"
+                  />
 
                   <span>CC BY-SA 4.0</span>
-                  <span className="font-normal opacity-70 text-[12px]">(outros)</span>
+                  <span className="font-normal opacity-90 text-[12px]">(outros)</span>
                 </a>
 
               </div>

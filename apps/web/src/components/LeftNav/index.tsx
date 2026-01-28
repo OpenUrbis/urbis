@@ -1,8 +1,13 @@
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import {
+  cn,
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  UrbisFooter,
+} from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { Search } from "../Search";
-import { Drawer, DrawerContent, DrawerTitle } from "@open-urbis/map-ui";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { cn } from "@open-urbis/map-ui";
 
 export const LeftNav = () => {
   const { drawerOpen, toggleDrawer, currentPage } = useNavigationContext();
@@ -37,6 +42,16 @@ export const LeftNav = () => {
           >
             {currentPage.value}
           </div>
+        </div>
+        <div
+          className={cn(
+            "w-[420px] transition-all duration-300",
+            drawerOpen.value
+              ? "border-t bg-background opacity-100 pointer-events-auto"
+              : "border-transparent bg-transparent opacity-0 h-0 overflow-hidden pointer-events-none",
+          )}
+        >
+          <UrbisFooter />
         </div>
       </div>
     );

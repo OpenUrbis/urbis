@@ -32,10 +32,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="flex flex-col w-full min-h-screen">
       <UrbisHeaderWrapper menuItems={menuItems} showMobileMenu />
       <div className="flex-1">
-        <DocsLayout
-          tree={source.pageTree}
-          {...baseOptions()}
-        >
+        <DocsLayout tree={source.pageTree} {...baseOptions()}>
           <SidebarController />
           {children}
         </DocsLayout>

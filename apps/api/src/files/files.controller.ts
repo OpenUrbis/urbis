@@ -57,6 +57,8 @@ export class FilesController {
   }
 
   @Get('download-url')
+  @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
   @ApiOperation({ summary: 'Generate S3 download URL' })
   @ApiQuery({
     name: 'key',

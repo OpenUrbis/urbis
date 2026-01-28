@@ -70,6 +70,7 @@ export const LeftNav = () => {
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <Search />
           {currentPage.value}
+          <UrbisFooter />
         </div>
       </DrawerContent>
     </Drawer>

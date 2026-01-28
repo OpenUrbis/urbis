@@ -617,7 +617,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
     setSubmitting(true);
 
     getRecaptchaToken(
-      "create-ticket",
+      "create_ticket",
       function (err, token) {
         if (err || !token) {
           setError(err ? err.message : "Falha ao validar reCAPTCHA no envio.");
@@ -909,7 +909,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
     setSubmitting(true);
 
     getRecaptchaToken(
-      "create-ticket",
+      "create_ticket",
       function (err, token) {
         if (err || !token) {
           setError(err ? err.message : "Falha ao validar reCAPTCHA no envio.");

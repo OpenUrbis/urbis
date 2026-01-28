@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urbis-map-api
+  namespace: urbis-map
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: urbis-map-api
+  template:
+    metadata:
+      labels:
+        app: urbis-map-api
+    spec:
+      containers:
+      - name: urbis-map-api
+        image: openurbis/urbis-map:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "development"
+        - name: APP_PORT
+          value: "3000"
+        - name: APP_NAME
+          value: "Urbis Map OPENAPI"
+        - name: API_PREFIX
+          value: "api"
+        - name: APP_FALLBACK_LANGUAGE
+          value: "en"
+        - name: APP_HEADER_LANGUAGE
+          value: "x-custom-lang"
+        - name: FRONTEND_DOMAIN
+          value: "https://localhost:4200"
+        - name: BACKEND_DOMAIN
+          value: "http://localhost:3000"
+        - name: SWAGGER_ENABLED
+          value: "true"
+        - name: I18N_DIRECTORY
+          value: "apps/api/dist/app/i18n"
+        - name: DATABASE_TYPE
+          value: "postgres"
+        - name: DATABASE_HOST
+          value: "urbis-map.postgres.database.azure.com"
+        - name: DATABASE_PORT
+          value: "5432"
+        - name: DATABASE_USERNAME
+          value: "postgres"
+        - name: DATABASE_PASSWORD
+          value: "***REMOVED***"
+        - name: DATABASE_NAME
+          value: "postgres"
+        - name: DATABASE_SYNCHRONIZE
+          value: "false"
+        - name: DATABASE_MAX_CONNECTIONS
+          value: "101"
+        - name: DATABASE_SSL_ENABLED
+          value: "false"
+        - name: DATABASE_REJECT_UNAUTHORIZED
+          value: "false"
+        - name: AUTH_API_KEY
+          value: "secret"
+        - name: MAIL_TEMPLATES_PATH
+          value: "templates"
+        - name: MAIL_FROM
+          value: "info@yourdomain.com.br"
+        imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+      - name: urbis-docker-hub

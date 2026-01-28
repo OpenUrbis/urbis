@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urbis-map-storage
+  namespace: urbis-map
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: urbis-map-storage
+  template:
+    metadata:
+      labels:
+        app: urbis-map-storage
+    spec:
+      containers:
+      - name: urbis-map-storage
+        image: andrewgaul/s3proxy:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: S3PROXY_AUTHORIZATION
+          value: "{{ .Values.storage.authorization }}"
+        - name: S3PROXY_IDENTITY
+          value: "{{ .Values.storage.identity }}"
+        - name: S3PROXY_CREDENTIAL
+          value: "{{ .Values.storage.credential }}"
+        - name: JCLOUDS_IDENTITY
+          value: "{{ .Values.storage.jcloudsIdentity }}"
+        - name: JCLOUDS_CREDENTIAL
+          value: "{{ .Values.storage.jcloudsCredential }}"
+        - name: JCLOUDS_ENDPOINT
+          value: "{{ .Values.storage.jcloudsEndpoint }}"
+        - name: JCLOUDS_PROVIDER
+          value: "{{ .Values.storage.jcloudsProvider }}"
+        - name: JCLOUDS_AZUREBLOB_AUTH
+          value: "{{ .Values.storage.jcloudsAzureBlobAuth }}"
+        - name: S3PROXY_ENDPOINT
+          value: "{{ .Values.storage.endpoint }}"
+        - name: S3PROXY_CORS_ALLOW_ALL
+          value: "{{ .Values.storage.corsAllowAll }}"

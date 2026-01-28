@@ -1,9 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { SupportTicketType } from "../enums/support-ticket.enum";
+import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { SupportTicketType } from '../enums/support-ticket.enum';
 
-@Entity("support_tickets")
+@Entity('support_tickets')
 export class SupportTicket {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn({
+    type: 'varchar',
+    default: () => 'generate_support_ticket_id()',
+  })
   id: string;
 
   @Column()
@@ -15,7 +18,7 @@ export class SupportTicket {
   @Column()
   message: string;
 
-  @Column("text", { array: true, nullable: true })
+  @Column('text', { array: true, nullable: true })
   files: string[];
 
   @Column()

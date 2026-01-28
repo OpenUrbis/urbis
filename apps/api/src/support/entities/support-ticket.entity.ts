@@ -3,7 +3,10 @@ import { SupportTicketType } from '../enums/support-ticket.enum';
 
 @Entity('support_tickets')
 export class SupportTicket {
-  @PrimaryColumn()
+  @PrimaryColumn({
+    type: 'varchar',
+    default: () => 'generate_support_ticket_id()',
+  })
   id: string;
 
   @Column()

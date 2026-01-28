@@ -1,6 +1,6 @@
 import { Button } from "@open-urbis/map-ui/ui/button";
 
-export function UrbisFooter() {
+export function UrbisFooter(_props: any) {
   return (
     <footer className="bg-primary text-primary-foreground pt-10 pb-10 font-sans">
       <div className="container mx-auto px-4">
@@ -97,12 +97,14 @@ export function UrbisFooter() {
 
         <div className="px-1 mb-6">
           <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
-            Mapa online que suporta pesquisas complexas com concatenação de critérios, desenho,
-            edição ou arquivos de geometria, em bases totalmente personalizáveis, alimentadas por
-            orquestradores de dados, bases próprias QGis, ou subida de arquivos ou serviços online
-            georreferenciados. Tanto as pesquisas quanto as configurações de exibição podem ser
-            salvas e compartilhadas. Os resultados das pesquisas podem ser baixados ou exportados em
-            formatos compatíveis com projetos georreferenciados.
+            Mapa online que suporta pesquisas complexas com concatenação de
+            critérios, desenho, edição ou arquivos de geometria, em bases
+            totalmente personalizáveis, alimentadas por orquestradores de dados,
+            bases próprias QGis, ou subida de arquivos ou serviços online
+            georreferenciados. Tanto as pesquisas quanto as configurações de
+            exibição podem ser salvas e compartilhadas. Os resultados das
+            pesquisas podem ser baixados ou exportados em formatos compatíveis
+            com projetos georreferenciados.
           </p>
         </div>
 
@@ -127,8 +129,9 @@ export function UrbisFooter() {
 
         <div className="px-1 mb-8">
           <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
-            Ferramenta de formulário do Urbis, totalmente integrada às bases georreferenciadas e ao
-            SEI, que permite formulários complexos e geração de documentos.
+            Ferramenta de formulário do Urbis, totalmente integrada às bases
+            georreferenciadas e ao SEI, que permite formulários complexos e
+            geração de documentos.
           </p>
         </div>
 
@@ -219,9 +222,10 @@ export function UrbisFooter() {
             </h2>
             <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
             <p className="text-primary-foreground/90 text-sm leading-relaxed">
-              Repositório de metadados das bases do Urbis, onde os usuários podem buscar, visualizar
-              e encontrar explicações técnicas, de maneira acessível e transparente, assim como
-              baixar dados em formatos abertos de arquivos ou consumir via serviço.
+              Repositório de metadados das bases do Urbis, onde os usuários
+              podem buscar, visualizar e encontrar explicações técnicas, de
+              maneira acessível e transparente, assim como baixar dados em
+              formatos abertos de arquivos ou consumir via serviço.
             </p>
           </div>
 
@@ -239,10 +243,11 @@ export function UrbisFooter() {
             </h2>
             <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
             <p className="text-primary-foreground/90 text-sm leading-relaxed">
-              O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código
-              aberto e cláusula copyleft, contribuindo para um ambiente de colaboração e melhoria
-              contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o
-              código-fonte está publicado no OpenUrbis, no GitHub.
+              O Urbis se baseia e desenvolve todos os seus componentes em
+              software livre, com código aberto e cláusula copyleft,
+              contribuindo para um ambiente de colaboração e melhoria contínua.
+              Sua documentação técnica detalhada está disponível no Docs.Urbis,
+              e o código-fonte está publicado no OpenUrbis, no GitHub.
             </p>
           </div>
 
@@ -273,12 +278,18 @@ export function UrbisFooter() {
             </h6>
             <ul className="space-y-1.5">
               <li>
-                <a href="https://capital.sp.gov.br/agenda-do-prefeito" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/agenda-do-prefeito"
+                  className="hover:underline"
+                >
                   Agenda do prefeito
                 </a>
               </li>
               <li>
-                <a href="https://capital.sp.gov.br/dia-do-prefeito" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/dia-do-prefeito"
+                  className="hover:underline"
+                >
                   Dia do Prefeito
                 </a>
               </li>
@@ -291,12 +302,18 @@ export function UrbisFooter() {
                 </a>
               </li>
               <li>
-                <a href="https://capital.sp.gov.br/subprefeitura" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/subprefeitura"
+                  className="hover:underline"
+                >
                   Subprefeituras
                 </a>
               </li>
               <li>
-                <a href="https://capital.sp.gov.br/secretarias" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/secretarias"
+                  className="hover:underline"
+                >
                   Secretarias
                 </a>
               </li>
@@ -309,7 +326,10 @@ export function UrbisFooter() {
                 </a>
               </li>
               <li>
-                <a href="https://sp156.prefeitura.sp.gov.br/portal" className="hover:underline">
+                <a
+                  href="https://sp156.prefeitura.sp.gov.br/portal"
+                  className="hover:underline"
+                >
                   156
                 </a>
               </li>
@@ -603,7 +623,10 @@ export function UrbisFooter() {
             </h6>
             <ul className="space-y-1.5">
               <li>
-                <a href="https://capital.sp.gov.br/noticias" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/noticias"
+                  className="hover:underline"
+                >
                   Notícias
                 </a>
               </li>
@@ -616,7 +639,10 @@ export function UrbisFooter() {
                 </a>
               </li>
               <li>
-                <a href="https://legislacao.prefeitura.sp.gov.br/" className="hover:underline">
+                <a
+                  href="https://legislacao.prefeitura.sp.gov.br/"
+                  className="hover:underline"
+                >
                   Portal da Legislação
                 </a>
               </li>
@@ -629,7 +655,10 @@ export function UrbisFooter() {
                 </a>
               </li>
               <li>
-                <a href="http://e-negocioscidadesp.prefeitura.sp.gov.br/" className="hover:underline">
+                <a
+                  href="http://e-negocioscidadesp.prefeitura.sp.gov.br/"
+                  className="hover:underline"
+                >
                   Licitações
                 </a>
               </li>
@@ -642,7 +671,10 @@ export function UrbisFooter() {
                 </a>
               </li>
               <li>
-                <a href="https://www.sptrans.com.br/busca-de-itinerarios/" className="hover:underline">
+                <a
+                  href="https://www.sptrans.com.br/busca-de-itinerarios/"
+                  className="hover:underline"
+                >
                   Itinerários de ônibus
                 </a>
               </li>
@@ -751,10 +783,14 @@ export function UrbisFooter() {
                 >
                   <img src="/sa.svg" className="w-4 h-4 opacity-80" alt="SA" />
                   <span>AGPL v3</span>
-                  <span className="font-normal opacity-70 text-[12px]">(software)</span>
+                  <span className="font-normal opacity-70 text-[12px]">
+                    (software)
+                  </span>
                 </a>
 
-                <span className="opacity-40 dark:opacity-50 text-white dark:text-black">•</span>
+                <span className="opacity-40 dark:opacity-50 text-white dark:text-black">
+                  •
+                </span>
 
                 {/* CC BY-SA */}
                 <a
@@ -768,7 +804,9 @@ export function UrbisFooter() {
                   <img src="/sa.svg" className="w-4 h-4 opacity-80" alt="SA" />
 
                   <span>CC BY-SA 4.0</span>
-                  <span className="font-normal opacity-70 text-[12px]">(outros)</span>
+                  <span className="font-normal opacity-70 text-[12px]">
+                    (outros)
+                  </span>
                 </a>
               </div>
             </div>

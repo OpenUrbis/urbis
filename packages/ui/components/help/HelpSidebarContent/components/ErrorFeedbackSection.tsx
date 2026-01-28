@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, Loader2, X } from "lucide-react";
 import * as React from "react";
 import {
   UploadResult,
@@ -27,6 +27,8 @@ export function ErrorFeedbackSection(props: {
   const [message, setMessage] = React.useState("");
 
   const [uploadedFiles, setUploadedFiles] = React.useState<UploadResult[]>([]);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadCount, setUploadCount] = React.useState(0);
 
   const [includeSectionData, setIncludeSectionData] = React.useState(true);
   const [submitting, setSubmitting] = React.useState(false);
@@ -94,14 +96,16 @@ export function ErrorFeedbackSection(props: {
       return;
     }
 
-    setSubmitting(true);
+    setIsUploading(true);
+    setUploadCount(list.length);
 
     uploadFilesSequentiallyWithRecaptcha(
       { files: list, folderPath: folderPath },
       function (err, results) {
         if (err) {
           setError(err.message || "Falha ao enviar anexos.");
-          setSubmitting(false);
+          setIsUploading(false);
+          setUploadCount(0);
           e.target.value = "";
           return;
         }
@@ -110,7 +114,8 @@ export function ErrorFeedbackSection(props: {
           setUploadedFiles((prev) => [...prev, ...results]);
         }
 
-        setSubmitting(false);
+        setIsUploading(false);
+        setUploadCount(0);
         e.target.value = "";
       },
     );
@@ -273,12 +278,14 @@ export function ErrorFeedbackSection(props: {
                 accept=".png,.svg,.jpeg,.jpg,.webp,image/png,image/svg+xml,image/jpeg,image/webp"
                 multiple
                 onChange={handleFileChange}
+                disabled={isUploading || submitting}
                 className="block w-full text-[11px] text-muted-foreground file:mr-2 file:py-1.5 file:px-3
                            file:rounded-md file:border-0 file:text-[11px] file:font-medium
-                           file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                           file:bg-primary file:text-primary-foreground hover:file:bg-primary/90
+                           disabled:opacity-50 disabled:cursor-not-allowed"
               />
 
-              {uploadedFiles.length > 0 && (
+              {(uploadedFiles.length > 0 || isUploading) && (
                 <div className="mt-2 grid grid-cols-4 gap-2">
                   {uploadedFiles.map((file) => (
                     <div
@@ -293,13 +300,23 @@ export function ErrorFeedbackSection(props: {
                       <button
                         type="button"
                         onClick={() => removeFile(file.key)}
-                        className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity"
+                        disabled={isUploading || submitting}
+                        className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0"
                         title="Remover"
                       >
                         <X className="h-3 w-3" />
                       </button>
                     </div>
                   ))}
+                  {isUploading &&
+                    [...Array(uploadCount)].map((_: any, i: number) => (
+                      <div
+                        key={`loading-${i}`}
+                        className="relative aspect-square overflow-hidden rounded-md border border-border flex items-center justify-center bg-muted"
+                      >
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ))}
                 </div>
               )}
             </div>
@@ -328,12 +345,24 @@ export function ErrorFeedbackSection(props: {
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || isUploading}
               className="inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs
                          bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-70
                          disabled:cursor-not-allowed"
             >
-              {submitting ? "Enviando..." : "Enviar"}
+              {submitting ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Enviando...
+                </>
+              ) : isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Carregando imagens...
+                </>
+              ) : (
+                "Enviar"
+              )}
             </button>
 
             <p className="text-[10px] text-muted-foreground">

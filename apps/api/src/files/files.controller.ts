@@ -57,6 +57,8 @@ export class FilesController {
   }
 
   @Get('download-url')
+  @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
   @ApiOperation({ summary: 'Generate S3 download URL' })
   @ApiQuery({
     name: 'key',
@@ -72,6 +74,28 @@ export class FilesController {
   @ApiResponse({ status: 400, description: 'Invalid key' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getDownloadUrl(@Query() query: DownloadUrlDto) {
+    return this.filesService.getDownloadUrl(query.key);
+  }
+
+  @Get('public/download-url')
+  @Recaptcha({
+    response: (req) => req.headers.recaptcha,
+    action: 'download_url',
+    score: 0.5,
+  })
+  @ApiOperation({ summary: 'Generate S3 download URL with Recaptcha' })
+  @ApiQuery({
+    name: 'key',
+    type: String,
+    required: true,
+    example: 'uploads/file.jpg',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'URL generated',
+    schema: { example: { url: 'https://s3.amazonaws.com/...' } },
+  })
+  async getPublicDownloadUrl(@Query() query: DownloadUrlDto) {
     return this.filesService.getDownloadUrl(query.key);
   }
 }

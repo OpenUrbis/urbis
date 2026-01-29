@@ -4,7 +4,6 @@ import {
   Drawer,
   DrawerContent,
   DrawerTitle,
-  UrbisFooter,
 } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { Search } from "../Search";

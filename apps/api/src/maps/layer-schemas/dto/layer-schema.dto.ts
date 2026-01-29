@@ -7,6 +7,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   ValidateNested,
@@ -48,6 +49,15 @@ class LayerSchemaColorDto {
   @IsOptional()
   @IsString()
   pattern?: string;
+
+  @ApiProperty({
+    example: { getFillPatternScale: 1 },
+    required: false,
+    description: 'Pattern configuration (scale, offset, etc.)',
+  })
+  @IsOptional()
+  @IsObject()
+  patternConfig?: Record<string, any>;
 
   @ApiProperty({
     example: 'Partes de ferro',

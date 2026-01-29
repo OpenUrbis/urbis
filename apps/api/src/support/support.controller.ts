@@ -12,7 +12,7 @@ export class SupportController {
   @Post('create-ticket')
   @Recaptcha({
     response: (req) => req.body.recaptcha,
-    action: 'create-ticket',
+    action: 'create_ticket',
     score: 0.5,
   })
   @ApiOperation({ summary: 'Create a new support ticket' })

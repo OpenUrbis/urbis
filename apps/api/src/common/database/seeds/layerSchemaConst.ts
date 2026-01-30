@@ -84,7 +84,7 @@ export const layerSchemas: LayerSchema[] = [
     getLineColorPropName: null,
     groupId: 'geral',
     clickAction: {
-      action: ClickActionEnum.SelectFeature,
+      action: ClickActionEnum.SetZoom,
       params: {
         zoom: 18.1,
       },

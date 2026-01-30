@@ -5,6 +5,7 @@
     "layer-schema",
     "search-config",
     "view-template",
-    "storage"
+    "storage",
+    "error-codes"
   ]
 }

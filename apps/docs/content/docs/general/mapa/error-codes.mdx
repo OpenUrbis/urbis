@@ -1,0 +1,38 @@
+---
+title: Códigos de Erro
+description: Lista de códigos de erro e soluções para a aplicação de mapas
+icon: OctagonAlert
+---
+
+# Códigos de Erro - Urbis Map
+
+Este documento lista todos os códigos de erro utilizados na aplicação web do Urbis Map para o sistema de carregamento inicial.
+
+## Estrutura do Código
+
+Os códigos seguem o formato `X000123DS` onde:
+- `X`: Módulo (M=Map, S=Search, R=Restore, G=General)
+- `000123`: Sequencial
+- `DS`: Severidade (DS=Disruptive, WR=Warning, IF=Info)
+
+## Lista de Erros
+
+### Carregamento de Mapa (M)
+
+| Código | Mensagem | Descrição | Solução Sugerida |
+|--------|----------|-----------|------------------|
+| `M001001DS` | Erro ao carregar configurações do mapa | Falha ao obter as camadas e configurações iniciais da API. | Verificar conexão com internet. Verificar se a API de mapas está online. Tentar recarregar a página. |
+| `M001002DS` | Timeout no carregamento do mapa | O carregamento das camadas excedeu o tempo limite. | A conexão pode estar lenta. Tentar recarregar a página. |
+
+### Configurações de Pesquisa (S)
+
+| Código | Mensagem | Descrição | Solução Sugerida |
+|--------|----------|-----------|------------------|
+| `S001001WR` | Erro ao carregar configurações de busca | Falha ao obter as opções de pesquisa disponíveis. | A busca pode funcionar parcialmente. Tentar recarregar a página. |
+
+### Restauração de Sessão (R)
+
+| Código | Mensagem | Descrição | Solução Sugerida |
+|--------|----------|-----------|------------------|
+| `R001001WR` | Erro ao restaurar sessão compartilhada | O link de compartilhamento é inválido ou expirou. | Verificar se o link está correto. O mapa será carregado no estado padrão. |
+| `R001002WR` | Dados de sessão corrompidos | Os dados salvos localmente ou no link estão inválidos. | Limpar dados de navegação ou ignorar e usar o estado padrão. |

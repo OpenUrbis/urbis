@@ -94,6 +94,29 @@ export function getRecaptchaSiteKey() {
   return RECAPTCHA_SITE_KEY;
 }
 
+let recaptchaScriptLoading = false;
+
+export function loadRecaptchaScript() {
+  if (typeof window === "undefined") return;
+  if (window.grecaptcha) return;
+  if (recaptchaScriptLoading) return;
+  if (document.getElementById("recaptcha-script")) return;
+
+  recaptchaScriptLoading = true;
+  const script = document.createElement("script");
+  script.id = "recaptcha-script";
+  script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}&badge=bottomleft`;
+  script.async = true;
+  script.defer = true;
+  script.onload = () => {
+    recaptchaScriptLoading = false;
+  };
+  script.onerror = () => {
+    recaptchaScriptLoading = false;
+  };
+  document.head.appendChild(script);
+}
+
 export type RecaptchaCallback = (err: Error | null, token?: string) => void;
 
 export function waitForGrecaptcha(timeoutMs: number, cb: (err: Error | null) => void) {

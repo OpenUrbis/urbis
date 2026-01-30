@@ -38,6 +38,7 @@ export const useLayerPersistence = () => {
       }, 30000); // 30s timeout
       return () => clearTimeout(timer);
     }
+    return () => {}; // Explicitly return void cleanup function
   }, []);
 
   // Init / Restore logic

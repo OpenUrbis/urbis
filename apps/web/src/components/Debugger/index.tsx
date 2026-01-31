@@ -66,7 +66,7 @@ export const Debugger = () => {
         raised
         onClick={() => (isOpen.value = true)}
       >
-        Open Debugger
+        Inspecionar
       </Button>
     </>
   );

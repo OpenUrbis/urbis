@@ -1,25 +1,25 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
   Post,
   Put,
+  Delete,
+  Body,
+  Param,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { LayerGroupsService } from './layer-groups.service';
 import {
+  ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiSecurity,
-  ApiTags,
+  ApiBasicAuth,
 } from '@nestjs/swagger';
-import { LayerGroupDto } from './dto/layer-group.dto';
 import { LayerGroup } from './entities/layer-group.entity';
-import { LayerGroupsService } from './layer-groups.service';
+import { LayerGroupDto } from './dto/layer-group.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@ApiSecurity('api_key')
+@ApiBasicAuth('api-key')
 @ApiTags('Layer Groups')
 @UseGuards(AuthGuard('api-key'))
 @Controller('layer-groups')
@@ -44,15 +44,6 @@ export class LayerGroupsController {
     description: 'The layer group',
     type: LayerGroup,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Layer schema with ID not found',
-    example: {
-      message: 'Layer group with ID iffel-towesr not found',
-      error: 'Bad Request',
-      statusCode: 400,
-    },
-  })
   async findOne(@Param('id') id: string): Promise<LayerGroup> {
     return this.service.findOne(id);
   }
@@ -63,15 +54,6 @@ export class LayerGroupsController {
     status: 201,
     description: 'The created layer group',
     type: LayerGroup,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Layer group with ID already exist',
-    example: {
-      message: 'Layer schema with ID iffel-towesr already exist',
-      error: 'Bad Request',
-      statusCode: 400,
-    },
   })
   async create(@Body() dto: LayerGroupDto): Promise<LayerGroup> {
     return this.service.create(dto);
@@ -84,24 +66,6 @@ export class LayerGroupsController {
     description: 'The updated layer group',
     type: LayerGroup,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Layer schema with ID not found',
-    example: {
-      message: 'Layer group with ID iffel-towesr not found',
-      error: 'Bad Request',
-      statusCode: 400,
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Layer group with ID already exist',
-    example: {
-      message: 'Layer schema with ID iffel-towesr already exist',
-      error: 'Bad Request',
-      statusCode: 400,
-    },
-  })
   async update(
     @Param('id') id: string,
     @Body() dto: LayerGroupDto,
@@ -112,15 +76,6 @@ export class LayerGroupsController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a layer group by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })
-  @ApiResponse({
-    status: 404,
-    description: 'Layer schema with ID not found',
-    example: {
-      message: 'Layer group with ID iffel-towesr not found',
-      error: 'Bad Request',
-      statusCode: 400,
-    },
-  })
   async delete(@Param('id') id: string): Promise<void> {
     return this.service.delete(id);
   }

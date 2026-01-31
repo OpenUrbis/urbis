@@ -1,25 +1,25 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
   Post,
   Put,
+  Delete,
+  Body,
+  Param,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { LayerSchemasService } from './layer-schemas.service';
 import {
+  ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiSecurity,
-  ApiTags,
+  ApiBasicAuth,
 } from '@nestjs/swagger';
-import { LayerSchemaDto } from './dto/layer-schema.dto';
 import { LayerSchema } from './entities/layer-schema.entity';
-import { LayerSchemasService } from './layer-schemas.service';
+import { LayerSchemaDto } from './dto/layer-schema.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@ApiSecurity('api_key')
+@ApiBasicAuth('api-key')
 @ApiTags('Layer Schemas')
 @UseGuards(AuthGuard('api-key'))
 @Controller('layer-schemas')
@@ -44,11 +44,6 @@ export class LayerSchemasController {
     description: 'The layer schema',
     type: LayerSchema,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Layer schema with ID not found',
-    type: LayerSchema,
-  })
   async findOne(@Param('id') id: string): Promise<LayerSchema> {
     return this.service.findOne(id);
   }
@@ -59,15 +54,6 @@ export class LayerSchemasController {
     status: 201,
     description: 'The created layer schema',
     type: LayerSchema,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Layer schema with ID already exist',
-    example: {
-      message: 'Layer schema with ID iffel-towesr already exist',
-      error: 'Bad Request',
-      statusCode: 400,
-    },
   })
   async create(@Body() dto: LayerSchemaDto): Promise<LayerSchema> {
     return this.service.create(dto);
@@ -80,24 +66,6 @@ export class LayerSchemasController {
     description: 'The updated layer schema',
     type: LayerSchema,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Layer schema with ID not found',
-    example: {
-      message: 'Layer schema with ID iffel-towesr not found',
-      error: 'Bad Request',
-      statusCode: 400,
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Layer schema with ID already exist',
-    example: {
-      message: 'Layer schema with ID iffel-towesr already exist',
-      error: 'Bad Request',
-      statusCode: 400,
-    },
-  })
   async update(
     @Param('id') id: string,
     @Body() dto: LayerSchemaDto,
@@ -108,15 +76,6 @@ export class LayerSchemasController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a layer schema by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })
-  @ApiResponse({
-    status: 404,
-    description: 'Layer schema with ID not found',
-    example: {
-      message: 'Layer schema with ID iffel-towesr not found',
-      error: 'Bad Request',
-      statusCode: 400,
-    },
-  })
   async delete(@Param('id') id: string): Promise<void> {
     return this.service.delete(id);
   }

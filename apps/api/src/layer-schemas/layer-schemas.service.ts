@@ -1,21 +1,14 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LayerGroupsService } from 'layer-groups/layer-groups.service';
 import { Repository } from 'typeorm';
-import { LayerSchemaDto } from './dto/layer-schema.dto';
 import { LayerSchema } from './entities/layer-schema.entity';
+import { LayerSchemaDto } from './dto/layer-schema.dto';
 
 @Injectable()
 export class LayerSchemasService {
   constructor(
     @InjectRepository(LayerSchema)
     private readonly repository: Repository<LayerSchema>,
-
-    private readonly layerGroupsService: LayerGroupsService,
   ) {}
 
   async findAll(): Promise<LayerSchema[]> {
@@ -23,107 +16,17 @@ export class LayerSchemasService {
   }
 
   async findOne(id: string): Promise<LayerSchema> {
-    const group = await this.repository.findOneBy({ id });
-    if (!group) {
-      throw new NotFoundException(`Layer schema with ID "${id}" not found`);
-    }
-    return group;
+    return this.repository.findOneBy({ id });
   }
 
-  async create({
-    id,
-    name,
-    origin,
-    isActive,
-    type,
-    isVisible,
-    minZoom,
-    getTextColorPropName,
-    getFillColorPropName,
-    getLineColorPropName,
-    clickAction,
-    viewTemplate,
-    properties,
-    groupId,
-    colors,
-  }: LayerSchemaDto): Promise<LayerSchema> {
-    const another = await this.repository.findOneBy({ id: id });
-    if (another)
-      throw new BadRequestException(`Layer schema with ID ${id} already exist`);
-
-    const layerGroup = await this.layerGroupsService.checkOwnerGroup(groupId);
-
-    const entity = this.repository.create({
-      id,
-      name,
-      origin,
-      isActive,
-      type,
-      isVisible,
-      minZoom,
-      getTextColorPropName,
-      getFillColorPropName,
-      getLineColorPropName,
-      clickAction,
-      viewTemplate,
-      properties,
-      groupId,
-      layerGroup,
-      colors,
-    });
-
+  async create(dto: LayerSchemaDto): Promise<LayerSchema> {
+    const entity = this.repository.create(dto);
     return this.repository.save(entity);
   }
 
-  async update(
-    id: string,
-    {
-      name,
-      origin,
-      isActive,
-      type,
-      isVisible,
-      minZoom,
-      getTextColorPropName,
-      getFillColorPropName,
-      getLineColorPropName,
-      clickAction,
-      viewTemplate,
-      properties,
-      groupId,
-      colors,
-
-      ...dto
-    }: LayerSchemaDto,
-  ): Promise<LayerSchema> {
-    const layerSchema = await this.findOne(id);
-    if (id !== dto.id) {
-      const another = await this.repository.findOneBy({ id: dto.id });
-      if (another)
-        throw new BadRequestException(
-          `Layer schema with ID ${dto.id} already exist`,
-        );
-    }
-    const layerGroup = await this.layerGroupsService.checkOwnerGroup(groupId);
-
-    layerSchema.id = dto.id;
-    layerSchema.name = name;
-    layerSchema.origin = origin;
-    layerSchema.isActive = isActive;
-    layerSchema.type = type;
-    layerSchema.isVisible = isVisible;
-    layerSchema.minZoom = minZoom;
-    layerSchema.getTextColorPropName = getTextColorPropName;
-    layerSchema.getFillColorPropName = getFillColorPropName;
-    layerSchema.getLineColorPropName = getLineColorPropName;
-    layerSchema.clickAction = clickAction;
-    layerSchema.viewTemplate = viewTemplate;
-    layerSchema.properties = properties;
-    layerSchema.groupId = groupId;
-    layerSchema.layerGroup = layerGroup;
-    layerSchema.colors = colors;
-
-    return await this.repository.save(layerSchema);
+  async update(id: string, dto: LayerSchemaDto): Promise<LayerSchema> {
+    await this.repository.update(id, dto);
+    return this.findOne(id);
   }
 
   async delete(id: string): Promise<void> {
@@ -132,7 +35,14 @@ export class LayerSchemasService {
 
   async upsert(dto: LayerSchemaDto): Promise<LayerSchema> {
     const existing = await this.repository.findOneBy({ id: dto.id });
-
-    return existing ? await this.update(dto.id, dto) : this.create(dto);
+    if (existing) {
+      // Update existing record
+      await this.repository.update(dto.id, dto);
+      return this.repository.findOneBy({ id: dto.id });
+    } else {
+      // Create new record
+      const entity = this.repository.create(dto);
+      return this.repository.save(entity);
+    }
   }
 }

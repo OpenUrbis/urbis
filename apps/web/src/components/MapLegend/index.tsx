@@ -56,7 +56,7 @@ export const MapLegend = () => {
         {!isCollapsed.value && (
           <Button
             icon="closed_caption"
-            label="Legendas"
+            label="Legenda"
             onClick={() => (isCollapsed.value = true)}
             className="map-legend-main-button"
             style={{
@@ -69,7 +69,7 @@ export const MapLegend = () => {
         {isCollapsed.value && (
           <div className="map-legend">
             <div className="header">
-              <h5>Legendas:</h5>
+              <h5>Legenda</h5>
               <IconButton
                 icon="close"
                 label="Fechar"

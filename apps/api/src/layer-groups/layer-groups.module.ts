@@ -10,6 +10,7 @@ import { LayerGroupsService } from './layer-groups.service';
   imports: [
     TypeOrmModule.forFeature([LayerGroup, LayerSchema, LayerSchemaColors]),
   ],
+  exports: [LayerGroupsService],
   providers: [LayerGroupsService],
   controllers: [LayerGroupsController],
 })

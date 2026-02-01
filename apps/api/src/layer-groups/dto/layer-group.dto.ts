@@ -1,23 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsArray, IsOptional, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-
-// DTO for subgroups
-export class SubGroupDto {
-  @ApiProperty({
-    description: 'Unique identifier for the subgroup',
-    example: 'macrozoneamento',
-  })
-  @IsString()
-  id: string;
-
-  @ApiProperty({
-    description: 'Name of the subgroup',
-    example: 'Macrozoneamento - Lei nº 16.050/14',
-  })
-  @IsString()
-  name: string;
-}
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 
 // Main DTO for LayerGroup
 export class LayerGroupDto {
@@ -35,17 +17,11 @@ export class LayerGroupDto {
   @IsString()
   name: string;
 
-  @ApiProperty({
-    description: 'List of subgroups within the layer group',
-    type: () => [SubGroupDto],
-    required: false,
-    example: [
-      { id: 'macrozoneamento', name: 'Macrozoneamento - Lei nº 16.050/14' },
-    ],
+  @ApiPropertyOptional({
+    description: 'Owner group, if have',
+    example: 'geral',
   })
+  @IsString()
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => SubGroupDto)
-  subGroups?: SubGroupDto[];
+  ownerGroup?: string;
 }

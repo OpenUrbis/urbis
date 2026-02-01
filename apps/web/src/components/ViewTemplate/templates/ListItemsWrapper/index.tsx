@@ -61,11 +61,6 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
         template: params.template as unknown as ITemplate[],
         feature: item,
       });
-
-      console.log("ACTION", action);
-      console.log("TEMPLATE", template);
-      console.log("ROOT", rootTemplate);
-      console.log("Item", item);
     };
 
     return (

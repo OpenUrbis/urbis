@@ -7,8 +7,8 @@ import { LayerSchemaColors } from './layer-schemas/entities/layer-schema-color.e
 import { LayerSchema } from './layer-schemas/entities/layer-schema.entity';
 import { LayerSchemasModule } from './layer-schemas/layer-schemas.module';
 import { MapConfigModule } from './map-config/map-config.module';
-import { SearchConfig } from './search-config/entities/search-config.entity';
-import { SearchConfigModule } from './search-config/search-config.module';
+import { SearchConfig } from './search/entities/search-config.entity';
+import { SearchModule } from './search/search.module';
 import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
 
@@ -26,7 +26,7 @@ import { SharedModule } from './shared/shared.module';
     LayerGroupsModule,
     GeospatialIntersectionModule,
     GeocodingModule,
-    SearchConfigModule,
+    SearchModule,
   ],
   controllers: [],
   providers: [],

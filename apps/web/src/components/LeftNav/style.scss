@@ -1,96 +1,12 @@
-/* Estilos base para left-nav */
 .left-nav {
-    position: relative;
-    min-width: 324px;
-    width: 324px;
-    max-width: 324px!important;
-    flex: 0;
-    transition: all 0.3s ease;
-    overflow: auto;
-    z-index: 1;
-}
-
-/* Media query para responsividade */
-@media (max-width: 768px) {
-    .left-nav {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        min-width: 100%;
-        height: 100%;
-        transform: translateY(100%);
-        opacity: 0;
-        visibility: hidden;
-        background-color: #fff;
-    }
-
-    .left-nav.active {
-        transform: translateY(0);
-        opacity: 1;
-        visibility: visible;
-        z-index: 1000;
-    }
-}
-
-/* Estrutura de navegação empilhada */
-.page-stack {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-}
-
-.page {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    top: 0px;
+    left: 0px;
+    right: auto;
+    bottom: auto;
+    z-index: 1000;
+    width: 364px;
     height: 100%;
-    background: #fff;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 10;
-}
-
-.page.active {
-    transform: translateY(0);
-    z-index: 20;
-}
-
-.page.previous {
-    transform: translateY(-10%);
-    opacity: 0.8;
-    z-index: 15;
-}
-
-/* Animação de entrada/saída */
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-}
-
-.page.entering {
-    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.page.exiting {
-    animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    overflow: auto;
+    z-index: 10000;
 }

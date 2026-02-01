@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClickActionEnum } from '@open-urbis/map-shared';
 import { Repository } from 'typeorm';
-import { SearchConfig } from './../../../search-config/entities/search-config.entity';
+import { SearchConfig } from '../../../search/entities/search-config.entity';
 
 @Injectable()
 export class SearchConfigSeedService {
@@ -12,7 +12,7 @@ export class SearchConfigSeedService {
   ) {}
 
   async run(): Promise<void> {
-    console.log('Starting database seeding...');
+    console.info('Starting database seeding...');
 
     // Seed SearchConfig
     const searchConfig: SearchConfig[] = [
@@ -132,13 +132,13 @@ export class SearchConfigSeedService {
     try {
       await this.searchConfigRepository.upsert(searchConfig, ['id']);
 
-      console.log(
+      console.info(
         `Seeded SearchConfig: ${searchConfig.map((group) => group.id).join(', ')}`,
       );
     } catch (error) {
       console.error(`Query failed: ${error}`);
     }
 
-    console.log('Database seeding completed.');
+    console.info('Database seeding completed.');
   }
 }

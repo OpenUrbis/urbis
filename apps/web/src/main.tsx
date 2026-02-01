@@ -39,11 +39,9 @@ const App = () => (
                   </header>
                   <div className="map-container">
                     <LeftNav />
-                    <div className="map-view">
-                      <MapLegend />
-                      <Debugger />
-                      <MapView />
-                    </div>
+                    <MapLegend />
+                    <MapView />
+                    <Debugger />
                   </div>
                 </div>
               </PolygonEditProvider>

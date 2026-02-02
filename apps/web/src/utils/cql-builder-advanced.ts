@@ -28,16 +28,22 @@ const conditionToCQL = (condition: FilterCondition): string => {
   
   // Handle values
   let formattedValue = value;
-  
-  // Typically strings need quotes. Numbers don't.
-  // We should check type or if it looks like a number.
-  // For simplicity, if it's not a number, quote it.
-  const isNumber = !isNaN(parseFloat(value)) && isFinite(value);
-  
-  if (!isNumber && typeof value === 'string') {
-      formattedValue = `'${value}'`;
+
+  // Robust check for numeric value
+  const isNumber =
+    (typeof value === "number" && !isNaN(value)) ||
+    (typeof value === "string" &&
+      value.trim() !== "" &&
+      !isNaN(Number(value)) &&
+      isFinite(Number(value)));
+
+  if (!isNumber) {
+    // If it's an object (like null or a real object) and we try to concat it with a string,
+    // it might trigger the "Cannot convert object to primitive value" if it's a Symbol or a weird object.
+    // We ensure it's a string here.
+    formattedValue = `'${String(value ?? "").replace(/'/g, "''")}'`;
   }
-  
+
   return `${field} ${operator} ${formattedValue}`;
 };
 

@@ -29,4 +29,6 @@ export interface SearchContextType {
   searchQuery: ISearchFetchQuery;
   searchConfig: Signal<IGetSearchConfigResponse[]>;
   concatenatedSearch: Signal<ConcatenatedSearchState>;
+  isSearchConfigLoaded: Signal<boolean>;
+  searchConfigError: Signal<string | null>;
 }

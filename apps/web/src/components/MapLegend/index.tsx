@@ -56,22 +56,20 @@ export const MapLegend = () => {
         {!isCollapsed.value && (
           <Button
             icon="closed_caption"
-            label="Legenda"
+            label="Legendas"
             onClick={() => (isCollapsed.value = true)}
             className="map-legend-main-button"
-            style={{
-              backgroundColor: "#fff",
-              color: "#4032cb",
-            }}
+            unelevated
           />
         )}
 
         {isCollapsed.value && (
           <div className="map-legend">
             <div className="header">
-              <h5>Legenda</h5>
+              <h5>Legendas:</h5>
               <IconButton
                 icon="close"
+                className="rmwc-icon-button-sm"
                 label="Fechar"
                 onClick={() => (isCollapsed.value = false)}
               />
@@ -81,7 +79,6 @@ export const MapLegend = () => {
               <Select
                 label="Selecione a uma camada"
                 value={activedTab}
-                outlined
                 onChange={(input: { target: { value: string } }) =>
                   setActivedTab(input.target.value)
                 }

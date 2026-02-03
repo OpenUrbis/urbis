@@ -19,11 +19,17 @@
 
   .mdc-fab {
     background-color: #FFFFFF !important;
+    box-shadow: none;
+    border: #efefef 1px solid;
 
     .mdc-fab__icon {
-      color: #007bff !important;
+      color: #000 !important;
     }
   }
+}
+.mdc-card {
+  box-shadow: none;
+  border: #efefef 1px solid;
 }
 
 .search-placeholder {

@@ -63,10 +63,10 @@ export const Debugger = () => {
 
       <Button
         className="debugger-button"
-        raised
+        outlined
         onClick={() => (isOpen.value = true)}
       >
-        Open Debugger
+        Debugger
       </Button>
     </>
   );

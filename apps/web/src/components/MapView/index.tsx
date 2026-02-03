@@ -90,10 +90,10 @@ export const MapView = () => {
 
   return (
     <>
-      <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
         {viewport.value && (
           <Map
-            style={{ width: "100vw", height: "100vh" }}
+            style={{ width: "100%", height: "100%" }}
             mapStyle="mapbox://styles/mapbox/light-v9"
             mapboxAccessToken={accessToken}
             initialViewState={viewport.value}

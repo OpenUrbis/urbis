@@ -34,14 +34,13 @@ const App = () => (
             <SearchProvider>
               <PolygonEditProvider>
                 <div id="app">
-                  <header className="app-header">
-                    <Header />
-                  </header>
+                  <Header />
                   <div className="map-container">
                     <LeftNav />
-                    <MapLegend />
-                    <MapView />
-                    <Debugger />
+                    <div className="map-view">
+                      <MapLegend />
+                      <MapView />
+                    </div>
                   </div>
                 </div>
               </PolygonEditProvider>

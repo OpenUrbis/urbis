@@ -34,7 +34,7 @@ spec:
         - name: FRONTEND_DOMAIN
           value: "https://conta.urbis.prefeitura.sp.gov.br"
         - name: BACKEND_DOMAIN
-          value: "https://api.mapa.urbis.prefeitura.sp.gov.br"
+          value: "https://api.mapa.urbis.sampa.br"
         - name: SWAGGER_ENABLED
           value: "true"
         - name: I18N_DIRECTORY
@@ -113,7 +113,7 @@ spec:
           value: "WR84RulAVMlZ27Vv576ngC7rnixdd6gmByBFMGnA"
           value: "storage"
         - name: AWS_S3_ENDPOINT
-          value: "https://api.mapa.urbis.prefeitura.sp.gov.br"
+          value: "https://api.mapa.urbis.sampa.br"
         imagePullPolicy: Always
       imagePullSecrets:
       - name: urbis-docker-hub

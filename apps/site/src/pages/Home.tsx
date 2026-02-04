@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Mosaico } from "../components/home/Mosaico";
 import { Sidebar } from "@open-urbis/map-ui"; 
 import { HelpSidebarContent } from "@open-urbis/map-ui"; // 👈 AQUI!
-import { HelpCircle } from "lucide-react";
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,8 +11,6 @@ export default function Home() {
     <div className="bg-muted/30 min-h-screen relative">
       {/* Conteúdo principal */}
       <Mosaico />
-
-      
 
       {/* Sidebar lateral GLOBAL */}
       <Sidebar 

@@ -1,7 +1,12 @@
 import "preact/debug";
 
-import "@open-urbis/map-ui";
+import { setUrbisConfig } from "@open-urbis/map-ui";
 import "./globals.css";
+
+// Configurar API global para componentes do packages/ui
+setUrbisConfig({
+  apiUrl: import.meta.env.VITE_API_URL || "http://localhost:3000",
+});
 
 import { Loader2 } from "lucide-react";
 import { render } from "preact";

@@ -44,16 +44,16 @@ export function normalizePublicUrlMaybe(url: string) {
   return String(url || "");
 }
 
+import { getUrbisConfig } from "../../../lib/config";
+
 /**
  * =========================
- * CONFIG FIXO (sem .env)
+ * CONFIG DINÂMICA (via lib/config)
  * =========================
  */
-const API_BASE = "http://localhost:3000";
-const RECAPTCHA_SITE_KEY = "6LfwDx4sAAAAABrm5sINZvaY9Fq3pFttsX-wikjG";
 
 export function getApiBase() {
-  return API_BASE;
+  return getUrbisConfig().apiUrl;
 }
 
 export function getApiKey() {
@@ -91,7 +91,7 @@ declare global {
 }
 
 export function getRecaptchaSiteKey() {
-  return RECAPTCHA_SITE_KEY;
+  return getUrbisConfig().recaptchaSiteKey || "";
 }
 
 let recaptchaScriptLoading = false;
@@ -105,7 +105,7 @@ export function loadRecaptchaScript() {
   recaptchaScriptLoading = true;
   const script = document.createElement("script");
   script.id = "recaptcha-script";
-  script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}&badge=bottomleft`;
+  script.src = `https://www.google.com/recaptcha/api.js?render=${getRecaptchaSiteKey()}&badge=bottomleft`;
   script.async = true;
   script.defer = true;
   script.onload = () => {

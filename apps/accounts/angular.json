@@ -84,7 +84,7 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "allowedHosts": [
-              "conta.urbis.sampa.br",
+              "conta.urbis.prefeitura.sp.gov.br",
               "localhost",
               "127.0.0.1"
             ]

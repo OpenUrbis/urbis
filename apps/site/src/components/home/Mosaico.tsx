@@ -15,7 +15,7 @@ export function Mosaico() {
   const query = searchTerm.trim();
   if (!query) return;
 
-  const url = `https://mapa.urbis.sampa.br/?search=${encodeURIComponent(query)}`;
+  const url = `https://mapa.urbis.prefeitura.sp.gov.br/?search=${encodeURIComponent(query)}`;
 
   window.open(url, "_blank");
 };
@@ -74,7 +74,7 @@ export function Mosaico() {
     <span className="block mt-1">
       <strong>Obs:</strong> para buscas georreferenciadas, acesse o{" "}
       <a
-        href="https://mapa.urbis.sampa.br/"
+        href="https://mapa.urbis.prefeitura.sp.gov.br/"
         target="_blank"
         rel="noopener noreferrer"
         className="text-primary font-medium hover:underline inline-flex items-center gap-0.5"
@@ -91,7 +91,7 @@ export function Mosaico() {
              {/* Left Column of Inner Grid */}
             <div className="flex flex-col gap-2">
                {/* Viabiliza - With Border (Increased) */}
-              <a href="https://viabiliza.urbis.sampa.br" className="group block no-underline h-full">
+              <a href="https://viabiliza.urbis.prefeitura.sp.gov.br" className="group block no-underline h-full">
                 <Card 
                   className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '100ms' }}
@@ -108,7 +108,7 @@ export function Mosaico() {
               </a>
 
               {/* Dados Abertos - With Border */}
-              <a href="https://dadosabertos.urbis.sampa.br" className="group block no-underline h-full">
+              <a href="https://dadosabertos.urbis.prefeitura.sp.gov.br" className="group block no-underline h-full">
                 <Card 
                   className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '150ms' }}
@@ -229,7 +229,7 @@ export function Mosaico() {
         <div className="lg:col-span-5 flex flex-col gap-2">
            {/* Mapa Urbis - No Border */}
            <a 
-             href="https://mapa.urbis.sampa.br" 
+             href="https://mapa.urbis.prefeitura.sp.gov.br" 
              className="block relative rounded-sm bg-white dark:bg-card overflow-hidden group border border-border shadow-sm hover:shadow-md transition-all animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
              style={{ animationDelay: '100ms' }}
            >
@@ -252,7 +252,7 @@ export function Mosaico() {
            </a>
 
            {/* Data Lake - With Border */}
-           <a href="https://datalake.urbis.sampa.br/" target="_blank" rel="noopener noreferrer" className="group block no-underline">
+           <a href="https://datalake.urbis.prefeitura.sp.gov.br/" target="_blank" rel="noopener noreferrer" className="group block no-underline">
                 <Card 
                   className="bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '200ms' }}

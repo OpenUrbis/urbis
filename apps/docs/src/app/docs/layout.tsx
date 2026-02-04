@@ -10,14 +10,14 @@ export default function Layout({ children }: { children: ReactNode }) {
   // Docs = Doc. técnica
   const { menuItems, badgeText } = buildUrbisNav({
     isAuthenticated: false,
-    currentApp: "docs", // ✅ força Doc. técnica
+    currentApp: "docs",
   });
 
   return (
     <div className="flex flex-col w-full min-h-screen">
       <UrbisHeaderWrapper
         menuItems={menuItems}
-        badgeText={badgeText} // ✅ “Doc. técnica” ao lado da logo
+        badgeText={badgeText}
         showMobileMenu
       />
 

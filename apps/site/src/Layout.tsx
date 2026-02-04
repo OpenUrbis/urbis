@@ -55,8 +55,7 @@ function LayoutInner() {
       { label: "Viabiliza", href: "https://viabiliza.urbis.prefeitura.sp.gov.br" },
       { label: "Dados Abertos", href: "https://dadosabertos.urbis.prefeitura.sp.gov.br" },
       { label: "Doc. técnica", href: "/doc-tecnica" },
-      { label: "Legis", href: "/info-urbis" },
-      { label: "Data Lake", href: "https://datalake.urbis.prefeitura.sp.gov.br/" },
+      { label: "Legis", href: "/info-urbis" }
     ],
     []
   );

@@ -132,7 +132,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
   ) => void;
 } => {
   const { selectFeature, flyTo } = useMapContext();
-  const { navigateTo, toggleDrawer } = useNavigationContext();
+  const { navigateTo, toggleDrawer, drawerOpen } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return {
@@ -148,6 +148,8 @@ export const CLICK_ACTIONS_CONFIG = (): {
         return console.error(
           'clickAction(selectFeature) Error: Property "template" is not defined',
         );
+
+      if (isDesktop && !drawerOpen.value) toggleDrawer();
 
       let center = [longitude, latitude];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

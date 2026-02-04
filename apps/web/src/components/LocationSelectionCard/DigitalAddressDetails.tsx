@@ -10,6 +10,7 @@ import {
 } from "@open-urbis/map-ui";
 import { DigitalAddressPlate } from "./DigitalAddressPlate";
 import { DigitalAddressCard } from "./DigitalAddressCard";
+import { LocationSelectionCard } from "./index";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useMapContext } from "../../hooks/useMapContext";
 // @ts-ignore
@@ -28,7 +29,7 @@ interface DigitalAddressDetailsProps {
 }
 
 export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceType }: DigitalAddressDetailsProps) => {
-  const { clearCurrentPage } = useNavigationContext();
+  const { navigateTo } = useNavigationContext();
   const { digitalAddressFeature } = useMapContext();
   const address = encode(latitude, longitude);
   const [prefix, code] = address.split(' ');
@@ -80,7 +81,7 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
             className="rounded-full h-8 w-8"
             onClick={() => {
               digitalAddressFeature.value = null;
-              clearCurrentPage();
+              navigateTo(<LocationSelectionCard />);
             }}
           >
             <span className="material-symbols-outlined text-lg">arrow_back</span>

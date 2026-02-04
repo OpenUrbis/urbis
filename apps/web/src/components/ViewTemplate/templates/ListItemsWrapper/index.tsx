@@ -8,7 +8,7 @@ import { ViewTemplateEngine } from "../../ViewTemplateEngine";
 
 export const ListItemsWrapper: ITemplatesDeclaration = {
   name: "wrapper-list-items",
-  render: ({ template, data, rootTemplate }) => {
+  render: ({ template, data, rootTemplate, isPrint }) => {
     const { templates = [] } = template;
     const properties = template.properties as IListItemsProperties;
     const clickActions = CLICK_ACTIONS_CONFIG();
@@ -81,6 +81,7 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
                           template={itemTemplate}
                           data={value}
                           rootTemplate={rootTemplate}
+                          isPrint={isPrint}
                         />
                       ) as ReactNode
                   )}

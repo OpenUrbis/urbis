@@ -24,7 +24,11 @@ The map interface organizes layers into **groups**, which contain **individual l
 The system allows displaying details of one or more selected polygons on the map when needed. To enable this functionality, the layer must be configured with the `SelectFeature` click action, without requiring additional parameters in `clickAction`:
 
 ```json
-clickAction: { action: "SelectFeature" }
+{
+  "clickAction": {
+    "action": "SelectFeature"
+  }
+}
 ```
 
 This configuration indicates that the layer is selectable, enabling the system to process the selection and display detailed polygon information as defined in the `viewTemplate`. For more details on click actions, see the [Actions on Polygon Click](#actions-on-polygon-click) section. The rendering mechanism for this information is detailed in the [viewTemplate Documentation](./view-template.md).
@@ -74,61 +78,69 @@ For example:
 - If the comparison value and legend text are the same (e.g., `AI`), only `label` is needed.
 - Example with distinct values:
   ```json
-  colors: [
-    {
-      "color": [136, 144, 173, 240],
-      "pattern": "full",
-      "label": "Area of Influence",
-      "value": "AI"
-    },
-    {
-      "color": [201, 186, 119, 240],
-      "pattern": "hatch-1x",
-      "label": "Area of Influence (2016)",
-      "value": "AI-16"
-    }
-  ]
+  {
+    "colors": [
+      {
+        "color": [136, 144, 173, 240],
+        "pattern": "full",
+        "label": "Area of Influence",
+        "value": "AI"
+      },
+      {
+        "color": [201, 186, 119, 240],
+        "pattern": "hatch-1x",
+        "label": "Area of Influence (2016)",
+        "value": "AI-16"
+      }
+    ]
+  }
   ```
 - Example with identical values:
 
   ```json
-  colors: [
-    {
-      "color": [136, 144, 173, 240],
-      "pattern": "full",
-      "label": "Area of Influence"
-    }
-  ]
+  {
+    "colors": [
+      {
+        "color": [136, 144, 173, 240],
+        "pattern": "full",
+        "label": "Area of Influence"
+      }
+    ]
+  }
   ```
 
 - **Static Colors**: A single color applied uniformly, e.g., the "Running or Dormant Waters" layer uses:
   ```json
-  colors: [
-    {
-      "color": [56, 85, 204, 240],
-      "label": "default",
-      "pattern": "full"
-    }
-  ]
+  {
+    "colors": [
+      {
+        "color": [56, 85, 204, 240],
+        "label": "default",
+        "pattern": "full"
+      }
+    ]
+  }
   ```
 - **Dynamic Colors**: Colors assigned based on polygon properties, e.g., the "Axes" layer maps colors to the `nm_perimetro_divisao_pde` property:
   ```json
-  getFillColorPropName: "nm_perimetro_divisao_pde",
-  getLineColorPropName: "nm_perimetro_divisao_pde",
-  colors: [
-    {
-      "color": [136, 144, 173, 240],
-      "pattern": "full",
-      "label": "Area of Influence",
-      "value": "AI"
-    },
-    {
-      "color": [201, 186, 119, 240],
-      "pattern": "hatch-1x",
-      "label": "Area of Influence (2016)",
-      "value": "AI-16"
-    }
-  ]
+  {
+    "getFillColorPropName": "nm_perimetro_divisao_pde",
+    "getLineColorPropName": "nm_perimetro_divisao_pde",
+    "colors": [
+      {
+        "color": [136, 144, 173, 240],
+        "pattern": "full",
+        "label": "Area of Influence",
+        "value": "AI"
+      },
+      {
+        "color": [201, 186, 119, 240],
+        "pattern": "hatch-1x",
+        "label": "Area of Influence (2016)",
+        "value": "AI-16"
+      }
+    ]
+  }
   ```
 
 ## Layer Object Parameters
@@ -156,20 +168,20 @@ The JSON object that defines a layer contains several parameters that control it
 
 The `properties` object can contain various additional configurations, depending on the layer. Common examples include:
 
-| Property         | Description                                                                              | Example                                                                                  |
-| ---------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --- | --------------------------- | --- | -------------------------------------------------------------------------------------- |
-| `stroked`        | Boolean indicating whether the polygon has an outline.                                   | `false`                                                                                  |
-| `filled`         | Boolean indicating whether the polygon has a fill.                                       | `true`                                                                                   |
-| `pointType`      | Type of representation for points (e.g., "circle", "circle+text").                       | `"circle+text"`                                                                          |
-| `pickable`       | Boolean indicating whether the polygon is interactive (selectable).                      | `true`                                                                                   |
-| `extruded`       | Boolean that enables 3D extrusion of the polygon.                                        | `true`                                                                                   |
-| `wireframe`      | Boolean that enables wireframe mode for the polygon.                                     | `true`                                                                                   |
-| `getLineWidth`   | Width of the polygon outline (in pixels).                                                | `20`                                                                                     |
-| `getPointRadius` | Radius of points (in pixels).                                                            | `5`                                                                                      |
-| `getTextSize`    | Size of text displayed on the polygon (in pixels).                                       | `12`                                                                                     |
-| `autoHighlight`  | Boolean that enables automatic highlighting on hover.                                    | `true`                                                                                   |
-| `highlightColor` | Highlight color when interacting with the polygon (RGBA array).                          | `[252, 252, 255, 150]`                                                                   |
-| `getElevation`   | JavaScript function that calculates the 3D elevation of the polygon based on properties. | `"(allotment) => { const { qt_area_construida, qt_area_terreno } = allotment?.properties |     | {}; if (!qt_area_construida |     | !qt_area_terreno) return 0; return (qt_area_construida / qt_area_terreno) _ 2 _ 3; }"` |
+| Property         | Description                                                                              | Example                                                                                                                                                                                                                          |
+| ---------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `stroked`        | Boolean indicating whether the polygon has an outline.                                   | `false`                                                                                                                                                                                                                          |
+| `filled`         | Boolean indicating whether the polygon has a fill.                                       | `true`                                                                                                                                                                                                                           |
+| `pointType`      | Type of representation for points (e.g., "circle", "circle+text").                       | `"circle+text"`                                                                                                                                                                                                                  |
+| `pickable`       | Boolean indicating whether the polygon is interactive (selectable).                      | `true`                                                                                                                                                                                                                           |
+| `extruded`       | Boolean that enables 3D extrusion of the polygon.                                        | `true`                                                                                                                                                                                                                           |
+| `wireframe`      | Boolean that enables wireframe mode for the polygon.                                     | `true`                                                                                                                                                                                                                           |
+| `getLineWidth`   | Width of the polygon outline (in pixels).                                                | `20`                                                                                                                                                                                                                             |
+| `getPointRadius` | Radius of points (in pixels).                                                            | `5`                                                                                                                                                                                                                              |
+| `getTextSize`    | Size of text displayed on the polygon (in pixels).                                       | `12`                                                                                                                                                                                                                             |
+| `autoHighlight`  | Boolean that enables automatic highlighting on hover.                                    | `true`                                                                                                                                                                                                                           |
+| `highlightColor` | Highlight color when interacting with the polygon (RGBA array).                          | `[252, 252, 255, 150]`                                                                                                                                                                                                           |
+| `getElevation`   | JavaScript function that calculates the 3D elevation of the polygon based on properties. | ``` "(allotment) => { const { qt_area_construida, qt_area_terreno } = allotment?.properties \|\| {}; if (!qt_area_construida \|\| !qt_area_terreno) return 0; return (qt_area_construida / qt_area_terreno) _ 2 _ 3; }"``` |
 
 For more information on these properties, [see the Deck.gl documentation](https://deck.gl/docs/api-reference/layers/geojson-layer).
 
@@ -272,11 +284,7 @@ The `colors` array defines the color and pattern configurations, with the follow
     "getTextSize": 12,
     "autoHighlight": true,
     "highlightColor": [252, 252, 255, 150],
-    "getElevation": "(allotment) => {
-      const { qt_area_construida, qt_area_terreno } = allotment?.properties || {};
-      if (!qt_area_construida || !qt_area_terreno) return 0;
-      return (qt_area_construida / qt_area_terreno) * 2 * 3;
-    }"
+    "getElevation": "(allotment) => { const { qt_area_construida, qt_area_terreno } = allotment?.properties || {}; if (!qt_area_construida || !qt_area_terreno) return 0; return (qt_area_construida / qt_area_terreno) * 2 * 3; }"
   },
   "colors": [
     {

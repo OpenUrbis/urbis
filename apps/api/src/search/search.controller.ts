@@ -19,9 +19,7 @@ import { SearchConfigDto } from './dto/search.dto';
 import { SearchConfig } from './entities/search-config.entity';
 import { SearchService } from './search.service';
 
-@ApiSecurity('api_key')
 @ApiTags('Search configurations')
-@UseGuards(AuthGuard('api-key'))
 @Controller('search')
 export class SearchController {
   constructor(private readonly service: SearchService) {}
@@ -53,6 +51,8 @@ export class SearchController {
     return this.service.findOne(id);
   }
 
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Post()
   @ApiOperation({ summary: 'Create a new search config' })
   @ApiResponse({
@@ -73,6 +73,8 @@ export class SearchController {
     return this.service.create(dto);
   }
 
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Put(':id')
   @ApiOperation({ summary: 'Update a search config by ID' })
   @ApiResponse({
@@ -105,6 +107,8 @@ export class SearchController {
     return this.service.update(id, dto);
   }
 
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a search config by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })
@@ -121,6 +125,8 @@ export class SearchController {
     return this.service.delete(id);
   }
 
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Post('upsert')
   @ApiOperation({ summary: 'Create or update a search config based on ID' })
   @ApiResponse({

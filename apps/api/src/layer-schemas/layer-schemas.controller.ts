@@ -19,9 +19,7 @@ import { LayerSchemaDto } from './dto/layer-schema.dto';
 import { LayerSchema } from './entities/layer-schema.entity';
 import { LayerSchemasService } from './layer-schemas.service';
 
-@ApiSecurity('api_key')
 @ApiTags('Layer Schemas')
-@UseGuards(AuthGuard('api-key'))
 @Controller('layer-schemas')
 export class LayerSchemasController {
   constructor(private readonly service: LayerSchemasService) {}
@@ -53,6 +51,8 @@ export class LayerSchemasController {
     return this.service.findOne(id);
   }
 
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Post()
   @ApiOperation({ summary: 'Create a new layer schema' })
   @ApiResponse({
@@ -73,6 +73,8 @@ export class LayerSchemasController {
     return this.service.create(dto);
   }
 
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Put(':id')
   @ApiOperation({ summary: 'Update a layer schema by ID' })
   @ApiResponse({
@@ -105,6 +107,8 @@ export class LayerSchemasController {
     return this.service.update(id, dto);
   }
 
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a layer schema by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })
@@ -121,6 +125,8 @@ export class LayerSchemasController {
     return this.service.delete(id);
   }
 
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Post('upsert')
   @ApiOperation({ summary: 'Create or update a layer schema based on ID' })
   @ApiResponse({

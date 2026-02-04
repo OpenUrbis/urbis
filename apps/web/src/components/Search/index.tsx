@@ -129,14 +129,12 @@ export const Search = () => {
                   (currentTerm.value = e.target.value)
                 }
                 trailingIcon={{
-                  icon: 'close',
+                  icon: "close",
                   tabIndex: 0,
                   onClick: () => {
                     resetSearch();
                     clearResults();
-
-                    console.log('Clear')
-                  }
+                  },
                 }}
                 style={{ flex: 1, width: "100%" }}
               />
@@ -144,7 +142,7 @@ export const Search = () => {
                 raised: true,
                 icon: loading
                   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  createElement(CircularProgress as any, { width: "24px" })
+                    createElement(CircularProgress as any, { width: "24px" })
                   : "search",
                 type: "submit",
                 class: "search-button",

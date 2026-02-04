@@ -1,17 +1,28 @@
 import { useCallback, useMemo } from "react";
-import { ITemplate, ITemplateProps, ITemplatesMap } from "./types/templates-type";
 import { VIEW_TEMPLATE_TEMPLATES } from "./templates";
+import {
+  ITemplate,
+  ITemplateProps,
+  ITemplatesMap,
+} from "./types/templates-type";
 
-export const ViewTemplateEngine = ({ template, data, rootTemplate }: ITemplateProps) => {
+export const ViewTemplateEngine = ({
+  template,
+  data,
+  rootTemplate,
+  isPrint,
+}: ITemplateProps) => {
   const templateTypes: ITemplatesMap = useMemo(() => {
     const templates: ITemplatesMap = {};
 
-    VIEW_TEMPLATE_TEMPLATES.forEach(
-      (template) => (templates[template.name] = template.render)
-    );
+    VIEW_TEMPLATE_TEMPLATES.forEach((template) => {
+      if (isPrint && template.hiddenOnPrint)
+        templates[template.name] = () => null;
+      else templates[template.name] = template.render;
+    });
 
     return templates;
-  }, []);
+  }, [isPrint]);
 
   const renderTemplate = useCallback(
     (props: ITemplate) => {
@@ -23,14 +34,21 @@ export const ViewTemplateEngine = ({ template, data, rootTemplate }: ITemplatePr
 
         const Template = templateTypes[templateType];
 
-        return <Template template={props} data={data} rootTemplate={rootTemplate} />;
+        return (
+          <Template
+            template={props}
+            data={data}
+            rootTemplate={rootTemplate}
+            isPrint={isPrint}
+          />
+        );
       } catch (e) {
         console.error(e);
 
         return <div>Error on loading template</div>;
       }
     },
-    [templateTypes, data, rootTemplate]
+    [templateTypes, data, rootTemplate, isPrint]
   );
 
   return <>{renderTemplate(template)}</>;

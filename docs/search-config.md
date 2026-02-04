@@ -43,7 +43,7 @@ The `clickAction` property follows the same schema as the `clickAction` in the l
 ### Complex Configuration (Tax Addresses)
 This example demonstrates a search configuration for tax addresses, with custom parameter and response transformations to handle specific query formats and standardize the output.
 
-```json
+```javascript
 {
   "id": "lots",
   "name": "Tax Addresses",
@@ -110,7 +110,7 @@ This example demonstrates a search configuration for tax addresses, with custom 
 ### Simple Configuration (Monuments)
 This example shows a minimal search configuration for monuments, using default values where possible and a simple response transformation.
 
-```json
+```javascript
 {
   "id": "monuments",
   "name": "Monuments",
@@ -155,7 +155,7 @@ This example shows a minimal search configuration for monuments, using default v
 ### Configuration for Districts
 This example illustrates a search configuration for municipal districts, with parameter and response transformations to search and display district names.
 
-```json
+```javascript
 {
   "id": "districts",
   "name": "Districts",
@@ -197,7 +197,7 @@ This example illustrates a search configuration for municipal districts, with pa
 ### Configuration for Address Geocoding
 This example demonstrates a search configuration for address geocoding, using an external API and a custom click action to apply zoom.
 
-```json
+```javascript
 {
   "id": "geocoding",
   "name": "Addresses",

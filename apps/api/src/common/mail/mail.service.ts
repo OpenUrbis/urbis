@@ -255,7 +255,7 @@ export class MailService {
       `;
 
       const emailParams = {
-        to: 'contas@urbis.sampa.br',
+        to: 'contas@urbis.prefeitura.sp.gov.br',
         cc: ticket.email,
         from: this.configService.get('mail.from'),
         subject,

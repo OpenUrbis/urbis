@@ -1,9 +1,9 @@
 base:
-  domainName: api.mapa.urbis.sampa.br
+  domainName: api.mapa.urbis.prefeitura.sp.gov.br
 components-api-gateway:
-  domainName: api.mapa.urbis.sampa.br
+  domainName: api.mapa.urbis.prefeitura.sp.gov.br
 components-apps:
-  domainName: api.mapa.urbis.sampa.br
+  domainName: api.mapa.urbis.prefeitura.sp.gov.br
 ingress-nginx:
   controller:
     ingressClassResource:

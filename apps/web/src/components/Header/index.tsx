@@ -14,9 +14,6 @@ const Header = () => {
   const { theme, setTheme } = useTheme();
   const [helpOpen, setHelpOpen] = useState(false);
 
-  const s3Endpoint =
-    import.meta.env.VITE_S3_ENDPOINT_PUBLIC || "http://localhost:9000/public";
-
   // ✅ badgeText ao lado da logo + menu sem o item da página atual
   const { menuItems, badgeText } = useMemo(() => {
   return buildUrbisNav({
@@ -43,9 +40,6 @@ const Header = () => {
         user={{
           name: userProfile.value?.name ?? auth.user?.profile.name,
           email: userProfile.value?.email ?? auth.user?.profile.email,
-          avatarUrl: userProfile.value?.id
-            ? `${s3Endpoint}/avatars/${userProfile.value.id}`
-            : undefined,
         }}
         onLogin={() => auth.signinRedirect()}
         onLogout={() => auth.removeUser()}

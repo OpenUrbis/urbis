@@ -1,12 +1,10 @@
+import { buildUrbisNav } from "@open-urbis/map-ui";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/lib/layout.shared";
 import { source } from "@/lib/source";
 import { SidebarController } from "./sidebar-controller";
 import { UrbisHeaderWrapper } from "./urbis-header-wrapper";
-
-// ✅ novo
-import { buildUrbisNav } from "@open-urbis/map-ui";
 
 export default function Layout({ children }: { children: ReactNode }) {
   // Docs = Doc. técnica
@@ -19,7 +17,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="flex flex-col w-full min-h-screen">
       <UrbisHeaderWrapper
         menuItems={menuItems}
-        badgeText={badgeText}   // ✅ “Doc. técnica” ao lado da logo
+        badgeText={badgeText} // ✅ “Doc. técnica” ao lado da logo
         showMobileMenu
       />
 

@@ -1,9 +1,9 @@
-import { RootProvider } from "fumadocs-ui/provider/next";
-import "./global.css";
 import { UrbisFooter } from "@open-urbis/map-ui";
-import { ConfigInitializer } from "@/components/ConfigInitializer";
+import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
+import { ConfigInitializer } from "@/components/ConfigInitializer";
+import "./global.css";
 
 const notoSans = Noto_Sans({
   subsets: ["latin"],

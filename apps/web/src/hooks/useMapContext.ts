@@ -45,7 +45,7 @@ const getMapHandlers = (context: MapContextType) => {
           };
         }
         return layer;
-      }
+      },
     );
   };
 
@@ -60,7 +60,7 @@ const getMapHandlers = (context: MapContextType) => {
           };
         }
         return layer;
-      }
+      },
     );
   };
 
@@ -70,47 +70,48 @@ const getMapHandlers = (context: MapContextType) => {
 
   const populateMapContext = async (options?: { disablePadding?: boolean }) => {
     const urlParams = new URLSearchParams(window.location.search);
-    const shareId = urlParams.get('shareId');
-    
+    const shareId = urlParams.get("shareId");
+
     if (shareId) {
-        try {
-            const sharedMap = await shareService.load(shareId);
-            if (sharedMap?.state?.root?.mapContext) {
-                 currentShare.value = sharedMap;
-                 const { mapContext: loadedMapContext } = sharedMap.state.root;
-                 
-                 layerSchemas.value = loadedMapContext.layerSchemas || [];
-                 layerGroups.value = loadedMapContext.layerGroups || [];
-                 zoom.value = loadedMapContext.zoom ?? 10;
-                 boundingBox.value = loadedMapContext.boundingBox || boundingBox.value;
-                 viewport.value = loadedMapContext.viewport;
-                 
-                 if (loadedMapContext.editFeatureTemplate) {
-                     editFeatureTemplate.value = loadedMapContext.editFeatureTemplate;
-                 }
-                 
-                 if (loadedMapContext.layerWithRootEditTemplate) {
-                     layerWithRootEditTemplate.value = loadedMapContext.layerWithRootEditTemplate;
-                 }
-                 
-                 if (loadedMapContext.selectedFeatures) {
-                     selectedFeatures.value = loadedMapContext.selectedFeatures;
-                 }
+      try {
+        const sharedMap = await shareService.load(shareId);
+        if (sharedMap?.state?.root?.mapContext) {
+          currentShare.value = sharedMap;
+          const { mapContext: loadedMapContext } = sharedMap.state.root;
 
-                 if (loadedMapContext.is3DActive !== undefined) {
-                     is3DActive.value = loadedMapContext.is3DActive;
-                 }
+          layerSchemas.value = loadedMapContext.layerSchemas || [];
+          layerGroups.value = loadedMapContext.layerGroups || [];
+          zoom.value = loadedMapContext.zoom ?? 10;
+          boundingBox.value = loadedMapContext.boundingBox || boundingBox.value;
+          viewport.value = loadedMapContext.viewport;
 
-                 if (loadedMapContext.selectedBaseMap) {
-                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                     selectedBaseMap.value = loadedMapContext.selectedBaseMap as any;
-                 }
-                 
-                 return;
-            }
-        } catch (e) {
-            console.error("Failed to load shared state", e);
+          if (loadedMapContext.editFeatureTemplate) {
+            editFeatureTemplate.value = loadedMapContext.editFeatureTemplate;
+          }
+
+          if (loadedMapContext.layerWithRootEditTemplate) {
+            layerWithRootEditTemplate.value =
+              loadedMapContext.layerWithRootEditTemplate;
+          }
+
+          if (loadedMapContext.selectedFeatures) {
+            selectedFeatures.value = loadedMapContext.selectedFeatures;
+          }
+
+          if (loadedMapContext.is3DActive !== undefined) {
+            is3DActive.value = loadedMapContext.is3DActive;
+          }
+
+          if (loadedMapContext.selectedBaseMap) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            selectedBaseMap.value = loadedMapContext.selectedBaseMap as any;
+          }
+
+          return;
         }
+      } catch (e) {
+        console.error("Failed to load shared state", e);
+      }
     }
 
     const {
@@ -163,15 +164,15 @@ const getMapHandlers = (context: MapContextType) => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleViewportChange = (v: any) => {
-    zoom.value = v.zoom;
+    zoom.value = v?.zoom ?? 10;
     boundingBox.value = v.getBounds();
     viewport.value = {
-        ...viewport.value,
-        zoom: v.zoom,
-        bearing: v.bearing,
-        pitch: v.pitch,
-        latitude: v.latitude,
-        longitude: v.longitude
+      ...viewport.value,
+      zoom: v?.zoom ?? 10,
+      bearing: v.bearing,
+      pitch: v.pitch,
+      latitude: v.latitude,
+      longitude: v.longitude,
     };
   };
 
@@ -180,9 +181,9 @@ const getMapHandlers = (context: MapContextType) => {
     handleActiveLayer,
     populateMapContext,
     selectFeature,
-  handleViewportChange,
-  flyTo,
-  flyToWithPadding: flyTo,
+    handleViewportChange,
+    flyTo,
+    flyToWithPadding: flyTo,
   };
 };
 

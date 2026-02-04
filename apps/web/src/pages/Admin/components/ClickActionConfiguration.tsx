@@ -1,4 +1,3 @@
-import { CodeEditor } from "@/components/CodeEditor";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,9 +28,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { viewTemplateSchema } from "@/components/ViewTemplateSchema";
-import { HelpCircle } from "lucide-react";
-import { useState } from "react";
+import { HelpCircle, Loader2 } from "lucide-react";
+import { lazy, Suspense, useState } from "react";
 import { useFormContext } from "react-hook-form";
+
+const CodeEditor = lazy(() =>
+  import("@/components/CodeEditor").then((module) => ({
+    default: module.CodeEditor,
+  }))
+);
 
 export const ClickActionConfiguration = () => {
   const form = useFormContext();
@@ -231,14 +236,23 @@ export const ClickActionConfiguration = () => {
                 </DialogDescription>
               </DialogHeader>
               <div className="flex-1 min-h-0">
-                <CodeEditor
-                  value={form.getValues("clickActionParams.template") || ""}
-                  onChange={handleAdvancedEditorSave}
-                  language="json"
-                  schema={viewTemplateSchema}
-                  className="h-full border rounded-md"
-                />
+                <Suspense
+                  fallback={
+                    <div className="flex h-full items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                  }
+                >
+                  <CodeEditor
+                    value={form.getValues("clickActionParams.template") || ""}
+                    onChange={handleAdvancedEditorSave}
+                    language="json"
+                    schema={viewTemplateSchema}
+                    className="h-full border rounded-md"
+                  />
+                </Suspense>
               </div>
+
               <div className="flex justify-end pt-4">
                 <Button onClick={() => setIsAdvancedEditorOpen(false)}>
                   Concluir

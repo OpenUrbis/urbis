@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { generateOriginUrl, fetchCapabilities } from "../utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 
 interface LayerConfigurationProps {
   onNext?: () => void;
@@ -29,12 +29,131 @@ interface LayerConfigurationProps {
   simpleMode?: boolean;
 }
 
+const LayerSourceSettings = memo(({ loadingMethod }: { loadingMethod: string }) => {
+  console.log("LayerSourceSettings render", { loadingMethod });
+  const form = useFormContext();
+  const selectedLayer = form.watch("selectedLayer");
+  const srs = form.watch("srs");
+  
+  const [forceCustomSrs, setForceCustomSrs] = useState(false);
+
+  useEffect(() => {
+    console.log("LayerSourceSettings effect: reset forceCustomSrs", selectedLayer?.name);
+    setForceCustomSrs(false);
+  }, [selectedLayer?.name]);
+
+  const hasCrsOptions = selectedLayer?.crs && selectedLayer.crs.length > 0;
+  const isKnownSrs = selectedLayer?.crs?.includes(srs);
+  const showCustomSrsInput = forceCustomSrs || !isKnownSrs || !hasCrsOptions;
+  const srsSelectValue = showCustomSrsInput ? "custom" : srs;
+
+  if (selectedLayer?.crs) {
+    console.log("LayerSourceSettings: CRS count", selectedLayer.crs.length);
+  }
+
+  return (
+    <>
+      <div className={`grid ${loadingMethod === "CustomWMSLayer" ? "grid-cols-1" : "grid-cols-2"} gap-4`}>
+        <FormField
+          control={form.control}
+          name="version"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Versão (Service Version)</FormLabel>
+              <FormControl>
+                <Input placeholder="1.0.0" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {loadingMethod !== "CustomWMSLayer" && (
+          <FormField
+            control={form.control}
+            name="srs"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>SRS / CRS</FormLabel>
+                <div className="flex flex-col gap-2">
+                  <Select
+                    value={srsSelectValue}
+                    onValueChange={(val) => {
+                      if (val === "custom") {
+                        setForceCustomSrs(true);
+                      } else {
+                        setForceCustomSrs(false);
+                        field.onChange(val);
+                      }
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {selectedLayer?.crs?.slice(0, 100).map((crs: string) => (
+                        <SelectItem key={crs} value={crs}>
+                          {crs}
+                        </SelectItem>
+                      ))}
+                      {selectedLayer?.crs && selectedLayer.crs.length > 100 && (
+                        <div className="px-2 py-1 text-xs text-muted-foreground">
+                          Mais {selectedLayer.crs.length - 100} opções disponíveis...
+                        </div>
+                      )}
+                      <SelectItem value="custom">Personalizada</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {(showCustomSrsInput || !hasCrsOptions) && (
+                    <FormControl>
+                      <Input
+                        placeholder="EPSG:4326"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                        }}
+                      />
+                    </FormControl>
+                  )}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+      </div>
+
+      <FormField
+        control={form.control}
+        name="origin"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>URL Final da Camada (Origin)</FormLabel>
+            <div className="flex gap-2">
+              <FormControl>
+                <Input placeholder="URL completa..." {...field} />
+              </FormControl>
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </>
+  );
+});
+
+LayerSourceSettings.displayName = "LayerSourceSettings";
+
 export const LayerConfiguration = ({
   onNext,
   onBack,
   hideNavigation = false,
   simpleMode = false,
 }: LayerConfigurationProps) => {
+  console.log("LayerConfiguration render");
   const form = useFormContext();
   const loadingMethod = form.watch("loadingMethod");
   const url = form.watch("url");
@@ -43,15 +162,20 @@ export const LayerConfiguration = ({
   const version = form.watch("version");
   const srs = form.watch("srs");
 
-  const [forceCustomSrs, setForceCustomSrs] = useState(false);
+  console.log("LayerConfiguration values", { loadingMethod, url, selectedLayerName: selectedLayer?.name });
 
   useEffect(() => {
     const fetchCrs = async () => {
       if (url && selectedLayer?.name && (!selectedLayer.crs || selectedLayer.crs.length === 0)) {
+        console.log("LayerConfiguration: Fetching CRS for", selectedLayer.name);
         try {
+          console.time("fetchCapabilities");
           const { layers } = await fetchCapabilities(url);
+          console.timeEnd("fetchCapabilities");
+          
           const found = layers.find(l => l.name === selectedLayer.name || l.title === selectedLayer.name);
           if (found && found.crs && found.crs.length > 0) {
+            console.log("LayerConfiguration: Found CRS", found.crs.length);
             const updatedLayer = {
                ...selectedLayer,
                crs: found.crs,
@@ -69,10 +193,6 @@ export const LayerConfiguration = ({
   }, [url, selectedLayer?.name]);
 
   useEffect(() => {
-    setForceCustomSrs(false);
-  }, [selectedLayer?.name]);
-
-  useEffect(() => {
     if (url && loadingMethod) {
       const suggested = generateOriginUrl(
         url,
@@ -87,11 +207,6 @@ export const LayerConfiguration = ({
       }
     }
   }, [url, selectedLayer, loadingMethod, version, srs]);
-
-  const hasCrsOptions = selectedLayer?.crs && selectedLayer.crs.length > 0;
-  const isKnownSrs = selectedLayer?.crs?.includes(srs);
-  const showCustomSrsInput = forceCustomSrs || !isKnownSrs || !hasCrsOptions;
-  const srsSelectValue = showCustomSrsInput ? "custom" : srs;
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
@@ -120,91 +235,7 @@ export const LayerConfiguration = ({
             )}
           />
 
-          <div className={`grid ${loadingMethod === "CustomWMSLayer" ? "grid-cols-1" : "grid-cols-2"} gap-4`}>
-            <FormField
-              control={form.control}
-              name="version"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Versão (Service Version)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="1.0.0" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {loadingMethod !== "CustomWMSLayer" && (
-              <FormField
-                control={form.control}
-                name="srs"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>SRS / CRS</FormLabel>
-                    <div className="flex flex-col gap-2">
-                      <Select
-                        value={srsSelectValue}
-                        onValueChange={(val) => {
-                          if (val === "custom") {
-                            setForceCustomSrs(true);
-                          } else {
-                            setForceCustomSrs(false);
-                            field.onChange(val);
-                          }
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {selectedLayer?.crs?.map((crs: string) => (
-                            <SelectItem key={crs} value={crs}>
-                              {crs}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="custom">Personalizada</SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      {(showCustomSrsInput || !hasCrsOptions) && (
-                        <FormControl>
-                          <Input
-                            placeholder="EPSG:4326"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              // If user types something that matches list, we could auto-switch back to select mode?
-                              // But maybe keep custom mode to avoid jumping UI.
-                            }}
-                          />
-                        </FormControl>
-                      )}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-          </div>
-
-          <FormField
-            control={form.control}
-            name="origin"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>URL Final da Camada (Origin)</FormLabel>
-                <div className="flex gap-2">
-                  <FormControl>
-                    <Input placeholder="URL completa..." {...field} />
-                  </FormControl>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <LayerSourceSettings loadingMethod={loadingMethod} />
         </>
       )}
 

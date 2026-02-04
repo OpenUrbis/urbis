@@ -19,19 +19,27 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
 
   const environment = import.meta.env.VITE_API_URL || "/api";
 
+  console.time("fetchCapabilities-request");
   const response = await axios.get(`${environment}/maps/proxy`, {
     params: { url: baseUrlStr, service: 'WMS', version: '1.3.0', request: 'GetCapabilities' }
   });
+  console.timeEnd("fetchCapabilities-request");
+  
+  console.log("fetchCapabilities: Response size", response.data?.length);
 
+  console.time("fetchCapabilities-parse");
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(response.data, "text/xml");
+  console.timeEnd("fetchCapabilities-parse");
 
   const root = xmlDoc.documentElement;
   const serviceVersion = root.getAttribute("version") || "1.1.1";
 
   const extractedLayers: LayerCapability[] = [];
   const layerNodes = xmlDoc.getElementsByTagName("Layer");
+  console.log("fetchCapabilities: Layer nodes count", layerNodes.length);
 
+  console.time("fetchCapabilities-extract");
   for (let i = 0; i < layerNodes.length; i++) {
     const node = layerNodes[i];
     const nameNode = node.getElementsByTagName("Name")[0];
@@ -77,6 +85,7 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
       }
     }
   }
+  console.timeEnd("fetchCapabilities-extract");
   
   return { layers: extractedLayers, version: serviceVersion };
 }

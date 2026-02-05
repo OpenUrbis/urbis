@@ -43,7 +43,7 @@ Ao clicar no código do SRC, uma janela se abrirá onde você pode selecionar o 
 
 ## 2. Conexão com PostgreSQL
 
-A partir desta etapa, iniciaremos a integração técnica. Para exportar ou gerenciar camadas, é necessário configurar a conexão com o banco de dados PostgreSQL/PostGIS.
+A partir desta etapa, iniciaremos a integração técnica. Esta configuração é necessária apenas na primeira vez que você for utilizar o banco de dados no seu QGIS. Para exportar ou gerenciar camadas, é necessário configurar a conexão com o banco de dados PostgreSQL/PostGIS.
 
 > [!IMPORTANT]
 > **Segurança de Dados**: As credenciais de acesso e os dados de conexão devem ser compartilhados internamente seguindo rigorosamente os requisitos de segurança estabelecidos. Mantenha essas informações protegidas e utilize-as com o devido cuidado. Para diretrizes detalhadas de segurança e scripts de configuração, consulte [Scripts SQL e Gerenciamento de Acesso](./scripts-sql.mdx).
@@ -91,6 +91,8 @@ Ao abrir a ferramenta, preencha os campos conforme a orientação abaixo:
 Clique em **Executar** e aguarde o término do processo.
 
 ## 4. Publicação no GeoServer
+
+Esta etapa descreve como disponibilizar os dados exportados através do serviço de mapas. Note que as configurações de Origem de Dados (Store) no GeoServer geralmente precisam ser feitas apenas uma única vez para cada banco de dados.
 
 Após exportar a tabela para o PostgreSQL, acesse o GeoServer através da URL `https://geoserver.slui.dev/geoserver/` e realize o login.
 

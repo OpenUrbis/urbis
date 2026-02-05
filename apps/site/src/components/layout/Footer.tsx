@@ -237,7 +237,7 @@ export function Footer() {
               O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código
               aberto e cláusula copyleft, contribuindo para um ambiente de colaboração e melhoria
               contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o
-              código-fonte está publicado no OpenUrbis, no GitHub.
+              código-fonte está publicado no GitHub.
             </p>
           </div>
 
@@ -753,7 +753,7 @@ export function Footer() {
 
                 {/* AGPL v3 */}
                 <a
-                  href="https://www.gnu.org/licenses/agpl-3.0.html"
+                  href="https://www.gnu.org/licenses/gpl-3.0.pt-br.html"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-white dark:text-black hover:underline"

@@ -16,6 +16,10 @@ Abaixo, forneço os scripts SQL para criar o banco de dados `integracoes`, confi
 - Após criar, teste as permissões conectando-se com o novo usuário e tentando acessar outros bancos (deve falhar).
 
 #### 1. Criar o Banco de Dados
+
+> [!IMPORTANT]
+> **Projeção Padrão**: Sempre utilize a projeção **SIRGAS 2000 / UTM** como padrão do projeto para todos os dados geográficos.
+
 ```sql
 -- Conecte-se ao banco padrão (ex.: psql -U postgres)
 CREATE DATABASE integracoes

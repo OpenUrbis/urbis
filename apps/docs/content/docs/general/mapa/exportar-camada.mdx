@@ -1,5 +1,5 @@
 ---
-title: Exportar Camada (PostGIS/GeoServer)
+title: Integração com o QGIS
 description: Guia passo a passo para exportar uma camada via QGIS para o PostgreSQL e publicar no GeoServer.
 icon: Database
 ---
@@ -7,6 +7,8 @@ icon: Database
 Este documento descreve o processo de exportar uma camada vetorial para o banco de dados PostgreSQL utilizando o QGIS e, em seguida, publicá-la no GeoServer.
 
 ## 1. Preparação e Importação no QGIS
+
+Caso você já possua um projeto configurado no QGIS com as camadas necessárias, pode prosseguir diretamente para o **Passo 2**. Caso contrário, siga as etapas abaixo para preparar seus dados.
 
 ### Download da Camada
 
@@ -41,7 +43,12 @@ Ao clicar no código do SRC, uma janela se abrirá onde você pode selecionar o 
 
 ## 2. Conexão com PostgreSQL
 
-Para exportar a camada, é necessário configurar a conexão com o banco de dados PostgreSQL.
+A partir desta etapa, iniciaremos a integração técnica. Para exportar ou gerenciar camadas, é necessário configurar a conexão com o banco de dados PostgreSQL/PostGIS.
+
+> [!IMPORTANT]
+> **Segurança de Dados**: As credenciais de acesso e os dados de conexão devem ser compartilhados internamente seguindo rigorosamente os requisitos de segurança estabelecidos. Mantenha essas informações protegidas e utilize-as com o devido cuidado. Para diretrizes detalhadas de segurança e scripts de configuração, consulte [Scripts SQL e Gerenciamento de Acesso](./scripts-sql.mdx).
+
+Uma vez configurada a conexão, além de exportar novas camadas, você também poderá visualizar e importar camadas já existentes diretamente do banco para o seu projeto QGIS.
 
 No painel "Navegador" (menu lateral esquerdo), localize o item **PostgreSQL**, clique com o botão direito e selecione **Nova Conexão...**.
 

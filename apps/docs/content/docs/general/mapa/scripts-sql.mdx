@@ -1,0 +1,101 @@
+---
+title: Scripts SQL e Gerenciamento de Acesso
+description: Scripts para configuração do banco de dados e diretrizes de segurança para gerenciamento de acesso.
+icon: Terminal
+---
+
+Este guia fornece os scripts SQL necessários para configurar o banco de dados `integracoes` e gerenciar permissões de forma segura, garantindo que usuários tenham acesso apenas ao necessário.
+
+### SQL Scripts para Configuração do Banco de Dados e Gerenciamento de Acesso
+
+Abaixo, forneço os scripts SQL para criar o banco de dados `integracoes`, configurar um role (papel) com permissões limitadas apenas a esse banco de dados, e criar um usuário exemplo com uma senha forte. Esses scripts assumem que você está executando como um superusuário (ex.: `postgres`) no PostgreSQL com PostGIS habilitado. Eles seguem boas práticas de segurança: o role é restrito ao banco `integracoes`, sem permissões em outros bancos, e o usuário é criado com senha expirável para forçar uma troca inicial.
+
+**Avisos importantes antes de executar:**
+- Rode esses comandos no terminal psql ou em uma ferramenta como pgAdmin, conectando-se ao banco padrão (ex.: `postgres`).
+- Substitua placeholders como `<nome_do_usuario>` pelo nome real do usuário (ex.: `integracoes_user1`) e `<senha_forte>` por uma senha gerada (mínimo 12 caracteres, com maiúsculas, minúsculas, números e símbolos).
+- Após criar, teste as permissões conectando-se com o novo usuário e tentando acessar outros bancos (deve falhar).
+
+#### 1. Criar o Banco de Dados
+```sql
+-- Conecte-se ao banco padrão (ex.: psql -U postgres)
+CREATE DATABASE integracoes
+    WITH 
+    OWNER = postgres
+    ENCODING = 'UTF8';
+
+-- Conecte-se ao novo banco e habilite PostGIS (essencial para QGIS/GeoServer)
+\c integracoes
+CREATE EXTENSION IF NOT EXISTS postgis;
+```
+
+#### 2. Criar o Role (Papel) com Permissões Limitadas
+Esse role permite conectar apenas ao banco `integracoes`, usar o schema `public`, e editar tabelas nesse schema.
+
+> [!IMPORTANT]
+> **Acesso ao Banco `postgres`**: No PostgreSQL, o privilégio `CONNECT` no banco de dados `postgres` (e em outros criados sem restrições explícitas) é concedido ao role `PUBLIC` por padrão. Para restringir o acesso, é necessário revogar esse privilégio do `PUBLIC`.
+
+```sql
+-- 1. Criar o role
+CREATE ROLE integracoes_editor
+    WITH 
+    NOSUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    NOINHERIT
+    NOREPLICATION
+    NOBYPASSRLS
+    CONNECTION LIMIT -1;
+
+-- 2. Conceder acesso apenas ao banco integracoes
+GRANT CONNECT ON DATABASE integracoes TO integracoes_editor;
+
+-- 3. Restringir acesso ao banco padrão (postgres) e outros bancos
+-- IMPORTANTE: No Postgres, 'PUBLIC' tem acesso de conexão por padrão.
+-- Você deve revogar do PUBLIC para que o GRANT específico acima seja a única forma de entrar.
+REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
+REVOKE CONNECT ON DATABASE postgres FROM integracoes_editor; -- Garantia adicional
+
+-- 4. Configurar permissões dentro do banco integracoes
+\c integracoes
+
+GRANT USAGE ON SCHEMA public TO integracoes_editor;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO integracoes_editor;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO integracoes_editor;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO integracoes_editor;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO integracoes_editor;
+```
+
+#### 3. Criar o Usuário e Associar ao Role
+Aqui, criamos um usuário que herda o role `integracoes_editor`.
+
+> [!TIP]
+> **Nomes com hífens**: Se o nome do usuário contiver caracteres especiais como hífens (ex: `integracao-1`), ele deve ser escrito entre aspas duplas: `"integracao-1"`.
+
+```sql
+-- No banco padrão: \c postgres
+
+CREATE USER "nome_do_usuario"  -- Ex.: "integracao-1"
+    WITH 
+    PASSWORD '<senha_forte>'
+    VALID UNTIL 'infinity'
+    IN ROLE integracoes_editor
+    CONNECTION LIMIT -1;
+
+-- Forçar expiração da senha em 30 dias (opcional, mas recomendado para segurança inicial)
+ALTER USER "nome_do_usuario" PASSWORD '<senha_forte>' VALID UNTIL (CURRENT_DATE + INTERVAL '30 days');
+```
+
+### Documentação para Gerenciamento de Acesso no QGIS e Integração
+
+Esta documentação complementa o guia de [Integração com o QGIS](./exportar-camada.mdx), focando no gerenciamento de acesso seguro ao banco `integracoes`.
+
+#### Princípios de Segurança
+- **Isolamento**: O role `integracoes_editor` limita ações ao banco `integracoes`.
+- **Credenciais**: Nunca compartilhe credenciais de superusuário. Use usuários específicos para integração.
+- **QGIS e PostGIS**: As permissões do banco controlam o que pode ser editado/visualizado no QGIS.
+
+#### Gerenciamento de Acesso e Manutenção
+- **Adicionar Mais Usuários**: Repita o SQL de criação de usuário, alterando o nome e senha. Todos herdarão o role.
+- **Revogar Acesso**: `REVOKE CONNECT ON DATABASE integracoes FROM <nome_do_usuario>;` ou `DROP USER <nome_do_usuario>;`.
+- **Monitorar**: Use `pg_stat_activity` para ver conexões: `SELECT * FROM pg_stat_activity WHERE datname = 'integracoes';`.
+- **Boas Práticas**: Rotacione senhas periodicamente. Use VPN para conexões remotas.

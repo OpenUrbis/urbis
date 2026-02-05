@@ -36,7 +36,7 @@ import axios from "axios";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { ConcatenatedSearchState } from "../../types/search-context-type";
 import { useToast } from "@/hooks/useToast";
-import { getColumnType, getLayerNameFromConfig } from "../../utils/layer-utils";
+import { getLayerNameFromConfig } from "../../utils/layer-utils";
 import { FilterBuilder, FilterField } from "../FilterBuilder";
 import { FilterGroup } from "../FilterBuilder/types";
 import { filterNodeToCQL } from "../../utils/cql-builder-advanced";

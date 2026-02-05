@@ -216,48 +216,49 @@ export const UrbisHeader = ({
 
             {/* Mobile Menu Drawer */}
             {showMobileMenu && (
-              <div className="md:hidden">
-                {onMobileMenuClick ? (
-                  <Button variant="ghost" size="icon" onClick={onMobileMenuClick}>
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle Menu</span>
-                  </Button>
-                ) : (
-                  <Drawer>
-                    <DrawerTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <Menu className="h-5 w-5" />
-                        <span className="sr-only">Toggle Menu</span>
-                      </Button>
-                    </DrawerTrigger>
-                    <DrawerContent>
-                      <DrawerHeader>
-                        <DrawerTitle>Menu</DrawerTitle>
-                      </DrawerHeader>
-                      <div className="p-4 flex flex-col gap-4">
-                        {menuItems.map((item) => (
-                          <a
-                            key={item.label}
-                            href={item.href}
-                            className={cn(
-                              "text-lg font-medium hover:text-primary transition-colors",
-                              item.active && "text-primary"
-                            )}
-                          >
-                            {item.label}
-                          </a>
-                        ))}
-                      </div>
-                      <DrawerFooter>
-                        <DrawerClose asChild>
-                          <Button variant="outline">Fechar</Button>
-                        </DrawerClose>
-                      </DrawerFooter>
-                    </DrawerContent>
-                  </Drawer>
+  <div className="md:hidden">
+    {onMobileMenuClick ? (
+      <Button variant="outline" size="sm" onClick={onMobileMenuClick}>
+        Menu
+      </Button>
+    ) : (
+      <Drawer>
+        <DrawerTrigger asChild>
+          <Button variant="ghost" size="sm">
+            Menu
+          </Button>
+        </DrawerTrigger>
+
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Menu</DrawerTitle>
+          </DrawerHeader>
+
+          <div className="p-4 flex flex-col gap-4">
+            {menuItems.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className={cn(
+                  "text-lg font-medium hover:text-primary transition-colors",
+                  item.active && "text-primary"
                 )}
-              </div>
-            )}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+
+          <DrawerFooter>
+            <DrawerClose asChild>
+              <Button variant="outline">Fechar</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    )}
+  </div>
+)}  
           </div>
         </div>
       </div>

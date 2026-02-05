@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { accessControl, userProfile } from "../../auth/user-state";
 import { RolePermissionScopeEnum } from "../../utils/access-control";
 import { useTheme } from "../ThemeProvider";
+import { MenuToggleButton } from "../MenuToogleButton";
 
 // ✅ novo: usar o nav pronto do UI
 import { buildUrbisNav } from "@open-urbis/map-ui";
@@ -43,7 +44,7 @@ const Header = () => {
         }}
         onLogin={() => auth.signinRedirect()}
         onLogout={() => auth.removeUser()}
-        leftSlot={null}
+        leftSlot={<MenuToggleButton />}
         theme={theme}
         setTheme={(t) => setTheme(t as "light" | "dark" | "system")}
         rightSlot={
@@ -62,14 +63,15 @@ const Header = () => {
               </Button>
             )}
 
-            <button
-              type="button"
-              onClick={() => setHelpOpen(true)}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted transition"
-              title="Ajuda"
-            >
-              <span className="hidden md:inline">Ajuda</span>
-            </button>
+            <Button
+  variant="outline"                 // 👈 borda
+  size="sm"
+  onClick={() => setHelpOpen(true)}
+  className="hidden md:inline-flex"
+  title="Ajuda"
+>
+  Ajuda
+</Button>
           </div>
         }
       />

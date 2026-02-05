@@ -105,30 +105,30 @@ function LayoutInner() {
         rightSlot={
           <div className="flex items-center gap-2">
             <Button
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-  openSidebar(
-    <div className="h-full min-h-0 flex flex-col">
-      <div className="shrink-0 space-y-1">
-        <h3 className="text-base font-semibold">Central de ajuda</h3>
-        <p className="text-sm text-muted-foreground">
-          Encontre respostas rápidas, dúvidas frequentes e um espaço para
-          enviar sugestões sobre a plataforma Urbis.
-        </p>
-      </div>
+  variant="outline"        // 👈 desenha borda
+  size="sm"
+  onClick={() =>
+    openSidebar(
+      <div className="h-full min-h-0 flex flex-col">
+        <div className="shrink-0 space-y-1">
+          <h3 className="text-base font-semibold">Central de ajuda</h3>
+          <p className="text-sm text-muted-foreground">
+            Encontre respostas rápidas, dúvidas frequentes e um espaço para
+            enviar sugestões sobre a plataforma Urbis.
+          </p>
+        </div>
 
-      <div className="flex-1 min-h-0 pt-4">
-        <HelpSidebarContent />
-      </div>
-    </div>,
-    "Ajuda"
-  )
-}
-              className="hidden md:inline-flex"
-            >
-              Ajuda
-            </Button>
+        <div className="flex-1 min-h-0 pt-4">
+          <HelpSidebarContent />
+        </div>
+      </div>,
+      "Ajuda"
+    )
+  }
+  className="hidden md:inline-flex"
+>
+  Ajuda
+</Button>
           </div>
         }
         theme={theme}

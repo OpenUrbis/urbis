@@ -62,14 +62,15 @@ const Header = () => {
               </Button>
             )}
 
-            <button
-              type="button"
-              onClick={() => setHelpOpen(true)}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted transition"
-              title="Ajuda"
-            >
-              <span className="hidden md:inline">Ajuda</span>
-            </button>
+            <Button
+  variant="outline"                 // 👈 borda
+  size="sm"
+  onClick={() => setHelpOpen(true)}
+  className="hidden md:inline-flex"
+  title="Ajuda"
+>
+  Ajuda
+</Button>
           </div>
         }
       />

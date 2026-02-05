@@ -1,0 +1,119 @@
+---
+title: Exportar Camada (PostGIS/GeoServer)
+description: Guia passo a passo para exportar uma camada via QGIS para o PostgreSQL e publicar no GeoServer.
+icon: Database
+---
+
+Este documento descreve o processo de exportar uma camada vetorial para o banco de dados PostgreSQL utilizando o QGIS e, em seguida, publicá-la no GeoServer.
+
+## 1. Preparação e Importação no QGIS
+
+### Download da Camada
+
+O primeiro passo é realizar o download da camada que se deseja exportar. O QGIS aceita diversos formatos de arquivos vetoriais e raster. Alguns dos formatos vetoriais mais comuns suportados incluem:
+
+- ESRI Shapefile (.shp)
+- GeoJSON (.geojson)
+- KML/KMZ
+- GPX
+- GeoPackage (.gpkg)
+- DXF
+
+![Baixar a camada](/export-layer-from-postgiz/Baixar%20a%20camada.png)
+
+### Criar Novo Projeto
+
+Abra o QGIS e inicie um novo projeto.
+
+![Crie um novo projeto](/export-layer-from-postgiz/Crie%20um%20novo%20projeto.png)
+
+### Importar e Ajustar SRC
+
+Importe a camada para o QGIS arrastando o arquivo para a área de trabalho ou utilizando o menu de camadas.
+
+É fundamental verificar e ajustar o Sistema de Referência de Coordenadas (SRC) da camada. Você pode conferir o SRC atual no canto inferior direito da janela do QGIS.
+
+![Ajustar SRC](/export-layer-from-postgiz/Ajustar%20SRC.png)
+
+Ao clicar no código do SRC, uma janela se abrirá onde você pode selecionar o SRC correto ou apenas confirmar o existente. Certifique-se de clicar em **Aplicar** e **OK** para efetivar a configuração.
+
+![Ajustar SRC1](/export-layer-from-postgiz/Ajustar%20SRC1.png)
+
+## 2. Conexão com PostgreSQL
+
+Para exportar a camada, é necessário configurar a conexão com o banco de dados PostgreSQL.
+
+No painel "Navegador" (menu lateral esquerdo), localize o item **PostgreSQL**, clique com o botão direito e selecione **Nova Conexão...**.
+
+![Menu Postgres](/export-layer-from-postgiz/Menu%20Postgres.png)
+
+O menu para criar a conexão será exibido:
+
+![Criar conexão postgres](/export-layer-from-postgiz/Criar%20conexão%20postgres.png)
+
+Preencha os dados de conexão na janela que se abre.
+
+![Preencher os dados de conexão](/Preencher%20os%20dados%20de%20conexão.png)
+
+Na aba de autenticação, insira as credenciais. Recomenda-se converter as credenciais para uma configuração de autenticação segura clicando em "Converter para configuração...". Teste a conexão antes de prosseguir.
+
+![Converter auth e testar](/export-layer-from-postgiz/Converter%20auth%20e%20testar.png)
+
+## 3. Exportar para PostgreSQL
+
+Com a camada carregada e a conexão configurada, o próximo passo é exportar os dados.
+
+Acesse a **Caixa de Ferramentas de Processamento** através do menu **Processamento > Caixa de ferramentas**.
+
+![Abrir caixa de ferramentas](/export-layer-from-postgiz/Abrir%20caixa%20de%20ferramentas.png)
+
+Na caixa de ferramentas, pesquise por "Export to PostgreSQL".
+
+![Exportar para postgres](/export-layer-from-postgiz/Exportar%20para%20postgres.png)
+
+Ao abrir a ferramenta, preencha os campos conforme a orientação abaixo:
+
+![Preencher os dados](/Preencher%20os%20dados.png)
+
+- **Conexão com o banco de dados**: Selecione a conexão criada anteriormente.
+- **Esquema**: Selecione `public`.
+- **Tabela**: Crie um nome para a nova tabela que receberá a camada.
+- **Campo da chave primária** (Opcional): Selecione o campo de ID da sua camada (ex: `id`, `gid`).
+  - *Nota*: Se a camada não possuir um campo de ID único, busque outra fonte de dados (como um GeoJSON) que contenha o ID, pois ele é importante para o gerenciamento dos dados.
+
+Clique em **Executar** e aguarde o término do processo.
+
+## 4. Publicação no GeoServer
+
+Após exportar a tabela para o PostgreSQL, acesse o GeoServer através da URL `https://geoserver.slui.dev/geoserver/` e realize o login.
+
+### Adicionar Nova Camada
+
+No menu lateral esquerdo, clique em **Camadas** e depois em **Adicionar nova camada**.
+
+![Acessar tela de nova camada](/export-layer-from-postgiz/Acessar%20tela%20de%20nova%20camada.png)
+
+### Selecionar Origem
+
+No menu dropdown "Agregar capa de", selecione a opção que corresponde ao seu banco de dados PostGIS, geralmente `urbistest:urbispostgis`.
+
+Localize na lista a camada que você acabou de exportar do QGIS e clique em **Publicar**.
+
+![Iniciar publicação da camada](/export-layer-from-postgiz/Iniciar%20publicação%20da%20camada.png)
+
+### Configurações da Camada
+
+Na tela de edição da camada:
+
+1.  Verifique e ajuste o **Nome** e o **Título** da camada conforme necessário.
+
+![Ajustar nome](/export-layer-from-postgiz/Ajustar%20nome.png)
+
+2.  Role até a seção de Enquadramento.
+3.  Verifique o SRC declarado.
+4.  Clique em **Calcular a partir dos dados** para o "Enquadramento Nativo".
+5.  Clique em **Calcular a partir dos limites nativos** para o "Enquadramento no formato Lat/Lon".
+
+![Conferencia dos dados](/export-layer-from-postgiz/Conferencia%20dos%20dados.png)
+
+Salve a camada para finalizar a publicação.

@@ -1,4 +1,3 @@
-import { Button } from "@open-urbis/map-ui/ui/button";
 
 export function UrbisFooter(_props: any) {
   return (
@@ -164,7 +163,7 @@ export function UrbisFooter(_props: any) {
             <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
 
             <p className="text-primary-foreground/90 text-sm leading-relaxed">
-              O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de  colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
+              O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
             </p>
           </div>
 

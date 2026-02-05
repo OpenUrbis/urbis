@@ -27,7 +27,6 @@ import {
 } from "./ui/dropdown-menu";
 import { cn } from "../lib/utils";
 import React from "react";
-import { Menu } from "lucide-react";
 import { UrbisSettings, UrbisSettingsProps } from "./urbis-settings";
 import { UrbisLogo } from "./urbis-logo";
 

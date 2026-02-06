@@ -42,10 +42,10 @@ export function UrbisFooter(_props: any) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
-                title="Acessar o Mapa.Urbis"
-                aria-label="Acessar o Mapa.Urbis"
+                title="Acessar o Mapa"
+                aria-label="Acessar o Mapa"
               >
-                MAPA.URBIS
+                MAPA
               </a>
             </h2>
             <div className="h-1 w-16 bg-primary-foreground rounded-full" />
@@ -75,11 +75,11 @@ export function UrbisFooter(_props: any) {
                 href="https://viabiliza.urbis.prefeitura.sp.gov.br/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                title="Acessar o Viabiliza.Urbis"
-                aria-label="Acessar o Viabiliza.Urbis"
+                className="hover:opacity-80 .Urbistransition-opacity"
+                title="Acessar o Viabiliza"
+                aria-label="Acessar o Viabiliza"
               >
-                VIABILIZA.URBIS
+                VIABILIZA
               </a>
             </h2>
             <div className="h-1 w-16 bg-primary-foreground rounded-full" />
@@ -94,102 +94,89 @@ export function UrbisFooter(_props: any) {
           </p>
         </div>
 
+         <div className="w-full h-px bg-primary-foreground/20 my-8 mx-auto" />
+
+        {/* LEGIS — seção inteira */}
+<div className="flex justify-start mt-3 mb-6">
+  <div className="text-left">
+    <h2 className="text-primary-foreground font-black text-4xl tracking-widest mb-2">
+      <a
+        href="https://docs.urbis.prefeitura.sp.gov.br/docs/legis/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:opacity-80 transition-opacity"
+        title="Acessar Legislação Urbanística do Urbis"
+        aria-label="Acessar Legislação Urbanística do Urbis"
+      >
+        LEGIS
+      </a>
+    </h2>
+    <div className="h-1 w-16 bg-primary-foreground rounded-full" />
+  </div>
+</div>
+
+<div className="px-1 mb-8">
+  <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
+    Repositório de dados com explicações normativas sobre conceitos, exigências
+    ou fontes de informação, com detalhamento e visualização personalizáveis,
+    e vínculos entre seus conteúdos. É utilizado por todo o sistema para
+    transformar o mero dado em informação compreendida pelos cidadãos.
+  </p>
+</div>
+
+<div className="w-full h-px bg-primary-foreground/20 my-8 mx-auto" />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          {/* DADOS ABERTOS — topo esquerdo */}
-          <div>
-            <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
-              <a
-                href="https://dadosabertos.urbis.prefeitura.sp.gov.br/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                title="Acessar Dados Abertos do Urbis"
-                aria-label="Acessar Dados Abertos do Urbis"
-              >
-                DADOS ABERTOS
-              </a>
-            </h2>
+  {/* DADOS ABERTOS */}
+  <div>
+    <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
+      <a
+        href="https://dadosabertos.urbis.prefeitura.sp.gov.br/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:opacity-80 transition-opacity"
+        title="Acessar Dados Abertos do Urbis"
+        aria-label="Acessar Dados Abertos do Urbis"
+      >
+        DADOS ABERTOS
+      </a>
+    </h2>
 
-            <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
+    <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
 
-            <p className="text-primary-foreground/90 text-sm leading-relaxed">
-              Repositório de metadados das bases do Urbis, onde os usuários podem buscar,
-              visualizar e encontrar explicações técnicas, de maneira acessível e
-              transparente, assim como baixar dados em formatos abertos de arquivos ou
-              consumir via serviço.
-            </p>
-          </div>
+    <p className="text-primary-foreground/90 text-sm leading-relaxed">
+      Repositório de metadados das bases do Urbis, onde os usuários podem buscar,
+      visualizar e encontrar explicações técnicas, de maneira acessível e
+      transparente, assim como baixar dados em formatos abertos de arquivos ou
+      consumir via serviço.
+    </p>
+  </div>
 
-          {/* LEGIS — topo direito */}
-          <div>
-            <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
-              <a
-                href="https://docs.urbis.prefeitura.sp.gov.br/docs/legis/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                title="Acessar Legislação Urbanística do Urbis"
-                aria-label="Acessar Legislação Urbanística do Urbis"
-              >
-                LEGIS
-              </a>
-            </h2>
+  {/* DOCUMENTAÇÃO TÉCNICA */}
+  <div>
+    <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
+      <a
+        href="https://docs.urbis.prefeitura.sp.gov.br/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hover:opacity-80 transition-opacity"
+        title="Acessar a documentação do Urbis"
+        aria-label="Acessar a documentação do Urbis"
+      >
+        Documentação Técnica
+      </a>
+    </h2>
 
-            <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
+    <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
 
-            <p className="text-primary-foreground/90 text-sm leading-relaxed">
-              Repositório de dados com explicações normativas sobre conceitos, exigências
-              ou fontes de informação, com detalhamento e visualização personalizáveis,
-              e vínculos entre seus conteúdos. É utilizado por todo o sistema para
-              transformar o mero dado em informação compreendida pelos cidadãos.
-            </p>
-          </div>
-
-          {/* DOCS URBIS — baixo esquerdo */}
-          <div>
-            <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
-              <a
-                href="https://docs.urbis.prefeitura.sp.gov.br/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                title="Acessar a documentação do Urbis"
-                aria-label="Acessar a documentação do Urbis"
-              >
-                Documentação Técnica
-              </a>
-            </h2>
-
-            <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
-
-            <p className="text-primary-foreground/90 text-sm leading-relaxed">
-              O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
-            </p>
-          </div>
-
-          {/* OPEN URBIS — baixo direito */}
-          <div>
-            <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
-              <a
-                href="https://github.com/OpenUrbis"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:opacity-80 transition-opacity"
-                title="Acessar o repositório OpenUrbis no GitHub"
-                aria-label="Acessar o repositório OpenUrbis no GitHub"
-              >
-                GitHub
-              </a>
-            </h2>
-
-            <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
-
-            <p className="text-primary-foreground/90 text-sm leading-relaxed">
-              Publicação do projeto no GitHub.
-            </p>
-          </div>
-        </div>
-
+    <p className="text-primary-foreground/90 text-sm leading-relaxed">
+      O Urbis se baseia e desenvolve todos os seus componentes em software livre,
+      com código aberto e cláusula copyleft, contribuindo para um ambiente de
+      colaboração e melhoria contínua. A documentação técnica está disponível
+      no Docs.Urbis, e o código-fonte no GitHub.
+    </p>
+  </div>
+</div>
 
         {/* Prefeitura Links */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 border-t border-primary-foreground/30 pt-8 pb-6 text-primary-foreground/90 text-sm">
@@ -817,7 +804,7 @@ export function UrbisFooter(_props: any) {
 
                 {/* CC BY-SA */}
                 <a
-                  href="https://creativecommons.org/licenses/by-sa/4.0/"
+                  href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-white dark:text-black hover:underline"
@@ -851,22 +838,7 @@ export function UrbisFooter(_props: any) {
               </div>
             </div>
 
-            {/* Botão "Encontrou um erro?" */}
-            <a
-              href="mailto:codata@prefeitura.sp.gov.br"
-              className="group mt-1 inline-flex items-center gap-2 text-xs font-medium
-               text-white dark:text-black transition-colors
-               bg-white/10 dark:bg-black/10
-               hover:bg-white/20 dark:hover:bg-black/20
-               px-4 py-2 rounded-full border border-white/20 dark:border-black/20"
-              title="Encontrou um erro? Envie um e-mail para codata@prefeitura.sp.gov.br"
-              aria-label="Encontrou um erro? Envie um e-mail para codata@prefeitura.sp.gov.br"
-            >
-              <span>Encontrou um erro?</span>
-              <span className="underline decoration-white/40 dark:decoration-black/40 underline-offset-2">
-                Entre em contato
-              </span>
-            </a>
+            
           </div>
         </div>
       </div>

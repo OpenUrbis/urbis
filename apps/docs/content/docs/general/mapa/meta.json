@@ -8,6 +8,7 @@
     "storage",
     "error-codes",
     "exportar-camada",
+    "cadastrar-camada",
     "scripts-sql"
   ]
 }

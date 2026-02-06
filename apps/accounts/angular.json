@@ -38,7 +38,8 @@
                 "glob": "**/*",
                 "input": "public"
               },
-              "src/silent-renew.html"
+              "src/silent-renew.html",
+              "src/logout.html"
             ],
             "styles": [
               "src/styles.scss"

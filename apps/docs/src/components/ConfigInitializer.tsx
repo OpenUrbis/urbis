@@ -10,5 +10,16 @@ export function ConfigInitializer() {
     });
   }, []);
 
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "logout") {
+        sessionStorage.clear();
+        window.location.href = "/";
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   return null;
 }

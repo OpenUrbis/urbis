@@ -15,11 +15,10 @@ const Header = () => {
   const { theme, setTheme } = useTheme();
   const [helpOpen, setHelpOpen] = useState(false);
 
-  // ✅ badgeText ao lado da logo + menu sem o item da página atual
   const { menuItems, badgeText } = useMemo(() => {
   return buildUrbisNav({
     isAuthenticated: auth.isAuthenticated,
-    currentApp: "mapa", // ✅ força “Mapa” como atual
+    currentApp: "mapa"
   });
 }, [auth.isAuthenticated]);
 
@@ -43,7 +42,7 @@ const Header = () => {
           email: userProfile.value?.email ?? auth.user?.profile.email,
         }}
         onLogin={() => auth.signinRedirect()}
-        onLogout={() => auth.removeUser()}
+        onLogout={() => auth.signoutRedirect()}
         leftSlot={<MenuToggleButton />}
         theme={theme}
         setTheme={(t) => setTheme(t as "light" | "dark" | "system")}

@@ -1,10 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/require-await
-export const logoutSource = async (ctx: any, form: any) => {
+export const logoutSource = (logoutUrls: string[] = []) => async (ctx: any, form: any) => {
+  const iframes = logoutUrls
+    .map((url) => `<iframe src="${url}" style="display:none;"></iframe>`)
+    .join('\n');
+
   ctx.body = `
   <html>
     <head>
       <title>Deseja sair?</title>
-      <link href="https://fonts.googleapis.com/css2?family=Syne&amp;display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Syne&display=swap" rel="stylesheet">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         * {
@@ -102,6 +106,7 @@ export const logoutSource = async (ctx: any, form: any) => {
           Não, voltar
         </button>
       </div>
+      ${iframes}
     </body>
   </html>
   `;

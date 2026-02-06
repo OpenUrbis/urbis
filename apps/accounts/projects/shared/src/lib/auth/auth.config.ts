@@ -9,7 +9,7 @@ const commomAuthConfig: Partial<OpenIdConfiguration> = {
   unauthorizedRoute: '/unauthorized',
   refreshTokenRetryInSeconds: 10,
   logLevel: LogLevel.Error,
-  postLogoutRedirectUri: window.location.origin,
+  postLogoutRedirectUri: environment.api + '/auth/global-logout',
   scope: 'openid profile email',
   responseType: 'code',
   maxIdTokenIatOffsetAllowedInSeconds: 4200,

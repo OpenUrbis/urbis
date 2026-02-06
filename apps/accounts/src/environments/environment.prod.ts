@@ -3,7 +3,7 @@ export const environment = {
 
   appClientId: '0375600b-cd37-4b89-82e1-68fd374b83e8',
 
-  externalOidcClientId: 'h-urbis.prefeitura.sp.gov.br',
+  externalOidcClientId: 'h-urbis.sampa.br'',
   externalOidcSecureRoutes: ['https://api.mapa.urbis.sampa.br'],
   externalOidcAuthority: 'https://api.mapa.urbis.sampa.br',
 

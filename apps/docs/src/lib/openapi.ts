@@ -1,6 +1,6 @@
 import { createOpenAPI } from "fumadocs-openapi/server";
 
-const apiUrl = process.env.API_URL || "http://localhost:3000";
+const apiUrl = "https://api.mapa.urbis.sampa.br";
 
 export const fallbackSchema: any = {
   openapi: "3.0.0",
@@ -42,7 +42,7 @@ export const openapi = createOpenAPI({
       const res = await fetch(`${apiUrl}/swagger/docs-json`, {
         headers: { Accept: "application/json" },
       });
-
+      console.log(res.body);
       if (!res.ok) {
         return fallbackSchema;
       }

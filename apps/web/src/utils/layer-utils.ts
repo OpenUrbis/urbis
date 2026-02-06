@@ -16,7 +16,7 @@ export const flattenLayerGroups = (groups: IGetConfigLayerGroup[]): IGetConfigLa
 
 export const getLayerNameFromConfig = (config: IGetConfigLayerSchema | any): string | null => {
     // Try to get from origin
-    const origin = config.layerSchema?.origin || config.origin;
+    const origin = config?.origin || config.origin;
     if (origin) {
         const match = origin.match(/[?&](typeName|LAYERS)=([^&]+)/);
         if (match) {

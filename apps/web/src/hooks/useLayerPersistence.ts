@@ -39,6 +39,7 @@ export const useLayerPersistence = () => {
       return () => clearTimeout(timer);
     }
     return () => {}; // Explicitly return void cleanup function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Init / Restore logic

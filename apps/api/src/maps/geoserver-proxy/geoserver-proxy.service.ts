@@ -31,7 +31,24 @@ export class GeoserverProxyService {
 
   async getLayerAttributes(workspace: string, layerName: string) {
     try {
-      const resourceUrl = `${this.baseUrl}/rest/workspaces/${workspace}/datastores/geoserver/featuretypes/${layerName}.json`;
+      // First, get the layer to find out which datastore it belongs to
+      const layerUrl = `${this.baseUrl}/rest/workspaces/${encodeURIComponent(
+        workspace,
+      )}/layers/${encodeURIComponent(layerName)}.json`;
+
+      const layerRes = await axios.get(layerUrl, { auth: this.auth });
+      const resourceHref = layerRes.data.layer.resource.href;
+
+      // The href might be http (internal ip) or https (public), or xml/json depending on config.
+      // We just want to ensure we get JSON.
+      // Usually GeoServer REST returns the href with .json if we requested .json for the layer.
+      // But to be safe, we can enforce .json extension if it ends in .xml or no extension.
+      let resourceUrl = resourceHref;
+      if (resourceUrl.endsWith('.xml')) {
+        resourceUrl = resourceUrl.replace('.xml', '.json');
+      } else if (!resourceUrl.endsWith('.json')) {
+        resourceUrl += '.json';
+      }
 
       // Get Resource details (FeatureType)
       const resourceRes = await axios.get(resourceUrl, { auth: this.auth });

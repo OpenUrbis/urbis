@@ -81,6 +81,12 @@
 
         function doLocalLogout() {
             try {
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('oidc')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+
                 localStorage.setItem("logout", Date.now());
                 sessionStorage.clear();
                 console.log("Local logout executed.");

@@ -1,4 +1,4 @@
-import { UserManager, WebStorageStateStore } from "oidc-client-ts";
+import { createUserManager, createOidcConfig } from "@open-urbis/map-auth";
 
 const getRedirectUri = (uri: string | undefined, defaultUri: string) => {
   if (uri && !uri.startsWith("http")) {
@@ -9,22 +9,19 @@ const getRedirectUri = (uri: string | undefined, defaultUri: string) => {
 
 const authority = import.meta.env.VITE_OIDC_AUTHORITY || "http://localhost:3000/auth/oidc";
 
-export const oidcConfig = {
+const configOptions = {
   authority,
-  client_id: import.meta.env.VITE_OIDC_CLIENT_ID || "94a86322-269e-44df-803a-534c0382215d",
-  redirect_uri: getRedirectUri(
+  clientId: import.meta.env.VITE_OIDC_CLIENT_ID || "94a86322-269e-44df-803a-534c0382215d",
+  redirectUri: getRedirectUri(
     import.meta.env.VITE_OIDC_REDIRECT_URI,
     "http://localhost:5173/callback"
   ),
-  silent_redirect_uri: getRedirectUri(
+  silentRedirectUri: getRedirectUri(
     import.meta.env.VITE_OIDC_SILENT_REDIRECT_URI,
     "http://localhost:5173/silent-renew.html"
   ),
-  post_logout_redirect_uri: authority.replace('/oidc', '/global-logout'),
-  automaticSilentRenew: true,
-  scope: "openid profile email",
-  loadUserInfo: true,
-  userStore: new WebStorageStateStore({ store: window.localStorage }),
 };
 
-export const userManager = new UserManager(oidcConfig);
+export const oidcConfig = createOidcConfig(configOptions);
+
+export const userManager = createUserManager(configOptions);

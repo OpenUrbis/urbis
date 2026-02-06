@@ -10,6 +10,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@open-urbis/map-auth": "workspace:^",
     "@open-urbis/map-ui": "workspace:*",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-navigation-menu": "^1.1.4",

@@ -613,6 +613,9 @@ importers:
 
   apps/site:
     dependencies:
+      '@open-urbis/map-auth':
+        specifier: workspace:^
+        version: link:../../packages/auth
       '@open-urbis/map-ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -758,6 +761,9 @@ importers:
       '@open-urbis/endereco-digital':
         specifier: workspace:*
         version: link:../../packages/endereco-digital
+      '@open-urbis/map-auth':
+        specifier: workspace:^
+        version: link:../../packages/auth
       '@open-urbis/map-shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -997,6 +1003,46 @@ importers:
         specifier: ^5.1.4
         version: 5.4.21(@types/node@25.0.10)(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1)
 
+  packages/auth:
+    dependencies:
+      '@preact/signals-core':
+        specifier: ^1.8.0
+        version: 1.12.1
+      '@preact/signals-react':
+        specifier: ^3.0.1
+        version: 3.6.1(react@18.3.1)
+      oidc-client-ts:
+        specifier: ^3.4.1
+        version: 3.4.1
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.0(oidc-client-ts@3.4.1)(react@18.3.1)
+    devDependencies:
+      '@open-urbis/map-eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@open-urbis/map-typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/react':
+        specifier: ^18.3.1
+        version: 18.3.27
+      '@types/react-dom':
+        specifier: ^18.3.0
+        version: 18.3.7(@types/react@18.3.27)
+      eslint:
+        specifier: ^9.24.0
+        version: 9.39.2(jiti@2.6.1)
+      typescript:
+        specifier: 5.5.4
+        version: 5.5.4
+
   packages/endereco-digital:
     devDependencies:
       '@open-urbis/map-eslint-config':
@@ -1165,7 +1211,7 @@ importers:
         version: 3.4.0
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.1(ts-node@10.9.2(@types/node@25.0.10)(typescript@5.5.4)))
+        version: 1.0.7(tailwindcss@3.4.1(ts-node@10.9.2(@types/node@25.0.10)(typescript@5.9.3)))
       vaul:
         specifier: ^0.9.0
         version: 0.9.9(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -13478,10 +13524,12 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   tar@7.5.2:
     resolution: {integrity: sha512-7NyxrTE4Anh8km8iEy7o0QYPs+0JKBTj5ZaqHg6B39erLg0qYXN3BijtShwbsNSvQ+LN75+KV+C4QR/f6Gwnpg==}
     engines: {node: '>=18'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   term-size@2.2.1:
     resolution: {integrity: sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg==}

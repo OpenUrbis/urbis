@@ -28,12 +28,15 @@ import { useState, useEffect, useRef } from "react";
 import * as ReactWindow from "react-window";
 
 // @ts-ignore
-const List = (ReactWindow.FixedSizeList || (ReactWindow as any).default?.FixedSizeList || (ReactWindow as any).default || ReactWindow) as any;
+const List = (ReactWindow.FixedSizeList ||
+  (ReactWindow as any).default?.FixedSizeList ||
+  (ReactWindow as any).default ||
+  ReactWindow) as any;
 import axios from "axios";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { ConcatenatedSearchState } from "../../types/search-context-type";
 import { useToast } from "@/hooks/useToast";
-import { getColumnType, getLayerNameFromConfig } from "../../utils/layer-utils";
+import { getLayerNameFromConfig } from "../../utils/layer-utils";
 import { FilterBuilder, FilterField } from "../FilterBuilder";
 import { FilterGroup } from "../FilterBuilder/types";
 import { filterNodeToCQL } from "../../utils/cql-builder-advanced";
@@ -43,6 +46,7 @@ import { useMapContext } from "../../hooks/useMapContext";
 import { useAuth } from "react-oidc-context";
 import { AuthRequiredModal } from "../AuthRequiredModal";
 import { PredefinedSearchSuggestions } from "./PredefinedSearchSuggestions";
+import { fetchAttributes as fetchAttributesFromIntegration } from "../../integrations/layer-attributes-integration";
 
 const DEFAULT_TREE: FilterGroup = {
   id: "root",
@@ -52,7 +56,6 @@ const DEFAULT_TREE: FilterGroup = {
 };
 
 export const ConcatenatedSearchModal = () => {
-  // @ts-ignore
   const { searchConfig, concatenatedSearch } = useSearchContext();
   const { layerSchemas } = useMapContext();
   const auth = useAuth();
@@ -71,6 +74,7 @@ export const ConcatenatedSearchModal = () => {
 
   const [loadingAttributes, setLoadingAttributes] = useState(false);
   const [fields, setFields] = useState<FilterField[]>([]);
+  const [errorAttributes, setErrorAttributes] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isShareHistoryOpen, setIsShareHistoryOpen] = useState(false);
@@ -78,41 +82,71 @@ export const ConcatenatedSearchModal = () => {
   const { toastSuccess, toastError } = useToast();
 
   const lastFetchedLayerId = useRef<string | null>(null);
+  const attemptsRef = useRef(0);
+  const maxAttempts = 3;
 
   const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
   const fetchAttributes = async (layerId: string) => {
     if (!layerId || lastFetchedLayerId.current === layerId) return;
-    
-    const layerConfig = searchConfig.value.find((c) => c.id === layerId);
+
+    // Se já atingiu o máximo de tentativas para este layer, não tenta novamente
+    if (attemptsRef.current >= maxAttempts) return;
+
+    const layerConfig = layerSchemas.value.find((c) => c.id === layerId);
     if (!layerConfig) return;
 
     const fullLayerName = getLayerNameFromConfig(layerConfig);
-    if (!fullLayerName || !fullLayerName.includes(":")) return;
-
-    const [workspace, layerName] = fullLayerName.split(":");
+    if (!fullLayerName) return;
 
     setLoadingAttributes(true);
-    try {
-      const response = await axios.get(
-        `${environment}/geoserver-proxy/layers/${workspace}/${layerName}/attributes`
-      );
-      const attributes = response.data;
-      const mapping = (layerConfig?.layerSchema?.properties as any)?.attributeMapping || {};
 
-      setFields(
-        attributes.map((a: any) => ({
-          name: a.name,
-          type: getColumnType(a.binding) || "text",
-          label: mapping[a.name]?.label || mapping[a.name]?.name || a.name,
-        }))
-      );
-      lastFetchedLayerId.current = layerId;
-    } catch (error) {
-      console.error("Failed to fetch attributes", error);
-    } finally {
-      setLoadingAttributes(false);
+    // O loop aqui tenta até maxAttempts vezes dentro desta chamada
+    // Mas o attemptsRef garante que se falhar 3x, próximas chamadas (do useEffect) não tentam de novo
+    while (attemptsRef.current < maxAttempts) {
+      try {
+        const attributes = await fetchAttributesFromIntegration(
+          layerConfig.origin,
+          fullLayerName
+        );
+
+        if (attributes.length === 0) {
+          throw new Error("No attributes found");
+        }
+
+        const mapping =
+          (layerConfig?.properties as any)?.attributeMapping || {};
+
+        setFields(
+          attributes.map((attrName) => ({
+            name: attrName,
+            type: "text", // Integration helper returns only names, defaulting to text
+            label:
+              mapping[attrName]?.label || mapping[attrName]?.name || attrName,
+          }))
+        );
+
+        lastFetchedLayerId.current = layerId;
+        attemptsRef.current = 0; // Reset attempts on success
+        break;
+      } catch (error) {
+        attemptsRef.current++;
+        console.error(
+          `Failed to fetch attributes (Attempt ${attemptsRef.current})`,
+          error
+        );
+        if (attemptsRef.current >= maxAttempts) {
+          setLoadingAttributes(false);
+          setErrorAttributes(
+            "Não foi possível carregar os atributos desta camada para realizar a busca."
+          );
+          break;
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
     }
+    setLoadingAttributes(false);
   };
 
   const handleSearch = async () => {
@@ -188,17 +222,19 @@ export const ConcatenatedSearchModal = () => {
 
   const handleLayerChange = async (layerId: string) => {
     setFields([]);
+    setErrorAttributes(null);
     lastFetchedLayerId.current = null;
-    
+    attemptsRef.current = 0; // Reset attempts when changing layer manually
+
     setConcatenatedSearch({
       selectedLayerId: layerId,
       filterTree: DEFAULT_TREE,
       results: [],
       totalCount: undefined,
     });
-    
+
     if (layerId) {
-        await fetchAttributes(layerId);
+      await fetchAttributes(layerId);
     }
   };
 
@@ -311,8 +347,7 @@ export const ConcatenatedSearchModal = () => {
                     <SelectValue placeholder="Selecione uma camada para pesquisar..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {searchConfig.value
-                      .filter((c) => getLayerNameFromConfig(c) !== null)
+                    {layerSchemas.value
                       .map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
@@ -357,7 +392,25 @@ export const ConcatenatedSearchModal = () => {
             </div>
           )}
 
-          {fields.length > 0 && (
+          {errorAttributes && (
+            <div className="text-sm text-red-500 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg p-4 flex items-center gap-2 justify-center">
+              <span className="material-symbols-outlined text-base">
+                error
+              </span>
+          {errorAttributes}
+        </div>
+      )}
+
+      {errorAttributes && (
+        <div className="text-xs text-muted-foreground text-center px-4">
+          <p>
+            Algumas camadas podem não estar aptas para a busca concatenada devido a
+            restrições de serviço ou configurações do servidor.
+          </p>
+        </div>
+      )}
+
+      {fields.length > 0 && (
             <div className="space-y-2">
               <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
                 Critérios de filtro

@@ -1,4 +1,4 @@
-import { computed, useSignal } from "@preact/signals";
+import { computed } from "@preact/signals";
 import { PickingInfo } from "deck.gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo } from "react";
@@ -48,8 +48,6 @@ export const MapView = ({
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const sidebarOpen = isDesktop && drawerOpen.value;
 
-  const isPickingLocation = useSignal(false);
-
   useEffect(() => {
     if (sidebarOpen) {
       document.body.classList.add("sidebar-open");
@@ -72,6 +70,8 @@ export const MapView = ({
     selectedBaseMap,
     cursorPosition,
     digitalAddressFeature,
+    isPickingLocation,
+    onLocationPick,
     flyTo: mapFlyTo
   } = mapContext;
   
@@ -170,6 +170,14 @@ export const MapView = ({
 
             const lon = info.coordinate[0];
             const lat = info.coordinate[1];
+
+            // If custom callback exists (e.g. filling inputs in LocationSelectionCard)
+            if (onLocationPick.value) {
+                onLocationPick.value(lat, lon);
+                isPickingLocation.value = false;
+                onLocationPick.value = null;
+                return;
+            }
 
             // Calculate Digital Address
             const address = encode(lat, lon);

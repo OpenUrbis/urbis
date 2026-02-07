@@ -7,8 +7,8 @@ import { HelpSidebarContent } from "@open-urbis/map-ui";
 import { SidebarProvider, useSidebar } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui/ui/button";
 import { UrbisFooter } from "@open-urbis/map-ui";
-import { useAuth, userProfile } from "@open-urbis/map-auth";
-import { useComputed } from "@preact/signals-react";
+import { userProfile } from "@open-urbis/map-auth";
+import { useAuth } from "./hooks/useAuth";
 
 type MenuItem = { label: string; href: string; active?: boolean };
 
@@ -29,7 +29,7 @@ function LayoutInner() {
   const { openSidebar } = useSidebar();
   const location = useLocation();
   const auth = useAuth();
-  const user = useComputed(() => userProfile.value).value;
+  const user = userProfile.value;
 
   useEffect(() => {
     setMounted(true);

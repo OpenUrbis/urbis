@@ -63,7 +63,7 @@ export const LayerController = () => {
     isCollapsed.value = true;
     const timeout = setTimeout(() => {
       isCollapsed.value = false;
-    }, 1000);
+    }, 2000);
     return () => clearTimeout(timeout);
   }, []);
 

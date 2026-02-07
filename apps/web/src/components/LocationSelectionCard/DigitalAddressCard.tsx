@@ -10,7 +10,7 @@ interface DigitalAddressCardProps {
 export const DigitalAddressCard = ({ prefix, code, address, className }: DigitalAddressCardProps) => {
   return (
     <div className={cn("bg-primary/5 p-4 rounded-xl border border-primary/20 text-center shadow-sm", className)}>
-      <span className="block text-xs font-bold text-primary mb-1 uppercase tracking-widest">Endereço Digital</span>
+      <span className="block text-xs font-bold text-primary mb-1 uppercase tracking-widest">Endereço Completo</span>
       <span className="text-2xl font-mono font-bold tracking-wider text-foreground whitespace-nowrap overflow-x-auto block">
         {address}
       </span>
@@ -20,7 +20,7 @@ export const DigitalAddressCard = ({ prefix, code, address, className }: Digital
            <span className="text-xs font-mono">{prefix}</span>
          </div>
          <div className="flex flex-col">
-           <span className="text-[10px] text-muted-foreground uppercase">Sufixo</span>
+           <span className="text-[10px] text-muted-foreground uppercase">Endereço Digital</span>
            <span className="text-xs font-mono">{code}</span>
          </div>
       </div>

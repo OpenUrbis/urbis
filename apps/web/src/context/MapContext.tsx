@@ -25,6 +25,8 @@ const layerWithRootEditTemplate = signal<string>('');
 const cursorPosition = signal<{ latitude: number; longitude: number } | null>(null);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const digitalAddressFeature = signal<any | null>(null);
+const isPickingLocation = signal<boolean>(false);
+const onLocationPick = signal<((lat: number, lon: number) => void) | null>(null);
 
 export const MapContext = createContext<MapContextType | null>(null);
 
@@ -44,6 +46,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         layerWithRootEditTemplate,
         cursorPosition,
         digitalAddressFeature,
+        isPickingLocation,
+        onLocationPick,
         overlayRef: useRef(null),
       }}
     >

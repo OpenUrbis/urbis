@@ -85,7 +85,7 @@ class PickLocationControl implements mapboxgl.IControl {
     this.button = document.createElement("button");
     this.button.type = "button";
     this.button.title = "Endereço Digital";
-    this.button.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; line-height: 29px;">pin_drop</span>';
+    this.button.innerHTML = '<img src="/ed.png" alt="Endereço Digital" style="width: 18px; height: 18px; margin: 5px auto;" />';
     this.button.addEventListener("click", () => {
         this.onPick();
     });
@@ -104,10 +104,16 @@ export const addMapControls = (
   polygonEdit: IPolygonEditContextActions,
   onPickLocation?: () => void,
   hideControls?: boolean,
-  isDrawerOpen?: boolean
+  _isDrawerOpen?: boolean
 ) => {
   // Clear header AND layer management buttons for top-right
   map.addControl(new SpacerControl("124px"), "top-right");
+
+  // Controle de escala
+  if (!hideControls) {
+    const scaleControl = new mapboxgl.ScaleControl();
+    map.addControl(scaleControl, "top-right");
+  }
 
   // Adiciona controles de desenho (sempre necessário para edição?)
   const draw = addDrawControls(map, polygonEdit);
@@ -116,24 +122,23 @@ export const addMapControls = (
     return { draw };
   }
 
-  // Clear header for both sides
-  const isDesktop = window.innerWidth >= 768;
-  const spacerHeight = isDesktop && !isDrawerOpen ? "192px" : "76px";
-  map.addControl(new SpacerControl(spacerHeight), "top-left");
-
+  // Pick Location Control
   if (onPickLocation) {
-      map.addControl(new PickLocationControl(onPickLocation), "top-left");
+    map.addControl(new PickLocationControl(onPickLocation), "top-right");
   }
-
-  // Controle de escala
-  const scaleControl = new mapboxgl.ScaleControl();
-  map.addControl(scaleControl, "top-left");
 
   // Zoom Control
   map.addControl(new ZoomControl(), "top-right");
 
   // Compass Control
   map.addControl(new CompassControl({ instant: true }), "top-right");
+
+  // Ruler Control
+  map.addControl(new RulerControl(), "top-right");
+
+  // Image Control
+  const imageControl = new ImageControl({ removeButton: true });
+  map.addControl(imageControl, "top-right");
 
   // Tooltip Control
   map.addControl(
@@ -143,13 +148,6 @@ export const addMapControls = (
         `Tooltip for feature: ${event.features?.[0]?.id || "unknown"}`,
     })
   );
-
-  // Ruler Control
-  map.addControl(new RulerControl(), "top-left");
-
-  // Image Control
-  const imageControl = new ImageControl({ removeButton: true });
-  map.addControl(imageControl, "top-left");
 
   return { draw };
 };

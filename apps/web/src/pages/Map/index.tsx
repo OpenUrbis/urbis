@@ -16,7 +16,10 @@ const MapPage = () => {
   useLayerPersistence();
 
   useEffect(() => {
-    navigateTo(<LocationSelectionCard />);
+    const query = new URLSearchParams(location.search);
+    if (!query.get("p")) {
+      navigateTo(<LocationSelectionCard />);
+    }
   }, [navigateTo]);
 
   return (

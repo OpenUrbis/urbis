@@ -3,14 +3,14 @@ import {
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-} from "class-validator";
+} from 'class-validator';
 
 @ValidatorConstraint({ async: false })
 class IsCpfConstraint implements ValidatorConstraintInterface {
   validate(value: unknown) {
     if (!value) return false;
-    if (typeof value !== "string") return false;
-    const cpf = value.replace(/\D/g, "");
+    if (typeof value !== 'string') return false;
+    const cpf = value.replace(/\D/g, '');
     if (cpf.length !== 11 || /^([0-9])\1{10}$/.test(cpf)) return false;
 
     let sum = 0;
@@ -32,7 +32,7 @@ class IsCpfConstraint implements ValidatorConstraintInterface {
 }
 
 export function IsCPF(validationOptions?: ValidationOptions) {
-  return (object: Object, propertyName: string) => {
+  return (object: object, propertyName: string) => {
     registerDecorator({
       target: object.constructor,
       propertyName,

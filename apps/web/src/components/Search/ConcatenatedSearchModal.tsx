@@ -24,7 +24,7 @@ import {
   TooltipTrigger,
 } from "@open-urbis/map-ui";
 import { Info, Loader2 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import * as ReactWindow from "react-window";
 
 // @ts-ignore
@@ -48,6 +48,8 @@ import { AuthRequiredModal } from "../AuthRequiredModal";
 import { PredefinedSearchSuggestions } from "./PredefinedSearchSuggestions";
 import { fetchAttributes as fetchAttributesFromIntegration } from "../../integrations/layer-attributes-integration";
 
+const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
+
 const DEFAULT_TREE: FilterGroup = {
   id: "root",
   type: "group",
@@ -59,8 +61,10 @@ interface ConcatenatedSearchModalProps {
   trigger?: React.ReactNode;
 }
 
-export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProps) => {
-  const { searchConfig, concatenatedSearch } = useSearchContext();
+export const ConcatenatedSearchModal = ({
+  trigger,
+}: ConcatenatedSearchModalProps) => {
+  const { concatenatedSearch } = useSearchContext();
   const { layerSchemas } = useMapContext();
   const auth = useAuth();
 
@@ -89,69 +93,70 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
   const attemptsRef = useRef(0);
   const maxAttempts = 3;
 
-  const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
+  const fetchAttributes = useCallback(
+    async (layerId: string) => {
+      if (!layerId || lastFetchedLayerId.current === layerId) return;
 
-  const fetchAttributes = async (layerId: string) => {
-    if (!layerId || lastFetchedLayerId.current === layerId) return;
+      // Se já atingiu o máximo de tentativas para este layer, não tenta novamente
+      if (attemptsRef.current >= maxAttempts) return;
 
-    // Se já atingiu o máximo de tentativas para este layer, não tenta novamente
-    if (attemptsRef.current >= maxAttempts) return;
+      const layerConfig = layerSchemas.value.find((c) => c.id === layerId);
+      if (!layerConfig) return;
 
-    const layerConfig = layerSchemas.value.find((c) => c.id === layerId);
-    if (!layerConfig) return;
+      const fullLayerName = getLayerNameFromConfig(layerConfig);
+      if (!fullLayerName) return;
 
-    const fullLayerName = getLayerNameFromConfig(layerConfig);
-    if (!fullLayerName) return;
+      setLoadingAttributes(true);
 
-    setLoadingAttributes(true);
-
-    // O loop aqui tenta até maxAttempts vezes dentro desta chamada
-    // Mas o attemptsRef garante que se falhar 3x, próximas chamadas (do useEffect) não tentam de novo
-    while (attemptsRef.current < maxAttempts) {
-      try {
-        const attributes = await fetchAttributesFromIntegration(
-          layerConfig.origin,
-          fullLayerName
-        );
-
-        if (attributes.length === 0) {
-          throw new Error("No attributes found");
-        }
-
-        const mapping =
-          (layerConfig?.properties as any)?.attributeMapping || {};
-
-        setFields(
-          attributes.map((attrName) => ({
-            name: attrName,
-            type: "text", // Integration helper returns only names, defaulting to text
-            label:
-              mapping[attrName]?.label || mapping[attrName]?.name || attrName,
-          }))
-        );
-
-        lastFetchedLayerId.current = layerId;
-        attemptsRef.current = 0; // Reset attempts on success
-        break;
-      } catch (error) {
-        attemptsRef.current++;
-        console.error(
-          `Failed to fetch attributes (Attempt ${attemptsRef.current})`,
-          error
-        );
-        if (attemptsRef.current >= maxAttempts) {
-          setLoadingAttributes(false);
-          setErrorAttributes(
-            "Não foi possível carregar os atributos desta camada para realizar a busca."
+      // O loop aqui tenta até maxAttempts vezes dentro desta chamada
+      // Mas o attemptsRef garante que se falhar 3x, próximas chamadas (do useEffect) não tentam de novo
+      while (attemptsRef.current < maxAttempts) {
+        try {
+          const attributes = await fetchAttributesFromIntegration(
+            layerConfig.origin,
+            fullLayerName,
           );
+
+          if (attributes.length === 0) {
+            throw new Error("No attributes found");
+          }
+
+          const mapping =
+            (layerConfig?.properties as any)?.attributeMapping || {};
+
+          setFields(
+            attributes.map((attrName) => ({
+              name: attrName,
+              type: "text", // Integration helper returns only names, defaulting to text
+              label:
+                mapping[attrName]?.label || mapping[attrName]?.name || attrName,
+            })),
+          );
+
+          lastFetchedLayerId.current = layerId;
+          attemptsRef.current = 0; // Reset attempts on success
           break;
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+        } catch (error) {
+          attemptsRef.current++;
+          console.error(
+            `Failed to fetch attributes (Attempt ${attemptsRef.current})`,
+            error,
+          );
+          if (attemptsRef.current >= maxAttempts) {
+            setLoadingAttributes(false);
+            setErrorAttributes(
+              "Não foi possível carregar os atributos desta camada para realizar a busca.",
+            );
+            break;
+          } else {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
         }
       }
-    }
-    setLoadingAttributes(false);
-  };
+      setLoadingAttributes(false);
+    },
+    [layerSchemas],
+  );
 
   const handleSearch = async () => {
     if (!selectedLayerId) return;
@@ -165,8 +170,8 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
     });
 
     try {
-      const layerConfig = searchConfig.value.find(
-        (c) => c.id === selectedLayerId
+      const layerConfig = layerSchemas.value.find(
+        (c) => c.id === selectedLayerId,
       );
       if (layerConfig) {
         const fullLayerName = getLayerNameFromConfig(layerConfig);
@@ -189,7 +194,7 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
         });
 
         const responseText = response.data;
-        let responseJson;
+        let responseJson: any;
         try {
           responseJson = JSON.parse(responseText);
         } catch (e) {
@@ -222,7 +227,13 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
     if (open && selectedLayerId && fields.length === 0 && !loadingAttributes) {
       fetchAttributes(selectedLayerId);
     }
-  }, [open, selectedLayerId, fields.length, loadingAttributes]);
+  }, [
+    open,
+    selectedLayerId,
+    fields.length,
+    loadingAttributes,
+    fetchAttributes,
+  ]);
 
   const handleLayerChange = async (layerId: string) => {
     setFields([]);
@@ -254,11 +265,11 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
             .map((header) => {
               const val = row[header];
               const strVal = String(
-                val === null || val === undefined ? "" : val
+                val === null || val === undefined ? "" : val,
               );
               return strVal.includes(",") ? `"${strVal}"` : strVal;
             })
-            .join(",")
+            .join(","),
         ),
       ].join("\n");
 
@@ -289,16 +300,16 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
   const handleApplyToLayer = () => {
     if (!selectedLayerId) return;
 
-    const layerConfig = searchConfig.value.find(
-      (c) => c.id === selectedLayerId
+    const layerConfig = layerSchemas.value.find(
+      (c) => c.id === selectedLayerId,
     );
-    if (!layerConfig || !layerConfig.layerSchema) {
+    if (!layerConfig) {
       toastError("Camada não encontrada ou não configurada corretamente.");
       return;
     }
 
     const cql = filterNodeToCQL(filterTree);
-    const targetLayerId = layerConfig.layerSchema.id;
+    const targetLayerId = layerConfig.id;
 
     layerSchemas.value = layerSchemas.value.map((s) => {
       if (s.id === targetLayerId) {
@@ -312,7 +323,7 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
       return s;
     });
 
-    toastSuccess(`Filtro aplicado à camada "${layerConfig.layerSchema.name}"`);
+    toastSuccess(`Filtro aplicado à camada "${layerConfig.name}"`);
   };
 
   return (
@@ -330,19 +341,23 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
             className="shrink-0 rounded-full h-9 w-9 shadow-sm border-input"
             title="Busca Concatenada"
           >
-            <span className="material-symbols-outlined text-base">filter_list</span>
+            <span className="material-symbols-outlined text-base">
+              filter_list
+            </span>
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-6">
         <DialogHeader className="mb-4">
-          <DialogTitle className="text-xl font-bold">Busca Concatenada</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            Busca Concatenada
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 flex-1 overflow-y-auto">
-          {(!selectedLayerId || (filterTree.children.length === 0 && searchResults.length === 0)) && (
-            <PredefinedSearchSuggestions />
-          )}
+          {(!selectedLayerId ||
+            (filterTree.children.length === 0 &&
+              searchResults.length === 0)) && <PredefinedSearchSuggestions />}
 
           <div className="space-y-2">
             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
@@ -350,17 +365,19 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
             </div>
             <div className="flex items-center gap-2">
               <div className="flex-1">
-                <Select value={selectedLayerId} onValueChange={handleLayerChange}>
+                <Select
+                  value={selectedLayerId}
+                  onValueChange={handleLayerChange}
+                >
                   <SelectTrigger className="w-full h-10">
                     <SelectValue placeholder="Selecione uma camada para pesquisar..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {layerSchemas.value
-                      .map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
+                    {layerSchemas.value.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -373,9 +390,13 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
-                    onClick={() => handleActionWithAuth(() => setIsShareOpen(true))}
+                    onClick={() =>
+                      handleActionWithAuth(() => setIsShareOpen(true))
+                    }
                   >
-                    <span className="material-symbols-outlined mr-2">share</span>
+                    <span className="material-symbols-outlined mr-2">
+                      share
+                    </span>
                     Compartilhar Busca
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -402,23 +423,21 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
 
           {errorAttributes && (
             <div className="text-sm text-red-500 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg p-4 flex items-center gap-2 justify-center">
-              <span className="material-symbols-outlined text-base">
-                error
-              </span>
-          {errorAttributes}
-        </div>
-      )}
+              <span className="material-symbols-outlined text-base">error</span>
+              {errorAttributes}
+            </div>
+          )}
 
-      {errorAttributes && (
-        <div className="text-xs text-muted-foreground text-center px-4">
-          <p>
-            Algumas camadas podem não estar aptas para a busca concatenada devido a
-            restrições de serviço ou configurações do servidor.
-          </p>
-        </div>
-      )}
+          {errorAttributes && (
+            <div className="text-xs text-muted-foreground text-center px-4">
+              <p>
+                Algumas camadas podem não estar aptas para a busca concatenada
+                devido a restrições de serviço ou configurações do servidor.
+              </p>
+            </div>
+          )}
 
-      {fields.length > 0 && (
+          {fields.length > 0 && (
             <div className="space-y-2">
               <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
                 Critérios de filtro
@@ -426,7 +445,9 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
               <div className="border rounded-xl p-4 bg-background/50 shadow-sm backdrop-blur-sm">
                 <FilterBuilder
                   value={filterTree}
-                  onChange={(tree) => setConcatenatedSearch({ filterTree: tree })}
+                  onChange={(tree) =>
+                    setConcatenatedSearch({ filterTree: tree })
+                  }
                   fields={fields}
                 />
               </div>
@@ -469,10 +490,13 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
             <div className="space-y-3 mt-6">
               <div className="flex justify-between items-center px-1">
                 <div className="flex flex-col">
-                  <h3 className="font-bold text-sm uppercase tracking-wider">Resultados da busca</h3>
+                  <h3 className="font-bold text-sm uppercase tracking-wider">
+                    Resultados da busca
+                  </h3>
                   <p className="text-xs text-muted-foreground">
                     Exibindo {searchResults.length} de{" "}
-                    {totalCount !== undefined ? totalCount : "?"} registros encontrados
+                    {totalCount !== undefined ? totalCount : "?"} registros
+                    encontrados
                   </p>
                 </div>
                 <Button
@@ -494,12 +518,13 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
                       <TableHeader className="sticky top-0 bg-muted/50 z-20 backdrop-blur-md">
                         <TableRow>
                           {Object.keys(searchResults[0]).map((key) => {
-                            const layer = searchConfig.value.find(
-                              (c) => c.id === selectedLayerId
+                            const layer = layerSchemas.value.find(
+                              (c) => c.id === selectedLayerId,
                             );
-                            const mapping =
-                              (layer?.layerSchema?.properties as any)?.attributeMapping?.[key];
-                            const displayName = mapping?.label || mapping?.name || key;
+                            const mapping = (layer?.properties as any)
+                              ?.attributeMapping?.[key];
+                            const displayName =
+                              mapping?.label || mapping?.name || key;
                             const description = mapping?.description;
 
                             return (
@@ -515,7 +540,9 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
                                         <Info className="h-3 w-3" />
                                       </TooltipTrigger>
                                       <TooltipContent>
-                                        <p className="max-w-xs">{description}</p>
+                                        <p className="max-w-xs">
+                                          {description}
+                                        </p>
                                       </TooltipContent>
                                     </Tooltip>
                                   </TooltipProvider>
@@ -536,20 +563,24 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
                     >
                       {({ index, style }: { index: number; style: any }) => {
                         const row = searchResults[index];
+                        const headers = Object.keys(searchResults[0]);
                         return (
                           <div
                             style={style}
                             className="flex border-b hover:bg-muted/30 transition-colors items-center"
                           >
-                            {Object.values(row).map((val: any, j) => (
-                              <div
-                                key={j}
-                                className="whitespace-nowrap w-[200px] min-w-[200px] truncate text-[11px] py-2 px-4 shrink-0"
-                                title={String(val)}
-                              >
-                                {String(val)}
-                              </div>
-                            ))}
+                            {headers.map((key) => {
+                              const val = row[key];
+                              return (
+                                <div
+                                  key={key}
+                                  className="whitespace-nowrap w-[200px] min-w-[200px] truncate text-[11px] py-2 px-4 shrink-0"
+                                  title={String(val)}
+                                >
+                                  {String(val)}
+                                </div>
+                              );
+                            })}
                           </div>
                         );
                       }}

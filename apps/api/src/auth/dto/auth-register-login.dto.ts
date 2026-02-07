@@ -1,20 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
   MinLength,
   Validate,
-} from 'class-validator';
-import { IsNotExist } from './../../common/utils/validators/is-not-exists.validator';
-import { Transform } from 'class-transformer';
-import { IsCountryCode } from './validators/isCountry.validator';
+} from "class-validator";
+import { IsNotExist } from "./../../common/utils/validators/is-not-exists.validator";
+import { Transform } from "class-transformer";
+import { IsCountryCode } from "./validators/isCountry.validator";
+import { IsCPF } from "../../common/utils/validators/is-cpf.validator";
 
 export class AuthRegisterLoginDto {
-  @ApiProperty({ example: 'test1@example.com' })
+  @ApiProperty({ example: "test1@example.com" })
   @Transform(({ value }) => value.toLowerCase().trim())
-  @Validate(IsNotExist, ['User'], {
-    message: 'emailAlreadyExists',
+  @Validate(IsNotExist, ["User"], {
+    message: "alreadyExists",
   })
   @IsEmail()
   email: string;
@@ -24,12 +25,12 @@ export class AuthRegisterLoginDto {
   @IsOptional()
   password?: string;
 
-  @ApiProperty({ example: 'BR' })
+  @ApiProperty({ example: "BR" })
   @IsCountryCode()
   @IsOptional()
   country?: string;
 
-  @ApiProperty({ example: '+554599900000' })
+  @ApiProperty({ example: "+554599900000" })
   @IsOptional()
   phone?: string;
 
@@ -49,17 +50,20 @@ export class AuthRegisterLoginDto {
   @IsOptional()
   termsAccepted?: string[];
 
-  @ApiProperty({ example: 'John' })
+  @ApiProperty({ example: "John" })
   @IsNotEmpty()
   firstName: string;
 
-  @ApiProperty({ example: 'Doe' })
+  @ApiProperty({ example: "Doe" })
   @IsNotEmpty()
   lastName: string;
 
-  @ApiProperty()
-  @IsOptional()
-  cpf?: string;
+  @ApiProperty({ example: "111.444.777-35" })
+  @IsCPF({ message: "invalid" })
+  @Validate(IsNotExist, ["User"], {
+    message: "alreadyExists",
+  })
+  cpf: string;
 
   @ApiProperty()
   @IsOptional()

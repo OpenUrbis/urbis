@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from "@angular/common";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
-} from '@angular/forms';
+} from "@angular/forms";
 import {
   HlmButtonDirective,
   HlmCardDirective,
@@ -16,39 +16,55 @@ import {
   HlmLabelDirective,
   HlmIconComponent,
   HlmSwitchComponent,
-} from '../../../../projects/shared/src/public-api';
-import { provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideMap, lucideChevronDown, lucideCheck, lucideChevronRight, lucideX } from '@ng-icons/lucide';
-import { HlmToasterService } from '../../../../projects/shared/src/public-api';
-import { Router, RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+} from "../../../../projects/shared/src/public-api";
+import { provideIcons } from "@ng-icons/core";
+import {
+  lucideArrowLeft,
+  lucideMap,
+  lucideChevronDown,
+  lucideCheck,
+  lucideChevronRight,
+  lucideX,
+} from "@ng-icons/lucide";
+import { HlmToasterService } from "../../../../projects/shared/src/public-api";
+import { Router, RouterModule } from "@angular/router";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import {
   RECAPTCHA_V3_SITE_KEY,
   RecaptchaV3Module,
   ReCaptchaV3Service,
-} from 'ng-recaptcha-2';
-import { firstValueFrom, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+} from "ng-recaptcha-2";
+import { firstValueFrom, Subject } from "rxjs";
+import { debounceTime, distinctUntilChanged } from "rxjs/operators";
 import {
   PasswordFormGroup,
   passwordFormGroup,
   phoneFormGroup,
-} from '../../../../projects/shared/src/public-api';
-import { environment } from '../../../environments/environment';
-import { mergeFormGroups } from '../../shared/utils/merge-form-groups';
-import { SignInApi } from '../sign-in/services/sign-in-api';
-import { SignUpApi } from './services/sign-up-api';
-import { HttpClient } from '@angular/common/http';
-import { decode } from '@open-urbis/endereco-digital';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { TermsOfUseComponent } from '../../components/legal/terms-of-use';
-import { PrivacyPolicyComponent } from '../../components/legal/privacy-policy';
+} from "../../../../projects/shared/src/public-api";
+import { environment } from "../../../environments/environment";
+import { mergeFormGroups } from "../../shared/utils/merge-form-groups";
+import { SignInApi } from "../sign-in/services/sign-in-api";
+import { SignUpApi } from "./services/sign-up-api";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { decode } from "@open-urbis/endereco-digital";
+import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
+import { TermsOfUseComponent } from "../../components/legal/terms-of-use";
+import { PrivacyPolicyComponent } from "../../components/legal/privacy-policy";
+
+export type ApiFieldErrors = Record<string, string>;
 
 @Component({
-  selector: 'app-sign-up',
+  selector: "app-sign-up",
   standalone: true,
   providers: [
-    provideIcons({ lucideArrowLeft, lucideMap, lucideChevronDown, lucideCheck, lucideChevronRight, lucideX }),
+    provideIcons({
+      lucideArrowLeft,
+      lucideMap,
+      lucideChevronDown,
+      lucideCheck,
+      lucideChevronRight,
+      lucideX,
+    }),
     {
       provide: RECAPTCHA_V3_SITE_KEY,
       useValue: environment.googleRecaptchaSiteKey,
@@ -73,8 +89,8 @@ import { PrivacyPolicyComponent } from '../../components/legal/privacy-policy';
     TermsOfUseComponent,
     PrivacyPolicyComponent,
   ],
-  templateUrl: './sign-up.html',
-  styleUrls: ['./sign-up.scss'],
+  templateUrl: "./sign-up.html",
+  styleUrls: ["./sign-up.scss"],
 })
 export class SignUp implements OnInit {
   currentStep = signal<1 | 2>(1);
@@ -85,7 +101,7 @@ export class SignUp implements OnInit {
   noOfficialAddress = signal<boolean>(false);
   loadingCep = signal<boolean>(false);
   digitalAddressError = signal<string | null>(null);
-  
+
   private digitalAddressSubject = new Subject<string>();
 
   private api = inject(SignUpApi);
@@ -101,22 +117,23 @@ export class SignUp implements OnInit {
 
   formGroup = mergeFormGroups(
     new FormGroup({
-      firstName: new FormControl('', [Validators.required]),
-      lastName: new FormControl('', [Validators.required]),
-      socialName: new FormControl(''),
-      email: new FormControl('', [Validators.required, Validators.email]),
+      firstName: new FormControl("", [Validators.required]),
+      lastName: new FormControl("", [Validators.required]),
+      socialName: new FormControl(""),
+      email: new FormControl("", [Validators.required, Validators.email]),
+      cpf: new FormControl("", [Validators.required]),
       address: new FormGroup({
-        cep: new FormControl(''),
-        street: new FormControl(''),
-        number: new FormControl(''),
-        complement: new FormControl(''),
-        neighborhood: new FormControl(''),
-        city: new FormControl(''),
-        state: new FormControl(''),
+        cep: new FormControl(""),
+        street: new FormControl(""),
+        number: new FormControl(""),
+        complement: new FormControl(""),
+        neighborhood: new FormControl(""),
+        city: new FormControl(""),
+        state: new FormControl(""),
       }),
-      digitalAddress: new FormControl(''),
-      phoneCountry: new FormControl('+55'),
-      recaptcha: new FormControl('', []),
+      digitalAddress: new FormControl(""),
+      phoneCountry: new FormControl("+55"),
+      recaptcha: new FormControl("", []),
       termsAccepted: new FormControl<string[]>([]),
     }),
     passwordFormGroup(),
@@ -129,7 +146,7 @@ export class SignUp implements OnInit {
       .subscribe((value) => {
         this.validateDigitalAddress(value);
       });
-    const govBrTokensStr = localStorage.getItem('govBrTokens');
+    const govBrTokensStr = localStorage.getItem("govBrTokens");
     if (govBrTokensStr) {
       const govBrTokens = JSON.parse(govBrTokensStr);
       const fiveMinutes = 5 * 60 * 1000;
@@ -138,14 +155,14 @@ export class SignUp implements OnInit {
         govBrTokens.timestamp &&
         Date.now() - govBrTokens.timestamp > fiveMinutes
       ) {
-        localStorage.removeItem('govBrTokens');
+        localStorage.removeItem("govBrTokens");
         return;
       }
 
       setTimeout(() => {
         this.toaster.show(
-          this.translate.instant('pages.signIn.notifications.welcomeGovBr'),
-          { type: 'info' },
+          this.translate.instant("pages.signIn.notifications.welcomeGovBr"),
+          { type: "info" },
         );
       }, 500);
       const { idToken, userData } = govBrTokens;
@@ -163,10 +180,10 @@ export class SignUp implements OnInit {
             this.formGroup.patchValue({ email: decodedToken.email });
           }
           if (decodedToken.name) {
-            const parts = decodedToken.name.split(' ');
+            const parts = decodedToken.name.split(" ");
             this.formGroup.patchValue({
               firstName: parts[0],
-              lastName: parts.slice(1).join(' '),
+              lastName: parts.slice(1).join(" "),
             });
           }
         }
@@ -176,13 +193,13 @@ export class SignUp implements OnInit {
 
   private decodeToken(token: string) {
     try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
       const jsonPayload = decodeURIComponent(
         atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join(''),
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join(""),
       );
       return JSON.parse(jsonPayload);
     } catch (e) {
@@ -198,52 +215,58 @@ export class SignUp implements OnInit {
   private validateDigitalAddress(value: string) {
     if (!value) {
       this.digitalAddressError.set(null);
-      this.formGroup.get('digitalAddress')?.setErrors(null);
+      this.formGroup.get("digitalAddress")?.setErrors(null);
       return;
     }
 
     // 1. Pre-process input: remove extra spaces and ensure standard format for internal validation
     let cleanValue = value.trim();
-    
+
     // If only 7 characters are provided and they are valid Base27, assume SP prefix
     const base27Regex = /^[23456789BCDFGHJKLMNPQTVWXYZ]{7}$/;
-    const rawCode = cleanValue.replace(/[\s-]/g, '');
-    
+    const rawCode = cleanValue.replace(/[\s-]/g, "");
+
     if (base27Regex.test(rawCode)) {
       cleanValue = `-23-46 ${rawCode.substring(0, 3)}-${rawCode.substring(3)}`;
       // Update form value with the assumed prefix for better visibility
-      this.formGroup.get('digitalAddress')?.setValue(cleanValue, { emitEvent: false });
+      this.formGroup
+        .get("digitalAddress")
+        ?.setValue(cleanValue, { emitEvent: false });
     }
 
     try {
       // 2. Decode using the package logic
       decode(cleanValue);
       this.digitalAddressError.set(null);
-      this.formGroup.get('digitalAddress')?.setErrors(null);
+      this.formGroup.get("digitalAddress")?.setErrors(null);
     } catch (e) {
       // 3. If standard decode fails, try a more aggressive normalization
       try {
         // Try replacing hyphen with space in the code part if it exists
-        const parts = cleanValue.split(' ');
+        const parts = cleanValue.split(" ");
         if (parts.length === 2) {
-           const normalized = parts[0] + " " + parts[1].replace('-', '');
-           decode(normalized);
-           this.digitalAddressError.set(null);
-           this.formGroup.get('digitalAddress')?.setErrors(null);
-           return;
+          const normalized = parts[0] + " " + parts[1].replace("-", "");
+          decode(normalized);
+          this.digitalAddressError.set(null);
+          this.formGroup.get("digitalAddress")?.setErrors(null);
+          return;
         }
         throw e;
       } catch (innerE) {
-        const errorMsg = this.translate.instant('pages.signUp.errors.invalidDigitalAddress');
+        const errorMsg = this.translate.instant(
+          "pages.signUp.errors.invalidDigitalAddress",
+        );
         this.digitalAddressError.set(errorMsg);
-        this.formGroup.get('digitalAddress')?.setErrors({ invalidDigitalAddress: true });
+        this.formGroup
+          .get("digitalAddress")
+          ?.setErrors({ invalidDigitalAddress: true });
       }
     }
   }
 
   onPhoneInput(event: any) {
-    let value = event.target.value.replace(/\D/g, '');
-    if (this.formGroup.get('phoneCountry')?.value === '+55') {
+    let value = event.target.value.replace(/\D/g, "");
+    if (this.formGroup.get("phoneCountry")?.value === "+55") {
       if (value.length > 11) value = value.substring(0, 11);
       if (value.length > 10) {
         value = `(${value.substring(0, 2)}) ${value.substring(2, 7)}-${value.substring(7)}`;
@@ -253,34 +276,57 @@ export class SignUp implements OnInit {
         value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
       }
     }
-    this.formGroup.get('phone')?.setValue(value, { emitEvent: false });
+    this.formGroup.get("pone")?.setValue(value, { emitEvent: false });
+  }
+
+  onCpfInput(event: any) {
+    let value = event.target.value.replace(/\D/g, "");
+
+    if (value.length > 11) {
+      value = value.substring(0, 11);
+    }
+
+    if (value.length > 9) {
+      value = `${value.substring(0, 3)}.${value.substring(3, 6)}.${value.substring(6, 9)}-${value.substring(9)}`;
+    } else if (value.length > 6) {
+      value = `${value.substring(0, 3)}.${value.substring(3, 6)}.${value.substring(6)}`;
+    } else if (value.length > 3) {
+      value = `${value.substring(0, 3)}.${value.substring(3)}`;
+    }
+
+    this.formGroup.get("cpf")?.setValue(value, { emitEvent: false });
   }
 
   onPaste(event: ClipboardEvent): void {
     event.preventDefault();
     event.stopPropagation();
 
-    const pastedText = event.clipboardData?.getData('text/plain');
+    const pastedText = event.clipboardData?.getData("text/plain");
 
     if (pastedText) {
-      this.formGroup.controls['email'].setValue(pastedText.replace(/\s/g, ''));
+      this.formGroup.controls["email"].setValue(pastedText.replace(/\s/g, ""));
     }
   }
 
   resolveCaptcha(value: string | null) {
     if (!value) return;
-    this.formGroup.get('recaptcha')?.setValue(value);
+    this.formGroup.get("recaptcha")?.setValue(value);
   }
 
   async checkCep() {
-    let cep = this.formGroup.get('address.cep')?.value?.replace(/\D/g, '') || '';
+    let cep =
+      this.formGroup.get("address.cep")?.value?.replace(/\D/g, "") || "";
     if (cep.length > 8) cep = cep.substring(0, 8);
-    
+
     // Apply mask
     if (cep.length > 5) {
-      this.formGroup.get('address.cep')?.setValue(`${cep.substring(0, 5)}-${cep.substring(5)}`, { emitEvent: false });
+      this.formGroup
+        .get("address.cep")
+        ?.setValue(`${cep.substring(0, 5)}-${cep.substring(5)}`, {
+          emitEvent: false,
+        });
     } else {
-      this.formGroup.get('address.cep')?.setValue(cep, { emitEvent: false });
+      this.formGroup.get("address.cep")?.setValue(cep, { emitEvent: false });
     }
 
     if (cep.length !== 8) return;
@@ -301,7 +347,7 @@ export class SignUp implements OnInit {
         });
       }
     } catch (error) {
-      console.error('Error fetching CEP', error);
+      console.error("Error fetching CEP", error);
     } finally {
       this.loadingCep.set(false);
     }
@@ -311,7 +357,7 @@ export class SignUp implements OnInit {
     this.canAcceptTerm.set(false);
     this.termCountdown.set(5);
     const interval = setInterval(() => {
-      this.termCountdown.update(v => v - 1);
+      this.termCountdown.update((v) => v - 1);
       if (this.termCountdown() <= 0) {
         this.canAcceptTerm.set(true);
         clearInterval(interval);
@@ -319,13 +365,26 @@ export class SignUp implements OnInit {
     }, 1000);
   }
 
+  private extractFieldErrors(err: unknown): ApiFieldErrors | null {
+    if (!(err instanceof HttpErrorResponse)) return null;
+
+    const errors = err.error?.errors;
+
+    if (!errors || typeof errors !== "object") {
+      return null;
+    }
+
+    return errors as ApiFieldErrors;
+  }
+
   nextStep() {
     const controlsToValidate = [
-      'firstName',
-      'lastName',
-      'email',
-      'password',
-      'confirmPassword',
+      "firstName",
+      "lastName",
+      "email",
+      "password",
+      "confirmPassword",
+      "cpf",
     ];
 
     let isStep1Valid = true;
@@ -338,7 +397,9 @@ export class SignUp implements OnInit {
     }
 
     if (!isStep1Valid) {
-      this.toaster.error(this.translate.instant('pages.signUp.errors.invalidForm'));
+      this.toaster.error(
+        this.translate.instant("pages.signUp.errors.invalidForm"),
+      );
       return;
     }
 
@@ -358,13 +419,15 @@ export class SignUp implements OnInit {
     if (!this.canAcceptTerm()) return;
 
     const termId = this.currentTerm.id;
-    const currentAccepted = this.formGroup.get('termsAccepted')?.value || [];
+    const currentAccepted = this.formGroup.get("termsAccepted")?.value || [];
     if (!currentAccepted.includes(termId)) {
-      this.formGroup.get('termsAccepted')?.setValue([...currentAccepted, termId]);
+      this.formGroup
+        .get("termsAccepted")
+        ?.setValue([...currentAccepted, termId]);
     }
 
     if (this.currentTermIndex() < this.terms.length - 1) {
-      this.currentTermIndex.update(i => i + 1);
+      this.currentTermIndex.update((i) => i + 1);
       this.startTermCountdown();
     } else {
       this.submit();
@@ -373,42 +436,66 @@ export class SignUp implements OnInit {
 
   async submit() {
     if (this.formGroup.invalid) {
-       this.toaster.error(this.translate.instant('pages.signUp.errors.invalidForm'));
-       return;
+      this.toaster.error(
+        this.translate.instant("pages.signUp.errors.invalidForm"),
+      );
+      return;
     }
-    
-    if (this.formGroup.get('termsAccepted')?.value?.length !== this.terms.length) {
-      this.toaster.error(this.translate.instant('pages.signUp.errors.termsRequired'));
+
+    if (
+      this.formGroup.get("termsAccepted")?.value?.length !== this.terms.length
+    ) {
+      this.toaster.error(
+        this.translate.instant("pages.signUp.errors.termsRequired"),
+      );
       return;
     }
 
     this.loading.set(true);
     this.currentStep.set(1); // Close terms modal while loading
-    
+
     try {
       const captcha = await firstValueFrom(
-        this.recaptchaV3Service.execute('signup'),
+        this.recaptchaV3Service.execute("signup"),
       );
       this.resolveCaptcha(captcha);
 
       const rawValue = this.formGroup.getRawValue();
       const payload = {
         ...rawValue,
-        address: !this.noOfficialAddress() ? JSON.stringify(rawValue.address) : null,
-        digitalAddress: this.noOfficialAddress() ? rawValue.digitalAddress : null,
+        address: !this.noOfficialAddress()
+          ? JSON.stringify(rawValue.address)
+          : null,
+        digitalAddress: this.noOfficialAddress()
+          ? rawValue.digitalAddress
+          : null,
       };
 
       await firstValueFrom(this.api.register(payload));
 
-      const govBrTokens = localStorage.getItem('govBrTokens');
+      const govBrTokens = localStorage.getItem("govBrTokens");
       if (govBrTokens) {
-        localStorage.setItem('govBrFinalize', 'true');
+        localStorage.setItem("govBrFinalize", "true");
       }
 
-      this.router.navigate(['/sign-in']);
-    } catch (err) {
-      console.error('Registration error:', err);
-      this.toaster.error(this.translate.instant('pages.signUp.errors.submit'));
+      this.router.navigate(["/sign-in"]);
+    } catch (err: unknown) {
+      let errorTranslation = this.translate.instant(
+        "pages.signUp.errors.submit",
+      );
+      const fieldErrors = this.extractFieldErrors(err);
+      if (fieldErrors) {
+        const [field, code] = Object.entries(fieldErrors)[0];
+
+        const localTranslationKey = `pages.signUp.errors.${field}.${code}`;
+        const localTranslation = this.translate.instant(localTranslationKey);
+
+        if (localTranslation !== localTranslationKey) {
+          errorTranslation = localTranslation;
+        }
+      }
+      console.error("Registration error:", err);
+      this.toaster.error(errorTranslation);
     } finally {
       this.loading.set(false);
     }

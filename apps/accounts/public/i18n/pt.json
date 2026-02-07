@@ -54,7 +54,8 @@
           "city": "Cidade",
           "state": "Estado",
           "phoneCountry": "DDI",
-          "phone": "Telefone"
+          "phone": "Telefone",
+          "cpf": "CPF"
         },
         "tabs": {
           "residential": "Endereço Residencial",
@@ -74,7 +75,14 @@
         "submit": "Houve um erro realizar o registro",
         "termsRequired": "Você precisa aceitar todos os termos para continuar.",
         "invalidDigitalAddress": "Endereço Digital inválido.",
-        "invalidForm": "Por favor, preencha todos os campos obrigatórios corretamente antes de prosseguir."
+        "invalidForm": "Por favor, preencha todos os campos obrigatórios corretamente antes de prosseguir.",
+        "email": {
+          "alreadyExists": "Este e-mail já está em uso. Tente fazer login ou recuperar sua senha."
+        },
+        "cpf": {
+          "invalid": "CPF inválido. Verifique os dados e tente novamente.",
+          "alreadyExists": "Já existe uma conta cadastrada com este CPF."
+        }
       }
     },
     "forgotPassword": {

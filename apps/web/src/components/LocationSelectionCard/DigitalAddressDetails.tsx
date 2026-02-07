@@ -13,9 +13,7 @@ import { DigitalAddressCard } from "./DigitalAddressCard";
 import { LocationSelectionCard } from "./index";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useMapContext } from "../../hooks/useMapContext";
-// @ts-ignore
 import html2canvas from "html2canvas";
-// @ts-ignore
 import jsPDF from "jspdf";
 import proj4 from "proj4";
 
@@ -44,7 +42,7 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
       element.style.borderRadius = '0px';
 
       const canvas = await html2canvas(element, {
-        scale: 4,
+        scale: 3,
         useCORS: true,
         backgroundColor: null,
         logging: false,
@@ -63,7 +61,7 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      // Use full page dimensions to eliminate white borders
+      // Use full page dimensions
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`endereco-digital-${address.replace(/\s+/g, '-')}.pdf`);
     } catch (err) {
@@ -86,7 +84,10 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
           >
             <span className="material-symbols-outlined text-lg">arrow_back</span>
           </Button>
-          <CardTitle className="text-lg font-bold">Endereço Digital</CardTitle>
+          <CardTitle className="text-lg font-bold">
+            {sourceType === 'latlon' ? 'Coordenada Selecionada' : 
+             sourceType === 'pluscode' ? 'Plus Code' : 'Endereço Digital'}
+          </CardTitle>
         </div>
       </CardHeader>
       <CardContent className="p-4 space-y-6">
@@ -94,7 +95,7 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
         {/* Códigos (Moved to Top) */}
         <div className="space-y-3">
           {/* Digital Address */}
-          {(sourceType === 'latlon' || sourceType === 'digital') && (
+          {sourceType === 'digital' && (
             <DigitalAddressCard prefix={prefix} code={code} address={address} />
           )}
 
@@ -105,25 +106,25 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
               <span className="text-xl font-mono font-bold tracking-wide text-foreground block">
                 {plusCode}
               </span>
+              <span className="block text-xs text-muted-foreground mt-2">
+                 Prefixo Regional: {prefix}
+                 {prefix === '-23-46' && ' (São Paulo)'}
+              </span>
             </div>
           )}
         </div>
 
         {/* Espaço Representado */}
         <div className="space-y-3 pt-2 border-t">
+          {sourceType === 'digital' && (
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">
-              Abrangência do Endereço (1m²)
-            </h3>
             <p className="text-[11px] text-muted-foreground leading-tight">
-              O polígono destacado no mapa representa o metro quadrado exato identificado por este Endereço Digital.
+              <span className="font-bold">INFORMAÇÃO:</span> a partir do ponto selecionado, com as coordenadas abaixo (representado no mapa com um pino - ), é encontrado o espaço do Endereço Digital (retângulo de cerca de 1 metro desenhado no mapa).
             </p>
           </div>
+          )}
 
           <div className="bg-muted/30 p-3 rounded-md border border-border/50">
-            <span className="block text-[10px] uppercase font-bold text-primary/70 mb-2 tracking-tighter">
-              Coordenada Selecionada (SIRGAS 2000 / Graus decimais)
-            </span>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <span className="block text-[10px] uppercase font-medium text-muted-foreground mb-1">Latitude</span>
@@ -137,17 +138,18 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
           </div>
         </div>
 
+        {sourceType === 'digital' && (
         <div className="pt-2">
           <Dialog>
             <DialogTrigger asChild>
               <Button className="w-full rounded-full font-semibold shadow-sm">
                 <span className="material-symbols-outlined mr-2 text-lg">directions_car</span>
-                Gerar Placa Virtual
+                Gerar placa do Endereço Digital (NÃO OFICIAL)
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Placa Virtual</DialogTitle>
+                <DialogTitle>Placa do Endereço Digital</DialogTitle>
               </DialogHeader>
               <div className="flex flex-col items-center justify-center p-6 gap-6 w-full">
                 <DigitalAddressPlate
@@ -158,12 +160,13 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
 
                 <Button onClick={handleDownloadPDF} variant="default" className="w-full max-w-sm rounded-full mt-4">
                   <span className="material-symbols-outlined mr-2">download</span>
-                  Baixar PDF (A4)
+                  Baixar arquivo para impressão da placa
                 </Button>
               </div>
             </DialogContent>
           </Dialog>
         </div>
+        )}
       </CardContent>
     </Card>
   );

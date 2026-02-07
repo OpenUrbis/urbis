@@ -21,7 +21,7 @@ export const FeaturesView = ({
   const template = computed(() => view.value.template ?? []);
   const data = computed(() => view.value.feature ?? {});
 
-  return !!template.value.length ? (
+  return template.value.length ? (
     <ViewTemplate
       templates={template.value}
       data={data.value}

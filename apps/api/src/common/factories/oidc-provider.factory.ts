@@ -64,7 +64,6 @@ export const oidcProviderFactory = (
               <button type="submit">Logout</button>
             </form>
             <script>
-              ${logoutUrls.map((url) => `document.body.insertAdjacentHTML('beforeend', '<iframe src="${url}" style="display:none"></iframe>');`).join('\n')}
               setTimeout(() => {
                 document.querySelector('button').click();
               }, 1000);

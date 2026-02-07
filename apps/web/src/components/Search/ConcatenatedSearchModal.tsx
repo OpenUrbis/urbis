@@ -55,7 +55,11 @@ const DEFAULT_TREE: FilterGroup = {
   children: [],
 };
 
-export const ConcatenatedSearchModal = () => {
+interface ConcatenatedSearchModalProps {
+  trigger?: React.ReactNode;
+}
+
+export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProps) => {
   const { searchConfig, concatenatedSearch } = useSearchContext();
   const { layerSchemas } = useMapContext();
   const auth = useAuth();
@@ -317,14 +321,18 @@ export const ConcatenatedSearchModal = () => {
       onOpenChange={(v) => setConcatenatedSearch({ isOpen: v })}
     >
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="shrink-0 rounded-full h-10 w-10 shadow-sm border-input"
-          title="Busca Concatenada"
-        >
-          <span className="material-symbols-outlined text-base">filter_list</span>
-        </Button>
+        {trigger ? (
+          trigger
+        ) : (
+          <Button
+            variant="outline"
+            size="icon"
+            className="shrink-0 rounded-full h-10 w-10 shadow-sm border-input"
+            title="Busca Concatenada"
+          >
+            <span className="material-symbols-outlined text-base">filter_list</span>
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-6">
         <DialogHeader className="mb-4">

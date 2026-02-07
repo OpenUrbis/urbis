@@ -111,6 +111,7 @@ spec:
           value: "AIA2ROSF5WQVV7UVT7"
         - name: AWS_SECRET_ACCESS_KEY
           value: "WR84RulAVMlZ27Vv576ngC7rnixdd6gmByBFMGnA"
+        - name: S3_BUCKET_NAME
           value: "storage"
         - name: AWS_S3_ENDPOINT
           value: "https://api.mapa.urbis.sampa.br"

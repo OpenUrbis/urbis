@@ -1,11 +1,11 @@
 import { UrbisHeader, Button, HelpSidebarContent } from "@open-urbis/map-ui";
 import { useAuth } from "react-oidc-context";
 import { useMemo, useState } from "react";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
 
 import { accessControl, userProfile } from "../../auth/user-state";
 import { RolePermissionScopeEnum } from "../../utils/access-control";
 import { useTheme } from "../ThemeProvider";
-import { MenuToggleButton } from "../MenuToogleButton";
 
 // ✅ novo: usar o nav pronto do UI
 import { buildUrbisNav } from "@open-urbis/map-ui";
@@ -14,6 +14,7 @@ const Header = () => {
   const auth = useAuth();
   const { theme, setTheme } = useTheme();
   const [helpOpen, setHelpOpen] = useState(false);
+  const { toggleDrawer } = useNavigationContext();
 
   const { menuItems, badgeText } = useMemo(() => {
   return buildUrbisNav({
@@ -43,9 +44,20 @@ const Header = () => {
         }}
         onLogin={() => auth.signinRedirect()}
         onLogout={() => auth.signoutRedirect()}
-        leftSlot={<MenuToggleButton />}
         theme={theme}
         setTheme={(t) => setTheme(t as "light" | "dark" | "system")}
+        leftSlot={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden rounded-full h-8 w-8 mr-2"
+            onClick={toggleDrawer}
+          >
+            <span className="material-symbols-outlined text-base">
+              search
+            </span>
+          </Button>
+        }
         rightSlot={
           <div className="flex items-center gap-2">
             {canSeeAdmin && (

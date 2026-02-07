@@ -31,6 +31,8 @@ export interface MapContextType {
   cursorPosition: Signal<{ latitude: number; longitude: number } | null>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   digitalAddressFeature: Signal<any | null>;
+  isPickingLocation: Signal<boolean>;
+  onLocationPick: Signal<((lat: number, lon: number) => void) | null>;
 }
 
 export type MapContextLayerSchemaType =

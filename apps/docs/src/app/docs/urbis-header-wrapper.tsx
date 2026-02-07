@@ -7,12 +7,18 @@ import type { ComponentProps } from "react";
 export function UrbisHeaderWrapper(props: ComponentProps<typeof UrbisHeader>) {
   const { theme, setTheme } = useTheme();
 
+  const onLogin = () => {
+    location.href = "https://conta.urbis.sampa.br/";
+  };
+
   return (
     <UrbisHeader
       {...props}
       theme={theme}
       setTheme={setTheme}
-      showLogin={false}
+      showLogin={true}
+      onLogin={onLogin}
+      showMobileMenu={true}
       onMobileMenuClick={() => {
         window.dispatchEvent(new CustomEvent("urbis:toggle-sidebar"));
       }}

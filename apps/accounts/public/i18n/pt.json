@@ -3,6 +3,12 @@
     "signIn": {
       "title": "Identifique-se no sistema",
       "subtitle": "Insira os dados abaixo para acessar sua conta na Urbis.",
+      "alert": {
+        "emailConfirmation": {
+          "title": "Confirmação de email pendente",
+          "description": "Seu email ainda não foi confirmado. Para acessar sua conta, confirme o email através do link enviado para sua caixa de entrada. Um novo email de confirmação foi reenviado para você."
+        }
+      },
       "form": {
         "fields": {
           "email": "E-mail",

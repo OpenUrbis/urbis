@@ -51,26 +51,7 @@ export const oidcProviderFactory = (
     features: {
       rpInitiatedLogout: {
         logoutSource: logoutSource,
-        postLogoutSuccessSource: (ctx) => {
-          const { xsrf } = ctx.oidc.credentials;
-          ctx.body = `<!DOCTYPE html>
-          <head>
-            <title>Logout</title>
-          </head>
-          <body>
-            <h1>Logout</h1>
-            <form method="post" action="${ctx.oidc.urlFor('end_session_confirm')}">
-              <input type="hidden" name="xsrf" value="${xsrf}"/>
-              <button type="submit">Logout</button>
-            </form>
-            <script>
-              setTimeout(() => {
-                document.querySelector('button').click();
-              }, 1000);
-            </script>
-          </body>
-          </html>`;
-        },
+       postLogoutSuccessSource: (ctx) => {},
       },
     },
   };

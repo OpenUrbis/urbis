@@ -8,7 +8,17 @@ import {
 import { Book, ComponentIcon, Pencil, PlusIcon, Server } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import { baseOptions } from "src/lib/layout.shared";
+
+export const metadata: Metadata = {
+  other: {
+    "dc:title": "Urbis",
+    "dc:rights": "Copyright de 202x, Município de São Paulo",
+    "dc:license": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "dc:source": "https://www.prefeitura.sp.gov.br",
+  },
+};
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (

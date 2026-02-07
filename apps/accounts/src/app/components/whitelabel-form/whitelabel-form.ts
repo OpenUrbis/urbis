@@ -31,6 +31,7 @@ import {
 import { environment } from '../../../environments/environment';
 import { provideIcons } from '@ng-icons/core';
 import { lucideLoader2, lucideSave, lucideCheck, lucideX, lucideChevronsUpDown } from '@ng-icons/lucide';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   imports: [
@@ -40,6 +41,7 @@ import { lucideLoader2, lucideSave, lucideCheck, lucideX, lucideChevronsUpDown }
     HlmLabelDirective,
     HlmButtonDirective,
     HlmIconComponent,
+    TranslateModule,
   ],
   providers: [provideIcons({ lucideLoader2, lucideSave, lucideCheck, lucideX, lucideChevronsUpDown })],
   selector: 'app-whitelabel-form',
@@ -97,6 +99,7 @@ export class WhitelabelFormComponent {
   private organizationsApi = inject(OrganizationsApi);
   private whitelabelState = inject(WhitelabelState);
   private whitelabelApi = inject(WhitelabelApi);
+  private translate = inject(TranslateService);
 
   constructor() {
     this.addLoadingStep();
@@ -113,8 +116,8 @@ export class WhitelabelFormComponent {
             organizationName: organization.name,
             organizationType: organization.metadata?.organizationType,
             tenantType: organization.metadata?.tenantType ?? 'mono',
-            organizationTypes: (organization.metadata?.organizationTypes?.length > 0) 
-              ? organization.metadata.organizationTypes 
+            organizationTypes: (organization.metadata?.organizationTypes?.length > 0)
+              ? organization.metadata.organizationTypes
               : ['Secretaria'],
           });
           this.removeLoadingStep();
@@ -150,13 +153,13 @@ export class WhitelabelFormComponent {
     forkJoin([updateWhitelabel$, updateOrg$]).subscribe({
       error: () => {
         this.removeLoadingStep();
-        this.toaster.error('Error updating settings');
+        this.toaster.error(this.translate.instant('common.errors.save'));
       },
       next: () => {
         this.removeLoadingStep();
         this.whitelabelState.reload();
         this.organizationState.refresh();
-        this.toaster.success('Settings updated successfully');
+        this.toaster.success(this.translate.instant('common.success.saved'));
         this.success.next({
           organizationId,
         });

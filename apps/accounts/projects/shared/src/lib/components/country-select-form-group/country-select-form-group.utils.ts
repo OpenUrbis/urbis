@@ -30,7 +30,7 @@ export const countryList = [
   { name: 'Bosnia and Herzegovina', code: 'BA' },
   { name: 'Botswana', code: 'BW' },
   { name: 'Bouvet Island', code: 'BV' },
-  { name: 'Brazil', code: 'BR' },
+  { name: 'Brasil', code: 'BR' },
   { name: 'British Indian Ocean Territory', code: 'IO' },
   { name: 'Brunei Darussalam', code: 'BN' },
   { name: 'Bulgaria', code: 'BG' },

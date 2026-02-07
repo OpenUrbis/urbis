@@ -7,7 +7,6 @@ import { accessControl, userProfile } from "../../auth/user-state";
 import { RolePermissionScopeEnum } from "../../utils/access-control";
 import { useTheme } from "../ThemeProvider";
 
-// ✅ novo: usar o nav pronto do UI
 import { buildUrbisNav } from "@open-urbis/map-ui";
 
 const Header = () => {
@@ -16,24 +15,51 @@ const Header = () => {
   const [helpOpen, setHelpOpen] = useState(false);
   const { toggleDrawer } = useNavigationContext();
 
-  const { menuItems, badgeText } = useMemo(() => {
-  return buildUrbisNav({
-    isAuthenticated: auth.isAuthenticated,
-    currentApp: "mapa"
-  });
-}, [auth.isAuthenticated]);
+ const { menuItems, badgeText } = useMemo(() => {
+    return buildUrbisNav({
+      isAuthenticated: auth.isAuthenticated,
+      currentApp: "mapa",
+    });
+  }, [auth.isAuthenticated]);
 
   const canSeeAdmin = accessControl.value.hasPermission({
     permissions: [
-      { resource: "layer-schema", action: "create", scope: RolePermissionScopeEnum.ANY, id: "layer-schema:create" },
-      { resource: "layer-schema", action: "update", scope: RolePermissionScopeEnum.ANY, id: "layer-schema:update" },
-      { resource: "layer-schema", action: "delete", scope: RolePermissionScopeEnum.ANY, id: "layer-schema:delete" },
+      {
+        resource: "layer-schema",
+        action: "create",
+        scope: RolePermissionScopeEnum.ANY,
+        id: "layer-schema:create",
+      },
+      {
+        resource: "layer-schema",
+        action: "update",
+        scope: RolePermissionScopeEnum.ANY,
+        id: "layer-schema:update",
+      },
+      {
+        resource: "layer-schema",
+        action: "delete",
+        scope: RolePermissionScopeEnum.ANY,
+        id: "layer-schema:delete",
+      },
     ],
     mode: "OR",
   });
 
   return (
     <>
+      {/* 🔒 Estilo LOCAL: no mobile, botão Entrar/Sair fica só com o ícone */}
+      <style>
+        {`
+          @media (max-width: 767px) {
+            header button[aria-label="Entrar"] span:not(.material-symbols-outlined),
+            header button[aria-label="Sair"] span:not(.material-symbols-outlined) {
+              display: none;
+            }
+          }
+        `}
+      </style>
+
       <UrbisHeader
         badgeText={badgeText}
         menuItems={menuItems}
@@ -74,15 +100,29 @@ const Header = () => {
               </Button>
             )}
 
+            {/* AJUDA — desktop */}
             <Button
-  variant="outline"                 // 👈 borda
-  size="sm"
-  onClick={() => setHelpOpen(true)}
-  className="hidden md:inline-flex"
-  title="Ajuda"
->
-  Ajuda
-</Button>
+              variant="outline"
+              size="sm"
+              onClick={() => setHelpOpen(true)}
+              className="hidden md:inline-flex"
+              title="Ajuda"
+              aria-label="Ajuda"
+            >
+              Ajuda
+            </Button>
+
+            {/* AJUDA — colapsado/mobile: só "?" */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setHelpOpen(true)}
+              className="inline-flex md:hidden"
+              title="Ajuda"
+              aria-label="Ajuda"
+            >
+              ?
+            </Button>
           </div>
         }
       />

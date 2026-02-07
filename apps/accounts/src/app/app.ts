@@ -1,5 +1,7 @@
 import { Component, inject, computed, Signal } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { Location } from '@angular/common';
+
 import { WhitelabelState } from './states/whitelabel/whitelabel.state';
 import { UrbisHeader } from './components/urbis-header/urbis-header';
 import { HlmToasterComponent, HlmDialogContainerComponent } from '../../projects/shared/src/public-api';
@@ -15,11 +17,13 @@ import { filter, map } from 'rxjs';
 })
 export class App {
   protected title = 'accounts';
+
   whitelabelState = inject(WhitelabelState);
   private router = inject(Router);
+  private location = inject(Location);
 
   menuItems = [
-    { label: 'Mosaico', href: 'https://urbis.prefeitura.sp.gov.br'},
+    { label: 'Mosaico', href: 'https://urbis.prefeitura.sp.gov.br' },
     { label: 'Mapa', href: 'https://mapa.urbis.prefeitura.sp.gov.br' },
     { label: 'Dados Abertos', href: 'https://dadosabertos.urbis.prefeitura.sp.gov.br' },
     { label: 'Legis', href: 'https://docs.urbis.prefeitura.sp.gov.br/docs/legis' },
@@ -29,16 +33,20 @@ export class App {
 
   currentUrl = toSignal(
     this.router.events.pipe(
-        filter(e => e instanceof NavigationEnd),
-        map((e: any) => e.urlAfterRedirects || e.url)
+      filter((e) => e instanceof NavigationEnd),
+      map((e: any) => e.urlAfterRedirects || e.url)
     ),
     { initialValue: '' }
- );
+  );
 
- showMenu: Signal<boolean> = computed(() => {
+  showMenu: Signal<boolean> = computed(() => {
     const url = this.currentUrl();
     if (!url) return true;
     const hiddenRoutes = ['/sign-in', '/sign-up', '/forgot-password', '/confirm-account', '/two-factor'];
-    return !hiddenRoutes.some(r => url.startsWith(r));
- });
+    return !hiddenRoutes.some((r) => url.startsWith(r));
+  });
+
+  goBack() {
+    this.location.back();
+  }
 }

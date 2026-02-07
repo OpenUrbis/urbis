@@ -163,7 +163,7 @@ export function UrbisFooter(_props: any) {
         title="Acessar a documentação do Urbis"
         aria-label="Acessar a documentação do Urbis"
       >
-        Documentação Técnica
+        DOCUMENTAÇÃO TÉCNICA
       </a>
     </h2>
 

@@ -89,7 +89,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
               >
-                MAPA.URBIS
+                MAPA
               </a>
             </h2>
             <div className="h-1 w-16 bg-primary-foreground rounded-full" />
@@ -118,7 +118,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
               >
-                VIABILIZA.URBIS
+                VIABILIZA
               </a>
             </h2>
             <div className="h-1 w-16 bg-primary-foreground rounded-full" />

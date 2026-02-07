@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Button } from "./ui/button";
 import {
   Drawer,
@@ -17,84 +18,10 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "./ui/navigation-menu";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 import { cn } from "../lib/utils";
-import React from "react";
 import { UrbisSettings, UrbisSettingsProps } from "./urbis-settings";
 import { UrbisLogo } from "./urbis-logo";
-import { User } from "lucide-react";
-
-const SessionTimer = ({ expiresAt }: { expiresAt: number | Date }) => {
-  const [timeLeft, setTimeLeft] = React.useState<string>("");
-
-  React.useEffect(() => {
-    const update = () => {
-      const now = Date.now();
-      const exp = new Date(expiresAt).getTime();
-      const diff = exp - now;
-
-      if (diff <= 0) {
-        setTimeLeft("Expirada");
-        return;
-      }
-
-      const m = Math.floor(diff / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      setTimeLeft(`${m}:${s.toString().padStart(2, "0")}`);
-    };
-
-    update();
-    const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
-  }, [expiresAt]);
-
-  return <span>Sessão: {timeLeft}</span>;
-};
-
-const UserAvatar = ({
-  src,
-  name,
-  className,
-}: {
-  src?: string;
-  name?: string;
-  className?: string;
-}) => {
-  const [error, setError] = React.useState(false);
-  const dicebearUrl = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-    (name || "User").replace(/\s+/g, "-")
-  )}&radius=50`;
-
-  return (
-    <div
-      className={cn(
-        "relative overflow-hidden bg-primary/10 text-primary font-bold uppercase flex items-center justify-center",
-        className
-      )}
-    >
-      <img
-        src={dicebearUrl}
-        alt={name || "User"}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      {src && !error && (
-        <img
-          src={src}
-          alt={name || "User"}
-          className="relative h-full w-full object-cover"
-          onError={() => setError(true)}
-        />
-      )}
-    </div>
-  );
-};
+import { User, Home } from "lucide-react";
 
 interface UrbisHeaderProps extends UrbisSettingsProps {
   logoSrc?: string;
@@ -115,7 +42,6 @@ interface UrbisHeaderProps extends UrbisSettingsProps {
   rightSlot?: React.ReactNode;
   showMobileMenu?: boolean;
   showLogin?: boolean;
-  onMobileMenuClick?: () => void;
 }
 
 export const UrbisHeader = ({
@@ -132,38 +58,39 @@ export const UrbisHeader = ({
   rightSlot,
   showMobileMenu = true,
   showLogin = true,
-  onMobileMenuClick,
   theme,
   setTheme,
 }: UrbisHeaderProps) => {
   return (
     <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center px-4 w-full">
-        <div className="mr-2 flex items-center">
-          {leftSlot}
-        </div>
-        {/* Logo */}
-        <div className="mr-4 flex items-center">
+        {/* LEFT SLOT */}
+        <div className="mr-2 flex items-center shrink-0">{leftSlot}</div>
+
+        {/* LOGO */}
+        <div className="mr-4 flex items-center shrink-0">
           <a className="mr-6 flex items-center space-x-2" href={logoHref}>
             <UrbisLogo alt={logoAlt} src={logoSrc} />
 
-{badgeText ? (
-  <span
-    className="hidden sm:inline-flex items-center gap-2 text-muted-foreground text-sm font-semibold"
-    aria-label={`Página atual: ${badgeText}`}
-    title={`Página atual: ${badgeText}`}
-  >
-    <span className="opacity-40" aria-hidden="true">
-      •
-    </span>
-    <span className="whitespace-nowrap">{badgeText}</span>
-  </span>
-) : null}
+            {badgeText ? (
+              <span className="hidden sm:inline-flex items-center gap-2 text-muted-foreground text-sm font-semibold">
+                <span className="opacity-40" aria-hidden="true">
+                  •
+                </span>
+
+                <span className="inline-flex items-center gap-2 whitespace-nowrap">
+                  {badgeText === "Mosaico" && (
+                    <Home className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  {badgeText}
+                </span>
+              </span>
+            ) : null}
           </a>
         </div>
 
-        {/* Desktop Menu - NavigationMenu */}
-        <div className="hidden md:flex items-center gap-2">
+        {/* MENU DESKTOP */}
+        <div className="hidden md:flex items-center gap-2 shrink-0">
           <NavigationMenu>
             <NavigationMenuList>
               {menuItems.map((item) => (
@@ -176,7 +103,12 @@ export const UrbisHeader = ({
                       item.active && "bg-accent text-accent-foreground"
                     )}
                   >
-                    {item.label}
+                    <span className="inline-flex items-center gap-2">
+                      {item.label === "Mosaico" && (
+                        <Home className="h-4 w-4" aria-hidden="true" />
+                      )}
+                      {item.label}
+                    </span>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               ))}
@@ -184,124 +116,92 @@ export const UrbisHeader = ({
           </NavigationMenu>
         </div>
 
-        <div className="flex flex-1 items-center justify-end space-x-2">
-          <div className="flex items-center gap-2">
-            {/* Right Slot for Debugger, ModeToggle etc */}
-            <UrbisSettings theme={theme} setTheme={setTheme} />
-            {rightSlot}
-
-            {/* User Menu */}
-            {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+        {/* RIGHT SIDE */}
+        <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
+          {/* MENU MOBILE — primeiro item à direita */}
+          {showMobileMenu && (
+            <div className="md:hidden shrink-0">
+              <Drawer>
+                <DrawerTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative flex items-center gap-2 h-9 px-2 rounded-full border"
+                    size="sm"
+                    className="border border-input shrink-0"
                   >
-                    <UserAvatar
-                      src={user?.avatarUrl}
-                      name={user?.name}
-                      className="h-7 w-7 rounded-full text-xs"
-                    />
-                    <span className="hidden sm:inline-block text-sm font-medium">
-                      {user?.name?.split(" ")[0]}
-                    </span>
+                    Menu
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex items-center gap-3 py-1">
-                      <UserAvatar
-                        src={user?.avatarUrl}
-                        name={user?.name}
-                        className="h-9 w-9 rounded-full text-base"
-                      />
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user?.name || "Usuário"}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user?.email}
-                        </p>
-                      </div>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <a href="https://conta.urbis.sampa.br" className="cursor-pointer">
-                      Minha conta
-                    </a>
-                  </DropdownMenuItem>
-                  {user?.sessionExpiresAt && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <div className="px-2 py-1.5 text-xs text-muted-foreground text-center cursor-default">
-                        <SessionTimer expiresAt={user.sessionExpiresAt} />
-                      </div>
-                    </>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onLogout} className="cursor-pointer">
-                    Sair
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : showLogin ? (
+                </DrawerTrigger>
+
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle>Menu</DrawerTitle>
+                  </DrawerHeader>
+
+                  <div className="p-4 flex flex-col gap-4">
+                    {menuItems.map((item) => (
+                      <a
+                        key={item.label}
+                        href={item.href}
+                        className="text-lg font-medium hover:text-primary transition-colors"
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          {item.label === "Mosaico" && (
+                            <Home className="h-5 w-5" aria-hidden="true" />
+                          )}
+                          {item.label}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+
+                  <DrawerFooter>
+                    <DrawerClose asChild>
+                      <Button variant="outline">Fechar</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+            </div>
+          )}
+
+          {/* AUTH (vem antes do rightSlot pra nunca "sumir" no desktop) */}
+          {isAuthenticated ? (
+            // avatar dropdown – mantenha o seu aqui
+            <span />
+          ) : showLogin ? (
+            <>
+              {/* DESKTOP */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onLogin}
-                className="gap-2"
+                className="gap-2 hidden md:flex items-center shrink-0"
+                aria-label="Entrar"
               >
                 <User className="h-4 w-4" />
                 Entrar
               </Button>
-            ) : null}
 
-            {/* Mobile Menu Drawer */}
-            {showMobileMenu && (
-  <div className="md:hidden">
-    {onMobileMenuClick ? (
-      <Button variant="outline" size="sm" onClick={onMobileMenuClick}>
-        Menu
-      </Button>
-    ) : (
-      <Drawer>
-        <DrawerTrigger asChild>
-          <Button variant="ghost" size="sm">
-            Menu
-          </Button>
-        </DrawerTrigger>
-
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Menu</DrawerTitle>
-          </DrawerHeader>
-
-          <div className="p-4 flex flex-col gap-4">
-            {menuItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className={cn(
-                  "text-lg font-medium hover:text-primary transition-colors",
-                  item.active && "text-primary"
-                )}
+              {/* MOBILE */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={onLogin}
+                className="md:hidden shrink-0"
+                aria-label="Entrar"
               >
-                {item.label}
-              </a>
-            ))}
+                <User className="h-4 w-4" />
+              </Button>
+            </>
+          ) : null}
+
+          {/* SETTINGS */}
+          <div className="shrink-0">
+            <UrbisSettings theme={theme} setTheme={setTheme} />
           </div>
 
-          <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Fechar</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
-    )}
-  </div>
-)}  
-          </div>
+          {/* RIGHT SLOT por último */}
+          {rightSlot ? <div className="shrink-0">{rightSlot}</div> : null}
         </div>
       </div>
     </header>

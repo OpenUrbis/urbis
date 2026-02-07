@@ -7,21 +7,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  HlmButtonDirective,
-  HlmCardDirective,
-  HlmCardContentDirective,
-  HlmCardFooterDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
-  HlmCardDescriptionDirective,
-  HlmInputDirective,
-  HlmLabelDirective,
-} from '../../../../projects/shared/src/public-api';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { HlmToasterService } from '../../../../projects/shared/src/public-api';
 import {
   RECAPTCHA_V3_SITE_KEY,
   RecaptchaV3Module,
@@ -29,7 +17,18 @@ import {
 } from 'ng-recaptcha-2';
 import { firstValueFrom } from 'rxjs';
 import { EXTERNAL_OIDC_AUTH_CONFIG_ID } from '../../../../projects/shared/src/lib/auth/auth.config';
-import { SignInGovBrBtn } from '../../../../projects/shared/src/public-api';
+import {
+  HlmButtonDirective,
+  HlmCardContentDirective,
+  HlmCardDirective,
+  HlmCardFooterDirective,
+  HlmCardHeaderDirective,
+  HlmCardTitleDirective,
+  HlmInputDirective,
+  HlmLabelDirective,
+  HlmToasterService,
+  SignInGovBrBtn,
+} from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
 import { SignInApi } from './services/sign-in-api';
 
@@ -47,7 +46,6 @@ import { SignInApi } from './services/sign-in-api';
     HlmCardFooterDirective,
     HlmCardHeaderDirective,
     HlmCardTitleDirective,
-    HlmCardDescriptionDirective,
     ReactiveFormsModule,
     TranslateModule,
     RecaptchaV3Module,

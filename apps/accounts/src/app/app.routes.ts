@@ -6,58 +6,75 @@ import { permissionGuard } from './shared/guards/permission.guard';
 
 export const routes: Routes = [
   {
-    path: 'sign-in',
-    loadComponent: () =>
-      import('./pages/sign-in/sign-in').then((c) => c.SignIn),
-  },
-  {
-    path: 'sign-up',
-    loadComponent: () =>
-      import('./pages/sign-up/sign-up').then((c) => c.SignUp),
-  },
-  {
-    path: 'confirm-account/:hash',
-    loadComponent: () =>
-      import('./pages/confirm-account/confirm-account').then(
-        (c) => c.ConfirmAccount,
-      ),
-  },
-  {
-    path: 'callback',
-    loadComponent: () =>
-      import('./../../projects/shared/src/lib/auth/callback/callback').then(
-        (c) => c.Callback,
-      ),
-  },
-  {
-    path: 'forbidden',
-    loadComponent: () =>
-      import('./../../projects/shared/src/lib/auth/forbidden/forbidden').then(
-        (c) => c.Forbidden,
-      ),
-  },
-  {
-    path: 'unauthorized',
-    loadComponent: () =>
-      import('./../../projects/shared/src/lib/auth/unauthorized/unauthorized').then(
-        (c) => c.Unauthorized,
-      ),
-  },
-  {
-    path: 'two-factor',
-    loadComponent: () =>
-      import('./components/two-factor/two-factor').then((c) => c.TwoFactor),
-  },
-
-  {
-    path: 'forgot-password',
-    loadChildren: () =>
-      import('./pages/forgot-password/forgot-password.routes').then(
-        (m) => m.forgotPasswordRoutes,
-      ),
+    path: '',
+    redirectTo: 'profile',
+    pathMatch: 'full',
   },
   {
     path: '',
+    loadComponent: () =>
+      import('./shared/ui/public-layout/public-layout').then(
+        (c) => c.PublicLayout,
+      ),
+    children: [
+      {
+        path: 'sign-in',
+        loadComponent: () =>
+          import('./pages/sign-in/sign-in').then((c) => c.SignIn),
+      },
+      {
+        path: 'sign-up',
+        loadComponent: () =>
+          import('./pages/sign-up/sign-up').then((c) => c.SignUp),
+      },
+      {
+        path: 'confirm-account/:hash',
+        loadComponent: () =>
+          import('./pages/confirm-account/confirm-account').then(
+            (c) => c.ConfirmAccount,
+          ),
+      },
+      {
+        path: 'callback',
+        loadComponent: () =>
+          import('./../../projects/shared/src/lib/auth/callback/callback').then(
+            (c) => c.Callback,
+          ),
+      },
+      {
+        path: 'forbidden',
+        loadComponent: () =>
+          import('./../../projects/shared/src/lib/auth/forbidden/forbidden').then(
+            (c) => c.Forbidden,
+          ),
+      },
+      {
+        path: 'unauthorized',
+        loadComponent: () =>
+          import('./../../projects/shared/src/lib/auth/unauthorized/unauthorized').then(
+            (c) => c.Unauthorized,
+          ),
+      },
+      {
+        path: 'two-factor',
+        loadComponent: () =>
+          import('./components/two-factor/two-factor').then((c) => c.TwoFactor),
+      },
+      {
+        path: 'forgot-password',
+        loadChildren: () =>
+          import('./pages/forgot-password/forgot-password.routes').then(
+            (m) => m.forgotPasswordRoutes,
+          ),
+      },
+    ],
+  },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./shared/ui/private-layout/private-layout').then(
+        (c) => c.PrivateLayout,
+      ),
     canActivate: [autoLoginPartialRoutesGuardWithConfig(AUTH_CONFIG_ID)],
     children: [
       {
@@ -71,11 +88,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/drawer/drawer').then((c) => c.Drawer),
         children: [
-          {
-            path: '',
-            redirectTo: 'profile',
-            pathMatch: 'full',
-          },
           {
             path: 'profile',
             canActivate: [

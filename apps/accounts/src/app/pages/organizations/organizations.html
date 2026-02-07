@@ -79,7 +79,7 @@
         <div class="flex-1 text-sm text-muted-foreground">
             {{ (dataSource.currentParams().page - 1) * dataSource.currentParams().limit + 1 }} -
             {{ (dataSource.currentParams().page * dataSource.currentParams().limit) > dataSource.totalCount() ? dataSource.totalCount() : (dataSource.currentParams().page * dataSource.currentParams().limit) }}
-            of {{ dataSource.totalCount() }}
+            {{ 'common.pagination.of' | translate }} {{ dataSource.totalCount() }}
         </div>
         <div class="space-x-2">
             <button

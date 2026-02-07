@@ -30,15 +30,15 @@
   </div>
 
   <div class="flex flex-col gap-1.5">
-    <label hlmLabel for="socialName">{{ "pages.signUp.form.fields.socialName" | translate }}</label>
+    <label hlmLabel for="socialName">{{ "common.fields.socialName" | translate }}</label>
     <input hlmInput id="socialName" formControlName="socialName" />
   </div>
 
   <!-- Address Section -->
   <div class="flex flex-col gap-4">
     <div class="flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border">
-      <hlm-switch 
-        id="noOfficialAddress" 
+      <hlm-switch
+        id="noOfficialAddress"
         [checked]="noOfficialAddress()"
         (changed)="noOfficialAddress.set($event)">
       </hlm-switch>
@@ -50,9 +50,9 @@
     @if (!noOfficialAddress()) {
       <div [formGroup]="$any(form.get('address'))" class="flex flex-col gap-4 animate-in fade-in duration-300">
         <div class="flex flex-col gap-1.5 relative">
-          <label hlmLabel for="cep">{{ "pages.signUp.form.fields.cep" | translate }}</label>
+          <label hlmLabel for="cep">{{ "common.fields.cep" | translate }}</label>
           <div class="relative">
-            <input hlmInput id="cep" placeholder="00000-000" formControlName="cep" 
+            <input hlmInput id="cep" placeholder="00000-000" formControlName="cep"
               class="w-full pr-10" (blur)="checkCep()" />
             @if (loadingCep()) {
               <span class="absolute right-3 top-2.5 h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
@@ -61,33 +61,33 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label hlmLabel for="street">{{ "pages.signUp.form.fields.street" | translate }}</label>
+          <label hlmLabel for="street">{{ "common.fields.street" | translate }}</label>
           <input hlmInput id="street" formControlName="street" />
         </div>
 
         <div class="grid grid-cols-3 gap-3">
           <div class="flex flex-col gap-1.5 col-span-1">
-            <label hlmLabel for="number">{{ "pages.signUp.form.fields.number" | translate }}</label>
+            <label hlmLabel for="number">{{ "common.fields.number" | translate }}</label>
             <input hlmInput id="number" placeholder="Nº" formControlName="number" />
           </div>
           <div class="flex flex-col gap-1.5 col-span-2">
-            <label hlmLabel for="complement">{{ "pages.signUp.form.fields.complement" | translate }}</label>
+            <label hlmLabel for="complement">{{ "common.fields.complement" | translate }}</label>
             <input hlmInput id="complement" placeholder="Apt, bloco..." formControlName="complement" />
           </div>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label hlmLabel for="neighborhood">{{ "pages.signUp.form.fields.neighborhood" | translate }}</label>
+          <label hlmLabel for="neighborhood">{{ "common.fields.neighborhood" | translate }}</label>
           <input hlmInput id="neighborhood" formControlName="neighborhood" />
         </div>
 
         <div class="grid grid-cols-4 gap-3">
           <div class="flex flex-col gap-1.5 col-span-3">
-            <label hlmLabel for="city">{{ "pages.signUp.form.fields.city" | translate }}</label>
+            <label hlmLabel for="city">{{ "common.fields.city" | translate }}</label>
             <input hlmInput id="city" formControlName="city" />
           </div>
           <div class="flex flex-col gap-1.5 col-span-1">
-            <label hlmLabel for="state">{{ "pages.signUp.form.fields.state" | translate }}</label>
+            <label hlmLabel for="state">{{ "common.fields.state" | translate }}</label>
             <input hlmInput id="state" placeholder="UF" formControlName="state" />
           </div>
         </div>
@@ -102,13 +102,13 @@
             </p>
             <a hlmBtn href="https://mapa.urbis.prefeitura.sp.gov.br" target="_blank" variant="secondary" size="sm" class="h-8 mt-2 gap-1.5 text-xs font-bold w-fit bg-white text-primary hover:bg-white/90 border-0 shadow-sm">
               <hlm-icon name="lucideMap" size="14" />
-              {{ 'pages.signUp.form.buttons.openMap' | translate }}
+              {{ 'common.actions.openMap' | translate }}
             </a>
           </div>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label hlmLabel for="digitalAddress">{{ "pages.signUp.form.fields.digitalAddress" | translate }}</label>
+          <label hlmLabel for="digitalAddress">{{ "common.fields.digitalAddress" | translate }}</label>
           <input hlmInput id="digitalAddress" placeholder="+00-00 ABC-DEFG"
             formControlName="digitalAddress" class="w-full uppercase font-mono" (input)="onDigitalAddressInput($event)" />
           @if (digitalAddressError()) {
@@ -123,7 +123,7 @@
 
   <div class="flex flex-col gap-1">
     <lib-phone-form-group [formGroup]="form" />
-    <span class="text-[10px] text-muted-foreground -mt-1 ml-1">({{ 'pages.signUp.form.fields.optional' | translate }})</span>
+    <span class="text-[10px] text-muted-foreground -mt-1 ml-1">({{ 'common.optional' | translate }})</span>
   </div>
 
   <lib-country-select [formGroup]="form" />

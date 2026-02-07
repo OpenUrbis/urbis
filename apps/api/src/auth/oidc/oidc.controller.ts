@@ -21,6 +21,7 @@ import { Recaptcha } from '@nestlab/google-recaptcha';
 import { AuthService } from 'auth/auth.service';
 import { TwoFactorService } from 'auth/two-factor/two-factor.service';
 import { TwoFactorGuard } from 'common/guards/two-factor/two-factor.guard';
+import { MailService } from 'common/mail/mail.service';
 import { Request, Response } from 'express';
 import Provider from 'oidc-provider';
 import { User } from 'user/entities/user.entity';
@@ -35,6 +36,7 @@ export class OidcController {
     private readonly authService: AuthService,
     private readonly twoFactorService: TwoFactorService,
     private readonly jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   @ApiBearerAuth()
@@ -203,7 +205,30 @@ export class OidcController {
       .replace('interaction/api', 'interaction')
       .replace('/auth/oidc', '');
 
-    const { id, otpValidated, requires2fa, email }: User = req.user;
+    const {
+      id,
+      otpValidated,
+      requires2fa,
+      email,
+      isEmailConfirmed,
+      firstName,
+      emailHashConfirm,
+    }: User = req.user;
+
+    if (!isEmailConfirmed) {
+      await this.mailService.userSignUp({
+        to: email,
+        data: {
+          hash: emailHashConfirm,
+          firstName: firstName,
+        },
+      });
+
+      throw new BadRequestException({
+        message: 'Email not confirmed',
+        isEmailNotConfirmed: true,
+      });
+    }
 
     const session = {
       login: {

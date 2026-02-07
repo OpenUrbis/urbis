@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Silent Renew</title>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/oidc-client-ts@3.4.1/dist/browser/oidc-client-ts.min.js"></script>
+    <script>
+        console.log("Silent renew script starting...");
+        console.log("Current URL:", window.location.href);
+        
+        // Use standard UserManager with the same store
+        const userStore = new oidc.WebStorageStateStore({ store: window.localStorage });
+        const userManager = new oidc.UserManager({
+            userStore: userStore,
+        });
+
+        if (window.oidc) {
+            console.log("OIDC library found, calling signinSilentCallback...");
+            userManager.signinSilentCallback()
+                .then(function(user) {
+                    console.log("signinSilentCallback successful", user);
+                    if (!user) {
+                        console.warn("signinSilentCallback returned no user");
+                    }
+                })
+                .catch(function (e) {
+                    console.error("signinSilentCallback error:", e);
+                });
+        } else {
+            console.error("OIDC library NOT loaded from CDN");
+        }
+    </script>
+</body>
+</html>

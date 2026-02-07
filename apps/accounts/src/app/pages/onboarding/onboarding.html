@@ -1,12 +1,12 @@
 <lib-loading-content [loading]="isLoading()">
   @if (organizationState.errors() || profileState.errors()) {
     <div class="flex flex-col items-center justify-center h-full min-h-[50vh] gap-4">
-        <h3 class="text-xl font-bold text-destructive">Error loading data</h3>
+        <h3 class="text-xl font-bold text-destructive">{{ 'pages.onboarding.error.title' | translate }}</h3>
         <p class="text-sm text-muted-foreground text-center max-w-md">
-            There was a problem loading your profile or organizations. Please try again.
+            {{ 'pages.onboarding.error.description' | translate }}
         </p>
         <button hlmBtn (click)="retry()">
-            Retry
+            {{ 'common.actions.retry' | translate }}
         </button>
     </div>
   } @else if (!hasOrganizations()) {
@@ -23,7 +23,7 @@
         <section hlmCard class="w-full p-4 sm:p-6 shadow-lg border-border">
           <header hlmCardHeader class="pt-0 pb-6 flex flex-col gap-2">
             <p class="text-muted-foreground text-sm">
-              You are not in any organization.
+              {{ 'pages.onboarding.noOrganization' | translate }}
             </p>
           </header>
         </section>

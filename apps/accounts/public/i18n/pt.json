@@ -1,8 +1,67 @@
 {
+  "common": {
+    "loading": "Carregando...",
+    "actions": {
+      "back": "Voltar",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "create": "Criar",
+      "retry": "Tentar novamente",
+      "openMap": "Abrir Mapa",
+      "add": "Adicionar"
+    },
+    "errors": {
+      "loading": "Erro ao carregar dados",
+      "generic": "Houve um problema. Por favor, tente novamente.",
+      "save": "Erro ao salvar configurações"
+    },
+    "success": {
+      "saved": "Configurações salvas com sucesso"
+    },
+    "fields": {
+      "email": "E-mail",
+      "password": "Senha",
+      "name": "Nome",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "phone": "Telefone",
+      "cep": "CEP",
+      "street": "Logradouro",
+      "number": "Número",
+      "complement": "Complemento",
+      "neighborhood": "Bairro",
+      "city": "Cidade",
+      "state": "Estado",
+      "socialName": "Nome Social (Opcional)",
+      "digitalAddress": "Código do Endereço Digital"
+    },
+    "placeholders": {
+      "email": "email@exemplo.com",
+      "phone": "(00) 00000-0000",
+      "cep": "00000-000",
+      "number": "Nº",
+      "complement": "Apt, bloco...",
+      "state": "UF",
+      "socialName": "Como o usuário prefere ser chamado",
+      "digitalAddress": "+00-00 ABC-DEFG"
+    },
+    "pagination": {
+      "of": "de"
+    },
+    "optional": "Opcional"
+  },
   "pages": {
     "signIn": {
       "title": "Identifique-se no sistema",
       "subtitle": "Insira os dados abaixo para acessar sua conta na Urbis.",
+      "alert": {
+        "emailConfirmation": {
+          "title": "Confirmação de email pendente",
+          "description": "Seu email ainda não foi confirmado. Para acessar sua conta, confirme o email através do link enviado para sua caixa de entrada. Um novo email de confirmação foi reenviado para você."
+        }
+      },
       "form": {
         "fields": {
           "email": "E-mail",
@@ -14,7 +73,8 @@
         },
         "buttons": {
           "govbr": "Entrar com GovBR",
-          "submit": "Entrar"
+          "submit": "Entrar",
+          "loading": "Carregando..."
         },
         "links": {
           "forgotPassword": "Esqueceu a senha?",
@@ -25,6 +85,7 @@
       "errors": {
         "userNotFound": "Sua conta GovBR ainda não está vinculada a um usuário Urbis. Por favor, realize o cadastro para continuar.",
         "submit": "Houve um erro ao realizar o login",
+        "invalidCredentials": "Email ou senha incorretos",
         "userNotFoundSignUp": "Conta GovBR não encontrada no Urbis. Por favor, preencha os dados abaixo para se cadastrar e vincular sua conta."
       },
       "notifications": {
@@ -56,10 +117,6 @@
           "phoneCountry": "DDI",
           "phone": "Telefone",
           "cpf": "CPF"
-        },
-        "tabs": {
-          "residential": "Endereço Residencial",
-          "digital": "Endereço Digital"
         },
         "digitalAddressDescription": "Utilize o endereço digital para uma localização precisa. Você pode encontrar seu código no mapa da Urbis.",
         "noOfficialAddress": "Não possuo um endereço oficial",
@@ -134,7 +191,12 @@
       "actions": {
         "back": "Voltar",
         "createNew": "Criar uma nova"
-      }
+      },
+      "error": {
+        "title": "Erro ao carregar dados",
+        "description": "Houve um problema ao carregar seu perfil ou organizações. Por favor, tente novamente."
+      },
+      "noOrganization": "Você não está em nenhuma organização."
     },
     "profile": {
       "page": {
@@ -157,6 +219,13 @@
         "verified": "(Verificado)",
         "resend": "Reenviar",
         "resendError": "Houve um problema ao reenviar o código de confirmação"
+      },
+      "govBr": {
+        "integration": "Integração Gov.br",
+        "lastLogin": "Último Login",
+        "linkedAt": "Vinculado em",
+        "cpf": "CPF",
+        "rawData": "Ver dados brutos (JSON)"
       },
       "edit": {
         "pageTitle": "Editar Perfil",
@@ -300,6 +369,24 @@
           },
           "title": "Cargos do usuário"
         }
+      },
+      "handle": {
+        "title": {
+          "create": "Novo Usuário",
+          "edit": "Editar Usuário"
+        },
+        "subtitle": {
+          "create": "Preencha as informações para criar um novo usuário",
+          "edit": "Editando informações de {{name}}"
+        },
+        "sections": {
+          "personal": "Informações Pessoais",
+          "address": "Endereço",
+          "organizations": "Organizações",
+          "roles": "Papéis e Permissões"
+        },
+        "noOfficialAddress": "Não possuo um endereço oficial (CEP)",
+        "digitalAddressDescription": "O Endereço Digital Urbis identifica qualquer local no mapa, mesmo onde não há CEP oficial."
       }
     },
     "organizations": {
@@ -347,6 +434,8 @@
       }
     },
     "auth": {
+      "attention":  "ATENÇÃO: O cadastro de usuário possibilita uma experiência personalizada e o protocolo de pedidos.",
+
       "unauthorized": {
         "title": "Parece que você está tendo problemas para fazer login",
         "description": "Isso pode ocorrer devido a alguns problemas comuns. Tente o seguinte:",
@@ -624,6 +713,43 @@
         "invalidProvided": "O código informado é inválido",
         "validate": "Houve um erro ao validar o código"
       }
+    },
+    "whitelabelForm": {
+      "fields": {
+        "brandColor": "Cor do sistema",
+        "organizationName": "Nome da Organização Principal",
+        "organizationType": "Tipo da Organização Principal"
+      },
+      "placeholders": {
+        "organizationName": "Ex. Prefeitura Municipal de ...",
+        "organizationType": "Selecione um tipo",
+        "newType": "Novo tipo (ex: Secretaria)"
+      },
+      "errors": {
+        "invalidHex": "Cor Hex inválida",
+        "addTypes": "Adicione tipos de organização abaixo para selecionar."
+      },
+      "sections": {
+        "mode": "Modo de Organização",
+        "types": "Gerenciar Tipos de Organização"
+      },
+      "mode": {
+        "mono": {
+          "title": "Modo Única Organização",
+          "description": "Estrutura unificada onde todos os usuários e recursos pertencem a uma única entidade principal.",
+          "example": "<strong>Exemplo de uso:</strong> Ideal para prefeituras ou empresas unificadas: Um administrador gerencia todo o sistema e usuários (sejam servidores, munícipes ou funcionários) interagem em um ambiente único."
+        },
+        "multi": {
+          "title": "Modo Múltiplas Organizações",
+          "description": "Estrutura hierárquica composta por uma organização principal e múltiplas sub-organizações autônomas (filiais, departamentos, secretarias).",
+          "example": "<strong>Exemplo de uso:</strong> Ideal para estruturas complexas, como uma Prefeitura com Secretarias/Autarquias ou uma Holding com suas Filiais/Subsidiárias. Usuários podem ter papéis distintos em cada unidade (ex: Gerente na Matriz e Visitante na Filial), com dados e acessos segregados."
+        }
+      },
+      "buttons": {
+        "add": "Adicionar",
+        "save": "Salvar"
+      },
+      "emptyTypes": "Nenhum tipo adicionado."
     },
     "signInGovBr": {
       "button": "Entrar com GovBR"

@@ -15,13 +15,6 @@ export const oidcProviderFactory = (
     return 60 * 60 * 24;
   };
 
-  const logoutUrls = [
-    `${configService.get('app.accountsUrl') || 'http://localhost:4200'}/logout.html`,
-    `${configService.get('app.webUrl') || 'http://localhost:5173'}/logout.html`,
-    `${configService.get('app.siteUrl') || 'http://localhost:5174'}/logout.html`,
-    `${configService.get('app.docsUrl') || 'http://localhost:3010'}/logout.html`,
-  ];
-
   const configuration = {
     clients: ClientsService.getClients(),
     clientBasedCORS: () => true,
@@ -58,7 +51,7 @@ export const oidcProviderFactory = (
     features: {
       rpInitiatedLogout: {
         logoutSource: logoutSource,
-        postLogoutSuccessSource: () => {},
+       postLogoutSuccessSource: (ctx) => {},
       },
     },
   };

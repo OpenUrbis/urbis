@@ -76,6 +76,7 @@ export class SignIn implements OnInit {
   isEmailNotConfirmed = signal<boolean>(false);
   disableSubmit = signal<boolean>(false);
   isLoading = signal<boolean>(false);
+  hasLoginError = signal<boolean>(false);
 
   router = inject(Router);
   activatedRoute = inject(ActivatedRoute);
@@ -205,6 +206,7 @@ export class SignIn implements OnInit {
 
   async onSubmit() {
     this.isLoading.set(true);
+    this.hasLoginError.set(false);
     this.formGroup.controls.email.setValue(
       this.formGroup.controls.email.value?.replace(/\s/g, '') ?? '',
       { emitEvent: false },
@@ -230,6 +232,8 @@ export class SignIn implements OnInit {
           }, 5000);
           return;
         }
+
+        this.hasLoginError.set(true);
       },
       next: (res: any) => {
         this.isLoading.set(false);

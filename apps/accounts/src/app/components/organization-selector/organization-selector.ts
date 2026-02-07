@@ -1,5 +1,5 @@
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { CommonModule } from '@angular/common';
+import { COMMA, ENTER } from "@angular/cdk/keycodes";
+import { CommonModule } from "@angular/common";
 import {
   Component,
   computed,
@@ -8,33 +8,36 @@ import {
   input,
   OnInit,
   signal,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormControl,
   ReactiveFormsModule,
-} from '@angular/forms';
-import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
-import { IOrganization } from '../../pages/organizations/dto/organization.dto';
-import { OrganizationsApi } from '../../pages/organizations/services/organizations-api';
-import { TranslateModule } from '@ngx-translate/core';
-import { HlmInputDirective, HlmIconComponent } from '../../../../projects/shared/src/public-api';
-import { provideIcons } from '@ng-icons/core';
-import { lucideSearch, lucideX } from '@ng-icons/lucide';
+} from "@angular/forms";
+import { debounceTime, map, startWith, switchMap, tap } from "rxjs";
+import { IOrganization } from "../../pages/organizations/dto/organization.dto";
+import { OrganizationsApi } from "../../pages/organizations/services/organizations-api";
+import { TranslateModule } from "@ngx-translate/core";
+import {
+  HlmInputDirective,
+  HlmIconComponent,
+} from "../../../../projects/shared/src/public-api";
+import { provideIcons } from "@ng-icons/core";
+import { lucideSearch, lucideX } from "@ng-icons/lucide";
 
 @Component({
-  selector: 'app-organization-selector',
+  selector: "app-organization-selector",
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
     HlmInputDirective,
-    HlmIconComponent
+    HlmIconComponent,
   ],
   providers: [provideIcons({ lucideSearch, lucideX })],
-  templateUrl: './organization-selector.html',
+  templateUrl: "./organization-selector.html",
 })
 export class OrganizationSelector implements OnInit {
   control = input.required<FormControl | AbstractControl>();
@@ -53,13 +56,13 @@ export class OrganizationSelector implements OnInit {
 
   organizations = toSignal(
     this.search.valueChanges.pipe(
-      startWith(''),
+      startWith(""),
       debounceTime(300),
       tap(() => this.searchLoading.set(true)),
       switchMap((search) =>
         this.organizationApi
           .list({
-            search: typeof search === 'string' ? search : '',
+            search: typeof search === "string" ? search : "",
             exclude: this.multi() ? this.selectedOrganizationIds() : [],
           })
           .pipe(map((value) => (value as any)?.data ?? [])),
@@ -71,33 +74,33 @@ export class OrganizationSelector implements OnInit {
   constructor() {
     effect(() => {
       const value = this.selectedOrganizations();
-      this.control().setValue(this.multi() ? value : value?.[0]);
+      this.control().setValue(this.multi() ? value : value?.[0], {
+        emitEvent: false,
+      });
     });
   }
 
   ngOnInit(): void {
-    const subs = this.control()?.valueChanges.subscribe((value) => {
-      if (!value) {
-          if (this.multi() && this.selectedOrganizations().length > 0) {
-              this.selectedOrganizations.set([]);
-          } else if (!this.multi() && this.selectedOrganizations().length > 0) {
-              this.selectedOrganizations.set([]);
+    this.control()
+      ?.valueChanges.pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        if (!value) {
+          if (this.selectedOrganizations().length > 0) {
+            this.selectedOrganizations.set([]);
           }
           return;
-      }
-      
-      if (this.multi() && !value?.length) {
-          this.selectedOrganizations.set([]);
-          return;
-      }
+        }
 
-      this.selectedOrganizations.update(() =>
-        Array.isArray(value) ? value : [value],
-      );
-      // Ensure search doesn't clear immediately if we want to show selected? No, separate state.
-      
-      subs.unsubscribe();
-    });
+        if (this.multi() && !value?.length) {
+          if (this.selectedOrganizations().length > 0) {
+            this.selectedOrganizations.set([]);
+          }
+          return;
+        }
+
+        const newValue = Array.isArray(value) ? value : [value];
+        this.selectedOrganizations.set(newValue);
+      });
   }
 
   remove(index: number): void {
@@ -113,6 +116,6 @@ export class OrganizationSelector implements OnInit {
     this.selectedOrganizations.update((orgs) =>
       this.multi() ? [...orgs, org] : [org],
     );
-    this.search.setValue('');
+    this.search.setValue("");
   }
 }

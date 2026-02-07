@@ -20,7 +20,8 @@
         },
         "buttons": {
           "govbr": "Entrar com GovBR",
-          "submit": "Entrar"
+          "submit": "Entrar",
+          "loading": "Carregando..."
         },
         "links": {
           "forgotPassword": "Esqueceu a senha?",
@@ -31,6 +32,7 @@
       "errors": {
         "userNotFound": "Sua conta GovBR ainda não está vinculada a um usuário Urbis. Por favor, realize o cadastro para continuar.",
         "submit": "Houve um erro ao realizar o login",
+        "invalidCredentials": "Email ou senha incorretos",
         "userNotFoundSignUp": "Conta GovBR não encontrada no Urbis. Por favor, preencha os dados abaixo para se cadastrar e vincular sua conta."
       },
       "notifications": {

@@ -619,6 +619,9 @@ importers:
       '@open-urbis/map-ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@preact/signals-core':
+        specifier: ^1.8.0
+        version: 1.12.1
       '@preact/signals-react':
         specifier: ^3.0.1
         version: 3.6.1(react@18.3.1)
@@ -779,6 +782,9 @@ importers:
       '@preact/signals':
         specifier: ^2.0.3
         version: 2.5.1(preact@10.28.1)
+      '@preact/signals-core':
+        specifier: ^1.8.0
+        version: 1.12.1
       '@preact/signals-react':
         specifier: ^3.0.1
         version: 3.6.1(react@18.3.1)

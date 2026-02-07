@@ -14,7 +14,9 @@
               </h1>
             </div>
           </header>
-
+<p class="text-xs italic text-muted-foreground mt-2">
+  {{ "pages.auth.attention" | translate }}
+</p>
           <div hlmCardContent class="flex flex-col gap-3 p-1 pt-2">
             @if (loading()) {
               <div class="absolute inset-0 z-50 bg-white dark:bg-black flex flex-col items-center justify-center rounded-lg animate-in fade-in duration-300">

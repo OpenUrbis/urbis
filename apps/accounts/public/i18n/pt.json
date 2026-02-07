@@ -426,6 +426,8 @@
       }
     },
     "auth": {
+      "attention":  "ATENÇÃO: O cadastro de usuário possibilita uma experiência personalizada e o protocolo de pedidos.",
+
       "unauthorized": {
         "title": "Parece que você está tendo problemas para fazer login",
         "description": "Isso pode ocorrer devido a alguns problemas comuns. Tente o seguinte:",

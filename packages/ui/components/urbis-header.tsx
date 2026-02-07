@@ -21,7 +21,7 @@ import {
 import { cn } from "../lib/utils";
 import { UrbisSettings, UrbisSettingsProps } from "./urbis-settings";
 import { UrbisLogo } from "./urbis-logo";
-import { User, Home } from "lucide-react";
+import { Home, User } from "lucide-react";
 
 interface UrbisHeaderProps extends UrbisSettingsProps {
   logoSrc?: string;
@@ -41,7 +41,7 @@ interface UrbisHeaderProps extends UrbisSettingsProps {
   leftSlot?: React.ReactNode;
   rightSlot?: React.ReactNode;
   showMobileMenu?: boolean;
-  showLogin?: boolean;
+  showLogin?: boolean; // <- controla se "Entrar" aparece quando não autenticado
 }
 
 export const UrbisHeader = ({
@@ -61,6 +61,16 @@ export const UrbisHeader = ({
   theme,
   setTheme,
 }: UrbisHeaderProps) => {
+  const [userMenuOpen, setUserMenuOpen] = React.useState(false);
+
+  const initials =
+    (user?.name ?? user?.email ?? "")
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join("") || "U";
+
   return (
     <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center px-4 w-full">
@@ -118,7 +128,7 @@ export const UrbisHeader = ({
 
         {/* RIGHT SIDE */}
         <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
-          {/* MENU MOBILE — primeiro item à direita */}
+          {/* MENU MOBILE */}
           {showMobileMenu && (
             <div className="md:hidden shrink-0">
               <Drawer>
@@ -164,10 +174,84 @@ export const UrbisHeader = ({
             </div>
           )}
 
-          {/* AUTH (vem antes do rightSlot pra nunca "sumir" no desktop) */}
+          {/* SETTINGS */}
+          <div className="shrink-0">
+            <UrbisSettings theme={theme} setTheme={setTheme} />
+          </div>
+
+          {/* RIGHT SLOT */}
+          {rightSlot ? <div className="shrink-0">{rightSlot}</div> : null}
+
+          {/* AUTH — ÚLTIMO DA DIREITA */}
           {isAuthenticated ? (
-            // avatar dropdown – mantenha o seu aqui
-            <span />
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-input h-8 px-2.5 bg-transparent hover:bg-accent"
+                onClick={() => setUserMenuOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={userMenuOpen}
+                aria-label="Abrir menu do usuário"
+              >
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-purple-600 text-white text-xs font-semibold">
+                  {initials}
+                </span>
+
+                <span className="hidden md:inline text-sm font-medium max-w-[140px] truncate">
+                  {user?.name ?? user?.email ?? "Usuário"}
+                </span>
+              </button>
+
+              {userMenuOpen && (
+                <>
+                  <button
+                    type="button"
+                    className="fixed inset-0 z-40 cursor-default"
+                    onClick={() => setUserMenuOpen(false)}
+                    aria-label="Fechar menu do usuário"
+                  />
+
+                  <div
+                    className="absolute right-0 mt-2 w-72 rounded-xl border bg-background shadow-lg z-50 overflow-hidden"
+                    role="menu"
+                  >
+                    <div className="p-3 border-b">
+                      <div className="text-sm font-semibold leading-tight">
+                        {user?.name ?? "Usuário"}
+                      </div>
+                      {user?.email ? (
+                        <div className="text-xs text-muted-foreground truncate">
+                          {user.email}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="p-1">
+                      <a
+                        href="/account"
+                        className="flex w-full items-center rounded-lg px-3 py-2 text-sm hover:bg-accent"
+                        role="menuitem"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        Minha conta
+                      </a>
+
+                      <button
+                        type="button"
+                        className="flex w-full items-center rounded-lg px-3 py-2 text-sm hover:bg-accent"
+                        role="menuitem"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          onLogout?.();
+                        }}
+                      >
+                        Sair
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           ) : showLogin ? (
             <>
               {/* DESKTOP */}
@@ -177,6 +261,7 @@ export const UrbisHeader = ({
                 onClick={onLogin}
                 className="gap-2 hidden md:flex items-center shrink-0"
                 aria-label="Entrar"
+                title="Entrar"
               >
                 <User className="h-4 w-4" />
                 Entrar
@@ -189,19 +274,12 @@ export const UrbisHeader = ({
                 onClick={onLogin}
                 className="md:hidden shrink-0"
                 aria-label="Entrar"
+                title="Entrar"
               >
                 <User className="h-4 w-4" />
               </Button>
             </>
           ) : null}
-
-          {/* SETTINGS */}
-          <div className="shrink-0">
-            <UrbisSettings theme={theme} setTheme={setTheme} />
-          </div>
-
-          {/* RIGHT SLOT por último */}
-          {rightSlot ? <div className="shrink-0">{rightSlot}</div> : null}
         </div>
       </div>
     </header>

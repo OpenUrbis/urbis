@@ -60,19 +60,19 @@ const Header = () => {
       </style>
 
       <UrbisHeader
-        badgeText={badgeText}
-        menuItems={menuItems}
-        isAuthenticated={auth.isAuthenticated}
-        user={{
-          name: userProfile.value?.name ?? auth.user?.profile.name,
-          email: userProfile.value?.email ?? auth.user?.profile.email,
-        }}
-        onLogin={() => auth.signinRedirect()}
-        onLogout={() => auth.signoutRedirect()}
-        leftSlot={<MenuToggleButton />}
-        theme={theme}
-        setTheme={(t) => setTheme(t as "light" | "dark" | "system")}
-        rightSlot={
+  badgeText={badgeText}
+  menuItems={menuItems}
+  isAuthenticated={auth.isAuthenticated}
+  user={{
+    name: userProfile.value?.name ?? auth.user?.profile.name,
+    email: userProfile.value?.email ?? auth.user?.profile.email,
+  }}
+  onLogin={() => auth.signinRedirect()}
+  onLogout={() => auth.signoutRedirect()}
+  leftSlot={<MenuToggleButton />}
+  theme={theme}
+  setTheme={(t) => setTheme(t as "light" | "dark" | "system")}
+  rightSlot={
           <div className="flex items-center gap-2">
             {canSeeAdmin && (
               <Button

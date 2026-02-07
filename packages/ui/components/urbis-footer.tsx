@@ -33,6 +33,34 @@ export function UrbisFooter(_props: any) {
 
         <div className="w-full h-px bg-primary-foreground/20 my-2.5 mx-auto" />
 
+        {/*Mosaico */}
+        <div className="flex justify-start mt-3 mb-6">
+          <div className="text-left">
+            <h2 className="text-primary-foreground font-black text-4xl tracking-widest mb-2">
+              <a
+                href="https://urbis.prefeitura.sp.gov.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+                title="Acessar o Mapa"
+                aria-label="Acessar o Mapa"
+              >
+               MOSAICO
+              </a>
+            </h2>
+            <div className="h-1 w-16 bg-primary-foreground rounded-full" />
+          </div>
+        </div>
+
+        <div className="px-1 mb-6">
+          <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
+            Página inicial do Urbis.
+          </p>
+        </div>
+
+        <div className="w-full h-px bg-primary-foreground/20 my-8 mx-auto" />
+
+
         {/* MAPA.URBIS */}
         <div className="flex justify-start mt-3 mb-6">
           <div className="text-left">

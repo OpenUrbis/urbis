@@ -1,5 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { AccessControlModule } from 'common/guards/access-control/access-control.module';
 import { UserModule } from 'user/user.module';
@@ -20,12 +20,12 @@ import { TwoFactorModule } from './two-factor/two-factor.module';
 @Module({
   imports: [
     SharedModule,
-    UserModule,
+    forwardRef(() => UserModule),
     ForgotModule,
     PassportModule,
-    MailModule,
-    TwoFactorModule,
-    AccessControlModule,
+    forwardRef(() => MailModule),
+    forwardRef(() => TwoFactorModule),
+    forwardRef(() => AccessControlModule),
     HttpModule,
   ],
   controllers: [AuthController, ExternalOidcController],

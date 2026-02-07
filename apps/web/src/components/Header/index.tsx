@@ -1,5 +1,5 @@
 import { UrbisHeader, Button, HelpSidebarContent } from "@open-urbis/map-ui";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@open-urbis/map-auth";
 import { useMemo, useState } from "react";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 
@@ -74,9 +74,9 @@ const Header = () => {
         setTheme={(t) => setTheme(t as "light" | "dark" | "system")}
         leftSlot={
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="md:hidden rounded-full h-8 w-8 mr-2"
+            className="md:hidden rounded-full h-9 w-9 mr-2 shrink-0"
             onClick={toggleDrawer}
           >
             <span className="material-symbols-outlined text-base">
@@ -90,7 +90,7 @@ const Header = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 rounded-full hidden lg:flex"
+                className="gap-2 rounded-full hidden lg:flex h-9 px-4"
                 onClick={() => (window.location.href = "/admin/layer-manager")}
               >
                 <span className="material-symbols-outlined text-base">
@@ -105,7 +105,7 @@ const Header = () => {
               variant="outline"
               size="sm"
               onClick={() => setHelpOpen(true)}
-              className="hidden md:inline-flex"
+              className="hidden md:inline-flex h-9 rounded-full px-4"
               title="Ajuda"
               aria-label="Ajuda"
             >
@@ -117,7 +117,7 @@ const Header = () => {
               variant="outline"
               size="icon"
               onClick={() => setHelpOpen(true)}
-              className="inline-flex md:hidden"
+              className="inline-flex md:hidden h-9 w-9 rounded-full"
               title="Ajuda"
               aria-label="Ajuda"
             >

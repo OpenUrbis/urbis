@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSignal } from "@preact/signals";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@open-urbis/map-auth";
 import {
   Dialog,
   DialogContent,

@@ -116,7 +116,7 @@ export const UrbisHeader = ({
                     )}
                   >
                     <span className="inline-flex items-center gap-2">
-                      {item.label === "Mosaico" && (
+                      {item.label === "Mosaico" && badgeText === "Mosaico" && (
                         <Home className="h-4 w-4" aria-hidden="true" />
                       )}
                       {item.label}
@@ -167,7 +167,7 @@ export const UrbisHeader = ({
                           className="text-lg font-medium hover:text-primary transition-colors"
                         >
                           <span className="inline-flex items-center gap-2">
-                            {item.label === "Mosaico" && (
+                            {item.label === "Mosaico" && badgeText === "Mosaico" && (
                               <Home className="h-5 w-5" aria-hidden="true" />
                             )}
                             {item.label}
@@ -198,22 +198,23 @@ export const UrbisHeader = ({
           {/* AUTH — ÚLTIMO DA DIREITA */}
           {isAuthenticated ? (
             <div className="relative shrink-0">
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-input h-8 px-2.5 bg-transparent hover:bg-accent"
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 rounded-full h-9 px-3 shrink-0"
                 onClick={() => setUserMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={userMenuOpen}
                 aria-label="Abrir menu do usuário"
               >
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-purple-600 text-white text-xs font-semibold">
+                <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-purple-600 text-white text-[10px] font-bold">
                   {initials}
                 </span>
 
                 <span className="hidden md:inline text-sm font-medium max-w-[140px] truncate">
                   {user?.name ?? user?.email ?? "Usuário"}
                 </span>
-              </button>
+              </Button>
 
               {userMenuOpen && (
                 <>
@@ -272,7 +273,7 @@ export const UrbisHeader = ({
                 variant="outline"
                 size="sm"
                 onClick={onLogin}
-                className="gap-2 hidden md:flex items-center shrink-0"
+                className="gap-2 hidden md:flex items-center shrink-0 h-9 rounded-full px-4"
                 aria-label="Entrar"
                 title="Entrar"
               >
@@ -285,7 +286,7 @@ export const UrbisHeader = ({
                 variant="outline"
                 size="icon"
                 onClick={onLogin}
-                className="md:hidden shrink-0"
+                className="md:hidden shrink-0 h-9 w-9 rounded-full"
                 aria-label="Entrar"
                 title="Entrar"
               >

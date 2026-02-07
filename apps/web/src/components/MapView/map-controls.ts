@@ -68,41 +68,10 @@ class SpacerControl implements mapboxgl.IControl {
   }
 }
 
-class PickLocationControl implements mapboxgl.IControl {
-  private container!: HTMLElement;
-  private onPick: () => void;
-  private button!: HTMLButtonElement;
-
-  constructor(onPick: () => void) {
-    this.onPick = onPick;
-  }
-
-  onAdd(_map: mapboxgl.Map) {
-    this.container = document.createElement("div");
-    this.container.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
-    this.container.style.zIndex = "100000000000";
-    
-    this.button = document.createElement("button");
-    this.button.type = "button";
-    this.button.title = "Endereço Digital";
-    this.button.innerHTML = '<img src="/ed.png" alt="Endereço Digital" style="width: 18px; height: 18px; margin: 5px auto;" />';
-    this.button.addEventListener("click", () => {
-        this.onPick();
-    });
-
-    this.container.appendChild(this.button);
-    return this.container;
-  }
-
-  onRemove() {
-    this.container.parentNode?.removeChild(this.container);
-  }
-}
-
 export const addMapControls = (
   map: mapboxgl.Map,
   polygonEdit: IPolygonEditContextActions,
-  onPickLocation?: () => void,
+  _?: () => void,
   hideControls?: boolean,
   _isDrawerOpen?: boolean
 ) => {
@@ -120,11 +89,6 @@ export const addMapControls = (
 
   if (hideControls) {
     return { draw };
-  }
-
-  // Pick Location Control
-  if (onPickLocation) {
-    map.addControl(new PickLocationControl(onPickLocation), "top-right");
   }
 
   // Zoom Control

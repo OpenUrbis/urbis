@@ -43,7 +43,7 @@ import { filterNodeToCQL } from "../../utils/cql-builder-advanced";
 import { ShareModal } from "../LayerController/modals/ShareModal";
 import { ShareHistoryModal } from "../LayerController/modals/ShareHistoryModal";
 import { useMapContext } from "../../hooks/useMapContext";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@open-urbis/map-auth";
 import { AuthRequiredModal } from "../AuthRequiredModal";
 import { PredefinedSearchSuggestions } from "./PredefinedSearchSuggestions";
 import { fetchAttributes as fetchAttributesFromIntegration } from "../../integrations/layer-attributes-integration";
@@ -327,7 +327,7 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
           <Button
             variant="outline"
             size="icon"
-            className="shrink-0 rounded-full h-10 w-10 shadow-sm border-input"
+            className="shrink-0 rounded-full h-9 w-9 shadow-sm border-input"
             title="Busca Concatenada"
           >
             <span className="material-symbols-outlined text-base">filter_list</span>

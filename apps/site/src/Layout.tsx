@@ -29,12 +29,15 @@ function LayoutInner() {
   const { openSidebar } = useSidebar();
   const location = useLocation();
   const auth = useAuth();
-  const user = userProfile.value;
+  const [user, setUser] = useState(userProfile.peek());
 
   useEffect(() => {
     setMounted(true);
     const savedTheme = localStorage.getItem("theme") || "system";
     setTheme(savedTheme);
+
+    // Subscribe to userProfile changes manually to ensure reactivity without babel transform (SSR safe)
+    return userProfile.subscribe((v) => setUser(v));
   }, []);
 
   useEffect(() => {
@@ -146,7 +149,7 @@ function LayoutInner() {
           "Ajuda"
         )
       }
-      className="hidden md:inline-flex"
+      className="hidden md:inline-flex h-9 rounded-full px-4"
       aria-label="Ajuda"
       title="Ajuda"
     >
@@ -175,7 +178,7 @@ function LayoutInner() {
           "Ajuda"
         )
       }
-      className="md:hidden inline-flex"
+      className="md:hidden inline-flex h-9 w-9 rounded-full"
       aria-label="Ajuda"
       title="Ajuda"
     >

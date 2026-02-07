@@ -56,7 +56,7 @@ export function UrbisHeaderWrapper(props: ComponentProps<typeof UrbisHeader>) {
               variant="outline"
               size="sm"
               onClick={openHelp}
-              className="hidden md:inline-flex"
+              className="hidden md:inline-flex h-9 rounded-full px-4"
               aria-label="Ajuda"
               title="Ajuda"
             >
@@ -68,7 +68,7 @@ export function UrbisHeaderWrapper(props: ComponentProps<typeof UrbisHeader>) {
               variant="outline"
               size="icon"
               onClick={openHelp}
-              className="inline-flex md:hidden"
+              className="inline-flex md:hidden h-9 w-9 rounded-full"
               aria-label="Ajuda"
               title="Ajuda"
             >

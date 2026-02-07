@@ -36,7 +36,7 @@ import { ShareModal } from "./modals/ShareModal";
 import { ShareHistoryModal } from "./modals/ShareHistoryModal";
 import { ExportOptionsModal } from "./modals/ExportOptionsModal";
 import { AuthRequiredModal } from "../AuthRequiredModal";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@open-urbis/map-auth";
 
 const isCollapsed = signal<boolean>(false);
 

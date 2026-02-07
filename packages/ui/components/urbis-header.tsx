@@ -23,8 +23,6 @@ import { UrbisSettings, UrbisSettingsProps } from "./urbis-settings";
 import { UrbisLogo } from "./urbis-logo";
 import { User, Home } from "lucide-react";
 
-/* ================== types ================== */
-
 interface UrbisHeaderProps extends UrbisSettingsProps {
   logoSrc?: string;
   logoAlt?: string;
@@ -45,8 +43,6 @@ interface UrbisHeaderProps extends UrbisSettingsProps {
   showMobileMenu?: boolean;
   showLogin?: boolean;
 }
-
-/* ================== component ================== */
 
 export const UrbisHeader = ({
   logoSrc,
@@ -69,16 +65,19 @@ export const UrbisHeader = ({
     <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center px-4 w-full">
         {/* LEFT SLOT */}
-        <div className="mr-2 flex items-center">{leftSlot}</div>
+        <div className="mr-2 flex items-center shrink-0">{leftSlot}</div>
 
         {/* LOGO */}
-        <div className="mr-4 flex items-center">
+        <div className="mr-4 flex items-center shrink-0">
           <a className="mr-6 flex items-center space-x-2" href={logoHref}>
             <UrbisLogo alt={logoAlt} src={logoSrc} />
 
             {badgeText ? (
               <span className="hidden sm:inline-flex items-center gap-2 text-muted-foreground text-sm font-semibold">
-                <span className="opacity-40" aria-hidden="true">•</span>
+                <span className="opacity-40" aria-hidden="true">
+                  •
+                </span>
+
                 <span className="inline-flex items-center gap-2 whitespace-nowrap">
                   {badgeText === "Mosaico" && (
                     <Home className="h-4 w-4" aria-hidden="true" />
@@ -91,7 +90,7 @@ export const UrbisHeader = ({
         </div>
 
         {/* MENU DESKTOP */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2 shrink-0">
           <NavigationMenu>
             <NavigationMenuList>
               {menuItems.map((item) => (
@@ -118,16 +117,16 @@ export const UrbisHeader = ({
         </div>
 
         {/* RIGHT SIDE */}
-        <div className="flex flex-1 items-center justify-end space-x-2">
-          {/* MENU MOBILE — PRIMEIRO ITEM À DIREITA */}
+        <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
+          {/* MENU MOBILE — primeiro item à direita */}
           {showMobileMenu && (
-            <div className="md:hidden">
+            <div className="md:hidden shrink-0">
               <Drawer>
                 <DrawerTrigger asChild>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="border border-input"
+                    className="border border-input shrink-0"
                   >
                     Menu
                   </Button>
@@ -165,11 +164,9 @@ export const UrbisHeader = ({
             </div>
           )}
 
-          <UrbisSettings theme={theme} setTheme={setTheme} />
-          {rightSlot}
-
-          {/* AUTH */}
+          {/* AUTH (vem antes do rightSlot pra nunca "sumir" no desktop) */}
           {isAuthenticated ? (
+            // avatar dropdown – mantenha o seu aqui
             <span />
           ) : showLogin ? (
             <>
@@ -178,7 +175,7 @@ export const UrbisHeader = ({
                 variant="outline"
                 size="sm"
                 onClick={onLogin}
-                className="gap-2 hidden md:inline-flex"
+                className="gap-2 hidden md:flex items-center shrink-0"
                 aria-label="Entrar"
               >
                 <User className="h-4 w-4" />
@@ -190,13 +187,21 @@ export const UrbisHeader = ({
                 variant="outline"
                 size="icon"
                 onClick={onLogin}
-                className="inline-flex md:hidden"
+                className="md:hidden shrink-0"
                 aria-label="Entrar"
               >
                 <User className="h-4 w-4" />
               </Button>
             </>
           ) : null}
+
+          {/* SETTINGS */}
+          <div className="shrink-0">
+            <UrbisSettings theme={theme} setTheme={setTheme} />
+          </div>
+
+          {/* RIGHT SLOT por último */}
+          {rightSlot ? <div className="shrink-0">{rightSlot}</div> : null}
         </div>
       </div>
     </header>

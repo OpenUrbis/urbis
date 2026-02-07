@@ -6,9 +6,9 @@ import {
   NavbarMenuTrigger,
 } from "fumadocs-ui/layouts/home/navbar";
 import { Book, ComponentIcon, Pencil, PlusIcon, Server } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { Metadata } from "next";
 import { baseOptions } from "src/lib/layout.shared";
 
 export const metadata: Metadata = {

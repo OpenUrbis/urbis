@@ -42,6 +42,7 @@ interface UrbisHeaderProps extends UrbisSettingsProps {
   rightSlot?: React.ReactNode;
   showMobileMenu?: boolean;
   showLogin?: boolean; // <- controla se "Entrar" aparece quando não autenticado
+  onMobileMenuClick?: () => void;
 }
 
 export const UrbisHeader = ({
@@ -58,6 +59,7 @@ export const UrbisHeader = ({
   rightSlot,
   showMobileMenu = true,
   showLogin = true,
+  onMobileMenuClick,
   theme,
   setTheme,
 }: UrbisHeaderProps) => {
@@ -131,46 +133,57 @@ export const UrbisHeader = ({
           {/* MENU MOBILE */}
           {showMobileMenu && (
             <div className="md:hidden shrink-0">
-              <Drawer>
-                <DrawerTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="border border-input shrink-0"
-                  >
-                    Menu
-                  </Button>
-                </DrawerTrigger>
+              {onMobileMenuClick ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="border border-input shrink-0"
+                  onClick={onMobileMenuClick}
+                >
+                  Menu
+                </Button>
+              ) : (
+                <Drawer>
+                  <DrawerTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="border border-input shrink-0"
+                    >
+                      Menu
+                    </Button>
+                  </DrawerTrigger>
 
-                <DrawerContent>
-                  <DrawerHeader>
-                    <DrawerTitle>Menu</DrawerTitle>
-                  </DrawerHeader>
+                  <DrawerContent>
+                    <DrawerHeader>
+                      <DrawerTitle>Menu</DrawerTitle>
+                    </DrawerHeader>
 
-                  <div className="p-4 flex flex-col gap-4">
-                    {menuItems.map((item) => (
-                      <a
-                        key={item.label}
-                        href={item.href}
-                        className="text-lg font-medium hover:text-primary transition-colors"
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          {item.label === "Mosaico" && (
-                            <Home className="h-5 w-5" aria-hidden="true" />
-                          )}
-                          {item.label}
-                        </span>
-                      </a>
-                    ))}
-                  </div>
+                    <div className="p-4 flex flex-col gap-4">
+                      {menuItems.map((item) => (
+                        <a
+                          key={item.label}
+                          href={item.href}
+                          className="text-lg font-medium hover:text-primary transition-colors"
+                        >
+                          <span className="inline-flex items-center gap-2">
+                            {item.label === "Mosaico" && (
+                              <Home className="h-5 w-5" aria-hidden="true" />
+                            )}
+                            {item.label}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
 
-                  <DrawerFooter>
-                    <DrawerClose asChild>
-                      <Button variant="outline">Fechar</Button>
-                    </DrawerClose>
-                  </DrawerFooter>
-                </DrawerContent>
-              </Drawer>
+                    <DrawerFooter>
+                      <DrawerClose asChild>
+                        <Button variant="outline">Fechar</Button>
+                      </DrawerClose>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
+              )}
             </div>
           )}
 

@@ -51,7 +51,7 @@ export const oidcProviderFactory = (
     features: {
       rpInitiatedLogout: {
         logoutSource: logoutSource,
-       postLogoutSuccessSource: (ctx) => {},
+        postLogoutSuccessSource: (_ctx) => {},
       },
     },
   };

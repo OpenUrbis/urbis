@@ -50,8 +50,8 @@
           <!-- Address Declaration and Fields -->
           <div class="flex flex-col gap-4 mt-2">
             <div class="flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border">
-              <hlm-switch 
-                id="noOfficialAddress" 
+              <hlm-switch
+                id="noOfficialAddress"
                 [checked]="noOfficialAddress()"
                 (changed)="noOfficialAddress.set($event)">
               </hlm-switch>
@@ -65,7 +65,7 @@
                 <div class="flex flex-col gap-1 relative">
                   <label hlmLabel for="cep" class="text-xs font-semibold">{{ "pages.signUp.form.fields.cep" | translate }}</label>
                   <div class="relative">
-                    <input hlmInput id="cep" placeholder="00000-000" formControlName="cep" 
+                    <input hlmInput id="cep" placeholder="00000-000" formControlName="cep"
                       class="w-full h-9 text-sm pr-10" (blur)="checkCep()" />
                     @if (loadingCep()) {
                       <span class="absolute right-3 top-2.5 h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
@@ -140,7 +140,7 @@
             <div class="flex flex-col gap-1.5 mt-2" [formGroup]="formGroup">
               <label hlmLabel for="phone" class="text-xs font-semibold">
                 {{ "pages.signUp.form.fields.phone" | translate }}
-                <span class="text-muted-foreground font-normal ml-1">({{ 'pages.signUp.form.fields.optional' | translate }})</span>
+                <span class="text-muted-foreground font-normal ml-1">({{ 'common.optional' | translate }})</span>
               </label>
               <div class="flex h-10 w-full rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 overflow-hidden transition-all shadow-sm">
                 <div class="relative flex items-center border-r border-input bg-muted/30 hover:bg-muted/50 transition-colors px-1">
@@ -161,10 +161,10 @@
                     <hlm-icon name="lucideChevronDown" size="14" class="text-muted-foreground" />
                   </span>
                 </div>
-                <input 
-                  type="tel" 
-                  id="phone" 
-                  formControlName="phone" 
+                <input
+                  type="tel"
+                  id="phone"
+                  formControlName="phone"
                   placeholder="(00) 00000-0000"
                   class="flex-1 bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   (input)="onPhoneInput($event)"

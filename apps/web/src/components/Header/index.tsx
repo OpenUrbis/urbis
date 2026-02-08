@@ -66,6 +66,7 @@ const Header = () => {
         isAuthenticated={auth.isAuthenticated}
         user={{
           name: userProfile.value?.name ?? auth.user?.profile.name,
+          socialName: userProfile.value?.socialName ?? auth.user?.profile.socialName as string,
           email: userProfile.value?.email ?? auth.user?.profile.email,
         }}
         onLogin={() => auth.signinRedirect()}

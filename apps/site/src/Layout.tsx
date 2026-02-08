@@ -114,7 +114,11 @@ function LayoutInner() {
           badgeText={currentPageLabel}
           menuItems={filteredMenuItems}
           isAuthenticated={auth.isAuthenticated}
-          user={user ? { name: user.name, email: user.email } : undefined}
+          user={user ? { 
+            name: user.name, 
+            socialName: user.socialName,
+            email: user.email 
+          } : undefined}
           onLogin={() => auth.signinRedirect()}
           onLogout={() => auth.signoutRedirect()}
           showLogin={true}

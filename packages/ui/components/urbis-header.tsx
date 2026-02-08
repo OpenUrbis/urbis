@@ -31,6 +31,7 @@ interface UrbisHeaderProps extends UrbisSettingsProps {
   menuItems?: { label: string; href: string; active?: boolean }[];
   user?: {
     name?: string;
+    socialName?: string;
     email?: string;
     avatarUrl?: string;
     sessionExpiresAt?: Date | number;
@@ -65,8 +66,10 @@ export const UrbisHeader = ({
 }: UrbisHeaderProps) => {
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
 
+  const displayName = user?.socialName || user?.name || user?.email || "Usuário";
+
   const initials =
-    (user?.name ?? user?.email ?? "")
+    (user?.socialName || user?.name || user?.email || "")
       .trim()
       .split(/\s+/)
       .slice(0, 2)
@@ -212,7 +215,7 @@ export const UrbisHeader = ({
                 </span>
 
                 <span className="hidden md:inline text-sm font-medium max-w-[140px] truncate">
-                  {user?.name ?? user?.email ?? "Usuário"}
+                  {displayName}
                 </span>
               </Button>
 
@@ -231,7 +234,7 @@ export const UrbisHeader = ({
                   >
                     <div className="p-3 border-b">
                       <div className="text-sm font-semibold leading-tight">
-                        {user?.name ?? "Usuário"}
+                        {displayName}
                       </div>
                       {user?.email ? (
                         <div className="text-xs text-muted-foreground truncate">
@@ -242,7 +245,7 @@ export const UrbisHeader = ({
 
                     <div className="p-1">
                       <a
-                        href="/account"
+                        href="https://contas.urbis.prefeitura.sp.gov.br"
                         className="flex w-full items-center rounded-lg px-3 py-2 text-sm hover:bg-accent"
                         role="menuitem"
                         onClick={() => setUserMenuOpen(false)}

@@ -14,6 +14,7 @@ export const useNavigationContext = (): INavigationContextActions => {
     currentPage: ctxCurrentPage,
     lastPage: ctxLastPage,
     history: ctxHistory,
+    drawerOpen,
   } = context;
   const currentPage = computed(() => ctxCurrentPage.value);
   const lastPage = computed(() => ctxLastPage.value);
@@ -31,6 +32,27 @@ export const useNavigationContext = (): INavigationContextActions => {
     navigateTo([currentPage.value, page]);
   };
 
+  const toggleDrawer = () => {
+    drawerOpen.value = !drawerOpen.value;
+  };
+
+  const navigatePop = () => {
+  if (ctxHistory.value.length <= 1) {
+    ctxCurrentPage.value = null;
+    ctxLastPage.value = null;
+    ctxHistory.value = [];
+    return;
+  }
+
+  ctxHistory.value.pop();
+  
+  ctxCurrentPage.value = ctxHistory.value[ctxHistory.value.length - 1];
+
+  ctxLastPage.value = ctxHistory.value.length > 1 
+    ? ctxHistory.value[ctxHistory.value.length - 2] 
+    : null;
+};
+
   const rmOnPage = () => {
     if (!Array.isArray(ctxCurrentPage.value)) return;
 
@@ -45,8 +67,11 @@ export const useNavigationContext = (): INavigationContextActions => {
     currentPage,
     lastPage,
     history,
+    drawerOpen,
     navigateTo,
     addOnPage,
+    toggleDrawer,
+    navigatePop,
     rmOnPage,
     clearCurrentPage,
   };

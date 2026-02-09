@@ -3,6 +3,7 @@ import { Button } from "rmwc";
 
 import { Debugger } from "../Debugger";
 import "./style.scss";
+import { MenuToggleButton } from "../MenuToogleButton";
 
 const isMenuOpenSignal = signal(false);
 
@@ -84,14 +85,9 @@ const Header = () => {
               aria-label="Toggle navigation"
               icon="menu"
             />
-            {/* <Button
-              tag="a"
-              href="https://mapa.slui.dev"
-              outlined
-              icon="arrow_forward"
-            >
-              Entrar
-            </Button> */}
+
+            <MenuToggleButton />
+
           </div>
         </div>
       </nav>

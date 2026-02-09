@@ -12,7 +12,6 @@ const PrimaryItemComponent: ITemplateRender = (props: ITemplateProps) => {
 
   return (
     <ListItemPrimaryText
-      style={{ maxWidth: "350px!important" }}
       dangerouslySetInnerHTML={{ __html: renderedValue }}
     />
   );

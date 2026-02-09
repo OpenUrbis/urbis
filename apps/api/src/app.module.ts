@@ -11,6 +11,7 @@ import { SearchConfig } from './search/entities/search-config.entity';
 import { SearchModule } from './search/search.module';
 import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SharedModule } from './shared/shared.module';
     GeospatialIntersectionModule,
     GeocodingModule,
     SearchModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [],

@@ -4,3 +4,25 @@
   z-index: 1000;
   overflow: hidden;
 }
+.debugger-content {
+  min-width: 424px;
+  width: 100%;
+}
+.debugger-icon {
+  font-size: 24px; /* Tamanho do ícone */
+  color: var(--mdc-theme-primary); /* Cor do ícone, ajuste conforme o tema */
+  cursor: pointer; /* Indica que é clicável */
+  padding: 8px; /* Área clicável maior */
+  border-radius: 4px; /* Bordas arredondadas para estética */
+  margin-right: 8px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Efeito de hover */
+  }
+
+  &:focus {
+    outline: 2px solid #6200ea; /* Acessibilidade para foco */
+    outline-offset: 2px;
+  }
+}

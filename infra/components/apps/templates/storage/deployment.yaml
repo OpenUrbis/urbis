@@ -20,22 +20,22 @@ spec:
         - containerPort: 8080
         env:
         - name: S3PROXY_AUTHORIZATION
-          value: "{{ .Values.storage.authorization }}"
+          value: "aws-v2-or-v4"
         - name: S3PROXY_IDENTITY
-          value: "{{ .Values.storage.identity }}"
+          value: "***REMOVED***"
         - name: S3PROXY_CREDENTIAL
-          value: "{{ .Values.storage.credential }}"
+          value: "***REMOVED***"
         - name: JCLOUDS_IDENTITY
-          value: "{{ .Values.storage.jcloudsIdentity }}"
+          value: "slui"
         - name: JCLOUDS_CREDENTIAL
-          value: "{{ .Values.storage.jcloudsCredential }}"
+          value: ***REMOVED***
         - name: JCLOUDS_ENDPOINT
-          value: "{{ .Values.storage.jcloudsEndpoint }}"
+          value: "https://***REMOVED***"
         - name: JCLOUDS_PROVIDER
-          value: "{{ .Values.storage.jcloudsProvider }}"
+          value: azureblob
         - name: JCLOUDS_AZUREBLOB_AUTH
-          value: "{{ .Values.storage.jcloudsAzureBlobAuth }}"
+          value: "azureKey"
         - name: S3PROXY_ENDPOINT
-          value: "{{ .Values.storage.endpoint }}"
+          value: "http://0.0.0.0:8080"
         - name: S3PROXY_CORS_ALLOW_ALL
-          value: "{{ .Values.storage.corsAllowAll }}"
+          value: "true"

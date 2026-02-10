@@ -1,3 +1,4 @@
+import { LogoPref } from "./icons";
 
 export function UrbisFooter(_props: any) {
   return (
@@ -772,15 +773,10 @@ export function UrbisFooter(_props: any) {
               href="https://prefeitura.sp.gov.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="opacity-80 hover:opacity-100 transition-opacity"
               title="Prefeitura de São Paulo – site oficial"
               aria-label="Prefeitura de São Paulo – site oficial"
             >
-              <img
-                src="https://github.com/FernandoDorstSilva/imagens-publicas/blob/main/67ed4d18b423c93557cb4b9b_logo-prefeitura.png?raw=true"
-                alt="Logotipo da Prefeitura de São Paulo"
-                className="h-24 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
-              />
+              <LogoPref className="h-20 w-auto text-[#EBEDFE] hover:text-[#FFFFFF] dark:text-[#202633] dark:hover:text-[#000000] transition-colors duration-200"/>
             </a>
 
             <div className="h-12 w-px bg-primary-foreground/20" />

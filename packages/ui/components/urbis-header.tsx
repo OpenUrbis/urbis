@@ -245,7 +245,7 @@ export const UrbisHeader = ({
 
                     <div className="p-1">
                       <a
-                        href="https://contas.urbis.prefeitura.sp.gov.br"
+                        href="https://conta.urbis.prefeitura.sp.gov.br"
                         className="flex w-full items-center rounded-lg px-3 py-2 text-sm hover:bg-accent"
                         role="menuitem"
                         onClick={() => setUserMenuOpen(false)}

@@ -10,7 +10,7 @@ import {
   HlmSidebarTriggerDirective,
 } from '../../../../projects/shared/src/public-api';
 import { provideIcons } from '@ng-icons/core';
-import { lucideLogOut, lucideMenu, lucideUser, lucideX } from '@ng-icons/lucide';
+import { lucideHome, lucideLogOut, lucideMenu, lucideUser, lucideX } from '@ng-icons/lucide';
 import { LogoComponent } from '../../../../projects/shared/src/lib/components/logo/logo.component';
 import { UrbisAccessibilityMenu } from './accessibility-menu/urbis-accessibility-menu';
 import { ProfileState } from '../../states/profile/profile.state';
@@ -45,7 +45,7 @@ export interface NavItem {
     UrbisAccessibilityMenu,
     UserAvatarComponent,
   ],
-  providers: [provideIcons({ lucideMenu, lucideX, lucideUser, lucideLogOut })],
+  providers: [provideIcons({ lucideMenu, lucideX, lucideUser, lucideLogOut, lucideHome })],
   template: `
     <header class="sticky top-0 z-[1000] h-16 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div class="flex h-full items-center px-4 w-full">
@@ -87,7 +87,10 @@ export interface NavItem {
                  'border-primary bg-primary/10 text-primary font-semibold' : 
                  'border-border bg-transparent text-foreground hover:border-secondary hover:bg-secondary hover:text-secondary-foreground hover:shadow-sm'"
             >
-              {{ item.label }}
+              <div class="flex items-center gap-2">
+                <hlm-icon *ngIf="item.label === 'Mosaico'" name="lucideHome" size="14" />
+                <span>{{ item.label }}</span>
+              </div>
             </a>
           </nav>
         </div>
@@ -195,7 +198,10 @@ export interface NavItem {
             [ngClass]="item.active ? 
               'bg-primary/10 text-primary font-semibold' : 
               'text-foreground hover:bg-accent hover:text-accent-foreground'">
-            {{ item.label }}
+            <div class="flex items-center gap-2">
+              <hlm-icon *ngIf="item.label === 'Mosaico'" name="lucideHome" size="18" />
+              <span>{{ item.label }}</span>
+            </div>
           </a>
       </div>
     </div>

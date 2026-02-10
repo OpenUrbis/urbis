@@ -108,9 +108,17 @@ export class RoleService {
     return this.findOne(role.id);
   }
 
-  async update(id: string, updateRoleDto: UpdateRoleDto): Promise<Role> {
+  async update(
+    id: string,
+    updateRoleDto: UpdateRoleDto,
+    organization?: Organization,
+  ): Promise<Role> {
     const { permissions, ...roleData } = updateRoleDto;
     const role = await this.findOne(id);
+
+    if (organization && role.organizationId !== organization.id) {
+      throw new NotFoundException({ message: 'Role is not found' });
+    }
 
     if (
       roleData.isDefault &&

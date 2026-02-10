@@ -150,6 +150,9 @@
     "testEnvironment": "node",
     "moduleNameMapper": {
       "^common/(.*)$": "<rootDir>/common/$1"
-    }
+    },
+    "modulePaths": [
+      "<rootDir>"
+    ]
   }
 }

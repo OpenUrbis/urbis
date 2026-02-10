@@ -43,7 +43,7 @@ export class HlmToasterService {
     standalone: true,
     imports: [CommonModule],
     template: `
-    <div class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none">
+    <div class="fixed bottom-4 right-4 z-[10030] flex flex-col gap-2 pointer-events-none">
       <div
         *ngFor="let toast of toasts()"
         class="pointer-events-auto flex w-80 flex-col rounded-lg border bg-background p-4 shadow-lg transition-all"

@@ -434,8 +434,7 @@
       }
     },
     "auth": {
-      "attention":  "ATENÇÃO: O cadastro de usuário possibilita uma experiência personalizada e o protocolo de pedidos.",
-
+      "attention": "ATENÇÃO: O cadastro de usuário possibilita uma experiência personalizada e o protocolo de pedidos.",
       "unauthorized": {
         "title": "Parece que você está tendo problemas para fazer login",
         "description": "Isso pode ocorrer devido a alguns problemas comuns. Tente o seguinte:",
@@ -619,7 +618,16 @@
       "default": "Padrão",
       "handleRole": {
         "selectedTitle": "Permissões selecionadas",
-        "emptyState": "Adicione permissões pelo campo permissões acima"
+        "emptyState": "Adicione permissões pelo campo permissões acima",
+        "success": {
+          "updated": "Cargo atualizado com sucesso",
+          "created": "Cargo criado com sucesso"
+        },
+        "errors": {
+          "invalidForm": "Infome um nome e selecione ao menos uma permissão para salvar o cargo",
+          "save": "Houve um erro ao salvar o cargo",
+          "missingPermission": "Adicione ao menos uma permissão"
+        }
       },
       "addRole": {
         "title": "Adicionar cargo",

@@ -102,8 +102,11 @@ export class RoleController {
       scope: RolePermissionScopeEnum.ANY,
     },
   })
-  create(@Body() data: CreateRoleDto) {
-    return this.service.create(data);
+  create(
+    @Body() data: CreateRoleDto,
+    @OrganizationData() organization: Organization,
+  ) {
+    return this.service.create({ ...data, organizationId: organization.id });
   }
 
   @Put(':id')
@@ -114,8 +117,12 @@ export class RoleController {
       scope: RolePermissionScopeEnum.ANY,
     },
   })
-  update(@Param('id') id: string, @Body() data: UpdateRoleDto) {
-    return this.service.update(id, data);
+  update(
+    @Param('id') id: string,
+    @Body() data: UpdateRoleDto,
+    @OrganizationData() organization: Organization,
+  ) {
+    return this.service.update(id, data, organization);
   }
 
   @Patch('assign')

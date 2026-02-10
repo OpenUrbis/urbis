@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
+  IsString,
   MinLength,
 } from 'class-validator';
 import { IsCountryCode } from './validators/isCountry.validator';
@@ -17,6 +18,21 @@ export class AuthUpdateDto {
   @IsOptional()
   @IsNotEmpty({ message: 'mustBeNotEmpty' })
   lastName?: string;
+
+  @ApiProperty({ example: 'Social Name' })
+  @IsOptional()
+  @IsString()
+  socialName?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  digitalAddress?: string;
 
   @ApiProperty()
   @IsOptional()

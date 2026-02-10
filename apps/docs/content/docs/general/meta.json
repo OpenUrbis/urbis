@@ -4,6 +4,7 @@
   "pages": [
     "index",
     "mapa",
+    "usuarios",
     "forms",
     "infrastructure",
     "development",

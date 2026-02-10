@@ -257,12 +257,17 @@ export class UrbisHeader {
   getUserName(): string {
     const user = this.profileState.value();
     if (!user) return 'Usuário';
-    return user.firstName || (user.email ? user.email.split('@')[0] : 'Usuário');
+    return (
+      user.socialName ||
+      user.firstName ||
+      (user.email ? user.email.split('@')[0] : 'Usuário')
+    );
   }
 
   getFullUserName(): string {
     const user = this.profileState.value();
     if (!user) return 'Usuário';
+    if (user.socialName) return user.socialName;
     if (user.firstName && user.lastName) {
       return `${user.firstName} ${user.lastName}`;
     }

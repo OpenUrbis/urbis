@@ -20,6 +20,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
+import { UserData } from 'common/decorators/user-data/user-data.decorator';
 
 @UseGuards(AccessControlGuard)
 @ApiTags('Users')
@@ -62,6 +63,12 @@ export class UserController {
     @Query('organizationId') organizationId?: string,
   ) {
     return this.service.list({ page, limit }, organizationId);
+  }
+
+  @Get('me/usage')
+  @HttpCode(HttpStatus.OK)
+  async getUsage(@UserData() user: any) {
+    return this.service.getUsage(user);
   }
 
   @Get(':id')

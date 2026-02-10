@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { AuthModuleEntities } from 'auth/index.entity';
 import { OidcModule } from 'auth/oidc/oidc.module';
 import { OrganizationModule } from 'organization/organization.module';
@@ -20,11 +24,41 @@ import { UserModuleEntities, UserModuleSubscribers } from './user/index.entity';
 import { UserModule } from './user/user.module';
 import { WhitelabelModuleEntities } from './whitelabel/index.entity';
 import { WhitelabelModule } from './whitelabel/whitelabel.module';
+import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-proxy.guard';
 
 @Module({
   imports: [
     SharedModule,
     OidcModule,
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            name: 'short',
+            ttl: config.get('throttler.short.ttl'),
+            limit: config.get('throttler.short.limit'),
+          },
+          {
+            name: 'medium',
+            ttl: config.get('throttler.medium.ttl'),
+            limit: config.get('throttler.medium.limit'),
+          },
+          {
+            name: 'daily',
+            ttl: config.get('throttler.daily.ttl'),
+            limit: config.get('throttler.daily.limit'),
+          },
+        ],
+        storage: new ThrottlerStorageRedisService({
+          host: config.get('database.redis.host', 'localhost'),
+          port: config.get('database.redis.port', 6379),
+          password: config.get('database.redis.password'),
+          db: config.get('database.redis.db', 0),
+        }),
+      }),
+    }),
     DatabaseModule.forRoot(
       [
         ...MapsModuleEntities,
@@ -50,6 +84,11 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     SupportModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerBehindProxyGuard,
+    },
+  ],
 })
 export class AppModule {}

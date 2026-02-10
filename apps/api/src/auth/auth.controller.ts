@@ -165,7 +165,7 @@ export class AuthController {
 
         <script>
             const apps = [
-                { prod: 'https://contas.urbis.prefeitura.sp.gov.br', local: 'http://localhost:4200' },
+                { prod: 'https://conta.urbis.prefeitura.sp.gov.br', local: 'http://localhost:4200' },
                 { prod: 'https://mapa.urbis.prefeitura.sp.gov.br', local: 'http://localhost:5173' },
                 { prod: 'https://urbis.prefeitura.sp.gov.br', local: 'http://localhost:5174' },
                 { prod: 'https://docs.urbis.prefeitura.sp.gov.br', local: 'http://localhost:3010' }

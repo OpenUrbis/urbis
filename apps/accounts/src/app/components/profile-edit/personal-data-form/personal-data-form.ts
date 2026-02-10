@@ -1,27 +1,23 @@
+import { CommonModule } from '@angular/common';
 import { Component, effect, inject, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ProfileState } from '../../../states/profile/profile.state';
-import { ProfileEditApi } from '../services/profile-edit-api';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { decode } from '@open-urbis/endereco-digital';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
-import { lucideMap, lucideChevronDown } from '@ng-icons/lucide';
-import { HlmIconComponent, HlmSwitchComponent } from '../../../../../projects/shared/src/public-api';
+import { lucideChevronDown, lucideMap } from '@ng-icons/lucide';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   countrySelectFormGroup,
-  phoneFormGroup,
-  PhoneFormGroup,
   CountrySelectFormGroup,
-  HlmInputDirective,
-  HlmLabelDirective,
-  HlmButtonDirective
+  HlmButtonDirective,
 } from '../../../../../projects/shared/src/public-api';
 import { mergeFormGroups } from '../../../shared/utils/merge-form-groups';
-import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ProfileState } from '../../../states/profile/profile.state';
+import { UserFormComponent } from '../../user-form/user-form';
+import { ProfileEditApi } from '../services/profile-edit-api';
 
 @Component({
   standalone: true,
@@ -31,32 +27,26 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    PhoneFormGroup,
     CountrySelectFormGroup,
-    HlmInputDirective,
-    HlmLabelDirective,
     HlmButtonDirective,
-    HlmIconComponent,
-    HlmSwitchComponent
+    UserFormComponent,
   ],
   templateUrl: './personal-data-form.html',
 })
 export class PersonalDataForm {
   api = inject(ProfileEditApi);
   state = inject(ProfileState);
-  private http = inject(HttpClient);
-  private translate = inject(TranslateService);
 
   noOfficialAddress = signal<boolean>(false);
-  loadingCep = signal<boolean>(false);
-  digitalAddressError = signal<string | null>(null);
-  private digitalAddressSubject = new Subject<string>();
 
   form = mergeFormGroups(
     new FormGroup({
       firstName: new FormControl('', Validators.required),
       lastName: new FormControl('', Validators.required),
       socialName: new FormControl(''),
+      cpf: new FormControl({ value: '', disabled: true }, [
+        Validators.required,
+      ]),
       address: new FormGroup({
         cep: new FormControl(''),
         street: new FormControl(''),
@@ -67,20 +57,16 @@ export class PersonalDataForm {
         state: new FormControl(''),
       }),
       digitalAddress: new FormControl(''),
+      phoneCountry: new FormControl('+55'),
+      phone: new FormControl(''),
     }),
-    phoneFormGroup(),
     countrySelectFormGroup(),
   );
 
   constructor() {
-    this.digitalAddressSubject
-      .pipe(debounceTime(500), distinctUntilChanged())
-      .subscribe((value) => {
-        this.validateDigitalAddress(value);
-      });
-
     effect(() => {
       const value = this.state.value();
+      console.log('Profile data changed, updating form', value);
       if (!value.id || this.state.loading()) return;
 
       if (value.digitalAddress) {
@@ -91,104 +77,80 @@ export class PersonalDataForm {
         try {
           const addressData = JSON.parse(value.address);
           this.form.patchValue({ address: addressData });
-        } catch (e) {
+        } catch (_e) {
           // Fallback if not JSON
         }
       }
 
-      this.form.patchValue({
-        ...value,
-      });
-    });
-  }
+      // Parse phone if present
+      if (value.phone) {
+        const supportedPrefixes = [
+          '+55',
+          '+1',
+          '+351',
+          '+44',
+          '+34',
+          '+33',
+          '+49',
+          '+39',
+        ];
+        const prefix =
+          supportedPrefixes.find((p) => value.phone!.startsWith(p)) || '+55';
+        let number = value.phone.substring(prefix.length);
 
-  onDigitalAddressInput(event: any) {
-    const value = event.target.value.toUpperCase();
-    this.digitalAddressSubject.next(value);
-  }
-
-  private validateDigitalAddress(value: string) {
-    if (!value) {
-      this.digitalAddressError.set(null);
-      this.form.get('digitalAddress')?.setErrors(null);
-      return;
-    }
-
-    let cleanValue = value.trim();
-    const base27Regex = /^[23456789BCDFGHJKLMNPQTVWXYZ]{7}$/;
-    const rawCode = cleanValue.replace(/[\s-]/g, '');
-    
-    if (base27Regex.test(rawCode)) {
-      cleanValue = `-23-46 ${rawCode.substring(0, 3)}-${rawCode.substring(3)}`;
-      this.form.get('digitalAddress')?.setValue(cleanValue, { emitEvent: false });
-    }
-
-    try {
-      decode(cleanValue);
-      this.digitalAddressError.set(null);
-      this.form.get('digitalAddress')?.setErrors(null);
-    } catch (e) {
-      try {
-        const parts = cleanValue.split(' ');
-        if (parts.length === 2) {
-           const normalized = parts[0] + " " + parts[1].replace('-', '');
-           decode(normalized);
-           this.digitalAddressError.set(null);
-           this.form.get('digitalAddress')?.setErrors(null);
-           return;
+        // Apply mask if +55
+        if (prefix === '+55') {
+          if (number.length > 10) {
+            number = `(${number.substring(0, 2)}) ${number.substring(2, 7)}-${number.substring(7)}`;
+          } else if (number.length > 2) {
+            number = `(${number.substring(0, 2)}) ${number.substring(2)}`;
+          }
         }
-        throw e;
-      } catch (innerE) {
-        const errorMsg = this.translate.instant('pages.signUp.errors.invalidDigitalAddress');
-        this.digitalAddressError.set(errorMsg);
-        this.form.get('digitalAddress')?.setErrors({ invalidDigitalAddress: true });
-      }
-    }
-  }
 
-  async checkCep() {
-    let cep = this.form.get('address.cep')?.value?.replace(/\D/g, '') || '';
-    if (cep.length > 8) cep = cep.substring(0, 8);
-    
-    if (cep.length > 5) {
-      this.form.get('address.cep')?.setValue(`${cep.substring(0, 5)}-${cep.substring(5)}`, { emitEvent: false });
-    } else {
-      this.form.get('address.cep')?.setValue(cep, { emitEvent: false });
-    }
-
-    if (cep.length !== 8) return;
-
-    this.loadingCep.set(true);
-    try {
-      const data: any = await firstValueFrom(
-        this.http.get(`https://viacep.com.br/ws/${cep}/json/`),
-      );
-      if (!data.erro) {
         this.form.patchValue({
-          address: {
-            street: data.logradouro,
-            neighborhood: data.bairro,
-            city: data.localidade,
-            state: data.uf,
-          },
+          phoneCountry: prefix,
+          phone: number,
         });
       }
-    } catch (error) {
-      console.error('Error fetching CEP', error);
-    } finally {
-      this.loadingCep.set(false);
-    }
+
+      this.form.patchValue({
+        firstName: value.firstName,
+        lastName: value.lastName,
+        socialName: value.socialName,
+        cpf: value.cpf,
+        digitalAddress: value.digitalAddress,
+        country: value.country, // Assuming countrySelectFormGroup adds 'country' control
+      });
+    });
   }
 
   submit() {
     if (this.form.invalid) return;
 
     const rawValue = this.form.getRawValue();
+
+    // Combine phone
+    let phone: string | null = null;
+    if (rawValue.phone) {
+      const cleanPhone = rawValue.phone.replace(/\D/g, '');
+      phone = rawValue.phoneCountry + cleanPhone;
+    }
+
+    delete rawValue.cpf;
+
     const payload = {
       ...rawValue,
-      address: !this.noOfficialAddress() ? JSON.stringify(rawValue.address) : null,
+      phone,
+      address: !this.noOfficialAddress()
+        ? JSON.stringify(rawValue.address)
+        : null,
       digitalAddress: this.noOfficialAddress() ? rawValue.digitalAddress : null,
     };
+
+    // Remove phoneCountry as it's not in DTO? DTO has index signature?
+    // IProfileData has phone, country.
+    // We should delete phoneCountry from payload if API doesn't like it.
+    delete (payload as any).phoneCountry;
 
     this.api.patchMe(payload as any).subscribe(() => this.state.refresh());
   }

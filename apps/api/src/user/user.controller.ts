@@ -14,14 +14,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { OrganizationData } from 'common/decorators/organization-data/organization-data.decorator';
+import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
+import { OrganizationGuard } from 'common/guards/organization/organization.guard';
+import { Organization } from 'organization/entities/organization.entity';
+import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
-import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
-import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 
-@UseGuards(AccessControlGuard)
+@UseGuards(AccessControlGuard, OrganizationGuard)
 @ApiTags('Users')
 @ApiBearerAuth()
 @Controller('user')
@@ -37,8 +40,11 @@ export class UserController {
     },
   })
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createProfileDto: CreateUserDto) {
-    return this.service.create(createProfileDto);
+  create(
+    @Body() createProfileDto: CreateUserDto,
+    @OrganizationData() organization: Organization,
+  ) {
+    return this.service.create(createProfileDto, organization);
   }
 
   @Get()

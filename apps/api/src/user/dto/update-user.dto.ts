@@ -26,10 +26,6 @@ export class UpdateUserDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  cpf?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
   govBrData?: any;
 
   @ApiPropertyOptional()

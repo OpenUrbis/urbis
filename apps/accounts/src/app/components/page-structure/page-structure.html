@@ -1,6 +1,6 @@
 <div class="container h-100" [ngClass]="containerClasses()">
   @if (title()) {
-    <app-header [title]="title()!" [subtitle]="subtitle()">
+    <app-header [title]="title()!" [subtitle]="subtitle()" [backUrl]="backUrl()">
       <section leftActions>
         <ng-content select="[leftActions]"></ng-content>
       </section>

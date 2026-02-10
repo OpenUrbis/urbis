@@ -9,6 +9,7 @@ import {
   MinLength,
   Validate,
 } from 'class-validator';
+import { IsCPF } from 'common/utils/validators/is-cpf.validator';
 import { UserStatus } from 'user/enums/user-status.enum';
 import { IsNotExist } from '../../common/utils/validators/is-not-exists.validator';
 
@@ -47,6 +48,13 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   socialName?: string;
+
+  @ApiProperty({ example: '111.444.777-35' })
+  @IsCPF({ message: 'invalid' })
+  @Validate(IsNotExist, ['User'], {
+    message: 'alreadyExists',
+  })
+  cpf: string;
 
   @ApiProperty()
   @IsOptional()

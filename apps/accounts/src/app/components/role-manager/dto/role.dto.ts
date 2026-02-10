@@ -20,6 +20,7 @@ export interface IRoleResponse {
   roleId?: string;
   rolePermissions: IRolePermission[];
   permissions?: IInternalPermission[];
+  isSystemRole?: boolean;
 }
 
 export interface IRolePermission {

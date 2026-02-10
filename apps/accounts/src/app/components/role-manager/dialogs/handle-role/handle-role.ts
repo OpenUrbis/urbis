@@ -9,9 +9,24 @@ import {
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, startWith, switchMap } from 'rxjs';
-import { LoadingButton, LoadingContent, HlmInputDirective, HlmLabelDirective, HlmButtonDirective, HlmIconComponent, HlmToasterService, DialogRef, DIALOG_DATA, HlmSwitchComponent } from '../../../../../../projects/shared/src/public-api';
+import {
+  LoadingButton,
+  LoadingContent,
+  HlmInputDirective,
+  HlmLabelDirective,
+  HlmButtonDirective,
+  HlmIconComponent,
+  HlmToasterService,
+  DialogRef,
+  DIALOG_DATA,
+  HlmSwitchComponent,
+} from '../../../../../../projects/shared/src/public-api';
 import { IPermissionResponse } from '../../dto/permission.dto';
-import { IInternalPermission, IRoleResponse, ScopeType } from '../../dto/role.dto';
+import {
+  IInternalPermission,
+  IRoleResponse,
+  ScopeType,
+} from '../../dto/role.dto';
 import { RoleManagerApi } from '../../services/role-manager-api';
 import { provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucideX, lucideSearch } from '@ng-icons/lucide';
@@ -29,7 +44,7 @@ import { lucidePlus, lucideX, lucideSearch } from '@ng-icons/lucide';
     HlmLabelDirective,
     HlmButtonDirective,
     HlmIconComponent,
-    HlmSwitchComponent
+    HlmSwitchComponent,
   ],
   providers: [provideIcons({ lucidePlus, lucideX, lucideSearch })],
   templateUrl: './handle-role.html',
@@ -77,15 +92,15 @@ export class HandleRole {
   constructor() {
     if (this.data) {
       const { permissions, rolePermissions, ...rest } = this.data;
-      
+
       let initPermissions: IInternalPermission[] = [];
       if (permissions) {
-          initPermissions = permissions;
+        initPermissions = permissions;
       } else if (rolePermissions) {
-          initPermissions = rolePermissions.map(rp => ({
-              ...rp.permission,
-              scope: rp.scope
-          }));
+        initPermissions = rolePermissions.map((rp) => ({
+          ...rp.permission,
+          scope: rp.scope,
+        }));
       }
 
       this.selectedPermissions.set(initPermissions);
@@ -100,12 +115,16 @@ export class HandleRole {
   }
 
   addPermission(permission: IPermissionResponse) {
-    if (
-      this.selectedPermissions().findIndex(
-        (prm) => prm.action === permission.action,
-      ) >= 0
-    )
-      return;
+    console.log('permission', permission);
+    const hasPermission =
+      this.selectedPermissions().findIndex((prm) => prm.id === permission.id) >=
+      0;
+    console.log('adding permission', {
+      permission,
+      selectedPermissions: this.selectedPermissions(),
+      hasPermission,
+    });
+    if (hasPermission) return;
 
     const newPermission: IInternalPermission = { ...permission, scope: 'own' };
 
@@ -168,9 +187,7 @@ export class HandleRole {
   processError(err: any) {
     this.loading.set(false);
     this.toaster.error(
-      this.translate.instant(
-        'components.roleManager.handleRole.errors.save',
-      ),
+      this.translate.instant('components.roleManager.handleRole.errors.save'),
     );
   }
 

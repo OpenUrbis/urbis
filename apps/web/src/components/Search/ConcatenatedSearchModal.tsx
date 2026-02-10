@@ -25,13 +25,7 @@ import {
 } from "@open-urbis/map-ui";
 import { Info, Loader2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import * as ReactWindow from "react-window";
-
-// @ts-ignore
-const List = (ReactWindow.FixedSizeList ||
-  (ReactWindow as any).default?.FixedSizeList ||
-  (ReactWindow as any).default ||
-  ReactWindow) as any;
+import { List } from "react-window";
 import axios from "axios";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { ConcatenatedSearchState } from "../../types/search-context-type";
@@ -529,12 +523,11 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
                       </TableHeader>
                     </Table>
                     <List
-                      height={400}
-                      itemCount={searchResults.length}
-                      itemSize={40}
-                      width={Object.keys(searchResults[0]).length * 200}
-                    >
-                      {({ index, style }: { index: number; style: any }) => {
+                      style={{ height: 400, width: Object.keys(searchResults[0]).length * 200 }}
+                      rowCount={searchResults.length}
+                      rowHeight={40}
+                      rowProps={{}}
+                      rowComponent={({ index, style }) => {
                         const row = searchResults[index];
                         return (
                           <div
@@ -553,7 +546,7 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
                           </div>
                         );
                       }}
-                    </List>
+                    />
                   </div>
                 </div>
               </div>

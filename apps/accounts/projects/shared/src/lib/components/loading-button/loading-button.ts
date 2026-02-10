@@ -17,8 +17,8 @@ type ButtonAppearance = 'filled' | 'outlined' | 'ghost'; // Approximate mapping
       hlmBtn
       [variant]="getVariant()"
       [type]="type()"
-      [disabled]="loading() || disabled()"
       (click)="clickOnButton($event)"
+      [disabled]="loading() || disabled()"
       class="flex items-center gap-2 justify-center"
     >
       @if (loading()) {
@@ -37,17 +37,23 @@ export class LoadingButton {
   click = output();
 
   clickOnButton(event: Event) {
-    // If not disabled/loading
-    if (this.loading() || this.disabled()) return;
-    
-    // event.stopImmediatePropagation(); // Maybe not needed with native button
-    this.click.emit();
+    if (this.loading() || this.disabled()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.click.emit();
+    }
   }
 
-  getVariant(): 'default' | 'outline' | 'ghost' | 'secondary' | 'destructive' | 'link' {
-      const app = this.apperance();
-      if (app === 'outlined' || app === 'stroked') return 'outline';
-      if (app === 'ghost') return 'ghost';
-      return 'default';
+  getVariant():
+    | 'default'
+    | 'outline'
+    | 'ghost'
+    | 'secondary'
+    | 'destructive'
+    | 'link' {
+    const app = this.apperance();
+    if (app === 'outlined' || app === 'stroked') return 'outline';
+    if (app === 'ghost') return 'ghost';
+    return 'default';
   }
 }

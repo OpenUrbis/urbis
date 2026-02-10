@@ -11,6 +11,7 @@ import { CommonModule, NgClass } from '@angular/common';
 export class PageStructure {
   title = input<string>();
   subtitle = input<string>();
+  backUrl = input<string>();
 
   containerClasses = input<string[]>(['']);
 }

@@ -12,7 +12,8 @@
 - [Templates](#templates)
   - [List of Available Templates](#list-of-available-templates)
   - [Label and Value](#label-and-value)
-  - [Protocol Action](#protocol-action)
+  - [Edit Polygon Action](#edit-polygon-action)
+  - [Button Action](#button-action)
   - [Polygon Map](#polygon-map)
   - [Primary Item](#primary-item)
   - [Secondary Item](#secondary-item)
@@ -183,7 +184,8 @@ Templates are components that define specific content to be rendered, such as te
 ### List of Available Templates
 
 - [Label and Value](#label-and-value)
-- [Protocol Action](#protocol-action)
+- [Edit Polygon Action](#edit-polygon)
+- [Button Action](#button-action)
 - [Polygon Map](#polygon-map)
 - [Primary Item](#primary-item)
 - [Secondary Item](#secondary-item)
@@ -221,17 +223,18 @@ The `label-value` template displays a label-value pair, ideal for showing specif
   ```
   This template displays the label "Land Area" and the corresponding value of the `qt_area_terreno` property.
 
-### Protocol Action
+### Edit Polygon Action
 
-The `protocol-action` template is the action for editing and initiating a new protocol based on the polygon.
+The `edit-polygon` template is the action for editing and initiating a new protocol based on the polygon.
 
 - **Purpose**: Edit the polygon and create a protocol with its information.
 - **Root Properties**:
 
-| Property          | Description                                       | Example                             |
-| ----------------- | ------------------------------------------------- | ----------------------------------- |
-| `type`            | Template identifier, must be `"protocol-action"`. | `"protocol-action"`                 |
-| `polygonTemplate` | Array of wrappers or templates to be rendered.    | `[{ "type": "wrapper-card", ... }]` |
+| Property          | Description                                                  | Default              | Example                             |
+| ----------------- | ------------------------------------------------------------ | -------------------- | ----------------------------------- |
+| `type`            | Template identifier, must be `"edit-polygon"`.               | -                    | `"edit-polygon"`                    |
+| `label`           | The text that will be displayed on the button on the screen. | "Ajustar perimetros" | `"edit-polygon"`                    |
+| `polygonTemplate` | Array of wrappers or templates to be rendered.               | -                    | `[{ "type": "wrapper-card", ... }]` |
 
 - **Properties of the `properties` Object**:
 
@@ -239,10 +242,12 @@ The `protocol-action` template is the action for editing and initiating a new pr
 | -------- | ----------------------------------------------------------------------- | ------- |
 | (None)   | Currently, there are no specific properties in the `properties` object. | -       |
 
+> This template will no be rendered when the view is to printing
+
 - **Example**:
   ```json
   {
-    "type": "protocol-action",
+    "type": "edit-polygon",
     "polygonTemplate": [
       {
         "type": "wrapper-card",
@@ -286,6 +291,36 @@ The `protocol-action` template is the action for editing and initiating a new pr
       }
     ]
   }
+  ```
+  This example combines a map with a list of lots, each with a click action to open details.
+
+### Button Action
+
+The `button` template is a simple button with any action.
+
+- **Purpose**: Render a simple button with label and action.
+- **Root Properties**:
+
+| Property | Description                                                  | Default | Example          |
+| -------- | ------------------------------------------------------------ | ------- | ---------------- |
+| `type`   | Template identifier, must be `"button"`.                     | -       | `"edit-polygon"` |
+| `label`  | The text that will be displayed on the button on the screen. | "Ação"  | `"edit-polygon"` |
+
+- **Properties of the `properties` Object**:
+
+| Property | Description                                                          | Example                                |
+| -------- | -------------------------------------------------------------------- | -------------------------------------- |
+| `action` | A string function that will be triggered when the button is clicked. | `(data) => console.log("Do nothing");` |
+
+> This template will no be rendered when the view is to printing
+
+- **Example**:
+  ```json
+  {
+    "type": "button",
+    "label": "Imprimir",
+    "properties": { "action": "(data) => console.log('DO NOTHING');" },
+  },
   ```
   This example combines a map with a list of lots, each with a click action to open details.
 

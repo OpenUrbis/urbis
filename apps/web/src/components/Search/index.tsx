@@ -5,6 +5,7 @@ import { useEffect } from "preact/compat";
 import { createElement, ReactNode } from "react";
 import { Card, CircularProgress, Fab, List, ListItem, TextField } from "rmwc";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
+import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import {
   IGetSearchConfigResponse,
@@ -23,6 +24,7 @@ export const Search = () => {
   } = useSearchContext();
   const { data, error, fetchData, clearResults, loading } = searchQuery;
   const clickActions = CLICK_ACTIONS_CONFIG();
+  const { reset: resetPolygonEdit } = usePolygonEditContext();
 
   useEffect(() => {
     populateSearchConfig();
@@ -56,6 +58,7 @@ export const Search = () => {
     const actionFn = clickActions[action as keyof typeof clickActions];
     if (actionFn) {
       const { latitude, longitude, rawData } = item;
+      resetPolygonEdit();
       actionFn(params, {
         latitude,
         longitude,

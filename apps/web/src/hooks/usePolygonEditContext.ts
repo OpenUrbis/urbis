@@ -14,6 +14,7 @@ export const usePolygonEditContext = (): IPolygonEditContextActions => {
     feature: ctxFeature,
     isEditing: ctxIsEditing,
     drawRef,
+    reset: resetFetch,
     ...restContext
   } = context;
   const feature = computed(() => ctxFeature.value);
@@ -33,6 +34,12 @@ export const usePolygonEditContext = (): IPolygonEditContextActions => {
     drawRef!.current = newDrawRef;
   };
 
+  const reset = () => {
+    resetFetch();
+    ctxFeature.value = null;
+    ctxIsEditing.value = false;
+  };
+
   return {
     feature,
     isEditing,
@@ -40,6 +47,7 @@ export const usePolygonEditContext = (): IPolygonEditContextActions => {
     setFeature,
     setIsEditing,
     setDrawRef,
+    reset,
     ...restContext,
   };
 };

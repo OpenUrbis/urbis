@@ -170,7 +170,7 @@ export const layerSchemas: LayerSchema[] = [
             type: 'label-value',
             label: 'Inscrição',
             value:
-              "<%- properties.cd_setor_fiscal?.padStart(4, '0') ?? '0000' %>.<%- properties.cd_quadra_fiscal?.padStart(4, '0') ?? '0000' %>.<%- properties.cd_lote?.padStart(4, '0') ?? '0000' %>.<%- properties.cd_condominio?.padStart(4, '0') ?? '0000' %>",
+              "<%- properties.cd_setor_fiscal?.padStart(3, '0') ?? '000' %> <%- properties.cd_quadra_fiscal?.padStart(3, '0') ?? '000' %> <%- properties.cd_lote?.padStart(4, '0') ?? '0000' %> <%- properties.cd_condominio?.padStart(2, '0') ?? '00' %>",
           },
         ],
       },
@@ -237,7 +237,7 @@ export const layerSchemas: LayerSchema[] = [
             value: 'Não disponível',
           },
           {
-            type: 'protocol-action',
+            type: 'edit-polygon',
             polygonTemplate: [
               {
                 type: 'wrapper-card',
@@ -364,6 +364,14 @@ export const layerSchemas: LayerSchema[] = [
               },
             ],
           },
+          {
+            type: 'button',
+            label: 'Imprimir',
+            properties: {
+              action:
+                "(data) => window.open(`http://localhost:5173/print?layerSchema=lotes&CQL_FILTER=cd_setor_fiscal = '${data.properties.cd_setor_fiscal}' AND cd_quadra_fiscal = '${data.properties.cd_quadra_fiscal}' AND cd_lote = '${data.properties.cd_lote}' AND cd_condominio = '${data.properties.cd_condominio}'`,'_blank')",
+            },
+          },
         ],
       },
       {
@@ -477,6 +485,13 @@ export const layerSchemas: LayerSchema[] = [
 
         return (qt_area_construida / qt_area_terreno) * 2 * 3;
       }`,
+      layerActions: [
+        {
+          icon: 'info',
+          action:
+            "() => window.open('https://dadosabertos.urbis.sampa.br/','_blank')",
+        },
+      ],
     },
     colors: [
       {

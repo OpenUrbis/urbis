@@ -20,7 +20,10 @@ export class SearchService {
   ) {}
 
   async findAll(): Promise<SearchConfig[]> {
-    return this.repository.find();
+    return this.repository.find({
+      relations: ['layerSchema'],
+      order: { index: 'ASC' },
+    });
   }
 
   async findOne(id: string): Promise<SearchConfig> {

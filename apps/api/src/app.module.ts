@@ -57,6 +57,14 @@ import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-prox
           password: config.get('database.redis.password'),
           db: parseInt(config.get('database.redis.db', '0'), 10),
           maxRetriesPerRequest: null,
+          enableReadyCheck: false,
+          reconnectOnError: (err) => {
+            const targetError = 'READONLY';
+            if (err.message.includes(targetError)) {
+              return true;
+            }
+            return false;
+          },
         }),
       }),
     }),

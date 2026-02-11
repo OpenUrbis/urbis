@@ -75,7 +75,7 @@ const PrintPage = () => {
       {error}
     </div>
   ) : (
-    <div className="container print">
+    <div className="container-fluid print">
       <span id="ready"></span>
       <header className="d-flex align-items-center justify-content-between">
         <div className="logo d-flex align-items-center justify-content-center">

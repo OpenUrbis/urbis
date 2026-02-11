@@ -37,7 +37,7 @@ export class SearchConfigSeedService {
           };
 
           let CQL_FILTER = '';
-
+          
           const code = parseCode(term);
           if (code) {
             const { condominio, lote, quadra, setor } = code;
@@ -45,7 +45,7 @@ export class SearchConfigSeedService {
             if (condominio) CQL_FILTER += \` AND cd_condominio = '\${condominio}'\`;
           } else {
             term = \`%\${term.split(' ').join('%').split(',').join('')}%\`;
-            CQL_FILTER = \`nm_logradouro_completo ILIKE '\${term}'\`;
+            CQL_FILTER = \`endereco_completo ILIKE '\${term}'\`;
           }
 
           return {
@@ -62,7 +62,7 @@ export class SearchConfigSeedService {
         transformResponse: `(data) => {
           return JSON.parse(data)?.features?.map((feature) => {
             const { properties, id } = feature;
-            const { nm_logradouro_completo: name, cd_numero_porta: number } =
+            const { endereco_completo: name, cd_numero_porta: number } =
               properties;
             const [longitude, latitude] = utils.calculateCenterId(
               feature?.geometry.coordinates[0]

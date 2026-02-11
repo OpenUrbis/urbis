@@ -53,9 +53,10 @@ import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-prox
         ],
         storage: new ThrottlerStorageRedisService({
           host: config.get('database.redis.host', 'localhost'),
-          port: config.get('database.redis.port', 6379),
+          port: parseInt(config.get('database.redis.port', '6379'), 10),
           password: config.get('database.redis.password'),
-          db: config.get('database.redis.db', 0),
+          db: parseInt(config.get('database.redis.db', '0'), 10),
+          maxRetriesPerRequest: null,
         }),
       }),
     }),

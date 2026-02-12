@@ -3,6 +3,8 @@ import { AuthProvider } from "./auth/AuthProvider";
 import { RequireAuth } from "./components/AccessControl/RequireAuth";
 import { LegisLayout } from "./components/layout/legis-layout";
 import Home from "./pages/Home";
+import SearchPage from "./pages/SearchPage";
+import EditorPage from "./modules/document/components/EditorPage";
 import { useEffect } from "react";
 import { useAuth } from "@open-urbis/map-auth";
 
@@ -37,6 +39,10 @@ export function App() {
             <LegisLayout>
               <Switch>
                 <Route path="/" component={Home} />
+                <Route path="/search" component={SearchPage} />
+                {/* Unified Route - Handles both View and Edit */}
+                <Route path="/view/:id" component={EditorPage} /> 
+                <Route path="/editor/:id" component={EditorPage} />
                 <Route path="/concepts">
                   <div className="p-4">
                     <h1 className="text-2xl font-bold">Conceitos</h1>

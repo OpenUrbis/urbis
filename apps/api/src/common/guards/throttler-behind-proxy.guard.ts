@@ -1,8 +1,17 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
-import { ThrottlerGuard, ThrottlerException } from '@nestjs/throttler';
+import { Reflector } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerException, ThrottlerModuleOptions, ThrottlerStorage } from '@nestjs/throttler';
 
 @Injectable()
 export class ThrottlerBehindProxyGuard extends ThrottlerGuard {
+  constructor(
+    options: ThrottlerModuleOptions,
+    storage: ThrottlerStorage,
+    reflector: Reflector,
+  ) {
+    super(options, storage, reflector);
+  }
+
   protected override async getTracker(req: any): Promise<string> {
     // Standardizing on the user's unique identifier.
     // In this project:

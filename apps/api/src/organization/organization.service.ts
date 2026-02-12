@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
+import { SYSTEM_ROLES } from './../common/constants/system-roles.const';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
 import { RoleService } from 'role/role.service';
 import {

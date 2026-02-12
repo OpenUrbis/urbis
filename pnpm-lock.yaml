@@ -617,6 +617,121 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  apps/legis:
+    dependencies:
+      '@hookform/resolvers':
+        specifier: ^5.2.2
+        version: 5.2.2(react-hook-form@7.69.0(react@18.3.1))
+      '@open-urbis/map-auth':
+        specifier: workspace:^
+        version: link:../../packages/auth
+      '@open-urbis/map-shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@open-urbis/map-ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@preact/signals':
+        specifier: ^2.0.3
+        version: 2.5.1(preact@10.28.1)
+      '@preact/signals-react':
+        specifier: ^3.0.1
+        version: 3.6.1(react@18.3.1)
+      '@radix-ui/react-dialog':
+        specifier: ^1.1.15
+        version: 1.1.15(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-dropdown-menu':
+        specifier: ^2.1.16
+        version: 2.1.16(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-label':
+        specifier: ^2.1.8
+        version: 2.1.8(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-navigation-menu':
+        specifier: ^1.1.4
+        version: 1.2.14(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-scroll-area':
+        specifier: ^1.0.5
+        version: 1.2.10(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-separator':
+        specifier: ^1.1.8
+        version: 1.1.8(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot':
+        specifier: ^1.2.4
+        version: 1.2.4(@types/react@18.3.27)(react@18.3.1)
+      '@radix-ui/react-tooltip':
+        specifier: ^1.2.8
+        version: 1.2.8(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      lucide-react:
+        specifier: ^0.562.0
+        version: 0.562.0(react@18.3.1)
+      oidc-client-ts:
+        specifier: ^3.4.1
+        version: 3.4.1
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: ^7.69.0
+        version: 7.69.0(react@18.3.1)
+      tailwind-merge:
+        specifier: ^3.4.0
+        version: 3.4.0
+      wouter:
+        specifier: ^3.7.0
+        version: 3.9.0(react@18.3.1)
+      zod:
+        specifier: ^4.2.1
+        version: 4.3.4
+    devDependencies:
+      '@open-urbis/map-eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@open-urbis/map-typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      '@types/node':
+        specifier: ^25.0.10
+        version: 25.2.1
+      '@types/react':
+        specifier: ^18.3.1
+        version: 18.3.27
+      '@types/react-dom':
+        specifier: ^18.3.0
+        version: 18.3.7(@types/react@18.3.27)
+      '@vitejs/plugin-react':
+        specifier: ^3.1.0
+        version: 3.1.0(vite@5.4.21(@types/node@25.2.1)(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1))
+      autoprefixer:
+        specifier: ^10.4.23
+        version: 10.4.23(postcss@8.5.6)
+      eslint:
+        specifier: ^9.24.0
+        version: 9.39.2(jiti@2.6.1)
+      postcss:
+        specifier: ^8.5.6
+        version: 8.5.6
+      tailwindcss:
+        specifier: ^3.4.1
+        version: 3.4.1(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.5.4))
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.1(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.5.4)))
+      typescript:
+        specifier: 5.5.4
+        version: 5.5.4
+      vite:
+        specifier: ^5.1.4
+        version: 5.4.21(@types/node@25.2.1)(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1)
+
   apps/site:
     dependencies:
       '@open-urbis/map-auth':
@@ -17282,7 +17397,7 @@ snapshots:
   '@jest/console@29.7.0':
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       chalk: 4.1.2
       jest-message-util: 29.7.0
       jest-util: 29.7.0
@@ -17295,14 +17410,14 @@ snapshots:
       '@jest/test-result': 29.7.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 3.9.0
       exit: 0.1.2
       graceful-fs: 4.2.11
       jest-changed-files: 29.7.0
-      jest-config: 29.7.0(@types/node@25.0.10)
+      jest-config: 29.7.0(@types/node@25.2.1)
       jest-haste-map: 29.7.0
       jest-message-util: 29.7.0
       jest-regex-util: 29.6.3
@@ -17330,14 +17445,14 @@ snapshots:
       '@jest/test-result': 29.7.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 3.9.0
       exit: 0.1.2
       graceful-fs: 4.2.11
       jest-changed-files: 29.7.0
-      jest-config: 29.7.0(@types/node@25.0.10)(ts-node@10.9.2(@types/node@20.19.27)(typescript@5.8.3))
+      jest-config: 29.7.0(@types/node@25.2.1)(ts-node@10.9.2(@types/node@20.19.27)(typescript@5.8.3))
       jest-haste-map: 29.7.0
       jest-message-util: 29.7.0
       jest-regex-util: 29.6.3
@@ -17362,7 +17477,7 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       jest-mock: 29.7.0
 
   '@jest/expect-utils@29.7.0':
@@ -17380,7 +17495,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -17402,7 +17517,7 @@ snapshots:
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
       '@jridgewell/trace-mapping': 0.3.31
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit: 0.1.2
@@ -17472,7 +17587,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -22124,7 +22239,7 @@ snapshots:
 
   '@types/accepts@1.3.7':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -22154,11 +22269,11 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/brotli@1.3.4':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/bull@4.10.4':
     dependencies:
@@ -22170,7 +22285,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       '@types/responselike': 1.0.3
 
   '@types/cheerio@1.0.0':
@@ -22183,7 +22298,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/content-disposition@0.5.9': {}
 
@@ -22194,11 +22309,11 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/express': 4.17.25
       '@types/keygrip': 1.0.6
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/cors@2.8.19':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/crypto-js@4.2.2': {}
 
@@ -22365,7 +22480,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.7':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -22390,13 +22505,13 @@ snapshots:
   '@types/glob@5.0.38':
     dependencies:
       '@types/minimatch': 6.0.0
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/google.maps@3.58.1': {}
 
   '@types/graceful-fs@4.1.9':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/grecaptcha@3.0.9': {}
 
@@ -22432,17 +22547,17 @@ snapshots:
   '@types/jsonwebtoken@9.0.10':
     dependencies:
       '@types/ms': 2.1.0
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/jsonwebtoken@9.0.5':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/keygrip@1.0.6': {}
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/koa-compose@3.2.9':
     dependencies:
@@ -22457,7 +22572,7 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/keygrip': 1.0.6
       '@types/koa-compose': 3.2.9
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/lodash@4.17.21': {}
 
@@ -22492,13 +22607,13 @@ snapshots:
 
   '@types/mkdirp@0.5.2':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/ms@2.1.0': {}
 
   '@types/node-forge@1.3.14':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/node@12.20.55': {}
 
@@ -22598,30 +22713,30 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/retry@0.12.2': {}
 
   '@types/rimraf@2.0.5':
     dependencies:
       '@types/glob': 5.0.38
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/semver@7.7.1': {}
 
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
 
   '@types/serve-static@1.15.10':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       '@types/send': 0.17.6
 
   '@types/sortablejs@1.15.9': {}
@@ -22636,7 +22751,7 @@ snapshots:
     dependencies:
       '@types/cookiejar': 2.1.5
       '@types/methods': 1.1.4
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       form-data: 4.0.5
 
   '@types/supercluster@7.1.3':
@@ -23090,6 +23205,17 @@ snapshots:
       magic-string: 0.27.0
       react-refresh: 0.14.2
       vite: 5.4.21(@types/node@25.0.10)(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vitejs/plugin-react@3.1.0(vite@5.4.21(@types/node@25.2.1)(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1))':
+    dependencies:
+      '@babel/core': 7.28.5
+      '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.5)
+      '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.28.5)
+      magic-string: 0.27.0
+      react-refresh: 0.14.2
+      vite: 5.4.21(@types/node@25.2.1)(less@4.5.1)(lightningcss@1.30.2)(sass-embedded@1.97.1)(sass@1.97.1)(terser@5.44.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -24826,7 +24952,7 @@ snapshots:
   engine.io@6.6.5:
     dependencies:
       '@types/cors': 2.8.19
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -26711,7 +26837,7 @@ snapshots:
       '@jest/expect': 29.7.0
       '@jest/test-result': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       chalk: 4.1.2
       co: 4.6.0
       dedent: 1.7.1
@@ -26830,7 +26956,7 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
-  jest-config@29.7.0(@types/node@25.0.10)(ts-node@10.9.2(@types/node@20.19.27)(typescript@5.8.3)):
+  jest-config@29.7.0(@types/node@25.2.1):
     dependencies:
       '@babel/core': 7.28.5
       '@jest/test-sequencer': 29.7.0
@@ -26855,7 +26981,37 @@ snapshots:
       slash: 3.0.0
       strip-json-comments: 3.1.1
     optionalDependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
+    transitivePeerDependencies:
+      - babel-plugin-macros
+      - supports-color
+
+  jest-config@29.7.0(@types/node@25.2.1)(ts-node@10.9.2(@types/node@20.19.27)(typescript@5.8.3)):
+    dependencies:
+      '@babel/core': 7.28.5
+      '@jest/test-sequencer': 29.7.0
+      '@jest/types': 29.6.3
+      babel-jest: 29.7.0(@babel/core@7.28.5)
+      chalk: 4.1.2
+      ci-info: 3.9.0
+      deepmerge: 4.3.1
+      glob: 7.2.3
+      graceful-fs: 4.2.11
+      jest-circus: 29.7.0
+      jest-environment-node: 29.7.0
+      jest-get-type: 29.6.3
+      jest-regex-util: 29.6.3
+      jest-resolve: 29.7.0
+      jest-runner: 29.7.0
+      jest-util: 29.7.0
+      jest-validate: 29.7.0
+      micromatch: 4.0.8
+      parse-json: 5.2.0
+      pretty-format: 29.7.0
+      slash: 3.0.0
+      strip-json-comments: 3.1.1
+    optionalDependencies:
+      '@types/node': 25.2.1
       ts-node: 10.9.2(@types/node@20.19.27)(typescript@5.8.3)
     transitivePeerDependencies:
       - babel-plugin-macros
@@ -26885,7 +27041,7 @@ snapshots:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       jest-mock: 29.7.0
       jest-util: 29.7.0
 
@@ -26895,7 +27051,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@types/graceful-fs': 4.1.9
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -26934,7 +27090,7 @@ snapshots:
   jest-mock@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       jest-util: 29.7.0
 
   jest-pnp-resolver@1.2.3(jest-resolve@29.7.0):
@@ -26969,7 +27125,7 @@ snapshots:
       '@jest/test-result': 29.7.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       chalk: 4.1.2
       emittery: 0.13.1
       graceful-fs: 4.2.11
@@ -26997,7 +27153,7 @@ snapshots:
       '@jest/test-result': 29.7.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       chalk: 4.1.2
       cjs-module-lexer: 1.4.3
       collect-v8-coverage: 1.0.3
@@ -27043,7 +27199,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -27062,7 +27218,7 @@ snapshots:
     dependencies:
       '@jest/test-result': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.13.1
@@ -27071,13 +27227,13 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.2.1
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -29281,6 +29437,14 @@ snapshots:
       postcss: 8.5.6
       ts-node: 10.9.2(@types/node@25.0.10)(typescript@5.5.4)
 
+  postcss-load-config@4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.5.4)):
+    dependencies:
+      lilconfig: 3.1.3
+      yaml: 2.8.2
+    optionalDependencies:
+      postcss: 8.5.6
+      ts-node: 10.9.2(@types/node@25.2.1)(typescript@5.5.4)
+
   postcss-load-config@4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.8.3)):
     dependencies:
       lilconfig: 3.1.3
@@ -30983,6 +31147,10 @@ snapshots:
     dependencies:
       tailwindcss: 3.4.1(ts-node@10.9.2(@types/node@25.0.10)(typescript@5.5.4))
 
+  tailwindcss-animate@1.0.7(tailwindcss@3.4.1(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.5.4))):
+    dependencies:
+      tailwindcss: 3.4.1(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.5.4))
+
   tailwindcss-animate@1.0.7(tailwindcss@3.4.1(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.9.3))):
     dependencies:
       tailwindcss: 3.4.1(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.9.3))
@@ -31007,6 +31175,33 @@ snapshots:
       postcss-import: 15.1.0(postcss@8.5.6)
       postcss-js: 4.1.0(postcss@8.5.6)
       postcss-load-config: 4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@25.0.10)(typescript@5.5.4))
+      postcss-nested: 6.2.0(postcss@8.5.6)
+      postcss-selector-parser: 6.1.2
+      resolve: 1.22.11
+      sucrase: 3.35.1
+    transitivePeerDependencies:
+      - ts-node
+
+  tailwindcss@3.4.1(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.5.4)):
+    dependencies:
+      '@alloc/quick-lru': 5.2.0
+      arg: 5.0.2
+      chokidar: 3.6.0
+      didyoumean: 1.2.2
+      dlv: 1.1.3
+      fast-glob: 3.3.3
+      glob-parent: 6.0.2
+      is-glob: 4.0.3
+      jiti: 1.21.7
+      lilconfig: 2.1.0
+      micromatch: 4.0.8
+      normalize-path: 3.0.0
+      object-hash: 3.0.0
+      picocolors: 1.1.1
+      postcss: 8.5.6
+      postcss-import: 15.1.0(postcss@8.5.6)
+      postcss-js: 4.1.0(postcss@8.5.6)
+      postcss-load-config: 4.0.2(postcss@8.5.6)(ts-node@10.9.2(@types/node@25.2.1)(typescript@5.5.4))
       postcss-nested: 6.2.0(postcss@8.5.6)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.11
@@ -31310,6 +31505,25 @@ snapshots:
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
       '@types/node': 25.0.10
+      acorn: 8.15.0
+      acorn-walk: 8.3.4
+      arg: 4.1.3
+      create-require: 1.1.1
+      diff: 4.0.2
+      make-error: 1.3.6
+      typescript: 5.5.4
+      v8-compile-cache-lib: 3.0.1
+      yn: 3.1.1
+    optional: true
+
+  ts-node@10.9.2(@types/node@25.2.1)(typescript@5.5.4):
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      '@tsconfig/node10': 1.0.12
+      '@tsconfig/node12': 1.0.11
+      '@tsconfig/node14': 1.0.3
+      '@tsconfig/node16': 1.0.4
+      '@types/node': 25.2.1
       acorn: 8.15.0
       acorn-walk: 8.3.4
       arg: 4.1.3

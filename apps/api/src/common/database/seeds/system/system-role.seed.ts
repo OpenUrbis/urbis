@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 import { Role } from '../../../../role/entities/role.entity';
 import { RoleTypeEnum } from '../../../../role/enums/role-type.enum';
-import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
+import { SYSTEM_ROLES } from './../../../../common/constants/system-roles.const';
 
 @Injectable()
 export class SystemRoleSeedService {

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, Reflector } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { AuthModuleEntities } from 'auth/index.entity';
@@ -94,6 +94,7 @@ import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-prox
   ],
   controllers: [],
   providers: [
+    Reflector,
     {
       provide: APP_GUARD,
       useClass: ThrottlerBehindProxyGuard,

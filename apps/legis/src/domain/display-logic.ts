@@ -1,4 +1,4 @@
-import { NormativeElement, Validity } from './types';
+import { NormativeElement } from './types';
 
 export function getElementKey(element: NormativeElement): string {
   const { type, index, text } = element;

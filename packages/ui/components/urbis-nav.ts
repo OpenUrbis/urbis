@@ -86,10 +86,6 @@ export function buildUrbisNav(opts: {
     { label: "Doc. técnica", href: "https://docs.urbis.prefeitura.sp.gov.br/", active: isDocs && !isLegis },
   ];
 
-  if (isAuthenticated) {
-    base.push({ label: "Datalake", href: "https://datalake.urbis.prefeitura.sp.gov.br" });
-  }
-
   // ✅ remove o item ativo do menu
   const menuItems = base.filter((i) => !i.active);
 

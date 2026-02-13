@@ -1,40 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "wouter";
-import { useSignals } from "@preact/signals-react/runtime";
+import React, { useEffect, useState } from "react";
 import { 
-  Calculator, 
-  Calendar, 
-  CreditCard, 
-  Settings, 
-  Smile, 
-  User,
-  Search,
-  FileText,
-  Home,
-  BookOpen,
-  Edit,
-  Layers,
-  X
-} from "lucide-react";
-
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from "@open-urbis/map-ui"; // Ensure this path is correct based on exports
-
-import { MOCK_LEI_18080, MOCK_RESOLUCAO_18 } from "../../domain/mocks";
+  CommandDialog, 
+  CommandEmpty, 
+  CommandGroup, 
+  CommandInput, 
+  CommandItem, 
+  CommandList, 
+  CommandSeparator 
+} from "cmdk";
+import { useLocation } from "wouter";
+import { FileText, Plus, Search, Settings, User, Laptop } from "lucide-react";
+import { usePage } from "@/hooks/use-page";
 
 export function CommandMenu() {
-  useSignals();
   const [open, setOpen] = useState(false);
-  const [location, setLocation] = useLocation();
-  const openItems: any[] = [];
+  const [, setLocation] = useLocation();
+  const { createPage } = usePage();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -47,100 +28,41 @@ export function CommandMenu() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const runCommand = React.useCallback((command: () => void) => {
+  const run = (command: () => void) => {
     setOpen(false);
     command();
-  }, []);
-
-  const navigateTo = (path: string) => {
-      setLocation(path);
   };
 
-  // Combine static navigation + specific law search logic
-  // For prototype, we mock "Advanced Search" by filtering our mock database inside the command
-  const allMocks = [MOCK_LEI_18080, MOCK_RESOLUCAO_18];
-
   return (
-    <>
-      <div className="fixed bottom-4 right-4 z-50 md:hidden">
-          <button onClick={() => setOpen(true)} className="bg-primary text-primary-foreground rounded-full p-3 shadow-lg">
-              <Search className="h-6 w-6" />
-          </button>
-      </div>
-      
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Digite um comando ou pesquise..." />
-        <CommandList>
-          <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
-          
-          {/* Workspaces / Open Tabs */}
-          {openItems.length > 0 && (
-              <CommandGroup heading="Abas Abertas">
-                  {openItems.map(item => (
-                      <CommandItem 
-                        key={item.path} 
-                        value={`tab-${item.title}`} // unique value for search
-                        onSelect={() => runCommand(() => navigateTo(item.path))}
-                      >
-                          <FileText className="mr-2 h-4 w-4" />
-                          <span>{item.title}</span>
-                          {location === item.path && <CommandShortcut>Ativo</CommandShortcut>}
-                      </CommandItem>
-                  ))}
-              </CommandGroup>
-          )}
-          
-          <CommandSeparator />
-
-          {/* Navigation */}
-          <CommandGroup heading="Navegação">
-            <CommandItem onSelect={() => runCommand(() => navigateTo("/"))}>
-              <Home className="mr-2 h-4 w-4" />
-              <span>Início</span>
-              <CommandShortcut>G H</CommandShortcut>
+    <CommandDialog open={open} onOpenChange={setOpen} label="Global Command Menu">
+      <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+      <div className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-0 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg">
+        <CommandInput 
+            placeholder="Digite um comando ou busque..." 
+            className="flex h-11 w-full rounded-md bg-transparent py-3 px-4 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 border-b"
+        />
+        <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden p-2">
+          <CommandEmpty className="py-6 text-center text-sm">Nenhum resultado encontrado.</CommandEmpty>
+          <CommandGroup heading="Sugestões">
+            <CommandItem className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50" onSelect={() => run(() => setLocation('/pages/new'))}>
+              <Plus className="mr-2 h-4 w-4" />
+              <span>Nova Página</span>
+              <span className="ml-auto text-xs tracking-widest text-muted-foreground">⌘N</span>
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => navigateTo("/search"))}>
-              <Search className="mr-2 h-4 w-4" />
-              <span>Pesquisa Avançada</span>
-              <CommandShortcut>G S</CommandShortcut>
-            </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => navigateTo("/concepts"))}>
-              <BookOpen className="mr-2 h-4 w-4" />
-              <span>Conceitos</span>
-              <CommandShortcut>G C</CommandShortcut>
+            <CommandItem className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50" onSelect={() => run(() => setLocation('/pages'))}>
+              <FileText className="mr-2 h-4 w-4" />
+              <span>Ir para Páginas</span>
             </CommandItem>
           </CommandGroup>
-          
-          <CommandSeparator />
-
-          {/* Quick Search (Mock DB) */}
-          <CommandGroup heading="Legislação (Rápida)">
-             {allMocks.map(norma => (
-                 <CommandItem 
-                    key={norma.id} 
-                    value={`${norma.type} ${norma.number} ${norma.ementa}`}
-                    onSelect={() => runCommand(() => navigateTo(`/view/${norma.id}`))}
-                 >
-                     <FileText className="mr-2 h-4 w-4" />
-                     <div className="flex flex-col">
-                         <span>{norma.type} {norma.number}</span>
-                         <span className="text-xs text-muted-foreground truncate max-w-[300px]">{norma.ementa}</span>
-                     </div>
-                 </CommandItem>
-             ))}
-          </CommandGroup>
-
-          <CommandSeparator />
-
-          <CommandGroup heading="Sistema">
-            <CommandItem onSelect={() => runCommand(() => navigateTo("/settings"))}>
+          <CommandSeparator className="-mx-1 h-px bg-border" />
+          <CommandGroup heading="Configurações">
+            <CommandItem className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50" onSelect={() => run(() => console.log('Settings'))}>
               <Settings className="mr-2 h-4 w-4" />
               <span>Configurações</span>
-              <CommandShortcut>⌘ S</CommandShortcut>
             </CommandItem>
           </CommandGroup>
         </CommandList>
-      </CommandDialog>
-    </>
+      </div>
+    </CommandDialog>
   );
 }

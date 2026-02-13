@@ -3,10 +3,12 @@ import { AuthProvider } from "./auth/AuthProvider";
 import { RequireAuth } from "./components/AccessControl/RequireAuth";
 import { LegisLayout } from "./components/layout/legis-layout";
 import Home from "./pages/Home";
-import SearchPage from "./pages/SearchPage";
-import EditorPage from "./modules/document/components/EditorPage";
+import PageList from "./pages/PageList";
+import PageEditor from "./pages/PageEditor";
+import PageView from "./pages/PageView";
 import { useEffect } from "react";
 import { useAuth } from "@open-urbis/map-auth";
+import { Toaster } from "sonner";
 
 function AuthCallback() {
   const auth = useAuth();
@@ -29,6 +31,7 @@ function AuthCallback() {
 export function App() {
   return (
     <AuthProvider>
+      <Toaster />
       <Switch>
         <Route path="/callback" component={AuthCallback} />
         <Route path="/silent-renew.html">
@@ -39,22 +42,17 @@ export function App() {
             <LegisLayout>
               <Switch>
                 <Route path="/" component={Home} />
-                <Route path="/search" component={SearchPage} />
-                {/* Unified Route - Handles both View and Edit */}
-                <Route path="/view/:id" component={EditorPage} /> 
-                <Route path="/editor/:id" component={EditorPage} />
-                <Route path="/concepts">
-                  <div className="p-4">
-                    <h1 className="text-2xl font-bold">Conceitos</h1>
-                    <p className="text-muted-foreground">Em breve...</p>
-                  </div>
+                
+                {/* Pages CRUD Routes */}
+                <Route path="/pages" component={PageList} />
+                <Route path="/pages/new">
+                    <PageEditor mode="create" />
                 </Route>
-                <Route path="/settings">
-                  <div className="p-4">
-                    <h1 className="text-2xl font-bold">Configurações</h1>
-                    <p className="text-muted-foreground">Em breve...</p>
-                  </div>
+                <Route path="/pages/:id" component={PageView} />
+                <Route path="/pages/:id/edit">
+                    <PageEditor mode="edit" />
                 </Route>
+
                 <Route>
                   <div className="flex items-center justify-center h-full">
                     <h1 className="text-2xl font-bold">404 - Página não encontrada</h1>

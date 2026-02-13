@@ -1,4 +1,4 @@
-import { NormativeOriginal, NormativeElement } from './types';
+import { NormativeOriginal } from './types';
 
 const defaultValidity = {
   date: '01.01.2024',

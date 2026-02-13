@@ -12,6 +12,8 @@ export interface IGetConfigResponse {
   padding: IGetConfigPadding;
   layerGroups: IGetConfigLayerGroup[];
   layerSchemas: IGetConfigLayerSchema[];
+  editFeatureTemplate: ITemplate[];
+  layerWithRootEditTemplate: string;
 }
 
 export interface IGetConfigPadding {

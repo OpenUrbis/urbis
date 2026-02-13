@@ -21,14 +21,12 @@ export const FeaturesView = ({
   const template = computed(() => view.value.template ?? []);
   const data = computed(() => view.value.feature ?? {});
 
-  return (
-    !!template.value.length && (
-      <ViewTemplate
-        templates={template.value}
-        data={data.value}
-        rootTemplate={template.value}
-        isPrint={isPrint}
-      />
-    )
-  );
+  return !!template.value.length ? (
+    <ViewTemplate
+      templates={template.value}
+      data={data.value}
+      rootTemplate={template.value}
+      isPrint={isPrint}
+    />
+  ) : null;
 };

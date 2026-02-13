@@ -69,7 +69,8 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'distrito_municipal',
     name: 'Distritos',
-    origin: '/distritos.json',
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:distrito_municipal&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: true,
@@ -85,6 +86,8 @@ export const layerSchemas: LayerSchema[] = [
       },
     },
     properties: {
+      getText: `(d) => d?.properties?.nm_distrito_municipal`,
+      minZoomText: 10,
       stroked: true,
       filled: true,
       pointType: 'circle+text',
@@ -106,7 +109,7 @@ export const layerSchemas: LayerSchema[] = [
         type: LayerSchemaColorTypeEnum.FILL,
       },
       {
-        color: [153, 203, 255, 255],
+        color: [65, 92, 119, 255],
         label: 'default',
         type: LayerSchemaColorTypeEnum.TEXT,
       },
@@ -238,131 +241,6 @@ export const layerSchemas: LayerSchema[] = [
           },
           {
             type: 'edit-polygon',
-            polygonTemplate: [
-              {
-                type: 'wrapper-card',
-                label: 'Área selecionada',
-                templates: [
-                  {
-                    type: 'polygon-map',
-                    properties: {
-                      polygonProps: `
-                        (data) => ({
-                          id: "polygon-layer",
-                          data: [{ coordinates: data.geometry.coordinates }],
-                          pickable: false,
-                          stroked: true,
-                          filled: true,
-                          lineWidthMinPixels: 2,
-                          getPolygon: (d) => d.coordinates,
-                          getFillColor: [255, 165, 0, 100],
-                          getLineColor: [255, 140, 0],
-                        })
-                      `,
-                      initialViewState: `
-                        (data) => {
-                          const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
-
-                          return {
-                          longitude: centroid[0],
-                          latitude: centroid[1],
-                          zoom: 16.5,
-                          pitch: 0,
-                          bearing: 0,
-                          };
-                        }
-                      `,
-                    },
-                  },
-                ],
-              },
-              {
-                type: 'wrapper-card',
-                label: 'Intersesões no perimetro',
-                templates: [
-                  {
-                    type: 'wrapper-list-items',
-                    templates: [
-                      {
-                        type: 'primary-item',
-                        value: `
-                          <% if (id.includes("macroareas")) { %>
-                            <%- properties.nm_perimetro_divisao_pde %>
-                          <% } else if (id.includes("minianel_viario")) { %>
-                            <%- properties.nm_restricao_circulacao_veiculo %>
-                          <% } else if (id.includes("subprefeitura")) { %>
-                            <%- properties.nm_subprefeitura %>
-                          <% } else if (id.includes("macrozonas")) { %>
-                            <%- properties.nm_perimetro_divisao_pde %>
-                          <% } else if (id.includes("tombamentos-areas")) { %>
-                            <%- properties.nm_bairro %>
-                          <% } else if (id.includes("zoneamento_geral")) { %>
-                            <%- properties.nm_perimetro_divisao_pde %>
-                          <% } else { %>
-                            Não mapeado
-                          <% } %>
-                        `,
-                      },
-                      {
-                        type: 'secondary-item',
-                        value: `
-                          <% if (id.includes("macroareas")) { %>
-                            Macroarea
-                          <% } else if (id.includes("minianel_viario")) { %>
-                            Minianel Viario
-                          <% } else if (id.includes("subprefeitura")) { %>
-                            Sub-Prefeitura
-                          <% } else if (id.includes("macrozonas")) { %>
-                            Macrozona
-                          <% } else if (id.includes("tombamentos-areas")) { %>
-                            <%- properties.tx_resolucao_condephaat %>
-                          <% } else if (id.includes("zoneamento_geral")) { %>
-                            Zoneamento
-                          <% } else { %>
-                            Não mapeado
-                          <% } %>
-                        `,
-                      },
-                    ],
-                    properties: {
-                      data: '(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))',
-                      twoLine: true,
-                    },
-                  },
-                ],
-              },
-              {
-                type: 'wrapper-card',
-                label: 'Lotes no Perímetro',
-                templates: [
-                  {
-                    type: 'wrapper-list-items',
-                    templates: [
-                      {
-                        type: 'primary-item',
-                        value:
-                          'Identificador #<%- properties.id.replace("lote_cidadao.", "") %>',
-                      },
-                      {
-                        type: 'secondary-item',
-                        value:
-                          "SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>",
-                      },
-                    ],
-                    properties: {
-                      data: '(data) => data.response.features.filter(({ id }) => id.includes("lote_cidadao"))',
-                      twoLine: true,
-                      onItemClick: {
-                        action: 'openFeature',
-                        params: {
-                          template: 'root',
-                        },
-                      },
-                    },
-                  },
-                ],
-              },
-            ],
           },
           {
             type: 'button',
@@ -467,13 +345,11 @@ export const layerSchemas: LayerSchema[] = [
     ],
     groupId: 'geral',
     properties: {
-      stroked: false,
       filled: true,
       pointType: 'circle+text',
       pickable: true,
       extruded: true,
       wireframe: true,
-      getLineWidth: 20,
       getPointRadius: 0,
       getTextSize: 12,
       autoHighlight: true,
@@ -492,11 +368,23 @@ export const layerSchemas: LayerSchema[] = [
             "() => window.open('https://dadosabertos.urbis.sampa.br/','_blank')",
         },
       ],
+      getText: `(d) => d.properties.cd_lote?.padStart(4, '0') ?? ''`,
     },
     colors: [
       {
         color: [57, 118, 29, 175],
         label: 'default',
+        type: LayerSchemaColorTypeEnum.FILL,
+      },
+      {
+        color: [255, 255, 255, 255],
+        label: 'default',
+        type: LayerSchemaColorTypeEnum.TEXT,
+      },
+      {
+        color: [255, 255, 255, 255],
+        label: 'default',
+        type: LayerSchemaColorTypeEnum.LINE,
       },
     ],
   },

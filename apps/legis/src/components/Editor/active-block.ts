@@ -1,6 +1,7 @@
 import { Extension } from '@tiptap/core';
-import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Plugin, PluginKey, Selection } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import { Node as ProseMirrorNode } from '@tiptap/pm/model';
 
 export const ActiveBlock = Extension.create({
   name: 'activeBlock',
@@ -10,7 +11,7 @@ export const ActiveBlock = Extension.create({
       new Plugin({
         key: new PluginKey('activeBlock'),
         props: {
-          decorations: ({ doc, selection }) => {
+          decorations: ({ doc, selection }: { doc: ProseMirrorNode; selection: Selection }) => {
             // We want to highlight the block where the selection is.
             const { anchor } = selection;
             

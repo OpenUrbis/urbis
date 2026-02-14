@@ -17,7 +17,7 @@ export function buildUrbisNav(opts: {
    */
   currentApp?: UrbisApp;
 }) {
-  const isAuthenticated = opts.isAuthenticated;
+  // const isAuthenticated = opts.isAuthenticated;
 
   let hostname = "";
   let pathname = "";

@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Deploy Urbis Legis
 
 on:
   push:
@@ -13,26 +13,50 @@ jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    name: Build and Deploy urbis-legis
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build urbis-legis
+        run: pnpm --filter @open-urbis/legis build
+        env:
+          VITE_API_URL: https://api.mapa.urbis.sampa.br
+          VITE_OIDC_AUTHORITY: https://api.mapa.urbis.sampa.br/auth/oidc
+          VITE_OIDC_CLIENT_ID: 94a86322-269e-44df-803a-534c0382215d
+          VITE_OIDC_REDIRECT_URI: /callback
+          VITE_OIDC_SILENT_REDIRECT_URI: /silent-renew.html
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WONDERFUL_GLACIER_0ABCED210 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # Root of the monorepo
-          api_location: "" # Api source code path - optional
-          output_location: "apps/legis/dist" # Built app content directory
-          app_build_command: "pnpm install && pnpm --filter @open-urbis/legis build"
-          ###### End of Repository/Build Configurations ######
+          ###### Repository/Build Configurations ######
+          app_location: "apps/legis/dist"
+          api_location: ""
+          output_location: ""
+          skip_app_build: true
+          ###### End of Configurations ######
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

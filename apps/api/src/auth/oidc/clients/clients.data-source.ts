@@ -125,6 +125,10 @@ export const buildClientsDataSource = (
         'http://localhost:5175',
         'http://localhost:5175/callback',
         'http://localhost:5175/silent-renew.html',
+        // ─────────────── apps/legis ───────────────
+        'https://legis.urbis.prefeitura.sp.gov.br',
+        'https://legis.urbis.prefeitura.sp.gov.br/callback',
+        'https://legis.urbis.prefeitura.sp.gov.br/silent-renew.html',
       ],
       response_types: ['code'],
       grant_types: ['refresh_token', 'authorization_code'],
@@ -156,6 +160,10 @@ export const buildClientsDataSource = (
         'http://localhost:5175',
         'http://localhost:5175/callback',
         'http://localhost:5175/silent-renew.html',
+        // ─────────────── apps/legis ───────────────
+        'https://legis.urbis.prefeitura.sp.gov.br',
+        'https://legis.urbis.prefeitura.sp.gov.br/callback',
+        'https://legis.urbis.prefeitura.sp.gov.br/silent-renew.html',
       ],
       token_endpoint_auth_method: 'none',
     },

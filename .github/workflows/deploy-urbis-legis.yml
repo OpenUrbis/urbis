@@ -36,7 +36,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build urbis-legis
-        run: pnpm --filter @open-urbis/legis build
+        run: pnpm turbo run build --filter=@open-urbis/legis
         env:
           VITE_API_URL: https://api.mapa.urbis.sampa.br
           VITE_OIDC_AUTHORITY: https://api.mapa.urbis.sampa.br/auth/oidc

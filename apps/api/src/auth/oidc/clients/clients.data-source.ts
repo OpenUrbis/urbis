@@ -23,6 +23,7 @@ export const buildClientsDataSource = (
         'http://mapa.urbis.sampa.br/callback',
         'https://mapa.urbis.sampa.br',
         'http://urbis.sampa.br/callback',
+        'https://urbis.sampa.br/callback',
         'http://mapa.urbis.sampa.br/callback',
 
         // ─────────────── duplicatas com .prefeitura.sp.gov.br ───────────────

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD, Reflector } from '@nestjs/core';
+import { Reflector } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { AuthModuleEntities } from 'auth/index.entity';
@@ -24,7 +24,6 @@ import { UserModuleEntities, UserModuleSubscribers } from './user/index.entity';
 import { UserModule } from './user/user.module';
 import { WhitelabelModuleEntities } from './whitelabel/index.entity';
 import { WhitelabelModule } from './whitelabel/whitelabel.module';
-import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-proxy.guard';
 
 @Module({
   imports: [
@@ -95,10 +94,6 @@ import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-prox
   controllers: [],
   providers: [
     Reflector,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerBehindProxyGuard,
-    },
   ],
 })
 export class AppModule {}

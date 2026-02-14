@@ -1,8 +1,20 @@
 import { Page, CreatePageDto, UpdatePageDto } from "../types/page";
+import { RulesEngine } from "../domain/rules-engine";
 
 const STORAGE_KEY = 'legis_pages';
 
+export interface NormativeSearchResult {
+    pageId: string;
+    pageTitle: string;
+    elementId: string;
+    type: string;
+    index?: string;
+    text: string;
+}
+
 class PageService {
+    private rulesEngine = new RulesEngine();
+
     private getPagesFromStorage(): Page[] {
         const stored = localStorage.getItem(STORAGE_KEY);
         return stored ? JSON.parse(stored) : [];
@@ -85,6 +97,49 @@ class PageService {
                 <li>Validar referências</li>
             </ul>
         `;
+    }
+
+    async searchNormativeElements(query: string): Promise<NormativeSearchResult[]> {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const pages = this.getPagesFromStorage();
+        const results: NormativeSearchResult[] = [];
+        
+        const lowerQuery = query.toLowerCase();
+
+        for (const page of pages) {
+            if (results.length >= 20) break;
+            try {
+                const json = JSON.parse(page.content);
+                let blockIndex = 0;
+                
+                const traverse = (node: any) => {
+                    if (node.type === 'paragraph' || node.type === 'heading') {
+                        if (node.content) {
+                            const blockText = node.content.map((c: any) => c.text || '').join('');
+                            if (blockText.toLowerCase().includes(lowerQuery)) {
+                                const parsed = this.rulesEngine.parseLine(blockText);
+                                results.push({
+                                    pageId: page.id,
+                                    pageTitle: page.title,
+                                    elementId: `${page.id}-block-${blockIndex}`,
+                                    type: parsed.type,
+                                    index: parsed.index,
+                                    text: blockText
+                                });
+                            }
+                        }
+                        if (results.length >= 20) return; // Break traverse
+                        blockIndex++;
+                    } else if (node.content) {
+                        node.content.forEach(traverse);
+                    }
+                };
+                if (json) traverse(json);
+            } catch {
+                // Ignore parse errors
+            }
+        }
+        return results;
     }
 }
 

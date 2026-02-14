@@ -11,7 +11,9 @@ import {
 import { Home, FileText, User } from "lucide-react";
 import { useLocation, Link } from "wouter";
 import { cn } from "@open-urbis/map-ui";
-import { useAuth } from "@open-urbis/map-auth";
+import { useAuth, userProfile } from "@open-urbis/map-auth";
+import { useEffect, useState } from "react";
+import { effect } from "@preact/signals-react";
 
 const menuItems = [
   {
@@ -29,9 +31,24 @@ const menuItems = [
 export function AppSidebar({ className }: { className?: string }) {
   const [location] = useLocation();
   const auth = useAuth();
-  const user = auth.user?.profile;
-  // Attempt to find role in common claims or fallback
-  const role = (user as any)?.role || (user as any)?.job_title || (user as any)?.position || "Membro";
+  const [profile, setProfile] = useState(userProfile.value);
+
+  useEffect(() => {
+      const dispose = effect(() => {
+          setProfile(userProfile.value);
+      });
+      return () => dispose();
+  }, []);
+
+  const user = profile || auth.user?.profile;
+  
+  // Extract role name
+  // 1. Check userRoleAssignments from API profile
+  const apiRoles = (profile as any)?.userRoleAssignments?.map((a: any) => a?.role?.name).filter(Boolean);
+  // 2. Check OIDC claims
+  const oidcRole = (user as any)?.role || (user as any)?.job_title || (user as any)?.position;
+  
+  const displayRole = apiRoles?.[0] || oidcRole || "Membro";
 
   const isActive = (url: string) => {
     if (url === '/') return location === '/';
@@ -39,7 +56,7 @@ export function AppSidebar({ className }: { className?: string }) {
   };
 
   return (
-    <Sidebar collapsible="icon" className={cn("border-r", className)}>
+    <Sidebar collapsible="icon" className={cn("border-r bg-background md:z-40", className)}>
       <SidebarContent>
         <SidebarGroup>
             <SidebarGroupContent>
@@ -75,7 +92,7 @@ export function AppSidebar({ className }: { className?: string }) {
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">{user?.name || "Usuário"}</span>
-                        <span className="truncate text-xs">{role}</span>
+                        <span className="truncate text-xs">{displayRole}</span>
                     </div>
                 </SidebarMenuButton>
             </SidebarMenuItem>

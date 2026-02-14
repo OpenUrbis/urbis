@@ -11,7 +11,6 @@ import { RulesEngine } from '../domain/rules-engine';
 import { NormativeElement } from '../domain/types';
 import { PropertiesPanel } from '../components/page/PropertiesPanel';
 import { safeJSONParse } from '@/lib/content';
-import { UrbisFooter } from '../components/layout/urbis-footer';
 
 export default function PageView() {
     const [, setLocation] = useLocation();
@@ -95,6 +94,7 @@ export default function PageView() {
                 <div className="h-12 bg-muted/20 w-3/4 rounded"></div>
                 <div className="space-y-4">
                     <div className="h-4 bg-muted/20 w-full rounded"></div>
+                    <div className="h-4 bg-muted/20 w-full rounded"></div>
                     <div className="h-4 bg-muted/20 w-2/3 rounded"></div>
                 </div>
             </div>
@@ -104,7 +104,7 @@ export default function PageView() {
     if (!page) return null;
 
     return (
-        <div className="flex flex-col h-full bg-background">
+        <div className="flex flex-col min-h-screen bg-background">
             <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b">
                 <div className="w-full px-6 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -132,8 +132,8 @@ export default function PageView() {
                 </div>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
-                <div className="flex-1 overflow-y-auto">
+            <div className="flex flex-1">
+                <div className="flex-1">
                     <div className="container max-w-4xl mx-auto px-8 py-12 space-y-8">
                         
                         <header className="space-y-6">
@@ -195,12 +195,15 @@ export default function PageView() {
                             />
                         </article>
                     </div>
-                    <UrbisFooter />
                 </div>
 
-                {/* Properties Panel */}
+                {/* Properties Panel (Sticky) */}
                 {page.type === 'normative' && (
-                    <PropertiesPanel element={selectedElement} rawNode={null} />
+                    <div className="hidden md:block w-80 border-l relative">
+                        <div className="sticky top-[4rem] h-[calc(100vh-4rem)] overflow-y-auto">
+                            <PropertiesPanel element={selectedElement} rawNode={null} />
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

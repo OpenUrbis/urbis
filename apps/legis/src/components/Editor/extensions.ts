@@ -8,15 +8,13 @@ import {
   AIHighlight,
   CodeBlockLowlight,
   TextStyle,
-  Command,
-  renderItems,
   GlobalDragHandle,
 } from "novel";
 
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
-import { suggestionItems } from "./slash-command";
 import { ActiveBlock } from "./active-block";
+import { ReferenceExtension } from "./reference-node";
 
 // Create lowlight instance for code blocks
 const lowlight = createLowlight(common);
@@ -98,13 +96,6 @@ const textStyle = TextStyle.configure({
     },
 });
 
-const slashCommand = Command.configure({
-  suggestion: {
-    items: () => suggestionItems,
-    render: renderItems,
-  },
-});
-
 export const defaultExtensions = [
   starterKit,
   placeholder,
@@ -115,7 +106,7 @@ export const defaultExtensions = [
   codeBlockLowlight,
   AIHighlight,
   textStyle,
-  slashCommand,
   GlobalDragHandle,
   ActiveBlock,
+  ReferenceExtension,
 ];

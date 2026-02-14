@@ -5,7 +5,7 @@ import { UrbisHeader, Button, HelpSidebarContent, buildUrbisNav } from "@open-ur
 import { useAuth } from "@open-urbis/map-auth";
 import { CommandMenu } from "./command-menu";
 import { useLocation } from "wouter";
-import { UrbisFooter } from "./urbis-footer";
+import { UrbisFooter } from "@open-urbis/map-ui/urbis-footer";
 import { cn } from "@open-urbis/map-ui";
 
 interface LegisLayoutProps {
@@ -28,8 +28,9 @@ export function LegisLayout({ children }: LegisLayoutProps) {
   }, [auth.isAuthenticated]);
 
   // isCustomLayout = true for Editor pages (Fixed viewport, internal scroll)
-  // isCustomLayout = false for List/Home (Document scroll, footer at bottom)
-  const isCustomLayout = location !== '/' && location !== '/pages';
+  // isCustomLayout = false for List/Home/View (Document scroll, footer at bottom)
+  // Only Edit/New pages need the app-like fixed layout
+  const isCustomLayout = location.includes('/edit') || location.includes('/new');
 
   return (
     <SidebarProvider style={{ "--header-height": HEADER_HEIGHT } as React.CSSProperties}>
@@ -83,8 +84,8 @@ export function LegisLayout({ children }: LegisLayoutProps) {
           )}>
             <AppSidebar className={cn(
                 isCustomLayout 
-                    ? "md:!top-[--header-height] md:!h-[calc(100svh-var(--header-height))]" 
-                    : "md:!top-[--header-height] md:!h-[calc(100vh-var(--header-height))] md:!sticky md:!bottom-auto" 
+                    ? "md:fixed md:!top-[--header-height] md:!h-[calc(100svh-var(--header-height))]" 
+                    : "md:!sticky md:!top-[--header-height] md:!h-[calc(100vh-var(--header-height))] md:!bottom-auto" 
             )} />
             
             <SidebarInset className={cn(

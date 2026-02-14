@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { 
     EditorRoot, 
     EditorContent, 
@@ -10,12 +10,13 @@ import {
     EditorBubble,
 } from "novel";
 import { defaultExtensions } from "./extensions";
-import { suggestionItems } from "./slash-command";
+import { suggestionItems as defaultSuggestionItems } from "./slash-command";
 import BubbleMenu from "./bubble-menu";
 
 import { type Editor as TiptapEditor } from "@tiptap/core";
 
 import { cx } from "class-variance-authority";
+import { Command, renderItems } from "novel";
 
 interface EditorProps {
   initialValue?: JSONContent;
@@ -23,15 +24,31 @@ interface EditorProps {
   editable?: boolean;
   onEditorReady?: (editor: TiptapEditor) => void;
   isNormative?: boolean;
+  suggestionItems?: any[]; // Allow overriding items
 }
 
-export default function NovelEditorWrapper({ initialValue, onChange, editable = true, onEditorReady, isNormative = false }: EditorProps) {
+export default function NovelEditorWrapper({ initialValue, onChange, editable = true, onEditorReady, isNormative = false, suggestionItems = defaultSuggestionItems }: EditorProps) {
+  // Re-configure slash command with provided items
+  const extensions = useMemo(() => {
+      const slashCommand = Command.configure({
+          suggestion: {
+              items: () => suggestionItems,
+              render: renderItems,
+          },
+      });
+      // Replace default slashCommand (which might be in defaultExtensions)
+      // Actually defaultExtensions has slashCommand configured with default items.
+      // We should filter it out and add ours?
+      // Or just append? Tiptap usually uses last config.
+      return [...(defaultExtensions as any), slashCommand];
+  }, [suggestionItems]);
+
   return (
     <div className="relative w-full max-w-screen-lg novel-editor-wrapper">
       <EditorRoot>
          <EditorContent
             initialContent={initialValue}
-            extensions={defaultExtensions as any}
+            extensions={extensions}
             onCreate={({ editor }) => {
                 if (onEditorReady) {
                     onEditorReady(editor as any);

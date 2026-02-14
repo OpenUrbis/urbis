@@ -25,11 +25,11 @@ export function PropertiesPanel({ element, rawNode }: PropertiesPanelProps) {
     }
 
     return (
-        <div className="w-80 border-l bg-background h-full overflow-y-auto flex flex-col">
+        <div className="w-80 border-l bg-background h-full overflow-y-auto overflow-x-hidden flex flex-col">
             <div className="p-4 border-b">
-                <h3 className="font-semibold text-sm flex items-center gap-2">
+                <h3 className="font-semibold text-sm flex items-center justify-between gap-2">
                     Propriedades
-                    <Badge variant="outline" className="ml-auto font-mono text-[10px]">{element.type}</Badge>
+                    <Badge variant="outline" className="font-mono text-[10px] truncate max-w-[150px]" title={element.type}>{element.type}</Badge>
                 </h3>
             </div>
 
@@ -38,13 +38,13 @@ export function PropertiesPanel({ element, rawNode }: PropertiesPanelProps) {
                 <div className="space-y-2">
                     <label className="text-xs font-medium text-muted-foreground">Identificação</label>
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="bg-muted/30 p-2 rounded border">
+                        <div className="bg-muted/30 p-2 rounded border overflow-hidden">
                             <span className="block text-[10px] text-muted-foreground">Tipo</span>
-                            <span className="font-medium">{element.type}</span>
+                            <span className="font-medium truncate block" title={element.type}>{element.type}</span>
                         </div>
-                        <div className="bg-muted/30 p-2 rounded border">
+                        <div className="bg-muted/30 p-2 rounded border overflow-hidden">
                             <span className="block text-[10px] text-muted-foreground">Índice</span>
-                            <span className="font-medium">{element.index || '-'}</span>
+                            <span className="font-medium truncate block" title={element.index || '-'}>{element.index || '-'}</span>
                         </div>
                     </div>
                 </div>
@@ -85,7 +85,7 @@ export function PropertiesPanel({ element, rawNode }: PropertiesPanelProps) {
                         <Code className="h-3 w-3" />
                         Estrutura JSON
                     </label>
-                    <div className="bg-slate-950 text-slate-50 p-3 rounded-md text-[10px] font-mono">
+                    <div className="bg-slate-950 text-slate-50 p-3 rounded-md text-[10px] font-mono overflow-x-auto">
                         <pre className="whitespace-pre-wrap break-all">{JSON.stringify(element, null, 2)}</pre>
                     </div>
                 </div>

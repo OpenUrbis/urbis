@@ -9,10 +9,12 @@
   "exports": {
     ".": "./index.ts",
     "./urbis-header": "./components/urbis-header.tsx",
+    "./urbis-footer": "./components/urbis-footer.tsx",
     "./urbis-logo": "./components/urbis-logo.tsx",
     "./ui/button": "./components/ui/button.tsx",
     "./ui/card": "./components/ui/card.tsx",
     "./ui/input": "./components/ui/input.tsx",
+    "./ui/command": "./components/ui/command.tsx",
     "./ui/dropdown-menu": "./components/ui/dropdown-menu.tsx",
     "./counter": "./components/counter.ts",
     "./header": "./components/header.ts",

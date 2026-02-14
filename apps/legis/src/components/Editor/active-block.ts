@@ -32,7 +32,7 @@ export const ActiveBlock = Extension.create({
                 node = $pos.node(depth);
             }
 
-            if (!node || !node.isBlock) return DecorationSet.empty;
+            if (!node || !node.isBlock || depth <= 0) return DecorationSet.empty;
 
             // Create decoration
             // Note: Decoration.node applies to the node itself.

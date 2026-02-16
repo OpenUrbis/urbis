@@ -2,10 +2,11 @@ import axios, { AxiosRequestConfig } from "axios";
 import {
   IGetSearchConfigResponse,
   IGetSearchItem,
+  IGetSearchItemError,
 } from "../types/fetch-search-config-type";
 import { createFn } from "../utils/createFn";
 
-const environment = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const environment = import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br";
 
 export const getSearchConfig = async (): Promise<
   IGetSearchConfigResponse[]
@@ -21,32 +22,37 @@ export const getSearchConfig = async (): Promise<
 export const fetchSearchItem = async (
   item: IGetSearchConfigResponse,
   term: string
-): Promise<IGetSearchItem[]> => {
-  if (!term) return [];
+): Promise<IGetSearchItem[] | IGetSearchItemError[]> => {
+  try {
+    if (!term) return [];
 
-  const {
-    origin,
-    method,
-    transformParams,
-    transformRequest,
-    transformResponse,
-  } = item;
-  const config: AxiosRequestConfig = {
-    url: origin.replace("{environment}", environment),
-    method: method || "GET",
-  };
+    const {
+      origin,
+      method,
+      transformParams,
+      transformRequest,
+      transformResponse,
+    } = item;
+    const config: AxiosRequestConfig = {
+      url: origin.replace("{environment}", environment),
+      method: method || "GET",
+    };
 
-  if (transformParams) {
-    const transformParamsFn = createFn(transformParams);
-    config.params = transformParamsFn ? transformParamsFn({ term }) : {};
+    if (transformParams) {
+      const transformParamsFn = createFn(transformParams);
+      config.params = transformParamsFn ? transformParamsFn({ term }) : {};
+    }
+
+    if (transformRequest) config.transformRequest = [createFn(transformRequest)];
+
+    if (transformResponse)
+      config.transformResponse = [createFn(transformResponse)];
+
+    const response = await axios(config);
+
+    return response.data ?? []; 
+  } catch (error: any) {
+    console.error("Error fetching search item:", error);
+    return [{ type: 'error', message: error?.response?.data?.message ?? "Houve um erro ao buscar os dados de pesquisa." }];
   }
-
-  if (transformRequest) config.transformRequest = [createFn(transformRequest)];
-
-  if (transformResponse)
-    config.transformResponse = [createFn(transformResponse)];
-
-  const response = await axios(config);
-
-  return response.data ?? [];
 };

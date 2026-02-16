@@ -5,7 +5,7 @@ import { SearchResult } from './interfaces/geocoding.interface';
 
 @Injectable()
 export class GeocodingService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   async searchPlaces(
     search: string,
@@ -61,31 +61,36 @@ export class GeocodingService {
 
     const config = this.configService.get('geocoding');
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    const { data } = await axios.get(config.nominatimUrl, {
-      params: {
-        q: search,
-        format: 'json',
-        limit: 5,
-        countrycodes: 'BR',
-        viewbox: config.bboxSearch,
-        addressdetails: 1,
-      },
-      headers: {
-        'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-      },
-    });
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const { data } = await axios.get(config.nominatimUrl, {
+        params: {
+          q: search,
+          format: 'json',
+          limit: 5,
+          countrycodes: 'BR',
+          viewbox: config.bboxSearch,
+          addressdetails: 1,
+        },
+        headers: {
+          'accept-language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+        },
+      });
 
-    return data.map(
-      (feature: any): SearchResult => ({
-        id: feature.place_id,
-        name: feature.display_name,
-        type: feature.addresstype,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        latitude: parseFloat(feature.lat),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        longitude: parseFloat(feature.lon),
-      }),
-    );
+      return data.map(
+        (feature: any): SearchResult => ({
+          id: feature.place_id,
+          name: feature.display_name,
+          type: feature.addresstype,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          latitude: parseFloat(feature.lat),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          longitude: parseFloat(feature.lon),
+        }),
+      );
+    } catch (error) {
+      console.error('Error fetching data from Nominatim:', error);
+      throw new BadRequestException('Nominatim esta indisponível no momento');
+    }
   }
 }

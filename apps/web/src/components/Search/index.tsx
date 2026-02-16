@@ -10,6 +10,7 @@ import { useSearchContext } from "../../hooks/useSearchContext";
 import {
   IGetSearchConfigResponse,
   IGetSearchItem,
+  IGetSearchItemError,
 } from "../../types/fetch-search-config-type";
 import { ITemplate } from "../ViewTemplate/types/templates-type";
 import "./style.scss";
@@ -68,10 +69,29 @@ export const Search = () => {
     }
   };
 
+  const renderError = (
+    config: IGetSearchConfigResponse,
+    list: IGetSearchItemError[] = []
+  ) => {
+    return (
+      <>
+        <span>
+          {config.name} (0)
+        </span>
+        <div className="alert alert-danger mt-3">
+          {list?.[0]?.message ||
+            "Ocorreu um erro ao buscar os dados. Tente novamente mais tarde."}
+        </div>
+      </>
+    )
+  }
+
   const buildList = (
     config: IGetSearchConfigResponse,
-    list: IGetSearchItem[] = []
+    list: IGetSearchItem[] | IGetSearchItemError[] = []
   ) => {
+    if (list.findIndex((item) => (item as IGetSearchItemError)?.type === 'error') >= 0) return renderError(config, list as IGetSearchItemError[]);
+
     return (
       <>
         <span>
@@ -86,12 +106,14 @@ export const Search = () => {
             padding: 0,
           }}
         >
-          {list.map((result) =>
+          {list.map((result) => {
+            const content = result as IGetSearchItem;
+
             // eslint-disable-next-line react/no-children-prop
-            createElement(ListItem, {
-              key: result.id,
+            return createElement(ListItem, {
+              key: content.id,
               onClick: () => {
-                handleClickItem(config, result);
+                handleClickItem(config, content);
 
                 resetSearch();
                 clearResults();
@@ -99,11 +121,12 @@ export const Search = () => {
               children: [
                 createElement(
                   "span",
-                  { key: `${result.id}-text`, className: "text" },
-                  result.name
+                  { key: `${content.id}-text`, className: "text" },
+                  content.name
                 ),
               ],
             })
+          }
           )}
         </List>
       </>
@@ -145,7 +168,7 @@ export const Search = () => {
                 raised: true,
                 icon: loading
                   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    createElement(CircularProgress as any, { width: "24px" })
+                  createElement(CircularProgress as any, { width: "24px" })
                   : "search",
                 type: "submit",
                 class: "search-button",

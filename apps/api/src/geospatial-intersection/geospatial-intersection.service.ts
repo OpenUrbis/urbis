@@ -13,7 +13,7 @@ import {
   MultiPolygon,
   GeoJsonProperties,
 } from 'geojson';
-import { formatBoundsForURL, transformBoundsToUTM } from './utils';
+import { formatBoundsForURL } from './utils';
 
 /**
  * Interface for FeatureCollection properties
@@ -59,7 +59,13 @@ export class GeospatialIntersectionService {
     geom_uc: ['slui:parques_unidades_de_conservacao_e_apa'],
     geom_apa: ['slui:parques_unidades_de_conservacao_e_apa'],
     geom_area_contaminada: ['slui:areas_contaminadas'],
-    geom_melhoramento_viario: ['slui:minianel_viario']
+    geom_melhoramento_viario: ['slui:minianel_viario'],
+    geom_area_manancial: ['slui:manancial_billings'],
+    geom_area_manancial_guarapiranga: ['slui:manancial_guarapiranga'],
+    geom_area_manancial_juquery: ['slui:manancial_juquery'],
+    geom_area_envoltoria_iphan: ['slui:tombamentos_envoltorias_de_imoveis_IPHAN'],
+    geom_area_envoltoria_conpresp: ['slui:tombamentos_envoltorias_de_imoveis_CONPRESP'],
+    geom_area_envoltoria_condephaat: ['slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT'],
   };
 
   constructor(private readonly httpService: HttpService) { }
@@ -76,7 +82,7 @@ export class GeospatialIntersectionService {
   async findIntersections(
     geojson: Feature<Polygon | MultiPolygon>,
     specificLayers?: string[],
-    srsName: string = 'EPSG:4326',
+    srsName: string = 'EPSG:31983',
   ): Promise<GeospatialFeatureCollection> {
     try {
       // Validate input GeoJSON
@@ -95,7 +101,7 @@ export class GeospatialIntersectionService {
 
       // Calculate expanded bounding box
       const bbox = turf.bbox(polygonGeometry);
-      const margin = 0.01;
+      const margin = 100; // 100 metros
       const expandedBbox = [
         bbox[0] - margin,
         bbox[1] - margin,
@@ -108,9 +114,7 @@ export class GeospatialIntersectionService {
         [expandedBbox[0], expandedBbox[1]],
         [expandedBbox[2], expandedBbox[3]],
       ];
-      const utmBounds = bounds.map(([lng, lat]) =>
-        transformBoundsToUTM([lng, lat]),
-      );
+      const utmBounds = bounds;
       const formattedBounds = formatBoundsForURL([
         utmBounds[0][0],
         utmBounds[0][1],
@@ -143,6 +147,12 @@ export class GeospatialIntersectionService {
         'slui:tombamentos-envoltorias-de-imoveis',
         'slui:tombamentos-imoveis',
         'slui:zoneamento',
+        'slui:manancial_billings',
+        'slui:manancial_guarapiranga',
+        'slui:manancial_juquery',
+        'slui:tombamentos_envoltorias_de_imoveis_IPHAN',
+        'slui:tombamentos_envoltorias_de_imoveis_CONPRESP',
+        'slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT',
       ];
 
       // Use specific layers if provided, otherwise use all layers
@@ -242,8 +252,8 @@ export class GeospatialIntersectionService {
         )];
       }
 
-      // Get intersections with specific layers using EPSG:4326
-      const intersections = await this.findIntersections(lotFeature, requiredLayers, 'EPSG:4326');
+      // Get intersections with specific layers using EPSG:31983
+      const intersections = await this.findIntersections(lotFeature, requiredLayers, 'EPSG:31983');
 
       // Structure the response
       const allFields = {
@@ -273,6 +283,24 @@ export class GeospatialIntersectionService {
           .map(f => f),
         geom_melhoramento_viario: intersections.features
           .filter(f => f.properties.layer === 'slui:minianel_viario')
+          .map(f => f),
+        geom_area_manancial: intersections.features
+          .filter(f => f.properties.layer === 'slui:manancial_billings')
+          .map(f => f),
+        geom_area_manancial_guarapiranga: intersections.features
+          .filter(f => f.properties.layer === 'slui:manancial_guarapiranga')
+          .map(f => f),
+        geom_area_manancial_juquery: intersections.features
+          .filter(f => f.properties.layer === 'slui:manancial_juquery')
+          .map(f => f),
+        geom_area_envoltoria_iphan: intersections.features
+          .filter(f => f.properties.layer === 'slui:tombamentos_envoltorias_de_imoveis_IPHAN')
+          .map(f => f),
+        geom_area_envoltoria_conpresp: intersections.features
+          .filter(f => f.properties.layer === 'slui:tombamentos_envoltorias_de_imoveis_CONPRESP')
+          .map(f => f),
+        geom_area_envoltoria_condephaat: intersections.features
+          .filter(f => f.properties.layer === 'slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT')
           .map(f => f),
       };
 
@@ -318,7 +346,7 @@ export class GeospatialIntersectionService {
         typeName: 'slui:view_lote_cidadao',
         maxFeatures: 5,
         outputFormat: 'json',
-        srsName: 'EPSG:4326',
+        srsName: 'EPSG:31983',
         CQL_FILTER: `setor_quadra_lote_condominio = '${formattedSqlc}'`,
       },
       headers: {

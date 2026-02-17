@@ -10,7 +10,7 @@ dependencies:
     version: ">=4.12.1"
     repository: "https://kubernetes.github.io/ingress-nginx"
   - name: cert-manager
-    version: ">=v1.0.0"
+    version: "1.14.5"
     repository: "https://charts.jetstack.io"
   - name: base
     version: "1.0.0"

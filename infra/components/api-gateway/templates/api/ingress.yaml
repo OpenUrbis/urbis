@@ -43,6 +43,6 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: cm-acme-http-solver-wg748 # change me to you solver
+                name: cm-acme-http-solver-8vtnq # change me to you solver
                 port:
                   number: 8089 # geralmente o cert-manager usa 8089, mas confira!

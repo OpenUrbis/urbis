@@ -17,6 +17,7 @@ export interface ITemplatesMap {
 }
 
 export interface ITemplate {
+  id?: string;
   type: string;
   templates?: ITemplate[];
   label?: string;

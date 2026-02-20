@@ -8,14 +8,15 @@ import { Route, Router } from "wouter";
 import { MainLayout } from "../../components/MainLayout";
 
 const LayerHandleRoute = lazy(
-  () => import("./pages/LayerManager/LayerHandleRoute")
+  () => import("./pages/LayerManager/LayerHandleRoute"),
 );
 const GroupHandleRoute = lazy(
-  () => import("./pages/GroupManager/GroupHandleRoute")
+  () => import("./pages/GroupManager/GroupHandleRoute"),
 );
 const SearchHandleRoute = lazy(
-  () => import("./pages/SearchManager/SearchHandleRoute")
+  () => import("./pages/SearchManager/SearchHandleRoute"),
 );
+const ViewTemplateEditorPage = lazy(() => import("./pages/ViewTemplateEditor"));
 
 const AdminPage = () => {
   return (
@@ -38,6 +39,9 @@ const AdminPage = () => {
               </Route>
               <Route path="/search-manager" nest>
                 {(<SearchHandleRoute />) as ReactNode}
+              </Route>
+              <Route path="/view-template">
+                <ViewTemplateEditorPage />
               </Route>
             </Suspense>
           ) as ReactNode

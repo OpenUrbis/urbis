@@ -6,6 +6,7 @@ import { LabelValueTemplate } from "./LabelValueTemplate";
 import { ListItemsWrapper } from "./ListItemsWrapper";
 import { PolygonMapTemplate } from "./PolygonMapTemplate";
 import { PrimaryItemTemplate } from "./PrimaryItemTemplate";
+import { RequestWrapper } from "./RequestWrapper";
 import { RowWrapper } from "./RowWrapper";
 import { SecondaryItemTemplate } from "./SecondaryItemTemplate";
 
@@ -22,4 +23,5 @@ export const VIEW_TEMPLATE_TEMPLATES: ITemplatesDeclaration[] = [
   RowWrapper,
   CardWrapper,
   ListItemsWrapper,
+  RequestWrapper,
 ];

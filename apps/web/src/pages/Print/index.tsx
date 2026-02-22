@@ -83,7 +83,7 @@ const PrintPage = () => {
         </div>
         <div className="metadata d-flex align-items-center justify-content-center flex-column">
           <span>Prefeitura de São Paulo</span>
-          <span>Informações</span>
+          <span>DEMO - ADESAMPA</span>
           <span>Informações</span>
         </div>
         <div className="qrcode d-flex align-items-center justify-content-center">

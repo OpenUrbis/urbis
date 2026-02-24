@@ -1,15 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LayerSchemaEntities } from 'maps/layer-schemas/entities';
 import { LayerSchemasModule } from 'maps/layer-schemas/layer-schemas.module';
-import { LayerSchemaColors } from '../layer-schemas/entities/layer-schema-color.entity';
-import { LayerSchema } from '../layer-schemas/entities/layer-schema.entity';
-import { SearchConfig } from './entities/search-config.entity';
+import { SearchConfigEntities } from './entities';
 import { SearchController } from './search.controller';
 import { SearchService } from './search.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LayerSchema, LayerSchemaColors, SearchConfig]),
+    TypeOrmModule.forFeature([...SearchConfigEntities, ...LayerSchemaEntities]),
     LayerSchemasModule,
   ],
   controllers: [SearchController],

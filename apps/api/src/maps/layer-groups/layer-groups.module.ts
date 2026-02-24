@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LayerSchemaColors } from './../layer-schemas/entities/layer-schema-color.entity';
-import { LayerSchema } from './../layer-schemas/entities/layer-schema.entity';
-import { LayerGroup } from './entities/layer-group.entity';
+import { LayerSchemaEntities } from 'maps/layer-schemas/entities';
+import { LayerGroupEntities } from './entities';
 import { LayerGroupsController } from './layer-groups.controller';
 import { LayerGroupsService } from './layer-groups.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LayerGroup, LayerSchema, LayerSchemaColors]),
+    TypeOrmModule.forFeature([...LayerGroupEntities, ...LayerSchemaEntities]),
   ],
   exports: [LayerGroupsService],
   providers: [LayerGroupsService],

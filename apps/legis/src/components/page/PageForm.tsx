@@ -363,6 +363,14 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                 };
             }) 
         });
+        
+        // Restore selection
+        try {
+            editor.commands.setTextSelection({ from, to });
+        } catch (e) {
+            console.warn("Could not restore selection exactly", e);
+        }
+
         toast.success("Estrutura sincronizada");
     };
 

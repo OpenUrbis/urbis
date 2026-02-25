@@ -338,6 +338,11 @@ export function SpecialSituationsPanel({ selectedElements = [], allElements = []
             vetoText: newSituation.vetoText,
             newIndex: newSituation.newIndex,
             newText: newSituation.newText,
+            dispositivo: newSituation.dispositivo,
+            revokedText: newSituation.revokedText,
+            vetoOverturnedText: newSituation.vetoOverturnedText,
+            trechos: newSituation.trechos,
+            newType: newSituation.newType,
         };
 
         const updates = selectedElements.map(el => ({
@@ -360,6 +365,11 @@ export function SpecialSituationsPanel({ selectedElements = [], allElements = []
             vetoText: newSituation.vetoText,
             newIndex: newSituation.newIndex,
             newText: newSituation.newText,
+            dispositivo: newSituation.dispositivo,
+            revokedText: newSituation.revokedText,
+            vetoOverturnedText: newSituation.vetoOverturnedText,
+            trechos: newSituation.trechos,
+            newType: newSituation.newType,
         };
 
         const updatedElement = {

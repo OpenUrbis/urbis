@@ -57,6 +57,58 @@ const extractLinks = (content: JSONContent | undefined): CollectionLink[] => {
     return Array.from(linksMap.values());
 };
 
+// Helper to extract table data from a node
+const extractTableDataFromNode = (node: any, serializer: DOMSerializer) => {
+    const tableData: any = { rows: [], cols: [], cells: [] };
+    let rowIdx = 1;
+    const genId = () => Math.floor(Math.random() * 100000).toString();
+    
+    let maxCols = 0;
+    node.content.forEach((row: any) => {
+        let rowCols = 0;
+        row.content.forEach((cell: any) => {
+            rowCols += (cell.attrs.colspan || 1);
+        });
+        maxCols = Math.max(maxCols, rowCols);
+    });
+    
+    for (let i = 0; i < maxCols; i++) {
+        tableData.cols.push({ id: genId(), type: 'Corpo', index: i + 1 });
+    }
+
+    node.content.forEach((row: any, rI: number) => {
+        const rowId = genId();
+        tableData.rows.push({ id: rowId, type: rI === 0 ? 'Cabeçalho' : 'Corpo', index: rowIdx++ });
+        
+        let colIdx = 0;
+        row.content.forEach((cell: any) => {
+            const cellFragment = serializer.serializeFragment(cell.content);
+            const tempDiv = document.createElement('div');
+            tempDiv.appendChild(cellFragment);
+
+            // Normalize ordinals in text nodes
+            const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT);
+            let textNode;
+            while (textNode = walker.nextNode()) {
+                if (textNode.nodeValue) {
+                    textNode.nodeValue = normalizeOrdinals(textNode.nodeValue);
+                }
+            }
+
+            tableData.cells.push({ 
+                rowId, 
+                colId: tableData.cols[colIdx].id, 
+                text: tempDiv.innerHTML || '',
+                rowSpan: cell.attrs.rowspan || 1,
+                colSpan: cell.attrs.colspan || 1
+            });
+            
+            colIdx += (cell.attrs.colspan || 1);
+        });
+    });
+    return tableData;
+};
+
 // Hierarchy Definition
 const PARENT_HIERARCHY: Record<string, string[]> = {
     'Parte': [],
@@ -464,14 +516,19 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
             // Sincronização leve de texto em tempo real
             const textUpdateHandler = () => {
                 const serializer = DOMSerializer.fromSchema(editor.schema);
-                const updates: Record<string, string> = {};
+                const updates: Record<string, any> = {};
                 
                 editor.state.doc.descendants((node) => {
                     if (node.attrs?.normativeId) {
-                        const fragment = serializer.serializeFragment(node.content);
-                        const tempDiv = document.createElement('div');
-                        tempDiv.appendChild(fragment);
-                        updates[node.attrs.normativeId] = tempDiv.innerHTML;
+                        if (node.type.name === 'table') {
+                            const tableData = extractTableDataFromNode(node, serializer);
+                            updates[node.attrs.normativeId] = { type: 'table', data: tableData };
+                        } else {
+                            const fragment = serializer.serializeFragment(node.content);
+                            const tempDiv = document.createElement('div');
+                            tempDiv.appendChild(fragment);
+                            updates[node.attrs.normativeId] = { type: 'text', content: tempDiv.innerHTML };
+                        }
                     }
                     return node.isBlock;
                 });
@@ -480,9 +537,19 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                     setStructuredElements(prev => {
                         let hasChanged = false;
                         const next = prev.map(el => {
-                            if (updates[el.id] !== undefined && el.text !== updates[el.id]) {
-                                hasChanged = true;
-                                return { ...el, text: updates[el.id] };
+                            const update = updates[el.id];
+                            if (!update) return el;
+
+                            if (update.type === 'table') {
+                                if (JSON.stringify(el.tableData) !== JSON.stringify(update.data)) {
+                                    hasChanged = true;
+                                    return { ...el, tableData: update.data };
+                                }
+                            } else if (update.type === 'text') {
+                                if (el.text !== update.content) {
+                                    hasChanged = true;
+                                    return { ...el, text: update.content };
+                                }
                             }
                             return el;
                         });

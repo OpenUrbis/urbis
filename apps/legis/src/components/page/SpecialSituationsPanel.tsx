@@ -12,6 +12,7 @@ import { getCleanDisplayText } from '../../domain/text-utils';
 import { SegmentSelector, Segment } from '../common/SegmentSelector';
 import { extractTextFromWordIndices } from '../../domain/text-utils';
 import { NormativeLinkInput } from '../common/NormativeLinkInput';
+import { DatePartsInput } from '../common/DatePartsInput';
 
 interface SpecialSituationsPanelProps {
     selectedElements?: NormativeElement[];
@@ -130,7 +131,7 @@ export function SpecialSituationsPanel({ selectedElements = [], allElements = []
             } else if (activeLinkField === 'bulkEnd') {
                 setBulkValidity(prev => ({ ...prev, finalElementId: valueToStore }));
             } else if (activeLinkField === 'newSituation') {
-                setNewSituation(prev => ({ ...prev, relatedDeviceId: valueToStore }));
+                setNewSituation(prev => ({ ...prev, relatedDeviceId: valueToStore, dispositivo: label }));
             } else if (activeLinkField === 'startValidity' && element) {
                 onUpdate({ 
                     ...element, 
@@ -959,6 +960,7 @@ export function SpecialSituationsPanel({ selectedElements = [], allElements = []
                                     placeholder="Ex: Art. 1º da Lei X"
                                     value={newSituation.dispositivo || ''}
                                     onChange={e => setNewSituation({...newSituation, dispositivo: e.target.value})}
+                                    disabled={!!newSituation.relatedDeviceId}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -974,10 +976,9 @@ export function SpecialSituationsPanel({ selectedElements = [], allElements = []
 
                         <div className="space-y-2">
                             <Label>Data</Label>
-                            <Input 
-                                placeholder="DD.MM.YYYY ou 'vigência condicionada'" 
-                                value={newSituation.date || ''}
-                                onChange={e => setNewSituation({...newSituation, date: e.target.value})}
+                            <DatePartsInput 
+                                value={newSituation.date} 
+                                onChange={v => setNewSituation({...newSituation, date: v})}
                             />
                         </div>
 
@@ -985,26 +986,11 @@ export function SpecialSituationsPanel({ selectedElements = [], allElements = []
                         
                         {(newSituation.type === 'Veto') && (
                             <div className="space-y-2">
-                                <div className="flex justify-between items-center">
-                                    <Label>Texto Vetado (se parcial)</Label>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className="h-5 text-[10px]"
-                                        onClick={() => handleOpenSegmentSelector('veto', element?.text || '')}
-                                    >
-                                        <MousePointerClick className="w-3 h-3 mr-1" /> Selecionar Trechos
-                                    </Button>
-                                </div>
+                                <Label>Texto Vetado (se parcial)</Label>
                                 <Textarea 
                                     value={newSituation.vetoText || ''}
                                     onChange={e => setNewSituation({...newSituation, vetoText: e.target.value})}
                                 />
-                                {newSituation.trechos && newSituation.trechos.length > 0 && (
-                                    <div className="text-[10px] text-muted-foreground">
-                                        {newSituation.trechos.length} trecho(s) vinculado(s) via índice de palavras.
-                                    </div>
-                                )}
                             </div>
                         )}
 

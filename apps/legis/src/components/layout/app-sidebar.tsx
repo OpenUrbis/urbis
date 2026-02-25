@@ -56,7 +56,7 @@ export function AppSidebar({ className }: { className?: string }) {
   };
 
   return (
-    <Sidebar collapsible="icon" className={cn("border-r bg-background md:z-40", className)}>
+    <Sidebar collapsible="offcanvas" variant="floating" className={cn("border-r bg-background md:z-40", className)}>
       <SidebarContent>
         <SidebarGroup>
             <SidebarGroupContent>

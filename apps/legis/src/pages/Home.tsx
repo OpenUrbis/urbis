@@ -145,82 +145,89 @@ export default function Home() {
   if (isSearchMode) {
       return (
         <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
-            <div className="sticky top-0 z-40 px-8 py-4 bg-background/80 backdrop-blur-sm border-b space-y-4">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Acervo Legis</h1>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                            <Link href="/" className="hover:text-foreground">Início</Link>
-                            <ChevronRight className="h-3 w-3" />
-                            <span>Pesquisa e Gerenciamento</span>
+            <div className="sticky top-[4rem] z-40 bg-background/80 backdrop-blur-sm border-b">
+                <div className="px-8 py-6 space-y-6 max-w-7xl mx-auto">
+                    {/* Header Top Row */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight text-foreground">Acervo Legis</h1>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                                <Link href="/" className="hover:text-primary transition-colors">Início</Link>
+                                <ChevronRight className="h-3 w-3" />
+                                <span>Pesquisa e Gerenciamento</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center bg-muted/50 p-1 rounded-full border border-border/50">
+                                <button
+                                    onClick={() => setViewMode('grid')}
+                                    className={cn(
+                                        "p-2 rounded-full transition-all duration-200",
+                                        viewMode === 'grid' ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                    title="Grade"
+                                >
+                                    <LayoutGrid className="h-4 w-4" />
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={cn(
+                                        "p-2 rounded-full transition-all duration-200",
+                                        viewMode === 'list' ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                    title="Lista"
+                                >
+                                    <List className="h-4 w-4" />
+                                </button>
+                            </div>
+                            {canCreate && (
+                                <Button onClick={() => setLocation('/pages/new')} size="sm" className="h-9 rounded-full px-4 text-xs font-medium shadow-sm hover:shadow-md transition-all">
+                                    <Plus className="h-3.5 w-3.5 mr-1.5" />
+                                    Nova Página
+                                </Button>
+                            )}
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <div className="flex bg-muted p-1 rounded-md mr-2">
-                            <Button 
-                                variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
-                                size="icon" 
-                                className="h-7 w-7" 
-                                onClick={() => setViewMode('grid')}
-                                title="Visualização em Grade"
-                            >
-                                <LayoutGrid className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                variant={viewMode === 'list' ? 'secondary' : 'ghost'} 
-                                size="icon" 
-                                className="h-7 w-7" 
-                                onClick={() => setViewMode('list')}
-                                title="Visualização em Lista"
-                            >
-                                <List className="h-4 w-4" />
-                            </Button>
-                        </div>
-                        {canCreate && (
-                            <Button onClick={() => setLocation('/pages/new')} size="sm" className="gap-2">
-                                <Plus className="h-4 w-4" />
-                                Nova Página
-                            </Button>
-                        )}
-                    </div>
-                </div>
 
-                <div className="flex items-center gap-2 max-w-3xl">
-                    {categoryFilter && (
-                        <div className="flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 px-2.5 py-1.5 rounded-full text-xs font-bold animate-in slide-in-from-left-2 duration-300 shadow-sm shrink-0">
-                            {categoryFilter}
-                            <button 
-                                onClick={() => setLocation('/pages')}
-                                className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
-                                title="Remover filtro"
-                            >
-                                <X className="h-3 w-3" />
-                            </button>
+                    {/* Search Row */}
+                    <div className="flex items-center gap-3">
+                        <div className="relative flex-1 group">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Input
+                                type="search"
+                                placeholder="Pesquisar em Títulos, Resumos e Conteúdo..."
+                                className="pl-10 h-11 w-full rounded-2xl bg-muted/30 border-transparent focus:bg-background focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all shadow-sm group-hover:bg-muted/50"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyDown={handleSearchInput}
+                            />
                         </div>
-                    )}
-                    <div className="relative flex-1">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            type="search"
-                            placeholder="Pesquisar em Títulos, Resumos e Conteúdo..."
-                            className="pl-9 h-9"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onKeyDown={handleSearchInput}
-                        />
+                        {categoryFilter && (
+                            <div className="flex items-center gap-2 bg-primary/5 text-primary border border-primary/10 pl-3 pr-1 py-1 rounded-full text-xs font-semibold animate-in fade-in slide-in-from-right-4 duration-300">
+                                <span>{categoryFilter}</span>
+                                <button 
+                                    onClick={() => setLocation('/pages')}
+                                    className="hover:bg-primary/10 rounded-full p-1 transition-colors"
+                                    title="Remover filtro"
+                                >
+                                    <X className="h-3.5 w-3.5" />
+                                </button>
+                            </div>
+                        )}
+                        <Button 
+                            onClick={() => setLocation(`/pages?q=${encodeURIComponent(searchTerm)}`)} 
+                            disabled={isSearching} 
+                            size="lg"
+                            className="h-11 px-6 rounded-2xl shadow-sm hover:shadow-md transition-all"
+                        >
+                            {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buscar'}
+                        </Button>
                     </div>
-                    <Button 
-                        onClick={() => setLocation(`/pages?q=${encodeURIComponent(searchTerm)}`)} 
-                        disabled={isSearching} 
-                        size="sm"
-                    >
-                        {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Buscar'}
-                    </Button>
                 </div>
             </div>
 
             <div className="flex-1 overflow-y-auto">
-                <div className="p-8 min-h-[calc(100vh-200px)]">
+                <div className="px-8 py-8 min-h-[calc(100vh-200px)] max-w-7xl mx-auto w-full">
                     {isSearching && !results ? (
                         <div className="grid gap-4">
                             {[1, 2, 3].map((i) => (
@@ -237,19 +244,20 @@ export default function Home() {
                         </div>
                     ) : (
                         <div className={cn(
-                            viewMode === 'list' ? "flex flex-col gap-4 max-w-4xl mx-auto" : "grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                            viewMode === 'list' ? "flex flex-col gap-4" : "grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+                            "animate-in fade-in slide-in-from-bottom-8 duration-700"
                         )}>
                             {results?.map((res) => (
                                 <Link key={res.page.id} href={`/pages/${res.page.id}`}>
                                     <div className={cn(
-                                        "block bg-card border rounded-lg p-6 hover:shadow-md transition-all cursor-pointer group relative",
+                                        "block bg-card border-0 shadow-sm rounded-2xl p-4 hover:shadow-lg transition-all cursor-pointer group relative ring-1 ring-border/50 hover:ring-primary/20 hover:-translate-y-0.5 duration-300",
                                         viewMode === 'grid' && "h-full flex flex-col justify-between"
                                     )}>
                                         {/* Header */}
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div>
-                                                <div className="flex flex-wrap items-center gap-2 mb-2">
-                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="min-w-0">
+                                                <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+                                                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
                                                         res.page.type === 'original_normativo' 
                                                           ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' 
                                                           : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
@@ -257,38 +265,33 @@ export default function Home() {
                                                         {res.page.type === 'original_normativo' ? 'Normativo' : 'Coletânea'}
                                                     </span>
                                                     {res.page.type === 'coletanea_tematica' && (res.page.entity as any)?.collectionType && (
-                                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+                                                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
                                                             {(res.page.entity as any).collectionType}
-                                                        </span>
-                                                    )}
-                                                    {viewMode === 'list' && (
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {new Date(res.page.updatedAt).toLocaleDateString()}
                                                         </span>
                                                     )}
                                                 </div>
                                                 <h4 className={cn(
-                                                    "font-bold group-hover:text-primary transition-colors",
-                                                    viewMode === 'list' ? "text-xl" : "text-base line-clamp-2"
+                                                    "font-bold group-hover:text-primary transition-colors leading-tight",
+                                                    viewMode === 'list' ? "text-lg" : "text-sm line-clamp-2"
                                                 )}>
                                                     {res.page.title}
                                                 </h4>
                                             </div>
                                             
                                             {/* Actions */}
-                                            <div className="flex gap-1">
+                                            <div className="flex gap-0.5 shrink-0 -mr-2 -mt-2">
                                                 {canCreate && (
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={(e) => {
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground rounded-full" onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
                                                         setLocation(`/pages/${res.page.id}/edit`);
                                                     }}>
-                                                        <Edit className="h-4 w-4" />
+                                                        <Edit className="h-3.5 w-3.5" />
                                                     </Button>
                                                 )}
                                                 {canDelete && (
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={(e) => handleDelete(e, res.page.id)}>
-                                                        <Trash2 className="h-4 w-4" />
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive rounded-full" onClick={(e) => handleDelete(e, res.page.id)}>
+                                                        <Trash2 className="h-3.5 w-3.5" />
                                                     </Button>
                                                 )}
                                             </div>
@@ -296,10 +299,10 @@ export default function Home() {
                                         
                                         {/* Matches Snippets */}
                                         {res.matches.length > 0 && viewMode === 'list' ? (
-                                            <div className="space-y-2 text-sm text-muted-foreground bg-muted/30 p-3 rounded border border-border/50">
+                                            <div className="space-y-1 text-xs text-muted-foreground bg-muted/30 p-2 rounded-lg border border-border/50">
                                                 {res.matches.map((match, i) => (
                                                     <div key={i} className="flex gap-2 items-start">
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 min-w-[60px] text-right mt-0.5">
+                                                        <span className="font-bold uppercase tracking-wider text-muted-foreground/70 min-w-[50px] text-right mt-0.5 text-[9px]">
                                                             {match.field}:
                                                         </span>
                                                         <div 
@@ -312,17 +315,17 @@ export default function Home() {
                                         ) : (
                                             <p className={cn(
                                                 "text-muted-foreground line-clamp-3",
-                                                viewMode === 'list' ? "text-sm" : "text-xs"
+                                                viewMode === 'list' ? "text-sm" : "text-[11px]"
                                             )}>
                                                 {res.page.content ? getExcerpt(res.page.content) : 'Sem prévia...'}
                                             </p>
                                         )}
 
                                         {viewMode === 'grid' && (
-                                            <div className="flex items-center justify-between mt-4 pt-4 border-t text-[10px] text-muted-foreground">
+                                            <div className="flex items-center justify-between mt-3 pt-3 border-t text-[10px] text-muted-foreground">
                                                 <div className="flex items-center gap-1">
                                                     <User className="h-3 w-3" />
-                                                    <span>{res.page.author}</span>
+                                                    <span className="truncate max-w-[80px]">{res.page.author}</span>
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <Calendar className="h-3 w-3" />
@@ -347,27 +350,27 @@ export default function Home() {
   return (
     <div className="flex flex-col h-full bg-background min-h-screen">
       {/* Header / Intro Section */}
-      <div className="bg-muted/30 border-b flex-1 flex flex-col justify-center min-h-[40vh]">
-          <div className="container max-w-5xl mx-auto px-8 py-16 space-y-8 text-center">
-              <div className="space-y-6 max-w-3xl mx-auto">
-                  <div className="bg-primary/10 text-primary w-fit mx-auto px-4 py-1.5 rounded-full text-sm font-medium">
+      <div className="bg-gradient-to-b from-muted/50 to-background border-b flex-1 flex flex-col justify-center min-h-[30vh]">
+          <div className="container max-w-5xl mx-auto px-6 py-10 space-y-6 text-center">
+              <div className="space-y-6 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <div className="bg-primary/10 text-primary w-fit mx-auto px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase">
                       Legis.Urbis
                   </div>
-                  <h1 className="text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-                      Compreensão e utilização de informações normativas
+                  <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
+                      Simplificando o acesso às <span className="text-primary">normas urbanas</span>
                   </h1>
-                  <p className="text-xl text-muted-foreground leading-relaxed">
+                  <p className="text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto">
                       O Legis é um componente do Urbis voltado à compreensão e utilização de informações normativas (ou seja, sobre leis e similares) relacionadas aos seus conteúdos, em observância às diretrizes para a Linguagem Simples.
                   </p>
                   
-                  <div className="pt-8 flex justify-center gap-4">
-                      <Button size="lg" className="gap-2 h-12 px-8 text-base shadow-lg" onClick={() => setLocation('/pages')}>
-                          <Search className="h-5 w-5" />
-                          Pesquisar Normas e Coletâneas
+                  <div className="pt-4 flex justify-center gap-3">
+                      <Button size="lg" className="gap-2 h-12 px-8 text-base shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 rounded-full" onClick={() => setLocation('/pages')}>
+                          <Search className="h-4 w-4" />
+                          Pesquisar Normas
                       </Button>
-                      <Button variant="outline" size="lg" className="gap-2 h-12" onClick={() => setHelpOpen(true)}>
-                          <HelpCircle className="h-5 w-5" />
-                          Manual de Ajuda
+                      <Button variant="outline" size="lg" className="gap-2 h-12 px-6 rounded-full border hover:bg-muted/50" onClick={() => setHelpOpen(true)}>
+                          <HelpCircle className="h-4 w-4" />
+                          Como funciona
                       </Button>
                   </div>
               </div>
@@ -376,12 +379,14 @@ export default function Home() {
 
       <div className="container max-w-5xl mx-auto px-8 py-16 space-y-12">
           
+          <div className="text-center space-y-4 max-w-3xl mx-auto mb-12">
+              <p className="text-lg text-muted-foreground">
+                  Por aqui, podem ser navegadas as suas páginas, categorizadas de acordo com seu foco:
+              </p>
+          </div>
+
           {/* Categories Grid */}
           <section>
-              <h2 className="text-xl font-bold mb-8 flex items-center justify-center gap-2 text-muted-foreground uppercase tracking-widest text-sm">
-                  <BookOpen className="h-4 w-4" />
-                  Navegue por Categorias
-              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <CategoryCard 
             title="Exigências" 
@@ -414,6 +419,15 @@ export default function Home() {
               </div>
           </section>
 
+          <div className="text-center space-y-6 max-w-3xl mx-auto">
+              <p className="text-muted-foreground">
+                  A partir daqui, é possível navegar pela ferramenta de Pesquisa (ver manual na seção de Ajuda, no canto superior direito) e depois simplesmente clicando nos links entre uma página e outra.
+              </p>
+              <p className="text-muted-foreground">
+                  Cada página possui um resumo e um conteúdo completo, que pode ser exibido no modo completo ou consolidado (apenas as normas atuais).
+              </p>
+          </div>
+
           {/* Disclaimer */}
           <footer className="pt-8 border-t text-center text-sm text-muted-foreground space-y-2">
               <p>
@@ -430,17 +444,17 @@ function CategoryCard({ title, description, icon, color, onClick }: { title: str
     return (
         <div 
             onClick={onClick}
-            className="bg-card border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col group hover:-translate-y-1 duration-200"
+            className="bg-card border-0 shadow-sm rounded-3xl p-6 hover:shadow-xl transition-all cursor-pointer h-full flex flex-col group hover:-translate-y-1 duration-300 ring-1 ring-border/50 hover:ring-primary/20"
         >
-            <div className={`w-12 h-12 rounded-lg ${color} flex items-center justify-center mb-4`}>
+            <div className={`w-14 h-14 rounded-2xl ${color} flex items-center justify-center mb-5 shadow-inner`}>
                 {icon}
             </div>
-            <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">{title}</h3>
+            <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors tracking-tight">{title}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed flex-1">
                 {description}
             </p>
-            <div className="mt-4 flex items-center text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                Ver itens <ArrowRight className="h-3 w-3 ml-1" />
+            <div className="mt-6 flex items-center text-sm font-semibold text-primary/80 group-hover:text-primary transition-colors">
+                Explorar <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </div>
         </div>
     );

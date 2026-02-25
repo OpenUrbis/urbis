@@ -45,7 +45,7 @@ export function LegisLayout({ children }: LegisLayoutProps) {
 
   return (
     <LegisLayoutContext.Provider value={{ setHelpOpen }}>
-    <SidebarProvider style={{ "--header-height": HEADER_HEIGHT } as React.CSSProperties}>
+    <SidebarProvider defaultOpen={false} style={{ "--header-height": HEADER_HEIGHT } as React.CSSProperties}>
       <CommandMenu />
       <div className={cn(
           "flex flex-col w-full bg-background",
@@ -94,11 +94,7 @@ export function LegisLayout({ children }: LegisLayoutProps) {
               "flex flex-1 relative",
               isCustomLayout ? "overflow-hidden" : "flex-col md:flex-row"
           )}>
-            <AppSidebar className={cn(
-                isCustomLayout 
-                    ? "md:fixed md:!top-[--header-height] md:!h-[calc(100svh-var(--header-height))]" 
-                    : "md:!sticky md:!top-[--header-height] md:!h-[calc(100vh-var(--header-height))] md:!bottom-auto" 
-            )} />
+            <AppSidebar className="md:fixed md:!top-[--header-height] md:!h-[calc(100svh-var(--header-height))]" />
             
             <SidebarInset className={cn(
                 "flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out",

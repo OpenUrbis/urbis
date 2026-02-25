@@ -879,6 +879,12 @@ export function SpecialSituationsPanel({ selectedElements = [], allElements = []
                                                     <span className="font-mono bg-muted px-1 rounded">{sit.relatedDeviceId}</span>
                                                 </div>
                                             )}
+                                            {sit.dispositivo && (
+                                                <div className="text-[10px] text-muted-foreground italic">
+                                                    <span className="font-semibold mr-1 not-italic">Dispositivo:</span>
+                                                    "{sit.dispositivo}"
+                                                </div>
+                                            )}
                                             {sit.vetoText && (
                                                 <div className="mt-2 bg-destructive/5 text-destructive p-2 rounded border border-destructive/10">
                                                     <div className="font-semibold text-[10px] uppercase mb-1">Texto Vetado</div>

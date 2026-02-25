@@ -38,10 +38,14 @@ const NormativeAttributes = Extension.create({
             keepOnSplit: false,
             parseHTML: element => {
               const attr = element.getAttribute('data-special-situations');
-              return attr ? JSON.parse(attr) : [];
+              try {
+                return attr ? JSON.parse(attr) : [];
+              } catch (e) {
+                return [];
+              }
             },
             renderHTML: attributes => {
-              if (!attributes.specialSituations || attributes.specialSituations.length === 0) {
+              if (!attributes.specialSituations || !Array.isArray(attributes.specialSituations) || attributes.specialSituations.length === 0) {
                 return {};
               }
               
@@ -49,14 +53,48 @@ const NormativeAttributes = Extension.create({
               const classes: string[] = [];
               
               // Styling logic based on metadata
-              if (situations.some(s => s.type === 'Nova redação')) {
-                  classes.push('text-purple-700 dark:text-purple-400 font-medium');
+              const types = situations.map(s => s.type);
+              
+              const hasVeto = types.includes('Veto');
+              const hasDerrubada = types.includes('Derrubada de veto');
+              
+              const hasRevocation = types.some(t => ['Revogação', 'Perda definitiva de vigor/eficácia', 'Anulação', 'Cassação', 'Suspensão de vigor/eficácia'].includes(t));
+              const hasRestoration = types.some(t => ['Repristinação', 'Restauração de vigor/eficácia'].includes(t));
+              
+              const isInactive = (hasVeto && !hasDerrubada) || (hasRevocation && !hasRestoration);
+              
+              // Simple future check for validity
+              const isFuture = situations.some(s => {
+                  if (['Vigência inicial alterada', 'Vigência final alterada'].includes(s.type)) {
+                      if (s.date && s.date.includes('.')) {
+                          try {
+                              const [d, m, y] = s.date.split('.');
+                              const date = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+                              return date > new Date();
+                          } catch { return false; }
+                      }
+                  }
+                  return false;
+              });
+              
+              const isOrange = types.some(t => ['Derrubada de veto', 'Repristinação', 'Restauração de vigor/eficácia'].includes(t));
+              
+              const isNew = types.some(t => ['Nova redação', 'Acréscimo', 'Renumeração', 'Alteração de ementa'].includes(t));
+              
+              const isInterpretation = types.some(t => ['Interpretação conforme à Constituição', 'Declaração de inconstitucionalidade sem redução de texto'].includes(t));
+
+              if (isInactive) {
+                  classes.push('!line-through !decoration-destructive/50 !text-muted-foreground !opacity-80');
+              } else if (isFuture) {
+                  classes.push('!text-red-600 dark:!text-red-400');
+              } else if (isNew) {
+                  classes.push('!text-blue-700 dark:!text-blue-400 !font-medium');
+              } else if (isOrange) {
+                  classes.push('!text-orange-600 dark:!text-orange-400');
               }
-              if (situations.some(s => ['Revogação', 'Perda definitiva de vigor/eficácia', 'Veto', 'Anulação', 'Cassação'].includes(s.type))) {
-                  classes.push('line-through decoration-destructive/50 text-muted-foreground opacity-80');
-              }
-              if (situations.some(s => s.type === 'Vigência inicial alterada')) {
-                  classes.push('text-amber-700 dark:text-amber-400');
+              
+              if (isInterpretation) {
+                  classes.push('!underline !decoration-wavy !decoration-amber-500');
               }
 
               return {

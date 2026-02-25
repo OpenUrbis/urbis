@@ -4,7 +4,7 @@ import { OriginalNormativo, ColetaneaTematica } from "../domain/entities";
 import { MOCK_EXAMPLES } from "../domain/mock-examples";
 import { parse, isAfter, isBefore, isValid } from 'date-fns';
 
-const STORAGE_KEY = 'legis_pages__v6';
+const STORAGE_KEY = 'legis_pages__v7';
 
 export interface SearchCondition {
     id: string;

@@ -668,23 +668,26 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                                     // Also update Editor if available
                                     if (editor) {
                                         const updateMap = new Map(updates.map(u => [u.id, u]));
+                                        let hasChanges = false;
+                                        const { tr } = editor.state;
                                         
                                         editor.state.doc.descendants((node, pos) => {
                                             const update = node.attrs?.normativeId ? updateMap.get(node.attrs.normativeId) : null;
                                             if (update) {
-                                                // Correct Tiptap command to update attributes
-                                                editor.commands.command(({ tr }) => {
-                                                    tr.setNodeMarkup(pos, undefined, {
-                                                        ...node.attrs,
-                                                        type: update.type,
-                                                        index: update.index,
-                                                        specialSituations: update.specialSituations
-                                                    });
-                                                    return true;
+                                                tr.setNodeMarkup(pos, undefined, {
+                                                    ...node.attrs,
+                                                    type: update.type,
+                                                    index: update.index,
+                                                    specialSituations: update.specialSituations
                                                 });
+                                                hasChanges = true;
                                             }
                                             return true;
                                         });
+
+                                        if (hasChanges) {
+                                            editor.view.dispatch(tr);
+                                        }
                                     }
                                     
                                     return newElements;

@@ -4,12 +4,12 @@ import { Ban, Edit, AlertTriangle, RefreshCw, FileText, Clock, Info } from 'luci
 import React from 'react';
 
 export type SituationGroupType = 
-    | 'VETO_OPPOSITION' 
-    | 'ALTERATION' 
-    | 'VALIDITY_OPPOSITION' 
-    | 'EXISTENCE_OPPOSITION'
-    | 'INTERPRETATION'
-    | 'VALIDITY'
+    | 'VETO_GROUP' 
+    | 'ALTERATION_GROUP' 
+    | 'VIGOR_GROUP' 
+    | 'EXISTENCE_GROUP'
+    | 'INTERPRETATION_GROUP'
+    | 'VALIDITY_GROUP'
     | 'OTHER';
 
 export interface SituationGroup {
@@ -22,38 +22,38 @@ export interface SituationGroup {
 }
 
 export const SITUATION_TYPE_MAP: Record<string, SituationGroupType> = {
-    'Veto': 'VETO_OPPOSITION',
-    'Derrubada de veto': 'VETO_OPPOSITION',
+    'Veto': 'VETO_GROUP',
+    'Derrubada de veto': 'VETO_GROUP',
     
-    'Renumeração': 'ALTERATION',
-    'Nova redação': 'ALTERATION',
-    'Alteração de ementa': 'ALTERATION',
+    'Renumeração': 'ALTERATION_GROUP',
+    'Nova redação': 'ALTERATION_GROUP',
+    'Alteração de ementa': 'ALTERATION_GROUP',
     
-    'Perda definitiva de vigor/eficácia': 'VALIDITY_OPPOSITION',
-    'Suspensão de vigor/eficácia': 'VALIDITY_OPPOSITION',
-    'Restauração de vigor/eficácia': 'VALIDITY_OPPOSITION',
+    'Suspensão de vigor/eficácia': 'VIGOR_GROUP',
+    'Restauração de vigor/eficácia': 'VIGOR_GROUP',
+    'Perda definitiva de vigor/eficácia': 'VIGOR_GROUP',
     
-    'Acréscimo': 'EXISTENCE_OPPOSITION',
-    'Extinção': 'EXISTENCE_OPPOSITION',
-    'Revogação': 'EXISTENCE_OPPOSITION',
-    'Anulação': 'EXISTENCE_OPPOSITION',
-    'Cassação': 'EXISTENCE_OPPOSITION',
-    'Repristinação': 'EXISTENCE_OPPOSITION',
+    'Acréscimo': 'EXISTENCE_GROUP',
+    'Revogação': 'EXISTENCE_GROUP',
+    'Anulação': 'EXISTENCE_GROUP',
+    'Cassação': 'EXISTENCE_GROUP',
+    'Repristinação': 'EXISTENCE_GROUP',
+    'Extinção': 'EXISTENCE_GROUP',
+
+    'Interpretação conforme à Constituição': 'INTERPRETATION_GROUP',
+    'Declaração de inconstitucionalidade sem redução de texto': 'INTERPRETATION_GROUP',
     
-    'Interpretação conforme à Constituição': 'INTERPRETATION',
-    'Declaração de inconstitucionalidade sem redução de texto': 'INTERPRETATION',
-    
-    'Vigência inicial alterada': 'VALIDITY',
-    'Vigência final alterada': 'VALIDITY',
+    'Vigência inicial alterada': 'VALIDITY_GROUP',
+    'Vigência final alterada': 'VALIDITY_GROUP',
 };
 
 export const GROUP_TITLES: Record<SituationGroupType, string> = {
-    'VETO_OPPOSITION': 'Vetos e Derrubadas',
-    'ALTERATION': 'Alterações de Texto/Chave',
-    'VALIDITY_OPPOSITION': 'Vigor e Eficácia',
-    'EXISTENCE_OPPOSITION': 'Existência da Norma',
-    'INTERPRETATION': 'Interpretações',
-    'VALIDITY': 'Vigência',
+    'VETO_GROUP': 'Vetos e Derrubada de Vetos',
+    'ALTERATION_GROUP': 'Renumerações e Novas redações',
+    'VIGOR_GROUP': 'Retiradas e Restauração de vigor/eficácia',
+    'EXISTENCE_GROUP': 'Acréscimos, Extinções e Repristinações',
+    'INTERPRETATION_GROUP': 'Interpretações',
+    'VALIDITY_GROUP': 'Vigência',
     'OTHER': 'Outras Situações'
 };
 
@@ -67,12 +67,12 @@ export const parseDate = (dateStr?: string) => {
 
 export function getIconForType(type: SituationGroupType) {
     switch (type) {
-        case 'VETO_OPPOSITION': return React.createElement(Ban, { className: "h-3.5 w-3.5" });
-        case 'ALTERATION': return React.createElement(Edit, { className: "h-3.5 w-3.5" });
-        case 'VALIDITY_OPPOSITION': return React.createElement(AlertTriangle, { className: "h-3.5 w-3.5" });
-        case 'EXISTENCE_OPPOSITION': return React.createElement(RefreshCw, { className: "h-3.5 w-3.5" });
-        case 'INTERPRETATION': return React.createElement(FileText, { className: "h-3.5 w-3.5" });
-        case 'VALIDITY': return React.createElement(Clock, { className: "h-3.5 w-3.5" });
+        case 'VETO_GROUP': return React.createElement(Ban, { className: "h-3.5 w-3.5" });
+        case 'ALTERATION_GROUP': return React.createElement(Edit, { className: "h-3.5 w-3.5" });
+        case 'VIGOR_GROUP': return React.createElement(AlertTriangle, { className: "h-3.5 w-3.5" });
+        case 'EXISTENCE_GROUP': return React.createElement(RefreshCw, { className: "h-3.5 w-3.5" });
+        case 'INTERPRETATION_GROUP': return React.createElement(FileText, { className: "h-3.5 w-3.5" });
+        case 'VALIDITY_GROUP': return React.createElement(Clock, { className: "h-3.5 w-3.5" });
         default: return React.createElement(Info, { className: "h-3.5 w-3.5" });
     }
 }
@@ -200,7 +200,7 @@ export function getElementStyle(element: NormativeElementEntity, originalEndVali
     
     // Check for specific situation effects for COLOR
     const hasColorOrangeGroup = situations.some(s => s.type === 'Derrubada de veto' || s.type === 'Repristinação' || s.type === 'Restauração de vigor/eficácia');
-    const hasNew = situations.some(s => s.type === 'Nova redação' || s.type === 'Acréscimo' || s.type === 'Renumeração');
+    const hasNew = situations.some(s => s.type === 'Nova redação' || s.type === 'Acréscimo' || s.type === 'Renumeração' || s.type === 'Alteração de ementa');
     const hasInterpretation = situations.some(s => s.type === 'Interpretação conforme à Constituição' || s.type === 'Declaração de inconstitucionalidade sem redução de texto');
 
     // Azul (legível e diferenciado): texto novo em vigor

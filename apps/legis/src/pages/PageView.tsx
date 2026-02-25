@@ -134,14 +134,11 @@ export default function PageView() {
             <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b">
                 <div className="w-full px-6 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Link href="/pages" className="hover:text-foreground transition-colors">Páginas</Link>
+                        <Link href="/pages" className="hover:text-foreground transition-colors">Acervo Legis</Link>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                         <span className="truncate max-w-[200px] text-foreground font-medium">{page.title}</span>
                         {page.isPublic ? (
-                            <Badge variant="outline" className="ml-2 gap-1 text-[10px] h-5 border-green-200 text-green-700 bg-green-50">
-                                <Globe className="h-3 w-3" /> Pública
-                            </Badge>
-                        ) : (
+                            <></>                        ) : (
                             <Badge variant="outline" className="ml-2 gap-1 text-[10px] h-5 border-amber-200 text-amber-700 bg-amber-50">
                                 <Lock className="h-3 w-3" /> Privada
                             </Badge>
@@ -149,7 +146,7 @@ export default function PageView() {
                         {isNormative && (
                             <Badge variant="secondary" className="ml-2 gap-1 bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300">
                                 <Book className="h-3 w-3" />
-                                Normativa
+                                Original Normativo
                             </Badge>
                         )}
                     </div>
@@ -238,7 +235,7 @@ export default function PageView() {
                                                             >
                                                                 <div className="flex items-center gap-2 mb-2">
                                                                     <Badge variant="outline" className="text-[10px] uppercase tracking-wider font-normal">
-                                                                        {lp.type === 'original_normativo' ? 'Normativo' : 'Coletânea'}
+                                                                        {lp.type === 'original_normativo' ? 'Original Normativo' : 'Coletânea'}
                                                                     </Badge>
                                                                     <span className="text-[10px] text-muted-foreground">
                                                                         {new Date(lp.updatedAt).toLocaleDateString()}

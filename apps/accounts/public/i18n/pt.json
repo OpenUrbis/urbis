@@ -138,7 +138,8 @@
         },
         "cpf": {
           "invalid": "CPF inválido. Verifique os dados e tente novamente.",
-          "alreadyExists": "Já existe uma conta cadastrada com este CPF."
+          "alreadyExists": "Já existe uma conta cadastrada com este CPF.",
+          "invalidExternal": "CPF inválido ou irregular junto à Receita Federal."
         }
       }
     },

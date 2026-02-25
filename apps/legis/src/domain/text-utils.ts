@@ -155,7 +155,7 @@ export function getCleanDisplayText(rawText: string, type: string, index?: strin
 
     // Escape index for regex and handle common variations
     const escapedIndex = index.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-                             .replace(/º/g, '[º°oᵒ∘ª]?');
+                             .replace(/[º°oᵒ∘ª]/g, '[º°oᵒ∘ª]?');
 
     // Regex patterns for various normative types
     const prefixPatterns: Record<string, RegExp> = {

@@ -137,10 +137,10 @@ export function NormativeDocumentRenderer({
                 </header>
                 <div className="hidden xl:block col-start-2" />
 
-                {preAnexoWithGaps.map(item => {
-                    if (item.type === 'Gap') return <GapRow key={item.id} />;
+                {preAnexoWithGaps.map((item, idx) => {
+                    if (item.type === 'Gap') return <GapRow key={`pre-${item.id}-${idx}`} />;
                     const el = item as NormativeElementEntity;
-                    return <ElementRow key={el.id} element={el} noteMap={noteMap} viewMode={viewMode} linkedCollections={linkedCollections} onSelect={onSelectElement} />;
+                    return <ElementRow key={`pre-${el.id}-${idx}`} element={el} noteMap={noteMap} viewMode={viewMode} linkedCollections={linkedCollections} onSelect={onSelectElement} />;
                 })}
 
                 {data.signature && (
@@ -158,11 +158,11 @@ export function NormativeDocumentRenderer({
                         </div>
                         <div className="hidden xl:block col-start-2" />
                         
-                        {postAnexoWithGaps.map(item => {
-                            if (item.type === 'Gap') return <GapRow key={item.id} />;
-                            const el = item as NormativeElementEntity;
-                            return <ElementRow key={el.id} element={el} noteMap={noteMap} viewMode={viewMode} linkedCollections={linkedCollections} onSelect={onSelectElement} />;
-                        })}
+                {postAnexoWithGaps.map((item, idx) => {
+                    if (item.type === 'Gap') return <GapRow key={`post-${item.id}-${idx}`} />;
+                    const el = item as NormativeElementEntity;
+                    return <ElementRow key={`post-${el.id}-${idx}`} element={el} noteMap={noteMap} viewMode={viewMode} linkedCollections={linkedCollections} onSelect={onSelectElement} />;
+                })}
                     </>
                 )}
 
@@ -174,8 +174,8 @@ export function NormativeDocumentRenderer({
                         </div>
                         <div className="hidden xl:block col-start-2" />
                         
-                        {tableElements.map(el => (
-                            <ElementRow key={el.id} element={el} noteMap={noteMap} viewMode={viewMode} linkedCollections={linkedCollections} onSelect={onSelectElement} />
+                        {tableElements.map((el, idx) => (
+                            <ElementRow key={`table-${el.id}-${idx}`} element={el} noteMap={noteMap} viewMode={viewMode} linkedCollections={linkedCollections} onSelect={onSelectElement} />
                         ))}
                     </>
                 )}

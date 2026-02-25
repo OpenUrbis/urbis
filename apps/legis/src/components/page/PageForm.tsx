@@ -198,10 +198,13 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                     let colIdx = 0;
                     row.content.forEach((cell) => {
                         const cellFragment = serializer.serializeFragment(cell.content);
+                        const tempDiv = document.createElement('div');
+                        tempDiv.appendChild(cellFragment);
+
                         tableData.cells.push({ 
                             rowId, 
                             colId: tableData.cols[colIdx].id, 
-                            text: cellFragment.textContent || '',
+                            text: tempDiv.innerHTML || '',
                             rowSpan: cell.attrs.rowspan || 1,
                             colSpan: cell.attrs.colspan || 1
                         });
@@ -278,15 +281,23 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
         });
 
         const activeParents: any = {};
+        const usedIds = new Set<string>();
+
         const newElements: NormativeElement[] = blocks.map(block => {
             const idFromEditor = block.content?.attrs?.normativeId;
             let existing = currentElements.find(e => e.id === idFromEditor);
+            
+            // Check if existing ID is already used (e.g. duplicate nodes in editor)
+            if (existing && usedIds.has(existing.id)) {
+                existing = undefined;
+            }
             
             // If it's NOT a target block and we have an ID from editor, we MUST stick to existing data
             if (!block.isTarget && existing) {
                 const id = existing.id;
                 // Even if not a target, we update its hierarchy position in activeParents for subsequent target blocks
                 activeParents[existing.type] = id;
+                usedIds.add(id);
                 return { ...existing, text: block.html }; // Update text content just in case
             }
 
@@ -299,13 +310,23 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
             if (!existing) {
                 // Se não achou pelo ID, tenta encontrar um elemento órfão (não vinculado a nenhum nó atual) que combine
                 existing = currentElements.find(e => 
+                    !usedIds.has(e.id) &&
                     e.type === type && 
                     e.index === index && 
                     (block.tableData ? true : e.text === block.html)
                 );
             }
 
-            const id = idFromEditor || existing?.id || crypto.randomUUID();
+            let id = idFromEditor;
+            // If idFromEditor is already used, or missing, try existing found by content, or generate new
+            if (!id || usedIds.has(id)) {
+                id = existing?.id || crypto.randomUUID();
+            }
+            // Ensure even the existing/random ID is not used (paranoid check)
+            if (usedIds.has(id)) {
+                id = crypto.randomUUID();
+            }
+            usedIds.add(id);
             
             let parentId = existing?.parentId;
             // Always recalculate parentId for target blocks to maintain consistency

@@ -187,7 +187,7 @@ export class RulesEngine {
                 return {
                     type: rule.type,
                     index: extracted.index,
-                    content: line, // Keep original HTML
+                    content: extracted.content, // Return extracted content (stripped of prefix)
                     ruleId: rule.id,
                     specialSituations: situations
                 };

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignore": ["**/node_modules/**", "**/dist/**", "infra/**"],
+  "workspaces": {
+    "apps/accounts": {
+      "entry": ["src/main.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "apps/api": {
+      "entry": ["src/main.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "apps/docs": {
+      "entry": ["src/app/layout.tsx", "source.config.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "apps/legis": {
+      "entry": ["src/main.tsx"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "apps/site": {
+      "entry": ["src/main.tsx"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "apps/web": {
+      "entry": ["src/main.tsx"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/endereco-digital": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/shared": {
+      "entry": ["index.ts"],
+      "project": ["index.ts", "enums/**/*.ts"]
+    },
+    "packages/auth": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/ui": {
+      "entry": ["index.ts"],
+      "project": ["index.ts", "components/**/*.{ts,tsx}", "lib/**/*.ts", "hooks/**/*.ts"]
+    }
+  }
+}

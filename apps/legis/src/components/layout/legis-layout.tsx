@@ -8,6 +8,17 @@ import { useLocation } from "wouter";
 import { UrbisFooter } from "@open-urbis/map-ui/urbis-footer";
 import { cn } from "@open-urbis/map-ui";
 
+// Context to control layout features (like Help)
+interface LegisLayoutContextType {
+    setHelpOpen: (open: boolean) => void;
+}
+
+const LegisLayoutContext = React.createContext<LegisLayoutContextType>({
+    setHelpOpen: () => {},
+});
+
+export const useLegisLayout = () => React.useContext(LegisLayoutContext);
+
 interface LegisLayoutProps {
   children: React.ReactNode;
 }
@@ -33,6 +44,7 @@ export function LegisLayout({ children }: LegisLayoutProps) {
   const isCustomLayout = location.includes('/edit') || location.includes('/new');
 
   return (
+    <LegisLayoutContext.Provider value={{ setHelpOpen }}>
     <SidebarProvider style={{ "--header-height": HEADER_HEIGHT } as React.CSSProperties}>
       <CommandMenu />
       <div className={cn(
@@ -131,5 +143,6 @@ export function LegisLayout({ children }: LegisLayoutProps) {
         )}
       </div>
     </SidebarProvider>
+    </LegisLayoutContext.Provider>
   );
 }

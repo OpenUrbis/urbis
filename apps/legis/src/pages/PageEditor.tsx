@@ -4,7 +4,6 @@ import { usePage } from '../hooks/use-page';
 import { PageForm } from '../components/page/PageForm';
 import { CreatePageDto, Page } from '../types/page';
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
 
 interface PageEditorProps {
     mode?: 'create' | 'edit';
@@ -36,17 +35,12 @@ export default function PageEditor({ mode = 'create' }: PageEditorProps) {
     };
 
     const handleSubmit = async (data: CreatePageDto) => {
-        try {
-            if (mode === 'edit' && params?.id) {
-                await updatePage(params.id, data);
-            } else {
-                await createPage(data);
-            }
-            setLocation('/pages');
-        } catch (error) {
-            console.error('Failed to save page', error);
-            alert('Erro ao salvar página');
+        if (mode === 'edit' && params?.id) {
+            await updatePage(params.id, data);
+        } else {
+            await createPage(data);
         }
+        setLocation('/pages');
     };
 
     if (initializing) {

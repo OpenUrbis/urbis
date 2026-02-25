@@ -92,8 +92,6 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     SupportModule,
   ],
   controllers: [],
-  providers: [
-    Reflector,
-  ],
+  providers: [Reflector],
 })
 export class AppModule {}

@@ -299,7 +299,7 @@ export default function PageView() {
                                     <div className="pt-4 border-t flex justify-end">
                                         {selectedLinkedPage && (
                                             <a 
-                                                href={`/pages/${selectedLinkedPage.id}${coletaneaData?.links.find(l => l.resourceId === selectedLinkedPage.id)?.linkedElements?.[0]?.elementId ? '#' + coletaneaData.links.find(l => l.resourceId === selectedLinkedPage.id)?.linkedElements?.[0]?.elementId : ''}`} 
+                                                href={`/pages/${selectedLinkedPage.id}${coletaneaData?.links.find(l => l.resourceId === selectedLinkedPage.id)?.linkedElements?.[0]?.elementId ? '#el-' + coletaneaData.links.find(l => l.resourceId === selectedLinkedPage.id)?.linkedElements?.[0]?.elementId : ''}`} 
                                                 target="_blank" 
                                                 rel="noreferrer"
                                             >

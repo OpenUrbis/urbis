@@ -113,7 +113,8 @@ export function extractTextFromWordIndices(text: string, startWordIdx: number, e
 export function normalizeOrdinals(text: string): string {
     if (!text) return text;
     // Variations: “º”, “°”, “ᵒ”, “∘”, “o” preceded or not by dot
-    return text.replace(/\.?\s*(º|°|ᵒ|∘|o)(?=\s|\.|$)/g, 'º');
+    // Must be preceded by a number to avoid false positives (e.g. "saneamento")
+    return text.replace(/(\d+)\.?\s*(º|°|ᵒ|∘|o)(?=\s|\.|$)/g, '$1º');
 }
 
 /**
@@ -152,27 +153,33 @@ export function getCleanDisplayText(rawText: string, type: string, index?: strin
 
     const SPACE_OPT = '[\\s.-]*';
     const SPACE_PLUS = '[\\s.-]+';
+    const TAGS_PREFIX = '(?:<(?:b|i|s|u|strong|em|strike|span|p|div|mark|small|big)[^>]*>)*';
+    // Optional whitespace including NBSP which is common in editors but not caught by trim()
+    const OPT_WS = '[\\s\\u00A0]*';
 
     // Escape index for regex and handle common variations
     const escapedIndex = index.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
                              .replace(/[º°oᵒ∘ª]/g, '[º°oᵒ∘ª]?');
 
     // Regex patterns for various normative types
+    // Note: We add OPT_WS after TAGS_PREFIX to handle cases where text starts with &nbsp; (common in Tiptap)
     const prefixPatterns: Record<string, RegExp> = {
-        'Artigo': new RegExp(`^Art(?:igo|\\.)${SPACE_OPT}${escapedIndex}[.º°oᵒ∘ª]?${SPACE_OPT}`, 'i'),
+        'Artigo': new RegExp(`^${TAGS_PREFIX}${OPT_WS}Art(?:igo|\\.)${SPACE_OPT}${escapedIndex}[.º°oᵒ∘ª]?${SPACE_OPT}`, 'i'),
         'Parágrafo': index === 'único' 
-            ? new RegExp(`^(?:PARÁGRAFO|PARAGRAFO)${SPACE_PLUS}ÚNICO${SPACE_OPT}`, 'i')
-            : new RegExp(`^§${SPACE_OPT}${escapedIndex}[.º°oᵒ∘ª]?${SPACE_OPT}`, 'i'),
-        'Inciso': new RegExp(`^${escapedIndex}${SPACE_OPT}[\\-–—]${SPACE_OPT}`, 'i'),
-        'Alínea': new RegExp(`^${escapedIndex}\\)${SPACE_OPT}`, 'i'),
-        'Item': new RegExp(`^${escapedIndex}\\.${SPACE_OPT}`, 'i'),
-        'Capítulo': new RegExp(`^CAPÍTULO${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
-        'Seção': new RegExp(`^SEÇÃO${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
-        'Subseção': new RegExp(`^SUBSEÇÃO${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
-        'Título': new RegExp(`^TÍTULO${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
-        'Livro': new RegExp(`^LIVRO${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
-        'Parte': new RegExp(`^PARTE${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
-        'Nota': new RegExp(`^\\(${escapedIndex}\\)${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
+            ? new RegExp(`^${TAGS_PREFIX}${OPT_WS}(?:PAR[ÁA]GRAFO)${SPACE_PLUS}[UÚ]NICO${SPACE_OPT}`, 'i')
+            : new RegExp(`^${TAGS_PREFIX}${OPT_WS}§${SPACE_OPT}${escapedIndex}[.º°oᵒ∘ª]?${SPACE_OPT}`, 'i'),
+        // Inciso can be separated by dash, dot, or just space in RulesEngine, so we must match that here to detect prefix
+        'Inciso': new RegExp(`^${TAGS_PREFIX}${OPT_WS}${escapedIndex}${SPACE_OPT}[\\-–—.)]?${SPACE_OPT}`, 'i'),
+        // Alínea now accepts dot as separator (RulesEngine update), so we must match it here
+        'Alínea': new RegExp(`^${TAGS_PREFIX}${OPT_WS}${escapedIndex}[)..]?${SPACE_OPT}`, 'i'),
+        'Item': new RegExp(`^${TAGS_PREFIX}${OPT_WS}${escapedIndex}\\.${SPACE_OPT}`, 'i'),
+        'Capítulo': new RegExp(`^${TAGS_PREFIX}${OPT_WS}CAP[IÍ]TULO${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
+        'Seção': new RegExp(`^${TAGS_PREFIX}${OPT_WS}SE[CÇ][AÃ]O${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
+        'Subseção': new RegExp(`^${TAGS_PREFIX}${OPT_WS}SUBSE[CÇ][AÃ]O${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
+        'Título': new RegExp(`^${TAGS_PREFIX}${OPT_WS}T[IÍ]TULO${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
+        'Livro': new RegExp(`^${TAGS_PREFIX}${OPT_WS}LIVRO${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
+        'Parte': new RegExp(`^${TAGS_PREFIX}${OPT_WS}PARTE${SPACE_PLUS}${escapedIndex}${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
+        'Nota': new RegExp(`^${TAGS_PREFIX}${OPT_WS}\\(${escapedIndex}\\)${SPACE_OPT}[\\-–—]?${SPACE_OPT}`, 'i'),
     };
 
     const pattern = prefixPatterns[type];

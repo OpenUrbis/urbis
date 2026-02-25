@@ -103,7 +103,7 @@ export function ColetaneaRenderer({ content, viewMode = 'full' }: ColetaneaRende
                                                 <span className="lowercase font-normal"> de </span>
                                                 {formatDate(doc.actDate || doc.publicationDate, true)}
                                             </span>
-                                            <Link href={`/pages/${doc.id}`} className="text-muted-foreground hover:text-primary transition-colors p-1" title="Abrir Original Normativo">
+                                            <Link href={`/pages/${doc.id}#el-${elements.find(e => e.type !== 'Gap')?.id || elementIds[0]}`} className="text-muted-foreground hover:text-primary transition-colors p-1" title="Abrir Original Normativo">
                                                 <ExternalLink className="h-3 w-3" />
                                             </Link>
                                         </div>
@@ -215,7 +215,7 @@ export function ColetaneaRenderer({ content, viewMode = 'full' }: ColetaneaRende
                                                 <span className="lowercase font-normal"> de </span>
                                                 {formatDate(doc.actDate || doc.publicationDate, true)}
                                             </span>
-                                            <Link href={`/pages/${doc.id}`} className="text-muted-foreground hover:text-primary transition-colors p-1" title="Abrir Original Normativo">
+                                            <Link href={`/pages/${doc.id}#el-${elementId}`} className="text-muted-foreground hover:text-primary transition-colors p-1" title="Abrir Original Normativo">
                                                 <ExternalLink className="h-3 w-3" />
                                             </Link>
                                         </div>

@@ -23,6 +23,7 @@ import { NormativeMetadataForm } from './NormativeMetadataForm';
 import { DOMSerializer } from '@tiptap/pm/model';
 import { validateNormativeStructure, ValidationIssue } from '../../domain/normative-validation';
 import { getElementKey } from '../../domain/display-logic';
+import { normalizeOrdinals } from '../../domain/text-utils';
 
 // Helper to extract links from content
 const extractLinks = (content: JSONContent | undefined): CollectionLink[] => {
@@ -164,6 +165,16 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                     const fragment = serializer.serializeFragment(node.content);
                     const tempDiv = document.createElement('div');
                     tempDiv.appendChild(fragment);
+                    
+                    // Normalize ordinals in text nodes
+                    const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT);
+                    let textNode;
+                    while (textNode = walker.nextNode()) {
+                        if (textNode.nodeValue) {
+                            textNode.nodeValue = normalizeOrdinals(textNode.nodeValue);
+                        }
+                    }
+
                     blocks.push({ 
                         text, 
                         html: tempDiv.innerHTML, 
@@ -200,6 +211,15 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                         const cellFragment = serializer.serializeFragment(cell.content);
                         const tempDiv = document.createElement('div');
                         tempDiv.appendChild(cellFragment);
+
+                        // Normalize ordinals in text nodes
+                        const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT);
+                        let textNode;
+                        while (textNode = walker.nextNode()) {
+                            if (textNode.nodeValue) {
+                                textNode.nodeValue = normalizeOrdinals(textNode.nodeValue);
+                            }
+                        }
 
                         tableData.cells.push({ 
                             rowId, 

@@ -107,19 +107,14 @@ export const DEFAULT_RULES: ParsingRule[] = [
         }
     },
     {
-        id: 'inciso',
-        name: 'Inciso',
-        regex: new RegExp(`^${TAGS_PREFIX}([IVXLCDM]+)${SPACE_PLUS}(.*)`, 'i'), 
-        type: 'Inciso',
-        priority: 40,
-        extract: (m) => ({ index: m[1].toUpperCase(), content: m[2] })
-    },
-    {
         id: 'alinea',
         name: 'Alínea',
-        regex: new RegExp(`^${TAGS_PREFIX}([a-z])\\)${SPACE_OPT}(.*)`, 'i'),
+        // Lowercase letters followed by ) or . or - (Higher priority than Inciso to catch 'c.' before 'Inciso C')
+        // Removed 'i' flag to strictly match lowercase letters, distinguishing from Roman numerals (e.g. v. vs V.)
+        // Added support for optional space before separator and dash separator
+        regex: new RegExp(`^${TAGS_PREFIX}([a-z])${SPACE_OPT}[)..-]${SPACE_OPT}(.*)`),
         type: 'Alínea',
-        priority: 50,
+        priority: 35,
         extract: (m) => ({ index: m[1], content: m[2] })
     },
     {
@@ -127,8 +122,16 @@ export const DEFAULT_RULES: ParsingRule[] = [
         name: 'Item',
         regex: new RegExp(`^${TAGS_PREFIX}(\\d+)\\.${SPACE_OPT}(.*)`, 'i'),
         type: 'Item',
-        priority: 60,
+        priority: 38,
         extract: (m) => ({ index: m[1], content: m[2] })
+    },
+    {
+        id: 'inciso',
+        name: 'Inciso',
+        regex: new RegExp(`^${TAGS_PREFIX}([IVXLCDM]+)${SPACE_PLUS}(.*)`, 'i'), 
+        type: 'Inciso',
+        priority: 40,
+        extract: (m) => ({ index: m[1].toUpperCase(), content: m[2] })
     }
 ];
 

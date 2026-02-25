@@ -152,8 +152,34 @@ export function getElementStyle(element: NormativeElementEntity, originalEndVali
     textDecoration?: string;
     fontWeight?: string;
 } {
+    const situations = element.specialSituations || [];
+
+    // Check for Repristination/Restoration logic
+    const repristination = situations.find(s => s.type === 'Repristinação');
+    const restoration = situations.find(s => s.type === 'Restauração de vigor/eficácia');
+    
+    let isRestoredActive = false;
+    
+    if (repristination) {
+        const d = parseDate(repristination.date);
+        // Active if date is valid and in past/today (not future)
+        if (!isAfter(d, new Date())) isRestoredActive = true;
+    }
+    
+    if (restoration) {
+        const d = parseDate(restoration.date);
+        if (!isAfter(d, new Date())) isRestoredActive = true;
+    }
+
     const isFuture = isValidityNotStarted(element);
     const isExpired = isValidityEnded(element, originalEndValidity);
+    
+    // Explicit checks for negative situations (in case isExpired misses them)
+    const hasVeto = situations.some(s => s.type === 'Veto');
+    const hasRevocation = situations.some(s => ['Revogação', 'Anulação', 'Cassação', 'Perda definitiva de vigor/eficácia', 'Suspensão de vigor/eficácia'].includes(s.type));
+    
+    // Check for positive counter-situations
+    const hasDerrubada = situations.some(s => s.type === 'Derrubada de veto');
 
     // Vermelho: texto ainda sem vigor ou que será extinto ou tornado sem vigor/eficácia em breve
     if (isFuture) {
@@ -161,14 +187,19 @@ export function getElementStyle(element: NormativeElementEntity, originalEndVali
     }
 
     // Tachado: texto extinto, ou sem vigor/eficácia
-    if (isExpired) {
+    
+    // Case 1: Veto without Derrubada
+    if (hasVeto && !hasDerrubada) {
         return { textDecoration: 'line-through' };
     }
 
-    const situations = element.specialSituations || [];
+    // Case 2: Expired or Revoked, AND NOT Repristinated/Restored
+    if ((isExpired || hasRevocation) && !isRestoredActive) {
+        return { textDecoration: 'line-through' };
+    }
     
-    // Check for specific situation effects
-    const hasDerrubada = situations.some(s => s.type === 'Derrubada de veto' || s.type === 'Repristinação' || s.type === 'Restauração de vigor/eficácia');
+    // Check for specific situation effects for COLOR
+    const hasColorOrangeGroup = situations.some(s => s.type === 'Derrubada de veto' || s.type === 'Repristinação' || s.type === 'Restauração de vigor/eficácia');
     const hasNew = situations.some(s => s.type === 'Nova redação' || s.type === 'Acréscimo' || s.type === 'Renumeração');
     const hasInterpretation = situations.some(s => s.type === 'Interpretação conforme à Constituição' || s.type === 'Declaração de inconstitucionalidade sem redução de texto');
 
@@ -178,7 +209,7 @@ export function getElementStyle(element: NormativeElementEntity, originalEndVali
     }
 
     // Laranja (legível e de pouca atenção): texto em vigor mas objeto de disputa
-    if (hasDerrubada) {
+    if (hasColorOrangeGroup) {
         return { color: 'orange' };
     }
 

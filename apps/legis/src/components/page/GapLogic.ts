@@ -78,7 +78,10 @@ export function processGapsUnified(
     const result: (NormativeElementEntity | GapItem)[] = [];
     
     // Encontrar os índices na lista original
-    const indices = selectedElements.map(se => fullElements.findIndex(fe => fe.id === se.id)).sort((a, b) => a - b);
+    const indices = selectedElements
+        .map(se => fullElements.findIndex(fe => fe.id === se.id))
+        .filter(idx => idx !== -1)
+        .sort((a, b) => a - b);
     
     if (indices.length === 0) return selectedElements;
 

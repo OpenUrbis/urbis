@@ -174,6 +174,7 @@ export class SolicitationService {
   async requestRepresentation(
     user: User,
     data: {
+      assignTo: string;
       document: string;
       justification?: string;
       documents?: any[];
@@ -225,7 +226,12 @@ export class SolicitationService {
         org.id,
         SYSTEM_ROLES.admin,
       );
-      const assignedTo = admins.length > 0 ? admins[0] : null;
+      const assignedTo =
+        data.assignTo === 'owner'
+          ? admins.length > 0
+            ? admins[0]
+            : null
+          : null;
 
       const solicitation = this.solicitationRepository.create({
         requester: user,

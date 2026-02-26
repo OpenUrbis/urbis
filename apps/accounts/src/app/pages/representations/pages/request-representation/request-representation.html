@@ -8,6 +8,19 @@
     <div hlmCardContent>
       <form [formGroup]="form" (ngSubmit)="submit()">
         <div class="mb-4">
+          <label hlmLabel for="assignTo">
+            {{ "representations.request.form.assignTo" | translate }}
+          </label>
+          <select hlmInput formControlName="assignTo" class="w-full" id="assignTo">
+            <option value="owner">
+              {{ "representations.request.form.owner" | translate }}
+            </option>
+            <option value="city-hall">
+              {{ "representations.request.form.city-hall" | translate }}
+            </option>
+          </select>
+        </div>
+        <div class="mb-4">
           <label hlmLabel for="document">
             {{ "representations.request.form.document" | translate }}
           </label>

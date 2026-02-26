@@ -51,6 +51,7 @@ export class RequestRepresentation {
     document: new FormControl('', [Validators.required]),
     justification: new FormControl(''),
     documents: new FormControl([]),
+    assignTo: new FormControl('owner'),
   });
 
   isDirectAccess = signal(false);

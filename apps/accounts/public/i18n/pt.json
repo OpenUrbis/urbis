@@ -910,6 +910,9 @@
     "request": {
       "title": "Solicitar Representação",
       "form": {
+        "assignTo": "Solicitar representação para:",
+        "owner": "Administrador, se houver",
+        "city-hall": "Representante da Prefeitura",
         "document": "CPF ou CNPJ",
         "documentPlaceholder": "00.000.000/0000-00",
         "justification": "Justificativa",

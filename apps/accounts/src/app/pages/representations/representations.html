@@ -1,0 +1,175 @@
+<app-page-structure
+  [title]="'representations.page.title' | translate"
+  [subtitle]="'representations.page.subtitle' | translate"
+>
+  <section rightActions>
+    <a routerLink="request" hlmBtn variant="default">
+      <hlm-icon name="lucidePlus" class="mr-2 w-4 h-4" />
+      {{ 'representations.page.buttons.request' | translate }}
+    </a>
+  </section>
+
+  <div class="mb-6 flex gap-4">
+    <input
+      hlmInput
+      [formControl]="searchControl"
+      class="w-full max-w-sm"
+      [placeholder]="'representations.list.search' | translate"
+    />
+    <select hlmInput [formControl]="statusFilter" class="w-[200px]">
+      <option [value]="null">
+        {{ 'representations.list.filter.all' | translate }}
+      </option>
+      @for (option of statusOptions; track option) {
+        <option [value]="option">
+          {{ 'solicitation.status.' + option | translate }}
+        </option>
+      }
+    </select>
+  </div>
+
+  <div hlmCard>
+    <div hlmCardContent class="p-0">
+      <div class="w-full overflow-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="text-muted-foreground font-medium border-b">
+            <tr>
+              <th class="h-12 px-4 align-middle">
+                {{ 'representations.list.columns.name' | translate }}
+              </th>
+              <th class="h-12 px-4 align-middle">
+                {{ 'representations.list.columns.document' | translate }}
+              </th>
+              <th class="h-12 px-4 align-middle">
+                {{ 'representations.list.columns.author' | translate }}
+              </th>
+              <th class="h-12 px-4 align-middle">
+                {{ 'representations.list.columns.status' | translate }}
+              </th>
+              <th class="h-12 px-4 align-middle">
+                {{ 'representations.list.columns.date' | translate }}
+              </th>
+              <th class="h-12 px-4 align-middle text-right">
+                {{ 'representations.list.columns.actions' | translate }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.document + item.id) {
+              <tr class="border-b hover:bg-muted/50 transition-colors">
+                <td class="p-4 align-middle font-medium">{{ item.name }}</td>
+                <td class="p-4 align-middle">{{ item.document | cpfCnpj }}</td>
+                <td class="p-4 align-middle">{{ item.author }}</td>
+                <td class="p-4 align-middle">
+                  <span
+                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    [ngClass]="getStatusClass(item.status)"
+                  >
+                    {{ 'solicitation.status.' + item.status | translate }}
+                  </span>
+                </td>
+                <td class="p-4 align-middle">
+                  {{ item.createdAt | date:'dd/MM/yyyy' }}
+                </td>
+                <td class="p-4 align-middle text-right">
+                  <div class="flex justify-end gap-2">
+                    @if (item.status === "AVAILABLE") {
+                      <button
+                        hlmBtn
+                        variant="outline"
+                        size="sm"
+                        [routerLink]="['request']"
+                        [queryParams]="{ document: item.document }"
+                      >
+                        {{ 'solicitation.actions.requestInfo.confirm' | translate }}
+                      </button>
+                    }
+                    @if (item.status === 'PENDING') {
+                      @if (canApprove(item)) {
+                        <button
+                          hlmBtn
+                          variant="outline"
+                          size="icon"
+                          (click)="approve(item.id)"
+                          [title]="'representations.page.buttons.approve' | translate"
+                        >
+                          <hlm-icon
+                            name="lucideCheck"
+                            class="w-4 h-4 text-green-600"
+                          />
+                        </button>
+                      }
+                      @if (canReject(item)) {
+                        <button
+                          hlmBtn
+                          variant="outline"
+                          size="icon"
+                          (click)="reject(item.id)"
+                          [title]="'representations.page.buttons.reject' | translate"
+                        >
+                          <hlm-icon
+                            name="lucideX"
+                            class="w-4 h-4 text-red-600"
+                          />
+                        </button>
+                      }
+                    }
+
+                    <a
+                      hlmBtn
+                      variant="outline"
+                      size="icon"
+                      [routerLink]="['detail', item.id]"
+                      [title]="'representations.page.buttons.details' | translate"
+                      *hasPermission="'solicitation:view'"
+                    >
+                      <hlm-icon name="lucideEye" class="w-4 h-4" />
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            }
+            @if (items().length === 0 && !loading()) {
+              <tr>
+                <td colspan="5" class="p-4 text-center text-muted-foreground">
+                  {{ 'representations.list.empty' | translate }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div
+      class="flex items-center justify-end space-x-2 py-4 px-4 border-t border-border"
+    >
+      <div class="flex-1 text-sm text-muted-foreground">
+        {{ (page() - 1) * limit() + 1 }} -
+        {{
+          page() * limit() > total() ? total() : page() * limit()
+        }}
+        {{ 'common.pagination.of' | translate }} {{ total() }}
+      </div>
+      <div class="space-x-2">
+        <button
+          hlmBtn
+          variant="outline"
+          size="sm"
+          (click)="prevPage()"
+          [disabled]="page() <= 1 || loading()"
+        >
+          <hlm-icon name="lucideChevronLeft" size="16" />
+        </button>
+        <button
+          hlmBtn
+          variant="outline"
+          size="sm"
+          (click)="nextPage()"
+          [disabled]="page() * limit() >= total() || loading()"
+        >
+          <hlm-icon name="lucideChevronRight" size="16" />
+        </button>
+      </div>
+    </div>
+  </div>
+</app-page-structure>

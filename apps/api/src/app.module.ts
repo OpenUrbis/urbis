@@ -1,8 +1,8 @@
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { AuthModuleEntities } from 'auth/index.entity';
 import { OidcModule } from 'auth/oidc/oidc.module';
 import { OrganizationModule } from 'organization/organization.module';
@@ -19,6 +19,8 @@ import { RoleModuleEntities } from './role/index.entity';
 import { RoleModule } from './role/role.module';
 import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
+import { SolicitationEntities } from './solicitation/entities';
+import { SolicitationModule } from './solicitation/solicitation.module';
 import { SupportModule } from './support/support.module';
 import { UserModuleEntities, UserModuleSubscribers } from './user/index.entity';
 import { UserModule } from './user/user.module';
@@ -77,6 +79,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
         ...WhitelabelModuleEntities,
         ...AppSettingsModuleEntities,
         SupportTicket,
+        ...SolicitationEntities,
       ],
       [...UserModuleSubscribers],
     ),
@@ -90,10 +93,9 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     WhitelabelModule,
     AppSettingsModule,
     SupportModule,
+    SolicitationModule,
   ],
   controllers: [],
-  providers: [
-    Reflector,
-  ],
+  providers: [Reflector],
 })
 export class AppModule {}

@@ -124,6 +124,13 @@ export const routes: Routes = [
             loadComponent: () =>
               import('./pages/whitelabel/whitelabel').then((m) => m.Whitelabel),
           },
+          {
+            path: 'representations',
+            loadChildren: () =>
+              import('./pages/representations/representation.routes').then(
+                (m) => m.representationRoutes,
+              ),
+          },
         ],
       },
     ],

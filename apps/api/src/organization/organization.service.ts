@@ -46,6 +46,12 @@ export class OrganizationService {
     return organization;
   }
 
+  async findOneByDocument(document: string) {
+    return this.organizationRepository.findOne({
+      where: { document },
+    });
+  }
+
   async list(
     pagination: IPaginationOptions,
     search?: string,

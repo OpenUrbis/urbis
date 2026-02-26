@@ -467,6 +467,117 @@
         "title": "Configurações",
         "subtitle": "Gerencie as configurações da organização."
       }
+    },
+    "representations": {
+      "page": {
+        "title": "Representações",
+        "subtitle": "Gerencie as empresas que você representa.",
+        "buttons": {
+          "request": "Solicitar Representação",
+          "approve": "Aprovar",
+          "reject": "Reprovar",
+          "details": "Visualizar Detalhes"
+        }
+      },
+      "list": {
+        "search": "Buscar por nome ou documento...",
+        "filter": {
+          "all": "Todos os Status"
+        },
+        "columns": {
+          "name": "Nome",
+          "document": "Documento",
+          "author": "Solicitante",
+          "status": "Status",
+          "date": "Data",
+          "actions": "Ações"
+        },
+        "empty": "Nenhuma representação ou solicitação encontrada."
+      },
+      "request": {
+        "title": "Solicitar Representação",
+        "form": {
+          "document": "CPF ou CNPJ",
+          "documentPlaceholder": "00.000.000/0000-00",
+          "justification": "Justificativa",
+          "directAccess": "Você possui acesso direto a esta organização. Clique em enviar para confirmar."
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "submitting": "Enviando...",
+          "submit": "Enviar"
+        },
+        "messages": {
+          "success": "Solicitação realizada com sucesso",
+          "error": "Erro ao solicitar representação"
+        }
+      },
+      "detail": {
+        "title": "Detalhes da Solicitação",
+        "info": {
+          "title": "Informações",
+          "requester": "Solicitante",
+          "organization": "Organização",
+          "type": "Tipo",
+          "status": "Status",
+          "justification": "Justificativa",
+          "documents": "Documentos"
+        },
+        "comments": {
+          "title": "Comentários",
+          "empty": "Nenhum comentário.",
+          "add": "Adicionar Comentário / Resposta",
+          "placeholder": "Escreva seu comentário aqui...",
+          "infoMessage": "Ao enviar um comentário, o status da solicitação será alterado para <span class=\"font-medium text-primary\">Pendente</span>."
+        },
+        "buttons": {
+          "reject": "Reprovar",
+          "approve": "Aprovar",
+          "requestInfo": "Solicitar Informações",
+          "sendComment": "Enviar Comentário"
+        }
+      }
+    },
+    "solicitation": {
+      "status": {
+        "PENDING": "Pendente",
+        "APPROVED": "Aprovado",
+        "REJECTED": "Rejeitado",
+        "INFO_REQUESTED": "Informações Solicitadas",
+        "REPRESENTING": "Representando",
+        "AVAILABLE": "Disponível"
+      },
+      "type": {
+        "DIRECT": "Direta",
+        "MANUAL": "Manual"
+      },
+      "actions": {
+        "approve": {
+          "title": "Aprovar Solicitação",
+          "description": "Tem certeza que deseja aprovar esta solicitação?",
+          "confirm": "Aprovar",
+          "success": "Solicitação aprovada com sucesso",
+          "error": "Erro ao aprovar solicitação"
+        },
+        "reject": {
+          "title": "Reprovar Solicitação",
+          "description": "Tem certeza que deseja reprovar esta solicitação?",
+          "confirm": "Reprovar",
+          "success": "Solicitação reprovada com sucesso",
+          "error": "Erro ao reprovar solicitação"
+        },
+        "requestInfo": {
+          "title": "Solicitar Informações",
+          "description": "Deseja solicitar mais informações ao usuário?",
+          "confirm": "Solicitar",
+          "success": "Solicitação de informações enviada",
+          "error": "Erro ao solicitar informações",
+          "validation": "Por favor, adicione um comentário explicando a solicitação de informações."
+        },
+        "addComment": {
+          "error": "Erro ao comentar"
+        }
+      }
     }
   },
   "components": {
@@ -767,6 +878,129 @@
       "items": {
         "docs": "Documentação",
         "accounts": "Contas"
+      }
+    }
+  },
+  "representations": {
+    "page": {
+      "title": "Representações",
+      "subtitle": "Gerencie as empresas que você representa.",
+      "buttons": {
+        "request": "Solicitar Representação",
+        "approve": "Aprovar",
+        "reject": "Reprovar",
+        "details": "Visualizar Detalhes"
+      }
+    },
+    "list": {
+      "search": "Buscar por nome ou documento...",
+      "filter": {
+        "all": "Todos os Status"
+      },
+      "columns": {
+        "name": "Nome",
+        "document": "Documento",
+        "author": "Solicitante",
+        "status": "Status",
+        "date": "Data",
+        "actions": "Ações"
+      },
+      "empty": "Nenhuma representação ou solicitação encontrada."
+    },
+    "request": {
+      "title": "Solicitar Representação",
+      "form": {
+        "document": "CPF ou CNPJ",
+        "documentPlaceholder": "00.000.000/0000-00",
+        "justification": "Justificativa",
+        "directAccess": "Você possui acesso direto a esta organização. Clique em enviar para confirmar."
+      },
+      "buttons": {
+        "cancel": "Cancelar",
+        "submitting": "Enviando...",
+        "submit": "Enviar"
+      },
+      "messages": {
+        "success": "Solicitação realizada com sucesso",
+        "error": "Erro ao solicitar representação"
+      }
+    },
+    "detail": {
+      "title": "Detalhes da Solicitação",
+      "info": {
+        "title": "Informações",
+        "requester": "Solicitante",
+        "organization": "Organização",
+        "type": "Tipo",
+        "status": "Status",
+        "justification": "Justificativa",
+        "documents": "Documentos"
+      },
+      "history": {
+        "title": "Histórico",
+        "empty": "Nenhum histórico disponível."
+      },
+      "comments": {
+        "title": "Comentários",
+        "empty": "Nenhum comentário.",
+        "add": "Adicionar Comentário / Resposta",
+        "placeholder": "Escreva seu comentário aqui...",
+        "infoMessage": "Ao enviar um comentário, o status da solicitação será alterado para <span class=\"font-medium text-primary\">Pendente</span>."
+      },
+      "buttons": {
+        "reject": "Reprovar",
+        "approve": "Aprovar",
+        "requestInfo": "Solicitar Informações",
+        "sendComment": "Enviar Comentário"
+      }
+    }
+  },
+  "solicitation": {
+    "status": {
+      "PENDING": "Pendente",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado",
+      "INFO_REQUESTED": "Informações Solicitadas",
+      "REPRESENTING": "Representando",
+      "AVAILABLE": "Disponível"
+    },
+    "type": {
+      "DIRECT": "Direta",
+      "MANUAL": "Manual"
+    },
+    "history": {
+      "CREATED": "Solicitação criada",
+      "APPROVED": "Solicitação aprovada",
+      "REJECTED": "Solicitação reprovada",
+      "INFO_REQUESTED": "Informações solicitadas",
+      "INFO_PROVIDED": "Informações fornecidas",
+      "AUTO_APPROVED": "Aprovado automaticamente"
+    },
+    "actions": {
+      "approve": {
+        "title": "Aprovar Solicitação",
+        "description": "Tem certeza que deseja aprovar esta solicitação?",
+        "confirm": "Aprovar",
+        "success": "Solicitação aprovada com sucesso",
+        "error": "Erro ao aprovar solicitação"
+      },
+      "reject": {
+        "title": "Reprovar Solicitação",
+        "description": "Tem certeza que deseja reprovar esta solicitação?",
+        "confirm": "Reprovar",
+        "success": "Solicitação reprovada com sucesso",
+        "error": "Erro ao reprovar solicitação"
+      },
+      "requestInfo": {
+        "title": "Solicitar Informações",
+        "description": "Deseja solicitar mais informações ao usuário?",
+        "confirm": "Solicitar",
+        "success": "Solicitação de informações enviada",
+        "error": "Erro ao solicitar informações",
+        "validation": "Por favor, adicione um comentário explicando a solicitação de informações."
+      },
+      "addComment": {
+        "error": "Erro ao comentar"
       }
     }
   }

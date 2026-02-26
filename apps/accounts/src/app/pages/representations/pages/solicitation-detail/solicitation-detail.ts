@@ -32,6 +32,7 @@ import {
 } from '../../../../../../projects/shared/src/public-api';
 import { environment } from '../../../../../environments/environment';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
+import { PermissionState } from '../../../../states/permission/permission.state';
 import { ProfileState } from '../../../../states/profile/profile.state';
 import { SolicitationApi } from '../../services/solicitation-api';
 
@@ -83,6 +84,7 @@ export class SolicitationDetail implements OnInit {
   attachmentsService = inject(AttachmentsService);
   profile = inject(ProfileState);
   translate = inject(TranslateService);
+  permissionState = inject(PermissionState);
 
   solicitation = signal<any>(null);
   selectedTabIndex = signal(0);
@@ -268,5 +270,21 @@ export class SolicitationDetail implements OnInit {
   isImage(filename: string): boolean {
     const ext = filename.split('.').pop()?.toLowerCase();
     return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '');
+  }
+
+  canApprove(item: any) {
+    if (!item.organizationId) return false;
+    return this.permissionState.hasPermission({
+      id: 'solicitation:approve',
+      organizationId: item.organizationId,
+    });
+  }
+
+  canReject(item: any) {
+    if (!item.organizationId) return false;
+    return this.permissionState.hasPermission({
+      id: 'solicitation:reject',
+      organizationId: item.organizationId,
+    });
   }
 }

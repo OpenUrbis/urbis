@@ -127,21 +127,25 @@
 
     @if (solicitation().status === "PENDING") {
       <div class="flex justify-end gap-2 mb-6">
-        <button
-          hlmBtn
-          variant="outline"
-          (click)="reject()"
-          *hasPermission="'solicitation:reject'"
-        >
-          {{ "representations.detail.buttons.reject" | translate }}
-        </button>
-        <button
-          hlmBtn
-          (click)="approve()"
-          *hasPermission="'solicitation:approve'"
-        >
-          {{ "representations.detail.buttons.approve" | translate }}
-        </button>
+        @if (canReject(solicitation())) {
+          <button
+            hlmBtn
+            variant="outline"
+            (click)="reject()"
+            *hasPermission="'solicitation:reject'"
+          >
+            {{ "representations.detail.buttons.reject" | translate }}
+          </button>
+        }
+        @if (canApprove(solicitation())) {
+          <button
+            hlmBtn
+            (click)="approve()"
+            *hasPermission="'solicitation:approve'"
+          >
+            {{ "representations.detail.buttons.approve" | translate }}
+          </button>
+        }
       </div>
     }
 
@@ -190,7 +194,9 @@
                   <span class="font-medium">{{
                     comment.author?.firstName
                   }}</span>
-                  <span>{{ comment.createdAt | date: "dd/MM/yyyy HH:mm" }}</span>
+                  <span>{{
+                    comment.createdAt | date: "dd/MM/yyyy HH:mm"
+                  }}</span>
                 </div>
                 <p class="text-sm whitespace-pre-wrap">{{ comment.text }}</p>
                 @if (comment.attachments?.length > 0) {
@@ -260,7 +266,10 @@
               class="w-full"
               rows="3"
             ></textarea>
-            <lib-attachments [formControl]="attachmentsControl" (isLoading)="attachmentLoading.set($event)" />
+            <lib-attachments
+              [formControl]="attachmentsControl"
+              (isLoading)="attachmentLoading.set($event)"
+            />
 
             @if (
               solicitation().status === "INFO_REQUESTED" &&
@@ -275,7 +284,10 @@
             }
 
             <div class="flex justify-end gap-2">
-              @if (solicitation().status === "PENDING" && solicitation().requester?.id !== userId()) {
+              @if (
+                solicitation().status === "PENDING" &&
+                solicitation().requester?.id !== userId()
+              ) {
                 <button
                   hlmBtn
                   variant="secondary"

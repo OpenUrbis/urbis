@@ -36,6 +36,7 @@
     "@open-urbis/endereco-digital": "workspace:*",
     "@open-urbis/map-auth": "workspace:^",
     "@open-urbis/map-shared": "workspace:*",
+    "@open-urbis/map": "workspace:*",
     "@open-urbis/map-ui": "workspace:*",
     "@preact/signals-core": "^1.8.0",
     "@preact-signals/query": "^2.1.1",

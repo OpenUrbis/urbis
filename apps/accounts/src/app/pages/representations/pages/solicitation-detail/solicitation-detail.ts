@@ -90,6 +90,7 @@ export class SolicitationDetail implements OnInit {
   commentControl = new FormControl('', [Validators.required]);
   attachmentsControl = new FormControl([]);
   userId = computed(() => this.profile.value()?.id);
+  attachmentLoading = signal(false);
 
   async ngOnInit() {
     this.route.params.subscribe(async (params) => {
@@ -245,7 +246,7 @@ export class SolicitationDetail implements OnInit {
   }
 
   async addComment() {
-    if (this.commentControl.invalid) return;
+    if (this.commentControl.invalid || this.attachmentLoading()) return;
     try {
       await firstValueFrom(
         this.api.addComment(

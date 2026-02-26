@@ -132,6 +132,8 @@ export class RequestRepresentation {
       );
       this.router.navigate(['/representations']);
     } catch (err: any) {
+      if (err?.error?.message)
+        return this.toaster.error(this.translate.instant(err.error.message));
       this.toaster.error(
         this.translate.instant('representations.request.messages.error'),
       );

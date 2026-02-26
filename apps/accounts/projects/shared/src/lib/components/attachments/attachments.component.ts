@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, forwardRef, inject, signal } from '@angular/core';
+import { Component, forwardRef, inject, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import {
@@ -49,6 +49,7 @@ export class AttachmentsComponent implements ControlValueAccessor {
   isUploading = signal(false);
   uploadCount = signal(0);
   error = signal<string | null>(null);
+  isLoading = output<boolean>();
 
   // ControlValueAccessor
   onChange: any = () => {};
@@ -96,6 +97,7 @@ export class AttachmentsComponent implements ControlValueAccessor {
 
     this.error.set(null);
     this.isUploading.set(true);
+    this.isLoading.emit(true);
     this.uploadCount.set(fileList.length);
 
     try {
@@ -111,6 +113,7 @@ export class AttachmentsComponent implements ControlValueAccessor {
       this.error.set(err.message || 'Falha ao enviar anexos.');
     } finally {
       this.isUploading.set(false);
+      this.isLoading.emit(false);
       this.uploadCount.set(0);
       event.target.value = '';
     }

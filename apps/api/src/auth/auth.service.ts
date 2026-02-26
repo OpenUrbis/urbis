@@ -80,7 +80,7 @@ export class AuthService {
     }
 
     if (dto.cpf) {
-      await this.cpfValidationService.validate(dto.cpf);
+      await this.cpfValidationService.validate(dto.cpf.replace(/\D/g, ''));
     }
 
     const user = await this.userService.create({
@@ -332,7 +332,7 @@ export class AuthService {
             email: payload.email,
             firstName: payload.firstName,
             lastName: payload.lastName,
-            cpf: payload.cpf,
+            cpf: payload.cpf.replace(/\D/g, ''),
             picture: payload.picture,
           },
         },
@@ -352,7 +352,7 @@ export class AuthService {
       }
 
       if (!user.cpf && payload.cpf) {
-        updateData.cpf = payload.cpf;
+        updateData.cpf = payload.cpf.replace(/\D/g, '');
       }
 
       if (payload.firstName && !user.firstName) {
@@ -399,7 +399,7 @@ export class AuthService {
 
         // Direct update for document since it might not be in DTO
         const orgEntity = await this.organizationService.findOne(pfOrg.id);
-        orgEntity.document = user.cpf;
+        orgEntity.document = user.cpf.replace(/\D/g, '');
         orgEntity.name = user.firstName; // Ensure name is first name
         await orgEntity.save();
       }
@@ -419,7 +419,7 @@ export class AuthService {
 
       // Update document field directly
       const orgEntity = await this.organizationService.findOne(newOrg.id);
-      orgEntity.document = user.cpf;
+      orgEntity.document = user.cpf.replace(/\D/g, '');
       await orgEntity.save();
     }
   }

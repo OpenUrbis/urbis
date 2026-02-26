@@ -260,7 +260,7 @@
               class="w-full"
               rows="3"
             ></textarea>
-            <lib-attachments [formControl]="attachmentsControl" />
+            <lib-attachments [formControl]="attachmentsControl" (isLoading)="attachmentLoading.set($event)" />
 
             @if (
               solicitation().status === "INFO_REQUESTED" &&
@@ -275,12 +275,12 @@
             }
 
             <div class="flex justify-end gap-2">
-              @if (solicitation().status === "PENDING") {
+              @if (solicitation().status === "PENDING" && solicitation().requester?.id !== userId()) {
                 <button
                   hlmBtn
                   variant="secondary"
                   (click)="requestInfo()"
-                  [disabled]="commentControl.invalid"
+                  [disabled]="commentControl.invalid || attachmentLoading()"
                 >
                   {{ "representations.detail.buttons.requestInfo" | translate }}
                 </button>
@@ -288,7 +288,7 @@
               <button
                 hlmBtn
                 (click)="addComment()"
-                [disabled]="commentControl.invalid"
+                [disabled]="commentControl.invalid || attachmentLoading()"
               >
                 {{ "representations.detail.buttons.sendComment" | translate }}
               </button>

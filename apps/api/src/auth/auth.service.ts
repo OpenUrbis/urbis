@@ -378,7 +378,7 @@ export class AuthService {
     if (!user.cpf) return;
 
     const userOrgs = await this.organizationService.my(user.id);
-    let pfOrg = userOrgs.find(
+    const pfOrg = userOrgs.find(
       (org) =>
         org.metadata?.documentType === 'CPF' &&
         org.metadata?.userId === user.id,

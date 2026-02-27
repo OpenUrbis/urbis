@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class CpfValidationService {
-  async validate(cpf: string): Promise<boolean> {
+  validate(cpf: string): Promise<boolean> {
     // Mocked validation against third-party system
     // In a real scenario, this would call an external API
 
@@ -19,6 +19,6 @@ export class CpfValidationService {
       );
     }
 
-    return true;
+    return Promise.resolve(true);
   }
 }

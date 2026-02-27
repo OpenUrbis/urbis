@@ -2,14 +2,20 @@ import {
   All,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Inject,
   Param,
   Post,
   Req,
   Res,
+  SerializeOptions,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthService } from 'auth/auth.service';
 import { Request, Response } from 'express';
 import Provider from 'oidc-provider';
 import { LoginGuard } from './../guards/login.guard';
@@ -20,9 +26,10 @@ export class OidcController {
     @Inject('OidcProvider')
     public oidcProvider: Provider,
     private configService: ConfigService,
+    private readonly authService: AuthService,
   ) {}
 
-  /*   @ApiBearerAuth()
+  @ApiBearerAuth()
   @SerializeOptions({
     groups: ['exposeProvider'],
   })
@@ -30,8 +37,10 @@ export class OidcController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   public async me(@Req() request) {
-return await this.authService.me(request.user);
-  } */
+    const user = await this.authService.me(request.user);
+
+    return { sub: user.id, ...user, _id: user.id };
+  }
 
   @Get('interaction/:uuid')
   async interactionView(
@@ -43,8 +52,10 @@ return await this.authService.me(request.user);
       .toString()
       .replace('interaction/api', 'interaction')
       .replace('/auth/oidc', '');
-    const { params, prompt, uid, ...body } =
-      await this.oidcProvider.interactionDetails(req, res);
+    const { params, prompt, uid } = await this.oidcProvider.interactionDetails(
+      req,
+      res,
+    );
     const response = {
       params: params,
       uid: uid,

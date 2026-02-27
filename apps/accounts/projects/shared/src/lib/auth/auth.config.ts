@@ -12,7 +12,7 @@ export const authConfig: PassedInitialConfig = {
     redirectUrl: `${window.location.origin}/callback`,
     postLogoutRedirectUri: window.location.origin,
     clientId: environment.clientId,
-    scope: 'openid profile offline_access',
+    scope: 'openid offline_access',
     responseType: 'code',
     maxIdTokenIatOffsetAllowedInSeconds: 4200,
     ignoreNonceAfterRefresh: true,

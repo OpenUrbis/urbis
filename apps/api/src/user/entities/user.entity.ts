@@ -45,6 +45,17 @@ export class User extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   emailHashConfirm?: string | null;
 
+  @Column({ nullable: true })
+  otpSecret!: string | null;
+
+  @Column({ default: false })
+  otpValidated!: boolean;
+
+  @Column({
+    default: false,
+  })
+  requires2fa!: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

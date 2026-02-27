@@ -8,6 +8,7 @@ export class InsertSystemRoles1761621560975 implements MigrationInterface {
       description:
         'Permite ao usuário gerenciar grupos de permissões, usuários, e organizações',
       permissions: [
+        'role:list',
         'role:create',
         'role:update',
         'role:assign',
@@ -37,8 +38,8 @@ export class InsertSystemRoles1761621560975 implements MigrationInterface {
       role.permissions.forEach((permission) => {
         query += `
   
-        INSERT INTO public.role_permissions ("rolesId","permissionsPermission")
-        VALUES ('${role.id}', '${permission}');  
+        INSERT INTO public.role_permissions ("roleId", "permissionId", "scope")
+        VALUES ('${role.id}', '${permission}', 'global');  
   
     `;
       });
@@ -55,7 +56,7 @@ export class InsertSystemRoles1761621560975 implements MigrationInterface {
         (query += `
     
             DELETE FROM public.role_permissions
-            WHERE "rolesId" = '${role.id}';
+            WHERE "roleId" = '${role.id}';
     
             DELETE FROM roles
             WHERE id = '${role.id}';

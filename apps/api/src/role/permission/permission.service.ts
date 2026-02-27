@@ -13,7 +13,7 @@ export class PermissionService {
 
   getFromArray(permissions: string[]) {
     return this.permissionRepository.find({
-      where: { permission: In(permissions) },
+      where: { action: In(permissions) },
     });
   }
 
@@ -27,12 +27,16 @@ export class PermissionService {
 
     if (search) where.name = Or(ILike(`%${search}%`));
 
-    if (exclude && exclude?.length > 0) where.permission = Not(In(exclude));
+    if (exclude && exclude?.length > 0) where.action = Not(In(exclude));
 
     return this.permissionRepository.find({
       where: where,
       take: limit,
       skip: page * limit,
     });
+  }
+
+  findOne(action: string) {
+    return this.permissionRepository.findOne({ where: { action } });
   }
 }

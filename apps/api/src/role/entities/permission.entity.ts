@@ -1,19 +1,21 @@
 import {
   BaseEntity,
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  ManyToMany,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Role } from './role.entity';
+import { RolePermission } from './role-permission.entity';
 
 @Entity('permissions')
 export class Permission extends BaseEntity {
   @PrimaryColumn()
-  permission: string;
+  id: string;
 
   @Column()
   name: string;
@@ -21,8 +23,14 @@ export class Permission extends BaseEntity {
   @Column({ nullable: true })
   description?: string | null;
 
-  @ManyToMany(() => Role, (role) => role.permissions)
-  roles: Role[];
+  @Column()
+  action: string;
+
+  @Column()
+  resource: string;
+
+  @OneToMany(() => RolePermission, (rp) => rp.permission)
+  rolePermissions: RolePermission[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -32,4 +40,12 @@ export class Permission extends BaseEntity {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  setId() {
+    if (!this.id) {
+      this.id = `${this.resource}:${this.action}`;
+    }
+  }
 }

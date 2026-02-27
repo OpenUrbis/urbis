@@ -11,26 +11,29 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { OrganizationData } from 'common/decorators/organization/organization.decorator';
+import { OrganizationData } from 'common/decorators/organization-data/organization-data.decorator';
+import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
+import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { OrganizationGuard } from 'common/guards/organization/organization.guard';
-import { RoleGuard } from 'common/guards/role/role.guard';
-import { UserGuard } from 'common/guards/user/user.guard';
 import { Organization } from 'organization/entities/organization.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from './entities/role.entity';
+import { RolePermissionScopeEnum } from './enums/role-permission-scope.enum';
 import { RoleService } from './role.service';
 
 @ApiTags('Role')
-@UseGuards(AuthGuard('jwt'), RoleGuard, UserGuard, OrganizationGuard)
+@UseGuards(AccessControlGuard, OrganizationGuard)
 @Controller('role')
 export class RoleController {
   constructor(private readonly service: RoleService) {}
 
   @Get('list')
+  @RequirePermission({
+    permissions: { id: 'role:list', scope: RolePermissionScopeEnum.ANY },
+  })
   @ApiOperation({ summary: 'Get permissions' })
   @ApiResponse({ status: 200, description: 'Permissions' })
   @ApiResponse({ status: 400, description: 'Error' })
@@ -64,6 +67,13 @@ export class RoleController {
   }
 
   @Get('user/:userId')
+  @RequirePermission({
+    permissions: {
+      action: 'list',
+      resource: 'role',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   listUserRoles(
     @Param('userId') userId: string,
     @OrganizationData() organization: Organization,
@@ -72,28 +82,49 @@ export class RoleController {
   }
 
   @Post()
-  create(
-    @Body() data: CreateRoleDto,
-    @OrganizationData() organization: Organization,
-  ) {
-    return this.service.create(data, organization);
+  @RequirePermission({
+    permissions: {
+      action: 'create',
+      resource: 'role',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
+  create(@Body() data: CreateRoleDto) {
+    return this.service.create(data);
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() data: UpdateRoleDto,
-    @OrganizationData() organization: Organization,
-  ) {
-    return this.service.update(id, data, organization);
+  @RequirePermission({
+    permissions: {
+      action: 'update',
+      resource: 'role',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
+  update(@Param('id') id: string, @Body() data: UpdateRoleDto) {
+    return this.service.update(id, data);
   }
 
   @Patch('assign')
+  @RequirePermission({
+    permissions: {
+      action: 'assign',
+      resource: 'role',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   assign(@Body() data: AssignRoleDto) {
     return this.service.assign(data);
   }
 
   @Patch('unassign/:id')
+  @RequirePermission({
+    permissions: {
+      action: 'unassign',
+      resource: 'role',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   unassign(@Param('id') id: string) {
     return this.service.unassign(id);
   }

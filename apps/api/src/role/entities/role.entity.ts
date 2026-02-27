@@ -1,12 +1,12 @@
+import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 import {
+  AfterLoad,
   BaseEntity,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -16,7 +16,21 @@ import { Organization } from '../../organization/entities/organization.entity';
 import { RoleStatusEnum } from '../enums/role-status.enum';
 import { RoleTypeEnum } from '../enums/role-type.enum';
 import { Permission } from './permission.entity';
+import { RolePermission } from './role-permission.entity';
 import { UserRoleAssignment } from './user-role-assignment.entity';
+
+export type InternalPermission = Pick<
+  Permission,
+  | 'action'
+  | 'name'
+  | 'description'
+  | 'resource'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'deletedAt'
+> & {
+  scope: RolePermissionScopeEnum;
+};
 
 @Entity('roles')
 export class Role extends BaseEntity {
@@ -41,6 +55,7 @@ export class Role extends BaseEntity {
 
   @Column({ nullable: true })
   organizationId?: string | null;
+
   @ManyToOne(
     () => Organization,
     (organization) => organization.userRoleAssignments,
@@ -49,10 +64,10 @@ export class Role extends BaseEntity {
   @JoinColumn({ name: 'organizationId' })
   organization: Organization;
 
-  @ManyToMany(() => Permission, (permission) => permission.roles)
-  @JoinColumn({ name: 'roleId' })
-  @JoinTable({ name: 'role_permissions' })
-  permissions: Permission[];
+  @OneToMany(() => RolePermission, (rp) => rp.role, { eager: true })
+  rolePermissions: RolePermission[];
+
+  permissions?: InternalPermission[];
 
   @OneToMany(() => UserRoleAssignment, (ura) => ura.role)
   userRoleAssignments: UserRoleAssignment[];
@@ -65,4 +80,14 @@ export class Role extends BaseEntity {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @AfterLoad()
+  populatePermissions() {
+    if (this.rolePermissions) {
+      this.permissions = [];
+      this.rolePermissions.forEach(({ permission, scope }) =>
+        this.permissions.push({ ...permission, scope }),
+      );
+    }
+  }
 }

@@ -6,16 +6,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { OrganizationGuard } from 'common/guards/organization/organization.guard';
-import { RoleGuard } from 'common/guards/role/role.guard';
-import { UserGuard } from 'common/guards/user/user.guard';
+import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { Permission } from 'role/entities/permission.entity';
 import { PermissionService } from './permission.service';
 
 @ApiTags('Permission')
-@UseGuards(AuthGuard('jwt'), RoleGuard, UserGuard, OrganizationGuard)
+@UseGuards(AccessControlGuard)
 @Controller('role/permission')
 export class PermissionController {
   constructor(private readonly service: PermissionService) {}

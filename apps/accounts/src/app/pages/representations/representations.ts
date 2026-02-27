@@ -5,13 +5,13 @@ import { RouterModule } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import {
   lucideCheck,
+  lucideChevronLeft,
+  lucideChevronRight,
   lucideEye,
   lucideFilter,
   lucidePlus,
   lucideSearch,
   lucideX,
-  lucideChevronLeft,
-  lucideChevronRight,
 } from '@ng-icons/lucide';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -23,21 +23,14 @@ import {
   HlmIconComponent,
   HlmInputDirective,
   HlmToasterService,
+  LoadingContent,
   useConfirmDialog,
 } from '../../../../projects/shared/src/public-api';
 import { PageStructure } from '../../components/page-structure/page-structure';
-import { PermissionState } from '../../states/permission/permission.state';
-import { ProfileState } from '../../states/profile/profile.state';
 import { CpfCnpjPipe } from '../../pipes/cpf-cnpj.pipe';
-import { SolicitationApi } from './services/solicitation-api';
-import { OrganizationState } from '../../states/organization/organization.state';
-import { RolePermissionScopeEnum } from '../../shared/enums/role-permission-scope.enum';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
-
-interface PermissionOrganizationWithScope {
-  organizationId: string;
-  scope: RolePermissionScopeEnum;
-}
+import { PermissionState } from '../../states/permission/permission.state';
+import { SolicitationApi } from './services/solicitation-api';
 
 @Component({
   selector: 'app-representations',
@@ -55,6 +48,7 @@ interface PermissionOrganizationWithScope {
     PageStructure,
     HasPermissionDirective,
     CpfCnpjPipe,
+    LoadingContent,
   ],
   providers: [
     provideIcons({

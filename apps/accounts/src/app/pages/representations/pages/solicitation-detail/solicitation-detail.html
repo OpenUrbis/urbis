@@ -1,6 +1,7 @@
-@if (solicitation()) {
-  <section class="max-w-3xl mx-auto py-8">
-    <div class="flex items-center gap-4 mb-6">
+<lib-loading-content [loading]="loading()">
+  @if (solicitation()) {
+    <section class="max-w-3xl mx-auto py-8">
+      <div class="flex items-center gap-4 mb-6">
       <button hlmBtn variant="outline" size="icon" routerLink="../..">
         <hlm-icon name="lucideArrowLeft" class="w-4 h-4" />
       </button>
@@ -361,5 +362,6 @@
         }
       </div>
     </div>
-  </section>
-}
+    </section>
+  }
+</lib-loading-content>

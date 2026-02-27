@@ -29,6 +29,7 @@ import {
   HlmLabelDirective,
   HlmToasterService,
   useConfirmDialog,
+  LoadingContent,
 } from '../../../../../../projects/shared/src/public-api';
 import { environment } from '../../../../../environments/environment';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
@@ -55,6 +56,7 @@ import { SolicitationApi } from '../../services/solicitation-api';
     AttachmentsComponent,
     RecaptchaV3Module,
     HasPermissionDirective,
+    LoadingContent,
   ],
   providers: [
     AttachmentsService,

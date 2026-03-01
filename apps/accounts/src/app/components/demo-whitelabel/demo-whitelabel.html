@@ -1,0 +1,48 @@
+<h3>Demo Whitelabel</h3>
+
+<div class="d-flex gap-2">
+  <button
+    matButton="filled"
+    style="background-color: #c3b1e1; color: black"
+    (click)="whitelabelService.setPrimaryColor('#C3B1E1')"
+  >
+    Whitelabel Roxo
+  </button>
+
+  <button
+    matButton="filled"
+    style="background-color: #ff6961; color: white"
+    (click)="whitelabelService.setPrimaryColor('#FF6961')"
+  >
+    Whitelabel Vermelho
+  </button>
+
+  <button
+    matButton="filled"
+    style="background-color: #77dd77; color: black"
+    (click)="whitelabelService.setPrimaryColor('#77DD77')"
+  >
+    Whitelabel Verde
+  </button>
+
+  <button
+    matButton="filled"
+    style="background-color: #fdfd96; color: black"
+    (click)="whitelabelService.setPrimaryColor('#FDFD96')"
+  >
+    Whitelabel Amarelo
+  </button>
+
+  <button
+    matButton="filled"
+    style="background-color: #836952; color: white"
+    (click)="whitelabelService.setPrimaryColor('#836952')"
+  >
+    Whitelabel Marrom
+  </button>
+
+  <button matButton="filled" (click)="whitelabelService.toggleTheme()">
+    Switch to
+    {{ whitelabelService.state().theme === "light" ? "Dark" : "Light" }} Mode
+  </button>
+</div>

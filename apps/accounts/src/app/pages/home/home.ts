@@ -3,10 +3,11 @@ import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { RoleManagerModule } from '../../components/role-manager/role-manager-module';
+import { DemoWhitelabelComponent } from '../../components/demo-whitelabel/demo-whitelabel';
 
 @Component({
   selector: 'app-home',
-  imports: [MatButtonModule, RoleManagerModule],
+  imports: [MatButtonModule, RoleManagerModule, DemoWhitelabelComponent],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

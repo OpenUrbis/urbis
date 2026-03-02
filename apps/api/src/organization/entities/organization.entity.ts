@@ -21,7 +21,7 @@ export class Organization extends BaseEntity {
   @Column({ nullable: true })
   description?: string | null;
 
-  @Column({ type: 'json' })
+  @Column({ type: 'json', default: {} })
   metadata: any;
 
   @OneToMany(() => UserRoleAssignment, (ura) => ura.organization)

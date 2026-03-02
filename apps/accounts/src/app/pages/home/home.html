@@ -2,9 +2,14 @@
 <button matButton="filled" (click)="selectOrganization()">Select org</button>
 <button matButton="filled" (click)="test()">test</button>
 <button matButton="filled" (click)="logout()">Sair</button>
+<br />
+<br />
+<br />
+<br />
+<br />
 
-<app-user-role-manager [userId]="'894816f9-de51-4a2e-968e-51911fac4352'" />
+<!-- <app-user-role-manager [userId]="'894816f9-de51-4a2e-968e-51911fac4352'" />
 
-<app-roles-manager />
+<app-roles-manager /> -->
 
-<app-demo-whitelabel />
+<app-permission-selector [control]="formcontrol" [multi]="true" />

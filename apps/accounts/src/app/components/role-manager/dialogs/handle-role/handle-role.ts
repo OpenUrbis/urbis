@@ -22,8 +22,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
-import { debounceTime, startWith, switchMap } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { catchError, debounceTime, of, startWith, switchMap } from 'rxjs';
+import { LoadingButton } from '../../../../../../projects/shared/src/public-api';
 import { IPermissionResponse } from '../../dto/permission.dto';
 import { IInternalPermission, IRoleResponse } from '../../dto/role.dto';
 import { RoleManagerApi } from '../../services/role-manager-api';
@@ -42,6 +45,8 @@ import { RoleManagerApi } from '../../services/role-manager-api';
     MatDialogModule,
     MatListModule,
     MatSelectModule,
+    MatProgressSpinnerModule,
+    LoadingButton,
   ],
   templateUrl: './handle-role.html',
   styleUrl: './handle-role.scss',
@@ -53,11 +58,15 @@ export class HandleRole {
     description: new FormControl(),
     permissions: new FormControl([], Validators.required),
   });
+
+  loading = signal<boolean>(false);
   selectedPermissions = signal<IInternalPermission[]>([]);
+
   selectedToString = computed(() =>
-    this.selectedPermissions().map((prm) => prm.action),
+    this.selectedPermissions().map((prm) => prm.id),
   );
 
+  matSnackBar = inject(MatSnackBar);
   roleManagerApi = inject(RoleManagerApi);
 
   readonly dialogRef = inject(MatDialogRef<HandleRole>);
@@ -74,7 +83,7 @@ export class HandleRole {
           search,
           exclude: this.selectedToString(),
         }),
-      ),
+      )
     ),
   );
 
@@ -84,7 +93,6 @@ export class HandleRole {
     const { permissions, ...rest } = this.data;
 
     effect(() => {
-      console.log('ALTERANDO');
       this.updatePermissionsInForm();
     });
 
@@ -123,19 +131,42 @@ export class HandleRole {
   }
 
   save() {
-    // TO DO: Adicionar loading e feedback para o usuário
+    if (!this.selectedPermissions().length) {
+      this.matSnackBar.open('O cargo deve ter pelo menos uma permissão');
+      return;
+    }
+    if (this.form.invalid) {
+      this.matSnackBar.open('Os dados estão inválidos no formulário');
+      return;
+    }
+    this.loading.set(true);
     if (this.data?.id)
       this.roleManagerApi
         .update(this.data.id, this.form.value as any)
-        .subscribe((response) => this.processReponse(response as any));
+        .subscribe({
+          next: (response) => this.processReponse(response as any),
+          error: (err) => this.processError(err),
+        });
     else
-      this.roleManagerApi
-        .create(this.form.value as any)
-        .subscribe((response) => this.processReponse(response as any));
+      this.roleManagerApi.create(this.form.value as any).subscribe({
+        next: (response) => this.processReponse(response as any),
+        error: (err) => this.processError(err),
+      });
   }
 
   processReponse(response: IRoleResponse) {
+    this.loading.set(false);
+    this.matSnackBar.open(
+      `Cargo ${this.data?.id ? 'atualizado' : 'criado'} com sucesso`,
+    );
     this.dialogRef.close(response);
+  }
+
+  processError(err: any) {
+    this.loading.set(false);
+    this.matSnackBar.open(
+      `Houve um erro ao ${this.data?.id ? 'atualizar' : 'criar'} o cargo`,
+    );
   }
 
   changeScope(index: number, change: MatSelectChange) {

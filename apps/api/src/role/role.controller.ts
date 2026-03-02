@@ -11,7 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { OrganizationData } from 'common/decorators/organization-data/organization-data.decorator';
 import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
@@ -19,8 +19,8 @@ import { OrganizationGuard } from 'common/guards/organization/organization.guard
 import { Organization } from 'organization/entities/organization.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleFromOrganizationDto } from './dto/update-role-from-organization.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { Role } from './entities/role.entity';
 import { RolePermissionScopeEnum } from './enums/role-permission-scope.enum';
 import { RoleService } from './role.service';
 
@@ -31,12 +31,6 @@ export class RoleController {
   constructor(private readonly service: RoleService) {}
 
   @Get('list')
-  @RequirePermission({
-    permissions: { id: 'role:list', scope: RolePermissionScopeEnum.ANY },
-  })
-  @ApiOperation({ summary: 'Get permissions' })
-  @ApiResponse({ status: 200, description: 'Permissions' })
-  @ApiResponse({ status: 400, description: 'Error' })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -58,12 +52,24 @@ export class RoleController {
     description: 'Search term',
     example: 0,
   })
+  @ApiQuery({
+    name: 'exclude',
+    required: false,
+    type: String,
+    description: 'Exclude permissions',
+    example: "['role:create','user:create']",
+  })
   list(
     @Query('page', new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search') search: string,
-  ): Promise<Role[]> {
-    return this.service.list({ page, limit }, search);
+    @Query('exclude') exclude: string[] | string,
+  ) {
+    return this.service.list(
+      { page, limit },
+      search,
+      typeof exclude === 'string' ? [exclude] : exclude,
+    );
   }
 
   @Get('user/:userId')
@@ -127,5 +133,35 @@ export class RoleController {
   })
   unassign(@Param('id') id: string) {
     return this.service.unassign(id);
+  }
+
+  @RequirePermission({
+    permissions: {
+      action: 'assign',
+      resource: 'role',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
+  @Put('assign/:organizationId')
+  updateAssignByOrganization(
+    @Param('organizationId') organizationId: string,
+    @Body() data: UpdateRoleFromOrganizationDto,
+  ) {
+    return this.service.updateAssignByOrganization(organizationId, data);
+  }
+
+  @RequirePermission({
+    permissions: {
+      action: 'assign',
+      resource: 'role',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
+  @Post('assign/:organizationId')
+  assignByOrganization(
+    @Param('organizationId') organizationId: string,
+    @Body() data: UpdateRoleFromOrganizationDto,
+  ) {
+    return this.service.assignByOrganization(organizationId, data);
   }
 }

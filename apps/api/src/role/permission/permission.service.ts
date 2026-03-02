@@ -27,7 +27,7 @@ export class PermissionService {
 
     if (search) where.name = Or(ILike(`%${search}%`));
 
-    if (exclude && exclude?.length > 0) where.action = Not(In(exclude));
+    if (exclude && exclude?.length > 0) where.id = Not(In(exclude));
 
     return this.permissionRepository.find({
       where: where,

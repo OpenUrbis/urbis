@@ -129,7 +129,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
     informations: IMapActionProps,
   ) => void;
 } => {
-  const { selectFeature, flyTo } = useMapContext();
+  const { selectFeature, flyTo, disablePadding } = useMapContext();
   const { navigateTo, toggleDrawer, drawerOpen } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -147,7 +147,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
           'clickAction(selectFeature) Error: Property "template" is not defined',
         );
 
-      if (isDesktop && !drawerOpen.value) toggleDrawer();
+      if (isDesktop && !drawerOpen.value && !disablePadding.value) toggleDrawer();
 
       let center = [longitude, latitude];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -165,15 +165,17 @@ export const CLICK_ACTIONS_CONFIG = (): {
         }
       }
 
-      if (!isDesktop) toggleDrawer();
+      if (!isDesktop && !disablePadding.value) toggleDrawer();
       selectFeature({ feature, template });
 
       const padding = { top: 0, bottom: 0, left: 0, right: 0 };
 
-      if (isDesktop) {
+      if (isDesktop && !disablePadding.value) {
         padding.left = 420;
       }
-      padding.top = 64;
+      if (!disablePadding.value) {
+          padding.top = 64;
+      }
 
       flyTo({
         center,

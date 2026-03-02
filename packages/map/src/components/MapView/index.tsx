@@ -344,6 +344,7 @@ export const MapView = ({
             mapStyle={currentMapStyle}
             mapboxAccessToken={accessToken}
             initialViewState={viewport.value}
+            padding={{ top: disablePadding ? 0 : 64, bottom: 0, left: (sidebarOpen && !disablePadding) ? 400 : 0, right: 0 }}
             onMouseMove={(evt) => {
               cursorPosition.value = {
                 latitude: evt.lngLat.lat,

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapProvider } from "../../context/MapContext";
 import { SearchProvider } from "../../context/SearchContext";
 import { NavigationProvider } from "../../context/NavigationContext";
@@ -12,6 +12,7 @@ import { effect } from "@preact/signals-react";
 import { MapContextSelectedFeature } from "../../types/map-context-type";
 import { calculateCentroid } from "../MapView/utils";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
 
 export interface MapPickerValue {
   type: 'selection' | 'digital' | 'edit' | 'view' | 'none';
@@ -42,10 +43,14 @@ interface MapPickerProps {
 const MapPickerContent = ({ onChange, initialData, mode = 'editable', children, overlay, hideMap, hideLayerManager, hideBaseMapSelector, layerConfig }: MapPickerProps) => {
   const { digitalAddressFeature, selectedFeatures, flyTo, layerSchemas } = useMapContext();
   const { feature: editFeature, data: intersections, loading, setFeature: setEditFeature, fetchData, editFeature: startEditing, reset: resetPolygonEdit } = usePolygonEditContext();
+  const { drawerOpen } = useNavigationContext();
+  const [isPickerSidebarOpen, setIsPickerSidebarOpen] = useState(true);
   const mapLoaded = useRef(false);
 
     // Hydrate Initial Data
     useEffect(() => {
+        // Fechar sidebar global inicialmente no MapPicker
+        drawerOpen.value = false;
         // Force a small update to ensure component is fresh or logic runs (debug/hot-reload check)
         console.log("MapPickerContent mounted - checking hot reload");
 
@@ -141,6 +146,7 @@ const MapPickerContent = ({ onChange, initialData, mode = 'editable', children, 
                     onMapLoad={handleMapLoad}
                     hideLayerManager={hideLayerManager}
                     hideBaseMapSelector={hideBaseMapSelector}
+                    disablePadding={true}
                 />
             </div>
             
@@ -148,15 +154,30 @@ const MapPickerContent = ({ onChange, initialData, mode = 'editable', children, 
                 <div className="absolute top-4 left-2 z-10 flex max-w-[420px] flex-col gap-2 overflow-y-auto pointer-events-auto scrollbar-thin">
                     {!hideMap && (
                         <>
-                            <div>
-                                <Search hideMenu />
+                            <div style={{ display: isPickerSidebarOpen ? 'block' : 'none' }}>
+                                <Search 
+                                    onMenuClick={() => setIsPickerSidebarOpen(false)}
+                                    isMenuOpen={true}
+                                />
                             </div>
-                            <div>
+                            {!isPickerSidebarOpen && (
+                                <button
+                                    type="button"
+                                    className="flex h-10 w-10 items-center justify-center rounded-full bg-background/80 hover:bg-accent border shadow-sm backdrop-blur-sm transition-colors"
+                                    onClick={() => setIsPickerSidebarOpen(true)}
+                                    title="Expandir menu"
+                                >
+                                    <span className="material-symbols-outlined text-base">
+                                        menu
+                                    </span>
+                                </button>
+                            )}
+                            <div style={{ display: isPickerSidebarOpen ? 'block' : 'none' }}>
                                 <LocationSelectionCard />
                             </div>
                         </>
                     )}
-                    {children && <div className="pointer-events-auto">{children}</div>}
+                    {isPickerSidebarOpen && children && <div className="pointer-events-auto">{children}</div>}
                 </div>
             )}
             

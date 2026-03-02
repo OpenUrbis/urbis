@@ -48,6 +48,7 @@ interface GeospatialFeatureCollectionProperties {
  */
 interface GeospatialFeatureProperties extends GeoJsonProperties {
   totalArea: number;
+  totalAreaPercentage: number;
   layer: string;
   [key: string]: any; // Allow additional dynamic properties from GeoServer
 }
@@ -216,6 +217,10 @@ export class GeospatialIntersectionService {
                 turf.featureCollection([featureGeometry, polygonGeometry]),
               );
               if (intersection) {
+                const intersectionArea = turf.area(intersection);
+                const inputArea = turf.area(polygonGeometry);
+                const totalAreaPercentage = inputArea > 0 ? (intersectionArea / inputArea) * 100 : 0;
+                
                 const newFeature: Feature<
                   Polygon | MultiPolygon,
                   GeospatialFeatureProperties
@@ -223,7 +228,8 @@ export class GeospatialIntersectionService {
                   ...feature,
                   properties: {
                     ...feature.properties,
-                    totalArea: turf.area(intersection),
+                    totalArea: intersectionArea,
+                    totalAreaPercentage,
                     layer,
                   },
                 };

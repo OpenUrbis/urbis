@@ -5,6 +5,7 @@ export * from "./components/LocationSelectionCard";
 export * from "./components/MapPicker";
 export * from "./components/FeaturesView";
 export * from "./components/PolygonDetails";
+export * from "./components/MapDataIntegrationField/MapDataIntegrationField";
 export * from "./context/MapContext";
 export * from "./context/SearchContext";
 export * from "./context/NavigationContext";

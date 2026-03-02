@@ -68,7 +68,7 @@ Componente para renderizar a "Ficha do Imóvel" ou detalhes de uma feature basea
 
 ### PolygonDetails
 
-Componente interno utilizado para exibir os detalhes de um polígono em edição. Ele consome o `PolygonEditContext` para obter o estado de carregamento e dados.
+Componente interno utilizado para exibir os detalhes de um polígono em edição. Ele consome o `PolygonEditContext` para obter o estado de carregamento e dados. (Perimetro)
 
 ```tsx
 <PolygonDetails 

@@ -37,7 +37,7 @@ const MapResultContent = ({ value, onClose, hideActions = false }: { value: any,
         if (!value) return;
         // Logic to switch to editing mode
         // Assuming value.features[0] is the feature to edit if in selection mode
-        const featureToEdit = value.type === 'selection' ? value.features?.[0] : value.editFeature;
+        const featureToEdit = value.type === 'selection' ? value.features?.[0]?.feature : value.editFeature;
         if (featureToEdit) {
             // Close the result view temporarily if needed, or update internal state to show editing
             // Here we trigger the edit action in context
@@ -47,7 +47,7 @@ const MapResultContent = ({ value, onClose, hideActions = false }: { value: any,
     };
 
     return (
-        <div className="absolute inset-0 z-[2000] bg-background flex flex-col animate-in fade-in duration-300 pointer-events-auto">
+        <div className="absolute inset-0 bg-background flex flex-col animate-in fade-in duration-300 pointer-events-auto">
             <div className="w-full h-full flex flex-col p-6">
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight">Ficha do imovel</h2>
@@ -56,8 +56,8 @@ const MapResultContent = ({ value, onClose, hideActions = false }: { value: any,
 
                 {!hideActions && (
                     <MapActionToolbar
-                        onChangeSelection={onClose}
-                        onEdit={handleEdit}
+                        onChangeSelection={value.type === 'edit' || value.type === 'digital' ? onClose : undefined}
+                        onEdit={value.type === 'selection' ? handleEdit : undefined}
                         onPrint={() => window.print()}
                         className="mt-4"
                     />

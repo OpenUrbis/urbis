@@ -19,11 +19,15 @@ export class MapDataService {
       formData.append('clientSecret', '456');
 
       const response = await firstValueFrom(
-        this.httpService.post(`${this.baseUrl}/Authentication/Token`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
+        this.httpService.post(
+          `${this.baseUrl}/Authentication/Token`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
           },
-        })
+        ),
       );
 
       // Assumindo que a resposta devolve { token: "..." }
@@ -35,7 +39,7 @@ export class MapDataService {
     } catch (error: any) {
       throw new HttpException(
         error.response?.data || 'Failed to authenticate with MapData',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -56,16 +60,16 @@ export class MapDataService {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
-        )
+          },
+        ),
       );
 
       return response.data;
     } catch (error: any) {
-        console.log('Error requesting file processing:', error);
+      console.log('Error requesting file processing:', error);
       throw new HttpException(
         error.response?.data || 'Failed to request file processing',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -82,14 +86,14 @@ export class MapDataService {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        }),
       );
 
       return response.data;
     } catch (error: any) {
       throw new HttpException(
         error.response?.data || 'Failed to check file status',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -103,19 +107,23 @@ export class MapDataService {
     try {
       const token = await this.getAccessToken();
       const response = await firstValueFrom(
-        this.httpService.post(`${this.baseUrl}/Approve/${encodeURIComponent(id)}`, payload, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+        this.httpService.post(
+          `${this.baseUrl}/Approve/${encodeURIComponent(id)}`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
           },
-        })
+        ),
       );
 
       return response.data;
     } catch (error: any) {
       throw new HttpException(
         error.response?.data || 'Failed to approve file',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -128,18 +136,21 @@ export class MapDataService {
     try {
       const token = await this.getAccessToken();
       const response = await firstValueFrom(
-        this.httpService.get(`${this.baseUrl}/Approve/${encodeURIComponent(id)}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        this.httpService.get(
+          `${this.baseUrl}/Approve/${encodeURIComponent(id)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        })
+        ),
       );
 
       return response.data;
     } catch (error: any) {
       throw new HttpException(
         error.response?.data || 'Failed to check approval status',
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

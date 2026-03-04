@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Unique } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Unique,
+} from 'typeorm';
 
 @Entity('dynamic_system_data')
 @Unique(['moduleName', 'version']) // Ensure only one active version of a module at a time

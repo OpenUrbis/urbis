@@ -10,9 +10,11 @@ import { SearchModule } from './search/search.module';
 import { ShareModule } from './share/share.module';
 import { ProxyModule } from './proxy/proxy.module';
 import { GeoserverProxyModule } from './geoserver-proxy/geoserver-proxy.module';
+import { OpenCnpjModule } from './open-cnpj/open-cnpj.module';
 
 @Module({
   imports: [
+    OpenCnpjModule,
     MapConfigModule,
     LayerSchemasModule,
     LayerGroupsModule,

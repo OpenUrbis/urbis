@@ -5,9 +5,7 @@ import { DynamicSystemDataService } from './dynamic-system-data.service';
 import { DynamicSystemDataEntities } from './index.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature(DynamicSystemDataEntities),
-  ],
+  imports: [TypeOrmModule.forFeature(DynamicSystemDataEntities)],
   controllers: [DynamicSystemDataController],
   providers: [DynamicSystemDataService],
   exports: [DynamicSystemDataService],

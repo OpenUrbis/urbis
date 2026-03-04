@@ -219,8 +219,9 @@ export class GeospatialIntersectionService {
               if (intersection) {
                 const intersectionArea = turf.area(intersection);
                 const inputArea = turf.area(polygonGeometry);
-                const totalAreaPercentage = inputArea > 0 ? (intersectionArea / inputArea) * 100 : 0;
-                
+                const totalAreaPercentage =
+                  inputArea > 0 ? (intersectionArea / inputArea) * 100 : 0;
+
                 const newFeature: Feature<
                   Polygon | MultiPolygon,
                   GeospatialFeatureProperties

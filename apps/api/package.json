@@ -51,7 +51,7 @@
     "@sendgrid/mail": "^8.1.6",
     "@turf/turf": "^7.2.0",
     "ai": "^6.0.29",
-    "axios": "^1.7.3",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.5",

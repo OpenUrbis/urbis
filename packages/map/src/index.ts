@@ -10,6 +10,7 @@ export * from "./components/DynamicSystemDataView";
 export * from "./components/ProspectiveSearch/DynamicSystemSidebar";
 export * from "./components/ProspectiveSearch/DynamicSystemResults";
 export * from "./components/ProspectiveSearch/ProspectiveSearchContext";
+export * from "./components/ProspectiveSearch/utils/colors";
 export * from "./context/MapContext";
 export * from "./context/SearchContext";
 export * from "./context/NavigationContext";

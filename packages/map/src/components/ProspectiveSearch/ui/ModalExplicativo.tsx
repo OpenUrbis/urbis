@@ -1,7 +1,10 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { RegraZonamento, CondicaoInstalacao } from '../utils/types';
 import { NOTAS_DICTIONARY, formatParameter } from '../utils/labels';
 import { X, Check, Info, AlertTriangle, HelpCircle } from 'lucide-react';
+import { useTheme } from '../../ThemeProvider';
+import { LIGHT_COLORS, DARK_COLORS } from '../utils/colors';
 
 interface ModalExplicativoProps {
   isOpen: boolean;
@@ -11,6 +14,10 @@ interface ModalExplicativoProps {
 }
 
 export function ModalExplicativo({ isOpen, onClose, regrasZonamento, condicoesInstalacao }: ModalExplicativoProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const palette = isDark ? DARK_COLORS : LIGHT_COLORS;
+
   if (!isOpen) return null;
 
   // Organize parameter notes
@@ -41,40 +48,40 @@ export function ModalExplicativo({ isOpen, onClose, regrasZonamento, condicoesIn
   );
 
   const statusItems = [
-    { label: 'Permitido', color: '#0D542B', icon: Check, desc: 'Uso permitido sem restrições' },
-    { label: 'Permitido com Condições', color: '#1C398E', icon: Info, desc: 'Uso permitido com notas específicas' },
-    { label: 'Restrito', color: '#7E2A0C', icon: AlertTriangle, desc: 'Uso proibido com possíveis exceções' },
-    { label: 'Proibido', color: '#82181A', icon: X, desc: 'Uso completamente proibido' },
-    { label: 'Regime Especial', color: '#0F172B', icon: HelpCircle, desc: 'Consultar legislação específica' },
+    { label: 'Permitido', color: palette.P.hex, icon: Check, desc: 'Uso permitido sem restrições' },
+    { label: 'Permitido com Condições', color: palette.C.hex, icon: Info, desc: 'Uso permitido com notas específicas' },
+    { label: 'Proibido com exceções', color: palette.E.hex, icon: AlertTriangle, desc: 'Uso proibido com possíveis exceções' },
+    { label: 'Proibido', color: palette.V.hex, icon: X, desc: 'Uso completamente proibido' },
+    { label: 'Regime Especial', color: palette.Z.hex, icon: HelpCircle, desc: 'Consultar legislação específica' },
   ];
 
-  return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-in fade-in duration-300 p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300 border border-gray-100 overflow-hidden">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-in fade-in duration-300 p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300 border border-gray-100 dark:border-slate-800 overflow-hidden">
 
         {/* Simple Header */}
         <div className="px-8 pt-8 pb-4 flex justify-between items-start shrink-0">
           <div>
-            <h3 className="font-semibold text-gray-900 text-lg">Diretrizes e legendas</h3>
-            <p className="text-[11px] text-gray-500 mt-0.5 font-normal">Referência técnica da LPUOS (Lei nº 16.402/2016)</p>
+            <h3 className="font-semibold text-gray-900 dark:text-slate-100 text-lg">Diretrizes e legendas</h3>
+            <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-0.5 font-normal">Referência técnica da LPUOS (Lei nº 16.402/2016)</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full w-8 h-8 flex items-center justify-center transition-all"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center transition-all"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Minimal Scrollable Content */}
-        <div className="px-8 pb-4 bg-white overflow-y-auto flex-1 space-y-10 custom-scrollbar">
+        <div className="px-8 pb-4 bg-white dark:bg-slate-900 overflow-y-auto flex-1 space-y-10 custom-scrollbar">
 
           {/* Legend Section - Pure Text Style */}
           <section>
-            <h4 className="text-[11px] font-semibold text-gray-400 mb-8 pb-2 border-b border-gray-50">
+            <h4 className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 mb-8 pb-2 border-b border-gray-50 dark:border-slate-800">
               Legenda de permissibilidade
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-5 pb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 row-gap-8 pb-2">
               {statusItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -83,8 +90,8 @@ export function ModalExplicativo({ isOpen, onClose, regrasZonamento, condicoesIn
                       <Icon className="w-2.5 h-2.5" strokeWidth={4} />
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-gray-900 leading-none block mb-1">{item.label}</span>
-                      <p className="text-[11px] text-gray-400 font-normal leading-relaxed">{item.desc}</p>
+                      <span className="text-xs font-semibold text-gray-900 dark:text-slate-200 leading-none block mb-1">{item.label}</span>
+                      <p className="text-[11px] text-gray-400 dark:text-slate-400 font-normal leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 );
@@ -94,11 +101,11 @@ export function ModalExplicativo({ isOpen, onClose, regrasZonamento, condicoesIn
 
           {/* Combined Notes Section */}
           <section>
-            <h4 className="text-[11px] font-semibold text-gray-400 mb-4 pb-2 border-b border-gray-50">
+            <h4 className="text-[11px] font-semibold text-gray-400 dark:text-slate-500 mb-4 pb-2 border-b border-gray-50 dark:border-slate-800">
               Notas explicativas consolidada
             </h4>
 
-            <div className="space-y-4 divide-y divide-gray-50">
+            <div className="space-y-4 divide-y divide-gray-50 dark:divide-slate-800">
               {Object.entries(regrasZonamento.simComNota).map(([nota, zonas]) => (
                 <NoteItem key={`sim-${nota}`} noteId={nota} targets={zonas} context="zonas" />
               ))}
@@ -118,8 +125,8 @@ export function ModalExplicativo({ isOpen, onClose, regrasZonamento, condicoesIn
           </section>
 
           {/* Legal Source Info */}
-          <section className="pt-4 border-t border-gray-50">
-            <p className="text-[10px] text-gray-400 leading-relaxed font-normal">
+          <section className="pt-4 border-t border-gray-50 dark:border-slate-800">
+            <p className="text-[10px] text-gray-400 dark:text-slate-500 leading-relaxed font-normal">
               Os dados representam os Quadros nº 4 e 4A da Lei n° 16.402/2016 e Decreto nº 57.378/2016.
               Em casos de HIS1, HIS2 e HMP, consulte a regulamentação especial (Decreto nº 63.728/2024).
             </p>
@@ -128,15 +135,16 @@ export function ModalExplicativo({ isOpen, onClose, regrasZonamento, condicoesIn
         </div>
 
         {/* Simple Footer */}
-        <div className="px-8 py-5 border-t border-gray-50 flex justify-end shrink-0 bg-white">
+        <div className="px-8 py-5 border-t border-gray-50 dark:border-slate-800 flex justify-end shrink-0 bg-white dark:bg-slate-900">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-semibold text-xs transition-all active:scale-95"
+            className="px-6 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-slate-200 font-semibold text-xs transition-all active:scale-95"
           >
             Entendi
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

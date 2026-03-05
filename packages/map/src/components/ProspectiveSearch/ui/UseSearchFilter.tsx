@@ -116,7 +116,7 @@ export function UseSearchFilter({
   };
 
   if (selectedUse) {
-    const { item, arvore } = selectedUse;
+    const { item, arvore, cnaeOriginario } = selectedUse;
     const codigo = getVal(item, ['Código', 'Codigo', 'codigo']);
     const divisao = getVal(item, ['Divisão', 'Divisao', 'divisao']);
     const descricao = getVal(item, ['Descrição', 'descricao']);
@@ -134,13 +134,24 @@ export function UseSearchFilter({
         <div className="flex items-start justify-between mb-4">
           <div className="flex flex-col gap-3 w-full">
             {activeCnpj && (
-              <div className="flex flex-col gap-1 p-2.5 bg-primary/5 border border-primary/20 rounded-xl mr-6">
+              <div className="flex flex-col gap-1 p-3 bg-primary/5 border border-primary/20 rounded-xl mr-6">
                 <span className="text-[9px] font-bold text-primary uppercase tracking-tight">Empresa selecionada (CNPJ)</span>
                 <span className="text-[11px] font-semibold text-foreground leading-tight line-clamp-2">
                   {activeCnpj.cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5")} - {activeCnpj.razao_social || activeCnpj.nome_fantasia}
                 </span>
               </div>
             )}
+            
+            {/* Display Selected CNAE if available */}
+            {cnaeOriginario && (
+                <div className="flex flex-col gap-1 p-3 bg-slate-50 border border-slate-100 rounded-xl mr-6">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">CNAE Selecionado</span>
+                    <span className="text-[11px] font-mono text-slate-700 leading-tight">
+                        {getVal(cnaeOriginario, ['subclassesCnae2.2', 'Subclasses (CNAE 2.2)'])} - {getVal(cnaeOriginario, ['denominacaoCnae2.2', 'Denominação (CNAE 2.2)'])}
+                    </span>
+                </div>
+            )}
+
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center justify-center text-[10px] font-medium bg-foreground text-background px-2 py-1 rounded-md">
@@ -354,7 +365,14 @@ export function UseSearchFilter({
       {searchResults && searchResults.resultados.length > 0 && (
         <div className="absolute top-full mt-1 left-0 right-0 z-[100] bg-background border border-border rounded-2xl shadow-xl overflow-hidden max-h-[400px] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="divide-y divide-border">
-            {searchResults.resultados.map((resultado: any, idx: number) => {
+            {searchResults.resultados
+              .filter((resultado: any) => {
+                  if (searchMode !== 'atividade') return true;
+                  const div = getVal(resultado.item, ['Divisão', 'Divisao', 'divisao']);
+                  // User requested to filter only "Atividade" or "Grupo de atividades" in search results
+                  return div === 'Atividade' || div === 'Grupo de atividades' || div === 'Subtipologia';
+              })
+              .map((resultado: any, idx: number) => {
               const { item, arvore, cnaeOriginario } = resultado;
               const codigo = getVal(item, ['Código', 'Codigo', 'codigo']);
               const descricao = getVal(item, ['Descrição', 'Descricao', 'descricao']);
@@ -376,7 +394,7 @@ export function UseSearchFilter({
                     <span className="text-[10px] font-medium text-foreground bg-muted px-2 py-0 rounded border border-border leading-none">{codigo}</span>
                     <span className="text-[10px] font-medium text-foreground leading-none">{divisao}</span>
                     {searchMode === 'cnae' && cnaeOriginario && (
-                      <span className="text-[9px] font-medium text-primary bg-primary/5 px-1.5 py-0.5 rounded ml-auto">CNAE: {getVal(cnaeOriginario, ['subclassesCnae2.2', 'Subclasses (CNAE 2.2)'])}</span>
+                      <span className="text-[9px] font-medium text-primary bg-primary/5 px-2 py-1 rounded ml-auto">CNAE: {getVal(cnaeOriginario, ['subclassesCnae2.2', 'Subclasses (CNAE 2.2)'])}</span>
                     )}
                   </div>
 

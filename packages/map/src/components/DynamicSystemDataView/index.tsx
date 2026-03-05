@@ -102,7 +102,7 @@ export function DynamicSystemProvider({ children }: DynamicSystemProviderProps) 
 
   return (
     <div className="flex flex-col h-full bg-white relative">
-      <div className="absolute top-5 right-5 z-[100]">
+      <div className="absolute bottom-5 right-5 z-[1000]">
         <button
           onClick={() => setShowDebug(!showDebug)}
           className="flex items-center gap-2 px-3 py-1.5 text-[10px] font-medium text-slate-400 hover:text-slate-900 border border-transparent hover:border-slate-200 hover:bg-white/80 hover:backdrop-blur-sm rounded-lg transition-all active:scale-95 group"

@@ -10,15 +10,9 @@ export function DynamicSystemSidebar() {
   const state = useProspectiveSearchContext();
 
   return (
-    <div className="w-full md:min-w-[400px] md:max-w-[400px] border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full z-20">
+    <div className="w-full md:min-w-[400px] md:max-w-[400px] border-r border-slate-200 dark:border-slate-800 dark:bg-slate-900 flex flex-col h-full z-20">
       <ScrollArea className="flex-1 w-full">
         <div className="px-4 pt-4 pb-1 shrink-0">
-          <HeaderWithInfo 
-            title="Pesquisa prospectiva" 
-            tooltipText="Módulo para cruzar dados de atividades e zoneamento"
-            isMainHeader={true}
-            className="mb-1"
-          />
           <p className="text-[11px]   leading-snug font-normal">
             Encontre usos permitidos por CNAE ou descrição, visualize zonas e notas da LPUOS. Descubra a permissibilidade do seu negócio por cores no mapa.
           </p>
@@ -61,7 +55,10 @@ export function DynamicSystemSidebar() {
                 <button onClick={() => state.updateAreaImovel(null)} className="text-[10px] font-semibold text-primary hover:underline">Limpar</button>
               )}
             </div>
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors">
+            <p className="text-[10px] text-muted-foreground mb-2">
+              Visualização dos lotes no mapa disponível a partir do zoom 14.
+            </p>
+            <div className="dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors">
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
                   <div className="flex flex-col gap-1.5 flex-1">

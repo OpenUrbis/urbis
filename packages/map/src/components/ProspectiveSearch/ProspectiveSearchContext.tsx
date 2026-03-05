@@ -3,7 +3,7 @@ import { useProspectiveSearch } from './hooks/useProspectiveSearch';
 
 export type ProspectiveSearchState = ReturnType<typeof useProspectiveSearch>;
 
-const ProspectiveSearchContext = createContext<ProspectiveSearchState | undefined>(undefined);
+export const ProspectiveSearchContext = createContext<ProspectiveSearchState | undefined>(undefined);
 
 export function ProspectiveSearchProvider({ moduleData, children }: { moduleData: Record<string, any[]>, children: ReactNode }) {
   const state = useProspectiveSearch(moduleData);

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { RegraZonamento, CondicaoInstalacao, UsoSearchResultItem } from '../utils/types';
-import { formatParameter } from '../utils/labels';
+import { formatParameter, NOTAS_DICTIONARY } from '../utils/labels';
 import { ShieldCheck, AlertCircle, Info, Check, AlertTriangle, X, HelpCircle, ChevronRight } from 'lucide-react';
 import { Button } from '@open-urbis/map-ui';
+import { useTheme } from '../../ThemeProvider';
+import { LIGHT_COLORS, DARK_COLORS } from '../utils/colors';
 
 interface ResultsTableProps {
   regrasZonamento: RegraZonamento | null;
@@ -13,6 +15,7 @@ interface ResultsTableProps {
   allPqaNames?: string[];
   hasPqaFilters?: boolean;
   hasUrbanFilters?: boolean;
+  hasAreaFilter?: boolean;
   setExplicativoOpen: (open: boolean) => void;
   setSelectedNoteId: (id: string | null) => void;
 }
@@ -26,9 +29,14 @@ export function ResultsTable({
   allPqaNames = [],
   hasPqaFilters = false,
   hasUrbanFilters = false,
+  hasAreaFilter = false,
   setExplicativoOpen,
   setSelectedNoteId
 }: ResultsTableProps) {
+  const { theme } = useTheme();
+  
+  // Logic to determine if we should use dark colors based on design system
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const getVal = (obj: any, keys: string[]) => {
     if (!obj) return '';
@@ -37,6 +45,32 @@ export function ResultsTable({
   };
 
   const codigoAlvo = selectedUse ? getVal(selectedUse.item, ['Código', 'Codigo']) : '';
+
+  // Organize parameter notes for inline display
+  const parameterNotesMap: Record<string, string[]> = {};
+  condicoesInstalacao.forEach(cond => {
+    (cond.notas || []).forEach(nota => {
+      const cleanNota = nota.replace(/[()]/g, '').trim();
+      if (!parameterNotesMap[cleanNota]) parameterNotesMap[cleanNota] = [];
+      parameterNotesMap[cleanNota].push(cond.parametro);
+    });
+  });
+
+  const NoteItem = ({ noteId, targets, context }: { noteId: string, targets: string[], context: 'zonas' | 'params' }) => (
+    <div className="py-2 border-b border-gray-50 last:border-0">
+      <div className="flex items-baseline gap-2 mb-1">
+        <span className="text-[11px] font-semibold text-gray-900 whitespace-nowrap">
+          Nota ({noteId.replace(/[()]/g, '')})
+        </span>
+        <span className="text-[10px] text-gray-400 font-normal">
+          {context === 'zonas' ? 'Aplicável às zonas' : 'Aplicável aos parâmetros'}: {targets.map(t => context === 'params' ? formatParameter(t) : t).join(', ')}
+        </span>
+      </div>
+      <p className="text-[12px] text-gray-600 leading-relaxed font-normal">
+        {NOTAS_DICTIONARY[noteId.replace(/[()]/g, '')] || NOTAS_DICTIONARY[noteId] || 'Texto da nota não encontrado.'}
+      </p>
+    </div>
+  );
 
   const filterZones = (zones: string[]) => {
     if (!filteredZones) return zones;
@@ -76,17 +110,20 @@ export function ResultsTable({
   const filteredNaoSemNota = regrasZonamento?.naoSemNota ? filterZones(regrasZonamento.naoSemNota) : [];
   const filteredZoeZep = regrasZonamento?.zoeZep ? filterZones(regrasZonamento.zoeZep) : [];
 
+  const palette = isDark ? DARK_COLORS : LIGHT_COLORS;
+
   const statusMap = {
-    P: { label: 'Permitido', color: '#0D542B', icon: Check, desc: 'Uso permitido sem restrições' },
-    C: { label: 'Permitido com Condições', color: '#1C398E', icon: Info, desc: 'Uso permitido com notas específicas' },
-    E: { label: 'Restrito', color: '#7E2A0C', icon: AlertTriangle, desc: 'Uso proibido com possíveis exceções' },
-    V: { label: 'Proibido', color: '#82181A', icon: X, desc: 'Uso completamente proibido' },
-    Z: { label: 'Regime Especial', color: '#0F172B', icon: HelpCircle, desc: 'Consultar legislação específica' },
+    P: { label: 'Permitido', color: palette.P.hex, icon: Check, desc: 'Uso permitido sem restrições' },
+    C: { label: 'Permitido com Condições', color: palette.C.hex, icon: Info, desc: 'Uso permitido com notas específicas' },
+    E: { label: 'Proibido com exceções', color: palette.E.hex, icon: AlertTriangle, desc: 'Uso proibido com possíveis exceções' },
+    V: { label: 'Proibido', color: palette.V.hex, icon: X, desc: 'Uso completamente proibido' },
+    Z: { label: 'Regime Especial', color: palette.Z.hex, icon: HelpCircle, desc: 'Consultar legislação específica' },
   };
 
   const getStatusBadge = (key: keyof typeof statusMap) => {
     const item = statusMap[key];
     const StatusIcon = item.icon;
+    // Map uses variable opacity (215-245), legend uses 100% for the icon and low opacity for the background
     return (
       <div className="flex items-center gap-2">
         <div
@@ -98,9 +135,9 @@ export function ResultsTable({
         <div
           className="px-3 py-1 rounded-md text-[10px] font-semibold border whitespace-nowrap"
           style={{
-            backgroundColor: `${item.color}26`,
+            backgroundColor: isDark ? `${item.color}26` : `${item.color}15`,
             color: item.color,
-            borderColor: `${item.color}40`
+            borderColor: isDark ? `${item.color}40` : `${item.color}30`
           }}
         >
           {item.label}
@@ -114,16 +151,58 @@ export function ResultsTable({
       {/* Legend Card - Only show when we have a use (rules) */}
       {selectedUse && hasRules && (
         <div className="bg-background border border-border rounded-2xl overflow-hidden shadow-sm">
-          <div className="px-5 py-4 bg-muted/30 border-b border-border">
-            <span className="text-[11px] font-semibold text-muted-foreground">Legenda de permissibilidade</span>
+          <div className="px-5 py-3 bg-muted/30 border-b border-border">
+            <span className="text-[12px] font-semibold ">Legendas</span>
           </div>
-          <div className="px-8 pt-8 pb-10 flex flex-wrap gap-x-12 gap-y-6">
+          <div className="px-6 pt-4 pb-4 flex flex-wrap gap-x-12 gap-6 row-gap-2">
             {Object.entries(statusMap).map(([key, item]) => (
-              <div key={key} className="flex items-center gap-3">
+              <div key={key} className="flex items-center gap-1">
                 {getStatusBadge(key as keyof typeof statusMap)}
-                <span className="text-[10px] text-muted-foreground font-normal leading-none">{item.desc}</span>
+                <span className="text-[10px] text-muted-foreground font-normal leading-snug">{item.desc}</span>
               </div>
             ))}
+            
+            {(hasAreaFilter || hasUrbanFilters || hasPqaFilters) && (
+              <div className="w-full mt-4 pt-4 border-t border-border/50 flex flex-col gap-3">
+                 {(hasUrbanFilters || hasPqaFilters) && (
+                     <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <div 
+                                className="w-5 h-5 rounded-md border-2 border-dashed bg-transparent flex items-center justify-center shadow-sm shrink-0" 
+                                style={{ borderColor: palette.SELECTED.outline }}
+                            ></div>
+                            <div className="px-3 py-1 rounded-md text-[10px] font-semibold border border-gray-200 bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-200 whitespace-nowrap">
+                                Zonas Selecionadas
+                            </div>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground font-normal leading-snug">
+                            Zonas que atendem aos parâmetros urbanísticos ou PQA
+                        </span>
+                     </div>
+                 )}
+
+                 {hasAreaFilter && (
+                     <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-md border-2 bg-transparent flex items-center justify-center shadow-sm shrink-0" style={{ borderColor: '#00FFFF' }}></div>
+                            <div className="px-3 py-1 rounded-md text-[10px] font-semibold border border-cyan-400/40 bg-cyan-400/10 text-cyan-600 whitespace-nowrap">
+                                Perímetros tributários
+                            </div>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground font-normal leading-snug">
+                            Imóveis compatíveis com a área selecionada (disponível em níveis de zoom próximos)
+                        </span>
+                     </div>
+                 )}
+              </div>
+            )}
+
+            <div className="w-full pt-4 border-t border-gray-50 mt-4">
+                <p className="text-[10px] text-gray-400 leading-relaxed font-normal">
+                    Os dados representam os Quadros nº 4 e 4A da Lei n° 16.402/2016 e Decreto nº 57.378/2016.
+                    <br/>Em casos de HIS1, HIS2 e HMP, consulte a regulamentação especial (Decreto nº 63.728/2024).
+                </p>
+            </div>
           </div>
         </div>
       )}
@@ -135,24 +214,34 @@ export function ResultsTable({
             <div className="flex items-start gap-3">
               <div className="flex flex-col gap-1">
                 <h4 className="text-sm font-bold text-foreground leading-none">
-                  {selectedUse ? "Diretrizes de zoneamento" : "Zonas identificadas por parâmetros"}
+                  {selectedUse ? "Zoneamentos filtrados por uso e atividades" : "Zonas identificadas por parâmetros"}
                 </h4>
 
                 {selectedUse ? (
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5">
-                    {[
-                      { label: 'Categoria', text: getVal(selectedUse.arvore.categoria, ['Descrição']) },
-                      { label: 'Subcategoria', text: getVal(selectedUse.arvore.subcategoria, ['Descrição']) },
-                      { label: 'Grupo/Tipologia', text: getVal(selectedUse.arvore.tipologiaOuGrupo, ['Descrição']) },
-                    ].filter(b => b.text).map((item, idx) => (
-                      <React.Fragment key={idx}>
-                        <div className="flex items-center gap-1">
-                          <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-tight">{item.label}:</span>
-                          <span className="text-[10px] text-foreground font-semibold">{item.text}</span>
+                  <div className="flex flex-col gap-1.5 mt-1.5">
+                    {/* CNAE Display */}
+                    {selectedUse.cnaeOriginario && (
+                        <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 px-2 py-1 rounded w-fit">
+                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">CNAE:</span>
+                            <span className="text-[10px] font-mono text-slate-700">{selectedUse.cnaeOriginario['Subclasses (CNAE 2.2)']} - {selectedUse.cnaeOriginario['Denominação (CNAE 2.2)']}</span>
                         </div>
-                        {idx < 2 && <ChevronRight className="w-3 h-3 text-border" />}
-                      </React.Fragment>
-                    ))}
+                    )}
+                    
+                    <div className="flex flex-wrap items-center gap-x-2 row-gap-2">
+                        {[
+                        { label: 'Categoria', text: getVal(selectedUse.arvore.categoria, ['Descrição']) },
+                        { label: 'Subcategoria', text: getVal(selectedUse.arvore.subcategoria, ['Descrição']) },
+                        { label: 'Grupo/Tipologia', text: getVal(selectedUse.arvore.tipologiaOuGrupo, ['Descrição']) },
+                        ].filter(b => b.text).map((item, idx) => (
+                        <React.Fragment key={idx}>
+                            <div className="flex items-center gap-1">
+                            <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-tight">{item.label}:</span>
+                            <span className="text-[10px] text-foreground font-semibold">{item.text}</span>
+                            </div>
+                            {idx < 2 && <ChevronRight className="w-3 h-3 text-border" />}
+                        </React.Fragment>
+                        ))}
+                    </div>
                   </div>
                 ) : (
                   <p className="text-[11px] text-muted-foreground mt-1 font-normal">
@@ -161,17 +250,7 @@ export function ResultsTable({
                 )}
               </div>
             </div>
-            {selectedUse && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setExplicativoOpen(true)}
-                className="text-[11px] font-semibold h-8 px-3 rounded-lg flex items-center gap-2"
-              >
-                <Info className="w-3.5 h-3.5" />
-                Explicativo
-              </Button>
-            )}
+            {/* Explicativo button removed as content is now inline */}
           </div>
 
           <div className="overflow-x-auto">
@@ -191,10 +270,11 @@ export function ResultsTable({
                   <tr className="hover:bg-muted/10 transition-colors">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-white shadow-sm shrink-0">
-                          <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                        </div>
-                        <span className="px-3 py-1 rounded-md text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20">Identificada</span>
+                        <div 
+                            className="w-5 h-5 rounded-md border-2 border-dashed bg-transparent flex items-center justify-center shadow-sm shrink-0"
+                            style={{ borderColor: palette.SELECTED.outline }}
+                        ></div>
+                        <span className="px-3 py-1 rounded-md text-[10px] font-semibold bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 border border-gray-200">Zonas identificadas por parâmetros</span>
                       </div>
                     </td>
                     <td className="px-5 py-4">
@@ -296,7 +376,7 @@ export function ResultsTable({
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-1.5">
                         {filteredNaoSemNota.map((z, i) => (
-                          <span key={i} className="text-[10px] font-medium text-muted-foreground uppercase">{z}</span>
+                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border uppercase">{z}</span>
                         ))}
                       </div>
                     </td>
@@ -330,7 +410,7 @@ export function ResultsTable({
               <tbody className="divide-y divide-border">
                 {allPqaNames.map((name, idx) => {
                   const isCompatible = compatiblePqas.includes(name);
-                  const color = isCompatible ? '#0D542B' : '#82181A';
+                  const color = isCompatible ? palette.P.hex : palette.V.hex;
                   return (
                     <tr key={idx} className={`hover:bg-muted/10 transition-colors ${!isCompatible ? 'opacity-60 bg-muted/5' : ''}`}>
                       <td className="px-5 py-4">
@@ -416,6 +496,34 @@ export function ResultsTable({
           </div>
         </div>
       )}
+
+      {/* Combined Notes Section - Moved here from ModalExplicativo */}
+      {selectedUse && (regrasZonamento || condicoesInstalacao.length > 0) && (
+        <div className="bg-background border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-muted/30 px-5 py-4 border-b border-border">
+                <h4 className="text-[11px] font-semibold text-muted-foreground">Notas explicativas consolidada</h4>
+            </div>
+            <div className="p-6">
+                <div className="space-y-1">
+                    {regrasZonamento && Object.entries(regrasZonamento.simComNota).map(([nota, zonas]) => (
+                        <div id={`note-${nota}`} key={`sim-${nota}`}><NoteItem noteId={nota} targets={zonas} context="zonas" /></div>
+                    ))}
+                    {regrasZonamento && Object.entries(regrasZonamento.naoComNota).map(([nota, zonas]) => (
+                        <div id={`note-${nota}`} key={`nao-${nota}`}><NoteItem noteId={nota} targets={zonas} context="zonas" /></div>
+                    ))}
+                    {Object.entries(parameterNotesMap).map(([nota, params]) => (
+                        <div id={`note-${nota}`} key={`param-${nota}`}><NoteItem noteId={nota} targets={params} context="params" /></div>
+                    ))}
+
+                    {(!regrasZonamento || (Object.keys(regrasZonamento.simComNota).length === 0 && Object.keys(regrasZonamento.naoComNota).length === 0)) &&
+                        Object.keys(parameterNotesMap).length === 0 && (
+                        <p className="text-xs text-gray-400 italic py-2">Nenhuma nota específica aplicável para este uso.</p>
+                    )}
+                </div>
+            </div>
+        </div>
+      )}
+
     </div>
   );
 }

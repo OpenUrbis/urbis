@@ -28,6 +28,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 // ✅ Provider do sidebar global (pra useSidebar funcionar em qualquer página)
 import { SidebarProvider } from "@open-urbis/map-ui";
+import { DynamicSystemProvider } from "@open-urbis/map";
 
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
@@ -59,37 +60,39 @@ const App = () => (
             <MapProvider>
               <SearchProvider>
                 <PolygonEditProvider>
-                  {/* 🔥 Layout principal */}
-                  <div className="min-h-screen flex flex-col">
-                    {/* Conteúdo */}
-                    <main className="flex-1">
-                      <Router>
-                        <Suspense fallback={<FullscreenLoader />}>
-                          <Route path="/callback">
-                            <FullscreenLoader />
-                          </Route>
+                  <DynamicSystemProvider>
+                    {/* 🔥 Layout principal */}
+                    <div className="min-h-screen flex flex-col">
+                      {/* Conteúdo */}
+                      <main className="flex-1">
+                        <Router>
+                          <Suspense fallback={<FullscreenLoader />}>
+                            <Route path="/callback">
+                              <FullscreenLoader />
+                            </Route>
 
-                          <Route path="/">
-                            <MapPage />
-                          </Route>
+                            <Route path="/">
+                              <MapPage />
+                            </Route>
 
-                          <Route path="/print">
-                            <PrintPage />
-                          </Route>
-                          
-                          <Route path="/map-data-test">
-                            <MapDataTestPage />
-                          </Route>
+                            <Route path="/print">
+                              <PrintPage />
+                            </Route>
+                            
+                            <Route path="/map-data-test">
+                              <MapDataTestPage />
+                            </Route>
 
-                          <Route path="/admin" nest>
-                            <RequireAuth>
-                              <AdminPage />
-                            </RequireAuth>
-                          </Route>
-                        </Suspense>
-                      </Router>
-                    </main>
-                  </div>
+                            <Route path="/admin" nest>
+                              <RequireAuth>
+                                <AdminPage />
+                              </RequireAuth>
+                            </Route>
+                          </Suspense>
+                        </Router>
+                      </main>
+                    </div>
+                  </DynamicSystemProvider>
                 </PolygonEditProvider>
               </SearchProvider>
             </MapProvider>

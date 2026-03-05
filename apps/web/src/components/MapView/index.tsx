@@ -1,7 +1,7 @@
 import { computed } from "@preact/signals";
 import { PickingInfo } from "deck.gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useContext } from "react";
 import { Map } from "react-map-gl/mapbox";
 import { Button } from "@open-urbis/map-ui";
 import { cn } from "@open-urbis/map-ui";
@@ -20,6 +20,8 @@ import { getDigitalAddressLayers } from "./digital-address-layer";
 import { encode, getPolygon } from "@open-urbis/endereco-digital";
 import { DigitalAddressDetails } from "../LocationSelectionCard/DigitalAddressDetails";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
+import { getProspectiveSearchLayers } from "./prospective-layers";
+import { ProspectiveSearchContext } from "@open-urbis/map";
 // @ts-ignore
 import { OpenLocationCode } from "open-location-code";
 import proj4 from "proj4";
@@ -44,7 +46,8 @@ export const MapView = ({
 
   const mapContext = useMapContext();
   const { theme } = useTheme();
-  const { drawerOpen, toggleDrawer, navigateTo } = useNavigationContext();
+  const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const { drawerOpen, toggleDrawer, navigateTo, isProspectiveSearchActive } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const sidebarOpen = isDesktop && drawerOpen.value;
 
@@ -81,6 +84,7 @@ export const MapView = ({
 
   const polygonEdit = usePolygonEditContext();
   const { isEditing, loading, fetchData, feature } = polygonEdit;
+  const prospectiveContext = useContext(ProspectiveSearchContext);
 
   const clickActions = CLICK_ACTIONS_CONFIG();
 
@@ -94,7 +98,15 @@ export const MapView = ({
       }).flat();
     }
 
-    const baseLayers = transformSchemaLayers(layerSchemas.value, {
+    const prospectiveLayers = getProspectiveSearchLayers(
+      prospectiveContext?.matchingZones || [],
+      prospectiveContext?.regrasZonamento || null,
+      prospectiveContext && Object.keys(prospectiveContext.urbanParams || {}).length > 0,
+      prospectiveContext?.areaImovel || null,
+      isDark
+    ) as unknown as IGetConfigLayerSchema[];
+
+    const baseLayers = transformSchemaLayers(isProspectiveSearchActive.value ? prospectiveLayers : layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
       selectedFeature: selectedFeatures.value,

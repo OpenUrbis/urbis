@@ -449,12 +449,17 @@ export function useProspectiveSearch(moduleData: Record<string, any[]>) {
   }, [selectedUseCode, parametrosUsoData]);
 
   // Unified list of compatible zones (used for mapping and results)
-  const compatibleZones = useMemo(() => {
+  const matchingZones = useMemo(() => {
     const paramZoneNames = urbanParamsResults.map((r: any) => r['zona'] || r['Zona'] || Object.values(r)[0]);
+    // If no urban params filters active, assume all zones match (or handle in component)
+    // urbanParamsResults returns all zones if no filters.
+    return Array.from(new Set(paramZoneNames)).sort();
+  }, [urbanParamsResults]);
 
+  const compatibleZones = useMemo(() => {
     if (!selectedUseCode) {
       // If no use selected, compatible zones are those matching urban params
-      return Object.keys(urbanParams).length > 0 ? Array.from(new Set(paramZoneNames)) : [];
+      return Object.keys(urbanParams).length > 0 ? matchingZones : [];
     }
 
     if (!regrasZonamento) return [];
@@ -466,12 +471,12 @@ export function useProspectiveSearch(moduleData: Record<string, any[]>) {
     ];
 
     // Functional intersection
-    const finalZones = paramZoneNames.length > 0
-      ? paramZoneNames.filter(z => permittedZones.includes(z))
+    const finalZones = matchingZones.length > 0
+      ? matchingZones.filter(z => permittedZones.includes(z))
       : permittedZones;
 
     return Array.from(new Set(finalZones)).sort();
-  }, [selectedUseCode, regrasZonamento, urbanParamsResults, urbanParams]);
+  }, [selectedUseCode, regrasZonamento, matchingZones, urbanParams]);
 
   const compatiblePqas = useMemo(() => {
     const pqaNames = urbanParamsPqaResults.map((r: any) =>
@@ -540,6 +545,7 @@ export function useProspectiveSearch(moduleData: Record<string, any[]>) {
     regrasZonamento,
     condicoesInstalacao,
     compatibleZones,
+    matchingZones,
     compatiblePqas,
     allPqaNames,
     canSynthesize,

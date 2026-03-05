@@ -45,7 +45,7 @@ export function SearchContainer({ moduleData }: SearchContainerProps) {
   }
 
   return (
-    <div className="flex h-full w-full bg-white dark:bg-slate-950 overflow-hidden text-foreground">
+    <div className="flex h-full w-full bg-white overflow-hidden text-foreground">
       {/* Sidebar */}
       <div className="w-full min-w-[400px] max-w-[400px] border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-full z-20">
 
@@ -256,7 +256,7 @@ export function SearchContainer({ moduleData }: SearchContainerProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 bg-white dark:bg-slate-950 h-full overflow-hidden flex flex-col relative min-w-0 z-10">
+      <div className="flex-1 h-full overflow-hidden flex flex-col relative min-w-0 z-10">
         <ScrollArea className="h-full w-full">
           <div className="p-6 w-full max-w-6xl mx-auto h-full flex flex-col">
             {state.synthesisMode ? (
@@ -326,20 +326,42 @@ export function SearchContainer({ moduleData }: SearchContainerProps) {
                   </div>
                 </div>
               </div>
-            ) : (state.selectedUse || compatibleZones.length > 0 || compatiblePqas.length > 0 || Object.keys(state.pqaParams).length > 0 || Object.keys(state.urbanParams).length > 0) ? (
-              <ResultsTable
-                selectedUse={state.selectedUse}
-                regrasZonamento={regrasZonamento}
-                condicoesInstalacao={condicoesInstalacao}
-                filteredZones={compatibleZones}
-                compatiblePqas={compatiblePqas}
-                allPqaNames={allPqaNames}
-                hasPqaFilters={Object.keys(state.pqaParams).length > 0}
-                hasUrbanFilters={Object.keys(state.urbanParams).length > 0}
-                setExplicativoOpen={setExplicativoOpen}
-                setSelectedNoteId={setSelectedNoteId}
-              />
-            ) : (
+          ) : (state.selectedUse || Object.keys(state.urbanParams).length > 0 || Object.keys(state.pqaParams).length > 0) ? (
+            <div className="flex flex-col gap-8 pb-10">
+              {/* Table 1: Use Permissions (Filtered ONLY by Use) */}
+              {state.selectedUse && (
+                <ResultsTable
+                  selectedUse={state.selectedUse}
+                  regrasZonamento={regrasZonamento}
+                  condicoesInstalacao={condicoesInstalacao}
+                  // Do not filter by urban params here, show all zones relevant to the use
+                  filteredZones={undefined}
+                  compatiblePqas={[]}
+                  allPqaNames={[]}
+                  hasPqaFilters={false}
+                  hasUrbanFilters={false}
+                  setExplicativoOpen={setExplicativoOpen}
+                  setSelectedNoteId={setSelectedNoteId}
+                />
+              )}
+
+              {/* Table 2: Urban Params (Filtered by Params) */}
+              {(Object.keys(state.urbanParams).length > 0 || Object.keys(state.pqaParams).length > 0) && (
+                <ResultsTable
+                  selectedUse={null} // Force "Params Mode" layout
+                  regrasZonamento={null}
+                  condicoesInstalacao={[]}
+                  filteredZones={state.matchingZones} // Show zones matching params
+                  compatiblePqas={compatiblePqas}
+                  allPqaNames={allPqaNames}
+                  hasPqaFilters={Object.keys(state.pqaParams).length > 0}
+                  hasUrbanFilters={Object.keys(state.urbanParams).length > 0}
+                  setExplicativoOpen={setExplicativoOpen}
+                  setSelectedNoteId={setSelectedNoteId}
+                />
+              )}
+            </div>
+          ) : (
               <div className="flex flex-col items-center justify-center h-full w-full py-24 text-center animate-in fade-in duration-700">
                 <Search className="w-12 h-12   mb-6" strokeWidth={1} />
                 <h3 className="text-gray-900  text-base font-semibold mb-2">

@@ -105,7 +105,7 @@ export function PriceRangeSlider({
     : <><span className="font-bold ">{value.value}</span> <span className="text-[10px]  font-bold">{unit}</span></>;
 
   return (
-    <div className="group/slider bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors">
+    <div className="group/slider dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors">
       <div className="flex items-start justify-between mb-3">
         <div className="flex flex-col gap-0.5">
           <Label className="text-[10px] font-bold  ">{label}</Label>

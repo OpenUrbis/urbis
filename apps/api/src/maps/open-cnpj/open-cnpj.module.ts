@@ -5,10 +5,7 @@ import { OpenCnpjController } from './open-cnpj.controller';
 import { OpenCnpjService } from './open-cnpj.service';
 
 @Module({
-  imports: [
-    HttpModule,
-    forwardRef(() => AccessControlModule)
-  ],
+  imports: [HttpModule, forwardRef(() => AccessControlModule)],
   controllers: [OpenCnpjController],
   providers: [OpenCnpjService],
 })

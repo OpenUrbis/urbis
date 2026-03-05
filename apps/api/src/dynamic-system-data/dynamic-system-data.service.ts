@@ -35,8 +35,8 @@ export class DynamicSystemDataService {
           return;
         }
 
-        const row0 = (rawRows[0] || []) as any[];
-        const row1 = (rawRows[1] || []) as any[];
+        const row0 = rawRows[0] || [];
+        const row1 = rawRows[1] || [];
 
         const isCamelCase = (str: string) =>
           /^[a-z]+[a-zA-Z0-9]*$/.test(str) && !str.includes(' ');
@@ -70,12 +70,12 @@ export class DynamicSystemDataService {
           keyRowIndex = 0;
         }
 
-        const keysRow = (rawRows[keyRowIndex] || []) as any[];
+        const keysRow = rawRows[keyRowIndex] || [];
         const keys = keysRow.map((k, i) => k || `__col_${i}__`);
 
         const parsedData = [];
         for (let i = keyRowIndex + 1; i < rawRows.length; i++) {
-          const row = rawRows[i] as any[];
+          const row = rawRows[i];
           if (!row || row.length === 0) continue;
 
           const obj: Record<string, any> = {};

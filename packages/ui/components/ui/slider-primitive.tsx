@@ -663,6 +663,7 @@ const SliderBubbleInput = React.forwardRef<HTMLInputElement, SliderBubbleInputPr
         setValue.call(input, value);
         input.dispatchEvent(event);
       }
+      return undefined;
     }, [prevValue, value]);
 
     /**

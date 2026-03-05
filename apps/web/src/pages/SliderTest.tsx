@@ -65,9 +65,9 @@ const CustomSlider = React.forwardRef<HTMLDivElement, any>(({ min = 0, max = 100
   return (
     <div 
       ref={(node) => {
-          containerRef.current = node;
+          (containerRef as any).current = node;
           if (typeof ref === 'function') ref(node);
-          else if (ref) ref.current = node;
+          else if (ref) (ref as any).current = node;
       }}
       className={cn("relative flex w-full touch-none select-none items-center h-5", className)}
       {...props}

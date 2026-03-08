@@ -13,6 +13,7 @@ import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
 import { UserModuleEntities } from './user/index.entity';
 import { UserModule } from './user/user.module';
+import { RedisModule } from './common/redis/redis.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     OrganizationModule,
     RoleModule,
+    RedisModule,
   ],
   controllers: [],
   providers: [],

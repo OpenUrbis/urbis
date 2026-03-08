@@ -48,7 +48,7 @@ export class MailService {
     language = 'en',
   ): Promise<void> {
     // Create subject title in the correct language
-    const subject = `${ this.i18n.translate('common.confirmEmail', {
+    const subject = `${this.i18n.translate('common.confirmEmail', {
       lang: language,
     })} - Slingui`;
 
@@ -182,5 +182,14 @@ export class MailService {
 
     // Enviar o e-mail usando o SendGrid
     await this.sendGridService.send(emailParams);
+  }
+
+  async sendOtpCode(code: string, to: string) {
+    await this.sendGridService.send({
+      to,
+      from: this.configService.get('mail.from'),
+      subject: 'Código de verificação de dois fatores',
+      html: `Seu código de verificação é: ${code}`,
+    });
   }
 }

@@ -33,6 +33,7 @@ export interface MapContextType {
   digitalAddressFeature: Signal<any | null>;
   isPickingLocation: Signal<boolean>;
   onLocationPick: Signal<((lat: number, lon: number) => void) | null>;
+  disablePadding: Signal<boolean>;
 }
 
 export type MapContextLayerSchemaType =

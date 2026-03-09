@@ -17,6 +17,7 @@ const SearchHandleRoute = lazy(
   () => import("./pages/SearchManager/SearchHandleRoute")
 );
 const MapTestRoute = lazy(() => import("./pages/MapTest"));
+const MapDataIntegrationTestRoute = lazy(() => import("./pages/MapDataIntegrationTest"));
 
 const AdminPage = () => {
   return (
@@ -42,6 +43,9 @@ const AdminPage = () => {
               </Route>
               <Route path="/map-test">
                 {(<MapTestRoute />) as ReactNode}
+              </Route>
+              <Route path="/map-data-test">
+                {(<MapDataIntegrationTestRoute />) as ReactNode}
               </Route>
             </Suspense>
           ) as ReactNode

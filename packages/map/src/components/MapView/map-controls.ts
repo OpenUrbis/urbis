@@ -108,7 +108,7 @@ export const addMapControls = (
   map.addControl(
     new TooltipControl({
       layer: "polygon-fill",
-      getContent: (event) =>
+      getContent: (event: any) =>
         `Tooltip for feature: ${event.features?.[0]?.id || "unknown"}`,
     })
   );

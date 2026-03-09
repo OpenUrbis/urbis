@@ -383,6 +383,7 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
   GeoJsonLayer: (layer, props) => [createGeoJsonLayer(layer, props)],
   CustomWMSLayer: (layer) => {
     const { origin, properties, cqlFilter } = layer;
+    const { sldBody } = properties || {};
     
     // Support both nested properties.wms.layers and top-level typeName or layer.id
     const layerNames = properties?.wms?.layers 
@@ -413,6 +414,7 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
         serviceType: "wms",
         layers: layerNames,
         cqlFilter: cqlFilter,
+        sldBody: sldBody,
       }),
     ];
   },

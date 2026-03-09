@@ -27,7 +27,6 @@ export default defineConfig({
       "@preact/signals-react",
     ],
     alias: {
-      "react-map-gl/mapbox": path.resolve(__dirname, "../../node_modules/react-map-gl/dist/mapbox.js"),
       react: "preact/compat",
       "react-dom": "preact/compat",
       "react/jsx-runtime": "preact/compat/jsx-runtime",

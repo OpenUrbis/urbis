@@ -108,17 +108,17 @@ export class MapConfigSeedService {
                     type: 'secondary-item',
                     value: `
                           <% if (id.includes("macroareas")) { %>
-                            Macroarea
+                            Macroarea - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("minianel_viario")) { %>
-                            Minianel Viario
+                            Minianel Viario - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("subprefeitura")) { %>
-                            Sub-Prefeitura
+                            Sub-Prefeitura - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("macrozonas")) { %>
-                            Macrozona
+                            Macrozona - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("tombamentos-areas")) { %>
-                            <%- properties.tx_resolucao_condephaat %>
+                            <%- properties.tx_resolucao_condephaat %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("zoneamento_geral")) { %>
-                            Zoneamento
+                            Zoneamento - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else { %>
                             Não mapeado
                           <% } %>
@@ -147,7 +147,7 @@ export class MapConfigSeedService {
                   {
                     type: 'secondary-item',
                     value:
-                      "SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>",
+                      "SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>",
                   },
                 ],
                 properties: {

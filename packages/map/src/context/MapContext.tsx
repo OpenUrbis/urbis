@@ -27,6 +27,7 @@ const cursorPosition = signal<{ latitude: number; longitude: number } | null>(nu
 const digitalAddressFeature = signal<any | null>(null);
 const isPickingLocation = signal<boolean>(false);
 const onLocationPick = signal<((lat: number, lon: number) => void) | null>(null);
+const disablePadding = signal<boolean>(false);
 
 export const MapContext = createContext<MapContextType | null>(null);
 
@@ -48,6 +49,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         digitalAddressFeature,
         isPickingLocation,
         onLocationPick,
+        disablePadding,
         overlayRef: useRef(null),
       }}
     >

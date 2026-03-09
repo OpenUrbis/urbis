@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { useControl } from "react-map-gl/mapbox";
+import { useControl } from "react-map-gl";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { DeckProps } from "@deck.gl/core";
 

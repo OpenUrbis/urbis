@@ -12,11 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@open-urbis/map-ui";
-import { MapPin, FileJson, ChevronRight, Library, ArrowRight, Filter } from "lucide-react";
+import { MapPin, FileJson, ChevronRight, Library, ArrowRight, Filter, FileSearch } from "lucide-react";
 import { useMapContext } from "../../hooks/useMapContext";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { ConcatenatedSearchModal } from "../Search/ConcatenatedSearchModal";
 import { MapLibrary } from "../../pages/Map/MapLibrary";
+import { ProspectiveSearchPage } from "../../pages/Map/ProspectiveSearchPage";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { transformFileToJson } from "../../utils/transformFileToJson";
 import { calculateCentroid } from "../MapView/utils";
@@ -454,7 +455,7 @@ export const LocationSelectionCard = ({ initialOption = null, initialInputType =
             <div className="flex flex-col flex-1 text-left">
               <span className="text-sm font-semibold">Endereço Digital</span>
               <span className="text-xs text-muted-foreground">
-                Clique para entender mais o endereço digital
+                O que é o Endereço Digital? Saiba como funciona.
               </span>
             </div>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -471,13 +472,31 @@ export const LocationSelectionCard = ({ initialOption = null, initialInputType =
                 <div className="flex flex-col flex-1 text-left">
                   <span className="text-sm font-semibold">Busca Concatenada</span>
                   <span className="text-xs text-muted-foreground">
-                    Busca avançada em múltiplas camadas.
+                    Filtros Multicamadas: Refine sua pesquisa por camadas de dados.
                   </span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </div>
             }
           />
+
+          <div
+            className="cursor-pointer bg-card shadow-sm hover:bg-accent/50 transition-colors rounded-lg border p-3 flex items-center gap-3"
+            onClick={() => navigateTo(<ProspectiveSearchPage key="nav-prospective-search" />)}
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <FileSearch className="h-5 w-5" />
+            </div>
+            <div className="flex flex-col flex-1 text-left">
+              <span className="text-sm font-semibold">
+                Pesquisa Prospectiva
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Busca de imóveis e áreas.
+              </span>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
 
           <div
             className="cursor-pointer bg-card shadow-sm hover:bg-accent/50 transition-colors rounded-lg border p-3 flex items-center gap-3"
@@ -491,7 +510,7 @@ export const LocationSelectionCard = ({ initialOption = null, initialInputType =
                 Buscar com perímetro georeferenciado
               </span>
               <span className="text-xs text-muted-foreground">
-                Carregar arquivo GeoJSON para localização.
+                Importar Geometria: Localize áreas via arquivo GeoJSON.
               </span>
             </div>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -507,7 +526,7 @@ export const LocationSelectionCard = ({ initialOption = null, initialInputType =
             <div className="flex flex-col flex-1 text-left">
               <span className="text-sm font-semibold text-foreground">Biblioteca e Histórico</span>
               <span className="text-xs text-muted-foreground">
-                Acesse suas visualizações e buscas salvas.
+                Meu Painel: Histórico de buscas e itens salvos.
               </span>
             </div>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />

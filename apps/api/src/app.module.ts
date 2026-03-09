@@ -19,12 +19,13 @@ import { RoleModuleEntities } from './role/index.entity';
 import { RoleModule } from './role/role.module';
 import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
+import { DynamicSystemDataModule } from './dynamic-system-data/dynamic-system-data.module';
+import { DynamicSystemDataEntities } from './dynamic-system-data/index.entity';
 import { SupportModule } from './support/support.module';
 import { UserModuleEntities, UserModuleSubscribers } from './user/index.entity';
 import { UserModule } from './user/user.module';
 import { WhitelabelModuleEntities } from './whitelabel/index.entity';
 import { WhitelabelModule } from './whitelabel/whitelabel.module';
-
 @Module({
   imports: [
     SharedModule,
@@ -76,6 +77,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
         ...RoleModuleEntities,
         ...WhitelabelModuleEntities,
         ...AppSettingsModuleEntities,
+        ...DynamicSystemDataEntities,
         SupportTicket,
       ],
       [...UserModuleSubscribers],
@@ -90,6 +92,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     WhitelabelModule,
     AppSettingsModule,
     SupportModule,
+    DynamicSystemDataModule,
   ],
   controllers: [],
   providers: [Reflector],

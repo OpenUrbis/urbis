@@ -2,7 +2,7 @@ import DeckGL, { PolygonLayer } from "deck.gl";
 import { memo } from "preact/compat";
 import { useMemo, useRef } from "react";
 import { useSignal } from "@preact/signals";
-import { Map } from "react-map-gl/mapbox";
+import { Map } from "react-map-gl";
 import { createFn } from "../../../../utils/createFn";
 import { IPolygonMapProperties } from "../../types/polygon-map-type";
 import {

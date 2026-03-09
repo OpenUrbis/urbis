@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Data as ejsData, render as ejsRender } from "ejs";
 import { useMemo } from "preact/compat";
 import { ITemplateProps } from "../components/ViewTemplate/types/templates-type";

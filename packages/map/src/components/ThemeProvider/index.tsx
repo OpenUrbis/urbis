@@ -1,5 +1,4 @@
-import { createContext, useContext, useEffect } from "react"
-import { useSignal } from "@preact/signals";
+import { createContext, useContext, useEffect, useState } from "react"
 
 type Theme = "dark" | "light" | "system"
 
@@ -27,8 +26,8 @@ export function ThemeProvider({
   storageKey = "urbis-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const theme = useSignal<Theme>(
-    (localStorage.getItem(storageKey) as Theme) || defaultTheme
+  const [theme, setThemeState] = useState<Theme>(
+    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   )
 
   useEffect(() => {
@@ -36,7 +35,7 @@ export function ThemeProvider({
 
     root.classList.remove("light", "dark")
 
-    if (theme.value === "system") {
+    if (theme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
         ? "dark"
@@ -46,14 +45,14 @@ export function ThemeProvider({
       return
     }
 
-    root.classList.add(theme.value)
-  }, [theme.value])
+    root.classList.add(theme)
+  }, [theme])
 
   const value = {
-    theme: theme.value,
+    theme,
     setTheme: (newTheme: Theme) => {
       localStorage.setItem(storageKey, newTheme)
-      theme.value = newTheme
+      setThemeState(newTheme)
     },
   }
 

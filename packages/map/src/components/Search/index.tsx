@@ -69,7 +69,7 @@ const convertFeatureToSirgas = (feature: any) => {
   return cloned;
 };
 
-export const Search = ({ hideMenu = false }: { hideMenu?: boolean }) => {
+export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu?: boolean, onMenuClick?: () => void, isMenuOpen?: boolean }) => {
   const { toastInfo } = useToast();
   const {
     currentTerm,
@@ -373,11 +373,11 @@ export const Search = ({ hideMenu = false }: { hideMenu?: boolean }) => {
               size="icon"
               type="button"
               className="shrink-0 rounded-full h-10 w-10 hover:bg-accent"
-              onClick={toggleDrawer}
-              title={drawerOpen.value ? "Recolher menu" : "Expandir menu"}
+              onClick={onMenuClick || toggleDrawer}
+              title={(isMenuOpen ?? drawerOpen.value) ? "Recolher menu" : "Expandir menu"}
             >
               <span className="material-symbols-outlined text-base">
-                {drawerOpen.value ? "menu_open" : "menu"}
+                {(isMenuOpen ?? drawerOpen.value) ? "menu_open" : "menu"}
               </span>
             </Button>
             )}

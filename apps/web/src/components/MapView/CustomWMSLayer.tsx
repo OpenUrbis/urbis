@@ -48,6 +48,7 @@ import {
     layers?: string[];
     srs?: 'EPSG:4326' | 'EPSG:3857' | 'auto';
     cqlFilter?: string;
+    sldBody?: string;
     onMetadataLoad?: (metadata: ImageSourceMetadata) => void;
     onMetadataLoadError?: (error: Error) => void;
     onImageLoadStart?: (requestId: unknown) => void;
@@ -128,7 +129,7 @@ import {
          
         this._loadMetadata();
         this.debounce(() => this.loadImage(viewport, 'image source changed'), 0);
-      } else if (!deepEqual(props.layers, oldProps.layers, 1)) {
+      } else if (!deepEqual(props.layers, oldProps.layers, 1) || props.sldBody !== oldProps.sldBody) {
         this.debounce(() => this.loadImage(viewport, 'layers changed'), 0);
       } else if (changeFlags.viewportChanged) {
         this.debounce(() => this.loadImage(viewport, 'viewport changed'));
@@ -236,7 +237,8 @@ import {
         layers,
         srs: srs,
         format: 'image/png',
-        CQL_FILTER: this.props.cqlFilter || undefined
+        CQL_FILTER: this.props.cqlFilter || undefined,
+        SLD_BODY: this.props.sldBody || undefined
       };
       if (srs === 'EPSG:3857') {
         const min = WGS84ToPseudoMercator([bounds[0], bounds[1]]);
@@ -248,7 +250,72 @@ import {
         this.state.loadCounter++;
         this.props.onImageLoadStart(requestId);
   
-        const image = await this.state.imageSource.getImage(requestParams);
+        let image;
+
+        if (this.props.sldBody && typeof this.props.data === 'string') {
+             let proxyBase = this.props.data;
+             let targetUrl = '';
+             
+             try {
+                 const urlObj = new URL(this.props.data, window.location.href);
+                 // Check if it's our proxy
+                 if (urlObj.pathname.includes('/maps/proxy') && urlObj.searchParams.has('url')) {
+                     targetUrl = urlObj.searchParams.get('url')!;
+                     // Use proxy endpoint without query string for POST
+                     urlObj.search = '';
+                     proxyBase = urlObj.toString();
+                 } else {
+                     // Direct WMS URL
+                     targetUrl = this.props.data;
+                     proxyBase = this.props.data;
+                 }
+             } catch (e) {
+                 // Fallback
+                 targetUrl = this.props.data;
+                 proxyBase = this.props.data;
+             }
+
+             // Prepare params for WMS
+             const postParams: any = {
+                 url: targetUrl,
+                 BBOX: requestParams.bbox.join(','),
+                 LAYERS: Array.isArray(requestParams.layers) ? requestParams.layers.join(',') : requestParams.layers,
+                 WIDTH: requestParams.width,
+                 HEIGHT: requestParams.height,
+                 FORMAT: requestParams.format,
+                 TRANSPARENT: requestParams.transparent,
+                 SRS: requestParams.srs,
+                 SERVICE: 'WMS',
+                 VERSION: '1.1.1',
+                 REQUEST: 'GetMap',
+                 SLD_BODY: this.props.sldBody,
+                 // Pass CQL_FILTER if present
+                 ...(this.props.cqlFilter ? { CQL_FILTER: this.props.cqlFilter } : {})
+             };
+             
+             const response = await fetch(proxyBase, {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(postParams)
+             });
+             
+             if (!response.ok) {
+                 const text = await response.text();
+                 throw new Error(`WMS POST Error: ${response.status} ${text}`);
+             }
+
+             const contentType = response.headers.get('content-type');
+             if (contentType && (contentType.includes('text/') || contentType.includes('xml') || contentType.includes('json'))) {
+                 const text = await response.text();
+                 // It's likely a service exception
+                 throw new Error(`WMS Error (Content-Type: ${contentType}): ${text.substring(0, 500)}...`);
+             }
+
+             const blob = await response.blob();
+             image = await createImageBitmap(blob);
+        } else {
+             image = await this.state.imageSource.getImage(requestParams);
+        }
   
         // If a request takes a long time, later requests may have already loaded.
         if (this.state.lastRequestId < requestId) {

@@ -30,6 +30,9 @@
       "@types/react-dom": "^18.3.0",
       "minimatch": "9.0.5",
       "uuid": "11.0.5"
+    },
+    "patchedDependencies": {
+      "@radix-ui/react-slider@1.3.6": "patches/@radix-ui__react-slider@1.3.6.patch"
     }
   },
   "workspaces": [

@@ -2,7 +2,7 @@ import { computed } from "@preact/signals-react";
 import { PickingInfo } from "deck.gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo, useRef } from "react";
-import { Map } from "react-map-gl/mapbox";
+import { Map } from "react-map-gl";
 import { Button } from "@open-urbis/map-ui";
 import { cn } from "@open-urbis/map-ui";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
@@ -344,7 +344,8 @@ export const MapView = ({
             mapStyle={currentMapStyle}
             mapboxAccessToken={accessToken}
             initialViewState={viewport.value}
-            onMouseMove={(evt) => {
+            padding={{ top: disablePadding ? 0 : 64, bottom: 0, left: (sidebarOpen && !disablePadding) ? 400 : 0, right: 0 }}
+            onMouseMove={(evt: any) => {
               cursorPosition.value = {
                 latitude: evt.lngLat.lat,
                 longitude: evt.lngLat.lng,

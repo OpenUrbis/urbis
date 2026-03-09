@@ -4,11 +4,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [
-    preact({
-      babel: {
-        plugins: [["module:@preact/signals-react-transform"]],
-      },
-    }),
+    preact(),
   ],
   resolve: {
     dedupe: [

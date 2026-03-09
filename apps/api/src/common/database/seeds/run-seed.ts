@@ -3,7 +3,6 @@ import { LayerSeedService } from './layer-seed.service';
 import { MapConfigSeedService } from './map-config-seed.service';
 import { SearchConfigSeedService } from './search-config-seed.service';
 import { SeedModule } from './seed.module';
-import { UserSeedService } from './user-seed/user-seed.service';
 
 const runSeed = async () => {
   const app = await NestFactory.create(SeedModule);
@@ -11,7 +10,6 @@ const runSeed = async () => {
   await app.get(MapConfigSeedService).run();
   await app.get(LayerSeedService).run();
   await app.get(SearchConfigSeedService).run();
-  await app.get(UserSeedService).run();
 
   await app.close();
 };

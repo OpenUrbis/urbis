@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { AccessControlModule } from 'common/guards/access-control/access-control.module';
 import { UserModule } from 'user/user.module';
 import { MailModule } from './../common/mail/mail.module';
 import { IsExist } from './../common/utils/validators/is-exists.validator';
@@ -19,7 +18,6 @@ import { TwoFactoryModule } from './two-factory/two-factory.module';
     ForgotModule,
     PassportModule,
     MailModule,
-    AccessControlModule,
     TwoFactoryModule,
   ],
   controllers: [AuthController],

@@ -6,6 +6,6 @@ import { AccessControlGuard } from './access-control.guard';
 @Module({
   imports: [forwardRef(() => UserModule), forwardRef(() => RoleModule)],
   providers: [AccessControlGuard],
-  exports: [AccessControlGuard, RoleModule],
+  exports: [AccessControlGuard],
 })
 export class AccessControlModule {}

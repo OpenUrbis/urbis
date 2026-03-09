@@ -4,13 +4,20 @@ import { FormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { jwtDecode } from 'jwt-decode';
-import { PermissionSelector } from '../../components/permission-selector/permission-selector';
+import { OrganizationSelector } from '../../components/organization-selector/organization-selector';
 import { RoleManagerModule } from '../../components/role-manager/role-manager-module';
-
+import { RoleSelector } from '../../components/role-selector/role-selector';
+import { PermissionSelector } from '../../components/permission-selector/permission-selector';
+import { DemoWhitelabelComponent } from '../../components/demo-whitelabel/demo-whitelabel';
+import { OrganizationState } from '../../states/organization/organization.state';
 @Component({
   selector: 'app-home',
-  imports: [MatButtonModule, RoleManagerModule, PermissionSelector],
+  imports: [
+    MatButtonModule,
+    RoleManagerModule,
+    PermissionSelector,
+    DemoWhitelabelComponent,
+  ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -21,17 +28,13 @@ export class Home {
   constructor(
     private readonly api: HttpClient,
     private readonly oidcService: OidcSecurityService,
+    private readonly organizationState: OrganizationState,
   ) {
     effect(() => this.formcontrol.valueChanges.subscribe(console.log));
   }
 
   test() {
-    this.oidcService.checkAuth().subscribe(({ isAuthenticated, idToken }) => {
-      if (isAuthenticated) {
-        const decoded: any = jwtDecode(idToken);
-        console.log(decoded);
-      }
-    });
+    this.api.get('http://localhost:3000/role').subscribe(console.log);
   }
 
   selectOrganization() {

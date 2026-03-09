@@ -11,28 +11,29 @@ import { RoleModuleEntities } from './role/index.entity';
 import { RoleModule } from './role/role.module';
 import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
-import { UserModuleEntities } from './user/index.entity';
+import { UserModuleEntities, UserModuleSubscribers } from './user/index.entity';
 import { UserModule } from './user/user.module';
-import { RedisModule } from './common/redis/redis.module';
 
 @Module({
   imports: [
     SharedModule,
     OidcModule,
-    DatabaseModule.forRoot([
-      ...MapsModuleEntities,
-      ...AuthModuleEntities,
-      ...UserModuleEntities,
-      ...OrganizationModuleEntities,
-      ...RoleModuleEntities,
-    ]),
+    DatabaseModule.forRoot(
+      [
+        ...MapsModuleEntities,
+        ...AuthModuleEntities,
+        ...UserModuleEntities,
+        ...OrganizationModuleEntities,
+        ...RoleModuleEntities,
+      ],
+      [...UserModuleSubscribers],
+    ),
     FilesModule,
     MapsModule,
     UserModule,
     AuthModule,
     OrganizationModule,
     RoleModule,
-    RedisModule,
   ],
   controllers: [],
   providers: [],

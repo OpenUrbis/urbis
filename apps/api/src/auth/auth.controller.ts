@@ -17,8 +17,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserData } from 'common/decorators/user-data/user-data.decorator';
-import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { User } from 'user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { AuthConfirmEmailDto } from './dto/auth-confirm-email.dto';

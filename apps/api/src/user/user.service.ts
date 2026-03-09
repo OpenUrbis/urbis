@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -56,18 +56,5 @@ export class UserService {
 
   findByIdAndUpdate(id: string, updateDto: UpdateUserDto) {
     return this.usersRepository.update({ id }, updateDto);
-  }
-
-  async saveOtpSecret(userId: string, secret: string) {
-    const user = await this.findOne({ id: userId });
-    if (!user) throw new NotFoundException({ message: 'User is not found' });
-
-    user.otpSecret = secret;
-
-    return this.usersRepository.save(user);
-  }
-
-  otpSecretIsValidated(userId: string) {
-    return this.usersRepository.update({ id: userId }, { otpValidated: true });
   }
 }

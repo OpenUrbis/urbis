@@ -47,13 +47,13 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "lucide-react": "^0.577.0",
-    "mapbox-gl": "^3.9.0",
+    "mapbox-gl": "^3.17.0",
     "open-location-code": "^1.0.3",
     "polylabel": "^1.1.0",
     "preact": "^10.26.5",
     "proj4": "^2.11.0",
     "qrcode.react": "^4.2.0",
-    "react-map-gl": "^7.1.7",
+    "react-map-gl": "^7.1.9",
     "react-window": "^2.2.5"
   },
   "peerDependencies": {

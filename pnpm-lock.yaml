@@ -1444,6 +1444,9 @@ importers:
       mapbox-gl:
         specifier: ^3.17.0
         version: 3.17.0
+      mapbox-gl-style-switcher:
+        specifier: 1.0.11
+        version: 1.0.11
       open-location-code:
         specifier: ^1.0.3
         version: 1.0.3

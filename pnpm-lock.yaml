@@ -1475,6 +1475,9 @@ importers:
       '@open-urbis/map-typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@types/ejs':
+        specifier: ^3.1.5
+        version: 3.1.5
       '@types/mapbox-gl':
         specifier: ^3.4.1
         version: 3.4.1
@@ -1493,6 +1496,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.7(@types/react@18.3.27)
+      '@types/react-map-gl':
+        specifier: ^6.1.7
+        version: 6.1.7
       '@types/react-window':
         specifier: ^2.0.0
         version: 2.0.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)

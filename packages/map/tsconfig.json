@@ -3,6 +3,6 @@
   "include": ["src"],
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {
-    "typeRoots": []
+    "types": ["node", "react", "react-dom", "mapbox-gl", "ejs"]
   }
 }

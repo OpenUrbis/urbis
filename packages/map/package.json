@@ -9,7 +9,8 @@
     "clean:artifacts": "find src -name '*.js' -delete && find src -name '*.d.ts' -not -name 'vite-env.d.ts' -delete && find src -name '*.d.ts.map' -delete"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./examples/*": "./src/examples/*"
   },
   "license": "MIT",
   "dependencies": {

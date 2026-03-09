@@ -9,7 +9,7 @@ export const SliderPrimitive = SliderPrimitiveRaw;
 
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitiveRaw.Root>,
-  React.ComponentPropsWithoutRef<typeof SliderPrimitiveRaw.Root>
+  React.ComponentPropsWithoutRef<typeof SliderPrimitiveRaw.Root> & { className?: string }
 >(({ className, ...props }, ref) => {
   const value = props.value || props.defaultValue;
   const numberOfThumbs = Array.isArray(value) ? value.length : 1;

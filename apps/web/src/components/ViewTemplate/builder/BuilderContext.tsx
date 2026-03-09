@@ -73,7 +73,7 @@ export const useBuilder = () => {
 };
 
 interface BuilderProviderProps {
-  initialTemplate: ITemplate;
+  initialTemplate: ITemplate[];
   children: ReactNode;
 }
 
@@ -81,10 +81,11 @@ export const BuilderProvider = ({
   initialTemplate,
   children,
 }: BuilderProviderProps) => {
-  const [template, setTemplate] = useState<ITemplate>(initialTemplate);
+  const [template, setTemplate] = useState<ITemplate[]>(initialTemplate);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mockData, setMockData] = useState<any>(DEFAULT_MOCK_DATA);
   const [highlightConfig, setHighlightConfig] = useState(0);
+  const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
 
   const triggerHighlightConfig = useCallback(() => {
     setHighlightConfig((prev) => prev + 1);
@@ -96,24 +97,30 @@ export const BuilderProvider = ({
       if (root.id === id) {
         return { ...root, ...updates };
       }
-      if (root.templates) {
+      // Recursive update for children
+      const config = BUILDER_TEMPLATES.find((t) => t.name === root.type);
+      const childrenProp = config?.childrenProp || "templates";
+      // @ts-ignore
+      const children = root[childrenProp];
+
+      if (children && Array.isArray(children)) {
         return {
           ...root,
-          templates: root.templates.map((child) =>
-            updateNode(child, id, updates)
+          [childrenProp]: children.map((child: ITemplate) =>
+            updateNode(child, id, updates),
           ),
         };
       }
       return root;
     },
-    []
+    [],
   );
 
   const updateItem = useCallback(
     (id: string, updates: Partial<ITemplate>) => {
-      setTemplate((prev) => updateNode(prev, id, updates));
+      setTemplate((prev) => prev.map((item) => updateNode(item, id, updates)));
     },
-    [updateNode]
+    [updateNode],
   );
 
   // Helper to add a node
@@ -122,16 +129,16 @@ export const BuilderProvider = ({
       root: ITemplate,
       parentId: string | null,
       newItem: ITemplate,
-      index?: number
+      index?: number,
     ): ITemplate => {
       if (root.id === parentId) {
-        const config = BUILDER_TEMPLATES.find(t => t.name === root.type);
+        const config = BUILDER_TEMPLATES.find((t) => t.name === root.type);
         const childrenProp = config?.childrenProp || "templates";
-        
+
         // @ts-ignore
         const currentChildren = root[childrenProp] || [];
         const newChildren = [...currentChildren];
-        
+
         if (typeof index === "number" && index >= 0) {
           newChildren.splice(index, 0, newItem);
         } else {
@@ -141,11 +148,7 @@ export const BuilderProvider = ({
       }
 
       // Recursive search
-      // We need to check both templates and polygonTemplate or any children prop
-      // Since we don't know the props of children here easily without iterating all keys or knowing schema
-      // But generally we traverse 'templates' or 'polygonTemplate'
-      
-      const config = BUILDER_TEMPLATES.find(t => t.name === root.type);
+      const config = BUILDER_TEMPLATES.find((t) => t.name === root.type);
       const childrenProp = config?.childrenProp || "templates";
       // @ts-ignore
       const children = root[childrenProp];
@@ -154,46 +157,54 @@ export const BuilderProvider = ({
         return {
           ...root,
           [childrenProp]: children.map((child: ITemplate) =>
-            addNode(child, parentId, newItem, index)
+            addNode(child, parentId, newItem, index),
           ),
         };
       }
       return root;
     },
-    []
+    [],
   );
 
   const addItem = useCallback(
     (parentId: string | null, newItem: ITemplate, index?: number) => {
-      if (!parentId) {
-        // If no parent, maybe we are replacing root? Or adding to root's children if root is a wrapper?
-        // For now, let's assume we always add to a parent.
-        // If parentId is null, it might mean "add to the end of the root list" if root is a list,
-        // but our root is a single ITemplate.
-        // Let's assume the root is a container and we add to it if parentId matches root.id
-        if (template.id) {
-            parentId = template.id;
-        } else {
-            console.warn("Cannot add item: No parent ID provided and root has no ID");
-            return;
-        }
-      }
-      
       // Recursively add IDs to new item and its children
-      const addIds = (item: ITemplate): ITemplate => {
-        const newItem = { ...item, id: item.id || crypto.randomUUID() };
-        if (newItem.templates) {
-          newItem.templates = newItem.templates.map(addIds);
+      const addIds = (item: ITemplate, pId?: string | null): ITemplate => {
+        const itemNew = { ...item, id: item.id || crypto.randomUUID() };
+
+        if (pId) {
+          const props = (itemNew.properties || {}) as any;
+          itemNew.properties = { ...props, parentId: pId };
         }
-        // Handle other children props if any (e.g. polygonTemplate)
-        // But for standard usage templates is enough or we rely on specific logic
-        return newItem;
+
+        if (itemNew.templates) {
+          itemNew.templates = itemNew.templates.map((child) =>
+            addIds(child, itemNew.id),
+          );
+        }
+        return itemNew;
       };
 
-      const itemWithId = addIds(newItem);
-      setTemplate((prev) => addNode(prev, parentId, itemWithId, index));
+      const itemWithId = addIds(newItem, parentId);
+
+      if (!parentId) {
+        setTemplate((prev) => {
+          const newTemplate = [...prev];
+          if (typeof index === "number" && index >= 0) {
+            newTemplate.splice(index, 0, itemWithId);
+          } else {
+            newTemplate.push(itemWithId);
+          }
+          return newTemplate;
+        });
+        return;
+      }
+
+      setTemplate((prev) =>
+        prev.map((item) => addNode(item, parentId, itemWithId, index)),
+      );
     },
-    [addNode, template.id]
+    [addNode],
   );
 
   // Helper to remove a node
@@ -201,27 +212,33 @@ export const BuilderProvider = ({
     (root: ITemplate, id: string): ITemplate | null => {
       if (root.id === id) return null;
 
-      if (root.templates) {
-        const newTemplates = root.templates
-          .map((child) => removeNode(child, id))
+      const config = BUILDER_TEMPLATES.find((t) => t.name === root.type);
+      const childrenProp = config?.childrenProp || "templates";
+      // @ts-ignore
+      const children = root[childrenProp];
+
+      if (children && Array.isArray(children)) {
+        const newChildren = children
+          .map((child: ITemplate) => removeNode(child, id))
           .filter((child): child is ITemplate => child !== null);
-        
-        return { ...root, templates: newTemplates };
+
+        return { ...root, [childrenProp]: newChildren };
       }
       return root;
     },
-    []
+    [],
   );
 
   const removeItem = useCallback(
     (id: string) => {
-      setTemplate((prev) => {
-        const res = removeNode(prev, id);
-        return res || prev; // If root is removed, what do we do? For now keep prev or return null (but state expects ITemplate)
-      });
+      setTemplate((prev) =>
+        prev
+          .map((item) => removeNode(item, id))
+          .filter((item): item is ITemplate => item !== null),
+      );
       if (selectedId === id) setSelectedId(null);
     },
-    [removeNode, selectedId]
+    [removeNode, selectedId],
   );
 
   // Move item logic is complex, usually involves removing and adding.
@@ -250,6 +267,8 @@ export const BuilderProvider = ({
         setMockData,
         highlightConfig,
         triggerHighlightConfig,
+        viewMode,
+        setViewMode,
       }}
     >
       {children}

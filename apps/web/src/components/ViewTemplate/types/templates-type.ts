@@ -36,4 +36,5 @@ export interface ITemplateProps {
   key?: string;
   rootTemplate?: ITemplate[];
   isPrint?: boolean;
+  viewMode?: "desktop" | "mobile";
 }

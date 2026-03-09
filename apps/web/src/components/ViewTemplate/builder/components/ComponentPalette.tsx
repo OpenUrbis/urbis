@@ -39,8 +39,12 @@ const DraggableItem = ({ template }: { template: IBuilderTemplateConfig }) => {
 };
 
 export const ComponentPalette = () => {
-  const wrappers = BUILDER_TEMPLATES.filter((t) => t.isWrapper);
-  const components = BUILDER_TEMPLATES.filter((t) => !t.isWrapper);
+  const wrappers = BUILDER_TEMPLATES.filter(
+    (t) => t.isWrapper && !t.hiddenInPalette,
+  );
+  const components = BUILDER_TEMPLATES.filter(
+    (t) => !t.isWrapper && !t.hiddenInPalette,
+  );
 
   return (
     <div className="flex h-full flex-col border-l bg-background">

@@ -12,6 +12,7 @@ export const ViewTemplateEngine = ({
   data,
   rootTemplate,
   isPrint,
+  viewMode,
 }: ITemplateProps) => {
   const { templates: registeredTemplates } = useTemplateRegistry();
 
@@ -47,6 +48,7 @@ export const ViewTemplateEngine = ({
               data={data}
               rootTemplate={rootTemplate}
               isPrint={isPrint}
+              viewMode={viewMode}
             />
           </section>
         );
@@ -56,7 +58,7 @@ export const ViewTemplateEngine = ({
         return <div>Error on loading template</div>;
       }
     },
-    [templateTypes, data, rootTemplate, isPrint]
+    [templateTypes, data, rootTemplate, isPrint, viewMode]
   );
 
   return <>{renderTemplate(template)}</>;

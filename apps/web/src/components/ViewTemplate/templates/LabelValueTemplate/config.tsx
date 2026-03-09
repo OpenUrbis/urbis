@@ -17,7 +17,6 @@ const ConfigForm = ({
     defaultValues: {
       label: template.label || "",
       value: template.value || "",
-      columnClass: properties.columnClass || "",
       helper: properties.helper || "",
     },
   });
@@ -31,12 +30,11 @@ const ConfigForm = ({
       value: values.value,
       properties: {
         ...properties,
-        columnClass: values.columnClass,
         helper: values.helper,
       },
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values.label, values.value, values.columnClass, values.helper]);
+  }, [values.label, values.value, values.helper]);
 
   return (
     <div className="space-y-4">
@@ -49,13 +47,6 @@ const ConfigForm = ({
         <Input {...register("value")} placeholder="Ex: {{address}}" />
         <p className="text-xs text-muted-foreground">
           Suporta interpolação de variáveis.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label>Classe de Coluna (Bootstrap)</Label>
-        <Input {...register("columnClass")} placeholder="Ex: col-md-6" />
-        <p className="text-xs text-muted-foreground">
-          Usado apenas dentro de Linha (Grid).
         </p>
       </div>
       <div className="space-y-2">

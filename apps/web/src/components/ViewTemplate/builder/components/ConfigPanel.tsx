@@ -6,7 +6,15 @@ import { useBuilder } from "../BuilderContext";
 import { BUILDER_TEMPLATES } from "../registry";
 
 // Helper to find a node by ID
-const findNode = (root: ITemplate, id: string): ITemplate | null => {
+const findNode = (root: ITemplate | ITemplate[], id: string): ITemplate | null => {
+  if (Array.isArray(root)) {
+    for (const child of root) {
+      const found = findNode(child, id);
+      if (found) return found;
+    }
+    return null;
+  }
+
   if (root.id === id) return root;
   if (root.templates) {
     for (const child of root.templates) {
@@ -32,6 +40,7 @@ export const ConfigPanel = () => {
     return () => {};
   }, [highlightConfig]);
 
+  // @ts-ignore
   const selectedNode = selectedId ? findNode(template, selectedId) : null;
   const builderConfig = selectedNode
     ? BUILDER_TEMPLATES.find((t) => t.name === selectedNode.type)

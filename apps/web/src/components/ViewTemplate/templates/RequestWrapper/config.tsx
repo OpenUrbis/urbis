@@ -106,7 +106,7 @@ const ConfigForm = ({
 };
 
 export const RequestWrapperConfig: Partial<IBuilderTemplateConfig> = {
-  friendlyName: "Wrapper de Requisição",
+  friendlyName: "Requisição",
   description: "Busca dados de uma API.",
   isWrapper: true,
   configComponent: ConfigForm,

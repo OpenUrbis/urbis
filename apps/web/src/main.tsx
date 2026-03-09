@@ -32,6 +32,8 @@ import { SidebarProvider } from "@open-urbis/map-ui";
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
 const AdminPage = lazy(() => import("./pages/Admin"));
+const ViewTemplateEditorPage = lazy(() => import("./pages/ViewTemplateEditor"));
+const ViewTemplatePreviewPage = lazy(() => import("./pages/ViewTemplatePreview"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,6 +82,14 @@ const App = () => (
                             <RequireAuth>
                               <AdminPage />
                             </RequireAuth>
+                          </Route>
+
+                          <Route path="/view-template">
+                            <ViewTemplateEditorPage />
+                          </Route>
+
+                          <Route path="/view-template/preview">
+                            <ViewTemplatePreviewPage />
                           </Route>
                         </Suspense>
                       </Router>

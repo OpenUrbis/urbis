@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ViewTemplateBuilder } from "../../../../components/ViewTemplate/builder/ViewTemplateBuilder";
-import { ITemplate } from "../../../../components/ViewTemplate/types/templates-type";
+import { ViewTemplateBuilder } from "../../components/ViewTemplate/builder/ViewTemplateBuilder";
+import { ITemplate } from "../../components/ViewTemplate/types/templates-type";
 
 export const ViewTemplateEditorPage = () => {
   const [currentTemplate, setCurrentTemplate] = useState<ITemplate | undefined>(

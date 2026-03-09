@@ -32,6 +32,7 @@
     "@mapbox-controls/tooltip": "^3.0.0",
     "@mapbox-controls/zoom": "^3.0.0",
     "@mapbox/mapbox-gl-draw": "^1.5.1",
+    "@mapbox/mapbox-gl-geocoder": "5.1.2",
     "@math.gl/web-mercator": "^4.1.0",
     "@open-urbis/endereco-digital": "workspace:*",
     "@open-urbis/map-auth": "workspace:*",

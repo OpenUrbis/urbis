@@ -75,31 +75,6 @@ export function DynamicSystemProvider({ children }: DynamicSystemProviderProps) 
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-full w-full bg-red-50/30">
-        <div className="text-center p-8 bg-white border border-red-200 rounded-xl shadow-sm max-w-lg">
-          <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <X className="w-6 h-6" />
-          </div>
-          <h3 className="text-lg font-bold text-slate-800 mb-2">Erro de Comunicação</h3>
-          <p className="text-sm text-slate-600 mb-4">{error}</p>
-          <button onClick={() => window.location.reload()} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors">Tentar Novamente</button>
-        </div>
-      </div>
-    );
-  }
-
-  const isDataEmpty = !moduleData || Object.keys(moduleData).length === 0 || !moduleData['Usos']?.length;
-
-  if (isDataEmpty) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full w-full bg-slate-50/50">
-        <p className="text-slate-400 text-sm font-medium animate-pulse">Carregando dados...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col h-full bg-white relative">
       <div className="absolute bottom-5 right-5 z-[1000]">

@@ -60,10 +60,10 @@ export function MapDataIntegrationField({
     
     try {
       const environment = import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br";
-      const { data: { uploadURL, key } } = await axios.post(`https://api.mapa.urbis.sampa.br/files/upload-url`, {
+      const { data: { uploadURL, key } } = await axios.post(`${environment}/files/upload-url`, {
         contentType: "image/vnd.dwg",
         folderPath: ""
-      }, { headers: { "x-api-key": "secret" } });
+      }, { headers: { Authorization: auth.user?.access_token ? `Bearer ${auth.user.access_token}` : undefined } });
 
       await fetch(uploadURL, { method: 'PUT', body: selectedFile, headers: { 'Content-Type': "image/vnd.dwg" } });
       await axios.post(`${environment}/maps/mapdata/file/${encodeURIComponent(key)}`, {}, { headers: { Authorization: auth.user?.access_token ? `Bearer ${auth.user.access_token}` : undefined } });

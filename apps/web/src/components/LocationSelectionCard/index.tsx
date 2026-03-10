@@ -27,6 +27,7 @@ import { decode, getPolygon, encode } from "@open-urbis/endereco-digital";
 // @ts-ignore
 import { OpenLocationCode } from "open-location-code";
 import proj4 from "proj4";
+import { userProfile } from "@open-urbis/map-auth";
 
 // Define Projections
 proj4.defs("EPSG:31983", "+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
@@ -45,6 +46,7 @@ export const LocationSelectionCard = ({ initialOption = null, initialInputType =
   const { editFeature, editFeatureTemplate, layerWithRootEditTemplate } =
     usePolygonEditContext();
   const { navigateTo, navigateReplace } = useNavigationContext();
+  const isAdmin = userProfile.value?.position?.toLowerCase().includes("admin");
 
   const step = useSignal(initialOption ? 2 : 1);
   const geoJsonFile = useSignal<File | null>(null);
@@ -480,23 +482,25 @@ export const LocationSelectionCard = ({ initialOption = null, initialInputType =
             }
           />
 
-          <div
-            className="cursor-pointer bg-card shadow-sm hover:bg-accent/50 transition-colors rounded-lg border p-3 flex items-center gap-3"
-            onClick={() => navigateTo(<ProspectiveSearchPage key="nav-prospective-search" />)}
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <FileSearch className="h-5 w-5" />
+          {isAdmin && (
+            <div
+              className="cursor-pointer bg-card shadow-sm hover:bg-accent/50 transition-colors rounded-lg border p-3 flex items-center gap-3"
+              onClick={() => navigateTo(<ProspectiveSearchPage key="nav-prospective-search" />)}
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <FileSearch className="h-5 w-5" />
+              </div>
+              <div className="flex flex-col flex-1 text-left">
+                <span className="text-sm font-semibold">
+                  Pesquisa Prospectiva
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Busca de imóveis e áreas.
+                </span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </div>
-            <div className="flex flex-col flex-1 text-left">
-              <span className="text-sm font-semibold">
-                Pesquisa Prospectiva
-              </span>
-              <span className="text-xs text-muted-foreground">
-                Busca de imóveis e áreas.
-              </span>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </div>
+          )}
 
           <div
             className="cursor-pointer bg-card shadow-sm hover:bg-accent/50 transition-colors rounded-lg border p-3 flex items-center gap-3"

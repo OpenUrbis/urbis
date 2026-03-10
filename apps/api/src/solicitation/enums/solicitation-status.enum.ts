@@ -1,0 +1,6 @@
+export enum SolicitationStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  INFO_REQUESTED = 'INFO_REQUESTED',
+}

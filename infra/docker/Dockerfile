@@ -39,4 +39,4 @@ EXPOSE 3000
 WORKDIR /app/apps/api
 
 # Start the application from the app directory to ensure local node_modules are preferred
-CMD ["node", "dist/app/main.js"]
+CMD ["node", "dist/main.js"]

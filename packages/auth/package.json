@@ -12,8 +12,8 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@preact/signals": "2.0.3",
     "@preact/signals-core": "^1.8.0",
-    
     "oidc-client-ts": "^3.4.1",
     "react-oidc-context": "^3.3.0"
   },

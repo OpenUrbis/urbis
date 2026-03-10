@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -17,6 +18,10 @@ export class Organization extends BaseEntity {
 
   @Column()
   name: string;
+
+  @Index({ unique: true })
+  @Column({ nullable: true, unique: true })
+  document?: string;
 
   @Column({ nullable: true })
   description?: string;

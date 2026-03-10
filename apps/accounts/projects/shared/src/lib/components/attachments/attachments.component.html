@@ -1,0 +1,57 @@
+<div class="space-y-1">
+  <label class="text-[11px] font-medium text-foreground">
+    Anexos (opcional)
+  </label>
+  <input
+    type="file"
+    accept=".png,.svg,.jpeg,.jpg,.webp,.pdf,.doc,.docx,.txt,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+    multiple
+    (change)="handleFileChange($event)"
+    [disabled]="isUploading()"
+    class="block w-full text-[11px] text-muted-foreground file:mr-2 file:py-1.5 file:px-3
+           file:rounded-md file:border-0 file:text-[11px] file:font-medium
+           file:bg-primary file:text-primary-foreground hover:file:bg-primary/90
+           disabled:opacity-50 disabled:cursor-not-allowed"
+  />
+
+  @if (files().length > 0 || isUploading()) {
+    <div class="mt-2 grid grid-cols-4 gap-2">
+      @for (file of files(); track file.key) {
+        <div class="relative aspect-square overflow-hidden rounded-md border border-border group bg-muted flex items-center justify-center">
+          @if (isImage(file.name)) {
+            <a [href]="file.url" target="_blank" class="h-full w-full block">
+              <img [src]="file.url" [alt]="file.name" class="h-full w-full object-cover" />
+            </a>
+          } @else {
+            <div class="flex flex-col items-center justify-center p-2 text-center h-full w-full hover:bg-muted/80 transition-colors relative group/doc">
+               <hlm-icon name="lucideFileText" class="h-8 w-8 mb-1 text-muted-foreground" />
+               <span class="text-[10px] truncate w-full px-1">{{ file.name }}</span>
+               <a [href]="file.url" target="_blank" class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/doc:opacity-100 bg-black/50 text-white transition-opacity rounded-md">
+                  <hlm-icon name="lucideDownload" class="h-6 w-6" />
+               </a>
+            </div>
+          }
+
+          <button
+            type="button"
+            (click)="removeFile(file.key)"
+            [disabled]="isUploading()"
+            class="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0"
+            title="Remover"
+          >
+            <hlm-icon name="lucideX" class="h-3 w-3" />
+          </button>
+        </div>
+      }
+      @if (isUploading()) {
+        <div class="relative aspect-square overflow-hidden rounded-md border border-border flex items-center justify-center bg-muted">
+          <hlm-icon name="lucideLoader2" class="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      }
+    </div>
+  }
+
+  @if (error()) {
+    <p class="text-[11px] text-destructive">{{ error() }}</p>
+  }
+</div>

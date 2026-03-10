@@ -16,6 +16,8 @@ import { ApiKeyStrategy } from './strategies/api-key.strategy';
 import { EmailStrategy } from './strategies/email.strategy';
 import { ExternalOidcStrategy } from './strategies/external-oidc.strategy';
 import { TwoFactorModule } from './two-factor/two-factor.module';
+import { CpfValidationService } from './services/cpf-validation.service';
+import { OrganizationModule } from '../organization/organization.module';
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { TwoFactorModule } from './two-factor/two-factor.module';
     forwardRef(() => TwoFactorModule),
     forwardRef(() => AccessControlModule),
     HttpModule,
+    forwardRef(() => OrganizationModule),
   ],
   controllers: [AuthController, ExternalOidcController],
   providers: [
@@ -37,7 +40,8 @@ import { TwoFactorModule } from './two-factor/two-factor.module';
     ExternalOidcStrategy,
     AuthService,
     ExternalOidcService,
+    CpfValidationService,
   ],
-  exports: [AuthService],
+  exports: [AuthService, CpfValidationService],
 })
 export class AuthModule {}

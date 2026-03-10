@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+  HttpStatus,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RedisService } from 'common/redis/redis.service';
 import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
@@ -22,21 +27,49 @@ export class UserService {
     createProfileDto: CreateUserDto | User,
     organization?: Organization,
   ) {
-    const user = await this.usersRepository.save(
-      this.usersRepository.create(createProfileDto),
-    );
+    try {
+      const user = await this.usersRepository.save(
+        this.usersRepository.create(createProfileDto),
+      );
 
-    if (organization) {
-      let defaultRole = await this.roleService.findDefault(organization.id);
-      if (!defaultRole) defaultRole = await this.roleService.findDefault();
+      if (organization) {
+        let defaultRole = await this.roleService.findDefault(organization.id);
+        if (!defaultRole) defaultRole = await this.roleService.findDefault();
 
-      await this.roleService.assignByOrganization(organization.id, {
-        userId: user.id,
-        roleIds: [defaultRole.id],
-      });
+        await this.roleService.assignByOrganization(organization.id, {
+          userId: user.id,
+          roleIds: [defaultRole.id],
+        });
+      }
+
+      return user;
+    } catch (error) {
+      if (
+        error?.code === '23505' || // Postgres unique violation
+        error?.message?.includes('duplicate key')
+      ) {
+        if (error.detail?.includes('cpf') || error.message?.includes('cpf')) {
+          throw new UnprocessableEntityException({
+            status: HttpStatus.UNPROCESSABLE_ENTITY,
+            errors: {
+              cpf: 'alreadyExists',
+            },
+          });
+        }
+        if (
+          error.detail?.includes('email') ||
+          error.message?.includes('email')
+        ) {
+          throw new UnprocessableEntityException({
+            status: HttpStatus.UNPROCESSABLE_ENTITY,
+            errors: {
+              email: 'alreadyExists',
+            },
+          });
+        }
+      }
+      throw error;
     }
-
-    return user;
   }
 
   async list(pagination: IPaginationOptions, organizationId?: string) {

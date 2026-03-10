@@ -8,6 +8,7 @@ export interface IAccessControlPermission {
   resource: string;
   action: string;
   scope: RolePermissionScopeEnum;
+  organizationId?: string;
 }
 
 export interface AccessControlOptions {
@@ -65,6 +66,7 @@ export class AccessControl {
               resource: rp.permission.resource,
               action: rp.permission.action,
               scope: rp.scope,
+              organizationId: organization?.id,
             }),
           ),
         );

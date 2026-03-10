@@ -9,6 +9,7 @@ export * from './lib/components/loading-content/loading-content';
 export * from './lib/components/password-form-group/index';
 export * from './lib/components/phone-form-group/index';
 export * from './lib/components/file-uploader/index';
+export * from './lib/components/attachments/index';
 export * from './lib/components/sign-in-gov-br-btn/sign-in-gov-br-btn';
 export * from './lib/components/logo/logo.component';
 export * from './lib/shared';

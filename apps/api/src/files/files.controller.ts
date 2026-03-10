@@ -39,7 +39,7 @@ export class FilesController {
   }
 
   @Post('upload-url')
-  @UseGuards(AuthGuard('api-key'))
+  @UseGuards(AuthGuard(['jwt']))
   @ApiSecurity('api_key')
   @ApiOperation({ summary: 'Generate S3 upload URL' })
   @ApiBody({ type: UploadUrlDto })

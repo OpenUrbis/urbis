@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { GeocodingModule } from './geocoding/geocoding.module';
 import { GeospatialIntersectionModule } from './geospatial-intersection/geospatial-intersection.module';
 import { LayerGroupsModule } from './layer-groups/layer-groups.module';
+import { MapDataModule } from './mapdata/mapdata.module';
 import { LayerSchemasModule } from './layer-schemas/layer-schemas.module';
 import { ExportModule } from './export/export.module';
 import { MapConfigModule } from './map-config/map-config.module';
@@ -9,9 +10,11 @@ import { SearchModule } from './search/search.module';
 import { ShareModule } from './share/share.module';
 import { ProxyModule } from './proxy/proxy.module';
 import { GeoserverProxyModule } from './geoserver-proxy/geoserver-proxy.module';
+import { OpenCnpjModule } from './open-cnpj/open-cnpj.module';
 
 @Module({
   imports: [
+    OpenCnpjModule,
     MapConfigModule,
     LayerSchemasModule,
     LayerGroupsModule,
@@ -22,6 +25,7 @@ import { GeoserverProxyModule } from './geoserver-proxy/geoserver-proxy.module';
     ShareModule,
     ProxyModule,
     GeoserverProxyModule,
+    MapDataModule,
   ],
 })
 export class MapsModule {}

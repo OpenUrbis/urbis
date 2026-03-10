@@ -1,21 +1,10 @@
-// Must be the first import
-import "preact/debug";
-
-// Or if you just want the devtools bridge (~240B) without other
-// debug code (useful for production sites)
-import "preact/devtools";
-
 import preact from "@preact/preset-vite";
 import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [
-    preact({
-      babel: {
-        plugins: [["module:@preact/signals-react-transform"]],
-      },
-    }),
+    preact(),
   ],
   resolve: {
     dedupe: [
@@ -24,7 +13,7 @@ export default defineConfig({
       "react",
       "react-dom",
       "@preact/signals-core",
-      "@preact/signals-react",
+      "@preact/signals",
     ],
     alias: {
       react: "preact/compat",

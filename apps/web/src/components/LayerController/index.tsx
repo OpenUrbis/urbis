@@ -27,6 +27,7 @@ import {
 import { Switch } from "@open-urbis/map-ui";
 import { cn } from "@open-urbis/map-ui";
 import { useMapContext } from "../../hooks/useMapContext";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { exportGeoJson } from "../../integrations/map-integration";
 import { getLayerNameFromConfig } from "../../utils/layer-utils";
 import { LayerGroup } from "./LayerGroup";
@@ -55,6 +56,7 @@ const MAP_STYLES = [
 
 export const LayerController = () => {
   const { layerGroups, layerSchemas, boundingBox, zoom, selectedBaseMap, is3DActive } = useMapContext();
+  const { isProspectiveSearchActive } = useNavigationContext();
   const auth = useAuth();
   
   const activeTab = useSignal<'sources' | 'visible'>('sources');
@@ -264,18 +266,20 @@ export const LayerController = () => {
               />
             </div>
           </DropdownMenuContent>
-        </DropdownMenu>
+          </DropdownMenu>
 
-            <Button
-              onClick={() => (isCollapsed.value = true)}
-              variant="outline"
-              className="shadow-md rounded-full h-12 px-5 text-base bg-background/80 backdrop-blur-md hover:bg-accent hover:text-accent-foreground"
-            >
-              <span className="material-symbols-outlined mr-1 text-xl">
-                layers
-              </span>
-              Gerenciar
-            </Button>
+            {!isProspectiveSearchActive.value && (
+              <Button
+                onClick={() => (isCollapsed.value = true)}
+                variant="outline"
+                className="shadow-md rounded-full h-12 px-5 text-base bg-background/80 backdrop-blur-md hover:bg-accent hover:text-accent-foreground"
+              >
+                <span className="material-symbols-outlined mr-1 text-xl">
+                  layers
+                </span>
+                Gerenciar
+              </Button>
+            )}
           </>
         )}
       </div>

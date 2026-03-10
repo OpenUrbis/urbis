@@ -1,0 +1,16 @@
+.label-value {
+  display: grid;
+  text-align: left;
+  gap: 2px;
+  margin: 2px 0;
+
+  .label {
+    font-weight: bold;
+    @apply text-primary;
+  }
+
+  .value {
+    text-align: left;
+    @apply text-foreground;
+  }
+}

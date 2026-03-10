@@ -129,7 +129,7 @@ export function UrbisFooter(_props: any) {
   <div className="text-left">
     <h2 className="text-primary-foreground font-black text-4xl tracking-widest mb-2">
       <a
-        href="https://docs.urbis.prefeitura.sp.gov.br/docs/legis/"
+        href="https://legis.urbis.sampa.br/ /"
         target="_blank"
         rel="noopener noreferrer"
         className="hover:opacity-80 transition-opacity"

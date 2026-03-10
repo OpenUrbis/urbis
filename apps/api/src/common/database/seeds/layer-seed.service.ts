@@ -23,11 +23,26 @@ export class LayerSeedService {
     // Seed LayerGroup
     const layerGroup: LayerGroup[] = [
       { id: 'geral', name: 'Geral' },
+      {
+        id: 'limites_administrativos',
+        name: 'Limites administrativos',
+        ownerGroup: 'geral',
+      },
       { id: 'seguranca', name: 'Segurança', ownerGroup: 'geral' },
       { id: 'ambiental', name: 'Ambiental', ownerGroup: 'geral' },
       { id: 'cultural', name: 'Cultural', ownerGroup: 'geral' },
       { id: 'tombamento', name: 'Tombamentos', ownerGroup: 'cultural' },
       { id: 'infra_urb', name: 'Infraestrutura urbana', ownerGroup: 'geral' },
+      {
+        id: 'alto_risco_geologico_e_hidrologico',
+        name: 'Alto risco geológico e hidrológico',
+        ownerGroup: 'seguranca',
+      },
+      {
+        id: 'restricoes_geotecnicas',
+        name: 'Restrições geotécnicas',
+        ownerGroup: 'seguranca',
+      },
       {
         id: 'areas_publicas',
         name: 'Áreas públicas - Uso comum',
@@ -40,8 +55,23 @@ export class LayerSeedService {
       },
       {
         id: 'macrozoneamento',
-        name: 'Macrozoneamento - Lei nº 16.050/14',
+        name: 'Macrozoneamento',
         ownerGroup: 'urbanistico',
+      },
+      {
+        id: 'aguas',
+        name: 'Águas',
+        ownerGroup: 'areas_publicas',
+      },
+      {
+        id: 'vias_publicas',
+        name: 'Vias públicas',
+        ownerGroup: 'areas_publicas',
+      },
+      {
+        id: 'areas_protegidas',
+        name: 'Áreas protegidas',
+        ownerGroup: 'ambiental',
       },
     ];
 

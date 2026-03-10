@@ -1,5 +1,5 @@
 import { createSuggestionItems } from "novel";
-import { Command, Heading1, Heading2, Heading3, Text, List, ListOrdered, CheckSquare, Image, Code } from "lucide-react";
+import { Command, Heading1, Heading2, Heading3, Text, Image, Table, Map } from "lucide-react";
 
 export const suggestionItems = createSuggestionItems([
   {
@@ -39,39 +39,36 @@ export const suggestionItems = createSuggestionItems([
     },
   },
   {
-    title: "Lista de Itens",
-    description: "Lista simples com marcadores.",
-    searchTerms: ["list", "ul"],
-    icon: <List size={18} />,
+    title: "Tabela",
+    description: "Inserir tabela.",
+    searchTerms: ["table"],
+    icon: <Table size={18} />,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleBulletList().run();
+      editor.chain().focus().deleteRange(range).insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
     },
   },
   {
-    title: "Lista Numerada",
-    description: "Lista com números.",
-    searchTerms: ["ordered", "list", "ol"],
-    icon: <ListOrdered size={18} />,
+    title: "Figura",
+    description: "Inserir uma figura/imagem.",
+    searchTerms: ["figura", "image", "figure", "imagem"],
+    icon: <Image size={18} />,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleOrderedList().run();
+      const url = window.prompt("URL da Imagem");
+      if (url) {
+        editor.chain().focus().deleteRange(range).setImage({ src: url }).run();
+      }
     },
   },
   {
-    title: "Lista de Tarefas",
-    description: "Lista de afazeres.",
-    searchTerms: ["todo", "task", "list"],
-    icon: <CheckSquare size={18} />,
+    title: "Mapa",
+    description: "Inserir um mapa (imagem).",
+    searchTerms: ["mapa", "map"],
+    icon: <Map size={18} />,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleTaskList().run();
-    },
-  },
-  {
-    title: "Código",
-    description: "Bloco de código.",
-    searchTerms: ["code", "block"],
-    icon: <Code size={18} />,
-    command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleCodeBlock().run();
+      const url = window.prompt("URL da Imagem do Mapa");
+      if (url) {
+        editor.chain().focus().deleteRange(range).setImage({ src: url }).run();
+      }
     },
   },
 ]);

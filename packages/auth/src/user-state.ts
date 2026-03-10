@@ -1,4 +1,4 @@
-import { computed, signal } from '@preact/signals-react';
+import { computed, signal } from '@preact/signals';
 import {
   AccessControl,
   IAccessControlPermission,

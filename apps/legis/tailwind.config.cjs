@@ -62,6 +62,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ["var(--font-family)"],
+        serif: ["'Noto Serif'", "serif"],
       },
     },
   },

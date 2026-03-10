@@ -3,7 +3,6 @@ import { AuthProvider } from "./auth/AuthProvider";
 import { RequireAuth } from "./components/AccessControl/RequireAuth";
 import { LegisLayout } from "./components/layout/legis-layout";
 import Home from "./pages/Home";
-import PageList from "./pages/PageList";
 import PageEditor from "./pages/PageEditor";
 import PageView from "./pages/PageView";
 import { useEffect } from "react";
@@ -44,7 +43,7 @@ export function App() {
                 <Route path="/" component={Home} />
                 
                 {/* Pages CRUD Routes */}
-                <Route path="/pages" component={PageList} />
+                <Route path="/pages" component={Home} />
                 <Route path="/pages/new">
                     <PageEditor mode="create" />
                 </Route>

@@ -14,7 +14,7 @@ import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { MapLibrary } from "../../pages/Map/MapLibrary";
 
 export const ViewSelector = () => {
-  const { navigateTo } = useNavigationContext();
+  const { navigateTo, isProspectiveSearchActive } = useNavigationContext();
   const [publicMaps, setPublicMaps] = useState<SharedMapItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeViewName, setActiveViewName] = useState("Área construída de Lotes Tributários e Distritos");
@@ -45,7 +45,9 @@ export const ViewSelector = () => {
   const handleSelectView = (view: SharedMapItem) => {
     window.location.href = `${window.location.origin}/?shareId=${view.id}`;
   };
-
+  if(isProspectiveSearchActive.value) {
+    return null;
+  }
   return (
     <div className="absolute bottom-8 right-4 z-[10] flex items-center gap-2 px-1">
       <DropdownMenu>

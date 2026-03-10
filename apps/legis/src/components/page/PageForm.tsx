@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
-    Button, Card, CardContent, Input, Separator,
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger,
+    Button, Input, Separator,
+    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
     Switch, Label,
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@open-urbis/map-ui';
-import { ArrowLeft, Save, Loader2, Tag, User, FileText, Book, Link as LinkIcon, Download, Globe, Lock, Folder, Plus, Search } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Tag, User, Link as LinkIcon, Download, Globe, Lock, Folder, Plus, ListTree, Bug, Search } from 'lucide-react';
 import { CreatePageDto, Page, PageType } from '../../types/page';
-import NovelEditorWrapper from '../Editor';
+import { LegisEditor } from '../Editor/LegisEditor';
 import { JSONContent, type Editor as TiptapEditor } from '@tiptap/core';
 import { useAuth } from '@open-urbis/map-auth';
 import { safeJSONParse } from '@/lib/content';
@@ -15,12 +15,129 @@ import { pageService } from '../../services/page-service';
 import { categoryService, Category } from '../../services/category-service';
 import { toast } from 'sonner';
 import { RulesEngine } from '../../domain/rules-engine';
-import { NormativeElement } from '../../domain/types';
-import { PropertiesPanel } from './PropertiesPanel';
-import { usePermission } from '../../hooks/use-permission';
-import { useLocation } from 'wouter';
+import { SpecialSituationsPanel as PropertiesPanel } from './SpecialSituationsPanel';
 import { suggestionItems as defaultSuggestionItems } from '../Editor/slash-command';
 import { useDebounce } from '@/hooks/use-debounce';
+import { OriginalNormativo, NormativeElementEntity as NormativeElement, ColetaneaTematica, CollectionLink, ElementType } from '../../domain/entities';
+import { NormativeMetadataForm } from './NormativeMetadataForm';
+import { DOMSerializer } from '@tiptap/pm/model';
+import { validateNormativeStructure, ValidationIssue } from '../../domain/normative-validation';
+import { getElementKey } from '../../domain/display-logic';
+import { normalizeOrdinals } from '../../domain/text-utils';
+
+// Helper to extract links from content
+const extractLinks = (content: JSONContent | undefined): CollectionLink[] => {
+    if (!content) return [];
+    const linksMap = new Map<string, CollectionLink>();
+    
+    const traverse = (node: JSONContent) => {
+        if (node.type === 'reference' && node.attrs) {
+            const { pageId, elementId } = node.attrs;
+            if (pageId) {
+                if (!linksMap.has(pageId)) {
+                    linksMap.set(pageId, {
+                        resourceId: pageId,
+                        resourceType: 'original_normativo',
+                        linkedElements: []
+                    });
+                }
+                const link = linksMap.get(pageId)!;
+                if (elementId && elementId !== 'root') {
+                    if (!link.linkedElements?.find(e => e.elementId === elementId)) {
+                        if (!link.linkedElements) link.linkedElements = [];
+                        link.linkedElements.push({ elementId });
+                    }
+                }
+            }
+        }
+        if (node.content) node.content.forEach(traverse);
+    };
+    
+    if (content) traverse(content);
+    return Array.from(linksMap.values());
+};
+
+// Helper to extract table data from a node
+const extractTableDataFromNode = (node: any, serializer: DOMSerializer) => {
+    const tableData: any = { rows: [], cols: [], cells: [] };
+    let rowIdx = 1;
+    const genId = () => Math.floor(Math.random() * 100000).toString();
+    
+    let maxCols = 0;
+    node.content.forEach((row: any) => {
+        let rowCols = 0;
+        row.content.forEach((cell: any) => {
+            rowCols += (cell.attrs.colspan || 1);
+        });
+        maxCols = Math.max(maxCols, rowCols);
+    });
+    
+    for (let i = 0; i < maxCols; i++) {
+        tableData.cols.push({ id: genId(), type: 'Corpo', index: i + 1 });
+    }
+
+    node.content.forEach((row: any, rI: number) => {
+        const rowId = genId();
+        tableData.rows.push({ id: rowId, type: rI === 0 ? 'Cabeçalho' : 'Corpo', index: rowIdx++ });
+        
+        let colIdx = 0;
+        row.content.forEach((cell: any) => {
+            const cellFragment = serializer.serializeFragment(cell.content);
+            const tempDiv = document.createElement('div');
+            tempDiv.appendChild(cellFragment);
+
+            // Normalize ordinals in text nodes
+            const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT);
+            let textNode;
+            while (textNode = walker.nextNode()) {
+                if (textNode.nodeValue) {
+                    textNode.nodeValue = normalizeOrdinals(textNode.nodeValue);
+                }
+            }
+
+            tableData.cells.push({ 
+                rowId, 
+                colId: tableData.cols[colIdx].id, 
+                text: tempDiv.innerHTML || '',
+                rowSpan: cell.attrs.rowspan || 1,
+                colSpan: cell.attrs.colspan || 1
+            });
+            
+            colIdx += (cell.attrs.colspan || 1);
+        });
+    });
+    return tableData;
+};
+
+// Hierarchy Definition
+const PARENT_HIERARCHY: Record<string, string[]> = {
+    'Parte': [],
+    'Livro': ['Parte'],
+    'Título': ['Livro', 'Parte'],
+    'Capítulo': ['Título', 'Livro', 'Parte'],
+    'Seção': ['Capítulo', 'Título', 'Livro', 'Parte'],
+    'Subseção': ['Seção', 'Capítulo', 'Título', 'Livro', 'Parte'],
+    'Divisão desconforme': [],
+    'Artigo': ['Subseção', 'Seção', 'Capítulo', 'Título', 'Livro', 'Parte', 'Anexo'],
+    'Parágrafo': ['Artigo', 'Anexo'],
+    'Inciso': ['Parágrafo', 'Artigo'],
+    'Alínea': ['Inciso'],
+    'Item': ['Alínea'],
+    'Anexo': [],
+    'Elemento desconforme': ['Item', 'Alínea', 'Inciso', 'Parágrafo', 'Artigo', 'Subseção', 'Seção', 'Capítulo', 'Título', 'Livro', 'Parte', 'Anexo'],
+    'Tabela': ['Item', 'Alínea', 'Inciso', 'Parágrafo', 'Artigo', 'Subseção', 'Seção', 'Capítulo', 'Título', 'Livro', 'Parte', 'Anexo'],
+    'Figura': ['Item', 'Alínea', 'Inciso', 'Parágrafo', 'Artigo', 'Subseção', 'Seção', 'Capítulo', 'Título', 'Livro', 'Parte', 'Anexo'],
+    'Mapa': ['Item', 'Alínea', 'Inciso', 'Parágrafo', 'Artigo', 'Subseção', 'Seção', 'Capítulo', 'Título', 'Livro', 'Parte', 'Anexo'],
+    'Nota': ['Item', 'Alínea', 'Inciso', 'Parágrafo', 'Artigo', 'Anexo'],
+    'Texto': ['Item', 'Alínea', 'Inciso', 'Parágrafo', 'Artigo', 'Subseção', 'Seção', 'Capítulo', 'Título', 'Livro', 'Parte', 'Anexo']
+};
+
+const COLETANEA_TYPES = ['Exigências', 'Competências', 'Definições', 'Fontes de Informação'];
+const COLETANEA_CATEGORIES = [
+    'Documentos e profissionais técnicos', 'Docrumentos gerais', 'Infraestrutura e obras públicas',
+    'Urbanístico / parcelamento, uso e ocupação', 'Edilício / obras e edificações',
+    'Acessibilidade, salubridade e segurança', 'Vegetação e áreas protegidas', 'Preservação cultural'
+];
 
 interface PageFormProps {
     initialData?: Page;
@@ -33,7 +150,11 @@ interface PageFormProps {
 export function PageForm({ initialData, onSubmit, onCancel, loading = false, title: formTitle }: PageFormProps) {
     const auth = useAuth();
     const [title, setTitle] = useState(initialData?.title || '');
-    const [type, setType] = useState<PageType>(initialData?.type || 'page');
+    const [type, setType] = useState<PageType>(() => {
+        if (!initialData) return 'coletanea_tematica';
+        return initialData.type === 'page' ? 'coletanea_tematica' : (initialData.type === 'normative' ? 'original_normativo' : initialData.type);
+    });
+    
     const [author, setAuthor] = useState(initialData?.author || auth.user?.profile.name || '');
     const [tagsInput, setTagsInput] = useState(initialData?.tags?.join(', ') || '');
     const [categoryId, setCategoryId] = useState(initialData?.categoryId || '');
@@ -44,214 +165,460 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
         initialData?.content ? safeJSONParse(initialData.content) : undefined
     );
     
-    // Categories state
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [normativeData, setNormativeData] = useState<Partial<OriginalNormativo>>({});
+    const [coletaneaData, setColetaneaData] = useState<Partial<ColetaneaTematica>>({});
 
-    // Editor instance state for programmatic updates
+    useEffect(() => {
+        if (!initialData && type === 'coletanea_tematica') {
+            const params = new URLSearchParams(window.location.search);
+            const cat = params.get('category');
+            if (cat && COLETANEA_TYPES.includes(cat)) {
+                setColetaneaData(prev => ({ ...prev, collectionType: cat as any }));
+            }
+        }
+    }, [initialData, type]);
+
+    const [categories, setCategories] = useState<Category[]>([]);
     const [editor, setEditor] = useState<TiptapEditor | null>(null);
-    
-    // Import state
     const [importOpen, setImportOpen] = useState(false);
     const [importUrl, setImportUrl] = useState('');
     const [importing, setImporting] = useState(false);
 
-    // Link Dialog State
-    const [linkDialogOpen, setLinkDialogOpen] = useState(false);
-    const [linkSearch, setLinkSearch] = useState('');
-    const debouncedLinkSearch = useDebounce(linkSearch, 300);
-    const [linkResults, setLinkResults] = useState<any[]>([]); // NormativeSearchResult[]
-    const [linkLoading, setLinkLoading] = useState(false);
-
-    // Parsing State
-    const [selectedElement, setSelectedElement] = useState<NormativeElement | null>(null);
+    const [selectedElements, setSelectedElements] = useState<NormativeElement[]>([]);
     const rulesEngine = useMemo(() => new RulesEngine(), []);
+    const [structuredElements, setStructuredElements] = useState<NormativeElement[]>([]);
+    const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([]);
+    const [saveConfirmationOpen, setSaveConfirmationOpen] = useState(false);
 
-    // Custom Slash Commands
-    const customSuggestionItems = useMemo(() => [
-        ...defaultSuggestionItems,
-        {
-            title: "Vínculo",
-            description: "Vincular a outro documento.",
-            searchTerms: ["link", "vínculo", "referência"],
-            icon: <LinkIcon size={18} />,
-            command: ({ editor, range }: any) => {
-                setLinkDialogOpen(true);
-                editor.chain().focus().deleteRange(range).run();
-            },
+    const getLastElementDescription = () => {
+        const elements = structuredElements.length > 0 ? structuredElements : normativeData.elements || [];
+        if (elements.length === 0) return "Nenhum elemento";
+        const idx = elements.findIndex(el => el.type === 'Anexo');
+        const target = idx !== -1 ? (idx > 0 ? elements[idx-1] : elements[0]) : elements[elements.length-1];
+        return target ? `${target.type} ${target.index || ''}`.trim() : "";
+    };
+
+    const performSync = useCallback((editor: TiptapEditor, currentElements: NormativeElement[], options: { selectionOnly?: boolean } = {}) => {
+        const blocks: any[] = [];
+        const serializer = DOMSerializer.fromSchema(editor.schema);
+        const { from, to } = editor.state.selection;
+        
+        editor.state.doc.descendants((node, pos, parent) => {
+            // Só processamos nós de primeiro nível (filhos diretos do doc)
+            if (parent?.type.name !== 'doc') return true;
+
+            // If selectionOnly is true, we only process nodes that are within the selection range
+            // or already have a normativeId (to maintain full context)
+            const isOutsideSelection = options.selectionOnly && (pos + node.nodeSize <= from || pos >= to);
+            
+            if (node.type.name === 'paragraph' || node.type.name === 'heading') {
+                const text = node.textContent;
+                if (text.trim()) {
+                    const fragment = serializer.serializeFragment(node.content);
+                    const tempDiv = document.createElement('div');
+                    tempDiv.appendChild(fragment);
+                    
+                    // Normalize ordinals in text nodes
+                    const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT);
+                    let textNode;
+                    while (textNode = walker.nextNode()) {
+                        if (textNode.nodeValue) {
+                            textNode.nodeValue = normalizeOrdinals(textNode.nodeValue);
+                        }
+                    }
+
+                    blocks.push({ 
+                        text, 
+                        html: tempDiv.innerHTML, 
+                        content: node.toJSON(),
+                        isTarget: !isOutsideSelection // Mark if this block is a target for re-structuring
+                    });
+                }
+            } else if (node.type.name === 'table') {
+                const tableData: any = { rows: [], cols: [], cells: [] };
+                // Reuse existing ID if available in editor attrs
+                const tableId = node.attrs.normativeId || crypto.randomUUID();
+                let rowIdx = 1;
+                const genId = () => Math.floor(Math.random() * 100000).toString();
+                
+                let maxCols = 0;
+                node.content.forEach((row) => {
+                    let rowCols = 0;
+                    row.content.forEach((cell) => {
+                        rowCols += (cell.attrs.colspan || 1);
+                    });
+                    maxCols = Math.max(maxCols, rowCols);
+                });
+                
+                for (let i = 0; i < maxCols; i++) {
+                    tableData.cols.push({ id: genId(), type: 'Corpo', index: i + 1 });
+                }
+
+                node.content.forEach((row, rI) => {
+                    const rowId = genId();
+                    tableData.rows.push({ id: rowId, type: rI === 0 ? 'Cabeçalho' : 'Corpo', index: rowIdx++ });
+                    
+                    let colIdx = 0;
+                    row.content.forEach((cell) => {
+                        const cellFragment = serializer.serializeFragment(cell.content);
+                        const tempDiv = document.createElement('div');
+                        tempDiv.appendChild(cellFragment);
+
+                        // Normalize ordinals in text nodes
+                        const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT);
+                        let textNode;
+                        while (textNode = walker.nextNode()) {
+                            if (textNode.nodeValue) {
+                                textNode.nodeValue = normalizeOrdinals(textNode.nodeValue);
+                            }
+                        }
+
+                        tableData.cells.push({ 
+                            rowId, 
+                            colId: tableData.cols[colIdx].id, 
+                            text: tempDiv.innerHTML || '',
+                            rowSpan: cell.attrs.rowspan || 1,
+                            colSpan: cell.attrs.colspan || 1
+                        });
+                        
+                        colIdx += (cell.attrs.colspan || 1);
+                    });
+                });
+
+                let tableTitle = 'Tabela';
+                let tableHtml = 'Tabela';
+                const lastBlock = blocks[blocks.length - 1];
+                if (lastBlock && lastBlock.text.toLowerCase().includes('tabela')) {
+                    tableTitle = lastBlock.text;
+                    tableHtml = lastBlock.html;
+                }
+
+                blocks.push({ 
+                    text: tableTitle, 
+                    html: tableHtml, 
+                    content: { ...node.toJSON(), attrs: { ...node.attrs, normativeId: tableId } }, 
+                    type: 'Tabela', 
+                    tableData,
+                    isTarget: !isOutsideSelection
+                });
+            } else if (node.type.name === 'image') {
+                const elementId = node.attrs.normativeId || crypto.randomUUID();
+                
+                // Smart Title detection for Image/Map
+                let elementTitle = 'Figura';
+                let elementHtml = 'Figura';
+                let elementType: ElementType = 'Figura';
+                
+                const lastBlock = blocks[blocks.length - 1];
+                const isMapTitle = lastBlock && lastBlock.text.toLowerCase().includes('mapa');
+                const isFigureTitle = lastBlock && lastBlock.text.toLowerCase().includes('figura');
+
+                if (lastBlock && (isMapTitle || isFigureTitle)) {
+                    elementTitle = lastBlock.text;
+                    elementHtml = lastBlock.html;
+                    elementType = isMapTitle ? 'Mapa' : 'Figura';
+                }
+
+                const commonData = {
+                    text: elementTitle,
+                    html: elementHtml,
+                    content: { ...node.toJSON(), attrs: { ...node.attrs, normativeId: elementId } },
+                    type: elementType
+                };
+
+                if (elementType === 'Mapa') {
+                    blocks.push({
+                        ...commonData,
+                        mapData: {
+                            screen: { 
+                                url: node.attrs.src, 
+                                resolution: { width: node.attrs.width, height: node.attrs.height } 
+                            },
+                            files: []
+                        },
+                        isTarget: !isOutsideSelection
+                    });
+                } else {
+                    blocks.push({
+                        ...commonData,
+                        figureData: {
+                            url: node.attrs.src,
+                            resolution: { width: node.attrs.width, height: node.attrs.height }
+                        },
+                        isTarget: !isOutsideSelection
+                    });
+                }
+            }
+            return false; // Não descer para filhos dos blocos de primeiro nível
+        });
+
+        const activeParents: any = {};
+        const usedIds = new Set<string>();
+
+        const newElements: NormativeElement[] = blocks.map(block => {
+            const idFromEditor = block.content?.attrs?.normativeId;
+            let existing = currentElements.find(e => e.id === idFromEditor);
+            
+            // Check if existing ID is already used (e.g. duplicate nodes in editor)
+            if (existing && usedIds.has(existing.id)) {
+                existing = undefined;
+            }
+            
+            // If it's NOT a target block and we have an ID from editor, we MUST stick to existing data
+            if (!block.isTarget && existing) {
+                const id = existing.id;
+                // Even if not a target, we update its hierarchy position in activeParents for subsequent target blocks
+                activeParents[existing.type] = id;
+                usedIds.add(id);
+                return { ...existing, text: block.html }; // Update text content just in case
+            }
+
+            const parsed = rulesEngine.parseLine(block.text);
+            
+            // Priority: Block Type (Table/Figure/Map) > Parsed Type
+            const type = (block.type || parsed.type) as ElementType;
+            const index = (block.type === 'Tabela' || block.type === 'Figura' || block.type === 'Mapa') ? undefined : parsed.index;
+            
+            if (!existing) {
+                // Se não achou pelo ID, tenta encontrar um elemento órfão (não vinculado a nenhum nó atual) que combine
+                existing = currentElements.find(e => 
+                    !usedIds.has(e.id) &&
+                    e.type === type && 
+                    e.index === index && 
+                    (block.tableData ? true : e.text === block.html)
+                );
+            }
+
+            let id = idFromEditor;
+            // If idFromEditor is already used, or missing, try existing found by content, or generate new
+            if (!id || usedIds.has(id)) {
+                id = existing?.id || crypto.randomUUID();
+            }
+            // Ensure even the existing/random ID is not used (paranoid check)
+            if (usedIds.has(id)) {
+                id = crypto.randomUUID();
+            }
+            usedIds.add(id);
+            
+            let parentId = existing?.parentId;
+            // Always recalculate parentId for target blocks to maintain consistency
+            const allowed = PARENT_HIERARCHY[type] || [];
+            for (const pType of allowed) { if (activeParents[pType]) { parentId = activeParents[pType]; break; } }
+            
+            activeParents[type] = id;
+
+            return {
+                id, 
+                type: existing?.type || type, 
+                index: existing?.index || index, 
+                text: block.html, 
+                parentId,
+                originalStartValidity: existing?.originalStartValidity || { date: '', deviceId: '' },
+                specialSituations: existing?.specialSituations || block.content?.attrs?.specialSituations || [],
+                tableData: block.tableData,
+                figureData: block.figureData,
+                mapData: block.mapData
+            };
+        });
+
+        // Only update states if changed to avoid infinite loops
+        const elementsChanged = JSON.stringify(newElements) !== JSON.stringify(currentElements);
+        if (elementsChanged) {
+            setStructuredElements(newElements);
+            setValidationIssues(validateNormativeStructure(newElements as any));
         }
-    ], []);
+
+        // Return the final blocks with their normative IDs to update the editor if necessary
+        return { newElements, blocks, elementsChanged };
+    }, [rulesEngine]);
+
+    const handleAutoStructure = () => {
+        if (!editor) return;
+        
+        // If there's a selection, we only structure the selection
+        const { from, to } = editor.state.selection;
+        const selectionOnly = from !== to;
+        
+        const { newElements, blocks } = performSync(editor, structuredElements, { selectionOnly });
+        
+        // Update Editor Content with the IDs
+        // We MUST preserve the node structure (marks, content) instead of raw HTML
+        // Note: newElements and blocks are 1:1 mapped by index from blocks.map in performSync
+        editor.commands.setContent({ 
+            type: 'doc', 
+            content: blocks.map((b, i) => {
+                // IMPORTANT: The element at index 'i' in newElements corresponds to the block at index 'i'
+                const elementId = newElements[i].id;
+                
+                return { 
+                    ...b.content, 
+                    attrs: { ...b.content.attrs, normativeId: elementId } 
+                };
+            }) 
+        });
+        
+        // Restore selection
+        try {
+            editor.commands.setTextSelection({ from, to });
+        } catch (e) {
+            console.warn("Could not restore selection exactly", e);
+        }
+
+        toast.success("Estrutura sincronizada");
+    };
 
     useEffect(() => {
         categoryService.getAll().then(setCategories);
     }, []);
 
     useEffect(() => {
-        if (linkDialogOpen) {
-            if (debouncedLinkSearch) {
-                setLinkLoading(true);
-                pageService.searchNormativeElements(debouncedLinkSearch)
-                    .then(setLinkResults)
-                    .finally(() => setLinkLoading(false));
-            } else {
-                setLinkResults([]);
-            }
-        }
-    }, [linkDialogOpen, debouncedLinkSearch]);
+        if (editor && type === 'original_normativo') {
+            const handler = () => {
+                const { from, to, $from, $to } = editor.state.selection as any;
+                const selected: any[] = [];
+                
+                const findNormativeId = (pos: any) => {
+                    for (let i = pos.depth; i >= 0; i--) {
+                        const node = pos.node(i);
+                        if (node.attrs?.normativeId) return node.attrs.normativeId;
+                    }
+                    return null;
+                };
 
-    const handleCreateCategory = async () => {
-        const name = window.prompt("Nome da nova categoria:");
-        if (name) {
-            try {
-                const newCat = await categoryService.create(name);
-                setCategories([...categories, newCat]);
-                setCategoryId(newCat.id);
-                toast.success("Categoria criada");
-            } catch {
-                toast.error("Erro ao criar categoria");
-            }
-        }
-    };
+                // 1. Check start and end of selection for parent normativeId
+                const startId = findNormativeId($from);
+                const endId = findNormativeId($to);
 
-    // Selection Update Logic
-    useEffect(() => {
-        if (editor && type === 'normative') {
-            const updateHandler = () => {
-                const { state } = editor;
-                const { selection } = state;
-                // Get the block node at selection
-                const parent = state.doc.resolve(selection.from).parent;
-                if (parent && parent.textContent) {
-                     const parsed = rulesEngine.parseLine(parent.textContent);
-                     // Construct NormativeElement (Mocking some fields)
-                     const element: NormativeElement = {
-                         id: 'temp-id',
-                         type: parsed.type,
-                         index: parsed.index,
-                         text: parsed.content,
-                         originalStartValidity: { date: '01.01.2024', deviceId: '1' }
-                     };
-                     setSelectedElement(element);
-                } else {
-                    setSelectedElement(null);
+                if (startId) {
+                    const el = structuredElements.find(e => e.id === startId);
+                    if (el) selected.push(el);
+                }
+                
+                if (endId && endId !== startId) {
+                    const el = structuredElements.find(e => e.id === endId);
+                    if (el && !selected.find(s => s.id === el.id)) selected.push(el);
+                }
+
+                // 2. Standard nodesBetween check for blocks fully inside selection
+                if (selected.length === 0) {
+                    editor.state.doc.nodesBetween(from, to, (node) => {
+                        if (node.attrs?.normativeId) {
+                            const el = structuredElements.find(e => e.id === node.attrs.normativeId);
+                            if (el && !selected.find(s => s.id === el.id)) selected.push(el);
+                        }
+                    });
+                }
+                
+                setSelectedElements(selected);
+            };
+            editor.on('selectionUpdate', handler);
+
+            // Sincronização leve de texto em tempo real
+            const textUpdateHandler = () => {
+                const serializer = DOMSerializer.fromSchema(editor.schema);
+                const updates: Record<string, any> = {};
+                
+                editor.state.doc.descendants((node) => {
+                    if (node.attrs?.normativeId) {
+                        if (node.type.name === 'table') {
+                            const tableData = extractTableDataFromNode(node, serializer);
+                            updates[node.attrs.normativeId] = { type: 'table', data: tableData };
+                        } else {
+                            const fragment = serializer.serializeFragment(node.content);
+                            const tempDiv = document.createElement('div');
+                            tempDiv.appendChild(fragment);
+                            updates[node.attrs.normativeId] = { type: 'text', content: tempDiv.innerHTML };
+                        }
+                    }
+                    return node.isBlock;
+                });
+
+                if (Object.keys(updates).length > 0) {
+                    setStructuredElements(prev => {
+                        let hasChanged = false;
+                        const next = prev.map(el => {
+                            const update = updates[el.id];
+                            if (!update) return el;
+
+                            if (update.type === 'table') {
+                                if (JSON.stringify(el.tableData) !== JSON.stringify(update.data)) {
+                                    hasChanged = true;
+                                    return { ...el, tableData: update.data };
+                                }
+                            } else if (update.type === 'text') {
+                                if (el.text !== update.content) {
+                                    hasChanged = true;
+                                    return { ...el, text: update.content };
+                                }
+                            }
+                            return el;
+                        });
+                        return hasChanged ? next : prev;
+                    });
                 }
             };
-            
-            editor.on('selectionUpdate', updateHandler);
-            editor.on('update', updateHandler);
-            
-            return () => {
-                editor.off('selectionUpdate', updateHandler);
-                editor.off('update', updateHandler);
+            editor.on('update', textUpdateHandler);
+
+            return () => { 
+                editor.off('selectionUpdate', handler);
+                editor.off('update', textUpdateHandler);
             };
         }
-    }, [editor, type, rulesEngine]);
+    }, [editor, type, structuredElements]);
 
-    // Initial load logic
     useEffect(() => {
         if (initialData) {
             setTitle(initialData.title);
-            setType(initialData.type);
             setAuthor(initialData.author);
             setTagsInput(initialData.tags?.join(', ') || '');
             setCategoryId(initialData.categoryId || '');
             setIsPublic(initialData.isPublic ?? false);
-            if (initialData.source) {
-                setSourceUrl(initialData.source.url);
-                setSourceType(initialData.source.type);
+            if (initialData.entity) {
+                if (initialData.type === 'original_normativo') {
+                    setNormativeData(initialData.entity as any);
+                    setStructuredElements((initialData.entity as any).elements || []);
+                } else {
+                    setColetaneaData(initialData.entity as any);
+                }
             }
-            if (initialData.content && !content) {
-                 const parsed = safeJSONParse(initialData.content);
-                 if (parsed) setContent(parsed);
-                 else if (initialData.content.trim()) {
-                     setContent({
-                         type: 'doc',
-                         content: [{ type: 'paragraph', content: [{ type: 'text', text: initialData.content }] }]
-                     });
-                 }
-            }
-        } else if (!author && auth.user?.profile.name) {
-            setAuthor(auth.user.profile.name);
         }
-    }, [initialData, auth.user]);
+    }, [initialData]);
 
-    const handleSubmit = async () => {
-        if (!title.trim()) {
-            toast.error('O título é obrigatório');
-            return;
-        }
-        const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
+    const executeSave = async () => {
+        const entityData = type === 'original_normativo' 
+            ? { ...normativeData, name: title, elements: structuredElements } 
+            : { ...coletaneaData, title, links: extractLinks(content) };
+            
         await onSubmit({ 
             title, 
-            type,
-            author,
-            tags,
-            categoryId,
-            isPublic,
-            source: sourceUrl ? { url: sourceUrl, type: sourceType } : undefined,
-            content: JSON.stringify(content) 
+            type, 
+            author, 
+            tags: tagsInput.split(',').map(t => t.trim()).filter(Boolean), 
+            categoryId, 
+            isPublic, 
+            content: JSON.stringify(content), 
+            entityData: entityData as any 
         });
+        setSaveConfirmationOpen(false);
     };
 
-    const handleImport = async () => {
-        if (!importUrl) return;
-        setImporting(true);
-        try {
-            const html = await pageService.importFromUrl(importUrl);
-            if (editor) {
-                // Insert content. If empty, replace. If not, append.
-                if (editor.isEmpty) {
-                    editor.commands.setContent(html);
-                } else {
-                    // Create a new paragraph before inserting to ensure separation
-                    editor.chain().focus().createParagraphNear().insertContent(html).run();
-                }
-                
-                toast.success("Conteúdo importado com sucesso. Revisão sugerida.");
-                setImportOpen(false);
-                setImportUrl('');
-            } else {
-                toast.error("Editor não inicializado.");
-            }
-        } catch (e) {
-            console.error(e);
-            toast.error("Erro ao importar URL.");
-        } finally {
-            setImporting(false);
-        }
-    };
-
-    const handleInsertLink = (result: any) => {
-        if (editor) {
-            editor.chain().focus().insertContent({
-                type: 'reference',
-                attrs: {
-                    pageId: result.pageId,
-                    elementId: result.elementId
-                }
-            }).run();
-            setLinkDialogOpen(false);
-        }
-    };
+    const isNormative = type === 'original_normativo';
 
     return (
-        <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
-            {/* Header / Actions */}
-            <div className="sticky top-0 z-40 flex w-full items-center justify-between px-6 py-3 bg-background/80 backdrop-blur-sm border-b">
-                <div className="flex items-center gap-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer" onClick={onCancel}>
+        <div className="flex flex-col h-[calc(100vh-64px)] bg-background">
+            <div className="sticky top-0 flex w-full items-center justify-between px-6 py-3 bg-background/80 backdrop-blur-sm border-b z-50">
+                <div className="flex items-center gap-4 text-muted-foreground cursor-pointer" onClick={onCancel}>
                     <ArrowLeft className="h-4 w-4" />
-                    <span className="text-sm font-medium">{formTitle || (initialData ? 'Editando' : 'Novo Documento')}</span>
+                    <span className="text-sm font-medium">{formTitle || 'Documento'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => setImportOpen(true)} disabled={loading || importing} className="gap-2 text-muted-foreground">
-                        <Download className="h-4 w-4" />
-                        Importar
-                    </Button>
-                    <span className="text-xs text-muted-foreground mr-2 border-l pl-2 h-4 flex items-center">
-                        {loading ? 'Salvando...' : 'Não salvo'}
-                    </span>
-                    <Button onClick={handleSubmit} disabled={loading} size="sm" className="gap-2">
-                        {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                        Salvar
+                    {isNormative && (
+                        <Button variant="ghost" size="sm" onClick={handleAutoStructure} className="gap-2">
+                            <ListTree className="h-4 w-4" /> Auto-Estruturar
+                        </Button>
+                    )}
+                    <Button onClick={() => setSaveConfirmationOpen(true)} size="sm" className="gap-2">
+                        <Save className="h-3 w-3" /> Salvar
                     </Button>
                 </div>
             </div>
@@ -260,237 +627,155 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                 <div className="flex-1 overflow-y-auto min-w-0">
                     <div className="container max-w-4xl mx-auto px-8 py-12 space-y-8">
                         
-                        {/* Title Area */}
-                        <div className="space-y-4 group">
+                        <div className="space-y-4">
                             <textarea
-                                placeholder="Título do Documento"
+                                placeholder="Título"
                                 className="w-full text-5xl font-extrabold bg-transparent outline-none resize-none placeholder:text-muted-foreground/30 leading-tight"
                                 rows={1}
                                 value={title}
-                                onChange={(e) => {
-                                    setTitle(e.target.value);
-                                    e.target.style.height = 'auto';
-                                    e.target.style.height = e.target.scrollHeight + 'px';
-                                }}
-                                onInput={(e: any) => {
-                                    e.target.style.height = 'auto';
-                                    e.target.style.height = e.target.scrollHeight + 'px';
-                                }}
-                                autoFocus
-                                disabled={loading}
+                                onChange={(e) => setTitle(e.target.value)}
                             />
                             
-                            {/* Metadata Grid (Compact 2-Column) */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 items-start text-sm pt-2">
-                                
-                                {/* Left Column */}
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                                        <div className="flex items-center gap-2 text-muted-foreground">
-                                            <User className="h-4 w-4" />
-                                            <span>Autor</span>
-                                        </div>
-                                        <Input 
-                                            value={author} 
-                                            onChange={(e) => setAuthor(e.target.value)} 
-                                            className="h-8 px-2 py-0 border-transparent hover:border-input focus:border-input bg-transparent w-full max-w-sm transition-all"
-                                            placeholder="Nome do autor"
-                                        />
-                                    </div>
-
-                                    <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                                        <div className="flex items-center gap-2 text-muted-foreground">
-                                            {type === 'page' ? <FileText className="h-4 w-4" /> : <Book className="h-4 w-4" />}
-                                            <span>Tipo</span>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button 
-                                                onClick={() => setType('page')}
-                                                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${type === 'page' ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
-                                            >
-                                                Página
-                                            </button>
-                                            <button 
-                                                onClick={() => setType('normative')}
-                                                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${type === 'normative' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'hover:bg-muted text-muted-foreground'}`}
-                                            >
-                                                Normativa
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                                        <div className="flex items-center gap-2 text-muted-foreground">
-                                            <Folder className="h-4 w-4" />
-                                            <span>Categoria</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 w-full">
-                                            <Select value={categoryId} onValueChange={setCategoryId}>
-                                                <SelectTrigger className="h-8 border-transparent hover:border-input bg-transparent px-2 text-xs w-full shadow-none">
-                                                    <SelectValue placeholder="Selecione..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {categories.map(cat => (
-                                                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={handleCreateCategory}>
-                                                <Plus className="h-3.5 w-3.5" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Right Column */}
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                                        <div className="flex items-center gap-2 text-muted-foreground">
-                                            <Tag className="h-4 w-4" />
-                                            <span>Tags</span>
-                                        </div>
-                                        <Input 
-                                            value={tagsInput} 
-                                            onChange={(e) => setTagsInput(e.target.value)} 
-                                            className="h-8 px-2 py-0 border-transparent hover:border-input focus:border-input bg-transparent w-full transition-all"
-                                            placeholder="Ex: urbano, lei..."
-                                        />
-                                    </div>
-
-                                    <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                                        <div className="flex items-center gap-2 text-muted-foreground">
-                                            {isPublic ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-                                            <span>Visibilidade</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Switch checked={isPublic} onCheckedChange={setIsPublic} id="visibility-switch" className="scale-90" />
-                                            <Label htmlFor="visibility-switch" className="text-xs font-normal cursor-pointer text-muted-foreground">
-                                                {isPublic ? 'Pública' : 'Privada'}
-                                            </Label>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-                                        <div className="flex items-center gap-2 text-muted-foreground">
-                                            <LinkIcon className="h-4 w-4" />
-                                            <span>Fonte</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 w-full">
-                                            <Select value={sourceType} onValueChange={(v: any) => setSourceType(v)}>
-                                                <SelectTrigger className="h-8 w-[80px] border-transparent hover:border-input bg-transparent px-2 text-xs shadow-none shrink-0">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="html">HTML</SelectItem>
-                                                    <SelectItem value="pdf">PDF</SelectItem>
-                                                    <SelectItem value="location">Local</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <Input 
-                                                value={sourceUrl} 
-                                                onChange={(e) => setSourceUrl(e.target.value)} 
-                                                className="h-8 px-2 py-0 border-transparent hover:border-input focus:border-input bg-transparent w-full"
-                                                placeholder="URL da fonte"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => !initialData && setType('coletanea_tematica')}
+                                    disabled={!!initialData}
+                                    className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${type === 'coletanea_tematica' ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'} ${!!initialData ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    Coletânea Temática
+                                </button>
+                                <button 
+                                    onClick={() => !initialData && setType('original_normativo')}
+                                    disabled={!!initialData}
+                                    className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${type === 'original_normativo' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'hover:bg-muted text-muted-foreground'} ${!!initialData ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    Original Normativo
+                                </button>
                             </div>
+
+                            {type === 'original_normativo' ? (
+                                <NormativeMetadataForm 
+                                    data={normativeData} 
+                                    onChange={setNormativeData} 
+                                    title={title}
+                                    onTitleChange={setTitle}
+                                />
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 items-start text-sm pt-2 bg-muted/10 p-4 rounded-lg border">
+                                    <div className="col-span-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-2">
+                                        Ficha Coletânea
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                                            <Label className="text-muted-foreground text-xs">Tipo (*)</Label>
+                                            <Select value={coletaneaData.collectionType} onValueChange={(v) => setColetaneaData({...coletaneaData, collectionType: v as any})}>
+                                                <SelectTrigger className="h-8 bg-background text-xs"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                                <SelectContent>{COLETANEA_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                                            <Label className="text-muted-foreground text-xs">Categoria (*)</Label>
+                                            <Select value={coletaneaData.category} onValueChange={(v) => setColetaneaData({...coletaneaData, category: v as any})}>
+                                                <SelectTrigger className="h-8 bg-background text-xs"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                                <SelectContent>{COLETANEA_CATEGORIES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                                            <Label className="text-muted-foreground text-xs">Tema (*)</Label>
+                                            <Input value={coletaneaData.theme || ''} onChange={(e) => setColetaneaData({...coletaneaData, theme: e.target.value as any})} className="h-8 bg-background text-xs" placeholder="Ex: Legitimidade" />
+                                        </div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                                            <Label className="text-muted-foreground text-xs">Vínculos</Label>
+                                            <div className="h-8 flex items-center px-3 border rounded-md bg-muted/50 text-[10px] text-muted-foreground w-full">
+                                                <LinkIcon className="mr-2 h-3 w-3" />
+                                                <span>{extractLinks(content).length} vínculos identificados</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-span-2 mt-2">
+                                        <Label className="text-muted-foreground text-xs mb-1 block">Descrição Resumida</Label>
+                                        <Input value={coletaneaData.shortDescription || ''} onChange={(e) => setColetaneaData({...coletaneaData, shortDescription: e.target.value})} className="h-8 bg-background text-xs" placeholder="Resumo em linguagem simples..." />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <Separator />
 
-                        <div className="min-h-[500px]">
-                            <NovelEditorWrapper
-                                key={initialData?.id || 'new'} 
-                                initialValue={content}
-                                onChange={setContent}
-                                editable={!loading}
-                                onEditorReady={setEditor}
-                                isNormative={type === 'normative'}
-                                suggestionItems={customSuggestionItems}
-                            />
-                        </div>
+                    <div className="min-h-[500px]">
+                        <LegisEditor initialContent={content} onChange={setContent} onEditorReady={setEditor} isNormative={isNormative} />
+                    </div>
                     </div>
                 </div>
 
-                {type === 'normative' && (
-                    <div className="hidden md:block h-full border-l">
-                        <PropertiesPanel element={selectedElement} rawNode={null} />
+                {isNormative && (
+                    <div className="w-80 border-l overflow-y-auto">
+                        <PropertiesPanel 
+                            selectedElements={selectedElements} 
+                            allElements={structuredElements} 
+                            onUpdate={(updatedOrList: any) => {
+                                const updates = Array.isArray(updatedOrList) ? updatedOrList : [updatedOrList];
+                                
+                                setStructuredElements(prev => {
+                                    const newElements = prev.map(el => {
+                                        const update = updates.find(u => u.id === el.id);
+                                        return update ? update : el;
+                                    });
+
+                                    // Update selected elements to reflect current values in side panel
+                                    setSelectedElements(prevSelected => 
+                                        prevSelected.map(sel => {
+                                            const update = updates.find(u => u.id === sel.id);
+                                            return update ? update : sel;
+                                        })
+                                    );
+                                    
+                                    // Also update Editor if available
+                                    if (editor) {
+                                        const updateMap = new Map(updates.map(u => [u.id, u]));
+                                        let hasChanges = false;
+                                        const { tr } = editor.state;
+                                        
+                                        editor.state.doc.descendants((node, pos) => {
+                                            const update = node.attrs?.normativeId ? updateMap.get(node.attrs.normativeId) : null;
+                                            if (update) {
+                                                tr.setNodeMarkup(pos, undefined, {
+                                                    ...node.attrs,
+                                                    type: update.type,
+                                                    index: update.index,
+                                                    specialSituations: update.specialSituations
+                                                });
+                                                hasChanges = true;
+                                            }
+                                            return true;
+                                        });
+
+                                        if (hasChanges) {
+                                            editor.view.dispatch(tr);
+                                        }
+                                    }
+                                    
+                                    return newElements;
+                                });
+                            }}
+                            onSelectElements={setSelectedElements as any} 
+                        />
                     </div>
                 )}
             </div>
 
-            {/* Import Dialog */}
-            <Dialog open={importOpen} onOpenChange={setImportOpen}>
+            <Dialog open={saveConfirmationOpen} onOpenChange={setSaveConfirmationOpen}>
                 <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Importar de URL</DialogTitle>
-                        <DialogDescription>
-                            Insira o link para importar o conteúdo. O texto será parseado e inserido no documento.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4">
-                        <div className="relative">
-                            <LinkIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                                value={importUrl} 
-                                onChange={(e) => setImportUrl(e.target.value)} 
-                                placeholder="https://exemplo.com/documento"
-                                className="pl-9"
-                            />
-                        </div>
+                    <DialogHeader><DialogTitle>Confirmar Salvamento</DialogTitle></DialogHeader>
+                    <div className="py-4 text-sm text-muted-foreground">
+                        {isNormative ? `Vigência automática: ${normativeData.publicationDate || 'não definida'}. Base: ${getLastElementDescription()}` : 'Deseja salvar esta coletânea?'}
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setImportOpen(false)} disabled={importing}>Cancelar</Button>
-                        <Button onClick={handleImport} disabled={!importUrl || importing}>
-                            {importing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Importar
-                        </Button>
+                        <Button variant="outline" onClick={() => setSaveConfirmationOpen(false)}>Cancelar</Button>
+                        <Button onClick={executeSave}>Confirmar</Button>
                     </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            {/* Link Dialog */}
-            <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Inserir Vínculo</DialogTitle>
-                        <DialogDescription>Selecione um documento para vincular.</DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4 space-y-4">
-                        <div className="relative">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                                value={linkSearch} 
-                                onChange={(e) => setLinkSearch(e.target.value)} 
-                                placeholder="Buscar documentos..."
-                                className="pl-9"
-                            />
-                        </div>
-                        <div className="max-h-[300px] overflow-y-auto border rounded-md p-1 space-y-1 relative">
-                            {linkLoading && <div className="p-4 flex justify-center"><Loader2 className="animate-spin h-4 w-4" /></div>}
-                            {!linkLoading && linkResults.map(res => (
-                                <div 
-                                    key={res.elementId} 
-                                    className="p-2 hover:bg-muted cursor-pointer rounded text-sm flex flex-col gap-1"
-                                    onClick={() => handleInsertLink(res)}
-                                >
-                                    <div className="flex items-center gap-2 font-medium">
-                                        <FileText className="h-3 w-3 text-muted-foreground" />
-                                        <span>{res.pageTitle}</span>
-                                        <span className="text-xs text-muted-foreground">({res.type} {res.index})</span>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground line-clamp-2 pl-5">
-                                        {res.text}
-                                    </div>
-                                </div>
-                            ))}
-                            {!linkLoading && linkResults.length === 0 && debouncedLinkSearch && (
-                                <div className="p-4 text-center text-xs text-muted-foreground">Nenhum resultado encontrado</div>
-                            )}
-                        </div>
-                    </div>
                 </DialogContent>
             </Dialog>
         </div>

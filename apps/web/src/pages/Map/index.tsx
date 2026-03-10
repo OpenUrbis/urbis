@@ -8,6 +8,7 @@ import { LocationSelectionCard } from "../../components/LocationSelectionCard";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useLayerPersistence } from "../../hooks/useLayerPersistence";
 import { AppLoading } from "../../components/AppLoading";
+import { ProspectiveView } from "./ProspectiveView";
 
 const MapPage = () => {
   const { navigateTo } = useNavigationContext();
@@ -34,6 +35,7 @@ const MapPage = () => {
           <MapLegend />
           <MapView />
           <ViewSelector />
+          <ProspectiveView />
         </div>
       </div>
 

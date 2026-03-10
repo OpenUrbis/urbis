@@ -170,3 +170,11 @@
 .disable-map-padding .mapboxgl-ctrl-bottom-right {
   right: 0 !important;
 }
+
+.z-1000000 {
+  z-index: 1000000 !important;
+}
+
+.border-black {
+  border-color: black !important;
+}

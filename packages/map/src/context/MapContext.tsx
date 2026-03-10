@@ -1,4 +1,4 @@
-import { signal } from "@preact/signals-react";
+import { signal } from "@preact/signals";
 import { createContext, ReactNode, useRef } from "react";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import {

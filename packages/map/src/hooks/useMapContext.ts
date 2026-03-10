@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { signal } from "@preact/signals-react";
+import { signal } from "@preact/signals";
 import { MapContext } from "../context/MapContext";
 import { getMapConfig } from "../integrations/map-integration";
 import { shareService, SharedMap } from "../integrations/share-service";

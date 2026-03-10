@@ -1,4 +1,4 @@
-import { effect, signal } from "@preact/signals-react";
+import { effect, signal } from "@preact/signals";
 import { createContext, ReactNode, useEffect } from "react";
 import { useFetchSearch } from "../hooks/useFetchSearch";
 import { getSearchConfig } from "../integrations/search-integration";

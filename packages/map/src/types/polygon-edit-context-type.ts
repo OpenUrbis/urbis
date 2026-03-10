@@ -1,4 +1,4 @@
-import { ReadonlySignal, Signal } from "@preact/signals-react";
+import { ReadonlySignal, Signal } from "@preact/signals";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 
 interface Polygon {

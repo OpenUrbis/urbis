@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useSignal } from "@preact/signals-react";
+import { useSignal } from "@preact/signals";
 import {
   Dialog,
   DialogContent,

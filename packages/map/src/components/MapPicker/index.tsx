@@ -8,7 +8,7 @@ import { LocationSelectionCard } from "../LocationSelectionCard";
 import { Search } from "../Search";
 import { useMapContext } from "../../hooks/useMapContext";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
-import { effect } from "@preact/signals-react";
+import { effect } from "@preact/signals";
 import { MapContextSelectedFeature } from "../../types/map-context-type";
 import { calculateCentroid } from "../MapView/utils";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";

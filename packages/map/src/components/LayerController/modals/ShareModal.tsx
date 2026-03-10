@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useSignal } from "@preact/signals-react";
+import { useSignal } from "@preact/signals";
 import { useAuth } from "@open-urbis/map-auth";
 import {
   Dialog,

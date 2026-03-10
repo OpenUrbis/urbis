@@ -1,4 +1,4 @@
-import { signal, useSignal } from "@preact/signals-react";
+import { signal, useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import "preact/compat";
 import { Button } from "@open-urbis/map-ui";

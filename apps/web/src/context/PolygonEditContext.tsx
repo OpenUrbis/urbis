@@ -1,4 +1,4 @@
-import { computed, signal } from "@preact/signals-react";
+import { computed, signal } from "@preact/signals";
 import { createContext, ReactNode, useRef } from "react";
 import { useFetchIntersectingPolygons } from "../hooks/useFetchIntersectingPolygons";
 import { useMapContext } from "../hooks/useMapContext";

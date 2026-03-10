@@ -1,4 +1,4 @@
-import { computed, useSignal } from "@preact/signals-react";
+import { computed, useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerGroup, IGetConfigLayerSchema } from "../../types/fetch-map-config-type";

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useSignal } from "@preact/signals-react";
+import { useSignal } from "@preact/signals";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@open-urbis/map-ui";
 import { UploadLayer } from "../AddLayer/UploadLayer";
 import { WebLayer } from "../AddLayer/WebLayer";

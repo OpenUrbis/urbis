@@ -1,4 +1,4 @@
-import { computed } from "@preact/signals-react";
+import { computed } from "@preact/signals";
 import { PickingInfo } from "deck.gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo, useRef } from "react";

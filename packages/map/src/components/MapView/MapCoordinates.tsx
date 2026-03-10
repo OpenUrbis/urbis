@@ -55,7 +55,7 @@ export const MapCoordinates = () => {
         sidebarOpen && "left-[524px]"
       )}
     >
-      <span className="font-mono">Zoom: {zoomLevel}</span>
+      <span className="font-mono">Zoom: {zoomLevel.value}</span>
       {cursorPosition.value && (
         <>
           <div className="h-3 w-px bg-border mx-1" />

@@ -13,7 +13,7 @@ export default defineConfig({
       "react",
       "react-dom",
       "@preact/signals-core",
-      "@preact/signals-react",
+      "@preact/signals",
     ],
     alias: {
       react: "preact/compat",

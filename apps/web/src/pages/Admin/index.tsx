@@ -8,13 +8,13 @@ import { Route, Router } from "wouter";
 import { MainLayout } from "../../components/MainLayout";
 
 const LayerHandleRoute = lazy(
-  () => import("./pages/LayerManager/LayerHandleRoute")
+  () => import("./pages/LayerManager/LayerHandleRoute"),
 );
 const GroupHandleRoute = lazy(
-  () => import("./pages/GroupManager/GroupHandleRoute")
+  () => import("./pages/GroupManager/GroupHandleRoute"),
 );
 const SearchHandleRoute = lazy(
-  () => import("./pages/SearchManager/SearchHandleRoute")
+  () => import("./pages/SearchManager/SearchHandleRoute"),
 );
 const MapTestRoute = lazy(() => import("./pages/MapTest"));
 const MapDataIntegrationTestRoute = lazy(() => import("./pages/MapDataIntegrationTest"));

@@ -17,6 +17,7 @@ export interface ITemplatesMap {
 }
 
 export interface ITemplate {
+  id?: string;
   type: string;
   templates?: ITemplate[];
   label?: string;
@@ -35,4 +36,5 @@ export interface ITemplateProps {
   key?: string;
   rootTemplate?: ITemplate[];
   isPrint?: boolean;
+  viewMode?: "desktop" | "mobile";
 }

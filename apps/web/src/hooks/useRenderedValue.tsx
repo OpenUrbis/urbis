@@ -10,12 +10,10 @@ export const useRenderedValue = ({ template, data }: ITemplateProps) => {
     try {
       return ejsRender(templateValue, data as ejsData);
     } catch (err) {
-      console.error(
-        `Error on render value from ${templateValue} with EJS and data.`,
-        data,
-        err
-      );
-      return "Error on render value";
+      console.error("Erro ao renderizar EJS:", err);
+      // Intentionally swallow the error to prevent console spam while the user is typing custom EJS in the builder.
+      // We render a user-friendly feedback string instead.
+      return "EJS inválido";
     }
   }, [template?.value, data]);
 

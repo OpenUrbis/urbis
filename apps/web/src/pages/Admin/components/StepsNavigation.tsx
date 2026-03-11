@@ -19,8 +19,8 @@ export const StepsNavigation = ({
   onStepClick,
 }: StepsNavigationProps) => {
   return (
-    <nav aria-label="Steps" className="flex justify-center">
-      <ol className="flex items-center w-full max-w-md">
+    <nav aria-label="Steps" className="flex justify-center w-full">
+      <ol className="flex items-center w-full max-w-3xl">
         {steps.map((s, i) => (
           <li
             key={s.number}
@@ -47,7 +47,7 @@ export const StepsNavigation = ({
               </button>
               <span
                 className={cn(
-                  "absolute top-10 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap",
+                  "absolute top-10 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap hidden min-[1200px]:block",
                   currentStep === s.number
                     ? "text-primary"
                     : "text-muted-foreground"

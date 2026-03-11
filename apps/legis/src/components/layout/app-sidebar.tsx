@@ -13,7 +13,7 @@ import { useLocation, Link } from "wouter";
 import { cn } from "@open-urbis/map-ui";
 import { useAuth, userProfile } from "@open-urbis/map-auth";
 import { useEffect, useState } from "react";
-import { effect } from "@preact/signals-react";
+import { effect } from "@preact/signals";
 
 const menuItems = [
   {
@@ -56,7 +56,7 @@ export function AppSidebar({ className }: { className?: string }) {
   };
 
   return (
-    <Sidebar collapsible="icon" className={cn("border-r bg-background md:z-40", className)}>
+    <Sidebar collapsible="offcanvas" variant="floating" className={cn("border-r bg-background md:z-40", className)}>
       <SidebarContent>
         <SidebarGroup>
             <SidebarGroupContent>

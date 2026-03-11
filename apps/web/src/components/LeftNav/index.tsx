@@ -12,14 +12,17 @@ import {
 } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { Search } from "../Search";
-import { ArrowRight, FileJson, Filter, Library } from "lucide-react";
+import { ArrowRight, FileJson, Filter, Library, FileSearch } from "lucide-react";
 import { LocationSelectionCard } from "../LocationSelectionCard";
 import { ConcatenatedSearchModal } from "../Search/ConcatenatedSearchModal";
 import { MapLibrary } from "../../pages/Map/MapLibrary";
+import { ProspectiveSearchPage } from "../../pages/Map/ProspectiveSearchPage";
+import { userProfile } from "@open-urbis/map-auth";
 
 export const LeftNav = () => {
-  const { drawerOpen, toggleDrawer, currentPage, navigateTo } = useNavigationContext();
+  const { drawerOpen, toggleDrawer, currentPage, navigateTo, isProspectiveSearchActive } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isAdmin = userProfile.value?.position?.toLowerCase().includes("admin");
 
   const handleNavigate = (component: React.ReactNode) => {
       toggleDrawer();
@@ -28,13 +31,14 @@ export const LeftNav = () => {
       navigateTo(component);
   };
 
-  const CollapsedMenuItem = ({ icon, label, onClick, trigger }: { icon: React.ReactNode, label: string, onClick?: () => void, trigger?: React.ReactNode }) => {
+  const CollapsedMenuItem = ({ icon, label, onClick, trigger, disabled }: { icon: React.ReactNode, label: string, onClick?: () => void, trigger?: React.ReactNode, disabled?: boolean }) => {
       const content = (
           <Button
             variant="ghost"
             size="icon" 
-            className="h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border hover:bg-accent"
+            className={cn("h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border hover:bg-accent", disabled && "opacity-50 cursor-not-allowed pointer-events-none")}
             onClick={onClick}
+            disabled={disabled}
           >
               {icon}
           </Button>
@@ -58,7 +62,7 @@ export const LeftNav = () => {
     return (
       <div
         className={cn(
-          "relative h-full transition-all duration-300 flex flex-col pt-16 w-[420px] pointer-events-none",
+          "relative h-full transition-all duration-300 flex flex-col pt-16 w-[432px] pointer-events-none",
           drawerOpen.value
             ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-r"
             : "bg-transparent backdrop-blur-none border-transparent",
@@ -66,12 +70,12 @@ export const LeftNav = () => {
       >
         <div
           className={cn(
-            "flex-1 overflow-y-auto p-3 space-y-3 w-[420px] overflow-x-hidden",
+            "flex-1 overflow-y-auto p-3 space-y-3 w-[432px] overflow-x-hidden",
             drawerOpen.value ? "pointer-events-auto" : "pointer-events-none",
           )}
         >
           <div className="pointer-events-auto">
-            <Search />
+            {!isProspectiveSearchActive.value && <Search />}
           </div>
           <div
             className={cn(
@@ -92,7 +96,7 @@ export const LeftNav = () => {
                     onClick={() => handleNavigate(<LocationSelectionCard key="nav-coords" initialOption="coordenadas" initialInputType="latlon" />)}
                   />
                   <CollapsedMenuItem 
-                    label="Endereço Digital" 
+                    label="O que é o Endereço Digital? Saiba como funciona." 
                     icon={<img src="/ed.png" alt="ED" className="h-5 w-5" />} 
                     onClick={() => handleNavigate(<LocationSelectionCard key="nav-digital" initialOption="coordenadas" initialInputType="digital" />)}
                   />
@@ -101,7 +105,7 @@ export const LeftNav = () => {
                     trigger={
                         <div className="pointer-events-auto">
                              <CollapsedMenuItem 
-                                label="Busca Concatenada" 
+                                label="Filtros Multicamadas: Refine sua pesquisa por camadas de dados." 
                                 icon={<Filter className="h-5 w-5" />} 
                             />
                         </div>
@@ -109,12 +113,19 @@ export const LeftNav = () => {
                   />
 
                   <CollapsedMenuItem 
-                    label="Buscar com perímetro" 
+                    label="Importar Geometria: Localize áreas via arquivo GeoJSON." 
                     icon={<FileJson className="h-5 w-5" />} 
                     onClick={() => handleNavigate(<LocationSelectionCard key="nav-geojson" initialOption="geoJson" />)}
                   />
+                  {isAdmin && (
+                    <CollapsedMenuItem 
+                      label="Pesquisa Prospectiva" 
+                      icon={<FileSearch className="h-5 w-5" />} 
+                      onClick={() => handleNavigate(<ProspectiveSearchPage key="nav-prospective-search" />)}
+                    />
+                  )}
                   <CollapsedMenuItem 
-                    label="Biblioteca" 
+                    label="Meu Painel: Histórico de buscas e itens salvos." 
                     icon={<Library className="h-5 w-5" />} 
                     onClick={() => handleNavigate(<MapLibrary key="nav-library" />)}
                   />
@@ -136,7 +147,7 @@ export const LeftNav = () => {
         <DrawerTitle className="sr-only">Navegação</DrawerTitle>
 
         <div className="flex-1 overflow-y-auto p-4 3">
-          <Search />
+          {!isProspectiveSearchActive.value && <Search />}
           {currentPage.value}
         </div>
       </DrawerContent>

@@ -28,12 +28,14 @@ export interface Authority {
   commonRefAbbr: string; // (*)
   startDate: string; // (*)
   endDate?: string;
+  pageId?: string;
 }
 
 export interface Validity {
   date: string; // Format: DD.MM.YYYY or "vigência condicionada"
   deviceId: string;
   trechos?: { start: number; end: number }[];
+  normativeElementId?: string;
 }
 
 export interface TableCell {
@@ -68,9 +70,14 @@ export interface FigureData {
   resolution?: { width: number; height: number };
 }
 
+export interface MapFile {
+  name: string;
+  url: string;
+}
+
 export interface MapData {
-  files: { name: string; url: string }[]; // Arquivos para download (PDF, KML)
-  screen: { url: string; resolution?: { width: number; height: number } }; // Imagem para tela
+  files?: MapFile[]; // Arquivos para download (PDF, KML)
+  screen?: { url: string; resolution?: { width: number; height: number } }; // Imagem para tela
   minimap?: { // Configuração do minimapa (Mapa.Urbis)
     lat: number;
     lng: number;
@@ -88,28 +95,53 @@ export interface SpecialSituation {
     | 'Vigência inicial alterada' 
     | 'Vigência final alterada' 
     | 'Veto' 
+    | 'Derrubada de veto'
     | 'Renumeração' 
     | 'Nova redação' 
     | 'Perda definitiva de vigor/eficácia' 
     | 'Suspensão de vigor/eficácia'
-    | 'Alteração de ementa'; // Adicionado conforme doc
+    | 'Revogação'
+    | 'Anulação'
+    | 'Cassação'
+    | 'Restauração de vigor/eficácia'
+    | 'Interpretação conforme à Constituição'
+    | 'Declaração de inconstitucionalidade sem redução de texto'
+    | 'Acréscimo'
+    | 'Repristinação'
+    | 'Alteração de ementa'; 
   
-  date?: string; // Data da situação (ex: publicação da norma alteradora)
-  relatedDeviceId?: string; // ID do dispositivo na norma alteradora
+  date?: string; 
+  dispositivo?: string; // Device text string, e.g. "Art. 1º da Lei X"
+  relatedDeviceId?: string; // ID of the normative element causing the situation (ID de Elemento normativo)
   
-  // Trechos afetados (índice de palavras conforme doc)
-  trechos?: { start: number; end: number }[]; 
+    // Affected segments in the target element
+    trechos?: { start: number; end: number }[]; 
+
+    // Used for "Alterações de ementa" and "Derrubada de veto" where we need to point to specific parts of the source text
+    sourceTrechos?: { start: number; end: number }[]; 
+    
+    // Specific Fields (Legacy Support)
+    sourceSegments?: { start: number; end: number; changedText?: string }[];
+    targetSegments?: { start: number; end: number; changedText?: string }[];
+    device?: string;
+    normativeElementId?: string;
   
+  // Alteração de ementa, Nova redação, Interpretações constitucionais, Acréscimos, Repristinação (se parcial)
+  newText?: string; // Texto alterado / Texto acrescido / Texto com interpretação / Texto com vigor restaurado
+  newTextTrechos?: { start: number; end: number }[]; // Trechos do novo texto (fonte)
+
   // Veto
-  vetoText?: string; 
+  vetoText?: string; // Texto vetado (if partial)
   
+  // Derrubada de veto
+  vetoOverturnedText?: string; // Texto com veto derrubado
+
   // Renumeração
   newIndex?: string;
   newType?: ElementType;
-  
-  // Nova Redação / Alteração de Ementa
-  newText?: string; 
-  newTextTrechos?: { start: number; end: number }[]; // Trechos do novo texto (fonte)
+
+  // Extinções / Retiradas de vigor (if partial)
+  revokedText?: string; // Texto sem vigor/eficácia
 }
 
 export interface NormativeElement {
@@ -124,7 +156,7 @@ export interface NormativeElement {
   originalEndValidity?: Validity; // Optional end date
   
   // Special Situations (Veto, Renumbering, Redaction, etc.)
-  specialSituations?: SpecialSituation[];
+  specialSituations: SpecialSituation[];
   
   // Linguagem Simples Support
   simplifiedText?: string; // Explicação em linguagem cidadã
@@ -138,11 +170,13 @@ export interface NormativeElement {
   
   // Attachments (Anexos) - Link to external files or internal structure
   attachmentId?: string; 
+  content?: any;
 }
 
-export interface NormativeOriginal {
+export interface OriginalNormativo {
   id: string;
-  type: NormativeType;
+  type: 'original_normativo';
+  normativeType: NormativeType;
   number?: string;
   actDate?: string;
   publicationDate?: string;
@@ -153,6 +187,32 @@ export interface NormativeOriginal {
   signature?: string;
   sources?: { url: string; name?: string }[];
   elements: NormativeElement[];
+  originalEndValidity?: Validity; // Optional end date for the whole document
+  alteracoesEmenta?: SpecialSituation[];
+  ementaAlterations?: SpecialSituation[]; // Alias for legacy code
+  editorContent?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CollectionLink {
+    resourceId: string;
+    resourceType: 'original_normativo' | 'page';
+    linkedElements?: { elementId: string; segments?: any[] }[];
+}
+
+export interface ColetaneaTematica {
+    id: string;
+    type: 'coletanea_tematica';
+    title: string;
+    collectionType: 'Exigências' | 'Competências' | 'Definições' | 'Fontes de Informação';
+    category: string;
+    theme: string;
+    shortDescription?: string;
+    fullDescription?: string; // JSON content string
+    links: CollectionLink[];
+    createdAt: string;
+    updatedAt: string;
 }
 
 // Utility type for "Keys" display logic

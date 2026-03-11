@@ -136,7 +136,7 @@ function FilterSelectorInner<TData>({
           </CommandList>
         </Command>
       ),
-    [property, column, filter, filters, columns, actions, value],
+    [property, column, filter, filters, columns, actions, value, locale, strategy],
   )
 
   if (inline) {

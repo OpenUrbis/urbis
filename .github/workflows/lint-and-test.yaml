@@ -5,9 +5,13 @@ on:
   push:
     branches:
       - '*'
+      - 'feature/**'
+      - 'feat/**'
   pull_request:
     branches:
       - '*'
+      - 'feature/**'
+      - 'feat/**'
 
 env:
   NODE_VERSION: '20' # Adjust according to your Node.js version

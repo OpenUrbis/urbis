@@ -51,7 +51,7 @@
     "@sendgrid/mail": "^8.1.6",
     "@turf/turf": "^7.2.0",
     "ai": "^6.0.29",
-    "axios": "^1.7.3",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.5",
@@ -68,6 +68,7 @@
     "jwks-rsa": "^3.2.0",
     "lodash": "^4.17.21",
     "mime-types": "^3.0.2",
+    "multer": "1.4.5-lts.1",
     "nestjs-i18n": "^10.4.5",
     "oidc-provider": "^9.5.1",
     "passport": "^0.7.0",
@@ -84,7 +85,8 @@
     "turbo": "^2.5.0",
     "typeorm": "^0.3.20",
     "uuid": "^13.0.0",
-    "zod": "^4.2.1"
+    "xlsx": "^0.18.5",
+    "zod": "^4.3.4"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.24.1",
@@ -105,6 +107,7 @@
     "@types/lodash": "^4.17.21",
     "@types/mime-types": "^3.0.1",
     "@types/minimatch": "^6.0.0",
+    "@types/multer": "^2.0.0",
     "@types/node": "^20.3.1",
     "@types/oidc-provider": "^8.8.1",
     "@types/passport-jwt": "^4.0.1",

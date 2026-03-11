@@ -65,6 +65,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   phone?: string;
 
+  @Index({ unique: true })
   @Column({ nullable: true, unique: true })
   cpf?: string;
 

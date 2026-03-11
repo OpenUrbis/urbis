@@ -9,11 +9,13 @@ import { RolePermissionScopeEnum } from '../../shared/enums/role-permission-scop
 export interface PermissionDto {
   id: string;
   scope: RolePermissionScopeEnum;
+  organizationId?: string;
 }
 
 export interface PermissionRequirement {
   id: string;
   scope?: RolePermissionScopeEnum | string;
+  organizationId?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -37,8 +39,16 @@ export class PermissionState {
   errors = computed(() => this.permissionResource.error());
 
   permissionMap = computed(() => {
-    const map = new Map<string, RolePermissionScopeEnum>();
-    this.value().forEach((p) => map.set(p.id, p.scope));
+    // Map key: permissionId -> list of { scope, organizationId }
+    const map = new Map<
+      string,
+      { scope: RolePermissionScopeEnum; organizationId?: string }[]
+    >();
+    this.value().forEach((p) => {
+      const current = map.get(p.id) || [];
+      current.push({ scope: p.scope, organizationId: p.organizationId });
+      map.set(p.id, current);
+    });
     return map;
   });
 
@@ -63,18 +73,28 @@ export class PermissionState {
       const id = typeof req === 'string' ? req : req.id;
       const scope =
         typeof req === 'object' && req.scope ? req.scope : defaultScope;
+      const organizationId =
+        typeof req === 'object' ? req.organizationId : undefined;
 
-      const userScope = this.permissionMap().get(id);
-      if (!userScope) return false;
+      const userPermissions = this.permissionMap().get(id);
+      if (!userPermissions || userPermissions.length === 0) return false;
 
-      if (
-        userScope === RolePermissionScopeEnum.GLOBAL ||
-        userScope === RolePermissionScopeEnum.ANY
-      ) {
-        return true;
-      }
+      // Check if any of the user's permissions satisfy the requirement
+      return userPermissions.some((userPerm) => {
+        // If organization is required, check match
+        if (organizationId && userPerm.organizationId !== organizationId) {
+          return false;
+        }
 
-      return scope === RolePermissionScopeEnum.OWN;
+        if (
+          userPerm.scope === RolePermissionScopeEnum.GLOBAL ||
+          userPerm.scope === RolePermissionScopeEnum.ANY
+        ) {
+          return true;
+        }
+
+        return scope === RolePermissionScopeEnum.OWN;
+      });
     };
 
     if (mode === 'AND') {

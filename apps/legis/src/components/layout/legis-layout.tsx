@@ -8,6 +8,17 @@ import { useLocation } from "wouter";
 import { UrbisFooter } from "@open-urbis/map-ui/urbis-footer";
 import { cn } from "@open-urbis/map-ui";
 
+// Context to control layout features (like Help)
+interface LegisLayoutContextType {
+    setHelpOpen: (open: boolean) => void;
+}
+
+const LegisLayoutContext = React.createContext<LegisLayoutContextType>({
+    setHelpOpen: () => {},
+});
+
+export const useLegisLayout = () => React.useContext(LegisLayoutContext);
+
 interface LegisLayoutProps {
   children: React.ReactNode;
 }
@@ -33,7 +44,8 @@ export function LegisLayout({ children }: LegisLayoutProps) {
   const isCustomLayout = location.includes('/edit') || location.includes('/new');
 
   return (
-    <SidebarProvider style={{ "--header-height": HEADER_HEIGHT } as React.CSSProperties}>
+    <LegisLayoutContext.Provider value={{ setHelpOpen }}>
+    <SidebarProvider defaultOpen={false} style={{ "--header-height": HEADER_HEIGHT } as React.CSSProperties}>
       <CommandMenu />
       <div className={cn(
           "flex flex-col w-full bg-background",
@@ -82,11 +94,7 @@ export function LegisLayout({ children }: LegisLayoutProps) {
               "flex flex-1 relative",
               isCustomLayout ? "overflow-hidden" : "flex-col md:flex-row"
           )}>
-            <AppSidebar className={cn(
-                isCustomLayout 
-                    ? "md:fixed md:!top-[--header-height] md:!h-[calc(100svh-var(--header-height))]" 
-                    : "md:!sticky md:!top-[--header-height] md:!h-[calc(100vh-var(--header-height))] md:!bottom-auto" 
-            )} />
+            <AppSidebar className="md:fixed md:!top-[--header-height] md:!h-[calc(100svh-var(--header-height))]" />
             
             <SidebarInset className={cn(
                 "flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out",
@@ -131,5 +139,6 @@ export function LegisLayout({ children }: LegisLayoutProps) {
         )}
       </div>
     </SidebarProvider>
+    </LegisLayoutContext.Provider>
   );
 }

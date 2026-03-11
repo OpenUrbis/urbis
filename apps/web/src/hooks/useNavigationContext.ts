@@ -20,6 +20,10 @@ export const useNavigationContext = (): INavigationContextActions => {
   const lastPage = computed(() => ctxLastPage.value);
   const history = computed(() => ctxHistory.value);
 
+  const isProspectiveSearchActive = computed(() => {
+    return ctxCurrentPage.value?.key === "nav-prospective-search";
+  });
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const navigateTo = (page: any) => {
     ctxLastPage.value = ctxCurrentPage.value;
@@ -77,6 +81,7 @@ export const useNavigationContext = (): INavigationContextActions => {
     lastPage,
     history,
     drawerOpen,
+    isProspectiveSearchActive,
     navigateTo,
     navigateReplace,
     addOnPage,

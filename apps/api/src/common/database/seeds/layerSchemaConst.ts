@@ -395,25 +395,25 @@ export const layerSchemas: LayerSchema[] = [
                     type: 'secondary-item',
                     value: `
                           <% if (id.includes("macroareas")) { %>
-                            Macroarea
+                            Macroarea - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("minianel_viario")) { %>
-                            Minianel Viario
+                            Minianel Viario - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("subprefeitura")) { %>
-                            Sub-Prefeitura
+                            Sub-Prefeitura - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("macrozonas")) { %>
-                            Macrozona
+                            Macrozona - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("tombamentos-areas")) { %>
-                            <%- properties.tx_resolucao_condephaat %>
+                            <%- properties.tx_resolucao_condephaat %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("zoneamento_geral")) { %>
-                            Zoneamento
+                            Zoneamento - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("slui:setores_e_subsetores")) { %>
-                            <%- properties.setor %>
+                            <%- properties.setor %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
-                            Distrito municipal
+                            Distrito municipal - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (properties.layer.includes("slui:tombamentos")) { %>
-                            Imóvel tombado
+                            Imóvel tombado - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (properties.layer.includes("slui:zoneamento")) { %>
-                            Zoneamento perimetro
+                            Zoneamento perimetro - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else { %>
                             Não mapeado
                           <% } %>

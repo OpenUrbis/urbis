@@ -1,4 +1,6 @@
-export type PageType = 'page' | 'normative';
+import { OriginalNormativo, ColetaneaTematica } from '../domain/entities';
+
+export type PageType = 'page' | 'normative' | 'original_normativo' | 'coletanea_tematica';
 
 export interface Page {
     id: string;
@@ -16,6 +18,9 @@ export interface Page {
     };
     createdAt: string;
     updatedAt: string;
+
+    // Optional: Full entity for new types
+    entity?: OriginalNormativo | ColetaneaTematica;
 }
 
 export type CreatePageDto = Pick<Page, 'title' | 'content'> & {
@@ -28,6 +33,8 @@ export type CreatePageDto = Pick<Page, 'title' | 'content'> & {
         url: string;
         type: 'html' | 'pdf' | 'location';
     };
+    // Optional: Entity data
+    entityData?: Partial<OriginalNormativo> | Partial<ColetaneaTematica>;
 };
 
 export type UpdatePageDto = Partial<CreatePageDto>;

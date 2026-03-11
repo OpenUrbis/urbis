@@ -1,6 +1,6 @@
 import { useAuth, userProfile } from "@open-urbis/map-auth";
 import { useEffect, useState } from "react";
-import { effect } from "@preact/signals-react";
+import { effect } from "@preact/signals";
 
 export function usePermission() {
     const auth = useAuth();

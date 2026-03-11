@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SignInApi {
   sessionInteractionKey = 'session_interaction';
 
@@ -54,6 +54,21 @@ export class SignInApi {
     });
     return this.httpClient.post(
       environment.api + '/auth/oidc/interaction/login/' + session,
+      data.toString(),
+      { headers },
+    );
+  }
+
+  verify2fa(code: string, accessToken: string) {
+    const { session } = this.getStoredSession();
+    const data = new HttpParams().set('code', code);
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Bearer ${accessToken}`,
+    });
+    return this.httpClient.post<{ redirectToCallback: string }>(
+      environment.api + '/auth/oidc/interaction/validate2fa/' + session,
       data.toString(),
       { headers },
     );

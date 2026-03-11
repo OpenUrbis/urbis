@@ -4,11 +4,10 @@ import { FormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { OrganizationSelector } from '../../components/organization-selector/organization-selector';
-import { RoleManagerModule } from '../../components/role-manager/role-manager-module';
-import { RoleSelector } from '../../components/role-selector/role-selector';
-import { PermissionSelector } from '../../components/permission-selector/permission-selector';
+import { jwtDecode } from 'jwt-decode';
 import { DemoWhitelabelComponent } from '../../components/demo-whitelabel/demo-whitelabel';
+import { PermissionSelector } from '../../components/permission-selector/permission-selector';
+import { RoleManagerModule } from '../../components/role-manager/role-manager-module';
 import { OrganizationState } from '../../states/organization/organization.state';
 @Component({
   selector: 'app-home',
@@ -34,7 +33,11 @@ export class Home {
   }
 
   test() {
-    this.api.get('http://localhost:3000/role').subscribe(console.log);
+    this.oidcService.checkAuth().subscribe(({ isAuthenticated, idToken }) => {
+      if (isAuthenticated) {
+        const decoded: any = jwtDecode(idToken);
+      }
+    });
   }
 
   selectOrganization() {

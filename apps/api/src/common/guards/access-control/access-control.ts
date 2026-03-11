@@ -75,18 +75,6 @@ export class AccessControl {
   }
 
   private hasSinglePermission(req: IAccessControlPermission): boolean {
-    console.log('_permissions', this._permissions);
-    console.log('req', req);
-    console.log(
-      'this._permissions.some(prm => (prm.id === req.id || (prm.resource === req.resource && prm.action === req.action) || prm.id === `${req.resource}:${req.action}`))',
-      this._permissions.some(
-        (prm) =>
-          (prm.id === req.id ||
-            (prm.resource === req.resource && prm.action === req.action) ||
-            prm.id === `${req.resource}:${req.action}`) &&
-          this.isScopeCompatible(prm.scope, req.scope),
-      ),
-    );
     return this._permissions.some(
       (prm) =>
         (prm.id === req.id ||
@@ -113,13 +101,6 @@ export class AccessControl {
     const requirements = Array.isArray(options.permissions)
       ? options.permissions
       : [options.permissions];
-
-    console.log('requirements', requirements);
-    console.log('mode', mode);
-    console.log(
-      'this.hasSinglePermission(requirements[0])',
-      this.hasSinglePermission(requirements[0]),
-    );
 
     if (mode === 'AND') {
       return requirements.every((req) => this.hasSinglePermission(req));

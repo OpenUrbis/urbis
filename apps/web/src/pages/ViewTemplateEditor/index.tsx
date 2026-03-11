@@ -3,11 +3,11 @@ import { ViewTemplateBuilder } from "../../components/ViewTemplate/builder/ViewT
 import { ITemplate } from "../../components/ViewTemplate/types/templates-type";
 
 export const ViewTemplateEditorPage = () => {
-  const [currentTemplate, setCurrentTemplate] = useState<ITemplate | undefined>(
+  const [currentTemplate, setCurrentTemplate] = useState<ITemplate[] | undefined>(
     undefined,
   );
 
-  const handleSave = (template: ITemplate) => {
+  const handleSave = (template: ITemplate[]) => {
     const jsonString = JSON.stringify(template, null, 2);
     console.log("Saved:", template);
     // Copy to clipboard

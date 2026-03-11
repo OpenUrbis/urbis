@@ -395,25 +395,25 @@ export const layerSchemas: LayerSchema[] = [
                     type: 'secondary-item',
                     value: `
                           <% if (id.includes("macroareas")) { %>
-                            Macroarea
+                            Macroarea - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("minianel_viario")) { %>
-                            Minianel Viario
+                            Minianel Viario - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("subprefeitura")) { %>
-                            Sub-Prefeitura
+                            Sub-Prefeitura - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("macrozonas")) { %>
-                            Macrozona
+                            Macrozona - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("tombamentos-areas")) { %>
-                            <%- properties.tx_resolucao_condephaat %>
+                            <%- properties.tx_resolucao_condephaat %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("zoneamento_geral")) { %>
-                            Zoneamento
+                            Zoneamento - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("slui:setores_e_subsetores")) { %>
-                            <%- properties.setor %>
+                            <%- properties.setor %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
-                            Distrito municipal
+                            Distrito municipal - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (properties.layer.includes("slui:tombamentos")) { %>
-                            Imóvel tombado
+                            Imóvel tombado - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (properties.layer.includes("slui:zoneamento")) { %>
-                            Zoneamento perimetro
+                            Zoneamento perimetro - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else { %>
                             Não mapeado
                           <% } %>
@@ -601,7 +601,7 @@ export const layerSchemas: LayerSchema[] = [
       {
         color: [238, 64, 0, 190],
         pattern: 'full',
-        label: 'Centro',
+        label: 'Setor Central',
         value: '1 - Centro',
       },
     ],
@@ -1045,7 +1045,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Águas Correntes Estimadas',
     index: 10,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/wfs?request=GetMap&typeName=slui%3Aaguas_correntes_estimadas&format=image%2Fvnd.jpeg-png&TRANSPARENT=true&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wms?request=GetMap&typeName=slui%3Aaguas_correntes_estimadas&format=image%2Fvnd.jpeg-png&TRANSPARENT=true&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.CustomWMSLayer,
     isVisible: false,
@@ -1053,31 +1053,10 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    groupId: 'aguas',
+    groupId: 'areas_publicas',
     colors: [
       {
         color: [65, 120, 216, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'aguas_correntes',
-    name: 'Águas Correntes',
-    index: 10,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/wms?request=GetMap&typeName=slui%3Aaguas_correntes&format=image%2Fvnd.jpeg-png&TRANSPARENT=true&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'aguas',
-    colors: [
-      {
-        color: [17, 85, 204, 190],
         label: 'default',
       },
     ],

@@ -357,16 +357,6 @@ export const LayerConfiguration = ({
         </div>
       )}
 
-      {!hideNavigation && (
-        <div className="flex justify-between pt-4">
-          <Button type="button" variant="outline" onClick={onBack}>
-            <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
-          </Button>
-          <Button type="button" onClick={onNext}>
-            Próximo <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

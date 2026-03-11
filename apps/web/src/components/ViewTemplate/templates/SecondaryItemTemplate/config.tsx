@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { IBuilderTemplateConfig } from "../../builder/types";
 import { ITemplate } from "../../types/templates-type";
+import { EjsDataSelector } from "../../components/EjsDataSelector";
 
 const ConfigForm = ({
   template,
@@ -11,7 +12,7 @@ const ConfigForm = ({
   template: ITemplate;
   onChange: (newTemplate: ITemplate) => void;
 }) => {
-  const { register, watch } = useForm({
+  const { register, watch, setValue } = useForm({
     defaultValues: {
       value: template.value || "",
     },
@@ -29,10 +30,14 @@ const ConfigForm = ({
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label>Valor (EJS)</Label>
-        <Input {...register("value")} placeholder="Ex: Detalhes..." />
-      </div>
+      <EjsDataSelector
+        name="value"
+        label="Valor (EJS)"
+        register={register}
+        setValue={setValue}
+        watch={watch}
+        placeholder="Ex: Detalhes..."
+      />
     </div>
   );
 };

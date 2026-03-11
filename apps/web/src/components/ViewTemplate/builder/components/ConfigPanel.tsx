@@ -16,12 +16,19 @@ const findNode = (root: ITemplate | ITemplate[], id: string): ITemplate | null =
   }
 
   if (root.id === id) return root;
-  if (root.templates) {
-    for (const child of root.templates) {
+  
+  const config = BUILDER_TEMPLATES.find((t) => t.name === root.type);
+  const childrenProp = config?.childrenProp || "templates";
+  
+  // @ts-ignore
+  if (root[childrenProp] && Array.isArray(root[childrenProp])) {
+    // @ts-ignore
+    for (const child of root[childrenProp]) {
       const found = findNode(child, id);
       if (found) return found;
     }
   }
+  
   return null;
 };
 
@@ -79,6 +86,7 @@ export const ConfigPanel = () => {
 
             {ConfigComponent ? (
               <ConfigComponent
+                key={selectedNode.id}
                 template={selectedNode}
                 onChange={(newTemplate) =>
                   updateItem(selectedNode.id!, newTemplate)

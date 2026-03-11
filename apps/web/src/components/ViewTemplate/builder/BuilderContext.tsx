@@ -139,7 +139,8 @@ export const BuilderProvider = ({
         const currentChildren = root[childrenProp] || [];
         const newChildren = [...currentChildren];
 
-        if (typeof index === "number" && index >= 0) {
+        // Se index não for providenciado ou for inválido, insere no fim.
+        if (typeof index === "number" && index >= 0 && index <= newChildren.length) {
           newChildren.splice(index, 0, newItem);
         } else {
           newChildren.push(newItem);
@@ -244,13 +245,160 @@ export const BuilderProvider = ({
   // Move item logic is complex, usually involves removing and adding.
   // For dnd-kit, we might use arrayMove for sorting within same container,
   // or move between containers.
-  const moveItem = useCallback((dragId: string, hoverId: string) => {
-      // Implementation depends on specific drag-drop logic (sortable vs tree)
-      // We will implement a simplified version or leave it for the dnd-kit integration to handle
-      // by calling removeItem then addItem.
-      // But preserving the item's state is important.
-      console.log("Move item", dragId, hoverId);
-  }, []);
+  const moveItem = useCallback(
+    (dragId: string, overId: string, newIndex?: number) => {
+      setTemplate((prev) => {
+        let draggedItem: ITemplate | null = null;
+        let dropTargetIsContainer = false;
+        
+        // Find if overId is a container
+        const checkIsContainer = (items: ITemplate[]) => {
+           for (const item of items) {
+             if (item.id === overId) {
+                const config = BUILDER_TEMPLATES.find((t) => t.name === item.type);
+                if (config?.isWrapper || item.type.includes("wrapper")) {
+                   dropTargetIsContainer = true;
+                }
+             }
+             const config = BUILDER_TEMPLATES.find((t) => t.name === item.type);
+             const childrenProp = config?.childrenProp || "templates";
+             // @ts-ignore
+             if (item[childrenProp] && Array.isArray(item[childrenProp])) {
+                // @ts-ignore
+                checkIsContainer(item[childrenProp]);
+             }
+           }
+        }
+        if (overId !== "root-droppable") {
+           checkIsContainer(prev);
+        }
+
+        // 1. Find and remove the item
+        const extractItem = (
+          items: ITemplate[],
+          parentId: string | null
+        ): ITemplate[] => {
+          return items.map(item => {
+             const config = BUILDER_TEMPLATES.find((t) => t.name === item.type);
+             const childrenProp = config?.childrenProp || "templates";
+             
+             // @ts-ignore
+             if (item[childrenProp] && Array.isArray(item[childrenProp])) {
+                // @ts-ignore
+                const newChildren = extractItem(item[childrenProp], item.id!);
+                return { ...item, [childrenProp]: newChildren };
+             }
+             return item;
+          }).filter((item) => {
+            if (item.id === dragId) {
+              draggedItem = JSON.parse(JSON.stringify(item));
+              return false; // remove from array
+            }
+            return true;
+          });
+        };
+
+        const treeWithoutDragged = extractItem(JSON.parse(JSON.stringify(prev)), null);
+
+        if (!draggedItem) return prev; // If not found, don't change anything
+
+        // 2. Define the new ParentId based on whether target is a container or sibling
+        let newParentId: string | null = null;
+
+        if (overId === "root-droppable") {
+           newParentId = null;
+        } else if (dropTargetIsContainer) {
+           newParentId = overId;
+        } else {
+           // We are dropping over a sibling (e.g. text over another text). We need to find the parent of `overId`
+           const findParentOf = (items: ITemplate[], targetId: string, currentParent: string | null): string | null | undefined => {
+               for (const item of items) {
+                  if (item.id === targetId) return currentParent;
+                  const config = BUILDER_TEMPLATES.find((t) => t.name === item.type);
+                  const childrenProp = config?.childrenProp || "templates";
+                  // @ts-ignore
+                  if (item[childrenProp] && Array.isArray(item[childrenProp])) {
+                      // @ts-ignore
+                      const p = findParentOf(item[childrenProp], targetId, item.id!);
+                      if (p !== undefined) return p;
+                  }
+               }
+               return undefined; // not found
+           };
+           
+           const p = findParentOf(treeWithoutDragged, overId, null);
+           if (p !== undefined && p !== null) {
+              newParentId = p;
+           } else if (p === null) {
+              newParentId = null;
+           }
+        }
+        
+        // Assign new parent Id to dragged item
+        // @ts-ignore
+        draggedItem.properties = { ...draggedItem.properties, parentId: newParentId };
+
+        // 3. Re-insert the dragged item using the generalized addNode or root logic
+        if (newParentId === null) {
+            const newRoot = [...treeWithoutDragged];
+            
+            if (overId === "root-droppable" && typeof newIndex === 'number') {
+                newRoot.splice(newIndex, 0, draggedItem as ITemplate);
+            } else if (overId !== "root-droppable") {
+                // overId was in root. we need to find its index
+                const siblingIndex = newRoot.findIndex(t => t.id === overId);
+                if (siblingIndex !== -1) {
+                    newRoot.splice(siblingIndex, 0, draggedItem as ITemplate);
+                } else {
+                    newRoot.push(draggedItem as ITemplate);
+                }
+            } else {
+                newRoot.push(draggedItem as ITemplate);
+            }
+            return newRoot;
+        } else {
+            // Find index of `overId` within `newParentId` if we are doing sibling drop
+            let indexToInsert = newIndex;
+            
+            if (!dropTargetIsContainer && indexToInsert === undefined) {
+                // find index of overId among siblings
+                const findSiblingIndex = (items: ITemplate[], pId: string): number | undefined => {
+                    for (const item of items) {
+                       if (item.id === pId) {
+                           const config = BUILDER_TEMPLATES.find((t) => t.name === item.type);
+                           const childrenProp = config?.childrenProp || "templates";
+                           // @ts-ignore
+                           const children = item[childrenProp] || [];
+                           return children.findIndex((c: any) => c.id === overId);
+                       }
+                       
+                       const config = BUILDER_TEMPLATES.find((t) => t.name === item.type);
+                       const childrenProp = config?.childrenProp || "templates";
+                       // @ts-ignore
+                       if (item[childrenProp] && Array.isArray(item[childrenProp])) {
+                           // @ts-ignore
+                           const idx = findSiblingIndex(item[childrenProp], pId);
+                           if (idx !== undefined && idx !== -1) return idx;
+                       }
+                    }
+                    return undefined;
+                };
+                
+                const siblingIdx = findSiblingIndex(treeWithoutDragged, newParentId);
+                if (siblingIdx !== undefined && siblingIdx !== -1) {
+                    indexToInsert = siblingIdx;
+                }
+            }
+
+            // Using addNode directly
+            const finalTree = treeWithoutDragged.map((item) => addNode(item, newParentId, draggedItem as ITemplate, indexToInsert));
+            
+            return finalTree;
+        }
+      });
+    },
+    [addNode]
+  );
 
   return (
     <BuilderContext.Provider

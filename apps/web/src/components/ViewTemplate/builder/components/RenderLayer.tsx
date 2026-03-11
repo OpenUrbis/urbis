@@ -1,5 +1,6 @@
 // RenderLayer.tsx - Handles the visual rendering of the builder canvas
-import { useDroppable } from "@dnd-kit/core";
+import { useDroppable, useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 import {
   Button,
   DropdownMenu,
@@ -396,7 +397,7 @@ const BuilderComponentWrapper = ({
     }
   };
 
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
     id: template!.id || "unknown",
     disabled: !isWrapper || builderConfig.disableDrop,
     data: {
@@ -405,9 +406,29 @@ const BuilderComponentWrapper = ({
     },
   });
 
+  const { attributes, listeners, setNodeRef: setDraggableRef, transform, isDragging } = useDraggable({
+    id: template!.id || "unknown",
+    data: {
+      type: "existing-item",
+      template,
+    },
+  });
+
   const setRef = (element: HTMLElement | null) => {
-    setNodeRef(element);
+    // Para resolver o conflito entre Draggable e Droppable, o elemento root do componente
+    // se torna apenas o Draggable para que ele possa ser arrastado.
+    // E o Droppable envolve o conteudo ou a mesma div atraves do ref consolidado.
+    // O dnd-kit aceita setNodeRef multiplas vezes, mas se houver conflitos no drag over,
+    // as vezes nao registra o container.
+    setDroppableRef(element);
+    setDraggableRef(element);
     setNode(element);
+  };
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1000 : undefined,
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -473,21 +494,32 @@ const BuilderComponentWrapper = ({
     <ContextMenu.Root>
       <ContextMenu.Trigger asChild>
         <div
-          ref={setRef}
+          ref={setDraggableRef}
           onClick={handleClick}
           className={`
             relative group border-2 transition-all pb-2
-            ${isSelected ? "border-primary" : "border-transparent hover:border-dashed hover:border-muted-foreground/50"}
+            ${isSelected ? "border-primary mt-6" : "border-transparent hover:border-dashed hover:border-muted-foreground/50"}
             ${isOver ? "bg-accent/30 ring-2 ring-primary/50" : ""}
           `}
           style={{
             minHeight: isWrapper ? "50px" : undefined,
             pointerEvents: "auto",
+            ...style
           }}
         >
+          {/* Container Droppable invisível que engloba o elemento para receber drops.
+              Usar ref={setDroppableRef} na mesma div principal pode conflitar com draggable 
+              durante o hover no DndKit, então inserimos ele envolvendo o conteudo. */}
+          <div ref={setDroppableRef} className="absolute inset-0 z-0 pointer-events-none" />
+
           {/* Label tag when selected or hovered */}
           {(isSelected || isOver) && (
-            <div className="absolute -top-6 left-0 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-t z-10">
+            <div 
+              className="absolute -top-6 left-0 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-t z-10 cursor-grab active:cursor-grabbing flex items-center gap-1 pointer-events-auto"
+              {...attributes}
+              {...listeners}
+            >
+              <div className="w-2 h-2 rounded-full bg-primary-foreground/50 mr-1" />
               {builderConfig.friendlyName || originalTemplate.name}
             </div>
           )}
@@ -497,7 +529,7 @@ const BuilderComponentWrapper = ({
 
           {/* Render the original component with pointer-events: none to prevent internal clicks */}
 
-          <div className="contents" style={{ pointerEvents: "none" }}>
+          <div className="contents" style={{ pointerEvents: "none", position: 'relative', zIndex: 1 }}>
             <OriginalRender {...props} template={modifiedTemplate} />
           </div>
         </div>

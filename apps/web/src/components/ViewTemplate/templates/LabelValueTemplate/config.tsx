@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ITemplate } from "../../types/templates-type";
 import { IBuilderTemplateConfig } from "../../builder/types";
+import { EjsDataSelector } from "../../components/EjsDataSelector";
 
 const ConfigForm = ({
   template,
@@ -13,7 +14,7 @@ const ConfigForm = ({
 }) => {
   const properties = (template.properties || {}) as any;
 
-  const { register, watch } = useForm({
+  const { register, watch, setValue } = useForm({
     defaultValues: {
       label: template.label || "",
       value: template.value || "",
@@ -42,13 +43,14 @@ const ConfigForm = ({
         <Label>Rótulo</Label>
         <Input {...register("label")} placeholder="Ex: Endereço" />
       </div>
-      <div className="space-y-2">
-        <Label>Valor</Label>
-        <Input {...register("value")} placeholder="Ex: {{address}}" />
-        <p className="text-xs text-muted-foreground">
-          Suporta interpolação de variáveis.
-        </p>
-      </div>
+      <EjsDataSelector
+        name="value"
+        label="Valor"
+        register={register}
+        setValue={setValue}
+        watch={watch}
+        placeholder="Ex: <%- properties.address %>"
+      />
       <div className="space-y-2">
         <Label>Texto de Ajuda (Helper)</Label>
         <Input {...register("helper")} placeholder="Texto auxiliar" />

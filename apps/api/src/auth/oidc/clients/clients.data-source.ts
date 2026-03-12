@@ -38,6 +38,9 @@ export const buildClientsDataSource = (
         'https://mapa.urbis.prefeitura.sp.gov.br',
         'http://urbis.prefeitura.sp.gov.br/callback',
         'http://mapa.urbis.prefeitura.sp.gov.br/callback',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br/callback',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br/silent-renew.html',
 
         // ─────────────── apps/site ───────────────
         'http://localhost:5174',
@@ -81,6 +84,9 @@ export const buildClientsDataSource = (
         'http://mapa.urbis.prefeitura.sp.gov.br/callback',
         'http://localhost:3000/auth/global-logout',
         'https://api.mapa.urbis.prefeitura.sp.gov.br/auth/global-logout',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br/callback',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br/silent-renew.html',
 
         // ─────────────── apps/site ───────────────
         'http://localhost:5174',
@@ -123,6 +129,10 @@ export const buildClientsDataSource = (
         'https://mapa.urbis.prefeitura.sp.gov.br',
         'http://mapa.urbis.prefeitura.sp.gov.br/callback',
         'https://mapa.urbis.prefeitura.sp.gov.br',
+
+        'https://viabiliza.urbis.prefeitura.sp.gov.br',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br/callback',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br/silent-renew.html',
         'http://localhost:5174',
         'http://localhost:5174/callback',
         'http://localhost:5174/silent-renew.html',
@@ -158,6 +168,9 @@ export const buildClientsDataSource = (
         'https://mapa.urbis.prefeitura.sp.gov.br',
         'https://mapa.urbis.prefeitura.sp.gov.br/callback',
         'https://mapa.urbis.prefeitura.sp.gov.br/silent-renew.html',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br/callback',
+        'https://viabiliza.urbis.prefeitura.sp.gov.br/silent-renew.html',
         'http://mapa.urbis.prefeitura.sp.gov.br/callback',
         'https://mapa.urbis.prefeitura.sp.gov.br',
         'http://mapa.urbis.prefeitura.sp.gov.br/callback',

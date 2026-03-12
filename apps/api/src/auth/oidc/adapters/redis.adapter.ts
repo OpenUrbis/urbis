@@ -38,7 +38,7 @@ export class RedisAdapter {
   ) {
     this.name = name;
     this.client = new redisClient(configService.get('app.cacheHost'), {
-      keyPrefix: 'oidc:',
+      keyPrefix: 'oidc:urbis:',
       maxRetriesPerRequest: null,
     });
   }

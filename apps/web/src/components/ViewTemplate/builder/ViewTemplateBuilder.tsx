@@ -16,7 +16,8 @@ import {
   Upload,
   Map as MapIcon,
   Loader2,
-  X
+  X,
+  Wand2
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -90,6 +91,7 @@ const BuilderHeader = ({
   standalone?: boolean;
 }) => {
   const { template, setTemplate, mockData, setMockData } = useBuilder();
+  const { toastInfo } = useToast();
   const [jsonInput, setJsonInput] = useState("");
   const [dataInput, setDataInput] = useState("");
 
@@ -274,6 +276,80 @@ const BuilderHeader = ({
     setPreviewModalOpen(true);
   };
 
+  const handleAutoFill = () => {
+    const getUsedKeys = (items: ITemplate[]): Set<string> => {
+      const keys = new Set<string>();
+      const traverse = (nodes: ITemplate[]) => {
+        if (!nodes) return;
+        for (const node of nodes) {
+          if (node.value && typeof node.value === 'string') {
+            // match {{key}} ou {{data.key}}
+            let match = node.value.match(/{{(?:data\.)?([^}]+)}}/);
+            if (match) keys.add(match[1].replace('properties.', ''));
+            // match <%- properties?.key ?? '-' %> ou <%- key ?? '-' %>
+            const matchEjs = node.value.match(/<%-\s*(?:data\.)?(?:properties\?\.)?([a-zA-Z0-9_.-]+)/);
+            if (matchEjs) keys.add(matchEjs[1]);
+          }
+          if (node.properties) {
+            // @ts-ignore
+            if (node.properties.accessorKey) keys.add(node.properties.accessorKey);
+            // @ts-ignore
+            if (node.properties.field) keys.add(node.properties.field);
+          }
+          if (node.templates) traverse(node.templates);
+          if (node.polygonTemplate) traverse(node.polygonTemplate);
+          const config = BUILDER_TEMPLATES.find((t) => t.name === node.type);
+          const childrenProp = config?.childrenProp;
+          // @ts-ignore
+          if (childrenProp && node[childrenProp] && Array.isArray(node[childrenProp])) {
+            // @ts-ignore
+            traverse(node[childrenProp]);
+          }
+        }
+      };
+      traverse(items);
+      return keys;
+    };
+
+    const usedKeys = getUsedKeys(template);
+    const hasProperties = mockData && typeof mockData === 'object' && 'properties' in mockData && mockData.properties;
+    const baseObj = hasProperties ? mockData.properties : (mockData || {});
+    const unusedKeys = Object.keys(baseObj).filter(k => !usedKeys.has(k));
+
+    if (unusedKeys.length > 0) {
+      const formatKey = (key: string) => {
+        return key
+          .replace(/[-_.]/g, ' ')
+          .replace(/\b\w/g, (l) => l.toUpperCase())
+          .trim();
+      };
+
+      const labelValues: ITemplate[] = unusedKeys.map(key => ({
+        id: crypto.randomUUID(),
+        type: "label-value",
+        label: formatKey(key),
+        value: hasProperties ? `<%- properties?.${key} ?? '-' %>` : `<%- ${key} ?? '-' %>`,
+      }));
+
+      const wrapperCard: ITemplate = {
+        id: crypto.randomUUID(),
+        type: "wrapper-card",
+        properties: {
+          title: "Novos Dados"
+        },
+        templates: labelValues
+      };
+
+      setTemplate([wrapperCard, ...template]);
+    } else {
+      if (toastInfo) {
+        toastInfo("Nenhuma propriedade pendente encontrada.");
+      } else {
+        alert("Nenhuma propriedade pendente encontrada.");
+      }
+    }
+  };
+
   return (
     <header className={cn("flex items-center p-4 border-b bg-background shrink-0", standalone ? "justify-between" : "justify-end")}>
       {standalone && (
@@ -431,6 +507,17 @@ const BuilderHeader = ({
             <div className="w-px h-6 bg-border mx-2" />
           </>
         )}
+
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          className="gap-2"
+          onClick={handleAutoFill}
+        >
+          <Wand2 className="h-4 w-4" />
+          Auto Preencher
+        </Button>
 
         <Button
           type="button"

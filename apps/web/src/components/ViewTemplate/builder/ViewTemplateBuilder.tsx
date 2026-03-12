@@ -251,6 +251,7 @@ const BuilderHeader = ({
       setTemplate(importedTemplate);
       if (onLoad) onLoad(importedTemplate);
     } catch (e) {
+      console.log(e)
       alert("JSON inválido");
     }
   };

@@ -10,7 +10,8 @@ export class SqlcDto {
   sqlc: string;
 
   @ApiProperty({
-    description: 'Optional array of fields to return. If not provided, all fields will be returned.',
+    description:
+      'Optional array of fields to return. If not provided, all fields will be returned.',
     example: ['geom_subprefeitura', 'geom_distrito'],
     required: false,
     isArray: true,
@@ -19,4 +20,4 @@ export class SqlcDto {
   @IsArray()
   @IsString({ each: true })
   fields?: string[];
-} 
+}

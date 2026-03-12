@@ -6,6 +6,7 @@
     "lint": "turbo run lint",
     "test": "turbo run test -- --passWithNoTests",
     "composer:up": "docker-compose -f apps/api/docker-compose.yaml up -d",
+    "composer:down": "docker-compose -f apps/api/docker-compose.yaml down",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version"
@@ -17,9 +18,36 @@
     "turbo": "^2.4.4"
   },
   "name": "urbis-map",
-  "packageManager": "yarn@1.22.22",
+  "packageManager": "pnpm@9.15.0",
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^18.3.1",
+      "@types/react-dom": "^18.3.0"
+    }
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "resolutions": {
+    "@luma.gl/core": "9.2.5",
+    "@luma.gl/engine": "9.2.5",
+    "@luma.gl/webgl": "9.2.5",
+    "@luma.gl/shadertools": "9.2.5",
+    "@luma.gl/constants": "9.2.5",
+    "deck.gl": "9.2.5",
+    "@deck.gl/core": "9.2.5",
+    "@deck.gl/layers": "9.2.5",
+    "@deck.gl/geo-layers": "9.2.5",
+    "@deck.gl/mapbox": "9.2.5",
+    "@deck.gl/json": "9.2.5",
+    "@deck.gl/react": "9.2.5",
+    "@deck.gl/aggregation-layers": "9.2.5",
+    "@deck.gl/extensions": "9.2.5",
+    "@deck.gl/mesh-layers": "9.2.5",
+    "@deck.gl/widgets": "9.2.5",
+    "@deck.gl/google-maps": "9.2.5",
+    "@deck.gl/carto": "9.2.5",
+    "@deck.gl/arcgis": "9.2.5"
+  }
 }

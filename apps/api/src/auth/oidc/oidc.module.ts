@@ -11,7 +11,13 @@ import { SharedModule } from 'shared/shared.module';
 import { TwoFactorModule } from 'auth/two-factor/two-factor.module';
 
 @Module({
-  imports: [ApplicationsModule, AuthModule, PassportModule, SharedModule, TwoFactorModule],
+  imports: [
+    ApplicationsModule,
+    AuthModule,
+    PassportModule,
+    SharedModule,
+    TwoFactorModule,
+  ],
   controllers: [OidcController],
   providers: [
     {

@@ -1,4 +1,4 @@
-import { useContext } from "preact/hooks";
+import { useContext } from "react";
 import { SearchContext } from "../context/SearchContext";
 import { getSearchConfig } from "../integrations/search-integration";
 import { IGetSearchConfigResponse } from "../types/fetch-search-config-type";
@@ -24,7 +24,20 @@ export const useSearchContext = () => {
 
     try {
       const response = await getSearchConfig();
-      context!.searchConfig.value = response;
+
+      const currentConfig = context!.searchConfig.value;
+      if (currentConfig && currentConfig.length > 0) {
+        const mergedResponse = response.map((newItem) => {
+          const existingItem = currentConfig.find((c) => c.id === newItem.id);
+          if (existingItem && existingItem.isActive !== undefined) {
+            return { ...newItem, isActive: existingItem.isActive };
+          }
+          return newItem;
+        });
+        context!.searchConfig.value = mergedResponse;
+      } else {
+        context!.searchConfig.value = response;
+      }
 
       return response;
     } catch (error) {

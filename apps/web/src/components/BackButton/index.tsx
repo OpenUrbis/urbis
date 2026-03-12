@@ -1,5 +1,4 @@
-import { Button } from '@rmwc/button';
-import '@rmwc/button/styles';
+import { Button } from "@/components/ui/button";
 import { useNavigationContext } from '../../hooks/useNavigationContext';
 
 export const BackButton = () => {
@@ -7,15 +6,12 @@ export const BackButton = () => {
 
   return (
     <Button
-      outlined
-      icon="arrow_back"
-      label="Voltar"
+      variant="outline"
       onClick={() => navigatePop()}
-      style={{
-        borderRadius: '4px',
-        textTransform: 'none',
-        fontWeight: 500,
-      }}
-    />
+      className="font-medium rounded"
+    >
+      <span className="material-symbols-outlined mr-2 text-base">arrow_back</span>
+      Voltar
+    </Button>
   );
 };

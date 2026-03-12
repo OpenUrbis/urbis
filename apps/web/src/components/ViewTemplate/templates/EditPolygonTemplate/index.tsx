@@ -1,4 +1,4 @@
-import { Button } from "rmwc";
+import { Button } from "@/components/ui/button";
 import { useNavigationContext } from "../../../../hooks/useNavigationContext";
 import { usePolygonEditContext } from "../../../../hooks/usePolygonEditContext";
 import { PolygonDetails } from "../../../PolygonDetails";
@@ -33,7 +33,7 @@ const EditPolygonComponent = ({
   };
 
   return (
-    <Button onClick={() => edit()} outlined>
+    <Button variant="outline" className="w-full my-2" onClick={() => edit()}>
       {label}
     </Button>
   );

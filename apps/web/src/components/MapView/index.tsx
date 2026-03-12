@@ -1,17 +1,21 @@
 import { computed } from "@preact/signals";
 import { PickingInfo } from "deck.gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Map } from "react-map-gl/mapbox";
-import { Button, CircularProgress } from "rmwc";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { useMapContext } from "../../hooks/useMapContext";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { LayerController } from "../LayerController";
 import { DeckGLOverlay } from "./DeckGLOverlay";
 import { addMapControls } from "./map-controls";
 import { transformSchemaLayers } from "./map-layer-transform";
-import "./style.scss";
+import { useTheme } from "../ThemeProvider";
+import { MapCoordinates } from "./MapCoordinates";
+import { getDigitalAddressLayers } from "./digital-address-layer";
 
 export const MapView = () => {
   const accessToken =
@@ -19,6 +23,8 @@ export const MapView = () => {
     "your-mapbox-access-token";
 
   const mapContext = useMapContext();
+  const { theme } = useTheme();
+  const { drawerOpen } = useNavigationContext();
 
   const {
     layerSchemas,
@@ -30,7 +36,11 @@ export const MapView = () => {
     selectedFeatures,
     is3DActive,
     overlayRef,
+    selectedBaseMap,
+    cursorPosition,
+    digitalAddressFeature
   } = mapContext;
+  
   if (!overlayRef) {
     console.error("MapContext is not initialized (overlayRef is null)");
   }
@@ -40,20 +50,52 @@ export const MapView = () => {
 
   const clickActions = CLICK_ACTIONS_CONFIG();
 
-  const layers = computed(() =>
-    transformSchemaLayers(layerSchemas.value, {
+  const layers = computed(() => {
+    const baseLayers = transformSchemaLayers(layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
       selectedFeature: selectedFeatures.value,
       is3DActive: is3DActive.value,
-    }).flat()
-  );
+    }).flat();
+
+    const digitalLayers = getDigitalAddressLayers(digitalAddressFeature.value);
+
+    return [...baseLayers, ...digitalLayers];
+  });
+
+  const currentMapStyle = useMemo(() => {
+      const style = selectedBaseMap.value;
+      if (style === "standard") {
+          const currentTheme = theme === "system" 
+             ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+             : theme;
+          return currentTheme === "dark" 
+              ? "mapbox://styles/mapbox/dark-v9"
+              : "mapbox://styles/mapbox/light-v9";
+      }
+      
+      switch (style) {
+          case "light": return "mapbox://styles/mapbox/light-v9";
+          case "dark": return "mapbox://styles/mapbox/dark-v9";
+          case "outdoors": return "mapbox://styles/mapbox/outdoors-v9";
+          case "satellite": return "mapbox://styles/mapbox/satellite-v9";
+          case "satellite-streets": return "mapbox://styles/mapbox/satellite-streets-v9";
+          default: return "mapbox://styles/mapbox/light-v9";
+      }
+  }, [theme, selectedBaseMap.value]);
 
   useEffect(() => {
     populateMapContext();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const map = (overlayRef?.current as any)?._map;
+      map?.resize();
+    }, 350);
+    return () => clearTimeout(timeout);
+  }, [drawerOpen.value]);
 
   const handleClick = (info: PickingInfo) => {
     const { clickAction, viewTemplate: template } =
@@ -79,14 +121,15 @@ export const MapView = () => {
   const saveButton = () => {
     return (
       <Button
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        icon={!loading ? "save" : ((<CircularProgress />) as any)}
         disabled={loading}
-        label="Salvar / Atualizar"
-        raised
-        className="save-button"
+        className="absolute bottom-4 right-4 z-[1000]"
         onClick={() => fetchData(feature.value)}
-      />
+      >
+        <span className={cn("material-symbols-outlined mr-2 text-base", loading && "animate-spin")}>
+          {loading ? "progress_activity" : "save"}
+        </span>
+        Salvar / Atualizar
+      </Button>
     );
   };
 
@@ -96,9 +139,15 @@ export const MapView = () => {
         {viewport.value ? (
           <Map
             style={{ width: "100%", height: "100%" }}
-            mapStyle="mapbox://styles/mapbox/light-v9"
+            mapStyle={currentMapStyle}
             mapboxAccessToken={accessToken}
             initialViewState={viewport.value}
+            onMouseMove={(evt) => {
+              cursorPosition.value = {
+                latitude: evt.lngLat.lat,
+                longitude: evt.lngLat.lng,
+              };
+            }}
             onMoveEnd={() =>
               handleViewportChange(
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -117,10 +166,11 @@ export const MapView = () => {
             />
           </Map>
         ) : (
-          <div className="h-100 w-100 d-flex align-items-center justify-content-center">
-            <CircularProgress label="progress" size="xlarge" />
+          <div className="h-full w-full flex items-center justify-center">
+            <span className="material-symbols-outlined text-4xl animate-spin">progress_activity</span>
           </div>
         )}
+        <MapCoordinates />
       </div>
       {isEditing.value ? saveButton() : <LayerController />}
     </>

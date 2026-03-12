@@ -46,7 +46,7 @@ export class LayerSchema {
     example: true,
     description: 'Indicates whether the layer schema is currently active',
   })
-  @Column({ default: true })
+  @Column({ default: false })
   isActive: boolean;
 
   @ApiProperty({

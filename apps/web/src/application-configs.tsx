@@ -4,6 +4,7 @@ import { BackButton } from "./components/BackButton";
 import { FeaturesView } from "./components/FeaturesView";
 import { useMapContext } from "./hooks/useMapContext";
 import { useNavigationContext } from "./hooks/useNavigationContext";
+import { useMediaQuery } from "./hooks/useMediaQuery";
 import {
   IMapActionProps,
   MapContextLayerSchemaTypeMapProps,
@@ -126,6 +127,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
 } => {
   const { selectFeature, flyTo } = useMapContext();
   const { navigateTo, toggleDrawer } = useNavigationContext();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return {
     [ClickActionEnum.SelectFeature]: function (
@@ -140,7 +142,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
         return console.error(
           'clickAction(selectFeature) Error: Property "template" is not defined'
         );
-      toggleDrawer();
+      if (!isDesktop) toggleDrawer();
       selectFeature({ feature, template });
       flyTo({
         center: [longitude, latitude],

@@ -1,5 +1,5 @@
 import { computed } from "@preact/signals";
-import { useContext } from "preact/hooks";
+import { useContext } from "react";
 import { PolygonEditContext } from "../context/PolygonEditContext";
 import { IPolygonEditContextActions } from "../types/polygon-edit-context-type";
 
@@ -31,7 +31,7 @@ export const usePolygonEditContext = (): IPolygonEditContextActions => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setDrawRef = (newDrawRef: any) => {
-    drawRef!.current = newDrawRef;
+    (drawRef as any)!.current = newDrawRef;
   };
 
   const reset = () => {

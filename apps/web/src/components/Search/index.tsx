@@ -1,9 +1,15 @@
-import "@rmwc/card/styles";
-import "@rmwc/circular-progress/styles";
-import "@rmwc/textfield/styles";
 import { useEffect } from "preact/compat";
-import { createElement, ReactNode } from "react";
-import { Card, CircularProgress, Fab, List, ListItem, TextField } from "rmwc";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
@@ -13,7 +19,6 @@ import {
   IGetSearchItemError,
 } from "../../types/fetch-search-config-type";
 import { ITemplate } from "../ViewTemplate/types/templates-type";
-import "./style.scss";
 
 export const Search = () => {
   const {
@@ -29,8 +34,6 @@ export const Search = () => {
 
   useEffect(() => {
     populateSearchConfig();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -40,8 +43,18 @@ export const Search = () => {
       currentTerm.value = search;
       fetchData(currentTerm.value);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchConfig.value]);
+
+  const toggleConfig = (id: string, currentStatus: boolean | undefined) => {
+    const newStatus = currentStatus === false ? true : false;
+    searchConfig.value = searchConfig.value.map((c) =>
+      c.id === id ? { ...c, isActive: newStatus } : c
+    );
+
+    if (currentTerm.value) {
+      fetchData(currentTerm.value);
+    }
+  };
 
   const handleClickItem = (
     config: IGetSearchConfigResponse,
@@ -74,15 +87,15 @@ export const Search = () => {
     list: IGetSearchItemError[] = []
   ) => {
     return (
-      <>
-        <span>
+      <div className="mt-4">
+        <span className="font-semibold block mb-2">
           {config.name} (0)
         </span>
-        <div className="alert alert-danger mt-3">
+        <div className="text-destructive mt-3 p-2 bg-destructive/10 rounded">
           {list?.[0]?.message ||
             "Ocorreu um erro ao buscar os dados. Tente novamente mais tarde."}
         </div>
-      </>
+      </div>
     )
   }
 
@@ -93,107 +106,154 @@ export const Search = () => {
     if (list.findIndex((item) => (item as IGetSearchItemError)?.type === 'error') >= 0) return renderError(config, list as IGetSearchItemError[]);
 
     return (
-      <>
-        <span>
+      <div className="mt-4">
+        <span className="font-semibold block mb-2">
           {config.name} ({list.length})
         </span>
-        <List
-          twoLine={true}
-          style={{
-            marginTop: "16px",
-            borderTop: "1px solid #efefef",
-            listStyle: "none",
-            padding: 0,
-          }}
-        >
+        <ul className="mt-2 border-t border-border divide-y divide-border">
           {list.map((result) => {
             const content = result as IGetSearchItem;
 
-            // eslint-disable-next-line react/no-children-prop
-            return createElement(ListItem, {
-              key: content.id,
-              onClick: () => {
-                handleClickItem(config, content);
-
-                resetSearch();
-                clearResults();
-              },
-              children: [
-                createElement(
-                  "span",
-                  { key: `${content.id}-text`, className: "text" },
-                  content.name
-                ),
-              ],
-            })
-          }
-          )}
-        </List>
-      </>
+            return (
+              <li
+                key={content.id}
+                className="py-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => {
+                  handleClickItem(config, content);
+                  resetSearch();
+                  clearResults();
+                }}
+              >
+                <span className="line-clamp-2 text-sm">
+                  {content.name}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
     );
   };
 
   return (
-    <Card className="search-card">
-      {
-        (
-          <div className="search-card-container">
+    <Card className="rounded-xl border shadow-sm">
+      <CardContent className="p-3">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-
                 fetchData(currentTerm.value);
               }}
-              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              className="flex items-center gap-2"
             >
-              <TextField
-                label="Buscar"
-                placeholder="Digite para buscar..."
-                value={currentTerm.value}
-                outlined
-                onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  (currentTerm.value = e.target.value)
-                }
-                trailingIcon={{
-                  icon: "close",
-                  tabIndex: 0,
-                  onClick: () => {
-                    resetSearch();
-                    clearResults();
-                  },
-                }}
-                style={{ flex: 1, width: "100%" }}
-              />
-              {createElement(Fab, {
-                raised: true,
-                icon: loading
-                  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  createElement(CircularProgress as any, { width: "24px" })
-                  : "search",
-                type: "submit",
-                class: "search-button",
-              })}
+              <div className="relative flex-1">
+                <Input
+                  placeholder="Digite para buscar..."
+                  value={currentTerm.value}
+                  onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    (currentTerm.value = e.target.value)
+                  }
+                  className="pr-8"
+                />
+                {currentTerm.value && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    type="button"
+                    className="absolute right-0 top-0 h-full w-8 hover:bg-transparent"
+                    onClick={() => {
+                      resetSearch();
+                      clearResults();
+                    }}
+                  >
+                    <span className="material-symbols-outlined text-base text-muted-foreground">close</span>
+                  </Button>
+                )}
+              </div>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    type="button"
+                    className="shrink-0 rounded-full"
+                  >
+                    <span className="material-symbols-outlined text-base">
+                      settings
+                    </span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Configuração de Pesquisa</DialogTitle>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2 font-medium text-muted-foreground">
+                            Opção de pesquisa
+                          </th>
+                          <th className="text-center py-2 font-medium text-muted-foreground">
+                            Habilitada
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {searchConfig.value.map((config) => (
+                          <tr
+                            key={config.id}
+                            className="border-b last:border-0 hover:bg-muted/50 transition-colors"
+                          >
+                            <td className="py-2 font-medium">{config.name}</td>
+                            <td className="py-2 text-center">
+                              <Switch
+                                checked={config.isActive !== false}
+                                onCheckedChange={() =>
+                                  toggleConfig(config.id, config.isActive)
+                                }
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              
+              <Button
+                variant="outline"
+                size="icon"
+                type="submit"
+                className="shrink-0 rounded-full"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
+                ) : (
+                  <span className="material-symbols-outlined text-base">search</span>
+                )}
+              </Button>
             </form>
 
-            {error && <p style={{ color: "red", marginTop: "8px" }}>{error}</p>}
+            {error && <p className="text-destructive mt-2 text-sm">{error}</p>}
 
             {!data && (
-              <p className="search-placeholder">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Busque por IPTU, endereço, coordenadas, bairros ou regiões de
                 São Paulo:
               </p>
             )}
 
             {data && (
-              <>
-                {searchConfig.value.map((config) =>
-                  buildList(config, data?.[config.id] ?? [])
-                )}
-              </>
+              <div className="max-h-[60vh] overflow-y-auto">
+                {searchConfig.value
+                  .filter((config) => config.isActive !== false)
+                  .map((config) => buildList(config, data?.[config.id] ?? []))}
+              </div>
             )}
-          </div>
-        ) as ReactNode
-      }
+      </CardContent>
     </Card>
   );
 };

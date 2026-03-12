@@ -227,18 +227,19 @@ import {
       const requestParams: any = {
         width,
         height,
-        boundingBox: [
-          [bounds[0], bounds[1]],
-          [bounds[2], bounds[3]]
+        bbox: [
+          bounds[0], bounds[1],
+          bounds[2], bounds[3]
         ],
         transparent: true,
         layers,
-        crs: srs
+        srs: srs,
+        format: 'image/png'
       };
       if (srs === 'EPSG:3857') {
         const min = WGS84ToPseudoMercator([bounds[0], bounds[1]]);
         const max = WGS84ToPseudoMercator([bounds[2], bounds[3]]);
-        requestParams.boundingBox = [min, max];
+        requestParams.bbox = [min[0], min[1], max[0], max[1]];
       }
   
       try {
@@ -279,4 +280,3 @@ import {
       this.state._timeoutId = setTimeout(() => fn(), ms);
     }
   }
-  

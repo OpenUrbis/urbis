@@ -5,7 +5,7 @@ import { SearchResult } from './interfaces/geocoding.interface';
 
 @Injectable()
 export class GeocodingService {
-  constructor(private readonly configService: ConfigService) { }
+  constructor(private readonly configService: ConfigService) {}
 
   async searchPlaces(
     search: string,

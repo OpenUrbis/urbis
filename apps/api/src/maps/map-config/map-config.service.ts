@@ -36,7 +36,6 @@ export class MapConfigService {
     });
 
     result.layerSchemas = await this.layerSchemas.find({
-      where: { isActive: true },
       order: { name: 'ASC' },
       relations: ['colors'],
     });

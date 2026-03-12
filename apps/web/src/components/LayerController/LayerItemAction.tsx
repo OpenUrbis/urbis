@@ -1,4 +1,4 @@
-import { IconButton } from "rmwc";
+import { Button } from "@/components/ui/button";
 import { createFn } from "../../utils/createFn";
 
 export const LayerItemAction = ({
@@ -15,5 +15,9 @@ export const LayerItemAction = ({
 
   const actionFn = createFn(action, false);
 
-  return action ? <IconButton onClick={() => actionFn()} icon={icon} /> : null;
+  return action ? (
+    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => actionFn()}>
+      <span className="material-symbols-outlined text-base">{icon}</span>
+    </Button>
+  ) : null;
 };

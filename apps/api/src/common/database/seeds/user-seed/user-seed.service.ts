@@ -20,6 +20,14 @@ export class UserSeedService {
   ) {}
 
   async createOrg() {
+    const existingOrg = await this.organizationRepository.findOne({
+      where: { name: 'John organization' },
+    });
+
+    if (existingOrg) {
+      return existingOrg;
+    }
+
     const org = this.organizationRepository.create({
       name: 'John organization',
     });
@@ -28,6 +36,14 @@ export class UserSeedService {
   }
 
   async createUser() {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: 'test@test.com' },
+    });
+
+    if (existingUser) {
+      return existingUser;
+    }
+
     const user = this.userRepository.create({
       email: 'test@test.com',
       password: 'Teste@1234',
@@ -42,6 +58,19 @@ export class UserSeedService {
   async createUserAssignment() {
     const org = await this.createOrg();
     const user = await this.createUser();
+
+    const existingAssign = await this.userRoleAssignmentRepository.findOne({
+      where: {
+        organizationId: org.id,
+        userId: user.id,
+        roleId: 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4',
+      },
+    });
+
+    if (existingAssign) {
+      return existingAssign;
+    }
+
     const assign = this.userRoleAssignmentRepository.create({
       organizationId: org.id,
       userId: user.id,

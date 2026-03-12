@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class FixDefaultMetadataInOrganization1762307783710
-  implements MigrationInterface
-{
+export class FixDefaultMetadataInOrganization1762307783710 implements MigrationInterface {
   name = 'FixDefaultMetadataInOrganization1762307783710';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

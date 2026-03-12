@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailService } from 'common/mail/mail.service';
 import { Repository } from 'typeorm';
-import { SupportTicketDto } from './dto/support-ticket.dto';
-import { SupportTicket } from './entities/support-ticket.entity';
+import { SupportTicketDto } from '../dto/support-ticket.dto';
+import { SupportTicket } from '../entities/support-ticket.entity';
 
 @Injectable()
 export class SupportService {

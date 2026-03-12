@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MailService } from 'common/mail/mail.service';
-import { SupportTicket } from './entities/support-ticket.entity';
+import { SupportTicket } from '../entities/support-ticket.entity';
 import { SupportService } from './support.service';
 
 describe('SupportService', () => {

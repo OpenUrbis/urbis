@@ -174,52 +174,55 @@ export const layerSchemas: LayerSchema[] = [
         label: 'Informações prediais',
         templates: [
           {
-            type: 'label-value',
-            label: 'Área do Terreno',
-            value: "<%- properties?.qt_area_terreno ?? '-' %>",
+            type: 'wrapper-grid',
+            templates: [
+              {
+                type: 'wrapper-grid-column',
+                templates: [
+                  {
+                    type: 'label-value',
+                    label: 'Área do Terreno',
+                    value: "<%- properties?.qt_area_terreno ?? '-' %>",
+                  },
+                  {
+                    type: 'label-value',
+                    label: 'Situação do Lote',
+                    value: "<%- properties?.tx_situ_lote ?? '-' %>",
+                  },
+                  {
+                    type: 'label-value',
+                    label: 'Tipo de Quadra',
+                    value: "<%- properties?.tx_tipo_quadra ?? '-' %>",
+                  },
+                ],
+              },
+              {
+                type: 'wrapper-grid-column',
+                templates: [
+                  {
+                    type: 'label-value',
+                    label: 'Área Construída',
+                    value: "<%- properties?.qt_area_construida ?? '-' %>",
+                  },
+
+                  {
+                    type: 'label-value',
+                    label: 'Condomínio',
+                    value: "<%- properties?.cd_condominio ?? '-' %>",
+                  },
+
+                  {
+                    type: 'label-value',
+                    label: 'Numeração',
+                    value: "<%- properties?.cd_quadra_fiscal ?? '-' %>",
+                  },
+                ],
+              },
+            ],
             properties: {
-              columnClass: 'col-md-6',
+              columns: [6, 6],
             },
-          },
-          {
-            type: 'label-value',
-            label: 'Área Construída',
-            value: "<%- properties?.qt_area_construida ?? '-' %>",
-            properties: {
-              columnClass: 'col-md-6',
-            },
-          },
-          {
-            type: 'label-value',
-            label: 'Situação do Lote',
-            value: "<%- properties?.tx_situ_lote ?? '-' %>",
-            properties: {
-              columnClass: 'col-md-6',
-            },
-          },
-          {
-            type: 'label-value',
-            label: 'Condomínio',
-            value: "<%- properties?.cd_condominio ?? '-' %>",
-            properties: {
-              columnClass: 'col-md-6',
-            },
-          },
-          {
-            type: 'label-value',
-            label: 'Tipo de Quadra',
-            value: "<%- properties?.tx_tipo_quadra ?? '-' %>",
-            properties: {
-              columnClass: 'col-md-6',
-            },
-          },
-          {
-            type: 'label-value',
-            label: 'Numeração',
-            value: "<%- properties?.cd_quadra_fiscal ?? '-' %>",
-            properties: {
-              columnClass: 'col-md-6',
-            },
+            id: '94bef4de-7956-4cb0-829c-7a81548defdd',
           },
         ],
       },

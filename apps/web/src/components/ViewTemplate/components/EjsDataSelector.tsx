@@ -34,13 +34,16 @@ export const EjsDataSelector: React.FC<EjsDataSelectorProps> = ({
 
   // Determine initial mode
   useEffect(() => {
-    if (currentValue && !currentValue.startsWith("<%- properties.")) {
-      if (dataKeys.length === 0 || !dataKeys.some((k) => `<%- properties.${k} %>` === currentValue)) {
-         if (currentValue !== "") setMode("custom");
+    if (currentValue) {
+      const match = currentValue.match(/^<%- (?:properties\?\.)?([^ ]+)(?: \?\? '-')? %>$/);
+      const isExactMatch = match && dataKeys.includes(match[1]);
+      
+      if (!isExactMatch && !dataKeys.some((k) => `<%- properties.${k} %>` === currentValue)) {
+         setMode("custom");
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dataKeys]);
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -58,10 +61,19 @@ export const EjsDataSelector: React.FC<EjsDataSelectorProps> = ({
   const getSelectedValue = () => {
     if (mode === "custom") return "___custom___";
     if (!currentValue) return "";
+    
+    // Testa o formato padrão do select
     const match = currentValue.match(/^<%- properties\.([^ ]+) %>$/);
     if (match && dataKeys.includes(match[1])) {
       return match[1];
     }
+    
+    // Testa o formato gerado pelo Auto Preencher
+    const matchAuto = currentValue.match(/^<%- (?:properties\?\.)?([^ ]+) \?\? '-' %>$/);
+    if (matchAuto && dataKeys.includes(matchAuto[1])) {
+      return matchAuto[1];
+    }
+
     return "___custom___";
   };
 

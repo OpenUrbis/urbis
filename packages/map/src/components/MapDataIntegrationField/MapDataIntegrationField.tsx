@@ -100,7 +100,7 @@ export function MapDataIntegrationField({
       <div className="w-full flex flex-col gap-4">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-500 font-bold text-xs uppercase tracking-tighter transition-colors">
-            <CheckCircle2 size={16} /> Projeto Validado
+            <CheckCircle2 size={16} /> Leitura inteligente de dados projetuais
           </div>
           {mode === 'edit' && <Button variant="ghost" size="sm" className="text-xs uppercase font-black" onClick={() => setData(null)}>Novo Projeto</Button>}
         </div>
@@ -133,7 +133,7 @@ export function MapDataIntegrationField({
               {selectedFeature && (
                 <FeatureModalView 
                   data={selectedFeature.rawMetadata ? JSON.parse(selectedFeature.rawMetadata) : selectedFeature} 
-                  title={selectedFeature.name || selectedFeature.type || 'Propriedades'} 
+                  title={selectedFeature.type === 'bloco' ? 'Bloco - visão geral' : (selectedFeature.type === 'pavimento' ? 'Pavimento - visão detalhada' : (selectedFeature.type === 'area_individual' ? 'Área individual ou comum - visão detalhada' : (selectedFeature.name || selectedFeature.type || 'Propriedades')))} 
                 />
               )}
             </div>

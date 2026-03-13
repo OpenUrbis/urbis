@@ -101,6 +101,26 @@ export function parseDataToFeatureCollection(data: any): any {
 
         const { geometria, geometry, coordinates, ...metadata } = obj;
 
+        let derivedColor: string | undefined = undefined;
+        let pId = obj.identificacao?.valor || obj.identificacao || obj.identificação?.valor || obj.identificação || '';
+        if (typeof pId === 'string') {
+          const upperId = pId.toUpperCase();
+          if (upperId.startsWith('SE')) {
+            derivedColor = '#3e2723'; // marrom escuro
+          } else if (upperId.startsWith('SA')) {
+            derivedColor = '#8d6e63'; // marrom claro
+          } else if (upperId === 'T') {
+            derivedColor = '#d32f2f'; // vermelho
+          } else if (upperId.startsWith('P')) {
+            // varia tons de azul
+            const num = parseInt(upperId.replace('P', '')) || 1;
+            const lightness = Math.max(30, 90 - (num * 5)); 
+            derivedColor = `hsl(210, 80%, ${lightness}%)`; // azul clara diferenciada por pavimento
+          } else if (upperId.startsWith('CA')) {
+            derivedColor = '#0d47a1'; // azul escura
+          }
+        }
+
         features.push({
           type: 'Feature',
           geometry: finalGeometry,
@@ -110,7 +130,8 @@ export function parseDataToFeatureCollection(data: any): any {
             height: finalTop,
             base_height: finalBase,
             jsonPath: path || parentName,
-            rawMetadata: JSON.stringify(metadata, null, 2)
+            rawMetadata: JSON.stringify(metadata, null, 2),
+            derivedColor: derivedColor
           }
         });
       } catch (e) {}

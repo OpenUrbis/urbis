@@ -1,3 +1,5 @@
+import { useToast } from "@/hooks/useToast";
+import { cn } from "@/lib/utils";
 import {
   DndContext,
   DragEndEvent,
@@ -7,29 +9,27 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { Button, Textarea } from "@open-urbis/map-ui";
-import * as Popover from "@radix-ui/react-popover";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as Popover from "@radix-ui/react-popover";
+import axios, { AxiosResponse } from "axios";
 import {
   Database,
   Download,
   Eye,
-  Upload,
-  Map as MapIcon,
   Loader2,
-  X,
-  Wand2
+  Map as MapIcon,
+  Upload,
+  Wand2,
+  X
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import axios from "axios";
 import { ITemplate } from "../types/templates-type";
 import { BuilderProvider, useBuilder } from "./BuilderContext";
 import { ComponentPalette } from "./components/ComponentPalette";
 import { ConfigPanel } from "./components/ConfigPanel";
 import { RenderLayer } from "./components/RenderLayer";
-import { cn } from "@/lib/utils";
-import { IBuilderTemplateConfig } from "./types";
 import { BUILDER_TEMPLATES } from "./registry";
-import { useToast } from "@/hooks/useToast";
+import { IBuilderTemplateConfig } from "./types";
 
 // Helper to find a node by ID
 const findNode = (root: ITemplate | ITemplate[], id: string): ITemplate | null => {
@@ -42,10 +42,10 @@ const findNode = (root: ITemplate | ITemplate[], id: string): ITemplate | null =
   }
 
   if (root.id === id) return root;
-  
+
   const config = BUILDER_TEMPLATES.find((t) => t.name === root.type);
   const childrenProp = config?.childrenProp || "templates";
-  
+
   // @ts-ignore
   if (root[childrenProp] && Array.isArray(root[childrenProp])) {
     // @ts-ignore
@@ -54,7 +54,7 @@ const findNode = (root: ITemplate | ITemplate[], id: string): ITemplate | null =
       if (found) return found;
     }
   }
-  
+
   return null;
 };
 
@@ -64,6 +64,7 @@ interface ViewTemplateBuilderProps {
   onLoad?: (template: ITemplate[]) => void;
   onChange?: (template: ITemplate[]) => void;
   initialGeoUrl?: string;
+  initialGeoLayerFullURL?: string;
   initialGeoLayer?: string;
   initialMockData?: any;
   title?: string;
@@ -78,6 +79,7 @@ const BuilderHeader = ({
   onLoad,
   initialGeoUrl,
   initialGeoLayer,
+  initialGeoLayerFullURL,
   title = "Editor de ViewTemplate",
   subtitle,
   standalone = true,
@@ -86,10 +88,12 @@ const BuilderHeader = ({
   onLoad?: (t: ITemplate[]) => void;
   initialGeoUrl?: string;
   initialGeoLayer?: string;
+  initialGeoLayerFullURL?: string;
   title?: string;
   subtitle?: string;
   standalone?: boolean;
 }) => {
+  const { toastSuccess, toastError } = useToast();
   const { template, setTemplate, mockData, setMockData } = useBuilder();
   const { toastInfo } = useToast();
   const [jsonInput, setJsonInput] = useState("");
@@ -166,7 +170,57 @@ const BuilderHeader = ({
     }
   };
 
-  const handleImportGeoProperties = async () => {
+  const updateDataWithResponseGeoServer = (response: AxiosResponse<any, any, {}>) => {
+    if (
+      response.data &&
+      response.data.features &&
+      response.data.features.length > 0
+    ) {
+      const feature = response.data.features[0];
+      setMockData(feature || {});
+      toastSuccess("Propriedades importadas com sucesso!");
+    } else {
+      setGeoError("Nenhuma feição encontrada na camada.");
+    }
+  }
+
+  const handleImportGeoPropertiesFromInitialURL = async (initialURL: string) => {
+    setIsImportingGeo(true);
+    try {
+      let baseUrl = initialURL;
+      try {
+        const baseURL = new URL(initialURL);
+        const searchParams = Object.fromEntries(baseURL.searchParams.entries());
+        const url = `${baseURL.origin}${baseURL.pathname}`;
+        const layer = searchParams?.typeName ?? searchParams?.layer;
+
+        if (geoLayers.length <= 0 || geoLayers.findIndex(layer => layer.name === selectedGeoLayer)) {
+          setGeoLayers([{ name: selectedGeoLayer, title: selectedGeoLayer }])
+        }
+
+        setGeoUrl(url)
+        setSelectedGeoLayer(layer);
+      } catch (e) {
+        // use as is
+      }
+
+      const environment = import.meta.env.VITE_API_URL || "/api";
+      const response = await axios.get(`${environment}/maps/proxy`, {
+        params: {
+          url: baseUrl
+        },
+      });
+
+      updateDataWithResponseGeoServer(response)
+    } catch (e) {
+      console.error(e);
+      setGeoError("Erro ao buscar dados da camada.");
+    } finally {
+      setIsImportingGeo(false);
+    }
+  }
+
+  const handleImportGeoPropertiesWithOptions = async () => {
     if (!geoUrl || !selectedGeoLayer) return;
     setIsImportingGeo(true);
     setGeoError("");
@@ -193,17 +247,7 @@ const BuilderHeader = ({
         },
       });
 
-      if (
-        response.data &&
-        response.data.features &&
-        response.data.features.length > 0
-      ) {
-        const feature = response.data.features[0];
-        setMockData(feature.properties || {});
-        alert("Propriedades importadas com sucesso!");
-      } else {
-        setGeoError("Nenhuma feição encontrada na camada.");
-      }
+      updateDataWithResponseGeoServer(response)
     } catch (e) {
       console.error(e);
       setGeoError("Erro ao buscar dados da camada.");
@@ -211,6 +255,8 @@ const BuilderHeader = ({
       setIsImportingGeo(false);
     }
   };
+
+
 
   useEffect(() => {
     setDataInput(JSON.stringify(mockData, null, 2));
@@ -252,7 +298,7 @@ const BuilderHeader = ({
       if (onLoad) onLoad(importedTemplate);
     } catch (e) {
       console.log(e)
-      alert("JSON inválido");
+      toastError("JSON inválido");
     }
   };
 
@@ -261,7 +307,7 @@ const BuilderHeader = ({
       const parsed = JSON.parse(dataInput);
       setMockData(parsed);
     } catch (e) {
-      alert("JSON de dados inválido");
+      toastError("JSON de dados inválido");
     }
   };
 
@@ -343,13 +389,13 @@ const BuilderHeader = ({
 
       setTemplate([wrapperCard, ...template]);
     } else {
-      if (toastInfo) {
-        toastInfo("Nenhuma propriedade pendente encontrada.");
-      } else {
-        alert("Nenhuma propriedade pendente encontrada.");
-      }
+      toastInfo("Nenhuma propriedade pendente encontrada.");
     }
   };
+
+  useEffect(() => {
+    if (initialGeoLayerFullURL) handleImportGeoPropertiesFromInitialURL(initialGeoLayerFullURL);
+  }, [initialGeoLayerFullURL])
 
   return (
     <header className={cn("flex items-center p-4 border-b bg-background shrink-0", standalone ? "justify-between" : "justify-end")}>
@@ -453,7 +499,7 @@ const BuilderHeader = ({
                     type="button"
                     size="sm"
                     className="w-full"
-                    onClick={handleImportGeoProperties}
+                    onClick={handleImportGeoPropertiesWithOptions}
                     disabled={isImportingGeo || !selectedGeoLayer}
                   >
                     {isImportingGeo ? (
@@ -546,8 +592,8 @@ const BuilderHeader = ({
             </div>
             <div className="flex-1 bg-muted/30">
               {previewModalOpen && (
-                <iframe 
-                  src="/view-template/preview" 
+                <iframe
+                  src="/view-template/preview"
                   className="w-full h-full border-none"
                   title="Preview"
                 />
@@ -577,6 +623,7 @@ const BuilderContent = ({
   onChange,
   initialGeoUrl,
   initialGeoLayer,
+  initialGeoLayerFullURL,
   initialMockData,
   title,
   subtitle,
@@ -587,6 +634,7 @@ const BuilderContent = ({
   onChange?: (template: ITemplate[]) => void;
   initialGeoUrl?: string;
   initialGeoLayer?: string;
+  initialGeoLayerFullURL?: string;
   initialMockData?: any;
   title?: string;
   subtitle?: string;
@@ -607,7 +655,7 @@ const BuilderContent = ({
       // avoiding referential equality infinite loops with parent components
       onChange(template);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(template)]);
   const [activeDragItem, setActiveDragItem] =
     useState<IBuilderTemplateConfig | null>(null);
@@ -686,59 +734,59 @@ const BuilderContent = ({
 
     if (over.id !== "root-droppable") {
       const targetNode = findNode(template, over.id as string);
-      
+
       if (targetNode) {
-         targetConfig = BUILDER_TEMPLATES.find((t) => t.name === targetNode.type) || null;
-         
-         // Se o target for wrapper, ele é o pai. Se for um componente normal, o pai do novo item será o mesmo do target
-         if (targetConfig?.isWrapper || targetNode.type.includes("wrapper")) {
-            targetParentType = targetNode.type;
-         } else {
-            // Find parent of the sibling
-            const findParentOf = (items: ITemplate[], targetId: string, currentParentType: string | null): string | null => {
-               for (const item of items) {
-                  if (item.id === targetId) return currentParentType;
-                  const config = BUILDER_TEMPLATES.find((t) => t.name === item.type);
-                  const childrenProp = config?.childrenProp || "templates";
-                  // @ts-ignore
-                  if (item[childrenProp] && Array.isArray(item[childrenProp])) {
-                      // @ts-ignore
-                      const p = findParentOf(item[childrenProp], targetId, item.type);
-                      if (p !== null) return p;
-                  }
-               }
-               return null;
-            };
-            targetParentType = findParentOf(template, over.id as string, null);
-            
-            if (targetParentType) {
-                targetConfig = BUILDER_TEMPLATES.find((t) => t.name === targetParentType) || null;
-            } else {
-                targetConfig = null; // if it goes to root
+        targetConfig = BUILDER_TEMPLATES.find((t) => t.name === targetNode.type) || null;
+
+        // Se o target for wrapper, ele é o pai. Se for um componente normal, o pai do novo item será o mesmo do target
+        if (targetConfig?.isWrapper || targetNode.type.includes("wrapper")) {
+          targetParentType = targetNode.type;
+        } else {
+          // Find parent of the sibling
+          const findParentOf = (items: ITemplate[], targetId: string, currentParentType: string | null): string | null => {
+            for (const item of items) {
+              if (item.id === targetId) return currentParentType;
+              const config = BUILDER_TEMPLATES.find((t) => t.name === item.type);
+              const childrenProp = config?.childrenProp || "templates";
+              // @ts-ignore
+              if (item[childrenProp] && Array.isArray(item[childrenProp])) {
+                // @ts-ignore
+                const p = findParentOf(item[childrenProp], targetId, item.type);
+                if (p !== null) return p;
+              }
             }
-         }
+            return null;
+          };
+          targetParentType = findParentOf(template, over.id as string, null);
+
+          if (targetParentType) {
+            targetConfig = BUILDER_TEMPLATES.find((t) => t.name === targetParentType) || null;
+          } else {
+            targetConfig = null; // if it goes to root
+          }
+        }
       }
     }
 
     const checkConstraints = (itemType: string, parentType: string | null): boolean => {
       const draggedConfig = BUILDER_TEMPLATES.find(t => t.name === itemType);
-      
+
       if (!parentType) {
         if (draggedConfig?.validParents && draggedConfig.validParents.length > 0) {
-           toastError(`Este componente só pode ser inserido dentro de um ${draggedConfig.validParents.join(" ou ")}.`);
-           return false;
+          toastError(`Este componente só pode ser inserido dentro de um ${draggedConfig.validParents.join(" ou ")}.`);
+          return false;
         }
         return true;
       }
 
       if (draggedConfig?.validParents && !draggedConfig.validParents.includes(parentType)) {
-         toastError(`O componente '${draggedConfig.friendlyName || itemType}' não pode ser inserido em um '${targetConfig?.friendlyName || parentType}'. Ele requer: ${draggedConfig.validParents.join(", ")}`);
-         return false;
+        toastError(`O componente '${draggedConfig.friendlyName || itemType}' não pode ser inserido em um '${targetConfig?.friendlyName || parentType}'. Ele requer: ${draggedConfig.validParents.join(", ")}`);
+        return false;
       }
 
       if (targetConfig?.allowedChildren && !targetConfig.allowedChildren.includes(itemType)) {
-         toastError(`O container '${targetConfig.friendlyName || parentType}' não aceita componentes do tipo '${draggedConfig?.friendlyName || itemType}'.`);
-         return false;
+        toastError(`O container '${targetConfig.friendlyName || parentType}' não aceita componentes do tipo '${draggedConfig?.friendlyName || itemType}'.`);
+        return false;
       }
 
       return true;
@@ -746,7 +794,7 @@ const BuilderContent = ({
 
     if (activeData?.type === "new-item") {
       const templateConfig = activeData.template as IBuilderTemplateConfig;
-      
+
       if (!checkConstraints(templateConfig.name, targetParentType)) {
         return;
       }
@@ -764,7 +812,7 @@ const BuilderContent = ({
       }
     } else if (activeData?.type === "existing-item") {
       const draggedTemplate = activeData.template as ITemplate;
-      
+
       if (!checkConstraints(draggedTemplate.type, targetParentType)) {
         return;
       }
@@ -783,11 +831,12 @@ const BuilderContent = ({
         className="flex flex-col h-full w-full overflow-hidden bg-background text-foreground"
         ref={containerRef}
       >
-        <BuilderHeader 
-          onSave={onSave} 
-          onLoad={onLoad} 
-          initialGeoUrl={initialGeoUrl} 
-          initialGeoLayer={initialGeoLayer} 
+        <BuilderHeader
+          onSave={onSave}
+          onLoad={onLoad}
+          initialGeoUrl={initialGeoUrl}
+          initialGeoLayerFullURL={initialGeoLayerFullURL}
+          initialGeoLayer={initialGeoLayer}
           title={title}
           subtitle={subtitle}
           standalone={standalone}
@@ -832,6 +881,7 @@ export const ViewTemplateBuilder = ({
   onLoad,
   onChange,
   initialGeoUrl,
+  initialGeoLayerFullURL,
   initialGeoLayer,
   initialMockData,
   title,
@@ -840,12 +890,13 @@ export const ViewTemplateBuilder = ({
 }: ViewTemplateBuilderProps) => {
   return (
     <BuilderProvider initialTemplate={initialTemplate || DEFAULT_TEMPLATE}>
-      <BuilderContent 
-        onSave={onSave} 
-        onLoad={onLoad} 
+      <BuilderContent
+        onSave={onSave}
+        onLoad={onLoad}
         onChange={onChange}
         initialGeoUrl={initialGeoUrl}
         initialGeoLayer={initialGeoLayer}
+        initialGeoLayerFullURL={initialGeoLayerFullURL}
         initialMockData={initialMockData}
         title={title}
         subtitle={subtitle}

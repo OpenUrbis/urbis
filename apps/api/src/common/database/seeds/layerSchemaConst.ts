@@ -481,7 +481,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'macroareas',
     name: 'Macroáreas',
-    index: 70,
+    index: 46,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Amacroareas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -548,7 +548,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'macrozonas',
     name: 'Macrozonas',
-    index: 80,
+    index: 45,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Amacrozonas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -577,7 +577,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'setores',
     name: 'Setores',
-    index: 160,
+    index: 47,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -612,7 +612,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'subsetores',
     name: 'Subsetores',
-    index: 160,
+    index: 48,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asubsetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -695,7 +695,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'eixos',
     name: 'Eixos',
-    index: 50,
+    index: 49,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aeixos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -724,7 +724,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'zoneamento_geral',
     name: 'Zoneamento de destinação (urbano/rural)',
-    index: 250,
+    index: 44,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento_geral&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -753,7 +753,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'zoneamento_lei_16402_18177',
     name: 'Zoneamento',
-    index: 260,
+    index: 50,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Azoneamento&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1003,8 +1003,8 @@ export const layerSchemas: LayerSchema[] = [
   },
   {
     id: 'minianel_viario',
-    name: 'Minianel Viário',
-    index: 90,
+    name: 'Minianel viário',
+    index: 67,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aminianel_viario&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1019,13 +1019,14 @@ export const layerSchemas: LayerSchema[] = [
       {
         color: [217, 234, 211, 190],
         label: 'default',
+        pattern: 'hatch-1x'
       },
     ],
   },
   {
     id: 'aguas_dormentes',
     name: 'Águas dormentes',
-    index: 90,
+    index: 68,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aaguas_dormentes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1044,9 +1045,30 @@ export const layerSchemas: LayerSchema[] = [
     ],
   },
   {
+    id: 'aguas_correntes',
+    name: 'Águas correntes',
+    index: 69,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aaguas_correntes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'aguas',
+    colors: [
+      {
+        color: [17, 85, 204, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
     id: 'aguas_correntes_estimadas',
     name: 'Águas Correntes Estimadas',
-    index: 10,
+    index: 70,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?request=GetMap&typeName=slui%3Aaguas_correntes_estimadas&format=image%2Fvnd.jpeg-png&TRANSPARENT=true&srsName=EPSG:4326',
     isActive: true,
@@ -1056,7 +1078,7 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    groupId: 'areas_publicas',
+    groupId: 'aguas',
     colors: [
       {
         color: [65, 120, 216, 190],
@@ -1067,7 +1089,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
     name: 'Terrenos marginais aos cursos d’água navegáveis',
-    index: 90,
+    index: 71,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aterrenos_marginais_aos_cursos_dagua_navegaveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1088,7 +1110,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'calcadas',
     name: 'Calçadas',
-    index: 110,
+    index: 72,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Acalcadas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1109,7 +1131,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'pracas_e_canteiros',
     name: 'Canteiros',
-    index: 110,
+    index: 74,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Apracas_e_canteiros&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1130,7 +1152,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'risco_geologico',
     name: 'Risco Geológico',
-    index: 140,
+    index: 111,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Arisco_geologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1153,7 +1175,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'risco_hidrologico',
     name: 'Risco Hidrológico',
-    index: 150,
+    index: 112,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Arisco_hidrologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1176,7 +1198,7 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'restricoes_geotecnicas',
     name: 'Restrições Geotécnicas',
-    index: 130,
+    index: 113,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Arestricoes_geotecnicas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1186,7 +1208,7 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    groupId: 'restricoes_geotecnicas',
+    groupId: 'seguranca',
     colors: [
       {
         color: [153, 0, 0, 190],
@@ -1213,6 +1235,26 @@ export const layerSchemas: LayerSchema[] = [
     colors: [
       {
         color: [0, 0, 255, 190],
+        label: 'default',
+      },
+    ],
+  }, {
+    id: 'subprefeitura',
+    name: 'Subprefeituras',
+    index: 170,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asubprefeitura&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'limites_administrativos',
+    colors: [
+      {
+        color: [183, 183, 183, 190],
         label: 'default',
       },
     ],

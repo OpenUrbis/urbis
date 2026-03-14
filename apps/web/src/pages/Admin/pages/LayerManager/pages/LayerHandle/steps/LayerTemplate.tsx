@@ -18,6 +18,7 @@ export const LayerTemplate = ({}: LayerTemplateProps) => {
   const form = useFormContext();
 
   const url = form.watch("url");
+  const origin = form.watch("origin")
   const selectedLayer = form.watch("selectedLayer");
 
   const initialTemplate = useMemo(() => {
@@ -45,6 +46,7 @@ export const LayerTemplate = ({}: LayerTemplateProps) => {
               <ViewTemplateBuilder
                 initialTemplate={initialTemplate}
                 initialGeoUrl={url}
+                initialGeoLayerFullURL={origin}
                 initialGeoLayer={selectedLayer?.name}
                 title="Template de Visualização"
                 subtitle="Configure o template que será utilizado para exibir os detalhes da feature."

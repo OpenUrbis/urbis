@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@open-urbis/map-ui";
 import {
   Drawer,
   DrawerClose,
@@ -7,14 +7,14 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
+} from "@open-urbis/map-ui";
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+} from "@open-urbis/map-ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,8 +22,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from "@open-urbis/map-ui";
+import { cn } from "@open-urbis/map-ui";
 import { useAuth } from "react-oidc-context";
 
 import { Debugger } from "../Debugger";

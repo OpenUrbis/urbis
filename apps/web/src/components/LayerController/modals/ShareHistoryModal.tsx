@@ -1,8 +1,8 @@
 import { useEffect } from "preact/hooks";
 import { useSignal } from "@preact/signals";
 import { useAuth } from "react-oidc-context";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
 import { shareService, SharedMapItem } from "../../../integrations/share-service";
 
 interface ShareHistoryModalProps {

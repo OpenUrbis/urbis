@@ -49,5 +49,8 @@
     "@deck.gl/google-maps": "9.2.5",
     "@deck.gl/carto": "9.2.5",
     "@deck.gl/arcgis": "9.2.5"
+  },
+  "dependencies": {
+    "proj4": "^2.20.2"
   }
 }

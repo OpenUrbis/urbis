@@ -3,7 +3,7 @@ import { useEffect } from "preact/hooks";
 import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerGroup, IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { LayerItem } from "./LayerItem";
-import { cn } from "@/lib/utils";
+import { cn } from "@open-urbis/map-ui";
 
 // Helper to check if a group or its children has matches
 const hasGroupMatches = (

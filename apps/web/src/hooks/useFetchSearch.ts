@@ -52,5 +52,16 @@ export const useFetchSearch = (
     error.value = null;
   };
 
-  return { data: data.value, loading: loading.value, error: error.value, fetchData, clearResults };
+  const setResults = (results: ISearchResponse) => {
+    data.value = results;
+  };
+
+  return {
+    data: data.value,
+    loading: loading.value,
+    error: error.value,
+    fetchData,
+    clearResults,
+    setResults,
+  };
 };

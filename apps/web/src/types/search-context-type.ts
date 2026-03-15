@@ -10,6 +10,7 @@ export interface ISearchFetchQuery {
   error: string | null;
   clearResults: () => void;
   fetchData: (term: string) => Promise<void>;
+  setResults: (results: ISearchResponse) => void;
 }
 
 export interface SearchContextType {

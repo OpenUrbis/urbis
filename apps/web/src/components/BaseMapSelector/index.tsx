@@ -1,8 +1,8 @@
 import { useMapContext } from "../../hooks/useMapContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@open-urbis/map-ui";
+import { cn } from "@open-urbis/map-ui";
+import { Switch } from "@open-urbis/map-ui";
+import { Label } from "@open-urbis/map-ui";
 
 const MAP_STYLES = [
   { id: "standard", label: "Padrão", icon: "map" },

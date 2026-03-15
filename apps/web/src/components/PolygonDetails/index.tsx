@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@open-urbis/map-ui";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { ViewTemplate } from "../ViewTemplate";
 import { ITemplate } from "../ViewTemplate/types/templates-type";
@@ -29,6 +29,11 @@ export const PolygonDetails = ({
             <span className="font-bold text-primary">
               Selecione uma área e <br /> clique para Salvar:
             </span>
+            <p className="text-[10px] text-muted-foreground mt-2 leading-snug">
+              Para selecionar e poder editar os vértices do elemento, clique nele
+              duas vezes e faça as edições necessárias depois clique em Salvar /
+              Atualizar.
+            </p>
           </div>
         </CardContent>
       </Card>

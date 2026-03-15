@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../../../hooks/useNavigationContext";
 import { usePolygonEditContext } from "../../../../hooks/usePolygonEditContext";
 import { PolygonDetails } from "../../../PolygonDetails";

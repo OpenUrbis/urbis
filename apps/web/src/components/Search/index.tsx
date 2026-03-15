@@ -1,15 +1,15 @@
-import { useEffect } from "preact/compat";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "preact/compat";
+import { Card, CardContent } from "@open-urbis/map-ui";
+import { Input } from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
+} from "@open-urbis/map-ui";
+import { Switch } from "@open-urbis/map-ui";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
@@ -19,6 +19,48 @@ import {
   IGetSearchItemError,
 } from "../../types/fetch-search-config-type";
 import { ITemplate } from "../ViewTemplate/types/templates-type";
+import { ConcatenatedSearchModal } from "./ConcatenatedSearchModal";
+import proj4 from "proj4";
+
+proj4.defs(
+  "EPSG:31983",
+  "+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+);
+
+const convertFeatureToSirgas = (feature: any) => {
+  if (!feature || !feature.geometry) return feature;
+  const cloned = JSON.parse(JSON.stringify(feature));
+
+  const transform = (coords: any): any => {
+    if (typeof coords[0] === "number") {
+      return proj4("EPSG:4326", "EPSG:31983", coords);
+    }
+    return coords.map(transform);
+  };
+
+  if (cloned.geometry.coordinates) {
+    cloned.geometry.coordinates = transform(cloned.geometry.coordinates);
+  }
+
+  if (cloned.bbox) {
+    const min = proj4("EPSG:4326", "EPSG:31983", [
+      cloned.bbox[0],
+      cloned.bbox[1],
+    ]);
+    const max = proj4("EPSG:4326", "EPSG:31983", [
+      cloned.bbox[2],
+      cloned.bbox[3],
+    ]);
+    cloned.bbox = [min[0], min[1], max[0], max[1]];
+  }
+
+  cloned.crs = {
+    type: "name",
+    properties: { name: "urn:ogc:def:crs:EPSG::31983" },
+  };
+
+  return cloned;
+};
 
 export const Search = () => {
   const {
@@ -31,6 +73,13 @@ export const Search = () => {
   const { data, error, fetchData, clearResults, loading } = searchQuery;
   const clickActions = CLICK_ACTIONS_CONFIG();
   const { reset: resetPolygonEdit } = usePolygonEditContext();
+  const [jsonFeature, setJsonFeature] = useState<any>(null);
+
+  const handleCopyJson = () => {
+    if (jsonFeature) {
+      navigator.clipboard.writeText(JSON.stringify(jsonFeature, null, 2));
+    }
+  };
 
   useEffect(() => {
     populateSearchConfig();
@@ -105,10 +154,12 @@ export const Search = () => {
   ) => {
     if (list.findIndex((item) => (item as IGetSearchItemError)?.type === 'error') >= 0) return renderError(config, list as IGetSearchItemError[]);
 
+    const totalCount = (list as any).totalCount ?? list.length;
+
     return (
       <div className="mt-4">
         <span className="font-semibold block mb-2">
-          {config.name} ({list.length})
+          {config.name} ({totalCount})
         </span>
         <ul className="mt-2 border-t border-border divide-y divide-border">
           {list.map((result) => {
@@ -117,16 +168,28 @@ export const Search = () => {
             return (
               <li
                 key={content.id}
-                className="py-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                className="py-2 cursor-pointer hover:bg-muted/50 transition-colors flex items-center justify-between group"
                 onClick={() => {
                   handleClickItem(config, content);
                   resetSearch();
                   clearResults();
                 }}
               >
-                <span className="line-clamp-2 text-sm">
+                <span className="line-clamp-2 text-sm flex-1 mr-2">
                   {content.name}
                 </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setJsonFeature(convertFeatureToSirgas(content.rawData));
+                  }}
+                  title="Ver JSON"
+                >
+                  <span className="material-symbols-outlined text-xs">data_object</span>
+                </Button>
               </li>
             )
           })}
@@ -221,6 +284,8 @@ export const Search = () => {
                   </div>
                 </DialogContent>
               </Dialog>
+
+              <ConcatenatedSearchModal />
               
               <Button
                 variant="outline"
@@ -253,6 +318,23 @@ export const Search = () => {
                   .map((config) => buildList(config, data?.[config.id] ?? []))}
               </div>
             )}
+
+            <Dialog open={!!jsonFeature} onOpenChange={(open) => !open && setJsonFeature(null)}>
+              <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+                <DialogHeader>
+                  <DialogTitle>Detalhes da Feature (JSON)</DialogTitle>
+                </DialogHeader>
+                <div className="flex-1 overflow-auto bg-muted p-4 rounded-md text-xs font-mono whitespace-pre-wrap">
+                  {jsonFeature && JSON.stringify(jsonFeature, null, 2)}
+                </div>
+                <div className="flex justify-end pt-2">
+                  <Button onClick={handleCopyJson} className="gap-2">
+                    <span className="material-symbols-outlined text-base">content_copy</span>
+                    Copiar JSON
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
       </CardContent>
     </Card>
   );

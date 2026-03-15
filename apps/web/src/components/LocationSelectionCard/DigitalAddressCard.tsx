@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@open-urbis/map-ui";
 
 interface DigitalAddressCardProps {
   prefix: string;

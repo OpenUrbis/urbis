@@ -1,10 +1,11 @@
 import {
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
-  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MailService } from 'common/mail/mail.service';
 import { RedisService } from 'common/redis/redis.service';
 import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { IPaginationOptions } from '../common/utils/types/pagination-options';
@@ -13,6 +14,7 @@ import { RoleService } from '../role/role.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { UserStatus } from './enums/user-status.enum';
 
 @Injectable()
 export class UserService {
@@ -21,6 +23,7 @@ export class UserService {
     private usersRepository: Repository<User>,
     private readonly redisService: RedisService,
     private readonly roleService: RoleService,
+    private readonly mailService: MailService,
   ) {}
 
   async create(
@@ -72,12 +75,17 @@ export class UserService {
     }
   }
 
-  async list(pagination: IPaginationOptions, organizationId?: string) {
+  async list(
+    pagination: IPaginationOptions,
+    organizationId?: string,
+    status?: UserStatus,
+  ) {
     if (pagination.page > 0) pagination.page--;
     const { limit, page } = pagination;
     const where: FindOptionsWhere<User> = {};
 
     if (organizationId) where.userRoleAssignments = { organizationId };
+    if (status) where.status = status;
 
     const [data, total] = await this.usersRepository.findAndCount({
       where,
@@ -106,14 +114,28 @@ export class UserService {
     return this.usersRepository.save(user);
   }
 
-  update(id: string, updateProfileDto: UpdateUserDto) {
-    return this.usersRepository.update(
+  async update(id: string, updateProfileDto: UpdateUserDto) {
+    await this.usersRepository.update(
       { id },
       {
         id,
         ...updateProfileDto,
       },
     );
+
+    return this.findOne({ id });
+  }
+
+  async updateStatus(id: string, status: UserStatus) {
+    const user = await this.findOne({ id });
+    if (!user) throw new NotFoundException({ message: 'User is not found' });
+    user.status = status;
+    await user.save();
+
+    if (status === UserStatus.ACTIVE) {
+      await this.mailService.accountApproved(user.email, user.firstName);
+    }
+    return user;
   }
 
   async softDelete(id: string): Promise<void> {

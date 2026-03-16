@@ -80,4 +80,16 @@ export class AuthRegisterLoginDto {
   @ApiProperty()
   @IsOptional()
   avatarUrl?: string;
+
+  @ApiProperty({ example: '1990-01-01' })
+  @IsNotEmpty()
+  birthDate: string;
+
+  @ApiProperty({ example: 'fisica_capaz' })
+  @IsNotEmpty()
+  accountType: string;
+
+  @ApiProperty()
+  @IsOptional()
+  metadata?: any;
 }

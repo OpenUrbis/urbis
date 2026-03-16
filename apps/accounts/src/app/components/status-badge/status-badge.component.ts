@@ -24,7 +24,11 @@ export class StatusBadgeComponent {
     if (s === 'active' || s === 'true') {
         return hlm(base, 'border-transparent bg-green-100 text-green-800 hover:bg-green-200');
     }
-    
+
+    if (s === 'in_analysis') {
+        return hlm(base, 'border-transparent bg-yellow-100 text-yellow-800 hover:bg-yellow-200');
+    }
+
     return hlm(base, 'border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200');
   });
 }

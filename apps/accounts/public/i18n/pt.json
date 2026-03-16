@@ -60,6 +60,10 @@
         "emailConfirmation": {
           "title": "Confirmação de email pendente",
           "description": "Seu email ainda não foi confirmado. Para acessar sua conta, confirme o email através do link enviado para sua caixa de entrada. Um novo email de confirmação foi reenviado para você."
+        },
+        "inAnalysis": {
+          "title": "Conta em análise",
+          "description": "Sua conta ainda não foi aprovada. Assim que a mesma for aprovada, você será notificado por email."
         }
       },
       "form": {
@@ -89,7 +93,6 @@
         "userNotFoundSignUp": "Conta GovBR não encontrada no Urbis. Por favor, preencha os dados abaixo para se cadastrar e vincular sua conta."
       },
       "notifications": {
-        "welcomeGovBr": "Bem-vindo! Identificamos seu login pelo Gov.br. Para continuar, por favor complete seu cadastro abaixo. Seus dados já foram pré-preenchidos para facilitar.",
         "finalizeGovBr": "Cadastro realizado com sucesso! Agora, basta clicar no botão 'Entrar com GovBR' abaixo para vincular sua conta e acessar o sistema."
       }
     },
@@ -99,10 +102,16 @@
         "back": "Voltar",
         "next": "Continuar"
       },
+      "success": {
+        "inAnalysis": "Sua conta foi criada com sucesso e deve passar por um processo de análise. Assim que a mesma for aprovada, você será notificado por email",
+        "default": "Conta criada com sucesso, verifique seu email antes de realizar o acesso",
+        "backToLogin": "Voltar para o login"
+      },
       "form": {
         "fields": {
           "firstName": "Nome",
           "lastName": "Sobrenome",
+          "birthDate": "Data de Nascimento",
           "socialName": "Nome Social",
           "email": "Email",
           "address": "Endereço",
@@ -239,6 +248,7 @@
           "fields": {
             "firstName": "Primeiro nome",
             "lastName": "Último nome",
+            "birthDate": "Data de Nascimento",
             "phone": "Telefone",
             "country": "País"
           },
@@ -639,7 +649,8 @@
       },
       "status": {
         "active": "Ativo",
-        "inactive": "Inativo"
+        "inactive": "Inativo",
+        "in_analysis": "Em Análise"
       }
     },
     "lib": {

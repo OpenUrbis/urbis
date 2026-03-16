@@ -37,6 +37,10 @@ export class UsersApi {
     return this.httpClient.put<IUser>(`${API_BASE}/${id}`, data);
   }
 
+  updateStatus(id: string, status: string) {
+    return this.httpClient.patch<IUser>(`${API_BASE}/${id}/status`, { status });
+  }
+
   delete(id: string) {
     return this.httpClient.delete(`${API_BASE}/${id}`);
   }

@@ -298,4 +298,17 @@ export class RoleService {
     });
     return count > 0;
   }
+
+  async hasOrganization(
+    userId: string,
+    organizationId: string,
+  ): Promise<boolean> {
+    const count = await this.userRoleAssignmentRepository.count({
+      where: {
+        userId,
+        organizationId,
+      },
+    });
+    return count > 0;
+  }
 }

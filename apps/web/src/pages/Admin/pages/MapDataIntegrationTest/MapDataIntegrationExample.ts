@@ -2187,10 +2187,19 @@ export const EXAMPLE_DATA = {
             {
               "CODLOG": null,
               "NOMELOG": null,
-              "coordenadas de GEOIMPALNPRIATU não sobrepostas a GEOIMPDOA nem a GEOIMPFXANEDALT, somadas a GEOIMPALNPRIFUT, contidas em GEOIMPCALPRO": {},
-              "coordenadas de GEOIMPALNPRIATU não sobrepostas a GEOIMPDOA, somadas a GEOIMPALNPRIFUT não sobrepostas a GEOIMPFXANEDALT, contidas em GEOIMPCALPRO": {},
-              "coordenadas de GEOIMPALNSECATU não sobrepostas a GEOIMPDOA, somadas a GEOIMPALNSECFUT não sobrepostas a GEOIMPFXANEDALT, contidas em GEOIMPCALPRO": {},
-              "COORDENADAS DE GEOIMPFXAPAS DENTRO DE GEOIMPCALPRO": {
+              "alinhamento_principal_de_análise_espacial": {
+                "name": "geometry",
+                "value": {}
+              },
+              "alinhamento_principal_de_análise_aplicação": {
+                "name": "geometry",
+                "value": {}
+              },
+              "alinhamento_secundário_de_análise_aplicação": {
+                "name": "geometry",
+                "value": {}
+              },
+              "coordenadas_de_geoimpfxapas_dentro_de_geoimpcalpro": {
                 "type": "Polygon",
                 "coordinates": [
                   [
@@ -2913,29 +2922,80 @@ export const EXAMPLE_DATA = {
                   ]
                 ]
               },
-              "acessoPedestres": [],
-              "coordenadas de GEOIMPCALRPAVCL": {},
-              "coordenadas de GEOIMPGUIRBXMAN": {},
-              "coordenadas de GEOIMPGUINORRBX": {},
-              "coordenadas de GEOIMPGUIRBXREV": {},
-              "coordenadas de GEOIMPGARMAN": {},
-              "coordenadas de GEOIMPGARCON": {},
-              "coordenadas de GEOIMPGARREV": {},
-              "ExisteRampaInCalcadaFaixaPasseio": false,
-              "ExistePosteInAcessoVeiculo": false,
-              "ExisteAcessoFaixaPedestreOverlapAcessoVeiculo": false,
-              "ExisteArvoreInAcessoVeiculo": false,
-              "ExisteBancaInAcessoVeiculo": false,
-              "ExisteBocaDeLoboOuLeaoInRampaVeiculo": false,
-              "ExisteTampaInspecaoInRampaVeiculo": false
+              "acesso_pedestres": [],
+              "coordenadas_de_GEOIMPCALRPAVCL": {
+                "name": "coordenadas de GEOIMPCALRPAVCL",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGUIRBXMAN": {
+                "name": "coordenadas de GEOIMPGUIRBXMAN",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGUINORRBX": {
+                "name": "coordenadas de GEOIMPGUINORRBX",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGUIRBXREV": {
+                "name": "coordenadas de GEOIMPGUIRBXREV",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGARMAN": {
+                "name": "coordenadas de GEOIMPGARMAN",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGARCON": {
+                "name": "coordenadas de GEOIMPGARCON",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGARREV": {
+                "name": "coordenadas de GEOIMPGARREV",
+                "value": {}
+              },
+              "ExisteRampaInCalcadaFaixaPasseio": {
+                "name": "há rampa para veículo na calçada na faixa de passeio?",
+                "value": false
+              },
+              "ExistePosteInAcessoVeiculo": {
+                "name": "há postes no acesso de veículos?",
+                "value": false
+              },
+              "ExisteAcessoFaixaPedestreOverlapAcessoVeiculo": {
+                "name": "há acessos a faixa de pedestres no acesso de veículos?",
+                "value": false
+              },
+              "ExisteArvoreInAcessoVeiculo": {
+                "name": "há árvores no acesso de veículos?",
+                "value": false
+              },
+              "ExisteBancaInAcessoVeiculo": {
+                "name": "há bancas no acesso de veículos?",
+                "value": false
+              },
+              "ExisteBocaDeLoboOuLeaoInRampaVeiculo": {
+                "name": "há boca de lobo ou de leão nas rampas de acesso de veículos?",
+                "value": false
+              },
+              "ExisteTampaInspecaoInRampaVeiculo": {
+                "name": "há tampa de inspeção de redes de infra-estrutura urbana nas rampas de acesso de veículos?",
+                "value": false
+              }
             },
             {
               "CODLOG": null,
               "NOMELOG": null,
-              "coordenadas de GEOIMPALNPRIATU não sobrepostas a GEOIMPDOA nem a GEOIMPFXANEDALT, somadas a GEOIMPALNPRIFUT, contidas em GEOIMPCALPRO": {},
-              "coordenadas de GEOIMPALNPRIATU não sobrepostas a GEOIMPDOA, somadas a GEOIMPALNPRIFUT não sobrepostas a GEOIMPFXANEDALT, contidas em GEOIMPCALPRO": {},
-              "coordenadas de GEOIMPALNSECATU não sobrepostas a GEOIMPDOA, somadas a GEOIMPALNSECFUT não sobrepostas a GEOIMPFXANEDALT, contidas em GEOIMPCALPRO": {},
-              "COORDENADAS DE GEOIMPFXAPAS DENTRO DE GEOIMPCALPRO": {
+              "alinhamento_principal_de_análise_espacial": {
+                "name": "geometry",
+                "value": {}
+              },
+              "alinhamento_principal_de_análise_aplicação": {
+                "name": "geometry",
+                "value": {}
+              },
+              "alinhamento_secundário_de_análise_aplicação": {
+                "name": "geometry",
+                "value": {}
+              },
+              "coordenadas_de_geoimpfxapas_dentro_de_geoimpcalpro": {
                 "type": "Polygon",
                 "coordinates": [
                   [
@@ -4456,7 +4516,7 @@ export const EXAMPLE_DATA = {
                   ]
                 ]
               },
-              "acessoPedestres": [],
+              "acesso_pedestres": [],
               "AcessosVeiculos": [
                 {
                   "geometry": {
@@ -4927,148 +4987,190 @@ export const EXAMPLE_DATA = {
                   "numeracao": "4"
                 }
               ],
-              "coordenadas de GEOIMPCALRPAVCL": {},
-              "coordenadas de GEOIMPGUIRBXMAN": {},
-              "coordenadas de GEOIMPGUINORRBX": {
-                "type": "MultiPolygon",
-                "coordinates": [
-                  [
+              "coordenadas_de_GEOIMPCALRPAVCL": {
+                "name": "coordenadas de GEOIMPCALRPAVCL",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGUIRBXMAN": {
+                "name": "coordenadas de GEOIMPGUIRBXMAN",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGUINORRBX": {
+                "name": "coordenadas de GEOIMPGUINORRBX",
+                "value": {
+                  "type": "MultiPolygon",
+                  "coordinates": [
                     [
                       [
-                        340880.266,
-                        7393519.173
-                      ],
-                      [
-                        340883.264,
-                        7393506.442
+                        [
+                          340880.266,
+                          7393519.173
+                        ],
+                        [
+                          340883.264,
+                          7393506.442
+                        ]
                       ]
-                    ]
-                  ],
-                  [
+                    ],
                     [
                       [
-                        340876.941,
-                        7393535.17
-                      ],
-                      [
-                        340877.917,
-                        7393525.796
+                        [
+                          340876.941,
+                          7393535.17
+                        ],
+                        [
+                          340877.917,
+                          7393525.796
+                        ]
                       ]
-                    ]
-                  ],
-                  [
+                    ],
                     [
                       [
-                        340887.688,
-                        7393564.338
-                      ],
-                      [
-                        340883.812,
-                        7393554.017
+                        [
+                          340887.688,
+                          7393564.338
+                        ],
+                        [
+                          340883.812,
+                          7393554.017
+                        ]
                       ]
-                    ]
-                  ],
-                  [
+                    ],
                     [
                       [
-                        340901.999,
-                        7393607.597
-                      ],
-                      [
-                        340896.207,
-                        7393587.027
+                        [
+                          340901.999,
+                          7393607.597
+                        ],
+                        [
+                          340896.207,
+                          7393587.027
+                        ]
                       ]
-                    ]
-                  ],
-                  [
+                    ],
                     [
                       [
-                        340936.554,
-                        7393701.314
-                      ],
-                      [
-                        340926.299,
-                        7393674.177
+                        [
+                          340936.554,
+                          7393701.314
+                        ],
+                        [
+                          340926.299,
+                          7393674.177
+                        ]
                       ]
-                    ]
-                  ],
-                  [
+                    ],
                     [
                       [
-                        340694.812,
-                        7393690.919
-                      ],
-                      [
-                        340687.169,
-                        7393676.395
+                        [
+                          340694.812,
+                          7393690.919
+                        ],
+                        [
+                          340687.169,
+                          7393676.395
+                        ]
                       ]
-                    ]
-                  ],
-                  [
+                    ],
                     [
                       [
-                        340712.225,
-                        7393718.451
-                      ],
-                      [
-                        340703.497,
-                        7393707.458
+                        [
+                          340712.225,
+                          7393718.451
+                        ],
+                        [
+                          340703.497,
+                          7393707.458
+                        ]
                       ]
-                    ]
-                  ],
-                  [
+                    ],
                     [
                       [
-                        340650.624,
-                        7393607.174
-                      ],
-                      [
-                        340638.391,
-                        7393579.433
+                        [
+                          340650.624,
+                          7393607.174
+                        ],
+                        [
+                          340638.391,
+                          7393579.433
+                        ]
                       ]
-                    ]
-                  ],
-                  [
+                    ],
                     [
                       [
-                        340573.646,
-                        7393426.589
-                      ],
-                      [
-                        340574.668,
-                        7393426.105
-                      ],
-                      [
-                        340602.327,
-                        7393412.702
+                        [
+                          340573.646,
+                          7393426.589
+                        ],
+                        [
+                          340574.668,
+                          7393426.105
+                        ],
+                        [
+                          340602.327,
+                          7393412.702
+                        ]
                       ]
-                    ]
-                  ],
-                  [
+                    ],
                     [
                       [
-                        340696.514,
-                        7393371.474
-                      ],
-                      [
-                        340686.529,
-                        7393374.059
+                        [
+                          340696.514,
+                          7393371.474
+                        ],
+                        [
+                          340686.529,
+                          7393374.059
+                        ]
                       ]
                     ]
                   ]
-                ]
+                }
               },
-              "coordenadas de GEOIMPGUIRBXREV": {},
-              "coordenadas de GEOIMPGARMAN": {},
-              "coordenadas de GEOIMPGARCON": {},
-              "coordenadas de GEOIMPGARREV": {},
-              "ExisteRampaInCalcadaFaixaPasseio": false,
-              "ExistePosteInAcessoVeiculo": false,
-              "ExisteAcessoFaixaPedestreOverlapAcessoVeiculo": false,
-              "ExisteArvoreInAcessoVeiculo": false,
-              "ExisteBancaInAcessoVeiculo": false,
-              "ExisteBocaDeLoboOuLeaoInRampaVeiculo": false,
-              "ExisteTampaInspecaoInRampaVeiculo": false
+              "coordenadas_de_GEOIMPGUIRBXREV": {
+                "name": "coordenadas de GEOIMPGUIRBXREV",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGARMAN": {
+                "name": "coordenadas de GEOIMPGARMAN",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGARCON": {
+                "name": "coordenadas de GEOIMPGARCON",
+                "value": {}
+              },
+              "coordenadas_de_GEOIMPGARREV": {
+                "name": "coordenadas de GEOIMPGARREV",
+                "value": {}
+              },
+              "ExisteRampaInCalcadaFaixaPasseio": {
+                "name": "há rampa para veículo na calçada na faixa de passeio?",
+                "value": false
+              },
+              "ExistePosteInAcessoVeiculo": {
+                "name": "há postes no acesso de veículos?",
+                "value": false
+              },
+              "ExisteAcessoFaixaPedestreOverlapAcessoVeiculo": {
+                "name": "há acessos a faixa de pedestres no acesso de veículos?",
+                "value": false
+              },
+              "ExisteArvoreInAcessoVeiculo": {
+                "name": "há árvores no acesso de veículos?",
+                "value": false
+              },
+              "ExisteBancaInAcessoVeiculo": {
+                "name": "há bancas no acesso de veículos?",
+                "value": false
+              },
+              "ExisteBocaDeLoboOuLeaoInRampaVeiculo": {
+                "name": "há boca de lobo ou de leão nas rampas de acesso de veículos?",
+                "value": false
+              },
+              "ExisteTampaInspecaoInRampaVeiculo": {
+                "name": "há tampa de inspeção de redes de infra-estrutura urbana nas rampas de acesso de veículos?",
+                "value": false
+              }
             }
           ]
         },
@@ -5076,39 +5178,39 @@ export const EXAMPLE_DATA = {
           "blocos": [
             {
               "identificacao": {
-                "nome": "identificacao",
-                "valor": "B1"
+                "name": "identificação",
+                "value": "B1"
               },
               "nome_do_bloco": {
-                "nome": "nome do bloco",
-                "valor": "Shopping Anália Franco"
+                "name": "nome do bloco",
+                "value": "Shopping Anália Franco"
               },
               "usos": {
-                "nome": "usos",
-                "valor": [
+                "name": "usos",
+                "value": [
                   {
                     "nome": "nR2-2-1"
                   }
                 ]
               },
               "altitude_do_pavimento_terreo": {
-                "nome": "altitude do pavimento térreo",
-                "valor": 75948
+                "name": "altitude do pavimento térreo",
+                "value": 75948
               },
               "altitude_maxima": {
-                "nome": "altitude máxima, contando ático, casa de máquina, caixa d'água, antena etc.",
-                "valor": 80412
+                "name": "altitude máxima, contando ático, casa de máquina, caixa d'água, antena etc.",
+                "value": 80412
               },
               "gabarito_altura_maxima": {
-                "nome": "gabarito de altura máxima",
-                "valor": 400
+                "name": "gabarito de altura máxima",
+                "value": 400
               },
               "altitude_edilicia_mais_alta": {
-                "nome": "altitude edilícia mais alta",
-                "valor": 76348
+                "name": "altitude edilícia mais alta",
+                "value": 76348
               },
               "area_ocupada_absoluta": {
-                "nome": "área ocupada absoluta (incluindo subsolos) - geometry",
+                "name": "área ocupada absoluta (incluindo subsolos) - geometry",
                 "geometry": {
                   "type": "Polygon",
                   "coordinates": [
@@ -7586,11 +7688,11 @@ export const EXAMPLE_DATA = {
                 }
               },
               "area_ocupada_absoluta_forma_perimetro_unico": {
-                "nome": "área ocupada absoluta (incluindo subsolos) forma perímetro externo único?",
-                "valor": "não"
+                "name": "área ocupada absoluta (incluindo subsolos) forma perímetro externo único?",
+                "value": false
               },
               "area_ocupada": {
-                "nome": "área ocupada",
+                "name": "área ocupada",
                 "geometry": {
                   "type": "Polygon",
                   "coordinates": [
@@ -10067,31 +10169,31 @@ export const EXAMPLE_DATA = {
                   ]
                 },
                 "area": {
-                  "nome": "área",
-                  "valor": 50112.6968
+                  "name": "área",
+                  "value": 50112.6968
                 }
               },
               "pavimentos": [
                 {
                   "nome": "pavimento",
                   "identificacao": {
-                    "nome": "identificação",
-                    "valor": "T"
+                    "name": "identificação",
+                    "value": "T"
                   },
                   "altura": {
-                    "nome": "altura",
-                    "valor": 400
+                    "name": "altura",
+                    "value": 400
                   },
                   "altura_relativa_ao_terreo": {
-                    "nome": "altura relativa ao térreo",
-                    "valor": 0
+                    "name": "altura relativa ao térreo",
+                    "value": -400
                   },
                   "altitude_do_pavimento": {
-                    "nome": "altitude do pavimento",
-                    "valor": 75548
+                    "name": "altitude do pavimento",
+                    "value": 75548
                   },
                   "areas_edificadas": {
-                    "nome": "áreas edificadas",
+                    "name": "áreas edificadas",
                     "geometry": {
                       "type": "Polygon",
                       "coordinates": [
@@ -12569,10 +12671,34 @@ export const EXAMPLE_DATA = {
                     }
                   },
                   "areas_descobertas": {
-                    "nome": "áreas descobertas",
+                    "name": "áreas descobertas",
                     "geometry": {
                       "type": "MultiPolygon",
                       "coordinates": [
+                        [
+                          [
+                            [
+                              340891.829,
+                              7393585.148
+                            ],
+                            [
+                              340894.529,
+                              7393596.168
+                            ],
+                            [
+                              340867.793,
+                              7393572.434
+                            ],
+                            [
+                              340872.075,
+                              7393567.611
+                            ],
+                            [
+                              340891.829,
+                              7393585.148
+                            ]
+                          ]
+                        ],
                         [
                           [
                             [
@@ -12840,44 +12966,20 @@ export const EXAMPLE_DATA = {
                               7393677.327
                             ]
                           ]
-                        ],
-                        [
-                          [
-                            [
-                              340891.829,
-                              7393585.148
-                            ],
-                            [
-                              340894.529,
-                              7393596.168
-                            ],
-                            [
-                              340867.793,
-                              7393572.434
-                            ],
-                            [
-                              340872.075,
-                              7393567.611
-                            ],
-                            [
-                              340891.829,
-                              7393585.148
-                            ]
-                          ]
                         ]
                       ]
                     }
                   },
                   "ha_intersecao_com_os_confrontantes": {
-                    "nome": "há intersecção com os confrontantes?",
-                    "valor": false
+                    "name": "há intersecção com os confrontantes?",
+                    "value": false
                   },
                   "pavimentos_com_areas_acima": {
-                    "nome": "pavimentos com áreas edificadas ou descobertas acima das áreas descobertas deste pavimento",
-                    "valor": ""
+                    "name": "pavimentos com áreas edificadas ou descobertas acima das áreas descobertas deste pavimento",
+                    "value": null
                   },
                   "estacionamento_descoberto": {
-                    "nome": "estacionamento descoberto",
+                    "name": "estacionamento descoberto",
                     "geometry": {
                       "type": "MultiPolygon",
                       "coordinates": [
@@ -13176,53 +13278,53 @@ export const EXAMPLE_DATA = {
                       ]
                     },
                     "area": {
-                      "nome": "área",
-                      "valor": 443.8571
+                      "name": "área",
+                      "value": 443.8571
                     }
                   },
                   "quadra_esportiva_descoberta": {
-                    "nome": "quadra esportiva descoberta",
+                    "name": "quadra esportiva descoberta",
                     "geometry": null,
                     "area": {
-                      "nome": "área",
-                      "valor": null
+                      "name": "área",
+                      "value": null
                     }
                   },
                   "posto_gasolina_descoberto": {
-                    "nome": "posto_gasolina_descoberto",
+                    "name": "posto_gasolina_descoberto",
                     "geometry": null,
                     "area": {
-                      "nome": "área",
-                      "valor": null
+                      "name": "área",
+                      "value": null
                     }
                   },
                   "terraco_descoberto": {
-                    "nome": "terraco descoberto",
+                    "name": "terraco descoberto",
                     "geometry": null,
                     "area": {
-                      "nome": "área",
-                      "valor": null
+                      "name": "área",
+                      "value": null
                     }
                   },
                   "piscina_descoberta": {
-                    "nome": "piscina descoberta",
+                    "name": "piscina descoberta",
                     "geometry": null,
                     "area": {
-                      "nome": "área",
-                      "valor": null
+                      "name": "área",
+                      "value": null
                     }
                   },
                   "heliponto_descoberto": {
-                    "nome": "heliponto descoberto",
+                    "name": "heliponto descoberto",
                     "geometry": null,
                     "area": {
-                      "nome": "área",
-                      "valor": null
+                      "name": "área",
+                      "value": null
                     }
                   },
                   "areas_individuais": {
-                    "nome": "areas individuais",
-                    "valor": [
+                    "name": "areas individuais",
+                    "value": [
                       {
                         "geometry": {
                           "type": "Polygon",
@@ -13280,8 +13382,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 125.8593
+                          "name": "área",
+                          "value": 125.8593
                         },
                         "identificação": "C21-",
                         "uso": "nR2-2-1",
@@ -13343,50 +13445,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 125.8593
+                              "name": "área",
+                              "value": 125.8593
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -13431,8 +13533,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 15.7407
+                          "name": "área",
+                          "value": 15.7407
                         },
                         "identificação": "I1--",
                         "uso": "nR2-2-1",
@@ -13478,50 +13580,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 15.7407
+                              "name": "área",
+                              "value": 15.7407
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -13566,8 +13668,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 32.0313
+                          "name": "área",
+                          "value": 32.0313
                         },
                         "identificação": "I2--",
                         "uso": "nR2-2-1",
@@ -13613,50 +13715,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 32.0313
+                              "name": "área",
+                              "value": 32.0313
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -13697,8 +13799,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 15.9588
+                          "name": "área",
+                          "value": 15.9588
                         },
                         "identificação": "I3--",
                         "uso": "nR2-2-1",
@@ -13740,50 +13842,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 15.9588
+                              "name": "área",
+                              "value": 15.9588
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -13820,8 +13922,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 16.0421
+                          "name": "área",
+                          "value": 16.0421
                         },
                         "identificação": "I4--",
                         "uso": "nR2-2-1",
@@ -13859,50 +13961,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 16.0421
+                              "name": "área",
+                              "value": 16.0421
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -13951,8 +14053,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 302.9538
+                          "name": "área",
+                          "value": 302.9538
                         },
                         "identificação": "I5--",
                         "uso": "nR2-2-1",
@@ -14002,50 +14104,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 302.9538
+                              "name": "área",
+                              "value": 302.9538
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -14090,8 +14192,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 36.3551
+                          "name": "área",
+                          "value": 36.3551
                         },
                         "identificação": "I6--",
                         "uso": "nR2-2-1",
@@ -14137,50 +14239,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 36.3551
+                              "name": "área",
+                              "value": 36.3551
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -14217,8 +14319,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 197.0926
+                          "name": "área",
+                          "value": 197.0926
                         },
                         "identificação": "I7--",
                         "uso": "nR2-2-1",
@@ -14256,50 +14358,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 197.0926
+                              "name": "área",
+                              "value": 197.0926
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -14368,8 +14470,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 633.3123
+                          "name": "área",
+                          "value": 633.3123
                         },
                         "identificação": "I8--",
                         "uso": "nR2-2-1",
@@ -14439,50 +14541,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 633.3123
+                              "name": "área",
+                              "value": 633.3123
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -14571,8 +14673,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 112.4218
+                          "name": "área",
+                          "value": 112.4218
                         },
                         "identificação": "I9--",
                         "uso": "nR2-2-1",
@@ -14662,50 +14764,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 112.4218
+                              "name": "área",
+                              "value": 112.4218
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -14790,8 +14892,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 259.4454
+                          "name": "área",
+                          "value": 259.4454
                         },
                         "identificação": "I10-",
                         "uso": "nR2-2-1",
@@ -14877,50 +14979,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 259.4454
+                              "name": "área",
+                              "value": 259.4454
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -15037,8 +15139,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 2386.1918
+                          "name": "área",
+                          "value": 2386.1918
                         },
                         "identificação": "I11-",
                         "uso": "nR2-2-1",
@@ -15156,50 +15258,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 2386.1918
+                              "name": "área",
+                              "value": 2386.1918
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -15248,8 +15350,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 607.6038
+                          "name": "área",
+                          "value": 607.6038
                         },
                         "identificação": "I12-",
                         "uso": "nR2-2-1",
@@ -15299,50 +15401,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 607.6038
+                              "name": "área",
+                              "value": 607.6038
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -15391,8 +15493,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 138.581
+                          "name": "área",
+                          "value": 138.581
                         },
                         "identificação": "I13-",
                         "uso": "nR2-2-1",
@@ -15442,50 +15544,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 138.581
+                              "name": "área",
+                              "value": 138.581
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -15562,8 +15664,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 904.8241
+                          "name": "área",
+                          "value": 904.8241
                         },
                         "identificação": "I14-",
                         "uso": "nR2-2-1",
@@ -15641,50 +15743,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 904.8241
+                              "name": "área",
+                              "value": 904.8241
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -15725,8 +15827,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 113.6954
+                          "name": "área",
+                          "value": 113.6954
                         },
                         "identificação": "I15-",
                         "uso": "nR2-2-1",
@@ -15768,50 +15870,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 113.6954
+                              "name": "área",
+                              "value": 113.6954
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -15848,8 +15950,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 110.2377
+                          "name": "área",
+                          "value": 110.2377
                         },
                         "identificação": "I16-",
                         "uso": "nR2-2-1",
@@ -15887,50 +15989,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 110.2377
+                              "name": "área",
+                              "value": 110.2377
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -15975,8 +16077,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 120.6048
+                          "name": "área",
+                          "value": 120.6048
                         },
                         "identificação": "I17-",
                         "uso": "nR2-2-1",
@@ -16022,50 +16124,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 120.6048
+                              "name": "área",
+                              "value": 120.6048
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -16102,8 +16204,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 113.7763
+                          "name": "área",
+                          "value": 113.7763
                         },
                         "identificação": "I18-",
                         "uso": "nR2-2-1",
@@ -16141,50 +16243,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 113.7763
+                              "name": "área",
+                              "value": 113.7763
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -16253,8 +16355,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 881.1628
+                          "name": "área",
+                          "value": 881.1628
                         },
                         "identificação": "I19-",
                         "uso": "nR2-2-1",
@@ -16324,50 +16426,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 881.1628
+                              "name": "área",
+                              "value": 881.1628
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -16400,8 +16502,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 223.4123
+                          "name": "área",
+                          "value": 223.4123
                         },
                         "identificação": "I20-",
                         "uso": "nR2-2-1",
@@ -16435,50 +16537,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 223.4123
+                              "name": "área",
+                              "value": 223.4123
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -16515,8 +16617,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 107.1258
+                          "name": "área",
+                          "value": 107.1258
                         },
                         "identificação": "I21-",
                         "uso": "nR2-2-1",
@@ -16554,50 +16656,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 107.1258
+                              "name": "área",
+                              "value": 107.1258
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -17600,8 +17702,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 878.6948
+                          "name": "área",
+                          "value": 878.6948
                         },
                         "identificação": "C1--",
                         "uso": "nR2-2-1",
@@ -18605,50 +18707,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 878.6948
+                              "name": "área",
+                              "value": 878.6948
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -19631,8 +19733,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 917.7543
+                          "name": "área",
+                          "value": 917.7543
                         },
                         "identificação": "C2--",
                         "uso": "nR2-2-1",
@@ -20616,50 +20718,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 917.7543
+                              "name": "área",
+                              "value": 917.7543
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -20772,8 +20874,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 23142.7856
+                          "name": "área",
+                          "value": 23142.7856
                         },
                         "identificação": "C3--",
                         "uso": "nR2-2-1",
@@ -20887,50 +20989,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 23142.7856
+                              "name": "área",
+                              "value": 23142.7856
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -20975,8 +21077,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 128.28
+                          "name": "área",
+                          "value": 128.28
                         },
                         "identificação": "C4--",
                         "uso": "nR2-2-1",
@@ -21022,50 +21124,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 128.28
+                              "name": "área",
+                              "value": 128.28
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -21102,8 +21204,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 66.0713
+                          "name": "área",
+                          "value": 66.0713
                         },
                         "identificação": "C5--",
                         "uso": "nR2-2-1",
@@ -21141,50 +21243,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 66.0713
+                              "name": "área",
+                              "value": 66.0713
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -21217,8 +21319,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 67.1874
+                          "name": "área",
+                          "value": 67.1874
                         },
                         "identificação": "C6--",
                         "uso": "nR2-2-1",
@@ -21252,50 +21354,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 67.1874
+                              "name": "área",
+                              "value": 67.1874
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -21380,8 +21482,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 450.7616
+                          "name": "área",
+                          "value": 450.7616
                         },
                         "identificação": "C7--",
                         "uso": "nR2-2-1",
@@ -21467,50 +21569,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 450.7616
+                              "name": "área",
+                              "value": 450.7616
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -21563,8 +21665,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 208.7093
+                          "name": "área",
+                          "value": 208.7093
                         },
                         "identificação": "C8--",
                         "uso": "nR2-2-1",
@@ -21618,50 +21720,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 208.7093
+                              "name": "área",
+                              "value": 208.7093
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -21726,8 +21828,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 445.209
+                          "name": "área",
+                          "value": 445.209
                         },
                         "identificação": "C9--",
                         "uso": "nR2-2-1",
@@ -21793,50 +21895,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 445.209
+                              "name": "área",
+                              "value": 445.209
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -22053,8 +22155,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 934.0371
+                          "name": "área",
+                          "value": 934.0371
                         },
                         "identificação": "C10-",
                         "uso": "nR2-2-1",
@@ -22272,50 +22374,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 934.0371
+                              "name": "área",
+                              "value": 934.0371
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -22356,8 +22458,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 89.5615
+                          "name": "área",
+                          "value": 89.5615
                         },
                         "identificação": "C11-",
                         "uso": "nR2-2-1",
@@ -22399,50 +22501,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 89.5615
+                              "name": "área",
+                              "value": 89.5615
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -22483,8 +22585,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 15.2831
+                          "name": "área",
+                          "value": 15.2831
                         },
                         "identificação": "C13-",
                         "uso": "nR2-2-1",
@@ -22526,50 +22628,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 15.2831
+                              "name": "área",
+                              "value": 15.2831
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -22610,8 +22712,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 14.3492
+                          "name": "área",
+                          "value": 14.3492
                         },
                         "identificação": "C14-",
                         "uso": "nR2-2-1",
@@ -22653,50 +22755,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 14.3492
+                              "name": "área",
+                              "value": 14.3492
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -23205,8 +23307,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 11386.5309
+                          "name": "área",
+                          "value": 11386.5309
                         },
                         "identificação": "C15-",
                         "uso": "nR2-2-1",
@@ -23716,50 +23818,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 11386.5309
+                              "name": "área",
+                              "value": 11386.5309
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -23820,8 +23922,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 173.7073
+                          "name": "área",
+                          "value": 173.7073
                         },
                         "identificação": "C16-",
                         "uso": "nR2-2-1",
@@ -23883,50 +23985,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 173.7073
+                              "name": "área",
+                              "value": 173.7073
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -24115,8 +24217,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 1223.4857
+                          "name": "área",
+                          "value": 1223.4857
                         },
                         "identificação": "C17-",
                         "uso": "nR2-2-1",
@@ -24306,50 +24408,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 1223.4857
+                              "name": "área",
+                              "value": 1223.4857
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -24386,8 +24488,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 34.6361
+                          "name": "área",
+                          "value": 34.6361
                         },
                         "identificação": "C18-",
                         "uso": "nR2-2-1",
@@ -24425,50 +24527,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 34.6361
+                              "name": "área",
+                              "value": 34.6361
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -24513,8 +24615,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 60.5465
+                          "name": "área",
+                          "value": 60.5465
                         },
                         "identificação": "C19-",
                         "uso": "nR2-2-1",
@@ -24560,50 +24662,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 60.5465
+                              "name": "área",
+                              "value": 60.5465
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -24636,8 +24738,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 43.0744
+                          "name": "área",
+                          "value": 43.0744
                         },
                         "identificação": "C20-",
                         "uso": "nR2-2-1",
@@ -24671,50 +24773,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 43.0744
+                              "name": "área",
+                              "value": 43.0744
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -24791,8 +24893,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 227.7999
+                          "name": "área",
+                          "value": 227.7999
                         },
                         "identificação": "C23-",
                         "uso": "nR2-2-1",
@@ -24870,50 +24972,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 227.7999
+                              "name": "área",
+                              "value": 227.7999
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -24966,8 +25068,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 26.332
+                          "name": "área",
+                          "value": 26.332
                         },
                         "identificação": "C22-",
                         "uso": "nR2-2-1",
@@ -25021,50 +25123,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 26.332
+                              "name": "área",
+                              "value": 26.332
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -25193,8 +25295,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 771.9569
+                          "name": "área",
+                          "value": 771.9569
                         },
                         "identificação": "C24-",
                         "uso": "nR2-2-1",
@@ -25324,50 +25426,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 771.9569
+                              "name": "área",
+                              "value": 771.9569
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -25404,8 +25506,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 33.1639
+                          "name": "área",
+                          "value": 33.1639
                         },
                         "identificação": "C25-",
                         "uso": "nR2-2-1",
@@ -25443,50 +25545,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 33.1639
+                              "name": "área",
+                              "value": 33.1639
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -25535,8 +25637,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 380.2185
+                          "name": "área",
+                          "value": 380.2185
                         },
                         "identificação": "C26-",
                         "uso": "nR2-2-1",
@@ -25586,50 +25688,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 380.2185
+                              "name": "área",
+                              "value": 380.2185
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -25662,8 +25764,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 77.7503
+                          "name": "área",
+                          "value": 77.7503
                         },
                         "identificação": "C27-",
                         "uso": "nR2-2-1",
@@ -25697,50 +25799,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 77.7503
+                              "name": "área",
+                              "value": 77.7503
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -25869,8 +25971,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 423.7924
+                          "name": "área",
+                          "value": 423.7924
                         },
                         "identificação": "C28-",
                         "uso": "nR2-2-1",
@@ -26000,50 +26102,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 423.7924
+                              "name": "área",
+                              "value": 423.7924
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -26192,8 +26294,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 351.2691
+                          "name": "área",
+                          "value": 351.2691
                         },
                         "identificação": "C29-",
                         "uso": "nR2-2-1",
@@ -26343,50 +26445,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 351.2691
+                              "name": "área",
+                              "value": 351.2691
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       },
@@ -26447,8 +26549,8 @@ export const EXAMPLE_DATA = {
                           ]
                         },
                         "area": {
-                          "nome": "área",
-                          "valor": 145.8661
+                          "name": "área",
+                          "value": 145.8661
                         },
                         "identificação": "C30-",
                         "uso": "nR2-2-1",
@@ -26510,50 +26612,50 @@ export const EXAMPLE_DATA = {
                               ]
                             },
                             "area": {
-                              "nome": "área",
-                              "valor": 145.8661
+                              "name": "área",
+                              "value": 145.8661
                             },
                             "tipo": "AC"
                           }
                         ],
                         "estacionamento_coberto": {
-                          "nome": "estacionamento coberto",
+                          "name": "estacionamento coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": 0
+                            "name": "área",
+                            "value": 0
                           }
                         },
                         "quadra_esportiva_coberta": {
-                          "nome": "quadra esportiva coberta",
+                          "name": "quadra esportiva coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "posto_gasolina_coberto": {
-                          "nome": "posto gasolina coberto",
+                          "name": "posto gasolina coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "terraco_coberto": {
-                          "nome": "terraco coberto",
+                          "name": "terraco coberto",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         },
                         "piscina_coberta": {
-                          "nome": "piscina coberta",
+                          "name": "piscina coberta",
                           "geometry": null,
                           "area": {
-                            "nome": "área",
-                            "valor": null
+                            "name": "área",
+                            "value": null
                           }
                         }
                       }
@@ -26567,170 +26669,466 @@ export const EXAMPLE_DATA = {
         "Implantação - Imóvel com relação às edificações": {
           "há sobreposição de áreas fora das ocupações absolutas dos blocos": {
             "ha_sobreposicao_de_areas_fora_das_ocupacoes_absolutas_dos_blocos": {
-              "nome": "há sobreposição de áreas fora das ocupações absolutas dos blocos",
-              "valor": false
+              "name": "há sobreposição de áreas fora das ocupações absolutas dos blocos",
+              "value": false
             }
           },
           "há cobertura sem uso fora das ocupações absolutas dos blocos": {
             "ha_cobertura_sem_uso_fora_das_ocupacoes_absolutas_dos_blocos": {
-              "nome": "há cobertura sem uso fora das ocupações absolutas dos blocos",
-              "valor": false
+              "name": "há cobertura sem uso fora das ocupações absolutas dos blocos",
+              "value": false
             }
           },
           "computabilidade": {
             "areas_edificadas_computaveis_totais": {
-              "nome": "áreas edificadas computáveis totais",
-              "valor": -0.4295249448915538
+              "name": "áreas edificadas computáveis totais",
+              "value": -0.4295249448915538
             },
             "coeficiente_de_aproveitamento": {
-              "nome": "coeficiente de aproveitamento",
-              "valor": -0.4295249448915538
+              "name": "coeficiente de aproveitamento",
+              "value": -0.4295249448915538
             }
           },
           "estacionamento": {
             "vagas de automóvel": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "vagas de moto": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "vagas de bicicleta": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "vagas de utilitário": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "vagas de caminhão": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "vagas para táxi": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "vagas para ambulância": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "vagas para idosos": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "vagas para gestantes": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "vagas para pessoas com deficiência": {
-              "nome": "área",
-              "valor": 0
+              "name": "área",
+              "value": 0
             },
             "circulação": {
-              "nome": "área",
-              "valor": 443.8571225255936
+              "name": "área",
+              "value": 443.8571225255936
             }
           },
           "áreas permeaveis": {
             "sobre_solo_natural": {
-              "nome": "sobre solo natural",
-              "valor": []
+              "name": "sobre solo natural",
+              "value": null
             },
             "pavimentacao_semipermeavel": {
-              "nome": "pavimentação semipermeável",
-              "valor": []
+              "name": "pavimentação semipermeável",
+              "value": null
             },
             "pavimentacao_semipermeavel_com_vegetacao_sobre_solo_natural": {
-              "nome": "pavimentação semipermeável com vegetação sobre solo natural",
-              "valor": []
+              "name": "pavimentação semipermeável com vegetação sobre solo natural",
+              "value": null
             }
           },
           "vegetacao arboreo": {
             "arvores_a_preservar": {
-              "nome": "árvores a preservar",
-              "valor": []
+              "name": "árvores a preservar",
+              "value": null
             },
             "arvores_a_remover": {
-              "nome": "árvores a preservar",
-              "valor": []
+              "name": "árvores a preservar",
+              "value": null
             },
             "arvores_a_manejar": {
-              "nome": "árvores a manejar",
-              "valor": []
+              "name": "árvores a manejar",
+              "value": null
             }
           },
           "macicos arboreos": {
             "area_do_macico": {
-              "nome": "área do maciço",
-              "valor": 0
+              "name": "área do maciço",
+              "value": 0
             },
             "areas_desconsideradas": {
-              "nome": "área do maciço",
+              "name": "área do maciço",
               "fora_do_imovel": {
                 "geometry": null,
                 "area": {
-                  "nome": "área",
-                  "valor": null
+                  "name": "área",
+                  "value": null
                 }
               },
               "sobre_ou_sob_laje": {
                 "geometry": null,
                 "area": {
-                  "nome": "área",
-                  "valor": null
+                  "name": "área",
+                  "value": null
                 }
               }
             }
           },
           "descobertas da implantação": {
             "estacionamento_descoberto": {
-              "nome": "estacionamento descoberto",
-              "geometry": null,
+              "name": "estacionamento descoberto",
+              "geometry": {
+                "type": "MultiPolygon",
+                "coordinates": [
+                  [
+                    [
+                      [
+                        340692.936,
+                        7393667.634
+                      ],
+                      [
+                        340693.116,
+                        7393668.103
+                      ],
+                      [
+                        340693.275,
+                        7393668.579
+                      ],
+                      [
+                        340693.412,
+                        7393669.063
+                      ],
+                      [
+                        340693.528,
+                        7393669.552
+                      ],
+                      [
+                        340693.621,
+                        7393670.045
+                      ],
+                      [
+                        340693.691,
+                        7393670.543
+                      ],
+                      [
+                        340693.74,
+                        7393671.043
+                      ],
+                      [
+                        340693.765,
+                        7393671.545
+                      ],
+                      [
+                        340693.768,
+                        7393672.047
+                      ],
+                      [
+                        340693.748,
+                        7393672.549
+                      ],
+                      [
+                        340693.706,
+                        7393673.05
+                      ],
+                      [
+                        340693.641,
+                        7393673.548
+                      ],
+                      [
+                        340693.554,
+                        7393674.043
+                      ],
+                      [
+                        340693.444,
+                        7393674.533
+                      ],
+                      [
+                        340693.312,
+                        7393675.018
+                      ],
+                      [
+                        340693.159,
+                        7393675.496
+                      ],
+                      [
+                        340692.984,
+                        7393675.967
+                      ],
+                      [
+                        340692.789,
+                        7393676.43
+                      ],
+                      [
+                        340692.572,
+                        7393676.884
+                      ],
+                      [
+                        340692.335,
+                        7393677.327
+                      ],
+                      [
+                        340692.936,
+                        7393667.634
+                      ],
+                      [
+                        340685.816,
+                        7393646.002
+                      ],
+                      [
+                        340691.979,
+                        7393643.973
+                      ],
+                      [
+                        340699.036,
+                        7393665.41
+                      ],
+                      [
+                        340699.036,
+                        7393665.41
+                      ],
+                      [
+                        340699.213,
+                        7393665.88
+                      ],
+                      [
+                        340699.376,
+                        7393666.354
+                      ],
+                      [
+                        340699.526,
+                        7393666.833
+                      ],
+                      [
+                        340699.663,
+                        7393667.316
+                      ],
+                      [
+                        340699.785,
+                        7393667.803
+                      ],
+                      [
+                        340699.894,
+                        7393668.293
+                      ],
+                      [
+                        340699.988,
+                        7393668.786
+                      ],
+                      [
+                        340700.069,
+                        7393669.282
+                      ],
+                      [
+                        340700.135,
+                        7393669.779
+                      ],
+                      [
+                        340700.187,
+                        7393670.279
+                      ],
+                      [
+                        340700.225,
+                        7393670.779
+                      ],
+                      [
+                        340700.249,
+                        7393671.281
+                      ],
+                      [
+                        340700.258,
+                        7393671.782
+                      ],
+                      [
+                        340700.253,
+                        7393672.284
+                      ],
+                      [
+                        340700.234,
+                        7393672.786
+                      ],
+                      [
+                        340700.201,
+                        7393673.287
+                      ],
+                      [
+                        340700.153,
+                        7393673.787
+                      ],
+                      [
+                        340700.091,
+                        7393674.285
+                      ],
+                      [
+                        340700.015,
+                        7393674.781
+                      ],
+                      [
+                        340699.925,
+                        7393675.275
+                      ],
+                      [
+                        340699.82,
+                        7393675.766
+                      ],
+                      [
+                        340699.702,
+                        7393676.254
+                      ],
+                      [
+                        340699.57,
+                        7393676.738
+                      ],
+                      [
+                        340699.424,
+                        7393677.218
+                      ],
+                      [
+                        340699.265,
+                        7393677.694
+                      ],
+                      [
+                        340699.092,
+                        7393678.166
+                      ],
+                      [
+                        340698.906,
+                        7393678.632
+                      ],
+                      [
+                        340698.706,
+                        7393679.092
+                      ],
+                      [
+                        340698.494,
+                        7393679.547
+                      ],
+                      [
+                        340698.268,
+                        7393679.996
+                      ],
+                      [
+                        340698.03,
+                        7393680.438
+                      ],
+                      [
+                        340697.78,
+                        7393680.873
+                      ],
+                      [
+                        340697.517,
+                        7393681.3
+                      ],
+                      [
+                        340697.242,
+                        7393681.72
+                      ],
+                      [
+                        340696.955,
+                        7393682.132
+                      ],
+                      [
+                        340696.657,
+                        7393682.536
+                      ],
+                      [
+                        340696.347,
+                        7393682.931
+                      ],
+                      [
+                        340696.026,
+                        7393683.317
+                      ],
+                      [
+                        340695.695,
+                        7393683.694
+                      ],
+                      [
+                        340692.335,
+                        7393677.327
+                      ]
+                    ]
+                  ],
+                  [
+                    [
+                      [
+                        340891.829,
+                        7393585.148
+                      ],
+                      [
+                        340894.529,
+                        7393596.168
+                      ],
+                      [
+                        340867.793,
+                        7393572.434
+                      ],
+                      [
+                        340872.075,
+                        7393567.611
+                      ],
+                      [
+                        340891.829,
+                        7393585.148
+                      ]
+                    ]
+                  ]
+                ]
+              },
               "area": {
-                "nome": "área",
-                "valor": 0
+                "name": "área",
+                "value": 443.8571
               }
             },
             "quadra_esportiva_descoberta": {
-              "nome": "quadra esportiva descoberta",
+              "name": "quadra esportiva descoberta",
               "geometry": null,
               "area": {
-                "nome": "área",
-                "valor": null
+                "name": "área",
+                "value": null
               }
             },
             "posto_gasolina_descoberto": {
-              "nome": "posto_gasolina_descoberto",
+              "name": "posto_gasolina_descoberto",
               "geometry": null,
               "area": {
-                "nome": "área",
-                "valor": null
+                "name": "área",
+                "value": null
               }
             },
             "terraco_descoberto": {
-              "nome": "terraco descoberto",
+              "name": "terraco descoberto",
               "geometry": null,
               "area": {
-                "nome": "área",
-                "valor": null
+                "name": "área",
+                "value": null
               }
             },
             "piscina_descoberta": {
-              "nome": "piscina descoberta",
+              "name": "piscina descoberta",
               "geometry": null,
               "area": {
-                "nome": "área",
-                "valor": null
+                "name": "área",
+                "value": null
               }
             },
             "heliponto_descoberto": {
-              "nome": "heliponto descoberto",
+              "name": "heliponto descoberto",
               "geometry": null,
               "area": {
-                "nome": "área",
-                "valor": null
+                "name": "área",
+                "value": null
               }
             }
           }
@@ -26738,12 +27136,11 @@ export const EXAMPLE_DATA = {
       }
     }
   ],
-  "dataProcessamento": "2026-03-05T21:20:34.05",
-  "filename": "uploads/1772745629419-75848f7e-8be2-48a7-807e-63b58c6d59db.dwg",
+  "dataProcessamento": "2026-03-16T17:31:31.107",
+  "filename": "uploads/1773682286325-7644cf49-3770-42cc-b94c-dc40f32e0708.dwg",
   "status": "Concluido",
   "description": "Processado com sucesso!",
   "s3_metadata": {
-    "key": "uploads/1772745629419-75848f7e-8be2-48a7-807e-63b58c6d59db.dwg",
-    "uploaded_at": "2026-03-05T21:21:31.842Z"
+    "key": "uploads/1773682286325-7644cf49-3770-42cc-b94c-dc40f32e0708.dwg"
   }
 };

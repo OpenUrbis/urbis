@@ -4,7 +4,7 @@ import { ITemplate } from "../../components/ViewTemplate/types/templates-type";
 import { useToast } from "@/hooks/use-toast";
 
 export const ViewTemplateEditorPage = () => {
-  const { toastInfo } = useToast()
+  const { toast } = useToast()
   const [currentTemplate, setCurrentTemplate] = useState<ITemplate[] | undefined>(
     undefined,
   );
@@ -14,7 +14,7 @@ export const ViewTemplateEditorPage = () => {
     console.log("Saved:", template);
     // Copy to clipboard
     navigator.clipboard.writeText(jsonString).then(() => {
-      toastInfo("JSON copiado para a área de transferência e exportado no console");
+      toast({ description: "JSON copiado para a área de transferência e exportado no console" });
     });
   };
 

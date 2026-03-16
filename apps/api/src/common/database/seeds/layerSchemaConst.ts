@@ -1019,7 +1019,7 @@ export const layerSchemas: LayerSchema[] = [
       {
         color: [217, 234, 211, 190],
         label: 'default',
-        pattern: 'hatch-1x'
+        pattern: 'hatch-1x',
       },
     ],
   },
@@ -1238,7 +1238,8 @@ export const layerSchemas: LayerSchema[] = [
         label: 'default',
       },
     ],
-  }, {
+  },
+  {
     id: 'subprefeitura',
     name: 'Subprefeituras',
     index: 170,

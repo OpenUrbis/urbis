@@ -149,7 +149,10 @@ const Header = () => {
             </div>
 
             <div className="p-3">
-              <HelpSidebarContent />
+              <HelpSidebarContent
+  currentTabSlug="mapa"
+  faqEndpointBase="http://localhost:3000/support/question-answers"
+/>
             </div>
           </div>
         </div>

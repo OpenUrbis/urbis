@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, map } from 'rxjs';
 import {
   CreateQuestionAnswerDto,
   CreateQuestionTabDto,
@@ -15,8 +15,10 @@ import {
 export class HelpService {
   private readonly http = inject(HttpClient);
 
- private readonly questionTabBaseUrl = 'http://localhost:3000/support/question-tabs';
-private readonly questionAnswerBaseUrl = 'http://localhost:3000/support/question-answers';
+  private readonly questionTabBaseUrl =
+    'http://localhost:3000/support/question-tabs';
+  private readonly questionAnswerBaseUrl =
+    'http://localhost:3000/support/question-answers';
 
   listTabs(): Observable<QuestionTab[]> {
     return this.http.get<QuestionTab[]>(this.questionTabBaseUrl);
@@ -67,19 +69,21 @@ private readonly questionAnswerBaseUrl = 'http://localhost:3000/support/question
     return this.http.delete<void>(`${this.questionAnswerBaseUrl}/${id}`);
   }
 
-  getTabQuestions(tabId: string): Observable<QuestionAnswer[]> {
-    return this.http.get<QuestionAnswer[]>(
-      `${this.questionTabBaseUrl}/${tabId}`,
-    );
+  getTabQuestions(tabId: string): Observable<QuestionTab> {
+    return this.http.get<QuestionTab>(`${this.questionTabBaseUrl}/${tabId}`);
   }
 
   reorderTabQuestions(
-    tabId: string,
+    _tabId: string,
     payload: ReorderTabQuestionsDto,
   ): Observable<void> {
-    return this.http.patch<void>(
-      `${this.questionTabBaseUrl}/${tabId}/reorder`,
-      payload,
+    const requests = payload.items.map((item) =>
+      this.http.patch<QuestionAnswer>(
+        `${this.questionAnswerBaseUrl}/${item.questionAnswerId}`,
+        { index: item.index },
+      ),
     );
+
+    return forkJoin(requests).pipe(map(() => void 0));
   }
-} 
+}

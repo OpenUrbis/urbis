@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ViewTemplateBuilder } from "../../components/ViewTemplate/builder/ViewTemplateBuilder";
 import { ITemplate } from "../../components/ViewTemplate/types/templates-type";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 
 export const ViewTemplateEditorPage = () => {
   const { toastInfo } = useToast()

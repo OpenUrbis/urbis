@@ -1,33 +1,43 @@
-export type HelpContentType = 'faq' | 'question' | 'suggestion' | 'error';
-
-export interface HelpItem {
+export interface QuestionAnswer {
   id: string;
-  title: string;
+  question: string;
+  answer: string;
+  index: number;
+  tabIds?: string[];
+  tabs?: QuestionTab[];
+}
+
+export interface QuestionTab {
+  id: string;
+  name: string;
   description: string;
-  placeholder: string | null;
-  type: HelpContentType;
-  targetApp: string;
-  targetSection: string;
-  order: number;
-  active: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  icon: string;
+  index: number;
+  answers?: QuestionAnswer[];
 }
 
-export interface HelpListResponse {
-  items: HelpItem[];
-  total: number;
-}
-
-export interface CreateHelpItemDto {
-  title: string;
+export interface CreateQuestionTabDto {
+  name: string;
   description: string;
-  placeholder?: string | null;
-  type: HelpContentType;
-  targetApp: string;
-  targetSection: string;
-  order: number;
-  active: boolean;
+  icon: string;
+  index: number;
 }
 
-export interface UpdateHelpItemDto extends Partial<CreateHelpItemDto> {}
+export interface UpdateQuestionTabDto extends Partial<CreateQuestionTabDto> {}
+
+export interface CreateQuestionAnswerDto {
+  question: string;
+  answer: string;
+  index?: number;
+  tabIds?: string[];
+}
+
+export interface UpdateQuestionAnswerDto
+  extends Partial<CreateQuestionAnswerDto> {}
+
+export interface ReorderTabQuestionsDto {
+  items: {
+    questionAnswerId: string;
+    index: number;
+  }[];
+}

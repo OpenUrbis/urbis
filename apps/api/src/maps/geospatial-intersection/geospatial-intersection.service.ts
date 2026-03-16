@@ -74,12 +74,10 @@ export class GeospatialIntersectionService {
     geom_subprefeitura: ['slui:subprefeitura'],
     geom_distrito: ['slui:distrito_municipal'],
     geom_tombado: [
-      'slui:tombamentos-areas',
-      'slui:tombamentos-envoltorias-de-imoveis',
-      'slui:tombamentos-imoveis',
+      'slui:tombamentos_ambientais_ou_paisagisticos',
+      'slui:tombamentos_envoltoria_de_imoveis',
+      'slui:tombamentos_imoveis',
     ],
-    geom_uc: ['slui:parques_unidades_de_conservacao_e_apa'],
-    geom_apa: ['slui:parques_unidades_de_conservacao_e_apa'],
     geom_area_contaminada: ['slui:areas_contaminadas'],
     geom_melhoramento_viario: ['slui:minianel_viario'],
     geom_area_manancial: ['slui:manancial_billings'],
@@ -163,27 +161,27 @@ export class GeospatialIntersectionService {
       // Define GeoServer layers
       const allLayers = [
         'slui:ZEIS_(PDE)',
-        'slui:aguas_correntes_ou_dormentes',
+        'slui:aguas_correntes',
+        'slui:aguas_dormentes',
         'slui:areas_contaminadas',
         'slui:eixos',
         'slui:lote_cidadao',
         'slui:macroareas',
         'slui:macrozonas',
         'slui:minianel_viario',
-        'slui:parques_unidades_de_conservacao_e_apa',
         'slui:represas',
         'slui:restricoes_geotecnicas',
         'slui:risco_geologico',
         'slui:risco_hidrologico',
-        'slui:setores_e_subsetores',
+        'slui:setores',
+        'slui:subsetores',
         'slui:distrito_municipal',
         'slui:subprefeitura',
-        'slui:sujeicao_a_alagamentos',
-        'slui:terras_indigenas',
+        'slui:terras_indigenas_funai',
         'slui:terrenos_marginais_aos_cursos_dagua_navegaveis',
-        'slui:tombamentos-areas',
-        'slui:tombamentos-envoltorias-de-imoveis',
-        'slui:tombamentos-imoveis',
+        'slui:tombamentos_ambientais_ou_paisagisticos',
+        'slui:tombamentos_envoltoria_de_imoveis',
+        'slui:tombamentos_imoveis',
         'slui:zoneamento',
         'slui:manancial_billings',
         'slui:manancial_guarapiranga',
@@ -401,28 +399,14 @@ export class GeospatialIntersectionService {
         geom_tombado: intersections.features
           .filter((f) =>
             [
-              'slui:tombamentos-areas',
-              'slui:tombamentos-envoltorias-de-imoveis',
-              'slui:tombamentos-imoveis',
+              'slui:tombamentos_ambientais_ou_paisagisticos',
+              'slui:tombamentos_envoltoria_de_imoveis',
+              'slui:tombamentos_imoveis',
             ].includes(f.properties.layer),
           )
           .map((f) => f),
-        geom_uc: intersections.features
-          .filter(
-            (f) =>
-              f.properties.layer ===
-                'slui:parques_unidades_de_conservacao_e_apa' &&
-              f.properties.tipo === 'UC',
-          )
-          .map((f) => f),
-        geom_apa: intersections.features
-          .filter(
-            (f) =>
-              f.properties.layer ===
-                'slui:parques_unidades_de_conservacao_e_apa' &&
-              f.properties.tipo === 'APA',
-          )
-          .map((f) => f),
+        geom_uc: [],
+        geom_apa: [],
         geom_area_contaminada: intersections.features
           .filter((f) => f.properties.layer === 'slui:areas_contaminadas')
           .map((f) => f),

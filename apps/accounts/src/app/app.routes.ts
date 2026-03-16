@@ -111,6 +111,11 @@ export const routes: Routes = [
               import('./pages/users/users.routes').then((m) => m.usersRoutes),
           },
           {
+  path: 'help',
+  loadChildren: () =>
+    import('./pages/help/help.routes').then((m) => m.helpRoutes),
+},
+          {
             path: 'organizations',
             loadChildren: () =>
               import('./pages/organizations/organizations.routes').then(

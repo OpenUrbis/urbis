@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { QuestionAnswer } from './help.models';
@@ -11,6 +11,14 @@ import { HelpService } from './help.service';
   template: `
     <section class="p-6 space-y-6">
       <div>
+        <button
+          type="button"
+          (click)="goBack()"
+          class="mb-3 rounded-md border border-border px-3 py-2 text-sm"
+        >
+          Voltar
+        </button>
+
         <h1 class="text-2xl font-semibold">Ordenar perguntas da aba</h1>
         <p class="text-sm text-muted-foreground">
           Ajuste a ordem das perguntas exibidas nesta aba.
@@ -65,13 +73,6 @@ import { HelpService } from './help.service';
           >
             {{ saving() ? 'Salvando...' : 'Salvar ordem' }}
           </button>
-
-          <a
-            routerLink="/help"
-            class="rounded-md border px-4 py-2 text-sm font-medium"
-          >
-            Voltar
-          </a>
         </div>
       }
     </section>
@@ -80,6 +81,7 @@ import { HelpService } from './help.service';
 export class HelpTabOrder implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly helpService = inject(HelpService);
+  private readonly location = inject(Location);
 
   readonly loading = signal(false);
   readonly saving = signal(false);
@@ -99,13 +101,22 @@ export class HelpTabOrder implements OnInit {
     this.load();
   }
 
+  goBack(): void {
+    this.location.back();
+  }
+
   load(): void {
     this.loading.set(true);
     this.error.set(null);
 
     this.helpService.getTabById(this.tabId()!).subscribe({
       next: (tab) => {
-        const sorted = [...(tab.answers ?? [])].sort((a, b) => a.index - b.index);
+        const sorted = [...(tab.answers ?? [])].sort((a, b) => {
+          const aIndex = typeof a.index === 'number' ? a.index : 999999;
+          const bIndex = typeof b.index === 'number' ? b.index : 999999;
+          return aIndex - bIndex;
+        });
+
         this.questions.set(sorted);
         this.loading.set(false);
       },
@@ -150,7 +161,9 @@ export class HelpTabOrder implements OnInit {
           this.load();
         },
         error: (err) => {
-          this.error.set(err?.error?.message || 'Não foi possível salvar a ordem.');
+          this.error.set(
+            err?.error?.message || 'Não foi possível salvar a ordem.',
+          );
           this.saving.set(false);
         },
       });

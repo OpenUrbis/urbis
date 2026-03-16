@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { QuestionTab } from './help.models';
@@ -16,12 +16,13 @@ import { HelpService } from './help.service';
         <div class="text-sm text-destructive">Aba não encontrada.</div>
       } @else {
         <div class="space-y-2">
-          <a
-            routerLink="/help/tabs"
-            class="inline-flex rounded-md border px-3 py-2 text-sm"
+          <button
+            type="button"
+            (click)="goBack()"
+            class="mb-3 rounded-md border border-border px-3 py-2 text-sm"
           >
-            Voltar para abas
-          </a>
+            Voltar
+          </button>
 
           <h1 class="text-2xl font-semibold">{{ tab()?.name }}</h1>
           <p class="text-sm text-muted-foreground">
@@ -52,7 +53,9 @@ import { HelpService } from './help.service';
           } @else {
             @for (item of sortedAnswers(); track item.id) {
               <div class="rounded-md border p-4 space-y-2">
-                <div class="font-medium">{{ item.index }} - {{ item.question }}</div>
+                <div class="font-medium">
+                  {{ item.index }} - {{ item.question }}
+                </div>
                 <div class="text-sm text-muted-foreground">
                   {{ item.answer }}
                 </div>
@@ -67,6 +70,7 @@ import { HelpService } from './help.service';
 export class HelpTabDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly helpService = inject(HelpService);
+  private readonly location = inject(Location);
 
   readonly loading = signal(false);
   readonly tab = signal<QuestionTab | null>(null);
@@ -93,7 +97,15 @@ export class HelpTabDetails implements OnInit {
     });
   }
 
+  goBack(): void {
+    this.location.back();
+  }
+
   sortedAnswers() {
-    return [...(this.tab()?.answers ?? [])].sort((a, b) => a.index - b.index);
+    return [...(this.tab()?.answers ?? [])].sort((a, b) => {
+      const aIndex = typeof a.index === 'number' ? a.index : 999999;
+      const bIndex = typeof b.index === 'number' ? b.index : 999999;
+      return aIndex - bIndex;
+    });
   }
 }

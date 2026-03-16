@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import {
   FormBuilder,
@@ -16,9 +16,18 @@ import { HelpService } from './help.service';
   template: `
     <section class="p-6 space-y-6">
       <div>
+        <button
+          type="button"
+          (click)="goBack()"
+          class="mb-3 rounded-md border border-border px-3 py-2 text-sm"
+        >
+          Voltar
+        </button>
+
         <h1 class="text-2xl font-semibold">
           {{ isEdit() ? 'Editar aba' : 'Nova aba' }}
         </h1>
+
         <p class="text-sm text-muted-foreground">
           Cadastre a aba que será usada para agrupar perguntas da ajuda.
         </p>
@@ -103,6 +112,7 @@ export class HelpTabForm implements OnInit {
   private readonly helpService = inject(HelpService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
   readonly loading = signal(false);
   readonly saving = signal(false);
@@ -176,5 +186,9 @@ export class HelpTabForm implements OnInit {
         this.saving.set(false);
       },
     });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

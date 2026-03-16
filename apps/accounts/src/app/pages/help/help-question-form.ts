@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import {
   FormArray,
@@ -17,18 +17,32 @@ import { HelpService } from './help.service';
   template: `
     <section class="p-6 space-y-6">
       <div>
-        <h1 class="text-2xl font-semibold">
-          {{ isEdit() ? 'Editar pergunta' : 'Nova pergunta' }}
-        </h1>
-        <p class="text-sm text-muted-foreground">
-          Cadastre a pergunta e selecione em quais abas ela deve aparecer.
-        </p>
+        <button
+          type="button"
+          (click)="goBack()"
+          class="rounded-md border border-border px-3 py-2 text-sm mb-3"
+        >
+          Voltar
+        </button>
+
+        <div>
+          <h1 class="text-2xl font-semibold">
+            {{ isEdit() ? 'Editar pergunta' : 'Nova pergunta' }}
+          </h1>
+          <p class="text-sm text-muted-foreground">
+            Cadastre a pergunta e selecione em quais abas ela deve aparecer.
+          </p>
+        </div>
       </div>
 
       @if (loading()) {
         <div class="text-sm text-muted-foreground">Carregando...</div>
       } @else {
-        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6 max-w-3xl">
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          class="max-w-3xl space-y-6"
+        >
           <div class="space-y-4">
             <div class="space-y-1">
               <label class="text-sm font-medium">Pergunta</label>
@@ -55,7 +69,9 @@ import { HelpService } from './help.service';
             <h2 class="text-sm font-medium">Abas vinculadas</h2>
 
             @if (!tabs().length) {
-              <p class="text-sm text-muted-foreground">Nenhuma aba encontrada.</p>
+              <p class="text-sm text-muted-foreground">
+                Nenhuma aba encontrada.
+              </p>
             } @else {
               <div formArrayName="tabSelections" class="space-y-2">
                 @for (tab of tabs(); track tab.id; let i = $index) {
@@ -98,6 +114,7 @@ export class HelpQuestionForm implements OnInit {
   private readonly helpService = inject(HelpService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
   readonly loading = signal(false);
   readonly saving = signal(false);
@@ -203,5 +220,9 @@ export class HelpQuestionForm implements OnInit {
         this.saving.set(false);
       },
     });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

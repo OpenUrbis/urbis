@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { QuestionAnswer } from './help.models';
@@ -10,20 +10,30 @@ import { HelpService } from './help.service';
   imports: [CommonModule, RouterModule],
   template: `
     <section class="p-6 space-y-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-semibold">Perguntas</h1>
-          <p class="text-sm text-muted-foreground">
-            Gerencie perguntas e em quais abas elas aparecem.
-          </p>
-        </div>
-
-        <a
-          routerLink="/help/questions/new"
-          class="inline-flex items-center rounded-md border px-4 py-2 text-sm"
+      <div>
+        <button
+          type="button"
+          (click)="goBack()"
+          class="mb-3 rounded-md border border-border px-3 py-2 text-sm"
         >
-          Nova pergunta
-        </a>
+          Voltar
+        </button>
+
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-semibold">Perguntas</h1>
+            <p class="text-sm text-muted-foreground">
+              Gerencie perguntas e em quais abas elas aparecem.
+            </p>
+          </div>
+
+          <a
+            routerLink="/help/questions/new"
+            class="inline-flex items-center rounded-md border px-4 py-2 text-sm"
+          >
+            Nova pergunta
+          </a>
+        </div>
       </div>
 
       @if (loading()) {
@@ -46,7 +56,7 @@ import { HelpService } from './help.service';
                   </div>
 
                   @if (getTabNames(item)) {
-                    <div class="text-xs text-muted-foreground mt-2">
+                    <div class="mt-2 text-xs text-muted-foreground">
                       Abas: {{ getTabNames(item) }}
                     </div>
                   }
@@ -79,6 +89,7 @@ import { HelpService } from './help.service';
 })
 export class HelpQuestionList implements OnInit {
   private readonly helpService = inject(HelpService);
+  private readonly location = inject(Location);
 
   readonly questions = signal<QuestionAnswer[]>([]);
   readonly loading = signal(false);
@@ -87,6 +98,10 @@ export class HelpQuestionList implements OnInit {
 
   ngOnInit(): void {
     this.loadQuestions();
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   loadQuestions(): void {

@@ -15,7 +15,7 @@ export class LayerSeedService {
     private readonly layerSchemaRepository: Repository<LayerSchema>,
     @InjectRepository(LayerSchemaColors)
     private readonly layerSchemaColorsRepository: Repository<LayerSchemaColors>,
-  ) { }
+  ) {}
 
   async run(): Promise<void> {
     console.info('Starting database seeding...');

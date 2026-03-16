@@ -9,6 +9,7 @@ export const ViewTemplateEditorPage = () => {
     ITemplate[] | undefined
   >(undefined);
 
+
   const handleSave = (template: ITemplate[]) => {
     const jsonString = JSON.stringify(template, null, 2);
     console.log("Saved:", template);

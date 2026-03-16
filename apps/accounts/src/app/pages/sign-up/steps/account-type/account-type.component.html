@@ -1,0 +1,71 @@
+<div class="flex flex-col h-full space-y-6 animate-in fade-in duration-500">
+  <div class="flex flex-col space-y-1 text-center sm:text-left">
+    <h2 class="text-xl font-bold tracking-tight">Tipo de Cadastro</h2>
+    <p class="text-sm text-muted-foreground">
+      Selecione qual o tipo de cadastro que você deseja realizar.
+    </p>
+  </div>
+
+  @if (selectedType && !selectedType.allow) {
+    <div class="p-4 bg-primary/10 text-primary text-sm rounded-md font-medium">
+      Para acesso de representação da {{ selectedType.label }}, você deve
+      realizar o acesso com a sua conta e realizar a solicitação de
+      representação no menu "Representações", informando todas as informações
+      necessárias.
+    </div>
+  }
+
+  <div
+    [formGroup]="formGroup"
+    class="flex flex-col gap-3 flex-1 overflow-y-auto pr-2 custom-scrollbar"
+  >
+    @for (type of accountTypes; track type.value) {
+      <label
+        class="flex items-center justify-between space-x-3 rounded-lg border border-border p-4 transition-all hover:bg-muted/30 cursor-pointer"
+        [class.border-primary]="
+          formGroup.get('accountType')?.value === type.value
+        "
+        [class.bg-muted]="formGroup.get('accountType')?.value === type.value"
+      >
+        <div class="flex items-center space-x-3">
+          <div
+            class="relative flex h-4 w-4 items-center justify-center rounded-full border border-primary shrink-0"
+          >
+            <div
+              class="h-2 w-2 rounded-full bg-primary transition-all scale-0"
+              [class.scale-100]="
+                formGroup.get('accountType')?.value === type.value
+              "
+            ></div>
+            <input
+              type="radio"
+              formControlName="accountType"
+              [value]="type.value"
+              class="absolute inset-0 opacity-0 cursor-pointer"
+              (change)="onSelect(type)"
+            />
+          </div>
+          <span
+            class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            {{ type.label }}
+          </span>
+        </div>
+      </label>
+    }
+  </div>
+
+  <div class="pt-2 flex justify-between gap-3">
+    <button hlmBtn variant="ghost" class="w-1/3" (click)="back.emit()">
+      Voltar
+    </button>
+    <button
+      hlmBtn
+      class="w-2/3"
+      [disabled]="!selectedType || !selectedType.allow"
+      (click)="next.emit()"
+    >
+      Continuar
+    </button>
+  </div>
+</div>

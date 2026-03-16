@@ -22,6 +22,9 @@ export class EmailStrategy extends PassportStrategy(Strategy, 'email') {
       return user;
     } catch (error) {
       console.error(error);
+
+      if (error.status === 400) throw error;
+
       return false;
     }
   }

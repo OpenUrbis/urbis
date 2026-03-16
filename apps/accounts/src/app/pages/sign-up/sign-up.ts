@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -9,36 +9,35 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
-import {
-  lucideArrowLeft,
-  lucideCheck,
-  lucideChevronRight,
-  lucideX,
-} from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideCheck } from '@ng-icons/lucide';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 import {
   RECAPTCHA_V3_SITE_KEY,
   RecaptchaV3Module,
   ReCaptchaV3Service,
 } from 'ng-recaptcha-2';
 import { firstValueFrom } from 'rxjs';
+import { EXTERNAL_OIDC_AUTH_CONFIG_ID } from '../../../../projects/shared/src/lib/auth/auth.config';
 import {
   HlmButtonDirective,
   HlmCardContentDirective,
   HlmCardDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
   HlmIconComponent,
   HlmToasterService,
   passwordFormGroup,
   phoneFormGroup,
 } from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
-import { PrivacyPolicyComponent } from '../../components/legal/privacy-policy';
-import { TermsOfUseComponent } from '../../components/legal/terms-of-use';
-import { UserFormComponent } from '../../components/user-form/user-form';
 import { mergeFormGroups } from '../../shared/utils/merge-form-groups';
 import { SignUpApi } from './services/sign-up-api';
+import { AccountTypeComponent } from './steps/account-type/account-type.component';
+import { AddressComponent } from './steps/address/address.component';
+import { DocumentsComponent } from './steps/documents/documents.component';
+import { PasswordComponent } from './steps/password/password.component';
+import { PersonalDataComponent } from './steps/personal-data/personal-data.component';
+import { TermsComponent } from './steps/terms/terms.component';
+import { ACCOUNT_TYPES } from '../../components/user-form/user-form';
 
 export type ApiFieldErrors = Record<string, string>;
 
@@ -47,10 +46,8 @@ export type ApiFieldErrors = Record<string, string>;
   standalone: true,
   providers: [
     provideIcons({
-      lucideArrowLeft,
       lucideCheck,
-      lucideChevronRight,
-      lucideX,
+      lucideArrowLeft,
     }),
     {
       provide: RECAPTCHA_V3_SITE_KEY,
@@ -60,42 +57,57 @@ export type ApiFieldErrors = Record<string, string>;
   imports: [
     CommonModule,
     RouterModule,
-    HlmButtonDirective,
     HlmCardDirective,
     HlmCardContentDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
     HlmIconComponent,
+    HlmButtonDirective,
     ReactiveFormsModule,
     TranslateModule,
     RecaptchaV3Module,
-    TermsOfUseComponent,
-    PrivacyPolicyComponent,
-    UserFormComponent,
+    TermsComponent,
+    AccountTypeComponent,
+    PersonalDataComponent,
+    AddressComponent,
+    DocumentsComponent,
+    PasswordComponent,
   ],
   templateUrl: './sign-up.html',
   styleUrls: ['./sign-up.scss'],
 })
-export class SignUp implements OnInit {
-  currentStep = signal<1 | 2>(1);
+export class SignUp {
+  currentStep = signal<1 | 2 | 3 | 4 | 5 | 6>(1);
   currentTermIndex = signal<number>(0);
   termCountdown = signal<number>(0);
-  canAcceptTerm = signal<boolean>(true);
+  canAcceptTerm = signal<boolean>(false);
   loading = signal<boolean>(false);
   noOfficialAddress = signal<boolean>(false);
+  successMessage = signal<string | null>(null);
+
+  accountTypes = ACCOUNT_TYPES;
+
+  selectedAccountType = signal<{
+    value: string;
+    label: string;
+    allow: boolean;
+  } | null>(null);
+  scrolledToBottom = signal<boolean>(false);
+  hasGovBrData = signal<boolean>(false);
 
   private api = inject(SignUpApi);
   private router = inject(Router);
   private recaptchaV3Service = inject(ReCaptchaV3Service);
   private toaster = inject(HlmToasterService);
   private translate = inject(TranslateService);
+  private oidcSecurityService = inject(OidcSecurityService);
 
   terms = environment.terms;
 
   formGroup = mergeFormGroups(
     new FormGroup({
+      accountType: new FormControl('', [Validators.required]),
       firstName: new FormControl('', [Validators.required]),
       lastName: new FormControl('', [Validators.required]),
+      birthDate: new FormControl('', [Validators.required]),
       socialName: new FormControl(''),
       email: new FormControl('', [Validators.required, Validators.email]),
       cpf: new FormControl('', [Validators.required]),
@@ -112,12 +124,66 @@ export class SignUp implements OnInit {
       phoneCountry: new FormControl('+55'),
       recaptcha: new FormControl('', []),
       termsAccepted: new FormControl<string[]>([]),
+      metadata: new FormGroup({
+        documents: new FormControl(null),
+      }),
     }),
     passwordFormGroup(),
     phoneFormGroup({ required: false }),
   );
 
-  ngOnInit() {
+  async govBrLogin() {
+    if (window.location.hostname !== 'conta.urbis.sampa.br') {
+      // Create mock data for development environments
+      localStorage.setItem(
+        'govBrTokens',
+        JSON.stringify({
+          idToken: 'mock_id_token',
+          accessToken: 'mock_access_token',
+          userData: {
+            email: 'dev@urbis.sampa.br',
+            firstName: 'Usuário',
+            lastName: 'de Teste',
+            cpf: '12236731035',
+            birthDate: '1990-01-01',
+          },
+          timestamp: Date.now(),
+        }),
+      );
+      this.checkGovBrData();
+      return;
+    }
+
+    try {
+      const { idToken, isAuthenticated, accessToken, ...all } =
+        await firstValueFrom(
+          this.oidcSecurityService.authorizeWithPopUp(
+            undefined,
+            undefined,
+            EXTERNAL_OIDC_AUTH_CONFIG_ID,
+          ),
+        );
+
+      if (isAuthenticated) {
+        // Just decode token/data and store in localStorage to simulate existing behavior
+        const decodedToken: any = this.decodeToken(idToken);
+        localStorage.setItem(
+          'govBrTokens',
+          JSON.stringify({
+            idToken,
+            accessToken,
+            userData: decodedToken, // basic mapping
+            timestamp: Date.now(),
+          }),
+        );
+        this.checkGovBrData();
+      }
+    } catch (err) {
+      console.error('Error on sign in with gov br', err);
+    }
+  }
+
+  checkGovBrData() {
     const govBrTokensStr = localStorage.getItem('govBrTokens');
     if (govBrTokensStr) {
       const govBrTokens = JSON.parse(govBrTokensStr);
@@ -128,22 +194,21 @@ export class SignUp implements OnInit {
         Date.now() - govBrTokens.timestamp > fiveMinutes
       ) {
         localStorage.removeItem('govBrTokens');
+        this.hasGovBrData.set(false);
         return;
       }
 
-      setTimeout(() => {
-        this.toaster.show(
-          this.translate.instant('pages.signIn.notifications.welcomeGovBr'),
-          { type: 'info' },
-        );
-      }, 500);
       const { idToken, userData } = govBrTokens;
+
+      this.hasGovBrData.set(true);
 
       if (userData) {
         this.formGroup.patchValue({
           email: userData.email,
           firstName: userData.firstName,
           lastName: userData.lastName,
+          cpf: userData.cpf || '',
+          birthDate: userData.birthDate || '',
         });
       } else {
         const decodedToken: any = this.decodeToken(idToken);
@@ -160,6 +225,20 @@ export class SignUp implements OnInit {
           }
         }
       }
+
+      // Desabilita campos se dados preenchidos pelo gov.br
+      if (this.formGroup.get('email')?.value)
+        this.formGroup.get('email')?.disable();
+      if (this.formGroup.get('firstName')?.value)
+        this.formGroup.get('firstName')?.disable();
+      if (this.formGroup.get('lastName')?.value)
+        this.formGroup.get('lastName')?.disable();
+      if (this.formGroup.get('cpf')?.value)
+        this.formGroup.get('cpf')?.disable();
+      if (this.formGroup.get('birthDate')?.value)
+        this.formGroup.get('birthDate')?.disable();
+    } else {
+      this.hasGovBrData.set(false);
     }
   }
 
@@ -219,38 +298,65 @@ export class SignUp implements OnInit {
     return errors as ApiFieldErrors;
   }
 
-  nextStep() {
-    const controlsToValidate = [
-      'firstName',
-      'lastName',
-      'email',
-      'password',
-      'confirmPassword',
-      'cpf',
-    ];
+  onTermsScroll(event: any) {
+    const element = event.target;
+    if (element.scrollHeight - element.scrollTop <= element.clientHeight + 10) {
+      this.scrolledToBottom.set(true);
+      this.canAcceptTerm.set(true);
+    }
+  }
 
-    let isStep1Valid = true;
-    for (const name of controlsToValidate) {
-      const control = this.formGroup.get(name);
-      if (control?.invalid) {
-        control.markAsTouched();
-        isStep1Valid = false;
+  nextStep(step: 1 | 2 | 3 | 4 | 5 | 6) {
+    if (this.currentStep() === 2) {
+      const typeVal = this.formGroup.get('accountType')?.value;
+      const t = this.accountTypes.find((a: any) => a.value === typeVal);
+      if (!t || !t.allow) return;
+    }
+
+    if (this.currentStep() === 4) {
+      // Validate Address
+      if (!this.noOfficialAddress()) {
+        const addr = this.formGroup.get('address') as FormGroup;
+        if (addr.invalid) {
+          addr.markAllAsTouched();
+          this.toaster.error('Preencha o endereço corretamente');
+          return;
+        }
+      } else {
+        if (this.formGroup.get('digitalAddress')?.invalid) {
+          this.formGroup.get('digitalAddress')?.markAsTouched();
+          this.toaster.error('Preencha o endereço digital');
+          return;
+        }
       }
     }
 
-    if (!isStep1Valid) {
-      this.toaster.error(
-        this.translate.instant('pages.signUp.errors.invalidForm'),
-      );
-      return;
+    if (this.currentStep() === 5) {
+      // Basic document requirement validation (though handled by child component disable state, double check here)
+      const type = this.formGroup.get('accountType')?.value;
+      const needsDocument = [
+        'fisica_emancipada',
+        'fisica_assistido_parental',
+        'fisica_assistido_tutor',
+      ].includes(type);
+      if (needsDocument && !this.formGroup.get('metadata.documents')?.value) {
+        this.toaster.error(
+          'Faça o upload do documento obrigatório para continuar',
+        );
+        return;
+      }
     }
 
-    this.currentStep.set(2);
-    this.startTermCountdown();
+    this.currentStep.set(step);
   }
 
   prevStep() {
-    this.currentStep.set(1);
+    if (this.currentStep() > 1 && this.currentStep() <= 3) {
+      // "não pode haver retorno após a terceira etapa"
+      this.currentStep.set((this.currentStep() - 1) as 1 | 2 | 3 | 4 | 5 | 6);
+    } else if (this.currentStep() > 3) {
+      this.currentStep.set((this.currentStep() - 1) as 1 | 2 | 3 | 4 | 5 | 6);
+    }
   }
 
   get currentTerm() {
@@ -258,43 +364,19 @@ export class SignUp implements OnInit {
   }
 
   acceptCurrentTerm() {
-    if (!this.canAcceptTerm()) return;
-
-    const termId = this.currentTerm.id;
-    const currentAccepted = this.formGroup.get('termsAccepted')?.value || [];
-    if (!currentAccepted.includes(termId)) {
-      this.formGroup
-        .get('termsAccepted')
-        ?.setValue([...currentAccepted, termId]);
-    }
-
-    if (this.currentTermIndex() < this.terms.length - 1) {
-      this.currentTermIndex.update((i) => i + 1);
-      this.startTermCountdown();
-    } else {
-      this.submit();
-    }
+    this.nextStep(2);
   }
 
   async submit() {
     if (this.formGroup.invalid) {
+      this.formGroup.markAllAsTouched();
       this.toaster.error(
         this.translate.instant('pages.signUp.errors.invalidForm'),
       );
       return;
     }
 
-    if (
-      this.formGroup.get('termsAccepted')?.value?.length !== this.terms.length
-    ) {
-      this.toaster.error(
-        this.translate.instant('pages.signUp.errors.termsRequired'),
-      );
-      return;
-    }
-
     this.loading.set(true);
-    this.currentStep.set(1); // Close terms modal while loading
 
     try {
       const captcha = await firstValueFrom(
@@ -313,6 +395,7 @@ export class SignUp implements OnInit {
 
       const payload = {
         ...rawValue,
+        accountType: rawValue.accountType,
         phone,
         address: !this.noOfficialAddress()
           ? JSON.stringify(rawValue.address)
@@ -324,6 +407,7 @@ export class SignUp implements OnInit {
 
       // Remove phoneCountry from payload
       delete (payload as any).phoneCountry;
+      delete (payload as any).accountType;
 
       await firstValueFrom(this.api.register(payload));
 
@@ -332,7 +416,17 @@ export class SignUp implements OnInit {
         localStorage.setItem('govBrFinalize', 'true');
       }
 
-      this.router.navigate(['/sign-in']);
+      const requiresAnalysis = [
+        'fisica_emancipada',
+        'fisica_assistido_parental',
+        'fisica_assistido_tutor',
+      ].includes(rawValue.accountType);
+
+      if (requiresAnalysis) {
+        this.successMessage.set(this.translate.instant('pages.signUp.success.inAnalysis'));
+      } else {
+        this.successMessage.set(this.translate.instant('pages.signUp.success.default'));
+      }
     } catch (err: unknown) {
       let errorTranslation = this.translate.instant(
         'pages.signUp.errors.submit',

@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -24,6 +25,55 @@ import {
   HlmLabelDirective,
   HlmSwitchComponent,
 } from '../../../../projects/shared/src/public-api';
+
+export const ACCOUNT_TYPES = [
+  {
+    value: 'fisica_capaz',
+    label: 'Pessoa física capaz (não emancipada)',
+    allow: true,
+  },
+  {
+    value: 'fisica_emancipada',
+    label: 'Pessoa física capaz (emancipada)',
+    allow: true,
+  },
+  {
+    value: 'fisica_assistido_parental',
+    label:
+      'Pessoa física Relativamente incapaz (assistido por autoridade parental)',
+    allow: true,
+  },
+  {
+    value: 'fisica_assistido_tutor',
+    label: 'Pessoa física Relativamente incapaz (assistido por tutor)',
+    allow: true,
+  },
+  {
+    value: 'fisica_representado_parental',
+    label: 'Pessoa física Incapaz (representado por autoridade parental)',
+    allow: false,
+  },
+  {
+    value: 'fisica_representado_tutor',
+    label: 'Pessoa física Incapaz (representado por tutor)',
+    allow: false,
+  },
+  {
+    value: 'fisica_representado_curador',
+    label: 'Pessoa física Incapaz (representado por curador)',
+    allow: false,
+  },
+  { value: 'espolio', label: 'Espólio', allow: false },
+  { value: 'heranca', label: 'Herança jacente ou vacante', allow: false },
+  { value: 'juridica', label: 'Pessoa jurídica', allow: false },
+  { value: 'massa_falida', label: 'Massa falida', allow: false },
+  {
+    value: 'massa_insolvente',
+    label: 'Massa do insolvente civil',
+    allow: false,
+  },
+  { value: 'condominio', label: 'Condomínio edilício', allow: false },
+];
 
 @Component({
   selector: 'app-user-form',
@@ -48,7 +98,10 @@ import {
 })
 export class UserFormComponent implements OnInit, OnDestroy {
   @Input({ required: true }) formGroup!: FormGroup;
+  accountTypes = ACCOUNT_TYPES.filter((t) => t.allow);
   @Input() loading = false;
+
+  displayMode = input();
 
   private _noOfficialAddress = false;
   @Input()

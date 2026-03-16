@@ -23,6 +23,8 @@ export interface IUser {
   socialName?: string;
   address?: string;
   digitalAddress?: string;
+  birthDate?: string;
+  accountType?: string;
 }
 
 export interface IUpdateUserRequest {

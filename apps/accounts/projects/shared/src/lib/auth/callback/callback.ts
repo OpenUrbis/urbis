@@ -30,6 +30,15 @@ export class Callback implements OnInit {
   router = inject(Router);
 
   async ngOnInit() {
+    // If it's a popup flow, let the built-in library postMessage logic handle the response
+    // to the parent window. Running checkAuthMultiple here in the popup window will
+    // throw "could not find matching config for state" since sessionStorage is isolated.
+    if (window.opener && window !== window.opener) {
+      this.loading = true;
+      this.errorMessage = null;
+      return;
+    }
+
     try {
       const checkedAuths = await firstValueFrom(
         this.oidcSecurityService.checkAuthMultiple(),
@@ -37,8 +46,15 @@ export class Callback implements OnInit {
 
       checkedAuths.forEach(async (auth) => {
         const { isAuthenticated, userData, errorMessage, configId } = auth;
+        console.log('AUTH', auth);
 
-        if (configId !== AUTH_CONFIG_ID) return;
+        if (configId !== AUTH_CONFIG_ID) {
+          // It's the external OIDC flow (e.g. Gov.br),
+          // authorizeWithPopUp relies on the library handling the popup auto-close logic
+          // as long as checkAuthMultiple finishes. We can just return here to not navigate
+          // the popup away, letting the library close it.
+          return;
+        }
 
         if (isAuthenticated) {
           this.router.navigate(['/']);

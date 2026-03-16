@@ -64,13 +64,11 @@ import { SignInApi } from './services/sign-in-api';
 })
 export class SignIn implements OnInit {
   formGroup = new FormGroup({
-    email: new FormControl('', [
-      Validators.required,
-      Validators.email,
-    ]),
+    email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required]),
     recaptcha: new FormControl('', []),
   });
+  isInAnalysis = signal<boolean>(false);
   isEmailNotConfirmed = signal<boolean>(false);
   disableSubmit = signal<boolean>(false);
   isLoading = signal<boolean>(false);
@@ -160,6 +158,15 @@ export class SignIn implements OnInit {
 
           this.redirectOnSuccess(response);
         } catch (err: any) {
+          if (err.status === 400 && err.error?.inAnalysis) {
+            this.isInAnalysis.set(true);
+            this.disableSubmit.set(true);
+
+            setTimeout(() => {
+              this.disableSubmit.set(false);
+            }, 5000);
+            return;
+          }
           if (err.status === 400 && err.error?.isEmailNotConfirmed) {
             this.isEmailNotConfirmed.set(true);
             this.disableSubmit.set(true);
@@ -220,7 +227,15 @@ export class SignIn implements OnInit {
       error: (err) => {
         this.isLoading.set(false);
         console.error(err);
+        if (err.status === 400 && err.error?.inAnalysis) {
+          this.isInAnalysis.set(true);
+          this.disableSubmit.set(true);
 
+          setTimeout(() => {
+            this.disableSubmit.set(false);
+          }, 5000);
+          return;
+        }
         if (err.status === 400 && err.error?.isEmailNotConfirmed) {
           this.isEmailNotConfirmed.set(true);
           this.disableSubmit.set(true);

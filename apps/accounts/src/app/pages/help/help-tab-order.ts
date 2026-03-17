@@ -1,6 +1,6 @@
 import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { QuestionAnswer } from './help.models';
 import { HelpService } from './help.service';
 
@@ -82,6 +82,8 @@ export class HelpTabOrder implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly helpService = inject(HelpService);
   private readonly location = inject(Location);
+   private readonly router = inject(Router);
+
 
   readonly loading = signal(false);
   readonly saving = signal(false);
@@ -102,8 +104,8 @@ export class HelpTabOrder implements OnInit {
   }
 
   goBack(): void {
-    this.location.back();
-  }
+  this.router.navigate(['/help/tabs']);
+}
 
   load(): void {
     this.loading.set(true);

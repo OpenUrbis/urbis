@@ -189,6 +189,6 @@ export class HelpTabForm implements OnInit {
   }
 
   goBack(): void {
-    this.location.back();
-  }
+  this.router.navigate(['/help/tabs']);
+}
 }

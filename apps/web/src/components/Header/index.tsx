@@ -15,7 +15,7 @@ const Header = () => {
   const [helpOpen, setHelpOpen] = useState(false);
   const { toggleDrawer } = useNavigationContext();
 
- const { menuItems, badgeText } = useMemo(() => {
+  const { menuItems, badgeText } = useMemo(() => {
     return buildUrbisNav({
       isAuthenticated: auth.isAuthenticated,
       currentApp: "mapa",
@@ -48,7 +48,6 @@ const Header = () => {
 
   return (
     <>
-      {/* 🔒 Estilo LOCAL: no mobile, botão Entrar/Sair fica só com o ícone */}
       <style>
         {`
           @media (max-width: 767px) {
@@ -66,7 +65,9 @@ const Header = () => {
         isAuthenticated={auth.isAuthenticated}
         user={{
           name: userProfile.value?.name ?? auth.user?.profile.name,
-          socialName: userProfile.value?.socialName ?? auth.user?.profile.socialName as string,
+          socialName:
+            userProfile.value?.socialName ??
+            (auth.user?.profile.socialName as string),
           email: userProfile.value?.email ?? auth.user?.profile.email,
         }}
         onLogin={() => auth.signinRedirect()}
@@ -101,7 +102,7 @@ const Header = () => {
               </Button>
             )}
 
-            {/* AJUDA — desktop */}
+            {/* Ajuda desktop */}
             <Button
               variant="outline"
               size="sm"
@@ -113,7 +114,7 @@ const Header = () => {
               Ajuda
             </Button>
 
-            {/* AJUDA — colapsado/mobile: só "?" */}
+            {/* Ajuda mobile */}
             <Button
               variant="outline"
               size="icon"
@@ -135,8 +136,11 @@ const Header = () => {
             onClick={() => setHelpOpen(false)}
           />
 
-          <div className="relative ml-auto h-full w-full max-w-[420px] bg-background shadow-xl overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b">
+          {/* Drawer */}
+          <div className="relative ml-auto flex h-full w-full max-w-[420px] flex-col bg-background shadow-xl">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b shrink-0">
               <h2 className="text-sm font-semibold">Ajuda</h2>
               <button
                 type="button"
@@ -148,11 +152,12 @@ const Header = () => {
               </button>
             </div>
 
-            <div className="p-3">
+            {/* Conteúdo */}
+            <div className="min-h-0 flex-1 overflow-y-auto p-3">
               <HelpSidebarContent
-  currentTabSlug="mapa"
-  faqEndpointBase="http://localhost:3000/support/question-answers"
-/>
+                currentTabSlug="mapa"
+                faqEndpointBase="http://localhost:3000/support/question-answers"
+              />
             </div>
           </div>
         </div>

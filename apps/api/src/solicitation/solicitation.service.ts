@@ -144,31 +144,28 @@ export class SolicitationService {
     };
   }
 
-  async findOrCreateOrganization(document: string): Promise<Organization> {
+  async findOrCreateOrganization(document: string, data: any): Promise<Organization> {
     const cleanDocument = document.replace(/\D/g, '');
     let org = await this.organizationService.findOneByDocument(cleanDocument);
 
     if (!org) {
-      if (cleanDocument.length === 11) {
-        throw new BadRequestException('errors.cpf_not_found');
+      const isCpf = cleanDocument.length === 11;
+      const docType = isCpf ? 'CPF' : 'CNPJ';
+      let name = isCpf ? data.name : (data.companyName || data.name);
+      
+      if (!name) {
+         name = isCpf ? `Pessoa Física ${cleanDocument}` : `Organização ${cleanDocument}`;
       }
 
-      // Mock fetch for CNPJ
-      const mockData = this.MOCK_CNPJ_DATA[cleanDocument];
-      if (mockData) {
-        org = await this.organizationService.create({
-          name: mockData.name,
-          document: cleanDocument,
-          metadata: { documentType: 'CNPJ' },
-        } as any);
-      } else {
-        // Fallback for testing: create generic org if not in mock list but valid length
-        org = await this.organizationService.create({
-          name: `Organização ${cleanDocument}`,
-          document: cleanDocument,
-          metadata: { documentType: 'CNPJ' },
-        } as any);
-      }
+      const metadata: any = { documentType: docType };
+      if (data.tradeName) metadata.tradeName = data.tradeName;
+      if (data.socialName) metadata.socialName = data.socialName;
+
+      org = await this.organizationService.create({
+        name,
+        document: cleanDocument,
+        metadata,
+      } as any);
     }
     return org;
   }
@@ -178,12 +175,17 @@ export class SolicitationService {
     data: {
       assignTo: string;
       document: string;
+      representationType?: string;
+      companyName?: string;
+      tradeName?: string;
+      name?: string;
+      socialName?: string;
       justification?: string;
       documents?: any[];
     },
   ) {
     data.document = data.document.replace(/\D/g, '');
-    const org = await this.findOrCreateOrganization(data.document);
+    const org = await this.findOrCreateOrganization(data.document, data);
 
     // Check if already representing
     const userOrgs = await this.organizationService.my(user.id);
@@ -243,6 +245,7 @@ export class SolicitationService {
         justification: data.justification,
         documents: data.documents,
         assignedTo: assignedTo,
+        representationType: data.representationType,
       });
 
       await this.solicitationRepository.save(solicitation);

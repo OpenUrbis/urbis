@@ -7,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  computed,
   inject,
   input,
   signal,
@@ -16,7 +17,7 @@ import { provideIcons } from '@ng-icons/core';
 import { lucideChevronDown, lucideMap } from '@ng-icons/lucide';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { decode } from '@open-urbis/endereco-digital';
-import { Subject, Subscription, firstValueFrom } from 'rxjs';
+import { Observable, Subject, Subscription, firstValueFrom } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PasswordFormGroup } from '../../../../projects/shared/src/lib/components/password-form-group/password-form-group';
 import {
@@ -25,54 +26,88 @@ import {
   HlmLabelDirective,
   HlmSwitchComponent,
 } from '../../../../projects/shared/src/public-api';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { differenceInYears } from 'date-fns';
+
+export enum ACCOUNT_TYPE_ENUM {
+  FISICA_CAPAZ = 'fisica_capaz',
+  FISICA_EMANCIPADA = 'fisica_emancipada',
+  FISICA_ASSISTIDO_PARENTAL = 'fisica_assistido_parental',
+  FISICA_ASSISTIDO_TUTOR = 'fisica_assistido_tutor',
+  FISICA_REPRESENTADO_PARENTAL = 'fisica_representado_parental',
+  FISICA_REPRESENTADO_TUTOR = 'fisica_representado_tutor',
+  FISICA_REPRESENTADO_CURADOR = 'fisica_representado_curador',
+  ESPOLIO = 'espolio',
+  HERANCA = 'heranca',
+  JURIDICA = 'juridica',
+  MASSA_FALIDA = 'massa_falida',
+  MASSA_INSOLVENTE = 'massa_insolvente',
+  CONDOMINIO = 'condominio',
+}
 
 export const ACCOUNT_TYPES = [
   {
-    value: 'fisica_capaz',
-    label: 'Pessoa física capaz (não emancipada)',
+    value: ACCOUNT_TYPE_ENUM.FISICA_CAPAZ,
+    label: 'Pessoa física capaz',
     allow: true,
+    minAge: 18,
   },
   {
-    value: 'fisica_emancipada',
+    value: ACCOUNT_TYPE_ENUM.FISICA_EMANCIPADA,
     label: 'Pessoa física capaz (emancipada)',
     allow: true,
+    minAge: 16,
+    maxAge: 18,
   },
   {
-    value: 'fisica_assistido_parental',
-    label:
-      'Pessoa física Relativamente incapaz (assistido por autoridade parental)',
+    value: ACCOUNT_TYPE_ENUM.FISICA_ASSISTIDO_PARENTAL,
+    label: 'Pessoa física assistida por autoridade parental',
     allow: true,
+    maxAge: 18,
   },
   {
-    value: 'fisica_assistido_tutor',
-    label: 'Pessoa física Relativamente incapaz (assistido por tutor)',
+    value: ACCOUNT_TYPE_ENUM.FISICA_ASSISTIDO_TUTOR,
+    label: 'Pessoa física assistida por tutor',
     allow: true,
+    maxAge: 18,
   },
   {
-    value: 'fisica_representado_parental',
-    label: 'Pessoa física Incapaz (representado por autoridade parental)',
+    value: ACCOUNT_TYPE_ENUM.FISICA_REPRESENTADO_PARENTAL,
+    label: 'Pessoa física representado por autoridade parental',
     allow: false,
   },
   {
-    value: 'fisica_representado_tutor',
-    label: 'Pessoa física Incapaz (representado por tutor)',
+    value: ACCOUNT_TYPE_ENUM.FISICA_REPRESENTADO_TUTOR,
+    label: 'Pessoa física representado por tutor',
     allow: false,
   },
   {
-    value: 'fisica_representado_curador',
-    label: 'Pessoa física Incapaz (representado por curador)',
+    value: ACCOUNT_TYPE_ENUM.FISICA_REPRESENTADO_CURADOR,
+    label: 'Pessoa física representado por curador',
     allow: false,
   },
-  { value: 'espolio', label: 'Espólio', allow: false },
-  { value: 'heranca', label: 'Herança jacente ou vacante', allow: false },
-  { value: 'juridica', label: 'Pessoa jurídica', allow: false },
-  { value: 'massa_falida', label: 'Massa falida', allow: false },
+  { value: ACCOUNT_TYPE_ENUM.ESPOLIO, label: 'Espólio', allow: false },
   {
-    value: 'massa_insolvente',
+    value: ACCOUNT_TYPE_ENUM.HERANCA,
+    label: 'Herança jacente ou vacante',
+    allow: false,
+  },
+  { value: ACCOUNT_TYPE_ENUM.JURIDICA, label: 'Pessoa jurídica', allow: false },
+  {
+    value: ACCOUNT_TYPE_ENUM.MASSA_FALIDA,
+    label: 'Massa falida',
+    allow: false,
+  },
+  {
+    value: ACCOUNT_TYPE_ENUM.MASSA_INSOLVENTE,
     label: 'Massa do insolvente civil',
     allow: false,
   },
-  { value: 'condominio', label: 'Condomínio edilício', allow: false },
+  {
+    value: ACCOUNT_TYPE_ENUM.CONDOMINIO,
+    label: 'Condomínio edilício',
+    allow: false,
+  },
 ];
 
 @Component({
@@ -122,6 +157,14 @@ export class UserFormComponent implements OnInit, OnDestroy {
   private sub = new Subscription();
   private http = inject(HttpClient);
   private translate = inject(TranslateService);
+
+  get age() {
+    const birthDate = this.formGroup.get('birthDate')?.value;
+    if (!birthDate) return 0;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    return differenceInYears(today, birth);
+  }
 
   get hasEmail() {
     return !!this.formGroup.get('email');
@@ -340,5 +383,16 @@ export class UserFormComponent implements OnInit, OnDestroy {
     } finally {
       this.loadingCep.set(false);
     }
+  }
+
+  isDisableAccountType(type: any) {
+    const { minAge, maxAge } = type;
+    const age = this.age;
+    if (!minAge && !maxAge) return false;
+
+    if (minAge && age < minAge) return true;
+    if (maxAge && age >= maxAge) return true;
+
+    return false;
   }
 }

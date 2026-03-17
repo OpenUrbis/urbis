@@ -33,7 +33,7 @@ export const authConfig: OpenIdConfiguration = {
 export const externalOidcAuthConfig: OpenIdConfiguration = {
   ...commomAuthConfig,
   configId: EXTERNAL_OIDC_AUTH_CONFIG_ID,
-  scope: 'openid profile email govbr_confiabilidades',
+  scope: 'openid profile email govbr_confiabilidades phone',
   secureRoutes: environment.externalOidcSecureRoutes,
   authority: environment.externalOidcAuthority.endsWith('/')
     ? environment.externalOidcAuthority

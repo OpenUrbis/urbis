@@ -49,6 +49,30 @@ export class Solicitation extends BaseEntity {
   @Column({ nullable: true })
   organizationId: string;
 
+  @Column({ type: 'text', nullable: true })
+  representationType?: string;
+
+  @ManyToOne(() => Organization, { nullable: true })
+  @JoinColumn({ name: 'authorId' })
+  author?: Organization;
+
+  @Column({ nullable: true })
+  authorId?: string;
+
+  @ManyToOne(() => Organization, { nullable: true })
+  @JoinColumn({ name: 'representedId' })
+  represented?: Organization;
+
+  @Column({ nullable: true })
+  representedId?: string;
+
+  @ManyToOne(() => Organization, { nullable: true })
+  @JoinColumn({ name: 'representativeId' })
+  representative?: Organization;
+
+  @Column({ nullable: true })
+  representativeId?: string;
+
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'assignedToId' })
   assignedTo?: User;

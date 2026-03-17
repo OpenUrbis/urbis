@@ -26,6 +26,7 @@ import { UserFormComponent } from '../../../../components/user-form/user-form';
 export class PersonalDataComponent {
   @Input({ required: true }) formGroup!: FormGroup;
   @Input() hasGovBrData = false;
+  @Input() accountTypes: any[] = [];
 
   @Output() next = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();

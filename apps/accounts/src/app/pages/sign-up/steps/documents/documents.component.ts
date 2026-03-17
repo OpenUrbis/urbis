@@ -4,6 +4,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { HlmButtonDirective } from '../../../../../../projects/shared/src/public-api';
 import { AttachmentsComponent } from '../../../../../../projects/shared/src/lib/components/attachments/attachments.component';
+import { UserFormComponent } from '../../../../components/user-form/user-form';
 
 @Component({
   selector: 'app-documents',
@@ -14,6 +15,7 @@ import { AttachmentsComponent } from '../../../../../../projects/shared/src/lib/
     TranslateModule,
     HlmButtonDirective,
     AttachmentsComponent,
+    UserFormComponent,
   ],
   templateUrl: './documents.component.html',
 })
@@ -26,17 +28,18 @@ export class DocumentsComponent {
   isLoadingUpload = false;
 
   get documentRequiredMessage(): string {
+    const texts: any = {
+      fisica_emancipada: 'Documentos comprobatórios da emancipação',
+      fisica_assistido_parental:
+        'Documentos comprobatórios da autoridade parental',
+      fisica_assistido_tutor: 'Documentos comprobatórios da tutela',
+    };
     const type = this.formGroup.get('accountType')?.value;
-    switch (type) {
-      case 'fisica_emancipada':
-        return 'Documentos comprobatórios da emancipação';
-      case 'fisica_assistido_parental':
-        return 'Documentos comprobatórios da autoridade parental';
-      case 'fisica_assistido_tutor':
-        return 'Documentos comprobatórios da tutela';
-      default:
-        return 'nenhum documento é necessario';
-    }
+
+    return (
+      texts[type] ??
+      'Nenhum documento adicional é necessário para o tipo de conta selecionado.'
+    );
   }
 
   get needsDocument(): boolean {

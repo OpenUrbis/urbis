@@ -1,0 +1,178 @@
+.hero {
+    text-align: center;
+    position: relative;
+    overflow: revert-layer;
+    padding-bottom: 84px !important;
+}
+
+.container {
+    max-width: 1040px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.teachers-icon {
+    height: 20px !important;
+}
+
+.content {
+    max-width: 854px;
+    margin-top: 72px;
+    margin-bottom: 72px;
+}
+
+.trust-badge {
+    position: relative;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 100%;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.badge-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--Schemes-On-Surface-Variant, #41474d);
+    font-weight: 500;
+}
+
+.title {
+    color: var(--Schemes-Primary, #273FF0);
+    font: 61px/58px "Noto Sans", sans-serif;
+    margin-bottom: 24px;
+    font-family: "Noto Sans";
+    font-weight: 600;
+    font-size: 62px;
+    line-height: 120%;
+    letter-spacing: -2px;
+    text-align: center;
+    vertical-align: middle;
+
+}
+
+.description {
+    font-family: "Noto Sans";
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 28px;
+    letter-spacing: 0px;
+    text-align: center;
+    vertical-align: middle;
+    margin-bottom: 24px;
+    line-height: 150% !important;
+    z-index: 10000;
+    position: relative;
+}
+
+.button-action {
+    font-size: 18px;
+    height: 52px;
+    z-index: 10000;
+}
+
+.features-preview {
+    margin-top: 48px;
+    width: 854px;
+    height: 464px;
+    background-color: #fff;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: 63px "Noto Sans", sans-serif;
+    z-index: 100;
+    color: #000;
+    border: 1px solid rgba(193, 199, 206, 1);
+}
+
+@media (max-width: 572px) {
+    .hero {
+        padding: 12px !important;
+    }
+
+    .decoration-2 {
+        left: -36px;
+        top: 0px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        overflow: hidden;
+    }
+
+    .features-preview {
+        height: 384px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        padding: 40px 20px;
+    }
+
+    .title {
+        font-size: 40px;
+        line-height: 44px;
+        margin-top: 8px;
+        z-index: 100000;
+        position: relative;
+    }
+
+    .description {
+        font-family: "Noto Sans";
+        font-weight: 400;
+        font-size: 18px;
+        line-height: 28px;
+        letter-spacing: 0px;
+        text-align: center;
+        vertical-align: middle;
+        margin-bottom: 24px;
+        line-height: 130% !important;
+    }
+
+    .features-preview {
+        width: 100%;
+        font-size: 40px;
+        z-index: 100000;
+        background: #f2fbfd;
+        position: relative;
+    }
+}
+.features-preview {
+    overflow: hidden;
+    position: relative;
+}
+.features-preview video {
+    width: 100%;
+    height: auto;
+}
+.video-container {
+    position: relative;
+    display: inline-block;
+}
+
+.video-container video {
+    max-width: 100%;
+    height: auto;
+}
+
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+.replay-button {
+    top: 70%;
+    color: #affe64 !important;
+}

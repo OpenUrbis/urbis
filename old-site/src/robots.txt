@@ -1,0 +1,3 @@
+User-agent: *
+
+Sitemap: http://urbis.sampa.br/sitemap.xml

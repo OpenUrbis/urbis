@@ -280,7 +280,7 @@ export function ResultsTable({
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-1.5">
                         {filteredZones.map((z, i) => (
-                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border uppercase">{z}</span>
+                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border">{z}</span>
                         ))}
                       </div>
                     </td>
@@ -296,7 +296,7 @@ export function ResultsTable({
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-1.5">
                         {filteredSimSemNota.map((z, i) => (
-                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border uppercase">{z}</span>
+                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border">{z}</span>
                         ))}
                       </div>
                     </td>
@@ -312,7 +312,7 @@ export function ResultsTable({
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-1.5">
                         {zonas.map((z, i) => (
-                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border uppercase">{z}</span>
+                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border">{z}</span>
                         ))}
                       </div>
                     </td>
@@ -336,7 +336,7 @@ export function ResultsTable({
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-1.5">
                         {zonas.map((z, i) => (
-                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border uppercase">{z}</span>
+                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border">{z}</span>
                         ))}
                       </div>
                     </td>
@@ -360,7 +360,7 @@ export function ResultsTable({
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-1.5">
                         {filteredZoeZep.map((z, i) => (
-                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border uppercase">{z}</span>
+                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border">{z}</span>
                         ))}
                       </div>
                     </td>
@@ -376,7 +376,7 @@ export function ResultsTable({
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-1.5">
                         {filteredNaoSemNota.map((z, i) => (
-                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border uppercase">{z}</span>
+                          <span key={i} className="text-[10px] font-semibold bg-muted text-foreground px-2.5 py-1 rounded-lg border border-border">{z}</span>
                         ))}
                       </div>
                     </td>

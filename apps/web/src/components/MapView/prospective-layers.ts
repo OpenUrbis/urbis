@@ -1,3 +1,5 @@
+import { LIGHT_COLORS, DARK_COLORS } from '@open-urbis/map';
+
 export const PROSPECTIVE_SEARCH_LAYERS_TEMPLATE = {
   "id": "zoneamento_lei_16402_18177",
   "name": "Zoneamento - Lei nº 16.402/16+18.177/24",
@@ -22,6 +24,13 @@ export const PROSPECTIVE_SEARCH_LAYERS_TEMPLATE = {
       "properties": {
         "label": "Zona",
         "value": "{{cd_zoneamento_perimetro}}"
+      }
+    },
+    {
+      "type": "LabelValueTemplate",
+      "properties": {
+        "label": "PQA",
+        "value": "{{tx_zoneamento_perimetro}}"
       }
     }
   ],
@@ -465,11 +474,15 @@ const rgbToHex = (r: number, g: number, b: number) => {
   }).join('').toUpperCase();
 };
 
+/**
+ * Função para gerar o corpo do SLD (Styled Layer Descriptor) da camada.
+ * Permite renderização flexível: contornos tracejados, preenchimentos de uso ou hachuras (interseção).
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const generateSLD = (layerName: string, colors: any[], elseFilterStyle: any = null, isOutline: boolean = false, outlineColor: string = "#000000") => {
+const generateSLD = (layerName: string, colors: any[], elseFilterStyle: any = null, isOutline: boolean = false, outlineColor: string = "#000000", isIntersectionMaskTarget: boolean = false, isHatch: boolean = false) => {
   let rules = "";
 
-  // Group colors
+  // Agrupa cores (baseado no HEX e na opacidade)
   const colorGroups: Record<string, string[]> = {};
 
   colors.forEach(item => {
@@ -480,10 +493,8 @@ const generateSLD = (layerName: string, colors: any[], elseFilterStyle: any = nu
     if (color === "OUTLINE") {
       key = "OUTLINE";
     } else {
-      // Key by hex + opacity
       const opacity = color[3] !== undefined ? (color[3] / 255).toFixed(2) : "1.0";
       const hex = rgbToHex(color[0], color[1], color[2]);
-      // Also group by pattern to handle different patterns
       const pattern = item.pattern || "full";
       key = `${hex}-${opacity}-${pattern}`;
     }
@@ -500,16 +511,26 @@ const generateSLD = (layerName: string, colors: any[], elseFilterStyle: any = nu
     let textSymbolizer = "";
 
     if (key === "OUTLINE") {
-      // Dashed Outline, No Fill
-      // For Outline layer, we always show the outline (no fill to separate).
-      baseSymbolizer = `<PolygonSymbolizer><Stroke><CssParameter name="stroke">${outlineColor}</CssParameter><CssParameter name="stroke-width">2</CssParameter><CssParameter name="stroke-opacity">1</CssParameter><CssParameter name="stroke-dasharray">5 5</CssParameter></Stroke></PolygonSymbolizer>`;
+      // Regra especial para a pesquisa de parâmetros urbanísticos
+      if (isIntersectionMaskTarget) {
+        if (isHatch) {
+          // Borda preta em vez de hachura para a interseção
+          baseSymbolizer = `<PolygonSymbolizer><Stroke><CssParameter name="stroke">#000000</CssParameter><CssParameter name="stroke-width">4</CssParameter><CssParameter name="stroke-opacity">0.5</CssParameter></Stroke></PolygonSymbolizer>`;
+        } else {
+          // Preenchimento sólido para testes/fallback
+          baseSymbolizer = `<PolygonSymbolizer><Fill><CssParameter name="fill">${outlineColor}</CssParameter><CssParameter name="fill-opacity">0.3</CssParameter></Fill></PolygonSymbolizer>`;
+        }
+      } else {
+        // Apenas a borda tracejada normal
+        baseSymbolizer = `<PolygonSymbolizer><Stroke><CssParameter name="stroke">${outlineColor}</CssParameter><CssParameter name="stroke-width">2</CssParameter><CssParameter name="stroke-opacity">1</CssParameter><CssParameter name="stroke-dasharray">5 5</CssParameter></Stroke></PolygonSymbolizer>`;
+      }
     } else {
       const parts = key.split('-');
       const hex = parts[0];
       const opacity = parts[1];
       const pattern = parts.length > 2 ? parts.slice(2).join('-') : "full";
 
-      // Generate Fill based on pattern
+      // Gera o preenchimento de acordo com o padrão configurado
       let fillContent = `<CssParameter name="fill">${hex}</CssParameter><CssParameter name="fill-opacity">${opacity}</CssParameter>`;
 
       if (pattern === "dots") {
@@ -520,14 +541,15 @@ const generateSLD = (layerName: string, colors: any[], elseFilterStyle: any = nu
         fillContent = `<GraphicFill><Graphic><Mark><WellKnownName>shape://times</WellKnownName><Stroke><CssParameter name="stroke">${hex}</CssParameter><CssParameter name="stroke-width">1</CssParameter></Stroke></Mark><Size>10</Size></Graphic></GraphicFill><CssParameter name="fill-opacity">${opacity}</CssParameter>`;
       }
 
-      // Base: Fill Only (Always visible)
       baseSymbolizer = `<PolygonSymbolizer><Fill>${fillContent}</Fill></PolygonSymbolizer>`;
-
-      // Detail: Stroke Only (Visible at Zoom 14+)
       detailSymbolizer = `<PolygonSymbolizer><Stroke><CssParameter name="stroke">${hex}</CssParameter><CssParameter name="stroke-width">0.5</CssParameter><CssParameter name="stroke-opacity">1</CssParameter></Stroke></PolygonSymbolizer>`;
 
-      // Text: Label (Visible at Zoom 14+)
+      // Texto exibido no zoom (Apenas para cor preenchida, ou outline normal)
       textSymbolizer = `<TextSymbolizer><Label><ogc:PropertyName>cd_zoneamento_perimetro</ogc:PropertyName></Label><Font><CssParameter name="font-family">Arial</CssParameter><CssParameter name="font-size">10</CssParameter><CssParameter name="font-style">normal</CssParameter><CssParameter name="font-weight">bold</CssParameter></Font><LabelPlacement><PointPlacement><AnchorPoint><AnchorPointX>0.5</AnchorPointX><AnchorPointY>0.5</AnchorPointY></AnchorPoint></PointPlacement></LabelPlacement><Halo><Radius>1</Radius><Fill><CssParameter name="fill">#FFFFFF</CssParameter></Fill></Halo><Fill><CssParameter name="fill">#000000</CssParameter></Fill><VendorOption name="auto">true</VendorOption><VendorOption name="goodnessOfFit">0.1</VendorOption><VendorOption name="maxDisplacement">10</VendorOption></TextSymbolizer>`;
+    }
+
+    if (key === "OUTLINE" && !isIntersectionMaskTarget) {
+      textSymbolizer = `<TextSymbolizer><Label><ogc:PropertyName>cd_zoneamento_perimetro</ogc:PropertyName></Label><Font><CssParameter name="font-family">Arial</CssParameter><CssParameter name="font-size">10</CssParameter><CssParameter name="font-style">normal</CssParameter><CssParameter name="font-weight">bold</CssParameter></Font><LabelPlacement><PointPlacement><AnchorPoint><AnchorPointX>0.5</AnchorPointX><AnchorPointY>0.5</AnchorPointY></AnchorPoint></PointPlacement></LabelPlacement><Halo><Radius>1</Radius><Fill><CssParameter name="fill">#FFFFFF</CssParameter></Fill></Halo><Fill><CssParameter name="fill">${outlineColor}</CssParameter></Fill><VendorOption name="auto">true</VendorOption><VendorOption name="goodnessOfFit">0.1</VendorOption><VendorOption name="maxDisplacement">10</VendorOption></TextSymbolizer>`;
     }
 
     let filter = "";
@@ -538,14 +560,11 @@ const generateSLD = (layerName: string, colors: any[], elseFilterStyle: any = nu
       filter = `<ogc:Or>${conditions}</ogc:Or>`;
     }
 
-    // Rule 1: Base (Fill for Use Layer, Stroke for Outline Layer) - Always visible
+    // Regra Base (Sempre visível)
     rules += `<Rule><Name>Group-${key}-Base</Name><ogc:Filter>${filter}</ogc:Filter>${baseSymbolizer}</Rule>`;
 
-    // Rule 2: Details (Stroke + Text for Use Layer) - Visible only at Zoom 14+
-    // Using 25000 as threshold (approx Zoom 14.5) to ensuring it hides at Zoom 13/14 transition boundary if scale calc differs.
+    // Regra Detalhe (Apenas no Zoom 14+)
     if (textSymbolizer || (detailSymbolizer && key !== "OUTLINE")) {
-      // Note: If key is OUTLINE, detailSymbolizer is empty string based on logic above (baseSymbolizer took the stroke).
-      // For Use Layer, detailSymbolizer has Stroke.
       const combinedDetail = `${detailSymbolizer}${textSymbolizer}`;
       if (combinedDetail) {
         rules += `<Rule><Name>Group-${key}-Detail</Name><ogc:Filter>${filter}</ogc:Filter><MaxScaleDenominator>20000</MaxScaleDenominator>${combinedDetail}</Rule>`;
@@ -553,173 +572,235 @@ const generateSLD = (layerName: string, colors: any[], elseFilterStyle: any = nu
     }
   });
 
-  // ElseFilter
+  // Filtro Alternativo (Else) - Preenchimento base para zonas não incluídas
   let elseSymbolizer = "";
   if (elseFilterStyle) {
     elseSymbolizer = `<PolygonSymbolizer><Fill><CssParameter name="fill">${elseFilterStyle.fill}</CssParameter><CssParameter name="fill-opacity">${elseFilterStyle.opacity}</CssParameter></Fill><Stroke><CssParameter name="stroke">${elseFilterStyle.stroke}</CssParameter><CssParameter name="stroke-width">${elseFilterStyle.strokeWidth}</CssParameter><CssParameter name="stroke-opacity">${elseFilterStyle.strokeOpacity}</CssParameter></Stroke></PolygonSymbolizer>`;
   } else {
-    // Default Grey
     elseSymbolizer = `<PolygonSymbolizer><Fill><CssParameter name="fill">#AAAAAA</CssParameter><CssParameter name="fill-opacity">0.5</CssParameter></Fill><Stroke><CssParameter name="stroke">#AAAAAA</CssParameter><CssParameter name="stroke-width">0.5</CssParameter></Stroke></PolygonSymbolizer>`;
   }
 
   rules += `<Rule><Name>Else</Name><ogc:ElseFilter/>${elseSymbolizer}</Rule>`;
 
-  // Remove workspace prefix for SLD NamedLayer Name as per user feedback
+  // Evita erros do GeoServer removendo o prefixo do workspace do NamedLayer
   const safeLayerName = layerName.split(':').pop() || layerName;
 
   return `<?xml version="1.0" encoding="UTF-8"?><StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"><NamedLayer><Name>${safeLayerName}</Name><UserStyle><FeatureTypeStyle>${rules}</FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>`;
 };
 
-import { LIGHT_COLORS, DARK_COLORS } from '@open-urbis/map';
+// Funções auxiliares para gerar e estruturar o SLD unificado e individual
+const buildPqaFilter = (compatiblePqas: string[]) => {
+  const pqaConditions = compatiblePqas.map(pqa => {
+    const normalizedPqa = pqa.replace(/-/g, ' ').trim();
+    return `<ogc:PropertyIsEqualTo><ogc:PropertyName>tx_zoneamento_perimetro</ogc:PropertyName><ogc:Literal>${normalizedPqa}</ogc:Literal></ogc:PropertyIsEqualTo>`;
+  }).join('');
+  return compatiblePqas.length === 1 ? pqaConditions : `<ogc:Or>${pqaConditions}</ogc:Or>`;
+};
 
+const buildZonaFilter = (matchingZones: string[]) => {
+  const zoneConditions = matchingZones.map(val => `<ogc:PropertyIsEqualTo><ogc:PropertyName>cd_zoneamento_perimetro</ogc:PropertyName><ogc:Literal>${val.trim()}</ogc:Literal></ogc:PropertyIsEqualTo>`).join('');
+  return matchingZones.length === 1 ? zoneConditions : `<ogc:Or>${zoneConditions}</ogc:Or>`;
+};
+
+/**
+ * Retorna o array de camadas do WMS configuradas dinamicamente para o GeoServer,
+ * aplicando os filtros de usos, parâmetros urbanísticos e parâmetros de PQA.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getProspectiveSearchLayers = (matchingZones: string[] = [], regrasZonamento: any = null, hasUrbanParams: boolean = false, areaImovel: [number, number] | null = null, isDarkMode: boolean = false) => {
+export const getProspectiveSearchLayers = (
+  matchingZones: string[] = [], 
+  regrasZonamento: any = null, 
+  hasUrbanParams: boolean = false, 
+  areaImovel: [number, number] | null = null, 
+  isDarkMode: boolean = false,
+  compatiblePqas: string[] = [],
+  hasPqaParams: boolean = false
+) => {
   const layers = [];
   const templateColors = PROSPECTIVE_SEARCH_LAYERS_TEMPLATE.colors;
 
-  // Colors based on theme (Light vs Dark)
+  // Ajusta cores de acordo com o tema
   const palette = isDarkMode ? DARK_COLORS : LIGHT_COLORS;
-
-  const colors = {
-      P: palette.P.fill,
-      C: palette.C.fill,
-      E: palette.E.fill,
-      V: palette.V.fill,
-      Z: palette.Z.fill,
-      GREY: palette.GREY.fill
-  };
-
+  const colors = { P: palette.P.fill, C: palette.C.fill, E: palette.E.fill, V: palette.V.fill, Z: palette.Z.fill, GREY: palette.GREY.fill };
   const greyHex = palette.GREY.hex;
 
-  // Layer 3: Lots (Filtered by Area) - Added first to be at bottom? No, on top.
-  // User said "vão aparecer ou serem filtrados". Usually lots on top of zones.
-  // I will push it last.
+  // Variável para sinalizar o cruzamento das duas camadas de parâmetros
+  const hasBoth = hasUrbanParams && hasPqaParams && matchingZones.length > 0 && compatiblePqas.length > 0;
 
-  // Layer 1: Use Search (Color Fill)
-  // Only if use is selected (regrasZonamento exists)
+  // 1. CAMADA DE USO E ATIVIDADE (Cores de Permissão: Permitido, Com Nota, Restrito)
   if (regrasZonamento) {
     const useLayer = JSON.parse(JSON.stringify(PROSPECTIVE_SEARCH_LAYERS_TEMPLATE));
     useLayer.id = "prospective-use-layer";
 
-    // Map colors based on Use Rules ONLY (ignore urban params)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useLayer.colors = templateColors.map((c: any) => {
-      const zoneName = c.value;
-      // Reset color
       let color = null;
-
-          if (regrasZonamento.simSemNota && regrasZonamento.simSemNota.includes(zoneName)) {
-              color = colors.P; 
-          } else if (regrasZonamento.simComNota && Object.values(regrasZonamento.simComNota).flat().includes(zoneName)) {
-              color = colors.C;
-          } else if (regrasZonamento.naoComNota && Object.values(regrasZonamento.naoComNota).flat().includes(zoneName)) {
-              color = colors.E; 
-          } else if (regrasZonamento.naoSemNota && regrasZonamento.naoSemNota.includes(zoneName)) {
-              color = colors.V; 
-          } else if (regrasZonamento.zoeZep && regrasZonamento.zoeZep.includes(zoneName)) {
-              color = colors.Z; 
-          } else {
-              // Not in any rule list (e.g. ZOE) -> Explicit Grey
-              color = null; 
-          }
-
+      if (regrasZonamento.simSemNota && regrasZonamento.simSemNota.includes(c.value)) color = colors.P;
+      else if (regrasZonamento.simComNota && Object.values(regrasZonamento.simComNota).flat().includes(c.value)) color = colors.C;
+      else if (regrasZonamento.naoComNota && Object.values(regrasZonamento.naoComNota).flat().includes(c.value)) color = colors.E; 
+      else if (regrasZonamento.naoSemNota && regrasZonamento.naoSemNota.includes(c.value)) color = colors.V;
+      else if (regrasZonamento.zoeZep && regrasZonamento.zoeZep.includes(c.value)) color = colors.Z;
       return { ...c, color: color };
     });
 
-    // Filter out null colors for SLD generation to keep it clean, OR handle null in generateSLD?
-    // My generateSLD handles `if (!color) return;`.
-    // So zones without color are not added to rules.
-    // But we need them to be transparent?
-    // ElseFilter will handle everything else as Grey.
-    // Wait, we want "everything else" to be TRANSPARENT for this layer if we only want to show results.
-    // But if we want to show the full map context...
-    // User said "apenas os resultados da pesquisa por uso".
-    // So everything else should be transparent.
-    // I will modify generateSLD to accept an ElseFilter color/opacity.
-
-      // User requested "zonas que n atenderem nenhum critério também deve aparecer ... cor cinza"
-      // So Use Layer -> Fallback is Grey
-      useLayer.properties.sldBody = generateSLD("slui:zoneamento", useLayer.colors, { fill: greyHex, opacity: "0.65", stroke: greyHex, strokeWidth: "0.5", strokeOpacity: "1.0" });
-      // We will push useLayer LATER to ensure it is on top (or below depending on logic).
-    // User request: "Zonas identificadas por parâmetros (Outline) ficar embaixo do Diretrizes de zoneamento (Fill)".
-    // So Fill layer (useLayer) must be LAST (Top).
-    // We store it and push later.
-  }
-
-  // Layer 2: Urban Params (Black Outline)
-  // Only if urban params are active
-  if (hasUrbanParams) {
-    const paramsLayer = JSON.parse(JSON.stringify(PROSPECTIVE_SEARCH_LAYERS_TEMPLATE));
-    paramsLayer.id = "prospective-params-layer";
-
-    // Map colors: Matching -> Black/White Stroke (Theme dependent), No Fill. Non-matching -> Transparent.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    paramsLayer.colors = templateColors.map((c: any) => {
-      const zoneName = c.value;
-      if (matchingZones.includes(zoneName)) {
-        // Special marker for generateSLD to know it's outline
-        return { ...c, color: "OUTLINE" };
-      }
-      return { ...c, color: null };
-    });
-
-    // Handle Outline color for generateSLD (it currently uses #000000 hardcoded for OUTLINE)
-    // I need to modify generateSLD to accept the outline color or use palette.SELECTED.outline
-    paramsLayer.properties.sldBody = generateSLD("slui:zoneamento", paramsLayer.colors, { fill: "#FFFFFF", opacity: "0.0", stroke: "#FFFFFF", strokeWidth: "0", strokeOpacity: "0.0" }, true, palette.SELECTED.outline);
-    layers.push(paramsLayer);
-  }
-
-  // Layer 1: Use Search (Color Fill) - Pushed LAST to be ON TOP
-  if (regrasZonamento) {
-    const useLayer = JSON.parse(JSON.stringify(PROSPECTIVE_SEARCH_LAYERS_TEMPLATE));
-    useLayer.id = "prospective-use-layer";
-
-    // Map colors based on Use Rules ONLY
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    useLayer.colors = templateColors.map((c: any) => {
-      const zoneName = c.value;
-      let color = null;
-      if (regrasZonamento.simSemNota && regrasZonamento.simSemNota.includes(zoneName)) {
-        color = colors.P;
-      } else if (regrasZonamento.simComNota && Object.values(regrasZonamento.simComNota).flat().includes(zoneName)) {
-        color = colors.C;
-      } else if (regrasZonamento.naoComNota && Object.values(regrasZonamento.naoComNota).flat().includes(zoneName)) {
-        color = colors.E; 
-      } else if (regrasZonamento.naoSemNota && regrasZonamento.naoSemNota.includes(zoneName)) {
-        color = colors.V;
-      } else if (regrasZonamento.zoeZep && regrasZonamento.zoeZep.includes(zoneName)) {
-        color = colors.Z;
-      }
-      return { ...c, color: color };
-    });
-
-    useLayer.properties.sldBody = generateSLD("slui:zoneamento", useLayer.colors, { fill: greyHex, opacity: "0.65", stroke: greyHex, strokeWidth: "0.5", strokeOpacity: "1.0" });
+    // Zonas não listadas nas regras caem para a cor Cinza (greyHex)
+    useLayer.properties.sldBody = generateSLD("slui:zoneamento", useLayer.colors, { fill: greyHex, opacity: "0.65", stroke: greyHex, strokeWidth: "0.5", strokeOpacity: "0.8" });
     layers.push(useLayer);
   }
 
-  // Layer 3: Lots (Filtered by Area)
+  // 2. CAMADA PRINCIPAL: Parâmetros Urbanísticos (Zonas) e Qualificação Ambiental (PQA)
+  if (hasUrbanParams || hasPqaParams) {
+    const paramsLayer = JSON.parse(JSON.stringify(PROSPECTIVE_SEARCH_LAYERS_TEMPLATE));
+    paramsLayer.id = "prospective-params-layer";
+    paramsLayer.name = "Parâmetros Urbanísticos e Ambientais";
+
+    const layerNames = [];
+    let sldBody = `<?xml version="1.0" encoding="UTF-8"?><StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd">`;
+
+    // Configuração de estilo unificado: borda preta tracejada
+    const outlineColor = "#000000"; 
+        
+    const zoneFilter = matchingZones.length > 0 ? buildZonaFilter(matchingZones) : "";
+    const pqaFilter = compatiblePqas.length > 0 ? buildPqaFilter(compatiblePqas) : "";
+
+    if (hasBoth) {
+      // Como o servidor não tem a extensão queryCollection, a única forma de obter o
+      // recorte da interseção geometricamente visual (sem que a área aumente) é usar a
+      // camada da Zona como Base e a camada PQA como Máscara Sólida.
+      // O resultado: A borda tracejada da Zona só será visível EXATAMENTE onde ela se sobrepõe ao PQA.
+      // Isso garante que a área NUNCA aumentará (não desenharemos PQA fora da zona) e 
+      // garante que não haverá preenchimento (borda simples).
+      
+      layerNames.push("slui:zoneamento", "slui:qualificacao_ambiental");
+      
+      sldBody += `
+        <NamedLayer>
+          <Name>zoneamento</Name>
+          <UserStyle>
+            <FeatureTypeStyle>
+              <VendorOption name="composite-base">true</VendorOption>
+              <Rule>
+                <Name>ZoneBorderBase</Name>
+                <ogc:Filter>${zoneFilter}</ogc:Filter>
+                <MaxScaleDenominator>20000</MaxScaleDenominator>
+                <PolygonSymbolizer>
+                  <Stroke><CssParameter name="stroke">${outlineColor}</CssParameter><CssParameter name="stroke-width">3</CssParameter><CssParameter name="stroke-dasharray">5 5</CssParameter></Stroke>
+                </PolygonSymbolizer>
+              </Rule>
+              <Rule>
+                <Name>ZoneBorderBaseZoomOut</Name>
+                <ogc:Filter>${zoneFilter}</ogc:Filter>
+                <MinScaleDenominator>20000</MinScaleDenominator>
+                <PolygonSymbolizer>
+                  <Stroke><CssParameter name="stroke">${outlineColor}</CssParameter><CssParameter name="stroke-width">3</CssParameter><CssParameter name="stroke-dasharray">5 5</CssParameter></Stroke>
+                </PolygonSymbolizer>
+              </Rule>
+              <Rule><Name>Else</Name><ogc:ElseFilter/><PolygonSymbolizer><Fill><CssParameter name="fill">#FFFFFF</CssParameter><CssParameter name="fill-opacity">0.0</CssParameter></Fill></PolygonSymbolizer></Rule>
+            </FeatureTypeStyle>
+          </UserStyle>
+        </NamedLayer>
+        
+        <NamedLayer>
+          <Name>qualificacao_ambiental</Name>
+          <UserStyle>
+            <FeatureTypeStyle>
+              <VendorOption name="composite">destination-in</VendorOption>
+              <Rule>
+                <Name>PQAMask</Name>
+                <ogc:Filter>${pqaFilter}</ogc:Filter>
+                <PolygonSymbolizer><Fill><CssParameter name="fill">#000000</CssParameter><CssParameter name="fill-opacity">1.0</CssParameter></Fill></PolygonSymbolizer>
+              </Rule>
+              <Rule><Name>Else</Name><ogc:ElseFilter/><PolygonSymbolizer><Fill><CssParameter name="fill">#FFFFFF</CssParameter><CssParameter name="fill-opacity">0.0</CssParameter></Fill></PolygonSymbolizer></Rule>
+            </FeatureTypeStyle>
+          </UserStyle>
+        </NamedLayer>
+      `;
+      sldBody += `</StyledLayerDescriptor>`;
+    } else if (hasPqaParams && compatiblePqas.length > 0) {
+      // Apenas PQA está selecionado
+      layerNames.push("slui:qualificacao_ambiental");
+      
+      sldBody += `
+        <NamedLayer>
+          <Name>qualificacao_ambiental</Name>
+          <UserStyle>
+            <FeatureTypeStyle>
+              <Rule>
+                <Name>PQABorder</Name>
+                <ogc:Filter>${pqaFilter}</ogc:Filter>
+                <PolygonSymbolizer>
+                  <Stroke><CssParameter name="stroke">${outlineColor}</CssParameter><CssParameter name="stroke-width">3</CssParameter><CssParameter name="stroke-dasharray">5 5</CssParameter></Stroke>
+                </PolygonSymbolizer>
+              </Rule>
+              <Rule><Name>Else</Name><ogc:ElseFilter/><PolygonSymbolizer><Fill><CssParameter name="fill">#FFFFFF</CssParameter><CssParameter name="fill-opacity">0.0</CssParameter></Fill></PolygonSymbolizer></Rule>
+            </FeatureTypeStyle>
+          </UserStyle>
+        </NamedLayer>
+      `;
+      sldBody += `</StyledLayerDescriptor>`;
+    } else if (hasUrbanParams && matchingZones.length > 0) {
+      // Apenas Zonas
+      layerNames.push("slui:zoneamento");
+      sldBody += `
+        <NamedLayer>
+          <Name>zoneamento</Name>
+          <UserStyle>
+            <FeatureTypeStyle>
+              <Rule>
+                <Name>ZoneBorder</Name>
+                <ogc:Filter>${zoneFilter}</ogc:Filter>
+                <MaxScaleDenominator>20000</MaxScaleDenominator>
+                <PolygonSymbolizer>
+                  <Stroke><CssParameter name="stroke">${outlineColor}</CssParameter><CssParameter name="stroke-width">3</CssParameter><CssParameter name="stroke-dasharray">5 5</CssParameter></Stroke>
+                </PolygonSymbolizer>
+              </Rule>
+              <Rule>
+                <Name>ZoneBorderZoomOut</Name>
+                <ogc:Filter>${zoneFilter}</ogc:Filter>
+                <MinScaleDenominator>20000</MinScaleDenominator>
+                <PolygonSymbolizer>
+                  <Stroke><CssParameter name="stroke">${outlineColor}</CssParameter><CssParameter name="stroke-width">3</CssParameter><CssParameter name="stroke-dasharray">5 5</CssParameter></Stroke>
+                </PolygonSymbolizer>
+              </Rule>
+              <Rule><Name>Else</Name><ogc:ElseFilter/><PolygonSymbolizer><Fill><CssParameter name="fill">#FFFFFF</CssParameter><CssParameter name="fill-opacity">0.0</CssParameter></Fill></PolygonSymbolizer></Rule>
+            </FeatureTypeStyle>
+          </UserStyle>
+        </NamedLayer>
+      `;
+      sldBody += `</StyledLayerDescriptor>`;
+    }
+
+    paramsLayer.properties.wms.layers = layerNames.join(',');
+    paramsLayer.properties.sldBody = sldBody;
+    
+    // Fallback: garante que os dois properties existam se ambas as camadas forem consultadas
+    paramsLayer.viewTemplate = [
+      { type: "LabelValueTemplate", properties: { label: "PQA", value: "{{tx_zoneamento_perimetro}}" } },
+      { type: "LabelValueTemplate", properties: { label: "Zona", value: "{{cd_zoneamento_perimetro}}" } }
+    ];
+
+    if (layerNames.length > 0) {
+      layers.push(paramsLayer);
+    }
+  }
+
+  // 3. CAMADA DE LOTES (Apenas Filtro por Área)
   if (areaImovel) {
     const lotsLayer = JSON.parse(JSON.stringify(PROSPECTIVE_SEARCH_LAYERS_TEMPLATE));
     lotsLayer.id = "prospective-lots-layer";
     lotsLayer.name = "Lotes Tributários";
-    lotsLayer.minZoom = 14; // Only visible at zoom 14+
+    lotsLayer.minZoom = 13; 
     lotsLayer.properties.wms.layers = "slui:lote_cidadao";
 
     const [minArea, maxArea] = areaImovel;
-
-    // Generate SLD for Lots
     const sld = `<StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"><NamedLayer><Name>lote_cidadao</Name><UserStyle><Title>Lots Filter</Title><FeatureTypeStyle><Rule><Name>FilteredLots</Name><ogc:Filter><ogc:PropertyIsBetween><ogc:PropertyName>qt_area_terreno</ogc:PropertyName><ogc:LowerBoundary><ogc:Literal>${minArea}</ogc:Literal></ogc:LowerBoundary><ogc:UpperBoundary><ogc:Literal>${maxArea}</ogc:Literal></ogc:UpperBoundary></ogc:PropertyIsBetween></ogc:Filter><PolygonSymbolizer><Stroke><CssParameter name="stroke">#00FFFF</CssParameter><CssParameter name="stroke-width">1</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>`;
 
     lotsLayer.properties.sldBody = sld;
     layers.push(lotsLayer);
   }
 
-  if (layers.length === 0) {
-    // If no search active, return default layer (all zones standard colors)?
-    // User: "so deve aparecer se tem uma pesquisa".
-    // So return empty array.
-    return [];
-  }
-
+  // Se nada for selecionado e a tela estiver "vazia" nas barras laterais de filtro
+  if (layers.length === 0) return [];
+  
   return layers;
 };

@@ -48,6 +48,8 @@ const LocalSlider = React.forwardRef<
 
               // Helper to get normalized percentage (0-100) of a value in current slider scale
               const getValPercentage = (val: number) => {
+                if (val === -Infinity) return 0;
+                if (val === Infinity) return 100;
                 const sMin = min ?? 0;
                 const sMax = max ?? 100;
                 return ((val - sMin) / (sMax - sMin)) * 100;

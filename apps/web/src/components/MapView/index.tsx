@@ -103,7 +103,9 @@ export const MapView = ({
       prospectiveContext?.regrasZonamento || null,
       prospectiveContext && Object.keys(prospectiveContext.urbanParams || {}).length > 0,
       prospectiveContext?.areaImovel || null,
-      isDark
+      isDark,
+      prospectiveContext?.compatiblePqas || [],
+      prospectiveContext && Object.keys(prospectiveContext.pqaParams || {}).length > 0
     ) as unknown as IGetConfigLayerSchema[];
 
     const baseLayers = transformSchemaLayers(isProspectiveSearchActive.value ? prospectiveLayers : layerSchemas.value, {

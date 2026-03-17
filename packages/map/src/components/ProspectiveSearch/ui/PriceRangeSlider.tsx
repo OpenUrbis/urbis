@@ -100,9 +100,13 @@ export function PriceRangeSlider({
   const sliderMax = Math.max(rawMax, sliderMin + 1);
   const sliderStep = hasOptions ? 1 : step;
 
+  const displayMin = value.min === -Infinity ? "N/D" : value.min;
+  const displayMax = value.max === Infinity ? "N/D" : value.max;
+  const displaySingle = value.value === Infinity || value.value === -Infinity ? "N/D" : value.value;
+
   const displayValue = value.type === 'between'
-    ? <><span className="font-bold ">{value.min}</span> <span className="text-[10px]  font-bold">{unit}</span> <span className="mx-1 opacity-40">—</span> <span className="font-bold ">{value.max}</span> <span className="text-[10px]  font-bold">{unit}</span></>
-    : <><span className="font-bold ">{value.value}</span> <span className="text-[10px]  font-bold">{unit}</span></>;
+    ? <><span className="font-bold ">{displayMin}</span> <span className="text-[10px]  font-bold">{displayMin !== "N/D" && unit}</span> <span className="mx-1 opacity-40">—</span> <span className="font-bold ">{displayMax}</span> <span className="text-[10px]  font-bold">{displayMax !== "N/D" && unit}</span></>
+    : <><span className="font-bold ">{displaySingle}</span> <span className="text-[10px]  font-bold">{displaySingle !== "N/D" && unit}</span></>;
 
   return (
     <div className="group/slider dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 transition-colors">
@@ -133,7 +137,7 @@ export function PriceRangeSlider({
             defaultValue={sliderValue}
             onValueCommit={handleSliderChange}
             ticks={hasOptions ? options.length : 6}
-            tickLabels={hasOptions ? options : undefined}
+            tickLabels={hasOptions ? options.map(opt => (opt === -Infinity || opt === Infinity) ? "N/D" : opt) : undefined}
             className="py-1 mb-4"
           />
         </div>

@@ -134,6 +134,7 @@ export class GeospatialIntersectionService {
       // Infer source projection from requested output (common in our flows)
       const sourceProj = srsName === 'EPSG:31983' ? projEPSG31983 : projWGS84;
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const proj4Instance = require('proj4');
       const minPointEPSG31983 = proj4Instance(sourceProj, projEPSG31983, [
         bbox[0],
@@ -350,7 +351,9 @@ export class GeospatialIntersectionService {
         !wfsResponse.data.features ||
         wfsResponse.data.features.length === 0
       ) {
-        throw new NotFoundException('No lot found for the provided SQLC number');
+        throw new NotFoundException(
+          'No lot found for the provided SQLC number',
+        );
       }
 
       // Get the first feature (lot geometry)
@@ -469,7 +472,9 @@ export class GeospatialIntersectionService {
       ) {
         throw error;
       }
-      throw new InternalServerErrorException(error?.message || 'Error processing SQLC query');
+      throw new InternalServerErrorException(
+        error?.message || 'Error processing SQLC query',
+      );
     }
   }
 
@@ -522,7 +527,7 @@ export class GeospatialIntersectionService {
             accept: 'application/json',
             origin: 'https://mapa.urbis.prefeitura.sp.gov.br',
           },
-        })
+        }),
       );
 
       return wfsResponse;

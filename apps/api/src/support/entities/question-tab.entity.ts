@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToMany, JoinTable, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  JoinTable,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { QuestionAnswer } from './question-answer.entity';
 
 @Entity('question_tabs')

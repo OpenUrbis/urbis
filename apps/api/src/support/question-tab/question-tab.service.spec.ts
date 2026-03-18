@@ -6,7 +6,13 @@ describe('QuestionTabService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [QuestionTabService],
+      providers: [
+        QuestionTabService,
+        {
+          provide: 'QuestionTabRepository',
+          useValue: {},
+        },
+      ],
     }).compile();
 
     service = module.get<QuestionTabService>(QuestionTabService);

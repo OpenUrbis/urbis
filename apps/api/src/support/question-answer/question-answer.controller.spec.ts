@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QuestionAnswerController } from './question-answer.controller';
+import { QuestionAnswerService } from './question-answer.service';
+import { RoleService } from '../../role/role.service';
+import { UserService } from '../../user/user.service';
+import { OrganizationService } from '../../organization/organization.service';
+import { Reflector } from '@nestjs/core';
 
 describe('QuestionAnswerController', () => {
   let controller: QuestionAnswerController;
@@ -7,6 +12,13 @@ describe('QuestionAnswerController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [QuestionAnswerController],
+      providers: [
+        { provide: QuestionAnswerService, useValue: {} },
+        { provide: RoleService, useValue: {} },
+        { provide: UserService, useValue: {} },
+        { provide: OrganizationService, useValue: {} },
+        Reflector,
+      ],
     }).compile();
 
     controller = module.get<QuestionAnswerController>(QuestionAnswerController);

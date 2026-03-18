@@ -103,7 +103,7 @@ export class RepresentationService {
             source: 'external',
           };
         }
-      } catch (e) {
+      } catch (_e) {
         throw new BadRequestException('errors.invalid_cnpj');
       }
     }

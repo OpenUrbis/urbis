@@ -17,9 +17,13 @@ export class RepresentationComment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Representation, (representation) => representation.comments, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(
+    () => Representation,
+    (representation) => representation.comments,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   @JoinColumn({ name: 'representationId' })
   representation: Representation;
 

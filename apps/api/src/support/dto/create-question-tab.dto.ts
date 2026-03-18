@@ -7,17 +7,29 @@ export class CreateQuestionTabDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ description: 'Description of the question tab', example: 'General questions', required: false })
+  @ApiProperty({
+    description: 'Description of the question tab',
+    example: 'General questions',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   description?: string;
 
-  @ApiProperty({ description: 'Icon of the question tab', example: 'info-circle', required: false })
+  @ApiProperty({
+    description: 'Icon of the question tab',
+    example: 'info-circle',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   icon?: string;
 
-  @ApiProperty({ description: 'Order index of the question tab', example: 1, required: false })
+  @ApiProperty({
+    description: 'Order index of the question tab',
+    example: 1,
+    required: false,
+  })
   @IsNumber()
   @IsOptional()
   index?: number;

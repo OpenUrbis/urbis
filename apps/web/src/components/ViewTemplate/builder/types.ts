@@ -1,6 +1,9 @@
 import { ReactNode } from "react";
-import { UseFormReturn } from "react-hook-form";
-import { ITemplate, ITemplateProps, ITemplatesDeclaration } from "../types/templates-type";
+import {
+  ITemplate,
+  ITemplateProps,
+  ITemplatesDeclaration,
+} from "../types/templates-type";
 
 // Extension for builder-specific configuration
 export interface IBuilderTemplateConfig extends ITemplatesDeclaration {
@@ -36,7 +39,11 @@ export interface IBuilderContextType {
   selectedId: string | null;
   setSelectedId: (id: string | null) => void;
   updateItem: (id: string, updates: Partial<ITemplate>) => void;
-  addItem: (parentId: string | null, newItem: ITemplate, index?: number) => void;
+  addItem: (
+    parentId: string | null,
+    newItem: ITemplate,
+    index?: number,
+  ) => void;
   removeItem: (id: string) => void;
   moveItem: (dragId: string, hoverId: string) => void;
   mockData: any;

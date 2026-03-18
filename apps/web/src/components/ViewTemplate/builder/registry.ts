@@ -1,7 +1,7 @@
 import { VIEW_TEMPLATE_TEMPLATES } from "../templates";
-import { ButtonTemplateConfig } from "../templates/ButtonTemplate/config";
+// import { ButtonTemplateConfig } from "../templates/ButtonTemplate/config";
 import { CardWrapperConfig } from "../templates/CardWrapper/config";
-import { EditPolygonTemplateConfig } from "../templates/EditPolygonTemplate/config";
+// import { EditPolygonTemplateConfig } from "../templates/EditPolygonTemplate/config";
 import { GridColumnConfig } from "../templates/GridColumn/config";
 import { GridWrapperConfig } from "../templates/GridWrapper/config";
 import { LabelValueConfig } from "../templates/LabelValueTemplate/config";

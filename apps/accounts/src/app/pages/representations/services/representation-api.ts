@@ -3,9 +3,9 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
-export class SolicitationApi {
+export class RepresentationApi {
   private readonly httpClient = inject(HttpClient);
-  private readonly baseUrl = `${environment.api}/solicitations`;
+  private readonly baseUrl = `${environment.api}/representations`;
 
   list(params: { page: number; limit: number }) {
     return this.httpClient.get(this.baseUrl, { params: params as any });
@@ -26,6 +26,10 @@ export class SolicitationApi {
 
   getAvailable() {
     return this.httpClient.get(`${this.baseUrl}/available`);
+  }
+
+  checkDocument(document: string) {
+    return this.httpClient.get(`${this.baseUrl}/check-document/${document}`);
   }
 
   request(payload: any) {

@@ -48,6 +48,7 @@
     "angular-auth-oidc-client": "20.0.2",
     "bootstrap": "^5.3.8",
     "chroma-js": "^3.1.2",
+    "date-fns": "^4.1.0",
     "jwt-decode": "^4.0.0",
     "ng-recaptcha-2": "^16.0.1",
     "ngx-mat-input-tel": "^20.9.3",

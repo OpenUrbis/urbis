@@ -22,7 +22,7 @@
       </option>
       @for (option of statusOptions; track option) {
         <option [value]="option">
-          {{ 'solicitation.status.' + option | translate }}
+          {{ 'representation.status.' + option | translate }}
         </option>
       }
     </select>
@@ -68,7 +68,7 @@
                       class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                       [ngClass]="getStatusClass(item.status)"
                     >
-                      {{ 'solicitation.status.' + item.status | translate }}
+                      {{ 'representation.status.' + item.status | translate }}
                     </span>
                   </td>
                   <td class="p-4 align-middle">
@@ -85,7 +85,7 @@
                           [queryParams]="{ document: item.document }"
                         >
                           {{
-                            'solicitation.actions.requestInfo.confirm'
+                            'representation.actions.requestInfo.confirm'
                               | translate
                           }}
                         </button>
@@ -133,7 +133,7 @@
                         [title]="
                           'representations.page.buttons.details' | translate
                         "
-                        *hasPermission="'solicitation:view'"
+                        *hasPermission="'representation:view'"
                       >
                         <hlm-icon name="lucideEye" class="w-4 h-4" />
                       </a>

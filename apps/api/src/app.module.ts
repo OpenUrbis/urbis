@@ -17,12 +17,12 @@ import { FilesModule } from './files/files.module';
 import { MapsModuleEntities } from './maps/index.entity';
 import { MapsModule } from './maps/maps.module';
 import { OrganizationModuleEntities } from './organization/index.entity';
+import { RepresentationEntities } from './representation/entities';
+import { RepresentationModule } from './representation/representation.module';
 import { RoleModuleEntities } from './role/index.entity';
 import { RoleModule } from './role/role.module';
 import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
-import { SolicitationEntities } from './solicitation/entities';
-import { SolicitationModule } from './solicitation/solicitation.module';
 import { SupportModule } from './support';
 import { QuestionAnswerModule } from './support/question-answer/question-answer.module';
 import { QuestionTabModule } from './support/question-tab/question-tab.module';
@@ -83,7 +83,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
         ...AppSettingsModuleEntities,
         ...DynamicSystemDataEntities,
         ...SupportModuleEntities,
-        ...SolicitationEntities,
+        ...RepresentationEntities,
       ],
       [...UserModuleSubscribers],
     ),
@@ -97,7 +97,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     WhitelabelModule,
     AppSettingsModule,
     SupportModule,
-    SolicitationModule,
+    RepresentationModule,
     DynamicSystemDataModule,
     QuestionAnswerModule,
     QuestionTabModule,

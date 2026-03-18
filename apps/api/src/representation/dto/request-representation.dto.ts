@@ -12,6 +12,31 @@ export class RequestRepresentationDto {
   @IsString()
   document: string;
 
+  @ApiProperty({ example: 'attorney' })
+  @IsNotEmpty()
+  @IsString()
+  representationType: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  companyName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  tradeName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  socialName?: string;
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()

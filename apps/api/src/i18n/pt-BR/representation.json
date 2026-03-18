@@ -4,9 +4,9 @@
     "already_representing": "Você já representa esta organização.",
     "solicitation_not_found": "Solicitação não encontrada",
     "solicitation_not_pending": "Solicitação não está pendente",
-    "cannot_approve": "Você não pode aprovar esta solicitação",
-    "cannot_reject": "Você não pode reprovar esta solicitação",
-    "cannot_request_info": "Você não pode solicitar informações nesta solicitação"
+    "cannot_approve": "Você não pode aprovar esta representação",
+    "cannot_reject": "Você não pode reprovar esta representação",
+    "cannot_request_info": "Você não pode solicitar informações nesta representação"
   },
   "history": {
     "auto_approved": "Acesso direto identificado.",

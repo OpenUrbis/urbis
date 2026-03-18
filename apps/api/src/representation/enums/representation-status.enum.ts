@@ -1,4 +1,4 @@
-export enum SolicitationStatus {
+export enum RepresentationStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',

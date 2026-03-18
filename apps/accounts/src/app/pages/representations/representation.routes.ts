@@ -16,8 +16,8 @@ export const representationRoutes: Routes = [
   {
     path: 'detail/:id',
     loadComponent: () =>
-      import('./pages/solicitation-detail/solicitation-detail').then(
-        (c) => c.SolicitationDetail,
+      import('./pages/representation-detail/representation-detail').then(
+        (c) => c.RepresentationDetail,
       ),
   },
 ];

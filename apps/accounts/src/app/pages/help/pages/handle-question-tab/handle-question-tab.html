@@ -1,0 +1,166 @@
+<app-page-structure
+  [title]="id() ? 'Editar Aba de Ajuda' : 'Nova Aba de Ajuda'"
+  [subtitle]="id() ? 'Edite as informações e perguntas da aba selecionada' : 'Cadastre a aba que será usada para agrupar perguntas da ajuda'"
+  backUrl="/help"
+>
+  <div rightActions class="flex items-center gap-2">
+    @if (id()) {
+      <button
+        hlmBtn
+        variant="destructive"
+        size="sm"
+        class="gap-2"
+        (click)="deleteTab(id()!)"
+        *hasPermission="'question-tab:delete'"
+      >
+        <hlm-icon name="lucideTrash2" size="16" />
+        {{ 'common.actions.delete' | translate }}
+      </button>
+
+      <lib-loading-button
+        [loading]="saving()"
+        (click)="save()"
+        [disabled]="form.invalid || loading()"
+        type="button"
+        icon="lucideSave"
+        *hasPermission="'question-tab:update'"
+      >
+        {{ 'common.actions.save' | translate }}
+      </lib-loading-button>
+    }
+  </div>
+
+  <lib-loading-content [loading]="loading()">
+    <div [ngClass]="{'grid grid-cols-1 lg:grid-cols-3 gap-6': id(), 'flex justify-center': !id()}">
+      <div class="flex flex-col gap-6 w-full" [ngClass]="{'lg:col-span-2': id(), 'max-w-3xl': !id()}">
+        <section class="bg-card border rounded-lg p-6">
+          <h3 class="text-lg font-semibold mb-4">Informações da Aba</h3>
+          <form [formGroup]="form" class="grid gap-4 md:grid-cols-2" (ngSubmit)="save()">
+            <div class="space-y-1 md:col-span-2">
+              <label class="text-sm font-medium">Nome</label>
+              <input
+                type="text"
+                formControlName="name"
+                class="w-full rounded-md border border-input bg-background px-3 py-2"
+                placeholder="Ex.: Dúvidas gerais"
+              />
+            </div>
+
+            <div class="space-y-1 md:col-span-2">
+              <label class="text-sm font-medium">Descrição</label>
+              <textarea
+                formControlName="description"
+                rows="4"
+                class="w-full rounded-md border border-input bg-background px-3 py-2"
+                placeholder="Ex.: Perguntas mais comuns sobre a plataforma"
+              ></textarea>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-sm font-medium">Ícone</label>
+              <input
+                type="text"
+                formControlName="icon"
+                class="w-full rounded-md border border-input bg-background px-3 py-2"
+                placeholder="Ex.: info-circle"
+              />
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-sm font-medium">Ordem</label>
+              <input
+                type="number"
+                formControlName="index"
+                class="w-full rounded-md border border-input bg-background px-3 py-2"
+              />
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 md:col-span-2">
+              @if (!id()) {
+                <button
+                  type="button"
+                  (click)="router.navigate(['/help'])"
+                  hlmBtn
+                  variant="outline"
+                >
+                  {{ 'common.actions.cancel' | translate }}
+                </button>
+              }
+              <lib-loading-button
+                [loading]="saving()"
+                [disabled]="form.invalid"
+                icon="lucideSave"
+                *hasPermission="id() ? 'question-tab:update' : 'question-tab:create'"
+              >
+                {{ 'common.actions.save' | translate }}
+              </lib-loading-button>
+            </div>
+          </form>
+        </section>
+
+      </div>
+
+      <div class="flex flex-col gap-6">
+        @if (id()) {
+          <section class="bg-card border rounded-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold">Ordenar Perguntas</h3>
+              <a
+                *hasPermission="'question-answer:create'"
+                [routerLink]="['/help/questions/new']"
+                [queryParams]="{ tabId: id() }"
+                hlmBtn
+                variant="outline"
+                size="sm"
+                class="gap-1 h-8"
+              >
+                <hlm-icon name="lucidePlus" size="sm" />
+                Adicionar
+              </a>
+            </div>
+
+            <p class="text-sm text-muted-foreground mb-4">
+              Arraste as perguntas para ajustar a ordem de exibição.
+            </p>
+
+            @if (!questions().length) {
+              <div class="text-sm text-muted-foreground p-4 border rounded-md bg-muted/20">
+                Esta aba não possui perguntas.
+              </div>
+            } @else {
+              <div class="space-y-3" cdkDropList (cdkDropListDropped)="drop($event)">
+                @for (item of questions(); track item.id; let i = $index) {
+                  <div cdkDrag class="flex items-center justify-between gap-4 rounded-md border p-3 bg-background cursor-move hover:border-primary/50 transition-colors shadow-sm">
+                    <div class="flex items-center gap-3 w-full">
+                      <div class="text-muted-foreground flex items-center justify-center cursor-grab active:cursor-grabbing" cdkDragHandle>
+                        <hlm-icon name="lucideGripVertical" size="sm" />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="font-medium text-sm truncate">{{ item.question }}</div>
+                        <div class="text-xs text-muted-foreground truncate">{{ item.answer }}</div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="flex justify-end mt-4">
+                <lib-loading-button
+                  [loading]="savingOrder()"
+                  [disabled]="savingOrder() || !questions().length"
+                  (click)="saveOrder()"
+                  type="button"
+                  variant="outline"
+                  icon="lucideSave"
+                  *hasPermission="'question-tab:update'"
+                >
+                  Salvar Ordem
+                </lib-loading-button>
+              </div>
+            }
+          </section>
+        }
+      </div>
+    </div>
+  </lib-loading-content>
+</app-page-structure>

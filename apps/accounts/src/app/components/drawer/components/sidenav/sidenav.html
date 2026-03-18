@@ -100,5 +100,19 @@
         }}</span>
       }
     </a>
+
+    <a
+  *hasPermission="'question-tab:list'"
+  routerLink="/help"
+  routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
+  hlmSidebarMenuButton
+  class="text-foreground"
+  [attr.aria-label]="'components.profileMenu.help' | translate"
+>
+  <hlm-icon name="lucideHelpCircle" size="18px" />
+  <span *ngIf="state() === 'expanded'" class="text-sm">
+    {{ "components.profileMenu.help" | translate }}
+  </span>
+</a>
   </div>
 </div>

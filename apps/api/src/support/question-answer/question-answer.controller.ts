@@ -7,18 +7,31 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
+import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
+import { OrganizationGuard } from 'common/guards/organization/organization.guard';
+import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 import { CreateQuestionAnswerDto } from '../dto/create-question-answer.dto';
 import { UpdateQuestionAnswerDto } from '../dto/update-question-answer.dto';
 import { QuestionAnswerService } from './question-answer.service';
 
 @ApiTags('Support - Question Answers')
+@UseGuards(AccessControlGuard, OrganizationGuard)
 @Controller('support/question-answers')
 export class QuestionAnswerController {
   constructor(private readonly questionAnswerService: QuestionAnswerService) {}
 
   @Post()
+  @RequirePermission({
+    permissions: {
+      action: 'create',
+      resource: 'question-answer',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @ApiOperation({ summary: 'Create a new question answer' })
   @ApiResponse({
     status: 201,
@@ -29,6 +42,13 @@ export class QuestionAnswerController {
   }
 
   @Get()
+  @RequirePermission({
+    permissions: {
+      action: 'list',
+      resource: 'question-answer',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @ApiOperation({ summary: 'List all question answers' })
   @ApiResponse({ status: 200, description: 'Returns all question answers.' })
   findAll() {
@@ -36,6 +56,13 @@ export class QuestionAnswerController {
   }
 
   @Get(':id')
+  @RequirePermission({
+    permissions: {
+      action: 'list',
+      resource: 'question-answer',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @ApiOperation({ summary: 'Get a question answer by id' })
   @ApiResponse({ status: 200, description: 'Returns the question answer.' })
   @ApiResponse({ status: 404, description: 'Question answer not found.' })
@@ -44,6 +71,13 @@ export class QuestionAnswerController {
   }
 
   @Patch(':id')
+  @RequirePermission({
+    permissions: {
+      action: 'update',
+      resource: 'question-answer',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @ApiOperation({ summary: 'Update a question answer' })
   @ApiResponse({
     status: 200,
@@ -58,6 +92,13 @@ export class QuestionAnswerController {
   }
 
   @Delete(':id')
+  @RequirePermission({
+    permissions: {
+      action: 'delete',
+      resource: 'question-answer',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @ApiOperation({ summary: 'Delete a question answer' })
   @ApiResponse({
     status: 200,

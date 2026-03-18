@@ -605,6 +605,7 @@
       "organizations": "Organizações",
       "whitelabel": "Configurações",
       "changeOrganization": "Alterar organização",
+      "help": "Ajuda",
       "logout": "Logout"
     },
     "userOrganizationManager": {

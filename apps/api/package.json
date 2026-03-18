@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "npx env-cmd -- node -r ts-node/register ./node_modules/typeorm/cli.js",
+    "typeorm": "npx env-cmd -- node -r ts-node/register -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "npm run typeorm -- --dataSource=src/common/database/cli.data-source.ts migration:generate",
     "migration:create": "npm run typeorm -- migration:create",
     "migration:run": "npm run typeorm -- --dataSource=src/common/database/cli.data-source.ts migration:run",
@@ -26,7 +26,7 @@
     "documentation": "npx @compodoc/compodoc -p tsconfig.json --includesName Documentation --includes docs --theme stripe",
     "documentation:serve": "npx @compodoc/compodoc -p tsconfig.json --includesName Documentation --includes docs --theme stripe -s",
     "schema:drop": "npx env-cmd -- ts-node ./src/common/database/drop-all.ts",
-    "seed:run": "npx env-cmd -- ts-node ./src/common/database/seeds/run-seed.ts",
+    "seed:run": "npx env-cmd -- ts-node -r tsconfig-paths/register ./src/common/database/seeds/run-seed.ts",
     "db:reset": "npm run schema:drop && npm run migration:run && npm run seed:run"
   },
   "dependencies": {

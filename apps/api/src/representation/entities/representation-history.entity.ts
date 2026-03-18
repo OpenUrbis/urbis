@@ -8,22 +8,22 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { SolicitationStatus } from '../enums/solicitation-status.enum';
-import { Solicitation } from './solicitation.entity';
+import { RepresentationStatus } from '../enums/representation-status.enum';
+import { Representation } from './representation.entity';
 
-@Entity('solicitation_history')
-export class SolicitationHistory extends BaseEntity {
+@Entity('representation_history')
+export class RepresentationHistory extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Solicitation, (solicitation) => solicitation.history, {
+  @ManyToOne(() => Representation, (representation) => representation.history, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'solicitationId' })
-  solicitation: Solicitation;
+  @JoinColumn({ name: 'representationId' })
+  representation: Representation;
 
   @Column()
-  solicitationId: string;
+  representationId: string;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'actorId' })
@@ -37,17 +37,17 @@ export class SolicitationHistory extends BaseEntity {
 
   @Column({
     type: 'enum',
-    enum: SolicitationStatus,
+    enum: RepresentationStatus,
     nullable: true,
   })
-  previousStatus: SolicitationStatus;
+  previousStatus: RepresentationStatus;
 
   @Column({
     type: 'enum',
-    enum: SolicitationStatus,
+    enum: RepresentationStatus,
     nullable: true,
   })
-  newStatus: SolicitationStatus;
+  newStatus: RepresentationStatus;
 
   @Column({ type: 'jsonb', nullable: true })
   metadata: any;

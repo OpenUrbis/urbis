@@ -20,7 +20,7 @@ import {
     HlmLabelDirective,
   ],
   template: `
-    <form [formGroup]="formGroup">
+    <form [formGroup]="formGroup" (ngSubmit)="goToStep3.emit()">
       @if (isCnpj) {
         <div class="mb-4">
           <label hlmLabel for="companyName">Razão Social</label>
@@ -68,7 +68,7 @@ import {
         <button hlmBtn variant="outline" type="button" (click)="goBack.emit()">
           Voltar
         </button>
-        <button hlmBtn type="button" (click)="goToStep3.emit()" [disabled]="formGroup.controls['representationType'].invalid || (isCnpj ? formGroup.controls['companyName'].invalid : formGroup.controls['name'].invalid)">
+        <button hlmBtn type="submit" [disabled]="formGroup.controls['representationType'].invalid || (isCnpj ? formGroup.controls['companyName'].invalid : formGroup.controls['name'].invalid)">
           Avançar
         </button>
       </div>

@@ -17,7 +17,7 @@ import {
   HlmToasterService,
 } from '../../../../../../projects/shared/src/public-api';
 import { OpenCnpjApi } from '../../services/open-cnpj-api';
-import { SolicitationApi } from '../../services/solicitation-api';
+import { RepresentationApi } from '../../services/representation-api';
 
 import { StepDetailsComponent } from './steps/step-details/step-details.component';
 import { StepDocumentComponent } from './steps/step-document/step-document.component';
@@ -42,7 +42,7 @@ import { StepUploadComponent } from './steps/step-upload/step-upload.component';
   templateUrl: './request-representation.html',
 })
 export class RequestRepresentation {
-  solicitationApi = inject(SolicitationApi);
+  representationApi = inject(RepresentationApi);
   openCnpjApi = inject(OpenCnpjApi);
   router = inject(Router);
   toaster = inject(HlmToasterService);
@@ -125,18 +125,30 @@ export class RequestRepresentation {
 
     this.loading.set(true);
     try {
-      if (this.isCnpj()) {
-        const cnpjData: any = await firstValueFrom(
-          this.openCnpjApi.getByCnpj(doc),
-        );
-        if (!cnpjData) {
-          throw new Error('CNPJ not found');
-        }
+      // Re-enable fields to allow fresh typing if data changes
+      this.form.controls.companyName.enable();
+      this.form.controls.tradeName.enable();
+      this.form.controls.name.enable();
+      this.form.controls.socialName.enable();
 
-        this.form.patchValue({
-          companyName: cnpjData.razao_social || '',
-          tradeName: cnpjData.nome_fantasia || '',
-        });
+      const orgData: any = await firstValueFrom(
+        this.representationApi.checkDocument(doc),
+      );
+
+      if (this.isCnpj()) {
+        if (orgData) {
+          this.form.patchValue({
+            companyName: orgData.name || '',
+            tradeName: orgData.metadata?.socialName || orgData.metadata?.tradeName || '',
+          });
+
+          if (orgData.name) {
+            this.form.controls.companyName.disable();
+          }
+          if (orgData.metadata?.socialName || orgData.metadata?.tradeName) {
+            this.form.controls.tradeName.disable();
+          }
+        }
 
         this.form.controls.companyName.setValidators([Validators.required]);
         this.form.controls.tradeName.setValidators([Validators.required]);
@@ -144,6 +156,20 @@ export class RequestRepresentation {
         this.form.controls.name.clearValidators();
         this.form.controls.socialName.clearValidators();
       } else {
+        if (orgData) {
+          this.form.patchValue({
+            name: orgData.name || '',
+            socialName: orgData.metadata?.socialName || '',
+          });
+
+          if (orgData.name) {
+            this.form.controls.name.disable();
+          }
+          if (orgData.metadata?.socialName) {
+            this.form.controls.socialName.disable();
+          }
+        }
+
         this.form.controls.name.setValidators([Validators.required]);
         this.form.controls.socialName.clearValidators();
 
@@ -157,11 +183,15 @@ export class RequestRepresentation {
       this.form.controls.socialName.updateValueAndValidity();
 
       this.step.set(2);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      this.toaster.error(
-        this.translate.instant('representations.request.messages.api_error'),
-      );
+      if (e?.error?.message) {
+        this.toaster.error(this.translate.instant(e.error.message));
+      } else {
+        this.toaster.error(
+          this.translate.instant('representations.request.messages.api_error'),
+        );
+      }
     } finally {
       this.loading.set(false);
     }
@@ -223,12 +253,12 @@ export class RequestRepresentation {
   async submit() {
     this.loading.set(true);
     try {
-      const formValue = { ...this.form.value };
+      const formValue = { ...this.form.getRawValue() };
       if (formValue.document) {
         formValue.document = formValue.document.replace(/\D/g, '');
       }
 
-      await firstValueFrom(this.solicitationApi.request(formValue));
+      await firstValueFrom(this.representationApi.request(formValue));
       this.toaster.success(
         this.translate.instant('representations.request.messages.success'),
       );

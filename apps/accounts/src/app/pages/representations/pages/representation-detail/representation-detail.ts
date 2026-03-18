@@ -35,10 +35,10 @@ import { environment } from '../../../../../environments/environment';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { PermissionState } from '../../../../states/permission/permission.state';
 import { ProfileState } from '../../../../states/profile/profile.state';
-import { SolicitationApi } from '../../services/solicitation-api';
+import { RepresentationApi } from '../../services/representation-api';
 
 @Component({
-  selector: 'app-solicitation-detail',
+  selector: 'app-representation-detail',
   standalone: true,
   imports: [
     CommonModule,
@@ -75,10 +75,10 @@ import { SolicitationApi } from '../../services/solicitation-api';
       useValue: environment.googleRecaptchaSiteKey,
     },
   ],
-  templateUrl: './solicitation-detail.html',
+  templateUrl: './representation-detail.html',
 })
-export class SolicitationDetail implements OnInit {
-  api = inject(SolicitationApi);
+export class RepresentationDetail implements OnInit {
+  api = inject(RepresentationApi);
   route = inject(ActivatedRoute);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   confirm = useConfirmDialog();
@@ -88,7 +88,7 @@ export class SolicitationDetail implements OnInit {
   translate = inject(TranslateService);
   permissionState = inject(PermissionState);
 
-  solicitation = signal<any>(null);
+  representation = signal<any>(null);
   selectedTabIndex = signal(0);
   loading = signal(true);
   commentControl = new FormControl('', [Validators.required]);
@@ -145,7 +145,7 @@ export class SolicitationDetail implements OnInit {
         }
       }
 
-      this.solicitation.set(res);
+      this.representation.set(res);
     } catch (e) {
       console.error(e);
     } finally {
@@ -156,26 +156,26 @@ export class SolicitationDetail implements OnInit {
   async approve() {
     if (
       !(await this.confirm({
-        title: this.translate.instant('solicitation.actions.approve.title'),
+        title: this.translate.instant('representation.actions.approve.title'),
         description: this.translate.instant(
-          'solicitation.actions.approve.description',
+          'representation.actions.approve.description',
         ),
         confirmText: this.translate.instant(
-          'solicitation.actions.approve.confirm',
+          'representation.actions.approve.confirm',
         ),
       }))
     )
       return;
 
     try {
-      await firstValueFrom(this.api.approve(this.solicitation().id));
-      await this.loadData(this.solicitation().id);
+      await firstValueFrom(this.api.approve(this.representation().id));
+      await this.loadData(this.representation().id);
       this.toaster.success(
-        this.translate.instant('solicitation.actions.approve.success'),
+        this.translate.instant('representation.actions.approve.success'),
       );
     } catch (e) {
       this.toaster.error(
-        this.translate.instant('solicitation.actions.approve.error'),
+        this.translate.instant('representation.actions.approve.error'),
       );
     }
   }
@@ -183,12 +183,12 @@ export class SolicitationDetail implements OnInit {
   async reject() {
     if (
       !(await this.confirm({
-        title: this.translate.instant('solicitation.actions.reject.title'),
+        title: this.translate.instant('representation.actions.reject.title'),
         description: this.translate.instant(
-          'solicitation.actions.reject.description',
+          'representation.actions.reject.description',
         ),
         confirmText: this.translate.instant(
-          'solicitation.actions.reject.confirm',
+          'representation.actions.reject.confirm',
         ),
         confirmColor: 'warn',
       }))
@@ -196,14 +196,14 @@ export class SolicitationDetail implements OnInit {
       return;
 
     try {
-      await firstValueFrom(this.api.reject(this.solicitation().id));
-      await this.loadData(this.solicitation().id);
+      await firstValueFrom(this.api.reject(this.representation().id));
+      await this.loadData(this.representation().id);
       this.toaster.success(
-        this.translate.instant('solicitation.actions.reject.success'),
+        this.translate.instant('representation.actions.reject.success'),
       );
     } catch (e) {
       this.toaster.error(
-        this.translate.instant('solicitation.actions.reject.error'),
+        this.translate.instant('representation.actions.reject.error'),
       );
     }
   }
@@ -211,18 +211,18 @@ export class SolicitationDetail implements OnInit {
   async requestInfo() {
     if (this.commentControl.invalid) {
       this.toaster.error(
-        this.translate.instant('solicitation.actions.requestInfo.validation'),
+        this.translate.instant('representation.actions.requestInfo.validation'),
       );
       return;
     }
     if (
       !(await this.confirm({
-        title: this.translate.instant('solicitation.actions.requestInfo.title'),
+        title: this.translate.instant('representation.actions.requestInfo.title'),
         description: this.translate.instant(
-          'solicitation.actions.requestInfo.description',
+          'representation.actions.requestInfo.description',
         ),
         confirmText: this.translate.instant(
-          'solicitation.actions.requestInfo.confirm',
+          'representation.actions.requestInfo.confirm',
         ),
       }))
     )
@@ -231,20 +231,20 @@ export class SolicitationDetail implements OnInit {
     try {
       await firstValueFrom(
         this.api.requestInfo(
-          this.solicitation().id,
+          this.representation().id,
           this.commentControl.value!,
           this.attachmentsControl.value!,
         ),
       );
       this.commentControl.reset();
       this.attachmentsControl.reset([]);
-      await this.loadData(this.solicitation().id);
+      await this.loadData(this.representation().id);
       this.toaster.success(
-        this.translate.instant('solicitation.actions.requestInfo.success'),
+        this.translate.instant('representation.actions.requestInfo.success'),
       );
     } catch (e) {
       this.toaster.error(
-        this.translate.instant('solicitation.actions.requestInfo.error'),
+        this.translate.instant('representation.actions.requestInfo.error'),
       );
     }
   }
@@ -254,17 +254,17 @@ export class SolicitationDetail implements OnInit {
     try {
       await firstValueFrom(
         this.api.addComment(
-          this.solicitation().id,
+          this.representation().id,
           this.commentControl.value!,
           this.attachmentsControl.value!,
         ),
       );
       this.commentControl.reset();
       this.attachmentsControl.reset([]);
-      await this.loadData(this.solicitation().id);
+      await this.loadData(this.representation().id);
     } catch (_e) {
       this.toaster.error(
-        this.translate.instant('solicitation.actions.addComment.error'),
+        this.translate.instant('representation.actions.addComment.error'),
       );
     }
   }
@@ -277,7 +277,7 @@ export class SolicitationDetail implements OnInit {
   canApprove(item: any) {
     if (!item.organizationId) return false;
     return this.permissionState.hasPermission({
-      id: 'solicitation:approve',
+      id: 'representation:approve',
       organizationId: item.organizationId,
     });
   }
@@ -285,7 +285,7 @@ export class SolicitationDetail implements OnInit {
   canReject(item: any) {
     if (!item.organizationId) return false;
     return this.permissionState.hasPermission({
-      id: 'solicitation:reject',
+      id: 'representation:reject',
       organizationId: item.organizationId,
     });
   }

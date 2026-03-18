@@ -22,7 +22,7 @@ import {
     HlmLabelDirective,
   ],
   template: `
-    <form [formGroup]="formGroup">
+    <form [formGroup]="formGroup" (ngSubmit)="checkDocument.emit()">
       <div class="mb-4">
         <label hlmLabel for="assignTo">
           {{ "representations.request.form.assignTo" | translate }}
@@ -51,10 +51,10 @@ import {
       </div>
 
       <div class="flex justify-end gap-2">
-        <button hlmBtn variant="outline" routerLink="..">
+        <button type="button" hlmBtn variant="outline" routerLink="..">
           {{ "representations.request.buttons.cancel" | translate }}
         </button>
-        <button hlmBtn type="button" (click)="checkDocument.emit()" [disabled]="loading || formGroup.controls['document'].invalid">
+        <button hlmBtn type="submit" [disabled]="loading || formGroup.controls['document'].invalid">
           {{ loading ? 'Aguarde...' : 'Avançar' }}
         </button>
       </div>

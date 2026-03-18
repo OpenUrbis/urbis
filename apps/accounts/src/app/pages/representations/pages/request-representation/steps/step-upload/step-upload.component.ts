@@ -20,7 +20,7 @@ import {
     AttachmentsComponent,
   ],
   template: `
-    <form [formGroup]="formGroup">
+    <form [formGroup]="formGroup" (ngSubmit)="submit.emit()">
       <div class="mb-4">
         <label hlmLabel>
           Documentos requeridos
@@ -38,7 +38,7 @@ import {
         <button hlmBtn variant="outline" type="button" (click)="goBack.emit()">
           Voltar
         </button>
-        <button hlmBtn type="button" (click)="submit.emit()" [disabled]="loading">
+        <button hlmBtn type="submit" [disabled]="loading">
           {{
             loading
               ? ("representations.request.buttons.submitting" | translate)

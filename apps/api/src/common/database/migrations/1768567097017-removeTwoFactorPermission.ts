@@ -1,3 +1,4 @@
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class RemoveTwoFactorPermission1768567097017 implements MigrationInterface {
@@ -51,7 +52,7 @@ export class RemoveTwoFactorPermission1768567097017 implements MigrationInterfac
     let query = '';
     let query1 = '';
 
-    const adminRoleId = 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4';
+    const adminRoleId = SYSTEM_ROLES.admin;
 
     this.permissions.forEach((permission) => {
       query += `

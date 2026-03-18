@@ -5,6 +5,7 @@ import { Organization } from '../../../../organization/entities/organization.ent
 import { UserRoleAssignment } from '../../../../role/entities/user-role-assignment.entity';
 import { User } from '../../../../user/entities/user.entity';
 import { UserStatus } from '../../../../user/enums/user-status.enum';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 
 @Injectable()
 export class UserSeedService {
@@ -68,7 +69,7 @@ export class UserSeedService {
       where: {
         organizationId: org.id,
         userId: user.id,
-        roleId: 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4',
+        roleId: SYSTEM_ROLES.admin,
       },
     });
 
@@ -79,7 +80,7 @@ export class UserSeedService {
     const assign = this.userRoleAssignmentRepository.create({
       organizationId: org.id,
       userId: user.id,
-      roleId: 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4',
+      roleId: SYSTEM_ROLES.admin,
     });
 
     return await this.userRoleAssignmentRepository.save(assign);

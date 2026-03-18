@@ -22,17 +22,52 @@ import { User } from '../user/entities/user.entity';
 import { AddCommentDto } from './dto/add-comment.dto';
 import { GetRepresentationOverviewDto } from './dto/get-representation-overview.dto';
 import { RequestRepresentationDto } from './dto/request-representation.dto';
-import { SolicitationService } from './solicitation.service';
+import { RepresentationService } from './representation.service';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 
-@ApiTags('Solicitations')
+@ApiTags('Representations')
 @Controller({
-  path: 'solicitations',
+  path: 'representations',
   version: '1',
 })
 @ApiBearerAuth()
 @UseGuards(AccessControlGuard, OrganizationGuard)
-export class SolicitationController {
-  constructor(private readonly service: SolicitationService) {}
+export class RepresentationController {
+  constructor(private readonly service: RepresentationService) {}
+
+  private getAuthorizedOrganizationIds(
+    accessControl: AccessControl,
+    action: string,
+  ): string[] {
+    if (
+      accessControl.hasPermission({
+        permissions: {
+          resource: 'representation',
+          action,
+          scope: RolePermissionScopeEnum.GLOBAL,
+          exactScope: true,
+          organizationId: SYSTEM_ROLES.admin,
+        } as any,
+      })
+    ) {
+      return [];
+    }
+
+    if (
+      accessControl.hasPermission({
+        permissions: {
+          resource: 'representation',
+          action,
+          scope: RolePermissionScopeEnum.ANY,
+          exactScope: true,
+        } as any,
+      })
+    ) {
+      return accessControl.organizations.map((org) => org.id);
+    }
+
+    return accessControl.organizations.map((org) => org.id); // For 'OWN', fallback to user's assigned organizations
+  }
 
   @Post()
   async requestRepresentation(
@@ -42,16 +77,19 @@ export class SolicitationController {
     return this.service.requestRepresentation(request.user as User, dto);
   }
 
-  @Get('available')
-  async getAvailable(@Request() request) {
-    return this.service.getAvailableRepresentations(request.user as User);
+  @Get('check-document/:document')
+  async checkDocument(@Param('document') document: string, @Request() request) {
+    return this.service.checkOrganizationDocument(
+      document,
+      request.user as User,
+    );
   }
 
   @Get('overview')
   @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
-      resource: 'solicitation',
+      resource: 'representation',
       action: 'list',
       scope: RolePermissionScopeEnum.OWN,
     },
@@ -62,29 +100,14 @@ export class SolicitationController {
     @OrganizationData() organization: Organization,
     @PermissionsData() accessControl: AccessControl,
   ) {
-    let organizationIds: string[] = [];
+    let organizationIds = this.getAuthorizedOrganizationIds(
+      accessControl,
+      'list',
+    );
 
-    if (
-      accessControl.hasPermission({
-        permissions: {
-          resource: 'solicitation',
-          action: 'list',
-          scope: RolePermissionScopeEnum.GLOBAL,
-        } as any,
-      })
-    ) {
-      organizationIds = [];
-    } else if (
-      accessControl.hasPermission({
-        permissions: {
-          resource: 'solicitation',
-          action: 'list',
-          scope: RolePermissionScopeEnum.ANY,
-        } as any,
-      })
-    ) {
-      organizationIds = accessControl.organizations.map((org) => org.id);
-    } else {
+    // For specific organization query in overview, if it's not global
+    if (organizationIds.length > 0 && organization) {
+      // Filter the accessible ones to just the one requested (if applicable) or default to the organization
       organizationIds = [organization.id];
     }
 
@@ -95,40 +118,59 @@ export class SolicitationController {
   @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
-      resource: 'solicitation',
+      resource: 'representation',
       action: 'list',
       scope: RolePermissionScopeEnum.OWN,
     },
   })
   async findAll(
-    @Request() request,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @UserData() user: User,
+    @PermissionsData() accessControl: AccessControl,
   ) {
-    return this.service.findAll(request.user as User, {
-      page: Number(page),
-      limit: Number(limit),
-    });
+    const organizationIds = this.getAuthorizedOrganizationIds(
+      accessControl,
+      'list',
+    );
+
+    return this.service.findAll(
+      user,
+      {
+        page: Number(page),
+        limit: Number(limit),
+      },
+      organizationIds,
+    );
   }
 
   @Get(':id')
   @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
-      resource: 'solicitation',
+      resource: 'representation',
       action: 'view',
       scope: RolePermissionScopeEnum.OWN,
     },
   })
-  async findOne(@Param('id') id: string) {
-    return this.service.findOne(id);
+  async findOne(
+    @Param('id') id: string,
+    @UserData() user: User,
+    @PermissionsData() accessControl: AccessControl,
+  ) {
+    const organizationIds = this.getAuthorizedOrganizationIds(
+      accessControl,
+      'view',
+    );
+
+    return this.service.findOne(id, user, organizationIds);
   }
 
   @Post(':id/approve')
   @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
-      resource: 'solicitation',
+      resource: 'representation',
       action: 'approve',
       scope: RolePermissionScopeEnum.OWN,
     },
@@ -141,7 +183,7 @@ export class SolicitationController {
   @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
-      resource: 'solicitation',
+      resource: 'representation',
       action: 'reject',
       scope: RolePermissionScopeEnum.OWN,
     },
@@ -154,7 +196,7 @@ export class SolicitationController {
   @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
-      resource: 'solicitation',
+      resource: 'representation',
       action: 'comment',
       scope: RolePermissionScopeEnum.OWN,
     },
@@ -176,7 +218,7 @@ export class SolicitationController {
   @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
-      resource: 'solicitation',
+      resource: 'representation',
       action: 'comment',
       scope: RolePermissionScopeEnum.OWN,
     },

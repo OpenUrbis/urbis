@@ -8,5 +8,6 @@ import { OpenCnpjService } from './open-cnpj.service';
   imports: [HttpModule, forwardRef(() => AccessControlModule)],
   controllers: [OpenCnpjController],
   providers: [OpenCnpjService],
+  exports: [OpenCnpjService],
 })
 export class OpenCnpjModule {}

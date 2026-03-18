@@ -436,9 +436,6 @@ export class SignUp {
           : null,
       };
 
-      // Remove phoneCountry from payload
-      delete (payload as any).phoneCountry;
-      delete (payload as any).accountType;
 
       await firstValueFrom(this.api.register(payload));
 

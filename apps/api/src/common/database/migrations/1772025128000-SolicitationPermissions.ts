@@ -1,3 +1,4 @@
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class SolicitationPermissions1772025128000 implements MigrationInterface {
@@ -42,7 +43,7 @@ export class SolicitationPermissions1772025128000 implements MigrationInterface 
     let query = '';
     let query1 = '';
 
-    const adminRoleId = 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4';
+    const adminRoleId = SYSTEM_ROLES.admin;
 
     this.permissions.forEach((permission) => {
       const permissionId = `${permission.resource}:${permission.action}`;

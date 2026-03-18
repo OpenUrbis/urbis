@@ -4,20 +4,22 @@ import { AccessControlModule } from 'common/guards/access-control/access-control
 import { OrganizationModule } from '../organization/organization.module';
 import { RoleModule } from '../role/role.module';
 import { UserModule } from '../user/user.module';
-import { SolicitationEntities } from './entities';
-import { SolicitationController } from './solicitation.controller';
-import { SolicitationService } from './solicitation.service';
+import { RepresentationEntities } from './entities';
+import { RepresentationController } from './representation.controller';
+import { RepresentationService } from './representation.service';
+import { OpenCnpjModule } from '../maps/open-cnpj/open-cnpj.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([...SolicitationEntities]),
+    TypeOrmModule.forFeature([...RepresentationEntities]),
     forwardRef(() => OrganizationModule),
     forwardRef(() => RoleModule),
     forwardRef(() => UserModule),
     AccessControlModule,
+    OpenCnpjModule,
   ],
-  controllers: [SolicitationController],
-  providers: [SolicitationService],
-  exports: [SolicitationService],
+  controllers: [RepresentationController],
+  providers: [RepresentationService],
+  exports: [RepresentationService],
 })
-export class SolicitationModule {}
+export class RepresentationModule {}

@@ -21,8 +21,8 @@ import { RoleModuleEntities } from './role/index.entity';
 import { RoleModule } from './role/role.module';
 import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
-import { SolicitationEntities } from './solicitation/entities';
-import { SolicitationModule } from './solicitation/solicitation.module';
+import { RepresentationEntities } from './representation/entities';
+import { RepresentationModule } from './representation/representation.module';
 import { SupportModule } from './support/support.module';
 import { UserModuleEntities, UserModuleSubscribers } from './user/index.entity';
 import { UserModule } from './user/user.module';
@@ -81,7 +81,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
         ...AppSettingsModuleEntities,
         ...DynamicSystemDataEntities,
         SupportTicket,
-        ...SolicitationEntities,
+        ...RepresentationEntities,
       ],
       [...UserModuleSubscribers],
     ),
@@ -95,7 +95,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     WhitelabelModule,
     AppSettingsModule,
     SupportModule,
-    SolicitationModule,
+    RepresentationModule,
     DynamicSystemDataModule,
   ],
   controllers: [],

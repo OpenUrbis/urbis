@@ -10,21 +10,21 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { Solicitation } from './solicitation.entity';
+import { Representation } from './representation.entity';
 
-@Entity('solicitation_comments')
-export class SolicitationComment extends BaseEntity {
+@Entity('representation_comments')
+export class RepresentationComment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Solicitation, (solicitation) => solicitation.comments, {
+  @ManyToOne(() => Representation, (representation) => representation.comments, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'solicitationId' })
-  solicitation: Solicitation;
+  @JoinColumn({ name: 'representationId' })
+  representation: Representation;
 
   @Column()
-  solicitationId: string;
+  representationId: string;
 
   @ManyToOne(() => User, { eager: true })
   @JoinColumn({ name: 'authorId' })

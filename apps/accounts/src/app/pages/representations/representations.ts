@@ -30,7 +30,7 @@ import { PageStructure } from '../../components/page-structure/page-structure';
 import { CpfCnpjPipe } from '../../pipes/cpf-cnpj.pipe';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import { PermissionState } from '../../states/permission/permission.state';
-import { SolicitationApi } from './services/solicitation-api';
+import { RepresentationApi } from './services/representation-api';
 
 @Component({
   selector: 'app-representations',
@@ -65,7 +65,7 @@ import { SolicitationApi } from './services/solicitation-api';
   templateUrl: './representations.html',
 })
 export class Representations implements OnInit {
-  solicitationApi = inject(SolicitationApi);
+  representationApi = inject(RepresentationApi);
   toaster = inject(HlmToasterService);
   permissionState = inject(PermissionState);
   translate = inject(TranslateService);
@@ -110,7 +110,7 @@ export class Representations implements OnInit {
     this.loading.set(true);
     try {
       const res: any = await firstValueFrom(
-        this.solicitationApi.getOverview({
+        this.representationApi.getOverview({
           page: this.page(),
           limit: this.limit(),
           search: this.searchControl.value || undefined,
@@ -152,7 +152,7 @@ export class Representations implements OnInit {
       !(await this.confirm({
         title: this.translate.instant('representations.detail.buttons.approve'),
         description: this.translate.instant(
-          'solicitation.actions.approve.description',
+          'representation.actions.approve.description',
         ),
         confirmText: this.translate.instant(
           'representations.detail.buttons.approve',
@@ -162,14 +162,14 @@ export class Representations implements OnInit {
       return;
 
     try {
-      await firstValueFrom(this.solicitationApi.approve(id));
+      await firstValueFrom(this.representationApi.approve(id));
       await this.loadData();
       this.toaster.success(
-        this.translate.instant('solicitation.actions.approve.success'),
+        this.translate.instant('representation.actions.approve.success'),
       );
     } catch (_e) {
       this.toaster.error(
-        this.translate.instant('solicitation.actions.approve.error'),
+        this.translate.instant('representation.actions.approve.error'),
       );
     }
   }
@@ -179,7 +179,7 @@ export class Representations implements OnInit {
       !(await this.confirm({
         title: this.translate.instant('representations.detail.buttons.reject'),
         description: this.translate.instant(
-          'solicitation.actions.reject.description',
+          'representation.actions.reject.description',
         ),
         confirmText: this.translate.instant(
           'representations.detail.buttons.reject',
@@ -190,14 +190,14 @@ export class Representations implements OnInit {
       return;
 
     try {
-      await firstValueFrom(this.solicitationApi.reject(id));
+      await firstValueFrom(this.representationApi.reject(id));
       await this.loadData();
       this.toaster.success(
-        this.translate.instant('solicitation.actions.reject.success'),
+        this.translate.instant('representation.actions.reject.success'),
       );
     } catch (_e) {
       this.toaster.error(
-        this.translate.instant('solicitation.actions.reject.error'),
+        this.translate.instant('representation.actions.reject.error'),
       );
     }
   }
@@ -205,7 +205,7 @@ export class Representations implements OnInit {
   canApprove(item: any) {
     if (!item.organizationId) return false;
     return this.permissionState.hasPermission({
-      id: 'solicitation:approve',
+      id: 'representation:approve',
       organizationId: item.organizationId,
     });
   }
@@ -213,7 +213,7 @@ export class Representations implements OnInit {
   canReject(item: any) {
     if (!item.organizationId) return false;
     return this.permissionState.hasPermission({
-      id: 'solicitation:reject',
+      id: 'representation:reject',
       organizationId: item.organizationId,
     });
   }

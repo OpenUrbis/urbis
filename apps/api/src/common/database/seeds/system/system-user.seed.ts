@@ -6,6 +6,7 @@ import { User } from '../../../../user/entities/user.entity';
 import { UserRoleAssignment } from '../../../../role/entities/user-role-assignment.entity';
 import * as bcrypt from 'bcrypt';
 import { UserStatus } from '../../../../user/enums/user-status.enum';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 
 @Injectable()
 export class SystemUserSeedService {
@@ -47,7 +48,7 @@ export class SystemUserSeedService {
 
   private async createUserAssignment() {
     const user = await this.createUser();
-    const roleId = 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4';
+    const roleId = SYSTEM_ROLES.admin;
     const organizationId = this.configService.get('admin.organization.id');
 
     const existingAssign = await this.userRoleAssignmentRepository.findOne({

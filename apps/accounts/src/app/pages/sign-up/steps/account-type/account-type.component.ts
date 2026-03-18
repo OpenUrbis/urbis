@@ -1,15 +1,9 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  computed,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { HlmButtonDirective } from '../../../../../../projects/shared/src/public-api';
+import { Component, computed, EventEmitter, Output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { map } from 'rxjs';
+import { HlmButtonDirective } from '../../../../../../projects/shared/src/public-api';
 
 export interface AccountType {
   value: string;

@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { HlmButtonDirective } from '../../../../../../projects/shared/src/public-api';
 import { AttachmentsComponent } from '../../../../../../projects/shared/src/lib/components/attachments/attachments.component';
+import { HlmButtonDirective } from '../../../../../../projects/shared/src/public-api';
 import { UserFormComponent } from '../../../../components/user-form/user-form';
 
 @Component({

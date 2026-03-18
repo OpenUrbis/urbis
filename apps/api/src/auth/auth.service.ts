@@ -9,6 +9,7 @@ import {
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 import * as crypto from 'crypto';
 import { UserService } from 'user/user.service';
 import {
@@ -26,7 +27,6 @@ import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
 import { AuthUpdateDto } from './dto/auth-update.dto';
 import { ForgotService } from './forgot/forgot.service';
 import { CpfValidationService } from './services/cpf-validation.service';
-import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 
 @Injectable()
 export class AuthService {

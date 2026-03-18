@@ -186,14 +186,13 @@ export class SignUp {
     }
 
     try {
-      const { idToken, isAuthenticated, accessToken, ...all } =
-        await firstValueFrom(
-          this.oidcSecurityService.authorizeWithPopUp(
-            undefined,
-            undefined,
-            EXTERNAL_OIDC_AUTH_CONFIG_ID,
-          ),
-        );
+      const { idToken, isAuthenticated, accessToken } = await firstValueFrom(
+        this.oidcSecurityService.authorizeWithPopUp(
+          undefined,
+          undefined,
+          EXTERNAL_OIDC_AUTH_CONFIG_ID,
+        ),
+      );
 
       if (isAuthenticated) {
         // Just decode token/data and store in localStorage to simulate existing behavior
@@ -435,7 +434,6 @@ export class SignUp {
           ? rawValue.digitalAddress
           : null,
       };
-
 
       await firstValueFrom(this.api.register(payload));
 

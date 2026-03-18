@@ -16,10 +16,7 @@
             Selecione o tipo de cadastro
           </option>
           @for (type of accountTypes; track type.value) {
-            <option
-              [value]="type.value"
-              [disabled]="isDisableAccountType(type)"
-            >
+            <option [value]="type.value">
               {{ type.label }}
             </option>
           }

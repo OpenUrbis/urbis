@@ -729,7 +729,7 @@
       }
     },
     "switchOrganizationDialog": {
-      "title": "Selecionar organização"
+      "title": "Alterar entidade"
     },
     "createOrganization": {
       "fields": {

@@ -14,6 +14,7 @@ import {
   Repository,
 } from 'typeorm';
 import { Organization } from '../organization/entities/organization.entity';
+import { User } from '../user/entities/user.entity';
 import { AddPermissionToRoleDto } from './dto/add-role.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -272,5 +273,42 @@ export class RoleService {
     });
 
     return { data, total };
+  }
+
+  async findUsersWithRole(
+    organizationId: string,
+    roleId: string,
+  ): Promise<User[]> {
+    const assignments = await this.userRoleAssignmentRepository.find({
+      where: {
+        organizationId,
+        roleId,
+      },
+      relations: ['user'],
+    });
+    return assignments.map((a) => a.user);
+  }
+
+  async hasSystemRole(userId: string, roleId: string): Promise<boolean> {
+    const count = await this.userRoleAssignmentRepository.count({
+      where: {
+        userId,
+        roleId,
+      },
+    });
+    return count > 0;
+  }
+
+  async hasOrganization(
+    userId: string,
+    organizationId: string,
+  ): Promise<boolean> {
+    const count = await this.userRoleAssignmentRepository.count({
+      where: {
+        userId,
+        organizationId,
+      },
+    });
+    return count > 0;
   }
 }

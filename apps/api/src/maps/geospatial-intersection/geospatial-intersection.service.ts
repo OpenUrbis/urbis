@@ -2,11 +2,11 @@ import {
   Injectable,
   BadRequestException,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as turf from '@turf/turf';
-import * as proj4 from 'proj4';
 import {
   Feature,
   FeatureCollection,
@@ -48,6 +48,7 @@ interface GeospatialFeatureCollectionProperties {
  */
 interface GeospatialFeatureProperties extends GeoJsonProperties {
   totalArea: number;
+  totalAreaPercentage: number;
   layer: string;
   [key: string]: any; // Allow additional dynamic properties from GeoServer
 }
@@ -73,12 +74,10 @@ export class GeospatialIntersectionService {
     geom_subprefeitura: ['slui:subprefeitura'],
     geom_distrito: ['slui:distrito_municipal'],
     geom_tombado: [
-      'slui:tombamentos-areas',
-      'slui:tombamentos-envoltorias-de-imoveis',
-      'slui:tombamentos-imoveis',
+      'slui:tombamentos_ambientais_ou_paisagisticos',
+      'slui:tombamentos_envoltoria_de_imoveis',
+      'slui:tombamentos_imoveis',
     ],
-    geom_uc: ['slui:parques_unidades_de_conservacao_e_apa'],
-    geom_apa: ['slui:parques_unidades_de_conservacao_e_apa'],
     geom_area_contaminada: ['slui:areas_contaminadas'],
     geom_melhoramento_viario: ['slui:minianel_viario'],
     geom_area_manancial: ['slui:manancial_billings'],
@@ -135,11 +134,13 @@ export class GeospatialIntersectionService {
       // Infer source projection from requested output (common in our flows)
       const sourceProj = srsName === 'EPSG:31983' ? projEPSG31983 : projWGS84;
 
-      const minPointEPSG31983 = proj4(sourceProj, projEPSG31983, [
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const proj4Instance = require('proj4');
+      const minPointEPSG31983 = proj4Instance(sourceProj, projEPSG31983, [
         bbox[0],
         bbox[1],
       ]);
-      const maxPointEPSG31983 = proj4(sourceProj, projEPSG31983, [
+      const maxPointEPSG31983 = proj4Instance(sourceProj, projEPSG31983, [
         bbox[2],
         bbox[3],
       ]);
@@ -162,27 +163,27 @@ export class GeospatialIntersectionService {
       // Define GeoServer layers
       const allLayers = [
         'slui:ZEIS_(PDE)',
-        'slui:aguas_correntes_ou_dormentes',
+        'slui:aguas_correntes',
+        'slui:aguas_dormentes',
         'slui:areas_contaminadas',
         'slui:eixos',
         'slui:lote_cidadao',
         'slui:macroareas',
         'slui:macrozonas',
         'slui:minianel_viario',
-        'slui:parques_unidades_de_conservacao_e_apa',
         'slui:represas',
         'slui:restricoes_geotecnicas',
         'slui:risco_geologico',
         'slui:risco_hidrologico',
-        'slui:setores_e_subsetores',
+        'slui:setores',
+        'slui:subsetores',
         'slui:distrito_municipal',
         'slui:subprefeitura',
-        'slui:sujeicao_a_alagamentos',
-        'slui:terras_indigenas',
+        'slui:terras_indigenas_funai',
         'slui:terrenos_marginais_aos_cursos_dagua_navegaveis',
-        'slui:tombamentos-areas',
-        'slui:tombamentos-envoltorias-de-imoveis',
-        'slui:tombamentos-imoveis',
+        'slui:tombamentos_ambientais_ou_paisagisticos',
+        'slui:tombamentos_envoltoria_de_imoveis',
+        'slui:tombamentos_imoveis',
         'slui:zoneamento',
         'slui:manancial_billings',
         'slui:manancial_guarapiranga',
@@ -216,6 +217,11 @@ export class GeospatialIntersectionService {
                 turf.featureCollection([featureGeometry, polygonGeometry]),
               );
               if (intersection) {
+                const intersectionArea = turf.area(intersection);
+                const inputArea = turf.area(polygonGeometry);
+                const totalAreaPercentage =
+                  inputArea > 0 ? (intersectionArea / inputArea) * 100 : 0;
+
                 const newFeature: Feature<
                   Polygon | MultiPolygon,
                   GeospatialFeatureProperties
@@ -223,7 +229,8 @@ export class GeospatialIntersectionService {
                   ...feature,
                   properties: {
                     ...feature.properties,
-                    totalArea: turf.area(intersection),
+                    totalArea: intersectionArea,
+                    totalAreaPercentage,
                     layer,
                   },
                 };
@@ -320,12 +327,12 @@ export class GeospatialIntersectionService {
         },
         features,
       };
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof BadRequestException) {
         throw error;
       }
       console.error('Error processing geospatial intersection:', error);
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException(error?.message || 'Server error');
     }
   }
 
@@ -333,17 +340,20 @@ export class GeospatialIntersectionService {
     try {
       // Validate SQLC length
       if (sqlc.length !== 10 && sqlc.length !== 12) {
-        throw new Error('SQLC number must be 10 or 12 digits');
+        throw new BadRequestException('SQLC number must be 10 or 12 digits');
       }
 
       // Get lot geometry from WFS
       const wfsResponse = await this.getLotGeometry(sqlc);
 
       if (
+        !wfsResponse.data ||
         !wfsResponse.data.features ||
         wfsResponse.data.features.length === 0
       ) {
-        throw new Error('No lot found for the provided SQLC number');
+        throw new NotFoundException(
+          'No lot found for the provided SQLC number',
+        );
       }
 
       // Get the first feature (lot geometry)
@@ -394,28 +404,14 @@ export class GeospatialIntersectionService {
         geom_tombado: intersections.features
           .filter((f) =>
             [
-              'slui:tombamentos-areas',
-              'slui:tombamentos-envoltorias-de-imoveis',
-              'slui:tombamentos-imoveis',
+              'slui:tombamentos_ambientais_ou_paisagisticos',
+              'slui:tombamentos_envoltoria_de_imoveis',
+              'slui:tombamentos_imoveis',
             ].includes(f.properties.layer),
           )
           .map((f) => f),
-        geom_uc: intersections.features
-          .filter(
-            (f) =>
-              f.properties.layer ===
-                'slui:parques_unidades_de_conservacao_e_apa' &&
-              f.properties.tipo === 'UC',
-          )
-          .map((f) => f),
-        geom_apa: intersections.features
-          .filter(
-            (f) =>
-              f.properties.layer ===
-                'slui:parques_unidades_de_conservacao_e_apa' &&
-              f.properties.tipo === 'APA',
-          )
-          .map((f) => f),
+        geom_uc: [],
+        geom_apa: [],
         geom_area_contaminada: intersections.features
           .filter((f) => f.properties.layer === 'slui:areas_contaminadas')
           .map((f) => f),
@@ -468,11 +464,17 @@ export class GeospatialIntersectionService {
       });
 
       return response;
-    } catch (error) {
-      if (error instanceof Error) {
+    } catch (error: any) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException ||
+        error instanceof InternalServerErrorException
+      ) {
         throw error;
       }
-      throw new Error('Error processing SQLC query');
+      throw new InternalServerErrorException(
+        error?.message || 'Error processing SQLC query',
+      );
     }
   }
 
@@ -502,34 +504,39 @@ export class GeospatialIntersectionService {
   }
 
   private async getLotGeometry(sqlc: string): Promise<any> {
-    // Format SQLC number based on length
-    let formattedSqlc: string;
-    if (sqlc.length === 10) {
-      formattedSqlc = `${sqlc.substring(0, 3)} ${sqlc.substring(3, 6)} ${sqlc.substring(6, 10)} 00`;
-    } else {
-      formattedSqlc = `${sqlc.substring(0, 3)} ${sqlc.substring(3, 6)} ${sqlc.substring(6, 10)} ${sqlc.substring(10, 12)}`;
+    // Extract SQLC parts
+    const setor = sqlc.substring(0, 3);
+    const quadra = sqlc.substring(3, 6);
+    const lote = sqlc.substring(6, 10);
+
+    try {
+      // Make WFS request to get the lot feature
+      const wfsResponse = await firstValueFrom(
+        this.httpService.get(this.geoserverUrl, {
+          params: {
+            service: 'WFS',
+            version: '1.0.0',
+            request: 'GetFeature',
+            typeName: 'slui:lote_cidadao',
+            maxFeatures: 5,
+            outputFormat: 'json',
+            srsName: 'EPSG:31983',
+            CQL_FILTER: `cd_setor_fiscal = '${setor}' AND cd_quadra_fiscal = '${quadra}' AND cd_lote = '${lote}'`,
+          },
+          headers: {
+            accept: 'application/json',
+            origin: 'https://mapa.urbis.prefeitura.sp.gov.br',
+          },
+        }),
+      );
+
+      return wfsResponse;
+    } catch (err: any) {
+      console.error('Error fetching from GeoServer:', err?.message || err);
+      if (err.response && err.response.data) {
+        console.error('GeoServer response data:', err.response.data);
+      }
+      throw new InternalServerErrorException('Error contacting GeoServer');
     }
-
-    // Make WFS request to get the lot feature
-    const wfsResponse = await this.httpService
-      .get(this.geoserverUrl, {
-        params: {
-          service: 'WFS',
-          version: '1.0.0',
-          request: 'GetFeature',
-          typeName: 'slui:view_lote_cidadao',
-          maxFeatures: 5,
-          outputFormat: 'json',
-          srsName: 'EPSG:31983',
-          CQL_FILTER: `setor_quadra_lote_condominio = '${formattedSqlc}'`,
-        },
-        headers: {
-          accept: 'application/json',
-          origin: 'https://mapa.urbis.prefeitura.sp.gov.br',
-        },
-      })
-      .toPromise();
-
-    return wfsResponse;
   }
 }

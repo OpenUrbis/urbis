@@ -1,182 +1,145 @@
 <div
-  class="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-6 overflow-y-auto"
+  class="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-6 overflow-y-auto relative"
 >
-  <div class="w-full max-w-[424px]">
-    @if (currentStep() === 1) {
-      <form
-        (ngSubmit)="nextStep()"
-        [formGroup]="formGroup"
-        class="w-full animate-in fade-in duration-500"
+  <div class="w-full max-w-[600px] mb-4 flex justify-start">
+    <a
+      hlmBtn
+      variant="ghost"
+      size="sm"
+      routerLink="/sign-in"
+      class="gap-2 text-muted-foreground hover:text-foreground pl-0 transition-colors"
+    >
+      <hlm-icon name="lucideArrowLeft" size="16" />
+      <span>Voltar para o login</span>
+    </a>
+  </div>
+
+  <div class="w-full max-w-[600px]">
+    @if (successMessage()) {
+      <section
+        hlmCard
+        class="w-full border-border bg-white dark:bg-card relative overflow-hidden shadow-md animate-in fade-in zoom-in duration-500"
       >
-        <section
-          hlmCard
-          class="w-full border-border bg-white dark:bg-card relative overflow-hidden"
-        >
-          <header hlmCardHeader class="pb-2">
-            <div class="flex items-center gap-0 -ml-2">
-              <a
-                hlmBtn
-                variant="ghost"
-                size="icon"
-                [attr.aria-label]="'pages.signUp.actions.back' | translate"
-                href="/"
-                class="shrink-0 rounded-full h-8 w-8"
-              >
-                <hlm-icon name="lucideArrowLeft" size="18" />
-              </a>
-              <h1 hlmCardTitle class="text-xl m-0 p-0 font-bold text-primary">
-                {{ "pages.signUp.title" | translate }}
-              </h1>
-            </div>
-          </header>
-          <p class="text-xs italic text-muted-foreground mt-2">
-            {{ "pages.auth.attention" | translate }}
+        <div hlmCardContent class="p-8 flex flex-col items-center text-center">
+          <div
+            class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6"
+          >
+            <hlm-icon name="lucideCheck" size="32" class="text-primary" />
+          </div>
+          <h2 class="text-2xl font-bold mb-4">
+            {{ "pages.signUp.title" | translate }}
+          </h2>
+          <p class="text-muted-foreground mb-8 text-lg">
+            {{ successMessage() }}
           </p>
-          <div hlmCardContent class="flex flex-col gap-3 p-1 pt-2">
-            @if (loading()) {
+          <a hlmBtn routerLink="/sign-in" class="w-full sm:w-auto">
+            {{ "pages.signUp.success.backToLogin" | translate }}
+          </a>
+        </div>
+      </section>
+    } @else {
+      <div
+        class="flex flex-col mb-8 animate-in fade-in slide-in-from-top-4 duration-500"
+      >
+        <div class="flex items-center justify-between">
+          @for (step of [1, 2, 3, 4, 5, 6]; track step) {
+            <div class="flex flex-col items-center relative z-10">
               <div
-                class="absolute inset-0 z-50 bg-white dark:bg-black flex flex-col items-center justify-center rounded-lg animate-in fade-in duration-300"
+                class="h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500"
+                [class.bg-primary]="currentStep() >= step"
+                [class.text-primary-foreground]="currentStep() >= step"
+                [class.bg-muted]="currentStep() < step"
+                [class.text-muted-foreground]="currentStep() < step"
+                [class.ring-4]="currentStep() === step"
+                [class.ring-primary]="currentStep() === step"
+                [class.ring-opacity-20]="currentStep() === step"
               >
-                <span
-                  class="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin"
-                ></span>
-                <p
-                  class="mt-4 text-sm font-semibold text-primary animate-pulse"
-                >
-                  Criando sua conta...
-                </p>
+                {{ step }}
+              </div>
+            </div>
+            @if (step < 6) {
+              <div
+                class="flex-1 h-1 bg-muted mx-1 sm:mx-2 rounded-full overflow-hidden"
+              >
+                <div
+                  class="h-full bg-primary transition-all duration-500 ease-in-out"
+                  [style.width]="currentStep() > step ? '100%' : '0%'"
+                ></div>
               </div>
             }
-
-            <app-user-form
-              [formGroup]="formGroup"
-              [loading]="loading()"
-              [noOfficialAddress]="noOfficialAddress()"
-              (noOfficialAddressChange)="noOfficialAddress.set($event)"
-            />
-
-          </div>
-
-          <div class="flex items-center p-1 pt-4">
-            <button
-              hlmBtn
-              type="submit"
-              class="w-full font-semibold h-9 text-sm"
-              [attr.aria-label]="'pages.signUp.form.buttons.submit' | translate"
-            >
-              {{ "pages.signUp.form.buttons.submit" | translate }}
-            </button>
-          </div>
-        </section>
-      </form>
-    } @else {
-      <div class="fixed inset-0 z-[9999] flex items-center justify-end">
-        <div
-          class="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-500"
-          (click)="prevStep()"
-        ></div>
-        <section
-          class="w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-[60%] h-full bg-background flex flex-col relative z-[10000] shadow-2xl border-l border-border animate-in slide-in-from-right duration-500 ease-out"
-        >
-          <header
-            class="flex flex-row items-center px-8 py-5 justify-between border-b bg-background"
+          }
+        </div>
+        <div class="text-center mt-4">
+          <span
+            class="text-xs uppercase tracking-widest font-bold text-muted-foreground"
+            >Etapa {{ currentStep() }} de 6</span
           >
-            <div class="flex flex-col gap-0.5">
-              <h2 class="text-lg font-bold text-primary">
-                {{ currentTerm.label }}
-              </h2>
-              <div class="flex items-center gap-3">
-                <span
-                  class="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70"
-                  >Passo {{ currentTermIndex() + 1 }} de
-                  {{ terms.length }}</span
-                >
-                <div class="flex gap-1">
-                  @for (t of terms; track t.id; let i = $index) {
-                    <div
-                      class="h-1 w-4 rounded-full transition-all duration-300"
-                      [class.bg-primary]="i <= currentTermIndex()"
-                      [class.bg-muted]="i > currentTermIndex()"
-                    ></div>
-                  }
-                </div>
-              </div>
-            </div>
-            <button
-              hlmBtn
-              variant="ghost"
-              size="icon"
-              (click)="prevStep()"
-              class="rounded-full h-8 w-8 hover:bg-black/5 dark:hover:bg-white/5"
-            >
-              <hlm-icon name="lucideX" size="18" />
-            </button>
-          </header>
-
-          <div class="flex-1 overflow-hidden bg-background">
-            <div
-              class="h-full w-full overflow-y-auto custom-scrollbar border-y"
-            >
-              @if (currentTermIndex() === 0) {
-                <app-terms-of-use />
-              } @else {
-                <app-privacy-policy />
-              }
-            </div>
-          </div>
-
-          <footer
-            class="p-6 border-t bg-background flex items-center justify-between gap-4"
-          >
-            <button
-              hlmBtn
-              variant="ghost"
-              size="sm"
-              (click)="prevStep()"
-              class="text-xs font-semibold uppercase tracking-tight"
-            >
-              {{ "pages.signUp.actions.back" | translate }}
-            </button>
-            <button
-              hlmBtn
-              size="default"
-              class="flex-1 sm:flex-none min-w-[140px] h-10 gap-2 px-6 relative overflow-hidden transition-all active:scale-95"
-              (click)="acceptCurrentTerm()"
-              [disabled]="!canAcceptTerm()"
-            >
-              @if (!canAcceptTerm()) {
-                <span
-                  class="absolute inset-0 bg-primary/20 animate-out fade-out fill-mode-forwards"
-                  [style.animation-duration]="termCountdown() + 's'"
-                ></span>
-                <span class="z-10 font-mono font-bold"
-                  >{{ termCountdown() }}s</span
-                >
-              } @else {
-                <span
-                  class="z-10 font-bold uppercase text-[11px] tracking-widest"
-                >
-                  {{
-                    (currentTermIndex() === terms.length - 1
-                      ? "pages.signUp.form.buttons.submit"
-                      : "pages.signUp.actions.next"
-                    ) | translate
-                  }}
-                </span>
-                <hlm-icon
-                  class="z-10"
-                  [name]="
-                    currentTermIndex() === terms.length - 1
-                      ? 'lucideCheck'
-                      : 'lucideChevronRight'
-                  "
-                  size="16"
-                />
-              }
-            </button>
-          </footer>
-        </section>
+        </div>
       </div>
+
+      <section
+        hlmCard
+        class="w-full border-border bg-white dark:bg-card relative overflow-hidden shadow-md"
+      >
+        @if (loading()) {
+          <div
+            class="absolute inset-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-lg animate-in fade-in duration-300"
+          >
+            <span
+              class="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin"
+            ></span>
+            <p class="mt-4 text-sm font-semibold text-primary animate-pulse">
+              Processando...
+            </p>
+          </div>
+        }
+
+        <div hlmCardContent class="p-6">
+          @if (currentStep() === 1) {
+            <app-terms (accept)="acceptCurrentTerm()" />
+          }
+
+          @if (currentStep() === 2) {
+            <app-account-type (next)="nextStep(3)" (back)="prevStep()" />
+          }
+
+          @if (currentStep() === 3) {
+            <app-personal-data
+              [formGroup]="formGroup"
+              [hasGovBrData]="hasGovBrData()"
+              (govBrLogin)="govBrLogin()"
+              (next)="nextStep(4)"
+              (back)="prevStep()"
+            />
+          }
+
+          @if (currentStep() === 4) {
+            <app-address
+              [formGroup]="formGroup"
+              [noOfficialAddress]="noOfficialAddress()"
+              (noOfficialAddressChange)="noOfficialAddress.set($any($event))"
+              (next)="nextStep(5)"
+              (back)="prevStep()"
+            />
+          }
+
+          @if (currentStep() === 5) {
+            <app-documents
+              [formGroup]="formGroup"
+              (next)="nextStep(6)"
+              (back)="prevStep()"
+            />
+          }
+
+          @if (currentStep() === 6) {
+            <app-password
+              [formGroup]="formGroup"
+              (submit)="submit()"
+              (back)="prevStep()"
+            />
+          }
+        </div>
+      </section>
     }
   </div>
 </div>

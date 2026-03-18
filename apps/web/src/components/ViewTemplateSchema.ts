@@ -19,23 +19,6 @@ export const viewTemplateSchema = {
         { $ref: "#/definitions/secondaryItem" },
       ],
     },
-    wrapperRow: {
-      type: "object",
-      properties: {
-        type: { const: "wrapper-row" },
-        templates: {
-          type: "array",
-          items: { $ref: "#/definitions/component" },
-        },
-        properties: {
-          type: "object",
-          properties: {
-            columnClass: { type: "string" },
-          },
-        },
-      },
-      required: ["type", "templates"],
-    },
     wrapperCard: {
       type: "object",
       properties: {
@@ -91,7 +74,10 @@ export const viewTemplateSchema = {
             onItemClick: {
               type: "object",
               properties: {
-                action: { type: "string", enum: ["openFeature", "setZoom", "SelectFeature"] },
+                action: {
+                  type: "string",
+                  enum: ["openFeature", "setZoom", "SelectFeature"],
+                },
                 params: { type: "object" },
               },
               required: ["action"],
@@ -129,7 +115,7 @@ export const viewTemplateSchema = {
       },
       required: ["type"],
     },
-    button: {
+/*     button: {
       type: "object",
       properties: {
         type: { const: "button" },
@@ -143,7 +129,7 @@ export const viewTemplateSchema = {
         },
       },
       required: ["type", "label", "properties"],
-    },
+    }, */
     polygonMap: {
       type: "object",
       properties: {

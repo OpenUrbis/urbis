@@ -17,7 +17,7 @@ export function buildUrbisNav(opts: {
    */
   currentApp?: UrbisApp;
 }) {
-  const isAuthenticated = opts.isAuthenticated;
+  // const isAuthenticated = opts.isAuthenticated;
 
   let hostname = "";
   let pathname = "";
@@ -81,14 +81,10 @@ export function buildUrbisNav(opts: {
     { label: "Mosaico", href: "https://urbis.prefeitura.sp.gov.br", active: isMosaico },
     { label: "Mapa", href: "https://mapa.urbis.prefeitura.sp.gov.br", active: isMapa },
     { label: "Dados Abertos", href: "https://dadosabertos.urbis.prefeitura.sp.gov.br", active: isDados },
-    { label: "Legis", href: "https://docs.urbis.prefeitura.sp.gov.br/docs/legis", active: isLegis },
+    { label: "Legis", href: "https://legis.urbis.sampa.br/ ", active: isLegis },
     { label: "Viabiliza", href: "https://viabiliza.urbis.prefeitura.sp.gov.br/docs/legis", active: isViabiliza },
     { label: "Doc. técnica", href: "https://docs.urbis.prefeitura.sp.gov.br/", active: isDocs && !isLegis },
   ];
-
-  if (isAuthenticated) {
-    base.push({ label: "Datalake", href: "https://datalake.urbis.prefeitura.sp.gov.br" });
-  }
 
   // ✅ remove o item ativo do menu
   const menuItems = base.filter((i) => !i.active);

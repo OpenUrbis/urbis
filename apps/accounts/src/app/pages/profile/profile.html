@@ -21,10 +21,16 @@
           }
         </div>
 
-        <a hlmBtn variant="outline" size="sm" routerLink="/profile/edit" class="gap-2 shadow-sm">
-            <hlm-icon name="lucidePencil" size="14" />
-            {{ 'pages.profile.page.actions.edit' | translate }}
-        </a>
+        <div class="flex gap-2">
+          <a hlmBtn variant="outline" size="sm" routerLink="/profile/usage" class="gap-2 shadow-sm">
+              <hlm-icon name="lucideActivity" size="14" />
+              Uso
+          </a>
+          <a hlmBtn variant="outline" size="sm" routerLink="/profile/edit" class="gap-2 shadow-sm">
+              <hlm-icon name="lucidePencil" size="14" />
+              {{ 'pages.profile.page.actions.edit' | translate }}
+          </a>
+        </div>
       </div>
 
       <!-- Content -->

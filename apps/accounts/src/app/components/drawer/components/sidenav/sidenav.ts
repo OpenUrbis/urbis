@@ -3,9 +3,11 @@ import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import {
+  lucideBriefcase,
   lucideBuilding2,
   lucideCheck,
   lucideChevronsUpDown,
+  lucideFileText,
   lucideHelpCircle,
   lucideLogOut,
   lucidePalette,
@@ -73,6 +75,8 @@ import { SwitchOrganizationDialog } from '../../../switch-organization-dialog/sw
       lucideCheck,
       lucidePlus,
       lucideHelpCircle,
+      lucideBriefcase,
+      lucideFileText,
     }),
   ],
   templateUrl: './sidenav.html',

@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { useTemplateRegistry } from "./TemplateRegistryContext";
 import { VIEW_TEMPLATE_TEMPLATES } from "./templates";
 import {
   ITemplate,
@@ -11,18 +12,24 @@ export const ViewTemplateEngine = ({
   data,
   rootTemplate,
   isPrint,
+  viewMode,
 }: ITemplateProps) => {
+  const { templates: registeredTemplates } = useTemplateRegistry();
+
+  // Use registered templates from context (e.g. from Builder) or fallback to default
+  const sourceTemplates = registeredTemplates || VIEW_TEMPLATE_TEMPLATES;
+
   const templateTypes: ITemplatesMap = useMemo(() => {
     const templates: ITemplatesMap = {};
 
-    VIEW_TEMPLATE_TEMPLATES.forEach((template) => {
+    sourceTemplates.forEach((template) => {
       if (isPrint && template.hiddenOnPrint)
         templates[template.name] = () => null;
       else templates[template.name] = template.render;
     });
 
     return templates;
-  }, [isPrint]);
+  }, [isPrint, sourceTemplates]);
 
   const renderTemplate = useCallback(
     (props: ITemplate) => {
@@ -41,6 +48,7 @@ export const ViewTemplateEngine = ({
               data={data}
               rootTemplate={rootTemplate}
               isPrint={isPrint}
+              viewMode={viewMode}
             />
           </section>
         );
@@ -50,7 +58,7 @@ export const ViewTemplateEngine = ({
         return <div>Error on loading template</div>;
       }
     },
-    [templateTypes, data, rootTemplate, isPrint]
+    [templateTypes, data, rootTemplate, isPrint, viewMode]
   );
 
   return <>{renderTemplate(template)}</>;

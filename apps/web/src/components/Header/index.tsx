@@ -91,14 +91,14 @@ const Header = () => {
             {canSeeAdmin && (
               <Button
                 variant="outline"
-                size="sm"
-                className="gap-2 rounded-full hidden lg:flex h-9 px-4"
+                size="icon"
+                className="rounded-full hidden lg:flex h-9 w-9"
                 onClick={() => (window.location.href = "/admin/layer-manager")}
+                title="Administração"
               >
                 <span className="material-symbols-outlined text-base">
                   admin_panel_settings
                 </span>
-                Administração
               </Button>
             )}
 

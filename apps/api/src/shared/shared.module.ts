@@ -13,6 +13,7 @@ import databaseConfig from './../common/config/database.config';
 import geocodingConfig from './../common/config/geocoding.config';
 import mapsConfig from './../common/config/maps.config';
 import recaptchaConfig from './../common/config/recaptcha.config';
+import throttlerConfig from './../common/config/throttler.config';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import recaptchaConfig from './../common/config/recaptcha.config';
         geocodingConfig,
         mapsConfig,
         recaptchaConfig,
+        throttlerConfig,
       ],
       envFilePath: ['.env'],
     }),

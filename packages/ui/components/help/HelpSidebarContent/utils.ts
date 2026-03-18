@@ -175,7 +175,6 @@ export function getRecaptchaToken(
 
         if (typeof p.catch === "function") {
           p.catch(function (err: any) {
-            console.log("Erro caralho", err);
             callback(
               new Error(
                 err && err.message
@@ -186,7 +185,6 @@ export function getRecaptchaToken(
           });
         }
       } catch (err: any) {
-        console.log("Erro caralho", err);
         callback(
           new Error(
             err && err.message ? String(err.message) : "Falha no reCAPTCHA.",

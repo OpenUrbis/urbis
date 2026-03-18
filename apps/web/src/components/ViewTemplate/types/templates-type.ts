@@ -2,7 +2,6 @@
 
 import { IListItemsProperties } from "./list-items-type";
 import { IPolygonMapProperties } from "./polygon-map-type";
-import { IRowWrapperProperties } from "./row-wrapper-type";
 
 export type ITemplateRender = (props: ITemplateProps) => any;
 
@@ -17,13 +16,13 @@ export interface ITemplatesMap {
 }
 
 export interface ITemplate {
+  id?: string;
   type: string;
   templates?: ITemplate[];
   label?: string;
   value?: string;
   polygonTemplate?: ITemplate[];
   properties?:
-    | IRowWrapperProperties
     | IPolygonMapProperties
     | IListItemsProperties
     | unknown;
@@ -35,4 +34,5 @@ export interface ITemplateProps {
   key?: string;
   rootTemplate?: ITemplate[];
   isPrint?: boolean;
+  viewMode?: "desktop" | "mobile";
 }

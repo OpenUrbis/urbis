@@ -76,3 +76,15 @@
   --input: 212 11% 85%;
   --ring: 212 11% 85%;
 }
+
+.z-modal-max {
+  z-index: 10000 !important;
+}
+
+.row-gap-8 {
+  row-gap: 2rem !important;
+}
+
+.row-gap-2 {
+  row-gap: 0.5rem !important;
+}

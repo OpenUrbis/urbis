@@ -7,6 +7,7 @@ export enum UploadStrategyPathEnum {
   AVATAR = 'avatar',
   LOGOTYPE = 'logotype',
   LOGOMARK = 'logomark',
+  DOCUMENTS = 'documents',
 }
 
 export interface UploadQueryDto {

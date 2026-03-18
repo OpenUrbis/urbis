@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
+import { differenceInYears, parseISO } from 'date-fns';
 import {
   AfterLoad,
   BaseEntity,
@@ -65,6 +66,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   phone?: string;
 
+  @Index({ unique: true })
   @Column({ nullable: true, unique: true })
   cpf?: string;
 
@@ -88,6 +90,23 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   govBrFirstLoginAt?: Date;
+
+  @Column({ nullable: true })
+  birthDate?: string;
+
+  @Column({ nullable: true })
+  accountType?: string;
+
+  @Column('jsonb', { nullable: true })
+  metadata?: any;
+
+  @Expose()
+  get age(): number | null {
+    if (!this.birthDate) {
+      return null;
+    }
+    return differenceInYears(new Date(), parseISO(this.birthDate));
+  }
 
   @CreateDateColumn()
   createdAt: Date;

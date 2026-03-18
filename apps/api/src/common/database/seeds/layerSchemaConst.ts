@@ -7,74 +7,11 @@ import {
 
 export const layerSchemas: LayerSchema[] = [
   {
-    id: 'aguas_correntes_estimadas',
-    name: 'Águas Correntes Estimadas',
-    index: 10,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/wms?LAYERS=slui%3Aaguas_correntes_estimadas&FORMAT=image%2Fjpeg&TRANSPARENT=true',
-    isActive: true,
-    type: LayerSchemaTypeEnum.CustomWMSLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'areas_publicas',
-    colors: [
-      {
-        color: [65, 120, 216, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'aguas_correntes_ou_dormentes',
-    name: 'Águas Correntes ou Dormentes',
-    index: 20,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:aguas_correntes_ou_dormentes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'areas_publicas',
-    colors: [
-      {
-        color: [56, 85, 204, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'areas_contaminadas',
-    name: 'Áreas Contaminadas',
-    index: 30,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:areas_contaminadas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'ambiental',
-    colors: [
-      {
-        color: [180, 95, 6, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
     id: 'distrito_municipal',
     name: 'Distritos',
     index: 40,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:distrito_municipal&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:distrito_municipal&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: true,
@@ -82,7 +19,7 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    groupId: 'geral',
+    groupId: 'limites_administrativos',
     clickAction: {
       action: ClickActionEnum.SetZoom,
       params: {
@@ -125,40 +62,11 @@ export const layerSchemas: LayerSchema[] = [
     ],
   },
   {
-    id: 'eixos',
-    name: 'Eixos',
-    index: 50,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:eixos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: 'nm_perimetro_divisao_pde',
-    getFillColorPropName: 'nm_perimetro_divisao_pde',
-    getLineColorPropName: 'nm_perimetro_divisao_pde',
-    groupId: 'macrozoneamento',
-    colors: [
-      {
-        color: [136, 144, 173, 190],
-        pattern: 'full',
-        label: 'Area de Influencia',
-        value: 'Area de Influencia',
-      },
-      {
-        color: [201, 186, 119, 190],
-        pattern: 'full',
-        label: 'Area de Influencia (2016)',
-        value: 'Area de Influencia (2016)',
-      },
-    ],
-  },
-  {
     id: 'lotes',
-    name: 'Lotes',
+    name: 'Perímetros tributários',
     index: 60,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui%3Aview_lote_cidadao&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Alote_cidadao&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: true,
@@ -248,7 +156,7 @@ export const layerSchemas: LayerSchema[] = [
             label: 'Subprefeitura',
             value: 'Não disponível',
           },
-          {
+          /* {
             type: 'edit-polygon',
           },
           {
@@ -258,7 +166,7 @@ export const layerSchemas: LayerSchema[] = [
               action:
                 "(data) => window.open(`/print?layerSchema=lotes&CQL_FILTER=cd_setor_fiscal = '${data.properties.cd_setor_fiscal}' AND cd_quadra_fiscal = '${data.properties.cd_quadra_fiscal}' AND cd_lote = '${data.properties.cd_lote}' AND cd_condominio = '${data.properties.cd_condominio}'`,'_blank')",
             },
-          },
+          }, */
         ],
       },
       {
@@ -266,57 +174,55 @@ export const layerSchemas: LayerSchema[] = [
         label: 'Informações prediais',
         templates: [
           {
-            type: 'wrapper-row',
+            type: 'wrapper-grid',
             templates: [
               {
-                type: 'label-value',
-                label: 'Área do Terreno',
-                value: "<%- properties?.qt_area_terreno ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
+                type: 'wrapper-grid-column',
+                templates: [
+                  {
+                    type: 'label-value',
+                    label: 'Área do Terreno',
+                    value: "<%- properties?.qt_area_terreno ?? '-' %>",
+                  },
+                  {
+                    type: 'label-value',
+                    label: 'Situação do Lote',
+                    value: "<%- properties?.tx_situ_lote ?? '-' %>",
+                  },
+                  {
+                    type: 'label-value',
+                    label: 'Tipo de Quadra',
+                    value: "<%- properties?.tx_tipo_quadra ?? '-' %>",
+                  },
+                ],
               },
               {
-                type: 'label-value',
-                label: 'Área Construída',
-                value: "<%- properties?.qt_area_construida ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Situação do Lote',
-                value: "<%- properties?.tx_situ_lote ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Condomínio',
-                value: "<%- properties?.cd_condominio ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Tipo de Quadra',
-                value: "<%- properties?.tx_tipo_quadra ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Numeração',
-                value: "<%- properties?.cd_quadra_fiscal ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
+                type: 'wrapper-grid-column',
+                templates: [
+                  {
+                    type: 'label-value',
+                    label: 'Área Construída',
+                    value: "<%- properties?.qt_area_construida ?? '-' %>",
+                  },
+
+                  {
+                    type: 'label-value',
+                    label: 'Condomínio',
+                    value: "<%- properties?.cd_condominio ?? '-' %>",
+                  },
+
+                  {
+                    type: 'label-value',
+                    label: 'Numeração',
+                    value: "<%- properties?.cd_quadra_fiscal ?? '-' %>",
+                  },
+                ],
               },
             ],
+            properties: {
+              columns: [6, 6],
+            },
+            id: '94bef4de-7956-4cb0-829c-7a81548defdd',
           },
         ],
       },
@@ -492,25 +398,25 @@ export const layerSchemas: LayerSchema[] = [
                     type: 'secondary-item',
                     value: `
                           <% if (id.includes("macroareas")) { %>
-                            Macroarea
+                            Macroarea - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("minianel_viario")) { %>
-                            Minianel Viario
+                            Minianel Viario - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("subprefeitura")) { %>
-                            Sub-Prefeitura
+                            Sub-Prefeitura - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("macrozonas")) { %>
-                            Macrozona
+                            Macrozona - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("tombamentos-areas")) { %>
-                            <%- properties.tx_resolucao_condephaat %>
+                            <%- properties.tx_resolucao_condephaat %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("zoneamento_geral")) { %>
-                            Zoneamento
+                            Zoneamento - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (id.includes("slui:setores_e_subsetores")) { %>
-                            <%- properties.setor %>
+                            <%- properties.setor %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
-                            Distrito municipal
+                            Distrito municipal - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (properties.layer.includes("slui:tombamentos")) { %>
-                            Imóvel tombado
+                            Imóvel tombado - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else if (properties.layer.includes("slui:zoneamento")) { %>
-                            Zoneamento perimetro
+                            Zoneamento perimetro - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                           <% } else { %>
                             Não mapeado
                           <% } %>
@@ -575,9 +481,9 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'macroareas',
     name: 'Macroáreas',
-    index: 70,
+    index: 46,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:macroareas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Amacroareas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
@@ -642,9 +548,9 @@ export const layerSchemas: LayerSchema[] = [
   {
     id: 'macrozonas',
     name: 'Macrozonas',
-    index: 80,
+    index: 45,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:macrozonas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Amacrozonas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
@@ -669,148 +575,46 @@ export const layerSchemas: LayerSchema[] = [
     ],
   },
   {
-    id: 'minianel_viario',
-    name: 'Minianel Viário',
-    index: 90,
+    id: 'setores',
+    name: 'Setores',
+    index: 47,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:minianel_viario&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'urbanistico',
+    getTextColorPropName: 'setor',
+    getFillColorPropName: 'setor',
+    getLineColorPropName: 'setor',
+    groupId: 'macrozoneamento',
     colors: [
       {
-        color: [217, 234, 211, 190],
-        label: 'default',
+        color: [140, 1, 0, 190],
+        pattern: 'full',
+        label: 'Setor Orla Ferroviária e Fluvial',
+        value: '3 - Setor Orla Ferroviária e Fluvial',
+      },
+      {
+        color: [205, 3, 0, 190],
+        pattern: 'full',
+        label: 'Setor Eixos de Desenvolvimento',
+        value: '2 - Setor Eixos de Desenvolvimento',
+      },
+      {
+        color: [238, 64, 0, 190],
+        pattern: 'full',
+        label: 'Setor Central',
+        value: '1 - Centro',
       },
     ],
   },
   {
-    id: 'parques_unidades_conservacao',
-    name: 'Parques e Unidades de Conservação',
-    index: 100,
+    id: 'subsetores',
+    name: 'Subsetores',
+    index: 48,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:parques_unidades_de_conservacao_e_apa&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'areas_publicas',
-    colors: [{ color: [0, 0, 0, 190], label: 'default' }],
-  },
-  {
-    id: 'pracas_e_canteiros',
-    name: 'Praças e Canteiros',
-    index: 110,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/wms?LAYERS=slui%3Apracas_e_canteiros&FORMAT=image%2Fjpeg&TRANSPARENT=true',
-    isActive: true,
-    type: LayerSchemaTypeEnum.CustomWMSLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'areas_publicas',
-    colors: [
-      {
-        color: [147, 196, 125, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'represas',
-    name: 'Represas',
-    index: 120,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:represas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'areas_publicas',
-    colors: [{ color: [0, 0, 0, 190], label: 'default' }],
-  },
-  {
-    id: 'restricoes_geotecnicas',
-    name: 'Restrições Geotécnicas',
-    index: 130,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:restricoes_geotecnicas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'seguranca',
-    colors: [
-      {
-        color: [153, 2, 0, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'risco_geologico',
-    name: 'Risco Geológico',
-    index: 140,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:risco_geologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'seguranca',
-    colors: [
-      {
-        color: [255, 0, 0, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'risco_hidrologico',
-    name: 'Risco Hidrológico',
-    index: 150,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:risco_hidrologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: 'tx_tipo_processo',
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'seguranca',
-    colors: [
-      {
-        color: [204, 0, 1, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'setores_subsetores',
-    name: 'Setores e Subsetores',
-    index: 160,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:setores_e_subsetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asubsetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
@@ -889,209 +693,38 @@ export const layerSchemas: LayerSchema[] = [
     ],
   },
   {
-    id: 'subprefeitura',
-    name: 'Subprefeituras',
-    index: 170,
+    id: 'eixos',
+    name: 'Eixos',
+    index: 49,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:subprefeitura&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aeixos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'geral',
+    getTextColorPropName: 'nm_perimetro_divisao_pde',
+    getFillColorPropName: 'nm_perimetro_divisao_pde',
+    getLineColorPropName: 'nm_perimetro_divisao_pde',
+    groupId: 'macrozoneamento',
     colors: [
       {
-        color: [183, 183, 183, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'sujeicao_a_alagamentos',
-    name: 'Sujeição a Alagamentos',
-    index: 180,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:sujeicao_a_alagamentos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.CustomWMSLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'seguranca',
-    colors: [
-      {
-        color: [133, 32, 12, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'terras_indigenas',
-    name: 'Terras Indígenas',
-    index: 190,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:terras_indigenas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'geral',
-    colors: [
-      {
-        color: [191, 144, 0, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
-    name: "Terrenos Marginais aos Cursos D'Água Navegáveis",
-    index: 200,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:terrenos_marginais_aos_cursos_dagua_navegaveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'areas_publicas',
-    colors: [
-      {
-        color: [241, 194, 50, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'tombamentos-areas',
-    name: 'Ambientais e Urbanísticos',
-    index: 210,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-areas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'tombamento',
-    colors: [
-      {
-        color: [255, 165, 0, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'tombamentos-envoltorias-de-imoveis',
-    name: 'Envoltorias de Imóveis',
-    index: 220,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-envoltorias-de-imoveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'tombamento',
-    colors: [
-      {
-        color: [247, 217, 103, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'tombamentos-imoveis',
-    name: 'Imóveis',
-    index: 230,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-imoveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: null,
-    getFillColorPropName: null,
-    getLineColorPropName: null,
-    groupId: 'tombamento',
-    colors: [
-      {
-        color: [249, 255, 0, 190],
-        label: 'default',
-      },
-    ],
-  },
-  {
-    id: 'zeis_pde',
-    name: 'ZEIS - Lei nº 16.050/14',
-    index: 240,
-    origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:ZEIS_(PDE)&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: true,
-    type: LayerSchemaTypeEnum.GeoJsonLayer,
-    isVisible: false,
-    minZoom: null,
-    getTextColorPropName: 'cd_zoneamento_perimetro',
-    getFillColorPropName: 'cd_zoneamento_perimetro',
-    getLineColorPropName: 'cd_zoneamento_perimetro',
-    groupId: 'urbanistico',
-    clickAction: {
-      action: ClickActionEnum.SelectFeature,
-      params: {
-        zoom: 19.5,
-      },
-    },
-    colors: [
-      {
-        color: [196, 80, 80, 190],
+        color: [136, 144, 173, 190],
         pattern: 'full',
-        label: 'ZEIS-1',
-        value: 'ZEIS-1',
+        label: 'Area de Influencia',
+        value: 'Area de Influencia',
       },
       {
-        color: [54, 125, 169, 190],
+        color: [201, 186, 119, 190],
         pattern: 'full',
-        label: 'ZEIS-2',
-        value: 'ZEIS-2',
-      },
-      {
-        color: [65, 156, 139, 190],
-        pattern: 'full',
-        label: 'ZEIS-3',
-        value: 'ZEIS-3',
-      },
-      {
-        color: [164, 89, 164, 190],
-        pattern: 'full',
-        label: 'ZEIS-4',
-        value: 'ZEIS-4',
-      },
-      {
-        color: [241, 127, 4, 190],
-        pattern: 'full',
-        label: 'ZEIS-5',
-        value: 'ZEIS-5',
+        label: 'Area de Influencia (2016)',
+        value: 'Area de Influencia (2016)',
       },
     ],
   },
   {
     id: 'zoneamento_geral',
-    name: 'Urbano Geral',
-    index: 250,
+    name: 'Zoneamento de destinação (urbano/rural)',
+    index: 44,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento_geral&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
@@ -1119,14 +752,14 @@ export const layerSchemas: LayerSchema[] = [
   },
   {
     id: 'zoneamento_lei_16402_18177',
-    name: 'Zoneamento - Lei nº 16.402/16+18.177/24',
-    index: 260,
+    name: 'Zoneamento',
+    index: 50,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Azoneamento&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: false,
-    minZoom: 17,
+    minZoom: 1,
     getTextColorPropName: 'cd_zoneamento_perimetro',
     getFillColorPropName: 'cd_zoneamento_perimetro',
     getLineColorPropName: 'cd_zoneamento_perimetro',
@@ -1368,4 +1001,477 @@ export const layerSchemas: LayerSchema[] = [
       },
     ],
   },
+  {
+    id: 'minianel_viario',
+    name: 'Minianel viário',
+    index: 67,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aminianel_viario&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'urbanistico',
+    colors: [
+      {
+        color: [217, 234, 211, 190],
+        label: 'default',
+        pattern: 'hatch-1x',
+      },
+    ],
+  },
+  {
+    id: 'aguas_dormentes',
+    name: 'Águas dormentes',
+    index: 68,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aaguas_dormentes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'aguas',
+    colors: [
+      {
+        color: [17, 85, 204, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'aguas_correntes',
+    name: 'Águas correntes',
+    index: 69,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aaguas_correntes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'aguas',
+    colors: [
+      {
+        color: [17, 85, 204, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'aguas_correntes_estimadas',
+    name: 'Águas Correntes Estimadas',
+    index: 70,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?request=GetMap&typeName=slui%3Aaguas_correntes_estimadas&format=image%2Fvnd.jpeg-png&TRANSPARENT=true&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.CustomWMSLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'aguas',
+    colors: [
+      {
+        color: [65, 120, 216, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'terrenos_marginais_aos_cursos_dagua_navegaveis',
+    name: 'Terrenos marginais aos cursos d’água navegáveis',
+    index: 71,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aterrenos_marginais_aos_cursos_dagua_navegaveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'aguas',
+    colors: [
+      {
+        color: [241, 194, 50, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'calcadas',
+    name: 'Calçadas',
+    index: 72,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Acalcadas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.Stream,
+    isVisible: false,
+    minZoom: 13,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'vias_publicas',
+    colors: [
+      {
+        color: [217, 217, 217, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'pracas_e_canteiros',
+    name: 'Canteiros',
+    index: 74,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Apracas_e_canteiros&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.Stream,
+    isVisible: false,
+    minZoom: 13,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'vias_publicas',
+    colors: [
+      {
+        color: [182, 215, 168, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'risco_geologico',
+    name: 'Risco Geológico',
+    index: 111,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Arisco_geologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'alto_risco_geologico_e_hidrologico',
+    colors: [
+      {
+        color: [255, 0, 0, 190],
+        pattern: 'dots',
+        label: 'default',
+        patternConfig: { getFillPatternScale: 0.3 },
+      },
+    ],
+  },
+  {
+    id: 'risco_hidrologico',
+    name: 'Risco Hidrológico',
+    index: 112,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Arisco_hidrologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'alto_risco_geologico_e_hidrologico',
+    colors: [
+      {
+        color: [204, 0, 0, 190],
+        pattern: 'dots',
+        label: 'default',
+        patternConfig: { getFillPatternScale: 0.3 },
+      },
+    ],
+  },
+  {
+    id: 'restricoes_geotecnicas',
+    name: 'Restrições Geotécnicas',
+    index: 113,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Arestricoes_geotecnicas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'seguranca',
+    colors: [
+      {
+        color: [153, 0, 0, 190],
+        pattern: 'dots',
+        label: 'default',
+        patternConfig: { getFillPatternScale: 0.3 },
+      },
+    ],
+  },
+  {
+    id: 'areas_protecao_mananciais',
+    name: 'Áreas de Proteção aos Mananciais - APM',
+    index: 130,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aareas_de_protecao_e_recuperacao_dos_mananciais&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'areas_protegidas',
+    colors: [
+      {
+        color: [0, 0, 255, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'subprefeitura',
+    name: 'Subprefeituras',
+    index: 170,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asubprefeitura&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'limites_administrativos',
+    colors: [
+      {
+        color: [183, 183, 183, 190],
+        label: 'default',
+      },
+    ],
+  },
 ];
+
+/* Camadas que não foram declaradas na ultima atualização do SLUI, mas que podem ser retornadas
+ {
+    id: 'areas_contaminadas',
+    name: 'Áreas Contaminadas',
+    index: 30,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:areas_contaminadas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'ambiental',
+    colors: [
+      {
+        color: [180, 95, 6, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'parques_unidades_conservacao',
+    name: 'Parques e Unidades de Conservação',
+    index: 100,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:parques_unidades_de_conservacao_e_apa&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'areas_publicas',
+    colors: [{ color: [0, 0, 0, 190], label: 'default' }],
+  },
+  {
+    id: 'represas',
+    name: 'Represas',
+    index: 120,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:represas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'areas_publicas',
+    colors: [{ color: [0, 0, 0, 190], label: 'default' }],
+  },
+  {
+    id: 'subprefeitura',
+    name: 'Subprefeituras',
+    index: 170,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:subprefeitura&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'geral',
+    colors: [
+      {
+        color: [183, 183, 183, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'sujeicao_a_alagamentos',
+    name: 'Sujeição a Alagamentos',
+    index: 180,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:sujeicao_a_alagamentos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.CustomWMSLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'seguranca',
+    colors: [
+      {
+        color: [133, 32, 12, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'terras_indigenas',
+    name: 'Terras Indígenas',
+    index: 190,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:terras_indigenas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'geral',
+    colors: [
+      {
+        color: [191, 144, 0, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'tombamentos-areas',
+    name: 'Ambientais e Urbanísticos',
+    index: 210,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-areas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'tombamento',
+    colors: [
+      {
+        color: [255, 165, 0, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'tombamentos-imoveis',
+    name: 'Imóveis',
+    index: 230,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:tombamentos-imoveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'tombamento',
+    colors: [
+      {
+        color: [249, 255, 0, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'zeis_pde',
+    name: 'ZEIS - Lei nº 16.050/14',
+    index: 240,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:ZEIS_(PDE)&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: 'cd_zoneamento_perimetro',
+    getFillColorPropName: 'cd_zoneamento_perimetro',
+    getLineColorPropName: 'cd_zoneamento_perimetro',
+    groupId: 'urbanistico',
+    clickAction: {
+      action: ClickActionEnum.SelectFeature,
+      params: {
+        zoom: 19.5,
+      },
+    },
+    colors: [
+      {
+        color: [196, 80, 80, 190],
+        pattern: 'full',
+        label: 'ZEIS-1',
+        value: 'ZEIS-1',
+      },
+      {
+        color: [54, 125, 169, 190],
+        pattern: 'full',
+        label: 'ZEIS-2',
+        value: 'ZEIS-2',
+      },
+      {
+        color: [65, 156, 139, 190],
+        pattern: 'full',
+        label: 'ZEIS-3',
+        value: 'ZEIS-3',
+      },
+      {
+        color: [164, 89, 164, 190],
+        pattern: 'full',
+        label: 'ZEIS-4',
+        value: 'ZEIS-4',
+      },
+      {
+        color: [241, 127, 4, 190],
+        pattern: 'full',
+        label: 'ZEIS-5',
+        value: 'ZEIS-5',
+      },
+    ],
+  },
+ */

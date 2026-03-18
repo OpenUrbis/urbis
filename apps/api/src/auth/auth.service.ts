@@ -2,25 +2,31 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
+  forwardRef,
 } from '@nestjs/common';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 import * as crypto from 'crypto';
+import { UserService } from 'user/user.service';
 import {
   AccessControl,
   IAccessControlPermission,
 } from '../common/guards/access-control/access-control';
-import { UserService } from 'user/user.service';
+import { OrganizationService } from '../organization/organization.service';
 import { RoleService } from '../role/role.service';
 import { User } from '../user/entities/user.entity';
+import { UserStatus } from '../user/enums/user-status.enum';
 import { MailService } from './../common/mail/mail.service';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthExternalStrategyDto } from './dto/auth-external-strategy.dto';
 import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
 import { AuthUpdateDto } from './dto/auth-update.dto';
 import { ForgotService } from './forgot/forgot.service';
+import { CpfValidationService } from './services/cpf-validation.service';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +37,9 @@ export class AuthService {
     private forgotService: ForgotService,
     private mailService: MailService,
     private configService: ConfigService,
+    private cpfValidationService: CpfValidationService,
+    @Inject(forwardRef(() => OrganizationService))
+    private organizationService: OrganizationService,
   ) {}
 
   async validateLogin(loginDto: AuthEmailLoginDto): Promise<User> {
@@ -42,6 +51,8 @@ export class AuthService {
         message: 'Email is not found or password is wrong',
       });
     }
+
+    await this.createOrUpdatePfOrganization(user);
     return user;
   }
 
@@ -70,9 +81,24 @@ export class AuthService {
       emailHashConfirm = null;
     }
 
+    if (dto.cpf) {
+      await this.cpfValidationService.validate(dto.cpf.replace(/\D/g, ''));
+    }
+
+    let initialStatus = UserStatus.ACTIVE;
+    const requiresAnalysisTypes = [
+      'fisica_emancipada',
+      'fisica_assistido_parental',
+      'fisica_assistido_tutor',
+    ];
+    if (requiresAnalysisTypes.includes(dto.accountType)) {
+      initialStatus = UserStatus.IN_ANALYSIS;
+    }
+
     const user = await this.userService.create({
       ...dto,
       email: dto.email,
+      status: initialStatus,
       emailHashConfirm,
     } as any);
 
@@ -86,6 +112,9 @@ export class AuthService {
         organizationId: defaultOrgId,
       });
     }
+
+    // Ensure PF Organization is created
+    await this.createOrUpdatePfOrganization(user);
 
     if (emailConfirmation) {
       await this.mailService.userSignUp({
@@ -245,7 +274,7 @@ export class AuthService {
 
     delete userDto.oldPassword;
 
-    await this.userService.findByIdAndUpdate(user.id, userDto);
+    await this.userService.findByIdAndUpdate(user.id, userDto as any);
 
     return this.userService.findOne({ id: user.id });
   }
@@ -316,7 +345,7 @@ export class AuthService {
             email: payload.email,
             firstName: payload.firstName,
             lastName: payload.lastName,
-            cpf: payload.cpf,
+            cpf: payload.cpf.replace(/\D/g, ''),
             picture: payload.picture,
           },
         },
@@ -336,7 +365,7 @@ export class AuthService {
       }
 
       if (!user.cpf && payload.cpf) {
-        updateData.cpf = payload.cpf;
+        updateData.cpf = payload.cpf.replace(/\D/g, '');
       }
 
       if (payload.firstName && !user.firstName) {
@@ -352,7 +381,75 @@ export class AuthService {
       }
 
       await this.userService.update(user.id, updateData);
-      return await this.userService.findOne({ id: user.id });
+      const updatedUser = await this.userService.findOne({ id: user.id });
+      await this.createOrUpdatePfOrganization(updatedUser);
+      return updatedUser;
+    }
+  }
+
+  async createOrUpdatePfOrganization(user: User) {
+    if (!user.cpf) return;
+
+    const pfOrg = await this.organizationService.findOneByDocument(
+      user.cpf.replace(/\D/g, ''),
+    );
+
+    if (pfOrg) {
+      // Update existing PF Organization if needed
+      const updatedOrg = await this.organizationService.update(
+        pfOrg.id,
+        {
+          name: user.firstName,
+          document: user.cpf.replace(/\D/g, ''),
+          metadata: {
+            ...pfOrg.metadata,
+            userId: user.id,
+            documentType: 'CPF',
+            accountType: user.accountType,
+            birthDate: user.birthDate,
+            phone: user.phone,
+            socialName: user.socialName,
+            address: user.address,
+            digitalAddress: user.digitalAddress,
+          },
+        } as any,
+        user,
+      );
+
+      if (!(await this.roleService.hasOrganization(user.id, pfOrg.id))) {
+        await this.roleService.assign(
+          {
+            organizationId: pfOrg.id,
+            userId: user.id,
+            roleId: SYSTEM_ROLES.admin,
+          },
+          pfOrg,
+        );
+      }
+
+      return updatedOrg;
+    } else {
+      // Create new PF Organization
+      const newOrg = await this.organizationService.createOwn(
+        {
+          name: user.firstName,
+          document: user.cpf.replace(/\D/g, ''),
+          description: 'Conta Pessoal',
+          metadata: {
+            documentType: 'CPF',
+            userId: user.id,
+            accountType: user.accountType,
+            birthDate: user.birthDate,
+            phone: user.phone,
+            socialName: user.socialName,
+            address: user.address,
+            digitalAddress: user.digitalAddress,
+          },
+        } as any,
+        user,
+      );
+
+      return newOrg;
     }
   }
 }

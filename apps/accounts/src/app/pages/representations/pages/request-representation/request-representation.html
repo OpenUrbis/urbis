@@ -1,0 +1,38 @@
+<section class="max-w-md mx-auto py-8">
+  <div hlmCard>
+    <div hlmCardHeader>
+      <h3 hlmCardTitle>
+        {{ "representations.request.title" | translate }}
+      </h3>
+    </div>
+    <div hlmCardContent>
+      @if (step() === 1) {
+        <app-step-document
+          [formGroup]="form"
+          [loading]="loading()"
+          (onDocumentInput)="onDocumentInput($event)"
+          (checkDocument)="checkDocument()"
+        ></app-step-document>
+      }
+
+      @if (step() === 2) {
+        <app-step-details
+          [formGroup]="form"
+          [isCnpj]="isCnpj()"
+          [representationTypes]="representationTypes"
+          (goBack)="goBack()"
+          (goToStep3)="goToStep3()"
+        ></app-step-details>
+      }
+
+      @if (step() === 3) {
+        <app-step-upload
+          [formGroup]="form"
+          [loading]="loading()"
+          (goBack)="goBack()"
+          (submit)="submit()"
+        ></app-step-upload>
+      }
+    </div>
+  </div>
+</section>

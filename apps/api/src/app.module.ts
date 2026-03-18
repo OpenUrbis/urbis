@@ -1,4 +1,8 @@
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModuleEntities } from 'auth/index.entity';
 import { OidcModule } from 'auth/oidc/oidc.module';
 import { OrganizationModule } from 'organization/organization.module';
@@ -7,10 +11,14 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
 import { AppSettingsModuleEntities } from './app-settings/index.entity';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './common/redis/redis.module';
+import { DynamicSystemDataModule } from './dynamic-system-data/dynamic-system-data.module';
+import { DynamicSystemDataEntities } from './dynamic-system-data/index.entity';
 import { FilesModule } from './files/files.module';
 import { MapsModuleEntities } from './maps/index.entity';
 import { MapsModule } from './maps/maps.module';
 import { OrganizationModuleEntities } from './organization/index.entity';
+import { RepresentationEntities } from './representation/entities';
+import { RepresentationModule } from './representation/representation.module';
 import { RoleModuleEntities } from './role/index.entity';
 import { RoleModule } from './role/role.module';
 import { DatabaseModule } from './shared/database.module';
@@ -22,11 +30,48 @@ import { UserModuleEntities, UserModuleSubscribers } from './user/index.entity';
 import { UserModule } from './user/user.module';
 import { WhitelabelModuleEntities } from './whitelabel/index.entity';
 import { WhitelabelModule } from './whitelabel/whitelabel.module';
-
 @Module({
   imports: [
     SharedModule,
     OidcModule,
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            name: 'short',
+            ttl: config.get('throttler.short.ttl'),
+            limit: config.get('throttler.short.limit'),
+          },
+          {
+            name: 'medium',
+            ttl: config.get('throttler.medium.ttl'),
+            limit: config.get('throttler.medium.limit'),
+          },
+          {
+            name: 'daily',
+            ttl: config.get('throttler.daily.ttl'),
+            limit: config.get('throttler.daily.limit'),
+          },
+        ],
+        storage: new ThrottlerStorageRedisService({
+          host: config.get('database.redis.host', 'localhost'),
+          port: parseInt(config.get('database.redis.port', '6379'), 10),
+          password: config.get('database.redis.password'),
+          db: parseInt(config.get('database.redis.db', '0'), 10),
+          maxRetriesPerRequest: null,
+          enableReadyCheck: false,
+          reconnectOnError: (err) => {
+            const targetError = 'READONLY';
+            if (err.message.includes(targetError)) {
+              return true;
+            }
+            return false;
+          },
+        }),
+      }),
+    }),
     DatabaseModule.forRoot(
       [
         ...MapsModuleEntities,
@@ -36,7 +81,9 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
         ...RoleModuleEntities,
         ...WhitelabelModuleEntities,
         ...AppSettingsModuleEntities,
+        ...DynamicSystemDataEntities,
         ...SupportModuleEntities,
+        ...RepresentationEntities,
       ],
       [...UserModuleSubscribers],
     ),
@@ -50,10 +97,12 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     WhitelabelModule,
     AppSettingsModule,
     SupportModule,
+    RepresentationModule,
+    DynamicSystemDataModule,
     QuestionAnswerModule,
     QuestionTabModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [Reflector],
 })
 export class AppModule {}

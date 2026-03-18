@@ -8,6 +8,8 @@ export interface IAccessControlPermission {
   resource: string;
   action: string;
   scope: RolePermissionScopeEnum;
+  organizationId?: string;
+  exactScope?: boolean;
 }
 
 export interface AccessControlOptions {
@@ -65,6 +67,7 @@ export class AccessControl {
               resource: rp.permission.resource,
               action: rp.permission.action,
               scope: rp.scope,
+              organizationId: organization?.id,
             }),
           ),
         );
@@ -75,19 +78,39 @@ export class AccessControl {
   }
 
   private hasSinglePermission(req: IAccessControlPermission): boolean {
-    return this._permissions.some(
-      (prm) =>
-        (prm.id === req.id ||
-          (prm.resource === req.resource && prm.action === req.action) ||
-          prm.id === `${req.resource}:${req.action}`) &&
-        this.isScopeCompatible(prm.scope, req.scope),
-    );
+    return this._permissions.some((prm) => {
+      const matchesAction =
+        prm.id === req.id ||
+        (prm.resource === req.resource && prm.action === req.action) ||
+        prm.id === `${req.resource}:${req.action}`;
+
+      if (!matchesAction) return false;
+
+      const isScopeOk = this.isScopeCompatible(
+        prm.scope,
+        req.scope,
+        req.exactScope,
+      );
+      if (!isScopeOk) return false;
+
+      if (req.organizationId) {
+        if (prm.organizationId !== req.organizationId) {
+          return false;
+        }
+      }
+
+      return true;
+    });
   }
 
   private isScopeCompatible(
     userScope: RolePermissionScopeEnum,
     requiredScope: RolePermissionScopeEnum,
+    exactScope?: boolean,
   ): boolean {
+    if (exactScope) {
+      return userScope === requiredScope;
+    }
     if (
       userScope === RolePermissionScopeEnum.GLOBAL ||
       userScope === RolePermissionScopeEnum.ANY

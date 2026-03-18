@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Recaptcha } from '@nestlab/google-recaptcha';
-import { SupportTicketDto } from './dto/support-ticket.dto';
+import { SupportTicketDto } from '../dto/support-ticket.dto';
 import { SupportService } from './support.service';
 
 @ApiTags('Support')

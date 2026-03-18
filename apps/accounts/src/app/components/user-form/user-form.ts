@@ -7,7 +7,6 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  computed,
   inject,
   input,
   signal,
@@ -17,7 +16,8 @@ import { provideIcons } from '@ng-icons/core';
 import { lucideChevronDown, lucideMap } from '@ng-icons/lucide';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { decode } from '@open-urbis/endereco-digital';
-import { Observable, Subject, Subscription, firstValueFrom } from 'rxjs';
+import { differenceInYears } from 'date-fns';
+import { Subject, Subscription, firstValueFrom } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PasswordFormGroup } from '../../../../projects/shared/src/lib/components/password-form-group/password-form-group';
 import {
@@ -26,8 +26,6 @@ import {
   HlmLabelDirective,
   HlmSwitchComponent,
 } from '../../../../projects/shared/src/public-api';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { differenceInYears } from 'date-fns';
 
 export enum ACCOUNT_TYPE_ENUM {
   FISICA_CAPAZ = 'fisica_capaz',
@@ -108,55 +106,6 @@ export const ACCOUNT_TYPES = [
     label: 'Condomínio edilício',
     allow: false,
   },
-];
-
-export const ACCOUNT_TYPES = [
-  {
-    value: 'fisica_capaz',
-    label: 'Pessoa física capaz (não emancipada)',
-    allow: true,
-  },
-  {
-    value: 'fisica_emancipada',
-    label: 'Pessoa física capaz (emancipada)',
-    allow: true,
-  },
-  {
-    value: 'fisica_assistido_parental',
-    label:
-      'Pessoa física Relativamente incapaz (assistido por autoridade parental)',
-    allow: true,
-  },
-  {
-    value: 'fisica_assistido_tutor',
-    label: 'Pessoa física Relativamente incapaz (assistido por tutor)',
-    allow: true,
-  },
-  {
-    value: 'fisica_representado_parental',
-    label: 'Pessoa física Incapaz (representado por autoridade parental)',
-    allow: false,
-  },
-  {
-    value: 'fisica_representado_tutor',
-    label: 'Pessoa física Incapaz (representado por tutor)',
-    allow: false,
-  },
-  {
-    value: 'fisica_representado_curador',
-    label: 'Pessoa física Incapaz (representado por curador)',
-    allow: false,
-  },
-  { value: 'espolio', label: 'Espólio', allow: false },
-  { value: 'heranca', label: 'Herança jacente ou vacante', allow: false },
-  { value: 'juridica', label: 'Pessoa jurídica', allow: false },
-  { value: 'massa_falida', label: 'Massa falida', allow: false },
-  {
-    value: 'massa_insolvente',
-    label: 'Massa do insolvente civil',
-    allow: false,
-  },
-  { value: 'condominio', label: 'Condomínio edilício', allow: false },
 ];
 
 @Component({
@@ -343,7 +292,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
           return;
         }
         throw e;
-      } catch (innerE) {
+      } catch (_innerE: any) {
         const errorMsg = this.translate.instant(
           'pages.signUp.errors.invalidDigitalAddress',
         );

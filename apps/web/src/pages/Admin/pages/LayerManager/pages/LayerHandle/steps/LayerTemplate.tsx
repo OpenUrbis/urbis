@@ -34,6 +34,8 @@ export const LayerTemplate = ({}: LayerTemplateProps) => {
     }
   }, []); // Only parse on initial mount
 
+  const propertyMapping = form.watch("propertyMapping");
+
   return (
     <div className="animate-in fade-in slide-in-from-right-4 flex flex-col h-full w-full relative flex-1 min-h-0">
       <FormField
@@ -48,6 +50,7 @@ export const LayerTemplate = ({}: LayerTemplateProps) => {
                 initialGeoUrl={url}
                 initialGeoLayerFullURL={origin}
                 initialGeoLayer={selectedLayer?.name}
+                propertyMapping={propertyMapping}
                 title="Template de Visualização"
                 subtitle="Configure o template que será utilizado para exibir os detalhes da feature."
                 standalone={false}

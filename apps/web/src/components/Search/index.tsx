@@ -69,7 +69,7 @@ const convertFeatureToSirgas = (feature: any) => {
   return cloned;
 };
 
-export const Search = () => {
+export const Search = ({ isInteractiveView = false }: { isInteractiveView?: boolean }) => {
   const { toastInfo } = useToast();
   const {
     currentTerm,
@@ -367,18 +367,20 @@ export const Search = () => {
             }}
             className="flex items-center gap-2"
           >
-            <Button
-              variant="ghost"
-              size="icon"
-              type="button"
-              className="shrink-0 rounded-full h-10 w-10 hover:bg-accent"
-              onClick={toggleDrawer}
-              title={drawerOpen.value ? "Recolher menu" : "Expandir menu"}
-            >
-              <span className="material-symbols-outlined text-base">
-                {drawerOpen.value ? "menu_open" : "menu"}
-              </span>
-            </Button>
+            {!isInteractiveView && (
+              <Button
+                variant="ghost"
+                size="icon"
+                type="button"
+                className="shrink-0 rounded-full h-10 w-10 hover:bg-accent"
+                onClick={toggleDrawer}
+                title={drawerOpen.value ? "Recolher menu" : "Expandir menu"}
+              >
+                <span className="material-symbols-outlined text-base">
+                  {drawerOpen.value ? "menu_open" : "menu"}
+                </span>
+              </Button>
+            )}
 
             <div className="relative flex-1">
               <Input

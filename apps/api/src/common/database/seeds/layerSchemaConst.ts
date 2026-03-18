@@ -158,8 +158,8 @@ export const layerSchemas: LayerSchema[] = [
           },
           /* {
             type: 'edit-polygon',
-          },
-          {
+          }, */
+          /* {
             type: 'button',
             label: 'Imprimir',
             properties: {

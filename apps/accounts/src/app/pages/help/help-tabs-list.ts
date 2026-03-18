@@ -1,54 +1,45 @@
 import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterModule, Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { provideIcons } from '@ng-icons/core';
+import { lucidePencil, lucidePlus } from '@ng-icons/lucide';
+import {
+  HlmButtonDirective,
+  HlmIconComponent,
+} from '../../../../projects/shared/src/public-api';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import { QuestionTab } from './help.models';
 import { HelpService } from './help.service';
 
 @Component({
   selector: 'app-help-tabs-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    HasPermissionDirective,
+    HlmButtonDirective,
+    HlmIconComponent,
+  ],
+  providers: [provideIcons({ lucidePlus, lucidePencil })],
   template: `
-    <section class="p-6 space-y-6">
-      <div>
-        <button
-          type="button"
-          (click)="goBack()"
-          class="mb-3 rounded-md border border-border px-3 py-2 text-sm"
-        >
-          Voltar
-        </button>
-
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-2xl font-semibold">Abas de ajuda</h1>
-            <p class="text-sm text-muted-foreground">
-              Escolha uma aba para visualizar, editar e organizar suas perguntas.
-            </p>
-          </div>
-
-          <a
-            routerLink="/help/tabs/new"
-            class="inline-flex items-center rounded-md border px-4 py-2 text-sm"
-          >
-            Nova aba
-          </a>
-        </div>
-      </div>
-
+    <section class="space-y-6">
       @if (loading()) {
         <div class="text-sm text-muted-foreground">Carregando...</div>
       } @else if (error()) {
         <div class="text-sm text-destructive">{{ error() }}</div>
       } @else if (!tabs().length) {
-        <div class="space-y-3">
-          <div class="text-sm text-muted-foreground">
+        <div
+          class="flex flex-col items-center justify-center p-8 border rounded-lg border-dashed"
+        >
+          <div class="text-sm text-muted-foreground mb-4">
             Nenhuma aba cadastrada.
           </div>
 
           <a
+            *hasPermission="'question-tab:create'"
             routerLink="/help/tabs/new"
-            class="inline-flex items-center rounded-md border px-4 py-2 text-sm"
+            class="inline-flex items-center rounded-md px-4 py-2 text-sm bg-primary text-primary-foreground font-medium"
           >
             Criar primeira aba
           </a>
@@ -59,10 +50,12 @@ import { HelpService } from './help.service';
             <div class="rounded-md border p-4 space-y-3">
               <div class="flex items-start justify-between gap-4">
                 <a
-                  [routerLink]="['/help/tabs', tab.id]"
+                  [routerLink]="['/help/tabs', tab.id, 'edit']"
                   class="block flex-1 hover:opacity-90"
                 >
-                  <div class="font-medium">{{ tab.index }} - {{ tab.name }}</div>
+                  <div class="font-medium">
+                    {{ tab.index }} - {{ tab.name }}
+                  </div>
                   <div class="text-sm text-muted-foreground">
                     {{ tab.description }}
                   </div>
@@ -70,17 +63,24 @@ import { HelpService } from './help.service';
 
                 <div class="flex gap-2">
                   <a
-                    [routerLink]="['/help/tabs', tab.id, 'edit']"
-                    class="rounded-md border px-3 py-2 text-sm"
+                    *hasPermission="'question-answer:create'"
+                    [routerLink]="['/help/questions/new']"
+                    [queryParams]="{ tabId: tab.id }"
+                    hlmBtn
+                    size="icon"
+                    variant="outline"
                   >
-                    Editar aba
+                    <hlm-icon name="lucidePlus" size="14" />
                   </a>
 
                   <a
-                    [routerLink]="['/help/tabs', tab.id, 'order']"
-                    class="rounded-md border px-3 py-2 text-sm"
+                    *hasPermission="'question-tab:update'"
+                    [routerLink]="['/help/tabs', tab.id, 'edit']"
+                    hlmBtn
+                    size="icon"
+                    variant="outline"
                   >
-                    Ordenar perguntas
+                    <hlm-icon name="lucidePencil" size="14" />
                   </a>
                 </div>
               </div>
@@ -117,8 +117,4 @@ export class HelpTabsList implements OnInit {
       },
     });
   }
-
-  goBack(): void {
-  this.router.navigate(['/help']);
-}
 }

@@ -1,48 +1,48 @@
 import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterModule, Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { provideIcons } from '@ng-icons/core';
+import { lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
+import {
+  HlmButtonDirective,
+  HlmIconComponent,
+} from '../../../../projects/shared/src/public-api';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import { QuestionAnswer } from './help.models';
 import { HelpService } from './help.service';
 
 @Component({
   selector: 'app-help-question-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    HasPermissionDirective,
+    HlmButtonDirective,
+    HlmIconComponent,
+  ],
+  providers: [provideIcons({ lucidePencil, lucideTrash2 })],
   template: `
-    <section class="p-6 space-y-6">
-      <div>
-        <button
-          type="button"
-          (click)="goBack()"
-          class="mb-3 rounded-md border border-border px-3 py-2 text-sm"
-        >
-          Voltar
-        </button>
-
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <h1 class="text-2xl font-semibold">Perguntas</h1>
-            <p class="text-sm text-muted-foreground">
-              Gerencie perguntas e em quais abas elas aparecem.
-            </p>
-          </div>
-
-          <a
-            routerLink="/help/questions/new"
-            class="inline-flex items-center rounded-md border px-4 py-2 text-sm"
-          >
-            Nova pergunta
-          </a>
-        </div>
-      </div>
-
+    <section class="space-y-6">
       @if (loading()) {
         <div class="text-sm text-muted-foreground">Carregando...</div>
       } @else if (error()) {
         <div class="text-sm text-destructive">{{ error() }}</div>
       } @else if (!questions().length) {
-        <div class="text-sm text-muted-foreground">
-          Nenhuma pergunta cadastrada.
+        <div
+          class="flex flex-col items-center justify-center p-8 border rounded-lg border-dashed"
+        >
+          <div class="text-sm text-muted-foreground mb-4">
+            Nenhuma pergunta cadastrada.
+          </div>
+
+          <a
+            *hasPermission="'question-answer:create'"
+            routerLink="/help/questions/new"
+            class="inline-flex items-center rounded-md px-4 py-2 text-sm bg-primary text-primary-foreground font-medium"
+          >
+            Nova pergunta
+          </a>
         </div>
       } @else {
         <div class="space-y-3">
@@ -64,19 +64,25 @@ import { HelpService } from './help.service';
 
                 <div class="flex gap-2 shrink-0">
                   <a
+                    *hasPermission="'question-answer:update'"
                     [routerLink]="['/help/questions', item.id, 'edit']"
-                    class="rounded-md border px-3 py-2 text-sm"
+                    hlmBtn
+                    size="icon"
+                    variant="outline"
                   >
-                    Editar
+                    <hlm-icon name="lucidePencil" size="14" />
                   </a>
 
                   <button
+                    *hasPermission="'question-answer:delete'"
                     type="button"
                     (click)="remove(item)"
                     [disabled]="deletingId() === item.id"
-                    class="rounded-md border px-3 py-2 text-sm"
+                    hlmBtn
+                    size="icon"
+                    variant="destructive"
                   >
-                    {{ deletingId() === item.id ? 'Excluindo...' : 'Excluir' }}
+                    <hlm-icon name="lucideTrash2" size="14" />
                   </button>
                 </div>
               </div>
@@ -100,10 +106,6 @@ export class HelpQuestionList implements OnInit {
   ngOnInit(): void {
     this.loadQuestions();
   }
-
-  goBack(): void {
-  this.router.navigate(['/help']);
-}
 
   loadQuestions(): void {
     this.loading.set(true);

@@ -21,12 +21,19 @@ import { User } from 'user/entities/user.entity';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Organization } from './entities/organization.entity';
+import {
+  OrganizationHistory,
+  OrganizationHistoryAction,
+} from './entities/organization-history.entity';
 
 @Injectable()
 export class OrganizationService {
   constructor(
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
+
+    @InjectRepository(OrganizationHistory)
+    private historyRepository: Repository<OrganizationHistory>,
 
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
@@ -74,23 +81,127 @@ export class OrganizationService {
     return { data, total };
   }
 
-  async create(data: CreateOrganizationDto, entityManager?: EntityManager) {
-    const organization = this.organizationRepository.create(data);
+  private async logHistory(
+    organization: Organization,
+    action: OrganizationHistoryAction,
+    actor?: User,
+    changes?: Record<string, any>,
+    manager?: EntityManager,
+  ) {
+    const history = this.historyRepository.create({
+      organization,
+      actor,
+      action,
+      changes,
+    });
 
-    return entityManager
-      ? entityManager.save(Organization, organization)
-      : this.organizationRepository.save(organization);
+    if (manager) {
+      await manager.save(OrganizationHistory, history);
+    } else {
+      await this.historyRepository.save(history);
+    }
   }
 
-  async update(id: string, data: UpdateOrganizationDto) {
+  async create(
+    data: CreateOrganizationDto,
+    actor?: User,
+    entityManager?: EntityManager,
+  ) {
+    const organization = this.organizationRepository.create(data);
+
+    const savedOrganization = entityManager
+      ? await entityManager.save(Organization, organization)
+      : await this.organizationRepository.save(organization);
+
+    const changes = {
+      name: savedOrganization.name,
+      document: savedOrganization.document,
+      description: savedOrganization.description,
+      metadata: savedOrganization.metadata,
+    };
+
+    await this.logHistory(
+      savedOrganization,
+      OrganizationHistoryAction.CREATED,
+      actor,
+      changes,
+      entityManager,
+    );
+
+    return savedOrganization;
+  }
+
+  async update(
+    id: string,
+    data: UpdateOrganizationDto,
+    actor?: User,
+    entityManager?: EntityManager,
+  ) {
     const organization = await this.findOne(id);
+    const changes: Record<string, any> = {};
+    let hasChanges = false;
 
-    if (data.name !== undefined) organization.name = data.name;
-    if (data.description !== undefined)
+    if (data.name !== undefined && data.name !== organization.name) {
+      changes.prevName = organization.name;
+      changes.name = data.name;
+      organization.name = data.name;
+      hasChanges = true;
+    }
+
+    // document may not be in UpdateOrganizationDto, but some internal methods map it directly,
+    // so checking explicit UpdateOrganizationDto fields:
+    if (
+      data.description !== undefined &&
+      data.description !== organization.description
+    ) {
+      changes.prevDescription = organization.description;
+      changes.description = data.description;
       organization.description = data.description;
-    if (data.metadata !== undefined) organization.metadata = data.metadata;
+      hasChanges = true;
+    }
 
-    return await this.organizationRepository.save(organization);
+    if (data.metadata !== undefined) {
+      // Basic deep equal check for metadata to avoid unnecessary updates
+      if (
+        JSON.stringify(data.metadata) !== JSON.stringify(organization.metadata)
+      ) {
+        changes.prevMetadata = organization.metadata;
+        changes.metadata = data.metadata;
+        organization.metadata = data.metadata;
+        hasChanges = true;
+      }
+    }
+
+    // If there is an explicit document update (sometimes added dynamically to entity before save, handled separately,
+    // but the task specifically mentions using this method. Let's make sure `data` has document if we need it)
+    const anyData = data as any;
+    if (
+      anyData.document !== undefined &&
+      anyData.document !== organization.document
+    ) {
+      changes.prevDocument = organization.document;
+      changes.document = anyData.document;
+      organization.document = anyData.document;
+      hasChanges = true;
+    }
+
+    if (!hasChanges) {
+      return organization; // No changes to save
+    }
+
+    const savedOrganization = entityManager
+      ? await entityManager.save(Organization, organization)
+      : await this.organizationRepository.save(organization);
+
+    await this.logHistory(
+      savedOrganization,
+      OrganizationHistoryAction.UPDATED,
+      actor,
+      changes,
+      entityManager,
+    );
+
+    return savedOrganization;
   }
 
   async my(userId: string) {
@@ -114,7 +225,7 @@ export class OrganizationService {
 
   async createOwn(data: CreateOrganizationDto, user: User) {
     return this.entityManager.transaction(async (manager) => {
-      const organization = await this.create(data, manager);
+      const organization = await this.create(data, user, manager);
 
       await this.roleService.assign(
         {

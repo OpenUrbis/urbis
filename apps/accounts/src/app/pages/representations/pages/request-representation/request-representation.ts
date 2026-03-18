@@ -58,7 +58,7 @@ export class RequestRepresentation {
     name: new FormControl(''),
     socialName: new FormControl(''),
     justification: new FormControl(''),
-    documents: new FormControl([]),
+    documents: new FormControl([], [Validators.required]),
     assignTo: new FormControl('owner'),
   });
 
@@ -118,6 +118,8 @@ export class RequestRepresentation {
   }
 
   async checkDocument() {
+    if (this.loading()) return;
+
     let doc = this.form.get('document')?.value;
     if (!doc) return;
 
@@ -251,6 +253,7 @@ export class RequestRepresentation {
   }
 
   async submit() {
+    if (this.loading()) return;
     this.loading.set(true);
     try {
       const formValue = { ...this.form.getRawValue() };

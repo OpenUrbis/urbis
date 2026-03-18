@@ -1,4 +1,4 @@
-import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
+import { SYSTEM_ROLES } from '../../constants/system-roles.const';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class SetDefaultSystemRole1768000000001 implements MigrationInterface {

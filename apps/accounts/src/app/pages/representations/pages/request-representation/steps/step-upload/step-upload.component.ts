@@ -38,7 +38,7 @@ import {
         <button hlmBtn variant="outline" type="button" (click)="goBack.emit()">
           Voltar
         </button>
-        <button hlmBtn type="submit" [disabled]="loading">
+        <button hlmBtn type="submit" [disabled]="loading || formGroup.controls['documents'].invalid || !formGroup.controls['documents'].value?.length">
           {{
             loading
               ? ("representations.request.buttons.submitting" | translate)

@@ -1,4 +1,4 @@
-import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
+import { SYSTEM_ROLES } from '../../constants/system-roles.const';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class SolicitationPermissions1772025128000 implements MigrationInterface {

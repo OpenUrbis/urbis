@@ -396,10 +396,11 @@ export class AuthService {
 
     if (pfOrg) {
       // Update existing PF Organization if needed
-      if (pfOrg.document !== user.cpf || pfOrg.name !== user.firstName) {
-        await this.organizationService.update(pfOrg.id, {
+      const updatedOrg = await this.organizationService.update(
+        pfOrg.id,
+        {
           name: user.firstName,
-          // document: user.cpf, // update dto might not have document yet
+          document: user.cpf.replace(/\D/g, ''),
           metadata: {
             ...pfOrg.metadata,
             userId: user.id,
@@ -411,30 +412,28 @@ export class AuthService {
             address: user.address,
             digitalAddress: user.digitalAddress,
           },
-        } as any);
+        } as any,
+        user,
+      );
 
-        // Direct update for document since it might not be in DTO
-        const orgEntity = await this.organizationService.findOne(pfOrg.id);
-        orgEntity.document = user.cpf.replace(/\D/g, '');
-        orgEntity.name = user.firstName; // Ensure name is first name
-
-        if (!(await this.roleService.hasOrganization(user.id, pfOrg.id)))
-          await this.roleService.assign(
-            {
-              organizationId: pfOrg.id,
-              userId: user.id,
-              roleId: SYSTEM_ROLES.admin,
-            },
-            pfOrg,
-          );
-
-        await orgEntity.save();
+      if (!(await this.roleService.hasOrganization(user.id, pfOrg.id))) {
+        await this.roleService.assign(
+          {
+            organizationId: pfOrg.id,
+            userId: user.id,
+            roleId: SYSTEM_ROLES.admin,
+          },
+          pfOrg,
+        );
       }
+
+      return updatedOrg;
     } else {
       // Create new PF Organization
       const newOrg = await this.organizationService.createOwn(
         {
           name: user.firstName,
+          document: user.cpf.replace(/\D/g, ''),
           description: 'Conta Pessoal',
           metadata: {
             documentType: 'CPF',
@@ -446,14 +445,11 @@ export class AuthService {
             address: user.address,
             digitalAddress: user.digitalAddress,
           },
-        },
+        } as any,
         user,
       );
 
-      // Update document field directly
-      const orgEntity = await this.organizationService.findOne(newOrg.id);
-      orgEntity.document = user.cpf.replace(/\D/g, '');
-      await orgEntity.save();
+      return newOrg;
     }
   }
 }

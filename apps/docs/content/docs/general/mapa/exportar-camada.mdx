@@ -6,6 +6,12 @@ icon: Database
 
 Este documento descreve o processo de exportar uma camada vetorial para o banco de dados PostgreSQL utilizando o QGIS e, em seguida, publicá-la no GeoServer.
 
+<video
+  src="https://public.slingui.com/urbis/export_to_postgres.mp4"
+  controls="controls"
+  style={{width: "100%"}}
+></video>
+
 ## 1. Preparação e Importação no QGIS
 
 Caso você já possua um projeto configurado no QGIS com as camadas necessárias, pode prosseguir diretamente para o **Passo 2**. Caso contrário, siga as etapas abaixo para preparar seus dados.
@@ -86,7 +92,7 @@ Ao abrir a ferramenta, preencha os campos conforme a orientação abaixo:
 - **Esquema**: Selecione `public`.
 - **Tabela**: Crie um nome para a nova tabela que receberá a camada.
 - **Campo da chave primária** (Opcional): Selecione o campo de ID da sua camada (ex: `id`, `gid`).
-  - *Nota*: Se a camada não possuir um campo de ID único, busque outra fonte de dados (como um GeoJSON) que contenha o ID, pois ele é importante para o gerenciamento dos dados.
+  - _Nota_: Se a camada não possuir um campo de ID único, busque outra fonte de dados (como um GeoJSON) que contenha o ID, pois ele é importante para o gerenciamento dos dados.
 
 Clique em **Executar** e aguarde o término do processo.
 
@@ -114,14 +120,14 @@ Localize na lista a camada que você acabou de exportar do QGIS e clique em **Pu
 
 Na tela de edição da camada:
 
-1.  Verifique e ajuste o **Nome** e o **Título** da camada conforme necessário.
+1. Verifique e ajuste o **Nome** e o **Título** da camada conforme necessário.
 
 ![Ajustar nome](/export-layer-from-postgiz/Ajustar%20nome.png)
 
-2.  Role até a seção de Enquadramento.
-3.  Verifique o SRC declarado.
-4.  Clique em **Calcular a partir dos dados** para o "Enquadramento Nativo".
-5.  Clique em **Calcular a partir dos limites nativos** para o "Enquadramento no formato Lat/Lon".
+1. Role até a seção de Enquadramento.
+2. Verifique o SRC declarado.
+3. Clique em **Calcular a partir dos dados** para o "Enquadramento Nativo".
+4. Clique em **Calcular a partir dos limites nativos** para o "Enquadramento no formato Lat/Lon".
 
 ![Conferencia dos dados](/export-layer-from-postgiz/Conferencia%20dos%20dados.png)
 

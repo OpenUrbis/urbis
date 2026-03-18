@@ -1,0 +1,24 @@
+<div class="d-flex h-100 w-100">
+  <div class="left-menu">
+    <button
+      matIconButton
+      (click)="drawer.toggle()"
+      [attr.aria-label]="'components.drawer.buttons.toggle' | translate"
+    >
+      <mat-icon class="material-symbols-outlined"> menu </mat-icon>
+    </button>
+
+    <app-rails />
+  </div>
+  <div class="application w-100">
+    <mat-drawer-container class="drawer-container w-100">
+      <mat-drawer #drawer class="sidenav" mode="side" opened>
+        <app-sidenav />
+      </mat-drawer>
+
+      <mat-drawer-content class="drawer-content h-100">
+        <router-outlet></router-outlet>
+      </mat-drawer-content>
+    </mat-drawer-container>
+  </div>
+</div>

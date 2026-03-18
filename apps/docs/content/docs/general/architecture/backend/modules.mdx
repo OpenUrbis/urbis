@@ -1,0 +1,42 @@
+---
+title: Module System
+description: Architecture of the backend modules and dependency injection.
+icon: Box
+---
+
+The backend is divided into several key modules, each responsible for a specific domain of the application.
+
+## Core Modules
+
+### Auth Module (`apps/api/src/auth`)
+Handles all authentication mechanisms including OIDC, JWT strategy, local strategy, and guards. It serves as the gatekeeper for the application.
+
+### User Module (`apps/api/src/user`)
+Manages user entities, profiles, and user-related operations. It interacts with the `User` entity in the database.
+
+### Role Module (`apps/api/src/role`)
+Manages roles and permissions. Defines what a user can or cannot do within the system.
+
+### Organization Module (`apps/api/src/organization`)
+Supports multi-tenancy by grouping users into organizations. Resources can be scoped to specific organizations.
+
+### Files Module (`apps/api/src/files`)
+Handles file uploads (e.g., user avatars, document attachments). It typically interfaces with an object storage service like AWS S3.
+
+### Whitelabel Module (`apps/api/src/whitelabel`)
+Allows for customization of the application's appearance and behavior based on the tenant or organization, supporting B2B2C use cases.
+
+### Chat Module (`apps/api/src/chat`)
+Provides AI capabilities using Vercel AI SDK and Google Gemini. Exposes endpoints for streaming chat completions and managing AI interactions.
+
+## Creating a New Module
+
+To add a new module, use the NestJS CLI (if installed globally) or manually create the structure:
+
+```bash
+nest g module my-module
+nest g controller my-module
+nest g service my-module
+```
+
+Ensure to register the new module in `app.module.ts`.

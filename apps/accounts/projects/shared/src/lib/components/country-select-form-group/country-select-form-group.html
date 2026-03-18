@@ -1,0 +1,28 @@
+@if (formGroup()) {
+  <form [formGroup]="formGroup()">
+    <mat-form-field class="mb-2" appearance="outline" class="field">
+      <mat-label>{{
+        "components.lib.countrySelectForm.field" | translate
+      }}</mat-label>
+      <mat-select
+        autofocus
+        formControlName="country"
+        [attr.aria-label]="
+          'components.lib.countrySelectForm.field' | translate
+        "
+      >
+        @for (country of countryList; track country) {
+          <mat-option [value]="country.code">{{ country.name }}</mat-option>
+        }
+      </mat-select>
+      @if (
+        formGroup().controls["country"].invalid &&
+        formGroup().controls["country"].touched
+      ) {
+        <mat-hint class="error-hint">{{
+          "components.lib.countrySelectForm.errors.required" | translate
+        }}</mat-hint>
+      }
+    </mat-form-field>
+  </form>
+}

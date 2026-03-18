@@ -158,10 +158,12 @@ const checkZoom = (zoom: number, min?: number, max?: number) => {
 const createTextLayer = (
   layer: IGetConfigLayerSchema,
   props: MapContextLayerSchemaTypeMapProps,
-  getTextColor: (d: any) => Color
+  getTextColor: (d: any) => Color,
+  filteredOrigin?: string
 ) => {
   const { zoom } = props;
-  const { properties, id, origin: data } = layer;
+  const { properties, id, origin: rawOrigin } = layer;
+  const data = filteredOrigin || rawOrigin;
 
   const { getText, minZoomText: minZoom, maxZoomText: maxZoom } = properties;
   const getTextFn = getText ? createFn(getText, false) : null;
@@ -170,7 +172,7 @@ const createTextLayer = (
 
   return new TextLayer({
     id: `text-layer-${id}`,
-    data: createGetTextLayerUri(data),
+    data: createGetTextLayerUri(encodeURIComponent(data)),
     getPosition: (d: any) => {
       try {
         return polylabel(d.rawCoordinates, 0.000001);
@@ -197,16 +199,24 @@ const createGeoJsonLayer = (
 
   const {
     id,
-    origin: data,
+    origin: rawData,
     minZoom,
     clickAction,
     viewTemplate,
     properties,
+    cqlFilter
   } = layer;
+
+  let data = rawData;
+  if (cqlFilter && typeof data === 'string' && (data.includes('http') || data.startsWith('/'))) {
+      const separator = data.includes('?') ? '&' : '?';
+      data = `${data}${separator}CQL_FILTER=${encodeURIComponent(cqlFilter)}`;
+  }
+
   const { getFillColor, getFillPattern, getLineColor, getTextColor } =
     generateGetColorFns(layer, selectedFeatureIds);
   const patternObj = { ...MAP_CONFIGS.PATTERN_PROPERTIES, getFillPattern };
-  const textLayer = createTextLayer(layer, props, getTextColor);
+  const textLayer = createTextLayer(layer, props, getTextColor, data);
 
   const result: any[] = [
     new GeoJsonLayer({
@@ -269,7 +279,7 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
   },
   GeoJsonLayer: (layer, props) => [createGeoJsonLayer(layer, props)],
   CustomWMSLayer: (layer) => {
-    const { origin, properties } = layer;
+    const { origin, properties, cqlFilter } = layer;
     const layers = properties?.wms?.layers ? [properties.wms.layers] : [layer.id];
 
     return [
@@ -278,6 +288,7 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
         data: origin,
         serviceType: "wms",
         layers: layers,
+        cqlFilter: cqlFilter,
       }),
     ];
   },

@@ -1,0 +1,183 @@
+---
+title: Armazenamento
+description: Documentação de integração para upload de arquivos.
+---
+
+### Documentação de Integração: Upload de Arquivos para o Mapa da Urbis
+
+#### Introdução
+
+Esta documentação detalha o processo de integração de requisições para envio de arquivos ao mapa da Urbis. O serviço permite o upload eficiente de arquivos e sua associação direta ao mapa, garantindo uma experiência fluida e otimizada para o usuário.
+
+Motivação: serviço foi a necessidade de integração com o Map Data, permitindo que os arquivos enviados sejam processados e utilizados no contexto do mapa, ampliando suas funcionalidades.
+
+
+Para consultar a especificação completa da API, incluindo endpoints, parâmetros e exemplos adicionais, acesse a documentação OpenAPI em:  
+[**https://api.mapa.urbis.sampa.br/swagger/docs**](https://api.mapa.urbis.sampa.br/swagger/docs)
+
+#### Autenticação
+
+Todas as requisições à API requerem autenticação por meio de uma chave de API incluída no cabeçalho da requisição. A chave de API será fornecida pelo parceiro responsável pela integração. Para fins de teste, você pode usar a chave `secret`.
+
+**Exemplo de cabeçalho de autenticação:**
+
+```http
+-H 'X-API-Key: secret'
+```
+
+Certifique-se de substituir `secret` pela chave real fornecida pelo parceiro em um ambiente de produção.
+
+#### Fluxo de Requisições
+
+O processo de integração de upload de arquivos com o mapa da Urbis segue estas etapas principais:
+
+1. **Obter uma URL assinada para upload**: Solicite uma URL temporária para enviar o arquivo.
+2. **Fazer o upload do arquivo**: Use a URL assinada para enviar o arquivo como payload.
+3. **Obter uma URL de download (opcional)**: Solicite uma URL para acessar o arquivo após o upload.
+
+Abaixo, cada etapa é explicada em detalhes, incluindo como funcionam as URLs assinadas e exemplos de requisições. Os exemplos utilizam a base URL `http://localhost:3000` para testes locais.
+
+---
+
+#### 1. Obtenção da URL de Upload
+
+Para iniciar o processo, você precisa obter uma URL assinada que será usada para o upload do arquivo. Essa URL é gerada por meio de uma requisição POST ao endpoint `/files/upload-url`.
+
+##### Conceito: URL Assinada
+Uma URL assinada é um endereço temporário que inclui parâmetros de autenticação e expiração. Ela permite o envio seguro do arquivo sem exigir autenticação adicional na requisição de upload, desde que usada dentro do período de validade (geralmente 15 minutos, conforme o parâmetro `X-Amz-Expires`).
+
+##### Requisição
+
+**Endpoint:**
+
+```http
+POST http://localhost:3000/files/upload-url
+```
+
+**Cabeçalhos:**
+
+- `X-API-Key: secret` (chave de autenticação)
+- `Content-Type: application/json` (tipo de conteúdo da requisição)
+- `accept: application/json` (tipo de resposta esperada)
+
+**Corpo da Requisição:**
+
+```json
+{
+  "contentType": "image/jpeg"
+}
+```
+
+- `contentType`: Tipo MIME do arquivo a ser enviado (ex.: `image/jpeg`, `application/pdf`).
+
+**Exemplo de Requisição:**
+
+```bash
+curl -X 'POST' \
+  'http://localhost:3000/files/upload-url' \
+  -H 'accept: application/json' \
+  -H 'X-API-Key: secret' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "contentType": "image/jpeg"
+}'
+```
+
+**Resposta:**
+
+A API retornará um JSON com a URL assinada e uma chave identificadora do arquivo:
+
+```json
+{
+  "uploadURL": "https://api.mapa.urbis.sampa.br/storage/uploads/336d7b14-f746-48bb-aa03-590493c943b0.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=***REMOVED***%2F20250513%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250513T232534Z&X-Amz-Expires=900&X-Amz-Signature=a5adf9510c889c7230a1ae6e21563db4924894ecdee46419c03c7f13504070a7&X-Amz-SignedHeaders=host&x-amz-checksum-crc32=AAAAAA%3D%3D&x-amz-sdk-checksum-algorithm=CRC32&x-id=PutObject",
+  "key": "uploads/336d7b14-f746-48bb-aa03-590493c943b0.jpeg"
+}
+```
+
+- `uploadURL`: URL assinada para o upload.
+- `key`: Identificador único do arquivo, usado posteriormente para referência.
+
+---
+
+#### 2. Upload do Arquivo
+
+Com a URL assinada (`uploadURL`) em mãos, faça uma requisição PUT para enviar o arquivo. O arquivo deve ser incluído como o payload da requisição.
+
+##### Requisição
+
+**Método e URL:**
+Use o método `PUT` e a URL retornada no campo `uploadURL`.
+
+**Cabeçalhos:**
+
+- `Content-Type`: Deve corresponder ao `contentType` informado na etapa anterior (ex.: `image/jpeg`).
+
+**Payload:**
+O arquivo binário a ser enviado.
+
+**Exemplo de Requisição:**
+
+```bash
+curl -X 'PUT' \
+  'https://api.mapa.urbis.sampa.br/storage/uploads/336d7b14-f746-48bb-aa03-590493c943b0.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=***REMOVED***%2F20250513%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250513T232534Z&X-Amz-Expires=900&X-Amz-Signature=a5adf9510c889c7230a1ae6e21563db4924894ecdee46419c03c7f13504070a7&X-Amz-SignedHeaders=host&x-amz-checksum-crc32=AAAAAA%3D%3D&x-amz-sdk-checksum-algorithm=CRC32&x-id=PutObject' \
+  -H 'Content-Type: image/jpeg' \
+  --data-binary '@/caminho/para/o/arquivo.jpeg'
+```
+
+**Nota:** Substitua `/caminho/para/o/arquivo.jpeg` pelo caminho real do arquivo em seu sistema.
+
+##### Resposta
+Se bem-sucedido, o servidor retornará um código de status HTTP 200 sem corpo de resposta. Isso indica que o arquivo foi enviado com sucesso.
+
+---
+
+#### 3. Obtenção da URL de Download (Opcional)
+
+Após o upload, você pode solicitar uma URL assinada para acessar o arquivo enviado. Isso é feito com uma requisição GET ao endpoint `/files/download-url`.
+
+##### Requisição
+
+**Endpoint:**
+
+```http
+GET http://localhost:3000/files/download-url?key=<chave_do_arquivo>
+```
+
+**Parâmetros:**
+
+- `key`: A chave do arquivo retornada na resposta da obtenção da URL de upload (ex.: `uploads/336d7b14-f746-48bb-aa03-590493c943b0.jpeg`).
+
+**Cabeçalhos:**
+
+- `X-API-Key: secret` (chave de autenticação)
+- `accept: application/json` (tipo de resposta esperada)
+
+**Exemplo de Requisição:**
+
+```bash
+curl -X 'GET' \
+  'http://localhost:3000/files/download-url?key=uploads%2F336d7b14-f746-48bb-aa03-590493c943b0.jpeg' \
+  -H 'X-API-Key: secret' \
+  -H 'accept: application/json'
+```
+
+**Nota:** O valor do parâmetro `key` deve ser codificado em URL (por exemplo, `/` é substituído por `%2F`).
+
+**Resposta:**
+
+```json
+{
+  "downloadURL": "https://api.mapa.urbis.sampa.br/storage/uploads/336d7b14-f746-48bb-aa03-590493c943b0.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=***REMOVED***%2F20250513%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250513T232534Z&X-Amz-Expires=900&X-Amz-Signature=example-signature&X-Amz-SignedHeaders=host"
+}
+```
+
+- `downloadURL`: URL assinada para acessar o arquivo. Assim como a URL de upload, ela tem um tempo de expiração.
+
+---
+
+#### Considerações Finais
+
+- **Segurança**: Mantenha a chave de API em segredo e substitua `secret` pela chave real em produção.
+- **Tempo de Expiração**: As URLs assinadas expiram após o período especificado (ex.: 900 segundos). Realize as operações dentro desse prazo.
+- **Documentação OpenAPI**: Consulte a especificação completa da API in [https://```https://api.mapa.urbis.sampa.br/swagger/docs``` para mais detalhes sobre endpoints e parâmetros.
+- **Suporte**: Para dúvidas ou problemas, contate o suporte técnico da Urbis.

@@ -26,6 +26,7 @@ import { MatInputModule } from '@angular/material/input';
 import { debounceTime, startWith, switchMap, tap } from 'rxjs';
 import { IPermissionResponse } from '../role-manager/dto/permission.dto';
 import { RoleManagerApi } from '../role-manager/services/role-manager-api';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-permission-selector',
@@ -37,6 +38,7 @@ import { RoleManagerApi } from '../role-manager/services/role-manager-api';
     MatIconModule,
     ReactiveFormsModule,
     MatInputModule,
+    TranslateModule,
   ],
   templateUrl: './permission-selector.html',
   styleUrl: './permission-selector.scss',

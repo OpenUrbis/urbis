@@ -11,6 +11,7 @@ const MAP_STYLES = [
   { id: "outdoors", label: "Ar Livre", icon: "forest" },
   { id: "satellite", label: "Satélite", icon: "satellite" },
   { id: "satellite-streets", label: "Híbrido", icon: "public" },
+  { id: "maxar-satellite", label: "Maxar Sat", icon: "satellite" },
 ] as const;
 
 export const BaseMapSelector = () => {
@@ -19,10 +20,10 @@ export const BaseMapSelector = () => {
   return (
     <Card className="rounded-xl border shadow-sm">
       <CardHeader className="p-3 pb-2">
-        <CardTitle className="text-lg font-medium">Estilo do Mapa</CardTitle>
+        <CardTitle className="text-lg font-medium">Mapa Base</CardTitle>
       </CardHeader>
       <CardContent className="p-3 grid gap-4">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {MAP_STYLES.map((style) => (
             <div
               key={style.id}

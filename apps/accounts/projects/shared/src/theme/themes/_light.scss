@@ -2,30 +2,30 @@
 @use  "@angular/material" as mat;
 @use  "./_colors" as colors;
 
-$slingui-primary-pallete: mat.m2-define-palette(colors.$primary-palette, 700);
-$slingui-secondary-pallete: mat.m2-define-palette(colors.$secondary-palette, 400);
+$monorepo-primary-pallete: mat.m2-define-palette(colors.$primary-palette, 700);
+$monorepo-secondary-pallete: mat.m2-define-palette(colors.$secondary-palette, 400);
 
-$slingui-error-pallete: mat.m2-define-palette(colors.$error-palette);
-$slingui-success-pallete: mat.m2-define-palette(colors.$success-palette);
-$slingui-info-pallete: mat.m2-define-palette(mat.$m2-blue-palette);
+$monorepo-error-pallete: mat.m2-define-palette(colors.$error-palette);
+$monorepo-success-pallete: mat.m2-define-palette(colors.$success-palette);
+$monorepo-info-pallete: mat.m2-define-palette(mat.$m2-blue-palette);
 
-$slingui-light-theme: mat.m2-define-light-theme(
+$monorepo-light-theme: mat.m2-define-light-theme(
   (
     color: (
-      primary: $slingui-primary-pallete,
-      secondary: $slingui-secondary-pallete,
+      primary: $monorepo-primary-pallete,
+      secondary: $monorepo-secondary-pallete,
       // accent is equal to secondary
-      accent: $slingui-secondary-pallete,
-      warn: $slingui-error-pallete,
-      success: $slingui-success-pallete,
+      accent: $monorepo-secondary-pallete,
+      warn: $monorepo-error-pallete,
+      success: $monorepo-success-pallete,
     ),
     density: 0,
   )
 );
 
-@include mat.strong-focus-indicators-theme($slingui-light-theme);
+@include mat.strong-focus-indicators-theme($monorepo-light-theme);
 
-$slingui-light-variants: (
-  success: $slingui-success-pallete,
-  info: $slingui-info-pallete,
+$monorepo-light-variants: (
+  success: $monorepo-success-pallete,
+  info: $monorepo-info-pallete,
 );

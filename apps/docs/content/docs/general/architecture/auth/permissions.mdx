@@ -1,0 +1,35 @@
+---
+title: Permissions & Roles
+description: How the permission system works in Monorepo Boilerplate.
+icon: Shield
+---
+
+Monorepo Boilerplate employs a Role-Based Access Control (RBAC) system to manage authorization.
+
+## Concepts
+
+-   **User**: An authenticated entity.
+-   **Role**: A collection of permissions (e.g., Admin, Member, Viewer).
+-   **Permission**: A granular right to perform an action (e.g., `user:create`, `post:delete`).
+
+## Implementation
+
+### Backend Guards
+
+We use NestJS Guards to enforce permissions on endpoints.
+
+```typescript
+@UseGuards(PermissionsGuard)
+@Permissions('user:create')
+@Post()
+create(@Body() createUserDto: CreateUserDto) {
+  return this.userService.create(createUserDto);
+}
+```
+
+### Database Schema
+
+The relationship is typically:
+`User` -> `UserRole` -> `Role` -> `RolePermission` -> `Permission`.
+
+(Note: Check `apps/api/src/role/index.entity.ts` for exact schema details if needed).

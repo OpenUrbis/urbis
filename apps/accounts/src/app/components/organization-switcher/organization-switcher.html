@@ -1,0 +1,28 @@
+<lib-loading-content [loading]="loading()">
+  <mat-list>
+    @for (
+      item of organizations();
+      track item.id;
+      let index = $index;
+      let isLast = $last
+    ) {
+      <mat-list-item
+        matRipple
+        class="cursor-pointer organization-item"
+        (click)="select(item)"
+      >
+        <span matListItemTitle>
+          {{ item.name }}
+        </span>
+        @if (item.description) {
+          <span matListItemLine>
+            {{ item.description }}
+          </span>
+        }
+        @if (!isLast) {
+          <mat-divider></mat-divider>
+        }
+      </mat-list-item>
+    }
+  </mat-list>
+</lib-loading-content>

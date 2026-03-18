@@ -1,0 +1,18 @@
+.avatar-container {
+  display: grid;
+  width: max-content;
+}
+
+.avatar-container > * {
+  grid-area: 1 / 1;
+}
+
+app-user-avatar {
+  z-index: 1;
+}
+
+.edit-container {
+  align-self: end;
+  justify-self: end;
+  z-index: 2;
+}

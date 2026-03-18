@@ -1,20 +1,45 @@
 <lib-loading-content [loading]="profileState.loading()">
-  <div class="profile-content">
-    <mat-card>
-      <mat-card-header>
-        <h2>Editar Perfil</h2>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-tab-group mat-align-tabs="start">
-          <mat-tab label="Dados pessoais">
-            <app-personal-data-form />
-          </mat-tab>
+  <app-page-structure [title]="'pages.profile.edit.pageTitle' | translate">
+    <section leftActions>
+      <a
+        matIconButton
+        [attr.aria-label]="'pages.profile.edit.actions.back' | translate"
+        routerLink="/profile"
+        class="me-3"
+      >
+        <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
+      </a>
+    </section>
 
-          <mat-tab label="Alterar senha">
+    <mat-tab-group
+      [(selectedIndex)]="selectedTabIndex"
+      mat-stretch-tabs="false"
+      mat-align-tabs="start"
+      dynamicHeight
+    >
+      <mat-tab [label]="'pages.profile.edit.tabs.personalData' | translate">
+        <mat-card class="my-3">
+          <mat-card-content>
+            <app-personal-data-form />
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+
+      <mat-tab [label]="'pages.profile.edit.tabs.changePassword' | translate">
+        <mat-card class="my-3">
+          <mat-card-content>
             <app-change-password-form />
-          </mat-tab>
-        </mat-tab-group>
-      </mat-card-content>
-    </mat-card>
-  </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+
+      <mat-tab [label]="'pages.profile.edit.tabs.twoFactor' | translate">
+        <mat-card class="my-3">
+          <mat-card-content>
+            <app-two-factor-manager [user]="profileState.value()" />
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+    </mat-tab-group>
+  </app-page-structure>
 </lib-loading-content>

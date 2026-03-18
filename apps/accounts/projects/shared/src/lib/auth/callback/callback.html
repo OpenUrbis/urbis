@@ -8,16 +8,20 @@
     @if (errorMessage) {
       <div>
         <h1 style="font-size: 72px" class="mb-4">:(</h1>
-        <h4>We have a problem authenticating your account:</h4>
+        <h4>{{ "pages.auth.callback.title" | translate }}</h4>
         <p>
           {{ errorMessage }}
         </p>
-        <p>
-          If you are facing this problem repeatedly,<br />
-          clearing the browser's cache may be a solution.
-        </p>
+        <p>{{ "pages.auth.callback.description" | translate }}</p>
         <div class="mt-4">
-          <a mat-flat-button color="primary" routerLink="/">Try again</a>
+          <a
+            mat-flat-button
+            color="primary"
+            routerLink="/"
+            [attr.aria-label]="'pages.auth.callback.button' | translate"
+          >
+            {{ "pages.auth.callback.button" | translate }}
+          </a>
         </div>
       </div>
     }

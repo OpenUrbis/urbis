@@ -1,47 +1,79 @@
 <lib-loading-content [loading]="loading()">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title class="d-flex justify-content-start align-items-center">
-        <a
-          matIconButton
-          aria-label="Editar organização"
-          routerLink="/organizations"
-          class="me-3"
-        >
-          <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
-        </a>
-        {{ name() ? name() : "Criar organização" }}
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content class="pt-3">
-      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
-        <mat-tab label="Dados da organizações">
-          <form
-            [formGroup]="form"
-            (ngSubmit)="save()"
-            class="p-3 d-flex flex-column gap-2"
-          >
-            <mat-form-field appearance="outline">
-              <mat-label>Nome</mat-label>
-              <input matInput formControlName="name" />
-            </mat-form-field>
+  <app-page-structure
+    [title]="
+      name() ? name() : ('pages.organizations.form.title.create' | translate)
+    "
+  >
+    <section leftActions>
+      <a
+        matIconButton
+        [attr.aria-label]="
+          'pages.organizations.form.actions.back' | translate
+        "
+        routerLink="/organizations"
+        class="me-3"
+      >
+        <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
+      </a>
+    </section>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Descrição</mat-label>
-              <input matInput formControlName="description" />
-            </mat-form-field>
+    <mat-tab-group
+      mat-stretch-tabs="false"
+      mat-align-tabs="start"
+      dynamicHeight
+    >
+      <!-- Aba de detalhes (apenas UM mat-tab aqui) -->
+      <mat-tab
+        [label]="'pages.organizations.form.tabs.details' | translate"
+      >
+        <mat-card class="my-3">
+          <mat-card-content>
+            <form
+              [formGroup]="form"
+              (ngSubmit)="save()"
+              class="p-3 d-flex flex-column gap-2"
+            >
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'pages.organizations.form.fields.name' | translate }}
+                </mat-label>
+                <input
+                  matInput
+                  formControlName="name"
+                  [attr.aria-label]="
+                    'pages.organizations.form.fields.name' | translate
+                  "
+                />
+              </mat-form-field>
 
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'pages.organizations.form.fields.description' | translate }}
+                </mat-label>
+                <input
+                  matInput
+                  formControlName="description"
+                  [attr.aria-label]="
+                    'pages.organizations.form.fields.description' | translate
+                  "
+                />
+              </mat-form-field>
+            </form>
+          </mat-card-content>
+          <mat-card-actions class="d-flex justify-content-end">
             <lib-loading-button [loading]="loadingSave()">
-              Salvar
+              {{ 'pages.organizations.form.buttons.save' | translate }}
             </lib-loading-button>
-          </form>
+          </mat-card-actions>
+        </mat-card>
+      </mat-tab>
+      @if (id()) {
+        <mat-tab
+          [label]="'pages.organizations.form.tabs.users' | translate"
+        >
+          <app-users [onlyTable]="true" [organizationId]="id()!" />
         </mat-tab>
-        @if (id()) {
-          <mat-tab label="Usuários">
-            <div class="p-3">TO DO!</div>
-          </mat-tab>
-        }
-      </mat-tab-group>
-    </mat-card-content>
-  </mat-card>
+      }
+    </mat-tab-group>
+  </app-page-structure>
 </lib-loading-content>

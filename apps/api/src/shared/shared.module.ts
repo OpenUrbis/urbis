@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from 'auth/strategies/jwt.strategy';
 import geocodingConfig from 'common/config/geocoding.config';
+import mapsConfig from 'common/config/maps.config';
 import { HeaderResolver, I18nModule } from 'nestjs-i18n';
 import { join } from 'path';
 import appConfig from './../common/config/app.config';
@@ -14,7 +15,7 @@ import databaseConfig from './../common/config/database.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, authConfig, geocodingConfig],
+      load: [appConfig, databaseConfig, authConfig, geocodingConfig, mapsConfig],
       envFilePath: ['.env'],
     }),
     JwtModule.registerAsync({

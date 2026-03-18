@@ -1,0 +1,50 @@
+<form [formGroup]="form" (ngSubmit)="save()" class="pt-3">
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>{{
+      "components.createOrganization.fields.name" | translate
+    }}</mat-label>
+    <input
+      matInput
+      [placeholder]="
+        'components.createOrganization.fields.name' | translate
+      "
+      [attr.aria-label]="
+        'components.createOrganization.fields.name' | translate
+      "
+      formControlName="name"
+    />
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>{{
+      "components.createOrganization.fields.description" | translate
+    }}</mat-label>
+    <input
+      matInput
+      [placeholder]="
+        'components.createOrganization.fields.description' | translate
+      "
+      [attr.aria-label]="
+        'components.createOrganization.fields.description' | translate
+      "
+      formControlName="description"
+    />
+  </mat-form-field>
+
+  <div class="d-flex justify-content-end">
+    <lib-loading-button
+      [loading]="loading()"
+      [attr.aria-label]="
+        autoAssign()
+          ? ('components.createOrganization.buttons.createAndSelect' | translate)
+          : ((saveButtonText() || ('components.createOrganization.buttons.create' | translate)))
+      "
+    >
+      {{
+        autoAssign()
+          ? ("components.createOrganization.buttons.createAndSelect" | translate)
+          : (saveButtonText() ||
+              ("components.createOrganization.buttons.create" | translate))
+      }}
+    </lib-loading-button>
+  </div>
+</form>

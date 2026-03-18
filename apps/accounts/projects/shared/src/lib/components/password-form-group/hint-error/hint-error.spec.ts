@@ -14,6 +14,8 @@ describe('HintError', () => {
 
     fixture = TestBed.createComponent(HintError);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('errorKeys', []);
+    fixture.componentRef.setInput('control', { errors: null });
     fixture.detectChanges();
   });
 

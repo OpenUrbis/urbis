@@ -4,6 +4,11 @@
   "private": true,
   "exports": {
     ".": "./index.ts",
+    "./urbis-header": "./components/urbis-header.tsx",
+    "./ui/button": "./components/ui/button.tsx",
+    "./ui/card": "./components/ui/card.tsx",
+    "./ui/input": "./components/ui/input.tsx",
+    "./ui/dropdown-menu": "./components/ui/dropdown-menu.tsx",
     "./counter": "./components/counter.ts",
     "./header": "./components/header.ts",
     "./setup-counter": "./utils/counter.ts"

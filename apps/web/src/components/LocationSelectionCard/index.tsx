@@ -80,21 +80,40 @@ export const LocationSelectionCard = () => {
         // For UTM, range check is different/harder. 
         // For Lat/Lon, check limits.
         const isProjected = crs.value === "EPSG:31983";
+
+        // Helper to count decimal places from string to avoid float issues
+        const getDecimalPlaces = (val: string) => {
+          if (!val.includes('.')) return 0;
+          return val.split('.')[1].length;
+        };
         
-        if (!isProjected && (
-          isNaN(lat) ||
-          isNaN(lon) ||
-          lat < -90 ||
-          lat > 90 ||
-          lon < -180 ||
-          lon > 180
-        )) {
-          error.value = "Por favor, insira valores válidos para latitude e longitude.";
-          return false;
+        if (!isProjected) {
+          if (
+            isNaN(lat) ||
+            isNaN(lon) ||
+            lat < -90 ||
+            lat > 90 ||
+            lon < -180 ||
+            lon > 180
+          ) {
+            error.value = "Por favor, insira valores válidos para latitude e longitude.";
+            return false;
+          }
+
+          // Check precision for Lat/Lon (approx 1m requires ~5 decimal places)
+          if (getDecimalPlaces(latitude.value) < 5 || getDecimalPlaces(longitude.value) < 5) {
+            error.value = "A precisão mínima necessária é de 5 casas decimais para representar um metro.";
+            return false;
+          }
         }
-        if (isProjected && (isNaN(lat) || isNaN(lon))) {
+        
+        if (isProjected) {
+          if (isNaN(lat) || isNaN(lon)) {
              error.value = "Por favor, insira valores válidos para coordenadas.";
              return false;
+          }
+          // UTM is in meters, so any valid number (integer or float) has at least 1m precision.
+          // No additional precision check needed unless enforcing sub-meter.
         }
       } else if (inputType.value === "digital") {
          if (!digitalAddress.value.trim()) {
@@ -260,6 +279,7 @@ export const LocationSelectionCard = () => {
                 latitude={lat} 
                 longitude={lon} 
                 plusCode={calcPlusCode} 
+                sourceType={inputType.value}
             />
         );
 

@@ -1,0 +1,66 @@
+<lib-loading-content
+  [loading]="profileState.loading() || organizationState.loading()"
+>
+  <div class="container h-100">
+    <div class="row justify-content-center align-content-center h-100">
+      <div class="col-10 col-lg-6">
+        <h3 class="text-center mb-4">
+          {{
+            "pages.onboarding.welcome"
+              | translate: { name: profileState.value().firstName }
+          }}
+        </h3>
+        <mat-card>
+          <mat-card-header class="px-3">
+            @if (step() === 2) {
+              <a
+                matIconButton
+                [attr.aria-label]="'pages.onboarding.actions.back' | translate"
+                (click)="step.set(1)"
+                class="me-3"
+                matCardAvatar
+              >
+                <mat-icon class="material-symbols-outlined"
+                  >arrow_back</mat-icon
+                >
+              </a>
+            }
+            <h1 matCardTitle [ngClass]="{ 'mt-2 ps-0': step() === 2 }">
+              {{
+                step() === 1
+                  ? ("pages.onboarding.titles.selectOrganization" | translate)
+                  : ("pages.onboarding.titles.fillInformation" | translate)
+              }}
+            </h1>
+          </mat-card-header>
+          <mat-card-content class="px-3">
+            <lib-loading-content [loading]="loading()">
+              @if (step() === 0 || step() === 2) {
+                <app-create-organization
+                  [autoAssign]="true"
+                  (created)="selectOrganization($event)"
+                />
+              } @else {
+                <app-organization-switcher />
+              }
+            </lib-loading-content>
+          </mat-card-content>
+          @if (step() !== 0 && step() !== 2) {
+            <mat-card-actions class="d-flex justify-content-end pb-3 pe-3">
+              <button
+                matButton="filled"
+                type="button"
+                (click)="step.set(2)"
+                [attr.aria-label]="
+                  'pages.onboarding.actions.createNew' | translate
+                "
+              >
+                {{ "pages.onboarding.actions.createNew" | translate }}
+              </button>
+            </mat-card-actions>
+          }
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</lib-loading-content>

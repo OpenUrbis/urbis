@@ -1,41 +1,53 @@
-import { Component, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Sort } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
-import { Subject, startWith, switchMap, tap } from 'rxjs';
-import { IPagination } from '../../shared/dto/pagination.dto';
-import { OrganizationsApi } from './services/organizations-api';
-import { LoadingContent } from '../../../../projects/shared/src/public-api';
+import { TranslateModule } from '@ngx-translate/core';
+import { PageStructure } from '../../components/page-structure/page-structure';
+import { OrganizationDataSource } from './organizations.data-source';
 
 @Component({
   selector: 'app-organizations',
   imports: [
-    MatListModule,
     MatButtonModule,
     MatIconModule,
-    MatCardModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
     RouterLink,
-    LoadingContent,
+    TranslateModule,
+    PageStructure,
   ],
   templateUrl: './organizations.html',
   styleUrl: './organizations.scss',
 })
 export class Organizations {
-  pagination$ = new Subject<IPagination>();
-  loading = signal<boolean>(false);
+  dataSource = inject(OrganizationDataSource);
+  displayedColumns = ['name', 'description', 'actions'];
 
-  organizationsApi = inject(OrganizationsApi);
+  // --- MÉTODOS DE CONTROLE ---
 
-  organizations = toSignal(
-    // TO DO: Paginação dos organizations
-    this.pagination$.pipe(
-      startWith({ page: 0, limit: 10 }),
-      tap(() => this.loading.set(true)),
-      switchMap((pagination) => this.organizationsApi.list()),
-      tap(() => this.loading.set(false)),
-    ),
-  );
+  /** Chamado quando o formulário é submetido para aplicar os filtros. */
+  applyFilters() {
+    // A mudança no valor do formulário já foi capturada pelo AbstractDataSource.
+    // Basta resetar a paginação para que a busca seja refeita do zero.
+    this.dataSource.resetAndReload();
+  }
+
+  /** Chamado quando a paginação Material é alterada. */
+  onPageChange(event: PageEvent) {
+    this.dataSource.goToPage(event.pageIndex + 1);
+    this.dataSource.updatePageSize(event.pageSize);
+  }
+
+  /** Chamado quando a ordenação Material é alterada. */
+  onSortChange(sort: Sort) {
+    if (sort.direction) {
+      this.dataSource.updateSort(sort);
+    }
+  }
 }

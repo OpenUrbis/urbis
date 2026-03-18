@@ -1,32 +1,81 @@
-<lib-loading-content [loading]="loading()">
-  <mat-card>
-    <mat-card-header class="d-flex justify-content-between align-items-center">
-      <mat-card-title>Organizações</mat-card-title>
-      <a matButton="filled" aria-label="Adicionar user" routerLink="create">
-        <mat-icon class="material-symbols-outlined">add</mat-icon>
-        Criar
-      </a>
-    </mat-card-header>
-    <mat-card-content>
-      <mat-list>
-        @for (item of organizations(); track item.id) {
-          <mat-list-item>
-            <span matListItemTitle>{{ item.name }}</span>
-            @if (item.description) {
-              <span matListItemLine>{{ item.description }}</span>
-            }
-            <span matListItemMeta>
-              <a
-                matIconButton
-                aria-label="Editar organização"
-                [routerLink]="['edit', item.id]"
-              >
-                <mat-icon class="material-symbols-outlined">create</mat-icon>
-              </a>
-            </span>
-          </mat-list-item>
-        }
-      </mat-list>
-    </mat-card-content>
-  </mat-card>
-</lib-loading-content>
+<app-page-structure
+  [title]="'pages.organizations.page.title' | translate"
+  [subtitle]="'pages.organizations.page.subtitle' | translate"
+>
+  <section rightActions>
+    <a
+      matButton="filled"
+      [attr.aria-label]="
+        'pages.organizations.page.buttons.create.ariaLabel' | translate
+      "
+      routerLink="create"
+    >
+      <mat-icon class="material-symbols-outlined">add</mat-icon>
+      {{ "pages.organizations.page.buttons.create.title" | translate }}
+    </a>
+  </section>
+
+  <div class="table-box">
+    @if (dataSource.loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <table mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="name">
+          {{ "pages.organizations.table.columns.name" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let organization">
+          {{ organization.name }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.organizations.table.columns.description" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let organization">
+          {{ organization.description ?? "-" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.organizations.table.columns.actions" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let organization">
+          <a
+            matIconButton
+            [attr.aria-label]="
+              'pages.organizations.page.buttons.edit.ariaLabel' | translate
+            "
+            [routerLink]="['/organizations/edit', organization.id]"
+          >
+            <mat-icon class="material-symbols-outlined">create</mat-icon>
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="5">
+          @if (dataSource.loading()) {
+            {{ "components.shared.table.loading" | translate }}
+          } @else {
+            {{ "pages.organizations.table.noData" | translate }}
+          }
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="dataSource.totalCount()"
+      [pageSize]="dataSource.currentParams().limit"
+      [pageIndex]="dataSource.currentParams().page - 1"
+      [pageSizeOptions]="[15, 30, 50]"
+      (page)="onPageChange($event)"
+    />
+  </div>
+</app-page-structure>

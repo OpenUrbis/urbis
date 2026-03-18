@@ -1,0 +1,9 @@
+@use "../../../../../../projects/shared/src/theme/components/card/variants";
+
+:host {
+  ::ng-deep {
+    .mat-mdc-card-header-text {
+      width: 100%;
+    }
+  }
+}

@@ -1,5 +1,6 @@
-import { computed } from "@preact/signals";
+import { computed, useSignal } from "@preact/signals";
 import { PickingInfo } from "deck.gl";
+import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo } from "react";
 import { Map } from "react-map-gl/mapbox";
@@ -16,6 +17,16 @@ import { transformSchemaLayers } from "./map-layer-transform";
 import { useTheme } from "../ThemeProvider";
 import { MapCoordinates } from "./MapCoordinates";
 import { getDigitalAddressLayers } from "./digital-address-layer";
+import { encode, getPolygon } from "@open-urbis/numeracao-digital";
+import { DigitalAddressDetails } from "../LocationSelectionCard/DigitalAddressDetails";
+// @ts-ignore
+import { OpenLocationCode } from "open-location-code";
+import proj4 from "proj4";
+
+proj4.defs("EPSG:31983", "+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+proj4.defs("EPSG:4674", "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs");
+
+const olc = new OpenLocationCode();
 
 export const MapView = () => {
   const accessToken =
@@ -24,7 +35,9 @@ export const MapView = () => {
 
   const mapContext = useMapContext();
   const { theme } = useTheme();
-  const { drawerOpen } = useNavigationContext();
+  const { drawerOpen, navigateTo } = useNavigationContext();
+
+  const isPickingLocation = useSignal(false);
 
   const {
     layerSchemas,
@@ -38,7 +51,8 @@ export const MapView = () => {
     overlayRef,
     selectedBaseMap,
     cursorPosition,
-    digitalAddressFeature
+    digitalAddressFeature,
+    flyTo: mapFlyTo
   } = mapContext;
   
   if (!overlayRef) {
@@ -80,6 +94,29 @@ export const MapView = () => {
           case "outdoors": return "mapbox://styles/mapbox/outdoors-v9";
           case "satellite": return "mapbox://styles/mapbox/satellite-v9";
           case "satellite-streets": return "mapbox://styles/mapbox/satellite-streets-v9";
+          case "maxar-satellite": {
+            const baseUrl = (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br");
+            return {
+              version: 8,
+              sources: {
+                "maxar-wms": {
+                  type: "raster",
+                  tiles: [
+                    `${baseUrl}/maps/geoserver-proxy/maxar?service=WMS&request=GetMap&layers=DigitalGlobe:ImageryTileService&styles=&format=image/jpeg&transparent=false&version=1.1.1&width=256&height=256&srs=EPSG:3857&bbox={bbox-epsg-3857}`
+                  ],
+                  tileSize: 256
+                }
+              },
+              layers: [
+                {
+                  id: "maxar-wms",
+                  type: "raster",
+                  source: "maxar-wms",
+                  paint: {}
+                }
+              ]
+            } as mapboxgl.Style;
+          }
           default: return "mapbox://styles/mapbox/light-v9";
       }
   }, [theme, selectedBaseMap.value]);
@@ -98,12 +135,93 @@ export const MapView = () => {
   }, [drawerOpen.value]);
 
   const handleClick = (info: PickingInfo) => {
+    if (isPickingLocation.value) {
+        if (info.coordinate) {
+            const lon = info.coordinate[0];
+            const lat = info.coordinate[1];
+
+            // Calculate Digital Address
+            const address = encode(lat, lon);
+            const p = getPolygon(address);
+            
+            // Polygon Coords
+            const lats = p.map(pt => pt.lat);
+            const lons = p.map(pt => pt.lon);
+            const minLat = Math.min(...lats);
+            const maxLat = Math.max(...lats);
+            const minLon = Math.min(...lons);
+            const maxLon = Math.max(...lons);
+            
+            const polygonCoords = [[
+                [minLon, minLat],
+                [maxLon, minLat],
+                [maxLon, maxLat],
+                [minLon, maxLat],
+                [minLon, minLat]
+            ]];
+
+            // Calculate Plus Code
+            const calcPlusCode = olc.encode(lat, lon, 12); 
+
+            // Construct FeatureCollection
+            const featureCollection = {
+                type: "FeatureCollection",
+                features: [
+                    {
+                        type: "Feature",
+                        geometry: {
+                            type: "Polygon",
+                            coordinates: polygonCoords
+                        },
+                        properties: { type: "polygon", sourceType: "digital" }
+                    },
+                    {
+                        type: "Feature",
+                        geometry: {
+                            type: "Point",
+                            coordinates: [lon, lat]
+                        },
+                        properties: { type: "marker" }
+                    }
+                ]
+            };
+
+            // Hide all layers
+            layerSchemas.value = layerSchemas.value.map(l => ({ ...l, isVisible: false }));
+
+            // Set feature and navigate
+            digitalAddressFeature.value = featureCollection;
+
+            // Use flyTo from MapContext (aliased as mapFlyTo) if available, otherwise NavigationContext one
+            if (mapFlyTo) {
+                mapFlyTo({
+                  center: [lon, lat],
+                  zoom: 22,
+                  pitch: 45,
+                  bearing: 0,
+                });
+            }
+
+            navigateTo(
+                <DigitalAddressDetails 
+                    latitude={lat} 
+                    longitude={lon} 
+                    plusCode={calcPlusCode} 
+                    sourceType="latlon"
+                />
+            );
+
+            isPickingLocation.value = false;
+        }
+        return;
+    }
+
     const { clickAction, viewTemplate: template } =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (info?.layer?.props as any) ?? {};
-    if (!clickAction) return console.error("clickAction not defined");
+    if (!clickAction) return; // Silent return if no action, unless picking
     if (!info?.coordinate || !info.object || !info.object.id)
-      return console.error("No informations about the clicked object");
+      return; 
 
     const { action, params } = clickAction!;
     const actionFn = clickActions[action as keyof typeof clickActions];
@@ -161,8 +279,11 @@ export const MapView = () => {
               onClick={(i) => handleClick(i)}
               onLoad={() => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                addMapControls((overlayRef.current as any)._map, polygonEdit);
+                addMapControls((overlayRef.current as any)._map, polygonEdit, () => {
+                    isPickingLocation.value = !isPickingLocation.value;
+                });
               }}
+              style={{ cursor: isPickingLocation.value ? 'crosshair' : 'default' }}
             />
           </Map>
         ) : (

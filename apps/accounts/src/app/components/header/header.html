@@ -1,0 +1,16 @@
+<div class="d-flex justify-content-between align-items-center">
+  <div class="d-flex">
+    <div class="left-actions">
+      <ng-content select="[leftActions]"></ng-content>
+    </div>
+    <div class="informations d-flex flex-column">
+      <h1>{{ title() }}</h1>
+      @if (subtitle()) {
+        <p>{{ subtitle() }}</p>
+      }
+    </div>
+  </div>
+  <div class="right-actions">
+    <ng-content select="[rightActions]"></ng-content>
+  </div>
+</div>

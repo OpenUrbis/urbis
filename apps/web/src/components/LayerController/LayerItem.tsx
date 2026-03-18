@@ -3,6 +3,7 @@ import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { LayerItemAction } from "./LayerItemAction";
 import { LayerMetadataModal } from "./modals/LayerMetadataModal";
+import { LayerFilterModal } from "./modals/LayerFilterModal";
 import { cn } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui";
 import {
@@ -11,6 +12,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@open-urbis/map-ui";
+import { useMemo } from "react";
+import { getLayerNameFromConfig } from "../../utils/layer-utils";
 
 export const LayerItem = ({ 
   item, 
@@ -25,6 +28,20 @@ export const LayerItem = ({
 }) => {
   const { zoom } = useMapContext();
   const showMetadata = useSignal(false);
+  const showFilter = useSignal(false);
+
+  const canFilter = useMemo(() => {
+      const id = item.id.toString();
+      const isImported = id.startsWith('wms-') || 
+                         id.startsWith('wfs-') || 
+                         id.startsWith('file-') ||
+                         id.startsWith('upload-');
+      
+      if (isImported) return false;
+
+      const layerName = getLayerNameFromConfig(item);
+      return !!layerName;
+  }, [item]);
 
   const renderColor = () => {
     const { colors } = item;
@@ -127,6 +144,31 @@ export const LayerItem = ({
       
       <div className="flex items-center shrink-0 ml-2 gap-2">
         {renderActions()}
+        {canFilter && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("h-6 w-6 rounded-full hover:bg-muted", item.cqlFilter ? "text-primary bg-primary/10" : "")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  showFilter.value = true;
+                }}
+              >
+                <span className={cn("material-symbols-outlined text-base", item.cqlFilter ? "text-primary" : "text-muted-foreground")}>
+                  filter_alt
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Filtrar Camada</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        )}
+
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -155,6 +197,11 @@ export const LayerItem = ({
       <LayerMetadataModal
         open={showMetadata.value}
         onOpenChange={(v) => (showMetadata.value = v)}
+        layer={item}
+      />
+      <LayerFilterModal
+        open={showFilter.value}
+        onOpenChange={(v) => (showFilter.value = v)}
         layer={item}
       />
     </div>

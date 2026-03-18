@@ -1,11 +1,22 @@
 @if (multi()) {
   <mat-form-field class="example-chip-list" appearance="outline" class="w-100">
-    <mat-label>Cargos</mat-label>
-    <mat-chip-grid #chipGrid aria-label="Selecionar cargo">
+    <mat-label>{{
+      "components.roleSelector.labels.multiple" | translate
+    }}</mat-label>
+    <mat-chip-grid
+      #chipGrid
+      [attr.aria-label]="'components.roleSelector.aria.select' | translate"
+    >
       @for (role of selectedRoles(); track role.id; let index = $index) {
         <mat-chip-row (removed)="remove(index)">
           {{ role.name }}
-          <button matChipRemove [attr.aria-label]="'Remover ' + role.name">
+          <button
+            matChipRemove
+            [attr.aria-label]="
+              'components.roleSelector.aria.remove'
+                | translate: { name: role.name }
+            "
+          >
             <mat-icon class="material-symbols-outlined">cancel</mat-icon>
           </button>
         </mat-chip-row>
@@ -13,7 +24,12 @@
     </mat-chip-grid>
     <input
       name="currentRole"
-      placeholder="Selecionar cargo..."
+      [placeholder]="
+        'components.roleSelector.placeholders.search' | translate
+      "
+      [attr.aria-label]="
+        'components.roleSelector.placeholders.search' | translate
+      "
       #roleInput
       [formControl]="search"
       [matChipInputFor]="chipGrid"
@@ -31,12 +47,17 @@
   </mat-form-field>
 } @else {
   <mat-form-field appearance="outline" class="w-100">
-    <mat-label>Cargo</mat-label>
+    <mat-label>{{
+      "components.roleSelector.labels.single" | translate
+    }}</mat-label>
     <input
       type="text"
       matInput
       [formControl]="search"
       [matAutocomplete]="auto"
+      [attr.aria-label]="
+        'components.roleSelector.labels.single' | translate
+      "
     />
     <mat-autocomplete
       #auto="matAutocomplete"

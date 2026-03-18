@@ -1,0 +1,35 @@
+---
+title: Frontend Architecture
+description: Strategy for Angular and React applications in the monorepo.
+icon: Box
+---
+
+Monorepo Boilerplate is framework-agnostic when it comes to the frontend. While the monorepo supports multiple frameworks, our current implementation leverages the strengths of both Angular and React.
+
+## Strategy
+
+We choose the best tool for the job:
+
+-   **Angular (`apps/accounts`)**: Used for the Accounts application. Angular's opinionated structure, robust form handling, and dependency injection make it excellent for complex, enterprise-grade management portals.
+-   **React (`apps/docs`)**: Used for the documentation site. React's ecosystem (Vite, MDX support, Fumadocs) is superior for static site generation and content-heavy sites.
+-   **React (`apps/app`)**: Used for the AI Assistant application. React's ecosystem allows us to leverage Vercel's AI SDK and `assistant-ui` for building rich, streaming chat interfaces.
+
+## Shared UI Library
+
+To maintain consistency across different frameworks, we use `packages/ui`. Currently, this package hosts React components.
+
+*Note: For Angular apps, we typically implement a parallel set of components or use web components if cross-framework reusability is a strict requirement. In this specific setup, `apps/accounts` manages its own styles or consumes shared SCSS variables from `packages/ui` if applicable.*
+
+## API Consumption
+
+All frontend applications consume the Backend API. To ensure type safety:
+
+1.  DTOs (Data Transfer Objects) are defined in `apps/api` but exported or moved to `packages/shared`.
+2.  Frontend apps import these types from `@monorepo/shared`.
+3.  This ensures that if the API response shape changes, the frontend build will fail, alerting the developer immediately.
+
+## Styling
+
+We use **Tailwind CSS** for utility-first styling.
+-   Configuration is shared where possible.
+-   This ensures consistent spacing, colors, and typography across the entire platform.

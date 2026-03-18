@@ -1,35 +1,99 @@
-<lib-loading-content [loading]="loading()">
-  <div class="d-flex justify-content-between align-self-center">
-    <h3>Cargos do sistema</h3>
-    <button
+<app-page-structure
+  [title]="'pages.roles.page.title' | translate"
+  [subtitle]="'pages.roles.page.subtitle' | translate"
+>
+  <section rightActions>
+    <a
       matButton="filled"
-      aria-label="Adicionar cargo"
+      [attr.aria-label]="
+        'pages.roles.page.buttons.create.ariaLabel' | translate
+      "
       (click)="createRole()"
     >
       <mat-icon class="material-symbols-outlined">add</mat-icon>
-      Criar
-    </button>
-  </div>
-  <mat-list>
-    @for (item of roles(); track item.id) {
-      <mat-list-item>
-        <span matListItemTitle>{{ item.name }}</span>
-        @if (item.description) {
-          <span matListItemTitle>{{ item.description }}</span>
-        }
-        <span matListItemLine
-          >Ações permitidas: {{ formatPermissions(item) }}</span
-        >
-        <span matListItemMeta>
-          <button
+      {{ "pages.roles.page.buttons.create.title" | translate }}
+    </a>
+  </section>
+
+  <div class="table-box">
+    @if (dataSource.loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <table mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.roles.table.columns.name" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let role">
+          {{ role.name }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.roles.table.columns.description" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let role">
+          {{ role.description }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="allowedActions">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.roles.table.columns.allowedActions" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let role">
+          {{ formatPermissions(role) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.roles.table.columns.status" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let role">
+          {{ "components.shared.status." + role.status | translate }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.roles.table.columns.actions" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let role">
+          <a
             matIconButton
-            aria-label="Remover cargo"
-            (click)="editRole(item)"
+            [attr.aria-label]="
+              'pages.roles.page.buttons.edit.ariaLabel' | translate
+            "
+            (click)="editRole(role)"
           >
             <mat-icon class="material-symbols-outlined">create</mat-icon>
-          </button>
-        </span>
-      </mat-list-item>
-    }
-  </mat-list>
-</lib-loading-content>
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="5">
+          @if (dataSource.loading()) {
+            {{ "components.shared.table.loading" | translate }}
+          } @else {
+            {{ "pages.roles.table.noData" | translate }}
+          }
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="dataSource.totalCount()"
+      [pageSize]="dataSource.currentParams().limit"
+      [pageIndex]="dataSource.currentParams().page - 1"
+      [pageSizeOptions]="[15, 30, 50]"
+      (page)="onPageChange($event)"
+    />
+  </div>
+</app-page-structure>

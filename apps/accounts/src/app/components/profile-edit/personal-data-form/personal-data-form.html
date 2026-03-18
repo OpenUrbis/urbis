@@ -1,13 +1,38 @@
 <form [formGroup]="form" class="profile-form" (ngSubmit)="submit()">
   <mat-form-field appearance="outline">
-    <mat-label>Primeiro nome</mat-label>
-    <input matInput formControlName="firstName" />
+    <mat-label>{{
+      "pages.profile.edit.personal.fields.firstName" | translate
+    }}</mat-label>
+    <input
+      matInput
+      formControlName="firstName"
+      [attr.aria-label]="
+        'pages.profile.edit.personal.fields.firstName' | translate
+      "
+    />
   </mat-form-field>
 
   <mat-form-field appearance="outline">
-    <mat-label>Ultimo nome</mat-label>
-    <input matInput formControlName="lastName" />
+    <mat-label>{{
+      "pages.profile.edit.personal.fields.lastName" | translate
+    }}</mat-label>
+    <input
+      matInput
+      formControlName="lastName"
+      [attr.aria-label]="
+        'pages.profile.edit.personal.fields.lastName' | translate
+      "
+    />
   </mat-form-field>
 
-  <button matButton="filled">Salvar</button>
+  <lib-phone-form-group [formGroup]="form" />
+
+  <lib-country-select [formGroup]="form" />
+
+  <button
+    matButton="filled"
+    [attr.aria-label]="'pages.profile.edit.personal.buttons.save' | translate"
+  >
+    {{ "pages.profile.edit.personal.buttons.save" | translate }}
+  </button>
 </form>

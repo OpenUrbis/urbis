@@ -1,0 +1,33 @@
+---
+title: Authentication (OIDC)
+description: How authentication works using the OIDC provider.
+icon: Key
+---
+
+Monorepo Boilerplate implements a centralized authentication system using the [OpenID Connect (OIDC)](https://openid.net/connect/) protocol. We use `node-oidc-provider` integrated directly into NestJS.
+
+## Why OIDC?
+
+-   **Centralized Identity**: Users log in once and can access multiple applications (Accounts, Docs, future apps).
+-   **Standard Protocol**: It's an industry standard, making it compatible with libraries for every language and framework.
+-   **Security**: Supports modern security flows like Authorization Code Flow with PKCE.
+
+## Flows
+
+### Authorization Code Flow with PKCE
+
+This is the primary flow used by our frontend applications (SPAs).
+
+1.  **User clicks Login**: The frontend redirects the user to the API's authorization endpoint.
+2.  **Login Page**: The API serves a login page (server-side rendered or static).
+3.  **Authentication**: The user enters credentials. The API validates them against the database.
+4.  **Consent**: (Optional) User consents to scopes.
+5.  **Redirect**: The API redirects back to the frontend with an authorization code.
+6.  **Token Exchange**: The frontend exchanges the code for an Access Token and ID Token.
+
+## Endpoints
+
+-   **Discovery**: `/auth/oidc/.well-known/openid-configuration`
+-   **Authorization**: `/auth/oidc/auth`
+-   **Token**: `/auth/oidc/token`
+-   **UserInfo**: `/auth/oidc/me`

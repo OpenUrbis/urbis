@@ -6,13 +6,16 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import {
+  CountrySelectFormGroup,
   LoadingContent,
   PasswordFormGroup,
+  PhoneFormGroup,
 } from '../../../../projects/shared/src/public-api';
 import { PersonalDataForm } from './personal-data-form/personal-data-form';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ChangePasswordForm } from './change-password-form/change-password-form';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [PersonalDataForm, ChangePasswordForm],
@@ -28,6 +31,9 @@ import { ChangePasswordForm } from './change-password-form/change-password-form'
     MatInputModule,
     LoadingContent,
     PasswordFormGroup,
+    PhoneFormGroup,
+    CountrySelectFormGroup,
+    TranslateModule,
   ],
 })
 export class ProfileEditModule {}

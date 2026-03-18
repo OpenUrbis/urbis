@@ -23,9 +23,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { debounceTime, startWith, switchMap, tap } from 'rxjs';
+import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
 import { IRoleResponse } from '../role-manager/dto/role.dto';
 import { RoleManagerApi } from '../role-manager/services/role-manager-api';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-role-selector',
@@ -37,6 +38,7 @@ import { RoleManagerApi } from '../role-manager/services/role-manager-api';
     MatIconModule,
     ReactiveFormsModule,
     MatInputModule,
+    TranslateModule,
   ],
   templateUrl: './role-selector.html',
   styleUrl: './role-selector.scss',
@@ -60,10 +62,12 @@ export class RoleSelector implements OnInit {
       debounceTime(300),
       tap(() => this.searchLoading.set(true)),
       switchMap((search) =>
-        this.roleManagerApi.listRoles({
-          search: typeof search === 'string' ? search : '',
-          exclude: this.multi() ? this.selectedRoleIds() : [],
-        }),
+        this.roleManagerApi
+          .listRoles({
+            search: typeof search === 'string' ? search : '',
+            exclude: this.multi() ? this.selectedRoleIds() : [],
+          })
+          .pipe(map((res) => (Array.isArray(res) ? res : res.data))),
       ),
       tap(() => this.searchLoading.set(false)),
     ),

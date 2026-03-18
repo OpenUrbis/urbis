@@ -16,7 +16,17 @@
       "architect": {
         "build": {
           "builder": "@angular/build:application",
-          "options": {
+            "options": {
+            "allowedCommonJsDependencies": [
+              "@transloadit/prettier-bytes",
+              "compressorjs",
+              "mime-match",
+              "lodash",
+              "namespace-emitter",
+              "classnames",
+              "cropperjs",
+              "retry"
+            ],
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
@@ -36,16 +46,22 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "10MB",
+                  "maximumError": "12MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "70kB",
+                  "maximumError": "100kB"
                 }
               ],
               "outputHashing": "all"
@@ -138,6 +154,6 @@
     }
   },
   "cli": {
-    "analytics": "77e0c982-dc14-4d1a-9898-cbb5c465d738"
+    "analytics": "c9058093-511d-489a-ba23-7a7dc0cd7c20"
   }
 }

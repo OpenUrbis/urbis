@@ -1,0 +1,62 @@
+---
+title: Environment Setup
+description: Setting up your local development environment.
+icon: Settings
+---
+
+This guide covers everything you need to install and configure to start contributing to Monorepo Boilerplate.
+
+## System Requirements
+
+-   **OS**: macOS, Linux, or Windows (via WSL2).
+-   **Node.js**: v20.x (LTS recommended).
+-   **Package Manager**: pnpm v9.x.
+-   **Docker**: Docker Desktop or Docker Engine + Compose.
+
+## 1. Install Node.js & pnpm
+
+We recommend using [nvm](https://github.com/nvm-sh/nvm) (Node Version Manager) to install Node.js.
+
+```bash
+nvm install 20
+nvm use 20
+corepack enable
+corepack prepare pnpm@latest --activate
+```
+
+## 2. Clone and Install
+
+```bash
+git clone https://github.com/atlas-cli/monorepo.git Monorepo Boilerplate
+cd Monorepo Boilerplate
+pnpm install
+```
+
+## 3. Environment Variables
+
+Copy the example environment files:
+
+```bash
+cp apps/api/.env.example apps/api/.env
+```
+
+Review `.env` and update values if necessary (e.g., database credentials if not using the default Docker setup).
+
+## 4. Start Infrastructure
+
+Run the docker compose file to start Postgres and Redis.
+
+```bash
+pnpm composer:up
+```
+
+## 5. Verify Setup
+
+Run the API locally to ensure everything connects:
+
+```bash
+cd apps/api
+pnpm start:dev
+```
+
+You should see NestJS logs indicating a successful startup.

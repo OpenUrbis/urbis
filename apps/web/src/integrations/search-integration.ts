@@ -5,6 +5,7 @@ import {
   IGetSearchItemError,
 } from "../types/fetch-search-config-type";
 import { createFn } from "../utils/createFn";
+import { normalizeTerm } from "../utils/layer-utils";
 
 const environment =
   (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
@@ -41,7 +42,8 @@ export const fetchSearchItem = async (
 
     if (transformParams) {
       const transformParamsFn = createFn(transformParams);
-      config.params = transformParamsFn ? transformParamsFn({ term }) : {};
+      const normalizedTerm = term ? normalizeTerm(term) : term;
+      config.params = transformParamsFn ? transformParamsFn({ term: normalizedTerm }) : {};
     }
 
     if (transformRequest)

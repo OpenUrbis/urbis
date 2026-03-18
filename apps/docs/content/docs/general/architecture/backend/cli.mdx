@@ -1,0 +1,30 @@
+---
+title: CLI & Scripts
+description: Available CLI tools and scripts for development.
+icon: Terminal
+---
+
+We provide a set of scripts to automate common development tasks. These are defined in the root `package.json` and `apps/api/package.json`.
+
+## Root Commands
+
+Run these from the root of the monorepo:
+
+-   `pnpm dev`: Starts all applications in development mode.
+-   `pnpm build`: Builds all applications and packages.
+-   `pnpm lint`: Runs ESLint across the entire codebase.
+-   `pnpm test`: Runs unit tests for all workspaces.
+-   `pnpm composer:up`: Starts Docker containers (Postgres, Redis).
+-   `pnpm migration:run`: Runs database migrations.
+-   `pnpm db:seed`: Seeds the database.
+
+## API Specific Commands
+
+You can also run commands specifically for the API workspace (`apps/api`):
+
+-   `migration:generate`: Generates a new migration file based on TypeORM entities.
+-   `migration:create`: Creates a blank migration file.
+-   `migration:revert`: Reverts the last applied migration.
+-   `schema:drop`: Drops the entire database schema (CAUTION: Data loss).
+-   `documentation`: Generates Compodoc documentation.
+-   `documentation:serve`: Serves the Compodoc documentation.

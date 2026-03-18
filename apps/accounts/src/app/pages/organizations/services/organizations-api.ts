@@ -3,11 +3,14 @@ import { inject, Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { IPaginationWithExclude } from '../../../shared/dto/pagination.dto';
+import {
+  IPaginationResponse,
+  IPaginationWithExclude,
+} from '../../../shared/dto/pagination.dto';
 import {
   IRequestCreateOrganization,
   IRequestUpdateOrganization,
-  IResponseOrganization,
+  IOrganization,
   IResponseOrganizationWithRole,
 } from '../dto/organization.dto';
 
@@ -22,7 +25,7 @@ export class OrganizationsApi {
 
   list(params: IPaginationWithExclude = {}) {
     return this.httpClient
-      .get<IResponseOrganization[]>(`${API_BASE}`, {
+      .get<IPaginationResponse<IOrganization>>(`${API_BASE}`, {
         params: params
           ? new HttpParams({ fromObject: params as any })
           : undefined,
@@ -44,15 +47,19 @@ export class OrganizationsApi {
   }
 
   get(id: string) {
-    return this.httpClient.get<IResponseOrganization>(`${API_BASE}/${id}`);
+    return this.httpClient.get<IOrganization>(`${API_BASE}/${id}`);
   }
 
   create(data: IRequestCreateOrganization) {
-    return this.httpClient.post<IResponseOrganization>(`${API_BASE}`, data);
+    return this.httpClient.post<IOrganization>(`${API_BASE}`, data);
+  }
+
+  createOwn(data: IRequestCreateOrganization) {
+    return this.httpClient.post<IOrganization>(`${API_BASE}/own`, data);
   }
 
   update(id: string, data: IRequestUpdateOrganization) {
-    return this.httpClient.put<IResponseOrganization>(
+    return this.httpClient.put<IOrganization>(
       `${API_BASE}/${id}`,
       data,
     );

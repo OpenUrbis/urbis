@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 
 @Injectable()
 export class GeoserverProxyService {
@@ -42,6 +43,38 @@ export class GeoserverProxyService {
     } catch (error) {
       console.error('Error fetching layer attributes', error);
       throw new InternalServerErrorException('Failed to fetch layer attributes from GeoServer');
+    }
+  }
+
+  async proxyMaxarWms(query: any, res: Response) {
+    const MAXAR_API_KEY = this.configService.get<string>('maps.maxarApiKey');
+    const baseUrl = 'https://api.maxar.com/streaming/v1/services/Basic/WMS';
+
+    if (!MAXAR_API_KEY) {
+      throw new InternalServerErrorException('Maxar API Key not configured');
+    }
+
+    try {
+      const response = await axios.get(baseUrl, {
+        params: {
+          ...query,
+          connectId: MAXAR_API_KEY,
+          profile: 'Most_Aesthetic_Color',
+        },
+        responseType: 'stream',
+      });
+
+      Object.keys(response.headers).forEach((key) => {
+        // Filter out headers that might cause issues
+        if (!['host', 'connection', 'content-length', 'transfer-encoding', 'content-encoding'].includes(key.toLowerCase())) {
+          res.setHeader(key, response.headers[key]);
+        }
+      });
+
+      response.data.pipe(res);
+    } catch (error) {
+      console.error('Error proxying Maxar request:', error);
+      throw new InternalServerErrorException('Failed to proxy Maxar request');
     }
   }
 }

@@ -5,6 +5,7 @@ export interface QuestionAnswer {
   index: number;
   tabIds?: string[];
   tabs?: QuestionTab[];
+  apps?: string[];
 }
 
 export interface QuestionTab {
@@ -23,17 +24,17 @@ export interface CreateQuestionTabDto {
   index: number;
 }
 
-export interface UpdateQuestionTabDto extends Partial<CreateQuestionTabDto> {}
+export type UpdateQuestionTabDto = Partial<CreateQuestionTabDto>;
 
 export interface CreateQuestionAnswerDto {
   question: string;
   answer: string;
   index?: number;
   tabIds?: string[];
+  apps?: string[];
 }
 
-export interface UpdateQuestionAnswerDto
-  extends Partial<CreateQuestionAnswerDto> {}
+export type UpdateQuestionAnswerDto = Partial<CreateQuestionAnswerDto>;
 
 export interface ReorderTabQuestionsDto {
   items: {

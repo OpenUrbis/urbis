@@ -5,20 +5,18 @@ import * as React from "react";
 import CollapsibleFeedbackSection from "./components/CollapsibleFeedbackSection";
 import { ErrorFeedbackSection } from "./components/ErrorFeedbackSection";
 
+interface HelpFaqItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+
 interface HelpTab {
   id: string;
   name: string;
   description?: string | null;
   icon?: string | null;
-  index?: number | null;
-}
-
-interface HelpFaqItem {
-  id: string;
-  question: string;
-  answer: string;
-  index?: number | null;
-  tabs?: HelpTab[];
+  answers?: HelpFaqItem[];
 }
 
 interface HelpSidebarContentProps {
@@ -26,54 +24,42 @@ interface HelpSidebarContentProps {
   faqEndpointBase?: string;
   endpoint?: string;
   folderPath?: string;
+  appFilter?: string;
 }
 
 export function HelpSidebarContent({
   currentTabSlug,
-  faqEndpointBase = "http://localhost:3000/support/question-answers",
+  faqEndpointBase = "http://localhost:3000/support/question-tabs",
   endpoint = "/support/create-ticket",
   folderPath = "protocolos/arquivos",
+  appFilter,
 }: HelpSidebarContentProps) {
+  // The key will be `${tabId}-${questionId}` to allow same questions in different tabs open independently
   const [openQuestionId, setOpenQuestionId] = React.useState<string | null>(null);
   const [feedbackOpen, setFeedbackOpen] = React.useState(false);
-  const [faqItems, setFaqItems] = React.useState<HelpFaqItem[]>([]);
+  const [faqItems, setFaqItems] = React.useState<HelpTab[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const toggleQuestion = (id: string) => {
-    setOpenQuestionId((current) => (current === id ? null : id));
+  const toggleQuestion = (tabId: string, questionId: string) => {
+    const key = `${tabId}-${questionId}`;
+    setOpenQuestionId((current) => (current === key ? null : key));
   };
 
   React.useEffect(() => {
     let active = true;
-
-    function normalizeValue(value: string) {
-      return String(value || "").trim().toLowerCase();
-    }
-
-    function hasMatchingTab(item: HelpFaqItem) {
-      if (!item.tabs || !item.tabs.length) {
-        return false;
-      }
-
-      const current = normalizeValue(currentTabSlug);
-
-      for (let i = 0; i < item.tabs.length; i++) {
-        const tab = item.tabs[i];
-        if (normalizeValue(tab.name) === current) {
-          return true;
-        }
-      }
-
-      return false;
-    }
 
     function loadFaq() {
       setLoading(true);
       setError(null);
       setOpenQuestionId(null);
 
-      fetch(faqEndpointBase, {
+      let url = faqEndpointBase;
+      if (appFilter) {
+        url += `?app=${appFilter}`;
+      }
+
+      fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -98,23 +84,8 @@ export function HelpSidebarContent({
         .then(function (data) {
           if (!active) return;
 
-          const items = Array.isArray(data) ? (data as HelpFaqItem[]) : [];
-          const filtered: HelpFaqItem[] = [];
-
-          for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            if (hasMatchingTab(item)) {
-              filtered.push(item);
-            }
-          }
-
-          const sorted = filtered.slice().sort(function (a, b) {
-            const aIndex = typeof a.index === "number" ? a.index : Infinity;
-            const bIndex = typeof b.index === "number" ? b.index : Infinity;
-            return aIndex - bIndex;
-          });
-
-          setFaqItems(sorted);
+          const tabs = Array.isArray(data) ? (data as HelpTab[]) : [];
+          setFaqItems(tabs);
         })
         .catch(function (err) {
           if (!active) return;
@@ -138,7 +109,7 @@ export function HelpSidebarContent({
     return function () {
       active = false;
     };
-  }, [currentTabSlug, faqEndpointBase]);
+  }, [currentTabSlug, faqEndpointBase, appFilter]);
 
   return (
   <div className="flex h-full min-h-0 flex-col">
@@ -166,34 +137,45 @@ export function HelpSidebarContent({
 
         {!loading &&
           !error &&
-          faqItems.map(function (item) {
-            const isOpen = openQuestionId === item.id;
-
+          faqItems.map(function (tab) {
             return (
-              <div
-                key={item.id}
-                className="rounded-md border border-border/40 bg-card"
-              >
-                <button
-                  type="button"
-                  onClick={() => toggleQuestion(item.id)}
-                  className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left"
-                >
-                  <span className="text-xs font-medium">{item.question}</span>
+              <div key={tab.id} className="space-y-2 mb-4">
+                <div className="text-sm font-bold text-foreground">
+                  {tab.name}
+                </div>
+                {tab.answers && tab.answers.map(function (item) {
+                  const key = `${tab.id}-${item.id}`;
+                  const isOpen = openQuestionId === key;
 
-                  <ChevronDown
-                    className={
-                      "h-4 w-4 transition-transform " +
-                      (isOpen ? "rotate-180" : "")
-                    }
-                  />
-                </button>
+                  return (
+                    <div
+                      key={key}
+                      className="rounded-md border border-border/40 bg-card"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleQuestion(tab.id, item.id)}
+                        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-muted/50 transition-colors"
+                      >
+                        <span className="text-xs font-medium">{item.question}</span>
 
-                {isOpen && (
-                  <div className="whitespace-pre-line px-3 pb-3 pt-1 text-xs text-muted-foreground">
-                    {item.answer}
-                  </div>
-                )}
+                        <ChevronDown
+                          className={
+                            "h-4 w-4 shrink-0 transition-transform " +
+                            (isOpen ? "rotate-180" : "")
+                          }
+                        />
+                      </button>
+
+                      {isOpen && (
+                        <div 
+                          className="px-3 pb-3 pt-1 text-xs text-muted-foreground [&_a]:text-primary [&_a:hover]:underline [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4"
+                          dangerouslySetInnerHTML={{ __html: item.answer }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}

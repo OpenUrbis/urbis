@@ -40,6 +40,7 @@ Wrappers são containers que organizam templates em estruturas visuais, como lin
 - [Linha](#linha)
 - [Cartão](#cartão)
 - [Itens de Lista](#itens-de-lista)
+- [Abas (Tabs)](#abas-tabs)
 
 ### Linha
 
@@ -259,6 +260,59 @@ O `wrapper-list-items` renderiza uma lista de itens, frequentemente usado para e
   ```
 
   Este exemplo renderiza uma lista de lotes com duas linhas por item, onde clicar em um item abre detalhes usando o `viewTemplate` da camada.
+
+### Abas (Tabs)
+
+O `wrapper-tabs` organiza e exibe conteúdo em múltiplas guias (abas) de forma compacta e dinâmica, suportando tanto abas estáticas quanto a geração dinâmica de abas com base em uma fonte de dados iterável (como um array de objetos de resposta). É útil para visualizar subelementos ou interseções geográficas, oferecendo rolagem horizontal automática.
+
+- **Propósito**: Navegar entre visões independentes no mesmo cartão, otimizando o espaço da interface quando há muitos resultados de requisições.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                                       | Exemplo                            |
+| ----------- | --------------------------------------------------------------- | ---------------------------------- |
+| `type`      | Identificador do wrapper, deve ser `"wrapper-tabs"`.            | `"wrapper-tabs"`                   |
+| `templates` | Array de templates a serem renderizados dentro de **cada aba gerada dinamicamente**. | `[{ "type": "wrapper-card", ... }]` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade | Descrição                                                                                          | Exemplo                                                                              |
+| ----------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `data`      | Função (string) que retorna um array de objetos para gerar as abas individuais. Cada objeto servirá como o `data` principal da sua aba. | `"(data) => data.response.features"` |
+| `tabTitle`  | Função (string) que extrai e retorna o título que será exibido no botão da aba gerada. O objeto de cada aba é acessível por `data.data`. | `"(data) => 'Lote ' + data.data.properties.cd_lote"` |
+| `tabColor`  | (Opcional) Função que retorna uma cor hexadecimal, exibindo uma pequena marcação visual ao lado do título da aba. | `"(data) => data.data.properties.ui_color_hex"` |
+| `indexTab`  | Objeto que define uma Aba Estática Inicial. Costuma exibir uma visão global. Possui `title` e um array `templates` exclusivos. | `{ "title": "Geral", "templates": [...] }` |
+
+- **Notas e Comportamentos**:
+  - Quando as abas individuais (dinâmicas) são geradas a partir do array em `data`, o componente Wrapper automaticamente injeta o contexto principal (a variável `data` pai inteira) dentro do objeto da aba sob a propriedade oculta `__parentData`. Isso significa que se a sua aba filha precisar saber qual era a *feature* principal raiz do mapa original, ela pode usar algo como `data.__parentData.geometry`.
+  - A interface fornece setas automáticas para scroll das abas quando elas excedem a largura disponível.
+
+- **Exemplo**:
+
+  \`\`\`json
+  {
+    "type": "wrapper-tabs",
+    "properties": {
+      "data": "(data) => data.response.features.filter(f => f.id.includes('lote'))",
+      "tabTitle": "(data) => 'Lote ' + data.data.properties.cd_lote",
+      "tabColor": "(data) => '#FF0000'",
+      "indexTab": {
+        "title": "Visão Geral",
+        "templates": [
+          { "type": "label-value", "label": "Total Interseções", "value": "10" }
+        ]
+      }
+    },
+    "templates": [
+      {
+        "type": "wrapper-card",
+        "label": "Informações do Lote",
+        "templates": [
+          { "type": "label-value", "label": "Identificação", "value": "<%- properties.cd_lote %>" }
+        ]
+      }
+    ]
+  }
+  \`\`\`
 
 ## Templates
 

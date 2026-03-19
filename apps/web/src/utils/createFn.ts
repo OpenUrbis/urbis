@@ -1,4 +1,6 @@
 import { calculateCenterId } from "./calculateCenterId";
+import { generateColor } from "./generateColor";
+import { calculateZoom } from "./calculateZoom";
 
 export const createFn = (strFn: string, returnEmptyFnIfError = true) => {
   const cleanedStrFn = strFn
@@ -18,7 +20,7 @@ export const createFn = (strFn: string, returnEmptyFnIfError = true) => {
 
   try {
     const fn = new Function("utils", `return ${cleanedStrFn}`);
-    return fn({ calculateCenterId });
+    return fn({ calculateCenterId, generateColor, calculateZoom });
   } catch (error) {
     console.error(
       "Error creating function from string:",

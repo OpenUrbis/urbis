@@ -10,6 +10,7 @@ import { PolygonMapTemplateConfig } from "../templates/PolygonMapTemplate/config
 import { PrimaryItemTemplateConfig } from "../templates/PrimaryItemTemplate/config";
 import { RequestWrapperConfig } from "../templates/RequestWrapper/config";
 import { SecondaryItemTemplateConfig } from "../templates/SecondaryItemTemplate/config";
+import { WrapperTabsTemplateConfig } from "../templates/WrapperTabsTemplate/config";
 import { IBuilderTemplateConfig } from "./types";
 
 // Map of template names to their builder configuration
@@ -20,6 +21,7 @@ const CONFIG_MAP: Record<string, Partial<IBuilderTemplateConfig>> = {
   "wrapper-list-items": ListItemsWrapperConfig,
   "wrapper-grid": GridWrapperConfig,
   "wrapper-grid-column": GridColumnConfig,
+  "wrapper-tabs": WrapperTabsTemplateConfig,
   // "edit-polygon": EditPolygonTemplateConfig,
   // button: ButtonTemplateConfig,
   "polygon-map": PolygonMapTemplateConfig,

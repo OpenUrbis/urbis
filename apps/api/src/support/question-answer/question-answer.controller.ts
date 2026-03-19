@@ -10,7 +10,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { OrganizationGuard } from 'common/guards/organization/organization.guard';

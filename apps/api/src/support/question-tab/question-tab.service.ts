@@ -19,16 +19,18 @@ export class QuestionTabService {
     return this.questionTabRepository.save(questionTab);
   }
 
-  async findAll(): Promise<QuestionTab[]> {
-    return this.questionTabRepository.find({
-      order: {
-        index: 'ASC',
-        answers: {
-          index: 'ASC',
-        },
-      },
-      relations: ['answers'],
-    });
+  async findAll(app?: string): Promise<QuestionTab[]> {
+    const queryBuilder = this.questionTabRepository
+      .createQueryBuilder('questionTab')
+      .innerJoinAndSelect('questionTab.answers', 'answers')
+      .orderBy('questionTab.index', 'ASC')
+      .addOrderBy('answers.index', 'ASC');
+
+    if (app) {
+      queryBuilder.andWhere(':app = ANY(answers.apps)', { app });
+    }
+
+    return queryBuilder.getMany();
   }
 
   async findOne(id: string): Promise<QuestionTab> {

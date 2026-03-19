@@ -53,12 +53,6 @@ import { SwitchOrganizationDialog } from '../../../switch-organization-dialog/sw
     HlmSidebarMenuButtonDirective,
     HlmSidebarGroupDirective,
     TranslateModule,
-    HlmDropdownMenuDirective,
-    HlmDropdownMenuTriggerDirective,
-    HlmDropdownMenuItemDirective,
-    HlmDropdownMenuLabelDirective,
-    HlmDropdownMenuSeparatorDirective,
-    HlmDropdownMenuGroupDirective,
     HasPermissionDirective,
   ],
   providers: [

@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, inject, signal } from '@angular/core';
 import {
   FormArray,
-  FormBuilder,
+  FormControl,
+  FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -48,12 +49,45 @@ export class HandleQuestionAnswer {
 
   tabs = signal<QuestionTab[]>([]);
 
-  private readonly fb = inject(FormBuilder);
-  form = this.fb.group({
-    question: ['', [Validators.required]],
-    answer: ['', [Validators.required]],
-    tabSelections: this.fb.array<boolean>([]),
+  form = new FormGroup({
+    question: new FormControl('', [Validators.required]),
+    answer: new FormControl('', [Validators.required]),
+    tabSelections: new FormArray<FormControl<boolean | null>>([]),
+    appsSelections: new FormArray<FormControl<boolean | null>>([]),
   });
+
+  appsOptions = [
+    { value: 'mosaico', label: 'Mosaico' },
+    { value: 'mapa', label: 'Mapa' },
+    { value: 'viabiliza', label: 'Viabiliza' },
+    { value: 'legis', label: 'Legis' },
+    { value: 'docs', label: 'Docs' },
+  ];
+
+  selectAllApps() {
+    console.log('selecting all apps', this.appsSelections);
+    this.appsSelections.controls.forEach((formControl) =>
+      formControl.setValue(true),
+    );
+  }
+
+  deselectAllApps() {
+    this.appsSelections.controls.forEach((formControl) =>
+      formControl.setValue(false),
+    );
+  }
+
+  selectAllTabs() {
+    this.tabSelections.controls.forEach((formControl) =>
+      formControl.setValue(true),
+    );
+  }
+
+  deselectAllTabs() {
+    this.tabSelections.controls.forEach((formControl) =>
+      formControl.setValue(false),
+    );
+  }
 
   toaster = inject(HlmToasterService);
   activatedRoute = inject(ActivatedRoute);
@@ -66,7 +100,15 @@ export class HandleQuestionAnswer {
     return this.form.get('tabSelections') as FormArray;
   }
 
+  get appsSelections(): FormArray {
+    return this.form.get('appsSelections') as FormArray;
+  }
+
   constructor() {
+    this.appsOptions.forEach(() => {
+      this.appsSelections.push(new FormControl(false));
+    });
+
     effect(() => {
       this.activatedRoute.params.subscribe(({ id }) => {
         this.loadData(id);
@@ -84,8 +126,10 @@ export class HandleQuestionAnswer {
 
       this.tabSelections.clear();
       for (const _tab of sortedTabs) {
-        this.tabSelections.push(this.fb.control(false));
+        this.tabSelections.push(new FormControl(false));
       }
+
+      this.appsSelections.controls.forEach((ctrl) => ctrl.setValue(false));
 
       if (id) {
         this.id.set(id);
@@ -104,6 +148,13 @@ export class HandleQuestionAnswer {
 
         this.tabs().forEach((tab, index) => {
           this.tabSelections.at(index).setValue(selectedTabIds.has(tab.id));
+        });
+
+        const selectedApps = new Set(question.apps ?? []);
+        this.appsOptions.forEach((appOption, index) => {
+          this.appsSelections
+            .at(index)
+            .setValue(selectedApps.has(appOption.value));
         });
       } else {
         const tabId = this.activatedRoute.snapshot.queryParamMap.get('tabId');
@@ -133,10 +184,15 @@ export class HandleQuestionAnswer {
       .filter((_tab, index) => !!raw.tabSelections?.[index])
       .map((tab) => tab.id);
 
+    const selectedApps = this.appsOptions
+      .filter((_app, index) => !!raw.appsSelections?.[index])
+      .map((app) => app.value);
+
     const payload: CreateQuestionAnswerDto = {
       question: String(raw.question ?? '').trim(),
       answer: String(raw.answer ?? '').trim(),
       tabIds: selectedTabIds,
+      apps: selectedApps,
     };
 
     try {
@@ -148,9 +204,7 @@ export class HandleQuestionAnswer {
         this.toaster.success('Pergunta atualizada com sucesso.');
         this.router.navigate(['/help']);
       } else {
-        const result = await firstValueFrom(
-          this.helpService.createQuestion(payload),
-        );
+        await firstValueFrom(this.helpService.createQuestion(payload));
         this.toaster.success('Pergunta criada com sucesso.');
         const tabId = this.activatedRoute.snapshot.queryParamMap.get('tabId');
         if (tabId) {

@@ -7,9 +7,16 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { OrganizationGuard } from 'common/guards/organization/organization.guard';
@@ -19,11 +26,12 @@ import { UpdateQuestionTabDto } from '../dto/update-question-tab.dto';
 import { QuestionTabService } from './question-tab.service';
 
 @ApiTags('Support - Question Tabs')
-@UseGuards(AccessControlGuard, OrganizationGuard)
 @Controller('support/question-tabs')
 export class QuestionTabController {
   constructor(private readonly questionTabService: QuestionTabService) {}
 
+  @UseGuards(AccessControlGuard, OrganizationGuard)
+  @ApiBearerAuth()
   @Post()
   @RequirePermission({
     permissions: {
@@ -50,9 +58,16 @@ export class QuestionTabController {
     },
   })
   @ApiOperation({ summary: 'List all question tabs' })
+  @ApiQuery({
+    name: 'app',
+    required: false,
+    type: String,
+    description:
+      'Filter tabs by application via associated answers (e.g., "mapa", "accounts", "site")',
+  })
   @ApiResponse({ status: 200, description: 'Returns all question tabs.' })
-  findAll() {
-    return this.questionTabService.findAll();
+  findAll(@Query('app') app?: string) {
+    return this.questionTabService.findAll(app);
   }
 
   @Get(':id')
@@ -70,6 +85,8 @@ export class QuestionTabController {
     return this.questionTabService.findOne(id);
   }
 
+  @UseGuards(AccessControlGuard, OrganizationGuard)
+  @ApiBearerAuth()
   @Patch(':id')
   @RequirePermission({
     permissions: {
@@ -91,6 +108,8 @@ export class QuestionTabController {
     return this.questionTabService.update(id, updateQuestionTabDto);
   }
 
+  @UseGuards(AccessControlGuard, OrganizationGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   @RequirePermission({
     permissions: {

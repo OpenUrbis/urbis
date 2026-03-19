@@ -32,7 +32,9 @@ export function UrbisHeaderWrapper(props: ComponentProps<typeof UrbisHeader>) {
         <div className="flex-1 min-h-0 pt-4">
           <HelpSidebarContent
             currentTabSlug="docs"
-            faqEndpointBase="http://localhost:3000/support/question-answers"
+            appFilter="docs"
+            faqEndpointBase="http://localhost:3000/support/question-tabs"
+            endpoint="http://localhost:3000/support/create-ticket"
           />
         </div>
       </div>,

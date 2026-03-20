@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -31,8 +32,11 @@ export class LayerSchemasController {
     description: 'List of layer schemas',
     type: [LayerSchema],
   })
-  async findAll(): Promise<LayerSchema[]> {
-    return this.service.findAll();
+  async findAll(
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+  ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
+    return this.service.findAll(page, pageSize);
   }
 
   @Get(':id')
@@ -51,8 +55,9 @@ export class LayerSchemasController {
     return this.service.findOne(id);
   }
 
-  @ApiSecurity('api_key')
-  @UseGuards(AuthGuard('api-key'))
+  // TO DO: Reativar e adicionar access key guard
+  // @ApiSecurity('api_key')
+  // @UseGuards(AuthGuard('api-key'))
   @Post()
   @ApiOperation({ summary: 'Create a new layer schema' })
   @ApiResponse({
@@ -73,8 +78,9 @@ export class LayerSchemasController {
     return this.service.create(dto);
   }
 
-  @ApiSecurity('api_key')
-  @UseGuards(AuthGuard('api-key'))
+  // TO DO: Reativar e adicionar access key guard
+  // @ApiSecurity('api_key')
+  // @UseGuards(AuthGuard('api-key'))
   @Put(':id')
   @ApiOperation({ summary: 'Update a layer schema by ID' })
   @ApiResponse({
@@ -107,8 +113,9 @@ export class LayerSchemasController {
     return this.service.update(id, dto);
   }
 
-  @ApiSecurity('api_key')
-  @UseGuards(AuthGuard('api-key'))
+  // TO DO: Reativar e adicionar access key guard
+  // @ApiSecurity('api_key')
+  // @UseGuards(AuthGuard('api-key'))
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a layer schema by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })

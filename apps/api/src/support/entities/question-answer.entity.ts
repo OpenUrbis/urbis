@@ -15,6 +15,9 @@ export class QuestionAnswer {
   @Column({ nullable: true })
   index?: number;
 
+  @Column({ type: 'text', array: true, nullable: true })
+  apps?: string[];
+
   @ManyToMany(() => QuestionTab, (tab) => tab.answers)
   tabs: QuestionTab[];
 }

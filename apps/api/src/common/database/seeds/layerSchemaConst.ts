@@ -134,11 +134,12 @@ export const layerSchemas: LayerSchema[] = [
               initialViewState: `
                 (data) => {
                   const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
+                  const zoom = utils.calculateZoom(data);
 
                   return {
                     longitude: centroid[0],
                     latitude: centroid[1],
-                    zoom: 16.5,
+                    zoom: zoom,
                     pitch: 0,
                     bearing: 0,
                   };
@@ -304,6 +305,12 @@ export const layerSchemas: LayerSchema[] = [
               });
             });
 
+            response.features.forEach((feat) => {
+              const rgb = utils.generateColor(feat.id);
+              feat.properties.ui_color = rgb;
+              feat.properties.ui_color_hex = "#" + rgb.map(x => x.toString(16).padStart(2, '0')).join('');
+            });
+
             return response;
           };`,
         },
@@ -360,73 +367,273 @@ export const layerSchemas: LayerSchema[] = [
             ],
           },
           {
-            type: 'wrapper-card',
-            label: 'Interseções no Perímetro',
-            templates: [
-              {
-                type: 'wrapper-list-items',
+            type: 'wrapper-tabs',
+            properties: {
+              data: `(data) => data.response.features.filter((f) => {
+                if (f.id.includes("lote_cidadao") || f.properties?.layer === "slui:lote_cidadao") {
+                  return String(f.properties?.cd_identificador_original_lote) !== String(data.properties?.cd_identificador_original_lote);
+                }
+                return true;
+              })`,
+              tabTitle: `(data) => {
+                const props = data.data.properties;
+                if (props.nm_tema_divisao_pde) return props.nm_tema_divisao_pde;
+                if (props.nm_subprefeitura) return props.nm_subprefeitura;
+                if (props.nm_distrito_municipal) return props.nm_distrito_municipal;
+                if (props.nm_area_tombada) return props.nm_area_tombada;
+                if (props.nm_area) return props.nm_area;
+                if (props.cd_lote) return "Lote " + props.cd_lote.padStart(4, "0");
+                if (props.layer) return props.layer.replace("slui:", "");
+                return "Polígono";
+              }`,
+              tabColor: '(data) => data.data.properties.ui_color_hex',
+              indexTab: {
+                title: 'Geral',
                 templates: [
                   {
-                    type: 'primary-item',
-                    value: `
-                          <% if (id.includes("macroareas")) { %>
-                            <%- properties.nm_perimetro_divisao_pde %>
-                          <% } else if (id.includes("minianel_viario")) { %>
-                            <%- properties.nm_restricao_circulacao_veiculo %>
-                          <% } else if (id.includes("subprefeitura")) { %>
-                            <%- properties.nm_subprefeitura %>
-                          <% } else if (id.includes("macrozonas")) { %>
-                            <%- properties.nm_perimetro_divisao_pde %>
-                          <% } else if (id.includes("tombamentos-areas")) { %>
-                            <%- properties.nm_bairro %>
-                          <% } else if (id.includes("zoneamento_geral")) { %>
-                            <%- properties.nm_perimetro_divisao_pde %>
-                          <% } else if (properties.layer.includes("slui:setores_e_subsetores")) { %>
-                            <%- properties.nm_tema_divisao_pde %>
-                          <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
-                            <%- properties.nm_distrito_municipal %>
-                          <% } else if (properties.layer.includes("slui:tombamentos")) { %>
-                            <%- properties?.nm_area ?? properties?.nm_area_tombada %>
-                          <% } else if (properties.layer.includes("slui:zoneamento")) { %>
-                            <%- properties?.tx_zoneamento_perimetro %>
-                          <% } else { %>
-                            Não mapeado
-                          <% } %>
-                        `,
+                    type: 'polygon-map',
+                    properties: {
+                      polygonProps: `
+                        (data) => {
+                          const inters = data.response.features.filter(f => {
+                            if (f.id.includes("lote_cidadao") || f.properties?.layer === "slui:lote_cidadao") {
+                              return String(f.properties?.cd_identificador_original_lote) !== String(data.properties?.cd_identificador_original_lote);
+                            }
+                            return true;
+                          });
+                          
+                          const polygonData = [];
+                          
+                          /* Lote principal */
+                          if (data.geometry?.coordinates) {
+                            if (data.geometry.type === "MultiPolygon") {
+                              data.geometry.coordinates.forEach(c => {
+                                polygonData.push({ coordinates: c, fillColor: [30, 111, 249, 100], lineColor: [30, 111, 249] });
+                              });
+                            } else {
+                              polygonData.push({ coordinates: data.geometry.coordinates, fillColor: [30, 111, 249, 100], lineColor: [30, 111, 249] });
+                            }
+                          }
+                          
+                          /* Outras interseções */
+                          inters.forEach(l => {
+                            if (!l.geometry || !l.geometry.coordinates || !l.geometry.coordinates.length) return;
+                            const fColor = [...(l.properties.ui_color || [150, 150, 150]), 50];
+                            const lColor = l.properties.ui_color || [150, 150, 150];
+                            
+                            if (l.geometry.type === "MultiPolygon") {
+                              l.geometry.coordinates.forEach(c => {
+                                polygonData.push({ coordinates: c, fillColor: fColor, lineColor: lColor });
+                              });
+                            } else {
+                              polygonData.push({ coordinates: l.geometry.coordinates, fillColor: fColor, lineColor: lColor });
+                            }
+                          });
+
+                          return {
+                            id: "polygon-layer-multiple",
+                            data: polygonData,
+                            pickable: false,
+                            stroked: true,
+                            filled: true,
+                            lineWidthMinPixels: 2,
+                            getPolygon: (d) => d.coordinates,
+                            getFillColor: (d) => d.fillColor,
+                            getLineColor: (d) => d.lineColor,
+                          };
+                        }
+                      `,
+                      initialViewState: `
+                        (data) => {
+                          const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
+                          const zoom = utils.calculateZoom(data);
+
+                          return {
+                            longitude: centroid[0],
+                            latitude: centroid[1],
+                            zoom: zoom,
+                            pitch: 0,
+                            bearing: 0,
+                          };
+                        }
+                      `,
+                    },
                   },
                   {
-                    type: 'secondary-item',
-                    value: `
-                          <% if (id.includes("macroareas")) { %>
-                            Macroarea - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else if (id.includes("minianel_viario")) { %>
-                            Minianel Viario - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else if (id.includes("subprefeitura")) { %>
-                            Sub-Prefeitura - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else if (id.includes("macrozonas")) { %>
-                            Macrozona - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else if (id.includes("tombamentos-areas")) { %>
-                            <%- properties.tx_resolucao_condephaat %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else if (id.includes("zoneamento_geral")) { %>
-                            Zoneamento - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else if (id.includes("slui:setores_e_subsetores")) { %>
-                            <%- properties.setor %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
-                            Distrito municipal - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else if (properties.layer.includes("slui:tombamentos")) { %>
-                            Imóvel tombado - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else if (properties.layer.includes("slui:zoneamento")) { %>
-                            Zoneamento perimetro - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
-                          <% } else { %>
-                            Não mapeado
-                          <% } %>
-                        `,
+                    type: 'wrapper-card',
+                    label: 'Interseções no Perímetro',
+                    templates: [
+                      {
+                        type: 'wrapper-list-items',
+                        templates: [
+                          {
+                            type: 'primary-item',
+                            value: `
+                                  <% if (id.includes("macroareas")) { %>
+                                    <%- properties.nm_perimetro_divisao_pde %>
+                                  <% } else if (id.includes("minianel_viario")) { %>
+                                    <%- properties.nm_restricao_circulacao_veiculo %>
+                                  <% } else if (id.includes("subprefeitura")) { %>
+                                    <%- properties.nm_subprefeitura %>
+                                  <% } else if (id.includes("macrozonas")) { %>
+                                    <%- properties.nm_perimetro_divisao_pde %>
+                                  <% } else if (id.includes("tombamentos-areas")) { %>
+                                    <%- properties.nm_bairro %>
+                                  <% } else if (id.includes("zoneamento_geral")) { %>
+                                    <%- properties.nm_perimetro_divisao_pde %>
+                                  <% } else if (properties.layer.includes("slui:setores_e_subsetores")) { %>
+                                    <%- properties.nm_tema_divisao_pde %>
+                                  <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
+                                    <%- properties.nm_distrito_municipal %>
+                                  <% } else if (properties.layer.includes("slui:tombamentos")) { %>
+                                    <%- properties?.nm_area ?? properties?.nm_area_tombada %>
+                                  <% } else if (properties.layer.includes("slui:zoneamento")) { %>
+                                    <%- properties?.tx_zoneamento_perimetro %>
+                                  <% } else { %>
+                                    Não mapeado
+                                  <% } %>
+                                `,
+                          },
+                          {
+                            type: 'secondary-item',
+                            value: `
+                                  <% if (id.includes("macroareas")) { %>
+                                    Macroarea - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else if (id.includes("minianel_viario")) { %>
+                                    Minianel Viario - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else if (id.includes("subprefeitura")) { %>
+                                    Sub-Prefeitura - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else if (id.includes("macrozonas")) { %>
+                                    Macrozona - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else if (id.includes("tombamentos-areas")) { %>
+                                    <%- properties.tx_resolucao_condephaat %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else if (id.includes("zoneamento_geral")) { %>
+                                    Zoneamento - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else if (id.includes("slui:setores_e_subsetores")) { %>
+                                    <%- properties.setor %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
+                                    Distrito municipal - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else if (properties.layer.includes("slui:tombamentos")) { %>
+                                    Imóvel tombado - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else if (properties.layer.includes("slui:zoneamento")) { %>
+                                    Zoneamento perimetro - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                                  <% } else { %>
+                                    Não mapeado
+                                  <% } %>
+                                `,
+                          },
+                        ],
+                        properties: {
+                          data: '(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))',
+                          twoLine: true,
+                        },
+                      },
+                    ],
                   },
                 ],
+              },
+            },
+            templates: [
+              {
+                type: 'polygon-map',
                 properties: {
-                  data: '(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))',
-                  twoLine: true,
+                  polygonProps: `
+                    (data) => {
+                      const polygonData = [];
+                      
+                      /* Geometria do Lote Base */
+                      if (data.__parentData && data.__parentData.geometry?.coordinates) {
+                        const baseColor = [30, 111, 249];
+                        if (data.__parentData.geometry.type === "MultiPolygon") {
+                          data.__parentData.geometry.coordinates.forEach(c => {
+                            polygonData.push({ coordinates: c, fillColor: [...baseColor, 100], lineColor: baseColor });
+                          });
+                        } else {
+                          polygonData.push({ coordinates: data.__parentData.geometry.coordinates, fillColor: [...baseColor, 100], lineColor: baseColor });
+                        }
+                      }
+                      
+                      /* Geometria da feição interceptada atual */
+                      if (data.geometry && data.geometry.coordinates && data.geometry.coordinates.length) {
+                        const fColor = [...(data.properties.ui_color || [150, 150, 150]), 50];
+                        const lColor = data.properties.ui_color || [150, 150, 150];
+                        
+                        if (data.geometry.type === "MultiPolygon") {
+                          data.geometry.coordinates.forEach(c => {
+                            polygonData.push({ coordinates: c, fillColor: fColor, lineColor: lColor });
+                          });
+                        } else {
+                          polygonData.push({ coordinates: data.geometry.coordinates, fillColor: fColor, lineColor: lColor });
+                        }
+                      }
+
+                      return {
+                        id: "polygon-layer-individual",
+                        data: polygonData,
+                        pickable: false,
+                        stroked: true,
+                        filled: true,
+                        lineWidthMinPixels: 2,
+                        getPolygon: (d) => d.coordinates,
+                        getFillColor: (d) => d.fillColor,
+                        getLineColor: (d) => d.lineColor,
+                      };
+                    }
+                  `,
+                  initialViewState: `
+                    (data) => {
+                      /* Tenta focar na geometria do lote filho atual primeiro */
+                      let centroid;
+                      let zoom = 16.5;
+                      if (data.geometry && data.geometry.coordinates && data.geometry.coordinates.length) {
+                        centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
+                        zoom = utils.calculateZoom(data);
+                      } else if (data.__parentData && data.__parentData.geometry?.coordinates) {
+                        centroid = utils.calculateCenterId(data.__parentData.geometry.coordinates[0]);
+                        zoom = utils.calculateZoom(data.__parentData);
+                      } else {
+                        return {};
+                      }
+                      
+                      return {
+                        longitude: centroid[0],
+                        latitude: centroid[1],
+                        zoom: zoom,
+                        pitch: 0,
+                        bearing: 0,
+                      };
+                    }
+                  `,
                 },
+              },
+              {
+                type: 'wrapper-card',
+                label: 'Informações da Interseção',
+                templates: [
+                  {
+                    type: 'label-value',
+                    label: 'Classificação / Setor',
+                    value:
+                      "<%- properties.nm_perimetro_divisao_pde || properties.nm_tema_divisao_pde || properties.nm_subprefeitura || properties.cd_setor_fiscal || properties.nm_area_tombada || '-' %>",
+                  },
+                  {
+                    type: 'label-value',
+                    label: 'Identificação',
+                    value: '<%- id || properties.layer %>',
+                  },
+                  {
+                    type: 'label-value',
+                    label: 'Área da Feição',
+                    value:
+                      "<%- properties.totalArea ? properties.totalArea.toFixed(2) + ' m²' : (properties.qt_area_terreno ? properties.qt_area_terreno + ' m²' : '-') %>",
+                  },
+                  {
+                    type: 'label-value',
+                    label: 'Porcentagem de Interseção',
+                    value:
+                      "<%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '-' %>",
+                  },
+                ],
               },
             ],
           },

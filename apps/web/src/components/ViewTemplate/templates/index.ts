@@ -10,6 +10,7 @@ import { PolygonMapTemplate } from "./PolygonMapTemplate";
 import { PrimaryItemTemplate } from "./PrimaryItemTemplate";
 import { RequestWrapper } from "./RequestWrapper";
 import { SecondaryItemTemplate } from "./SecondaryItemTemplate";
+import { WrapperTabsTemplate } from "./WrapperTabsTemplate";
 
 export const VIEW_TEMPLATE_TEMPLATES: ITemplatesDeclaration[] = [
   // Templates
@@ -26,4 +27,5 @@ export const VIEW_TEMPLATE_TEMPLATES: ITemplatesDeclaration[] = [
   RequestWrapper,
   GridWrapper,
   GridColumn,
+  WrapperTabsTemplate,
 ];

@@ -32,11 +32,17 @@ export class QuestionAnswerService {
     return this.questionAnswerRepository.save(questionAnswer);
   }
 
-  async findAll(): Promise<QuestionAnswer[]> {
-    return this.questionAnswerRepository.find({
-      order: { index: 'ASC' },
-      relations: ['tabs'],
-    });
+  async findAll(app?: string): Promise<QuestionAnswer[]> {
+    const queryBuilder = this.questionAnswerRepository
+      .createQueryBuilder('questionAnswer')
+      .leftJoinAndSelect('questionAnswer.tabs', 'tabs')
+      .orderBy('questionAnswer.index', 'ASC');
+
+    if (app) {
+      queryBuilder.andWhere(':app = ANY(questionAnswer.apps)', { app });
+    }
+
+    return queryBuilder.getMany();
   }
 
   async findOne(id: string): Promise<QuestionAnswer> {

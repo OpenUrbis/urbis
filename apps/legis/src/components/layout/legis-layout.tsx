@@ -132,7 +132,12 @@ export function LegisLayout({ children }: LegisLayoutProps) {
                 </button>
                 </div>
                 <div className="p-3">
-                <HelpSidebarContent currentTabSlug="docs" />
+                <HelpSidebarContent
+                  currentTabSlug="legis"
+                  appFilter="legis"
+                  faqEndpointBase={import.meta.env.VITE_API_URL + '/support/question-tabs'}
+                  endpoint={import.meta.env.VITE_API_URL + '/support/create-ticket'}
+                />
                 </div>
             </div>
             </div>

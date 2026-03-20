@@ -40,4 +40,15 @@ export class CreateQuestionAnswerDto {
   @IsUUID('all', { each: true })
   @IsOptional()
   tabIds?: string[];
+
+  @ApiProperty({
+    description: 'The applications this question belongs to',
+    type: [String],
+    required: false,
+    example: ['web', 'accounts'],
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  apps?: string[];
 }

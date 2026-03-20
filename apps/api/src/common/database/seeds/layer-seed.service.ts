@@ -67,6 +67,43 @@ export class LayerSeedService {
         name: 'Áreas protegidas',
         ownerGroup: 'ambiental',
       },
+      {
+        id: 'curvas_de_nivel',
+        name: 'Curvas de nível',
+        ownerGroup: 'geral',
+      },
+      {
+        id: 'documentos_gerais',
+        name: 'Documentos gerais',
+        ownerGroup: 'geral',
+      },
+      {
+        id: 'legislacao_urbanistica',
+        name: 'Legislação urbanística',
+        ownerGroup: 'urbanistico',
+      },
+      {
+        id: 'situacoes_de_interesse_urbanistico',
+        name: 'Situações de interesse urbanístico',
+        ownerGroup: 'urbanistico',
+      },
+      {
+        id: 'vilas',
+        name: 'Vilas',
+        ownerGroup: 'situacoes_de_interesse_urbanistico',
+      },
+      {
+        id: 'situações_de_interesse_ambiental',
+        name: 'Situações de interesse ambiental',
+        ownerGroup: 'ambiental',
+      },
+      { id: 'vegetacao', name: 'Vegetação', ownerGroup: 'ambiental' },
+      {
+        id: 'biomas_protegidos',
+        name: 'Biomas protegidos',
+        ownerGroup: 'vegetacao',
+      },
+      {id: 'areas_contaminadas', name: 'Áreas contaminadas', ownerGroup: 'situações_de_interesse_ambiental'},
     ];
 
     try {

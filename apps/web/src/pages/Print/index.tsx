@@ -167,7 +167,41 @@ const PrintPage = () => {
         <Header />
         <main className="flex-1 flex flex-col w-full px-4 md:px-8 max-w-7xl mx-auto gap-6 mt-6 mb-12">
           <div className="w-full shrink-0">
-            <Search isInteractiveView={true} />
+            <Search 
+              isInteractiveView={true} 
+              onItemClick={(config, item) => {
+                const url = new URL(window.location.href);
+                const isInteractive = url.searchParams.get('interactive');
+                url.search = '';
+                
+                if (isInteractive) {
+                  url.searchParams.set('interactive', isInteractive);
+                }
+
+                if (config.layerSchemaId) {
+                  url.searchParams.set('layerSchema', config.layerSchemaId);
+                } else if (config.id === 'lots') {
+                  url.searchParams.set('layerSchema', 'lotes');
+                }
+                
+                // Construct CQL_FILTER based on rawData properties for lots
+                const props = item.rawData?.properties || {};
+                const cqlParts = [];
+                if (props.cd_setor_fiscal) cqlParts.push(`cd_setor_fiscal = '${props.cd_setor_fiscal}'`);
+                if (props.cd_quadra_fiscal) cqlParts.push(`cd_quadra_fiscal = '${props.cd_quadra_fiscal}'`);
+                if (props.cd_lote) cqlParts.push(`cd_lote = '${props.cd_lote}'`);
+                if (props.cd_condominio) cqlParts.push(`cd_condominio = '${props.cd_condominio}'`);
+                
+                if (cqlParts.length > 0) {
+                  url.searchParams.set('CQL_FILTER', cqlParts.join(' AND '));
+                } else {
+                  // Fallback to featureId if no properties found (unlikely for lots)
+                  url.searchParams.set('featureId', item.id);
+                }
+                
+                window.location.href = url.toString();
+              }}
+            />
           </div>
           <section className="flex-1 bg-white rounded-2xl shadow-sm border p-6 overflow-auto w-full">
             <div className="hidden md:flex gap-6 w-full">

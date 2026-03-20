@@ -155,7 +155,7 @@ const ConfigForm = ({
           <div className="space-y-2">
             <Label>Título Dinâmico da Aba (Função EJS/JS)</Label>
             <span className="text-xs text-slate-500 block mb-1">
-              Função para extrair o nome de cada aba. Ex: `(data) => data.data.name`
+              {"Função para extrair o nome de cada aba. Ex: `(data) => data.data.name`"}
             </span>
             <CodeEditor
               value={values.tabTitle}
@@ -167,7 +167,7 @@ const ConfigForm = ({
           <div className="space-y-2">
             <Label>Cor Dinâmica da Aba (Opcional)</Label>
             <span className="text-xs text-slate-500 block mb-1">
-              Função que retorna a cor hexadecimal associada. Ex: `(data) => '#FF0000'`
+              {"Função que retorna a cor hexadecimal associada. Ex: `(data) => '#FF0000'`"}
             </span>
             <CodeEditor
               value={values.tabColor}

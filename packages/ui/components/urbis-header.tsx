@@ -278,9 +278,8 @@ export const UrbisHeader = ({
                 onClick={onLogin}
                 className="gap-2 hidden md:flex items-center shrink-0 h-9 rounded-full px-4"
                 aria-label="Entrar"
-                title="Entrar"
               >
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4" aria-hidden="true" />
                 Entrar
               </Button>
 
@@ -291,9 +290,9 @@ export const UrbisHeader = ({
                 onClick={onLogin}
                 className="md:hidden shrink-0 h-9 w-9 rounded-full"
                 aria-label="Entrar"
-                title="Entrar"
               >
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4" aria-hidden="true" />
+                <span className="sr-only">Entrar</span>
               </Button>
             </>
           ) : null}

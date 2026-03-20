@@ -58,9 +58,9 @@ export function Mosaico() {
         type="submit"
         size="icon"
         className="h-11 w-11 shrink-0 rounded-sm"
-        aria-label="Pesquisar no Mapa Urbis"
       >
-        <Search className="h-5 w-5" />
+        <Search className="h-5 w-5" aria-hidden="true" />
+        <span className="sr-only">Pesquisar no Mapa Urbis</span>
       </Button>
     </div>
 
@@ -92,9 +92,11 @@ export function Mosaico() {
             <div className="flex flex-col gap-2">
                {/* Viabiliza - With Border (Increased) */}
               <a href="https://viabiliza.urbis.prefeitura.sp.gov.br" className="group block no-underline h-full">
+                <span className="sr-only">Acessar Viabiliza - Licenciamentos edilícios, de atividades e ambientais</span>
                 <Card 
                   className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '100ms' }}
+                  aria-hidden="true"
                 >
                     <CardContent className="p-4">
                         <h2 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
@@ -109,12 +111,14 @@ export function Mosaico() {
 
               {/* Dados Abertos - With Border */}
               <a href="https://dadosabertos.urbis.prefeitura.sp.gov.br" className="group block no-underline h-full">
+                <span className="sr-only">Acessar Dados Abertos - dados urbanos abertos, incluindo zoneamento e licenças</span>
                 <Card 
                   className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '150ms' }}
+                  aria-hidden="true"
                 >
                     <CardContent className="p-4">
-                        <h3 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors">Dados Abertos</h3>
+                        <h2 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors">Dados Abertos</h2>
                         <p className="text-muted-foreground text-sm leading-snug">
                         Acesse uma vasta gama de dados urbanos abertos, incluindo informações sobre zoneamento, licenças e muito mais.
                         </p>
@@ -124,15 +128,17 @@ export function Mosaico() {
 
               {/* OpenUrbis - With Border */}
                <a href="https://github.com/OpenUrbis" target="_blank" rel="noopener noreferrer" className="group block no-underline h-full relative">
+                <span className="sr-only">Acessar projeto de código aberto do Urbis no Github</span>
                 <Card 
                   className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                   style={{ animationDelay: '200ms' }}
+                  aria-hidden="true"
                 >
                      <CardContent className="p-4">
                         <div className="flex justify-between items-start">
-                             <h3 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors">Github</h3>
+                             <h2 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors">Github</h2>
                              <div className="bg-secondary text-secondary-foreground text-xs px-2 py-0.5 rounded-sm font-bold flex items-center gap-0.5">
-                                <Github className="h-3.5 w-3.5" /> GitHub
+                                <Github className="h-3.5 w-3.5" aria-hidden="true" /> GitHub
                              </div>
                         </div>
                         <p className="text-muted-foreground text-sm leading-snug">
@@ -144,14 +150,16 @@ export function Mosaico() {
 
               {/* Docs Urbis - With Border */}
               <Link to="/doc-tecnica" className="group block no-underline h-full">
+                 <span className="sr-only">Acessar a Documentação Técnica do Urbis</span>
                  <Card 
                    className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
                    style={{ animationDelay: '250ms' }}
+                   aria-hidden="true"
                  >
                      <CardContent className="p-4">
-                        <h3 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
+                        <h2 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
                             Documentação Técnica 
-                        </h3>
+                        </h2>
                         <p className="text-muted-foreground text-sm leading-snug">
                         O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
                         </p>
@@ -174,7 +182,7 @@ export function Mosaico() {
                            <FileText className="h-8 w-8" />
                        </div>
                        <div>
-                         <h3 className="text-lg font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors leading-tight">Carta de Serviços urbanísticos, ambientais e culturais</h3>
+                         <h2 className="text-lg font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors leading-tight">Carta de Serviços urbanísticos, ambientais e culturais</h2>
                          <p className="text-muted-foreground text-sm leading-snug">Veja onde solicitar autorizações, licenças, certidões etc.</p>
                        </div>
                     </CardContent>
@@ -192,7 +200,7 @@ export function Mosaico() {
                            <BookOpen className="h-8 w-8" />
                        </div>
                        <div>
-                         <h3 className="text-lg font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors leading-tight">Legislação urbanística:</h3>
+                         <h2 className="text-lg font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors leading-tight">Legislação urbanística:</h2>
                          <ul className="text-muted-foreground text-sm list-disc pl-4 space-y-0.5 leading-snug">
                            <li>Lei de Parcelamento, Uso e Ocupação do Solo - LPUOS</li>
                            <li>Código de Obras e Edificações - COE</li>
@@ -214,7 +222,7 @@ export function Mosaico() {
                            <FileText className="h-8 w-8" />
                        </div>
                        <div>
-                         <h3 className="text-lg font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors leading-tight">Informações sobre licenças emitidas e denúncias</h3>
+                         <h2 className="text-lg font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors leading-tight">Informações sobre licenças emitidas e denúncias</h2>
                          <p className="text-muted-foreground text-sm leading-snug">Veja onde encontrar informações sobre autorizações, licenças etc. e denunciar irregularidades.</p>
                        </div>
                     </CardContent>
@@ -258,7 +266,7 @@ export function Mosaico() {
                   style={{ animationDelay: '200ms' }}
                 >
                     <CardContent className="p-4">
-                         <h3 className="text-xl font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors">Data lake</h3>
+                         <h2 className="text-xl font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors">Data lake</h2>
                         <p className="text-muted-foreground text-sm leading-snug">
                           Acesse o nosso datalake (apenas uso interno)
                         </p>
@@ -276,7 +284,7 @@ export function Mosaico() {
            style={{ animationDelay: '300ms' }}
          >
             <CardContent className="p-4">
-                <h4 className="text-xl font-bold mb-3 text-foreground">Perguntas Frequentes</h4>
+                <h2 className="text-xl font-bold mb-3 text-foreground">Perguntas Frequentes</h2>
                 
                 <Accordion.Root type="multiple" className="space-y-1">
                   <Accordion.Item value="item-1" className="border-b border-border last:border-0">
@@ -326,7 +334,7 @@ export function Mosaico() {
             <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-3 border-b border-border pb-2">
                    <Rss className="text-primary h-5 w-5" />
-                   <h4 className="text-xl font-bold text-foreground">Novidades</h4>
+                   <h2 className="text-xl font-bold text-foreground">Novidades</h2>
                 </div>
                 <div className="flex flex-col gap-2">
                    <div className="group block bg-muted/30 rounded-sm border-l-2 border-l-muted-foreground p-3 hover:bg-muted/50 transition-colors cursor-pointer">

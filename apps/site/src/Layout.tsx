@@ -105,6 +105,12 @@ function LayoutInner() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        Saltar para o conteúdo principal
+      </a>
       <ScrollToTop />
 
       {mounted ? (
@@ -187,7 +193,7 @@ function LayoutInner() {
         <div className="h-16 border-b bg-background" />
       )}
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1" tabIndex={-1}>
         <Outlet />
       </main>
 

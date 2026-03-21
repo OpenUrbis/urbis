@@ -13,7 +13,6 @@ function Layout() {
     { label: 'Doc. técnica', href: '/doc-tecnica' },
     { label: '+Info', href: '/info-urbis' },
     { label: 'Data Lake', href: 'https://datalake.urbis.sampa.br/' },
-    { label: 'Ajuda', href: '/ajuda' },
   ]
 
   return (

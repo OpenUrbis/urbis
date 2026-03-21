@@ -13,12 +13,10 @@ import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { PolygonEditProvider } from "./context/PolygonEditContext";
 import { SearchProvider } from "./context/SearchContext";
-import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./components/AuthProvider";
 
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
-const AdminPage = lazy(() => import("./pages/Admin"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,11 +37,10 @@ const App = () => (
             <QueryClientProvider client={queryClient}>
               {
                 (
-                  <ToastProvider>
-                    <NavigationProvider>
-                      <MapProvider>
-                        <SearchProvider>
-                          <PolygonEditProvider>
+                  <NavigationProvider>
+                    <MapProvider>
+                      <SearchProvider>
+                        <PolygonEditProvider>
                           <Router>
                             {
                               (
@@ -58,18 +55,14 @@ const App = () => (
                                   <Route path="/print">
                                     {(<PrintPage />) as ReactNode}
                                   </Route>
-                                  <Route path="/admin" nest>
-                                    {(<AdminPage />) as ReactNode}
-                                  </Route>
                                 </Suspense>
                               ) as ReactNode
                             }
                           </Router>
-                          </PolygonEditProvider>
-                        </SearchProvider>
-                      </MapProvider>
-                    </NavigationProvider>
-                  </ToastProvider>
+                        </PolygonEditProvider>
+                      </SearchProvider>
+                    </MapProvider>
+                  </NavigationProvider>
                 ) as ReactNode
               }
             </QueryClientProvider>

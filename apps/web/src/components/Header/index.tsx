@@ -4,11 +4,7 @@ import { Debugger } from "../Debugger";
 import { MenuToggleButton } from "../MenuToogleButton";
 import { ModeToggle } from "../ModeToggle";
 
-interface HeaderProps {
-  onMenuToggle?: () => void;
-}
-
-const Header = ({ onMenuToggle }: HeaderProps) => {
+const Header = () => {
   const auth = useAuth();
 
   const menuItems = [
@@ -30,7 +26,7 @@ const Header = ({ onMenuToggle }: HeaderProps) => {
       }}
       onLogin={() => auth.signinRedirect()}
       onLogout={() => auth.removeUser()}
-      leftSlot={<MenuToggleButton onClick={onMenuToggle} />}
+      leftSlot={<MenuToggleButton />}
       rightSlot={
         <>
           <ModeToggle />

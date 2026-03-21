@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { LayerGroupDto } from './dto/layer-group.dto';
 import { LayerGroup } from './entities/layer-group.entity';
 
@@ -15,25 +15,8 @@ export class LayerGroupsService {
     private readonly repository: Repository<LayerGroup>,
   ) {}
 
-  async findAll(
-    page?: number,
-    pageSize?: number,
-    search?: string,
-  ): Promise<LayerGroup[] | { data: LayerGroup[]; total: number }> {
-    const where = search ? { name: ILike(`%${search}%`) } : {};
-
-    if (page && pageSize) {
-      const take = pageSize;
-      const skip = (page - 1) * pageSize;
-      const [data, total] = await this.repository.findAndCount({
-        where,
-        relations: ['parentGroup'],
-        take,
-        skip,
-      });
-      return { data, total };
-    }
-    return this.repository.find({ where, relations: ['parentGroup'] });
+  async findAll(): Promise<LayerGroup[]> {
+    return this.repository.find();
   }
 
   async findOne(id: string): Promise<LayerGroup> {

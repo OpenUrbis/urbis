@@ -18,8 +18,25 @@ export class LayerSchemasService {
     private readonly layerGroupsService: LayerGroupsService,
   ) {}
 
-  async findAll(): Promise<LayerSchema[]> {
-    return this.repository.find({ relations: ['colors'] });
+  async findAll(
+    page?: number,
+    pageSize?: number,
+  ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
+    if (page && pageSize) {
+      const take = pageSize;
+      const skip = (page - 1) * pageSize;
+      const [data, total] = await this.repository.findAndCount({
+        relations: ['colors', 'layerGroup'],
+        order: { isActive: 'DESC' },
+        take,
+        skip,
+      });
+      return { data, total };
+    }
+    return this.repository.find({
+      relations: ['colors', 'layerGroup'],
+      order: { isActive: 'DESC' },
+    });
   }
 
   async findOne(id: string): Promise<LayerSchema> {

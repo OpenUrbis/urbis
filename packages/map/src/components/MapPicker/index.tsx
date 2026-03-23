@@ -41,7 +41,7 @@ interface MapPickerProps {
 }
 
 const MapPickerContent = ({ onChange, initialData, mode = 'editable', children, overlay, hideMap, hideLayerManager, hideBaseMapSelector, layerConfig }: MapPickerProps) => {
-  const { digitalAddressFeature, selectedFeatures, flyTo, layerSchemas } = useMapContext();
+  const { digitalAddressFeature, selectedFeatures, flyTo, layerSchemas, layerWithRootEditTemplate, editFeatureTemplate } = useMapContext();
   const { feature: editFeature, data: intersections, loading, setFeature: setEditFeature, fetchData, editFeature: startEditing, reset: resetPolygonEdit } = usePolygonEditContext();
   const { drawerOpen } = useNavigationContext();
   const [isPickerSidebarOpen, setIsPickerSidebarOpen] = useState(true);
@@ -59,8 +59,12 @@ const MapPickerContent = ({ onChange, initialData, mode = 'editable', children, 
         digitalAddressFeature.value = null;
         resetPolygonEdit();
 
-        if (layerConfig) {
+        if (layerConfig?.length) {
             layerSchemas.value = layerConfig;
+            layerWithRootEditTemplate.value = layerConfig[0].id;
+            if (!editFeatureTemplate.value?.length) {
+              editFeatureTemplate.value = [];
+            }
         }
 
         if (initialData) {

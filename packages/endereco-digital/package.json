@@ -1,6 +1,6 @@
 {
   "name": "@open-urbis/endereco-digital",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Pacote para codificação e decodificação de Endereçamento Digital, convertendo coordenadas geográficas em códigos curtos Base27.",
   "publishConfig": {
     "access": "public"

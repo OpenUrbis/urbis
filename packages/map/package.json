@@ -1,6 +1,6 @@
 {
   "name": "@open-urbis/map",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": false,
   "type": "module",
   "scripts": {
@@ -39,7 +39,6 @@
     "@open-urbis/map-shared": "workspace:*",
     "@open-urbis/map-ui": "workspace:*",
     "@preact/signals": "^1.3.1",
-    
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-toast": "^1.2.15",
     "axios": "^1.13.6",

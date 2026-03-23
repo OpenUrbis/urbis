@@ -103,7 +103,11 @@ export class LayerSeedService {
         name: 'Biomas protegidos',
         ownerGroup: 'vegetacao',
       },
-      {id: 'areas_contaminadas', name: 'Áreas contaminadas', ownerGroup: 'situações_de_interesse_ambiental'},
+      {
+        id: 'areas_contaminadas',
+        name: 'Áreas contaminadas',
+        ownerGroup: 'situações_de_interesse_ambiental',
+      },
     ];
 
     try {

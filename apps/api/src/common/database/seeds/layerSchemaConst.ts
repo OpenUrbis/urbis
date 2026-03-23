@@ -796,7 +796,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 46,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Amacroareas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -863,7 +863,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 45,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Amacrozonas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -892,7 +892,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 47,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -927,7 +927,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 48,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asubsetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1010,7 +1010,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 49,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aeixos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1039,7 +1039,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 44,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:zoneamento_geral&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1068,10 +1068,10 @@ export const layerSchemas: LayerSchema[] = [
     index: 50,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Azoneamento&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: false,
-    minZoom: 1,
+    minZoom: 13,
     getTextColorPropName: 'cd_zoneamento_perimetro',
     getFillColorPropName: 'cd_zoneamento_perimetro',
     getLineColorPropName: 'cd_zoneamento_perimetro',
@@ -1319,7 +1319,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 67,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aminianel_viario&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1342,7 +1342,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 68,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aaguas_dormentes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1363,7 +1363,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 69,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aaguas_correntes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1384,7 +1384,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 70,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?request=GetMap&typeName=slui%3Aaguas_correntes_estimadas&format=image%2Fvnd.jpeg-png&TRANSPARENT=true&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.CustomWMSLayer,
     isVisible: false,
     minZoom: null,
@@ -1405,7 +1405,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 71,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aterrenos_marginais_aos_cursos_dagua_navegaveis&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1426,7 +1426,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 72,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Acalcadas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: false,
     minZoom: 13,
@@ -1447,7 +1447,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 74,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Apracas_e_canteiros&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: false,
     minZoom: 13,
@@ -1468,7 +1468,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 112,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Arisco_geologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1491,7 +1491,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 113,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Arisco_hidrologico&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1514,7 +1514,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 114,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Arestricoes_geotecnicas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1537,7 +1537,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 131,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Aareas_de_protecao_e_recuperacao_dos_mananciais&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1558,7 +1558,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 22,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asubprefeitura&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1584,7 +1584,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 26,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:curva_mestra&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1605,7 +1605,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 27,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:curva_intermediaria&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1626,7 +1626,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 27,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:cartorio_registro_imovel&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1674,7 +1674,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 55,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:operacao_urbana&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1693,11 +1693,11 @@ export const layerSchemas: LayerSchema[] = [
         label: 'Faria Lima',
         value: 'FARIA LIMA',
       },
-      {
+      /* {
         color: [255, 153, 153, 255],
         label: 'Centro',
         value: 'CENTRO',
-      },
+      }, */
       {
         color: [154, 153, 255, 255],
         label: 'Água Branca',
@@ -1721,7 +1721,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 57,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:zoneamento_incentivos_edif_garagem&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1742,7 +1742,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 58,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:perimetros_incentivo&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1810,7 +1810,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 59,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:qualificacao_ambiental&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: false,
     minZoom: 15,
@@ -1892,7 +1892,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 61,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:imoveis_em_vila&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1919,7 +1919,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 61,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Avias&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: false,
     minZoom: 13,
@@ -1940,7 +1940,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 136,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Ageo_cati_reserva_legal&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -1961,7 +1961,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 142,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:remanescentes_mata_atlantica&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -2008,7 +2008,7 @@ export const layerSchemas: LayerSchema[] = [
     index: 150,
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:areas_contaminadas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
-    isActive: false,
+    isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
     minZoom: null,
@@ -2037,6 +2037,270 @@ export const layerSchemas: LayerSchema[] = [
         value: 'Em Processo de Monitoramento para Reabilitação',
         pattern: 'hatch-cross',
         patternConfig: { getFillPatternScale: 0.3 },
+      },
+    ],
+  },
+  ,
+  {
+    id: 'lei_espercas',
+    name: 'Áreas de Intervenção Urbana - AIU',
+    index: 150,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:lei_espercas&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: 'tipo_camada',
+    getFillColorPropName: 'tipo_camada',
+    getLineColorPropName: 'tipo_camada',
+    groupId: 'legislacao_urbanistica',
+    colors: [
+      {
+        color: [2, 253, 17, 190],
+        label: 'Perímetro Área Central',
+        value: 'requalifica_centro',
+        pattern: 'hatch-1x',
+        patternConfig: { getFillPatternScale: 0.3 },
+      },
+      {
+        color: [255, 182, 81, 190],
+        label: 'Estação Meteorológica',
+        value: 'estacao_meteorologica',
+        pattern: 'hatch-1x',
+        patternConfig: { getFillPatternScale: 0.3 },
+      },
+    ],
+  },
+  {
+    id: 'vegetacao_de_porte_arboreo',
+    name: 'Vegetação de porte arbóreo	',
+    index: 72,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Avegetacao_de_porte_arboreo&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.Stream,
+    isVisible: false,
+    minZoom: 15,
+    getTextColorPropName: 'descricao_vegetacao',
+    getFillColorPropName: 'descricao_vegetacao',
+    getLineColorPropName: 'descricao_vegetacao',
+    groupId: 'ambiental',
+    colors: [
+      {
+        color: [90, 115, 98, 190],
+        label:
+          'Floresta ombrófila densa secundária em estágio avançado e floresta ombrófila densa primária',
+        value:
+          'Floresta ombrófila densa secundária em estágio avançado e floresta ombrófila densa primária',
+      },
+      {
+        color: [92, 202, 89, 190],
+        label: 'Floresta ombrófila densa secundária em estágio médio',
+        value: 'Floresta ombrófila densa secundária em estágio médio',
+      },
+      {
+        color: [158, 239, 173, 190],
+        label: 'Floresta ombrófila densa secundária em estágio inicial',
+        value: 'Floresta ombrófila densa secundária em estágio inicial',
+      },
+      {
+        color: [90, 149, 98, 190],
+        label: 'Floresta ombrófila densa alto-montana (mata nebular)',
+        value: 'Floresta ombrófila densa alto-montana (mata nebular)',
+      },
+      {
+        color: [205, 195, 95, 190],
+        label: 'Floresta paludosa e ou de várzea',
+        value: 'Floresta paludosa e ou de várzea',
+      },
+      {
+        color: [223, 234, 121, 190],
+        label: 'Campos alto-montanos',
+        value: 'Campos alto-montanos',
+      },
+      {
+        color: [248, 250, 93, 190],
+        label: 'Vegetação herbáceo-arbustiva de várzea ou de brejo',
+        value: 'Vegetação herbáceo-arbustiva de várzea ou de brejo',
+      },
+      {
+        color: [254, 188, 101, 190],
+        label: 'Vegetação aquática flutuante',
+        value: 'Vegetação aquática flutuante',
+      },
+      {
+        color: [255, 124, 76, 190],
+        label: 'Maciços florestais heterogêneos e bosques urbanos',
+        value: 'Maciços florestais heterogêneos e bosques urbanos',
+      },
+      {
+        color: [151, 79, 101, 190],
+        label: 'Maciços florestais homogêneos',
+        value: 'Maciços florestais homogêneos',
+      },
+      {
+        color: [245, 173, 242, 190],
+        label: 'Baixa cobertura arbórea, arbóreo-arbustiva e ou arborescente',
+        value: 'Baixa cobertura arbórea, arbóreo-arbustiva e ou arborescente',
+      },
+      {
+        color: [254, 214, 168, 190],
+        label: 'Agricultura',
+        value: 'Agricultura',
+      },
+      {
+        color: [158, 98, 221, 190],
+        label:
+          'Média a alta cobertura arbórea, arbóreo-arbustiva e ou arborescente',
+        value:
+          'Média a alta cobertura arbórea, arbóreo-arbustiva e ou arborescente',
+      },
+      {
+        color: [255, 92, 176, 190],
+        label: 'Vegetação herbáceo-arbustiva',
+        value: 'Vegetação herbáceo-arbustiva',
+      },
+      {
+        color: [190, 88, 75, 190],
+        label: 'Mista',
+        value: 'Mista',
+      },
+
+      {
+        color: [0, 0, 0, 190],
+        label: 'Espatodea',
+        value: 'Espatodea',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Jacarandá-Mimoso',
+        value: 'Jacarandá-Mimoso',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Sibipiruna',
+        value: 'Sibipiruna',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Chapéu de sol',
+        value: 'Chapéu de sol',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'benjamim',
+        value: 'benjamim',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Ipê amarelo',
+        value: 'Ipê amarelo',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Jeriva',
+        value: 'Jeriva',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Ipê',
+        value: 'Ipê',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Pata de vaca',
+        value: 'Pata de vaca',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Reseda',
+        value: 'Reseda',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Areca bambu',
+        value: 'Areca bambu',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Pitanga',
+        value: 'Pitanga',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Magnólia amarela',
+        value: 'Magnólia amarela',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Manga',
+        value: 'Manga',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Goiaba',
+        value: 'Goiaba',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Alfeneiro',
+        value: 'Alfeneiro',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Amora',
+        value: 'Amora',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Uva japonesa',
+        value: 'Uva japonesa',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'ni',
+        value: 'ni',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Tipuana',
+        value: 'Tipuana',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Falsa murta',
+        value: 'Falsa murta',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Brassaia',
+        value: 'Brassaia',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Quaresmeira',
+        value: 'Quaresmeira',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Laranja / Limão',
+        value: 'Laranja / Limão',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Leucena',
+        value: 'Leucena',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Figueira',
+        value: 'Figueira',
+      },
+      {
+        color: [0, 0, 0, 190],
+        label: 'Cassia fistula',
+        value: 'Cassia fistula',
       },
     ],
   },

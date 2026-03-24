@@ -1,8 +1,8 @@
-import { useContext } from "react";
 import { signal } from "@preact/signals";
+import { useContext } from "react";
 import { MapContext } from "../context/MapContext";
 import { getMapConfig } from "../integrations/map-integration";
-import { shareService, SharedMap } from "../integrations/share-service";
+import { SharedMap, shareService } from "../integrations/share-service";
 import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 import {
   IMapContextActions,
@@ -55,8 +55,8 @@ const getMapHandlers = (context: MapContextType) => {
         if (layer.id === layerId) {
           return {
             ...layer,
-            isActive: !layer.isActive,
-            isVisible: !layer.isActive,
+            isSelected: !layer.isSelected,
+            isVisible: !layer.isSelected,
           };
         }
         return layer;
@@ -126,7 +126,7 @@ const getMapHandlers = (context: MapContextType) => {
       editFeatureTemplate: cEditFeatureTemplate,
       layerWithRootEditTemplate: cLayerWithRootEditTemplate,
     } = await getMapConfig();
-    layerSchemas.value = cLayerSchemas;
+    layerSchemas.value = cLayerSchemas.filter((layer) => layer.isActive);
     layerGroups.value = cLayerGroups;
     zoom.value = cZoom;
     boundingBox.value = cBoundingBox;

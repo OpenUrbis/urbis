@@ -75,6 +75,14 @@ export class LayerSchema {
   isVisible?: boolean;
 
   @ApiProperty({
+    example: true,
+    required: false,
+    description: 'Determines whether the layer is selected by default',
+  })
+  @Column({ nullable: true })
+  isSelected?: boolean;
+
+  @ApiProperty({
     example: 10,
     required: false,
     description: 'Index for sorting',

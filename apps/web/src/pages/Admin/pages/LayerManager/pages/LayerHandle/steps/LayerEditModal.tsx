@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,17 +7,16 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/useToast";
+import { StepsNavigation } from "@/pages/Admin/components/StepsNavigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { LayerSchemaFormSchema, LayerSchemaFormValues } from "../utils";
 import { LayerConfiguration } from "./LayerConfiguration";
 import { LayerMapping } from "./LayerMapping";
 import { LayerReview } from "./LayerReview";
 import { LayerStyling } from "./LayerStyling";
-import { LayerSchemaFormSchema, LayerSchemaFormValues } from "../utils";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Save } from "lucide-react";
-import { StepsNavigation } from "@/pages/Admin/components/StepsNavigation";
 
 interface LayerEditModalProps {
   isOpen: boolean;
@@ -58,6 +58,7 @@ export const LayerEditModal = ({
       maxZoom: "",
       clickAction: "none",
       isActive: true,
+      isSelected: false,
       isVisible: true,
       isDynamic: false,
       colors: [
@@ -87,6 +88,7 @@ export const LayerEditModal = ({
         maxZoom: "",
         clickAction: "none",
         isActive: true,
+        isSelected: false,
         isVisible: true,
         isDynamic: false,
         colors: [
@@ -170,13 +172,9 @@ export const LayerEditModal = ({
         <div className="flex-1 overflow-y-auto px-1">
           <Form {...form}>
             <form className="space-y-6 h-full">
-              {step === 1 && (
-                <LayerConfiguration simpleMode hideNavigation />
-              )}
+              {step === 1 && <LayerConfiguration simpleMode hideNavigation />}
 
-              {step === 2 && (
-                <LayerMapping hideNavigation />
-              )}
+              {step === 2 && <LayerMapping hideNavigation />}
 
               {step === 3 && (
                 <LayerStyling
@@ -200,7 +198,13 @@ export const LayerEditModal = ({
             variant="outline"
             onClick={step === 1 ? onClose : handleBack}
           >
-            {step === 1 ? "Cancelar" : <><ChevronLeft className="mr-2 h-4 w-4" /> Voltar</>}
+            {step === 1 ? (
+              "Cancelar"
+            ) : (
+              <>
+                <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
+              </>
+            )}
           </Button>
 
           {step < 4 ? (
@@ -217,5 +221,3 @@ export const LayerEditModal = ({
     </Dialog>
   );
 };
-
-

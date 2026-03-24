@@ -1,5 +1,5 @@
-import * as z from "zod";
 import axios from "axios";
+import * as z from "zod";
 
 export interface LayerCapability {
   name: string;
@@ -8,7 +8,9 @@ export interface LayerCapability {
   bbox?: number[];
 }
 
-export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCapability[], version: string }> => {
+export const fetchCapabilities = async (
+  url: string,
+): Promise<{ layers: LayerCapability[]; version: string }> => {
   let baseUrlStr = url;
   try {
     const urlObj = new URL(url);
@@ -21,10 +23,15 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
 
   console.time("fetchCapabilities-request");
   const response = await axios.get(`${environment}/maps/proxy`, {
-    params: { url: baseUrlStr, service: 'WMS', version: '1.3.0', request: 'GetCapabilities' }
+    params: {
+      url: baseUrlStr,
+      service: "WMS",
+      version: "1.3.0",
+      request: "GetCapabilities",
+    },
   });
   console.timeEnd("fetchCapabilities-request");
-  
+
   console.log("fetchCapabilities: Response size", response.data?.length);
 
   console.time("fetchCapabilities-parse");
@@ -52,7 +59,7 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
       const crsList: string[] = [];
       const crsNodes = node.getElementsByTagName("CRS");
       const srsNodes = node.getElementsByTagName("SRS");
-      
+
       for (let j = 0; j < crsNodes.length; j++) {
         if (crsNodes[j].textContent) crsList.push(crsNodes[j].textContent!);
       }
@@ -64,31 +71,48 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
       let bbox: number[] | undefined;
       const exBbox = node.getElementsByTagName("EX_GeographicBoundingBox")[0];
       if (exBbox) {
-         const west = parseFloat(exBbox.getElementsByTagName("westBoundLongitude")[0]?.textContent || "0");
-         const east = parseFloat(exBbox.getElementsByTagName("eastBoundLongitude")[0]?.textContent || "0");
-         const south = parseFloat(exBbox.getElementsByTagName("southBoundLatitude")[0]?.textContent || "0");
-         const north = parseFloat(exBbox.getElementsByTagName("northBoundLatitude")[0]?.textContent || "0");
-         bbox = [west, south, east, north];
+        const west = parseFloat(
+          exBbox.getElementsByTagName("westBoundLongitude")[0]?.textContent ||
+            "0",
+        );
+        const east = parseFloat(
+          exBbox.getElementsByTagName("eastBoundLongitude")[0]?.textContent ||
+            "0",
+        );
+        const south = parseFloat(
+          exBbox.getElementsByTagName("southBoundLatitude")[0]?.textContent ||
+            "0",
+        );
+        const north = parseFloat(
+          exBbox.getElementsByTagName("northBoundLatitude")[0]?.textContent ||
+            "0",
+        );
+        bbox = [west, south, east, north];
       } else {
-         const llBbox = node.getElementsByTagName("LatLonBoundingBox")[0];
-         if (llBbox) {
-            const minx = parseFloat(llBbox.getAttribute("minx") || "0");
-            const miny = parseFloat(llBbox.getAttribute("miny") || "0");
-            const maxx = parseFloat(llBbox.getAttribute("maxx") || "0");
-            const maxy = parseFloat(llBbox.getAttribute("maxy") || "0");
-            bbox = [minx, miny, maxx, maxy];
-         }
+        const llBbox = node.getElementsByTagName("LatLonBoundingBox")[0];
+        if (llBbox) {
+          const minx = parseFloat(llBbox.getAttribute("minx") || "0");
+          const miny = parseFloat(llBbox.getAttribute("miny") || "0");
+          const maxx = parseFloat(llBbox.getAttribute("maxx") || "0");
+          const maxy = parseFloat(llBbox.getAttribute("maxy") || "0");
+          bbox = [minx, miny, maxx, maxy];
+        }
       }
 
-      if (name && !extractedLayers.some(l => l.name === name)) {
-        extractedLayers.push({ name, title, crs: Array.from(new Set(crsList)), bbox });
+      if (name && !extractedLayers.some((l) => l.name === name)) {
+        extractedLayers.push({
+          name,
+          title,
+          crs: Array.from(new Set(crsList)),
+          bbox,
+        });
       }
     }
   }
   console.timeEnd("fetchCapabilities-extract");
-  
+
   return { layers: extractedLayers, version: serviceVersion };
-}
+};
 
 export enum LayerSchemaColorTypeEnum {
   TEXT = "text",
@@ -127,6 +151,7 @@ const step2Schema = z.object({
     })
     .optional(),
   isActive: z.boolean(),
+  isSelected: z.boolean(),
   isVisible: z.boolean(),
 }) as any;
 
@@ -158,7 +183,7 @@ const step3Schema = z
     {
       message: "Informe o atributo para classification",
       path: ["layerProperty"],
-    }
+    },
   ) as any;
 
 const step4Schema = z.object({
@@ -168,7 +193,7 @@ const step4Schema = z.object({
       z.object({
         label: z.string(),
         description: z.string().optional(),
-      })
+      }),
     )
     .optional(),
 }) as any;
@@ -187,7 +212,7 @@ export const generateOriginUrl = (
   selectedLayer: { name: string; title: string } | undefined,
   loadingMethod: string,
   version?: string,
-  srs?: string
+  srs?: string,
 ) => {
   // Extract base URL
   let baseUrl = url;
@@ -238,6 +263,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     clickActionParams,
     viewTemplate,
     isActive,
+    isSelected,
     isVisible,
     isDynamic,
     layerProperty,
@@ -249,7 +275,8 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
 
   // Use the origin from the form data, or generate it as a fallback
   const finalOrigin =
-    origin || generateOriginUrl(url, selectedLayer, loadingMethod, version, srs);
+    origin ||
+    generateOriginUrl(url, selectedLayer, loadingMethod, version, srs);
 
   let type = "GeoJsonLayer";
   if (loadingMethod === "CustomWMSLayer") type = "CustomWMSLayer";
@@ -276,13 +303,13 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     };
 
     const fillAlpha = Math.round(
-      c.fillColor[3] <= 1 ? c.fillColor[3] * 255 : c.fillColor[3]
+      c.fillColor[3] <= 1 ? c.fillColor[3] * 255 : c.fillColor[3],
     );
     const lineAlpha = Math.round(
-      c.borderColor[3] <= 1 ? c.borderColor[3] * 255 : c.borderColor[3]
+      c.borderColor[3] <= 1 ? c.borderColor[3] * 255 : c.borderColor[3],
     );
     const textAlpha = Math.round(
-      c.textColor[3] <= 1 ? c.textColor[3] * 255 : c.textColor[3]
+      c.textColor[3] <= 1 ? c.textColor[3] * 255 : c.textColor[3],
     );
 
     const fillColor = [
@@ -353,6 +380,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     name: layerName,
     origin: finalOrigin,
     isActive,
+    isSelected,
     isVisible,
     type,
     index,
@@ -383,7 +411,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
       transparent: true,
       format: "image/png",
     };
-    
+
     // Also ensure we have a clickAction for info if none is specified
     if (!schema.clickAction) {
       schema.clickAction = { action: "info", params: {} };
@@ -412,6 +440,7 @@ export interface LayerSchema {
   getFillColorPropName?: string | null;
   groupId: string;
   isActive: boolean;
+  isSelected: boolean;
   isVisible: boolean;
   colors: LayerSchemaColor[];
   clickAction?: {
@@ -425,7 +454,7 @@ export interface LayerSchema {
 }
 
 export const parseLayerSchemaToForm = (
-  data: LayerSchema
+  data: LayerSchema,
 ): LayerSchemaFormValues => {
   const {
     origin,
@@ -454,9 +483,10 @@ export const parseLayerSchemaToForm = (
   if (urlParts[1]) {
     const params = new URLSearchParams(urlParts[1]);
     // Actually URLSearchParams keys are case sensitive. WMS keys are case insensitive but usually uppercase in generated URLs.
-    
+
     // Check various casing for LAYERS/layers/typeName
-    const name = params.get("typeName") || params.get("layers") || params.get("LAYERS");
+    const name =
+      params.get("typeName") || params.get("layers") || params.get("LAYERS");
 
     if (name) {
       selectedLayer = {
@@ -466,15 +496,24 @@ export const parseLayerSchemaToForm = (
     }
 
     // Extract version
-    version = params.get("version") || params.get("VERSION") || properties?.version || "1.0.0";
+    version =
+      params.get("version") ||
+      params.get("VERSION") ||
+      properties?.version ||
+      "1.0.0";
 
     // Extract SRS
-    srs = params.get("srsName") || params.get("SRS") || params.get("CRS") || properties?.srs || "EPSG:4326";
+    srs =
+      params.get("srsName") ||
+      params.get("SRS") ||
+      params.get("CRS") ||
+      properties?.srs ||
+      "EPSG:4326";
   } else {
     // Fallback if URL params are missing (e.g. cleaned WMS URL), check properties
     if (properties?.version) version = properties.version;
     if (properties?.srs) srs = properties.srs;
-    
+
     // Try to reconstruct selectedLayer from properties.typeName
     if (properties?.typeName) {
       selectedLayer = {
@@ -601,6 +640,7 @@ export const parseLayerSchemaToForm = (
     clickActionParams: formClickActionParams,
     viewTemplate: viewTemplate ? JSON.stringify(viewTemplate, null, 2) : "",
     isActive: data.isActive ?? true,
+    isSelected: data.isSelected ?? false,
     isVisible: data.isVisible ?? true,
     isDynamic: !!getFillColorPropName,
     layerProperty: getFillColorPropName || "",

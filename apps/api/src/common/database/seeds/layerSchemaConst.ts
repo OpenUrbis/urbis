@@ -117,6 +117,7 @@ export const layerSchemas: LayerSchema[] = [
     origin:
       'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=slui:distrito_municipal&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
+    isSelected: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: true,
     minZoom: null,
@@ -172,6 +173,7 @@ export const layerSchemas: LayerSchema[] = [
     origin:
       'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Alote_cidadao&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
+    isSelected: true,
     type: LayerSchemaTypeEnum.Stream,
     isVisible: true,
     minZoom: 17,

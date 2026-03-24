@@ -66,6 +66,7 @@ export class LayerSchemasService {
     name,
     origin,
     isActive,
+    isSelected,
     type,
     isVisible,
     minZoom,
@@ -90,6 +91,7 @@ export class LayerSchemasService {
       name,
       origin,
       isActive,
+      isSelected,
       type,
       isVisible,
       minZoom,
@@ -114,6 +116,7 @@ export class LayerSchemasService {
       name,
       origin,
       isActive,
+      isSelected,
       type,
       isVisible,
       minZoom,
@@ -144,6 +147,7 @@ export class LayerSchemasService {
     layerSchema.name = name;
     layerSchema.origin = origin;
     layerSchema.isActive = isActive;
+    layerSchema.isSelected = isSelected;
     layerSchema.type = type;
     layerSchema.isVisible = isVisible;
     layerSchema.minZoom = minZoom;

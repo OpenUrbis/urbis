@@ -1,6 +1,7 @@
 ---
 title: Introdução
 description: Bem-vindo à documentação do Urbis.
+icon: Book
 ---
 
 import { Map, FileText, Server, Code2, Cpu } from 'lucide-react';
@@ -16,30 +17,35 @@ O projeto Urbis é uma iniciativa para a Prefeitura de São Paulo, focado em doc
 
 <Cards>
   <Card
+    key="mapa"
     href="/docs/general/mapa/layer-configuration"
     title="Mapa"
     description="Visualização e manipulação de dados geoespaciais"
     icon={<Map />}
   />
   <Card
+    key="forms"
     href="/docs/general/forms/docs"
     title="Formulários"
     description="Sistema de formulários dinâmicos"
     icon={<FileText />}
   />
   <Card
+    key="infra"
     href="/docs/general/infrastructure/deploy"
     title="Infraestrutura"
     description="DevOps, Docker, Kubernetes e Deploy"
     icon={<Server />}
   />
   <Card
+    key="dev"
     href="/docs/general/development/setup"
     title="Desenvolvimento"
     description="Guias de contribuição e setup"
     icon={<Code2 />}
   />
   <Card
+    key="arch"
     href="/docs/general/architecture/stack"
     title="Arquitetura"
     description="Visão geral da arquitetura do sistema"
@@ -47,6 +53,7 @@ O projeto Urbis é uma iniciativa para a Prefeitura de São Paulo, focado em doc
   />
 </Cards>
 
+![Capa do Repositório](/cover.png)
 
 ## Tecnologias Utilizadas
 

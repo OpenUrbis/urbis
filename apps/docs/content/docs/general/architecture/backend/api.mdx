@@ -1,28 +1,28 @@
 ---
-title: API & Swagger
-description: API documentation and how to access the Swagger UI.
+title: API e Swagger
+description: Documentação da API e como acessar a interface Swagger.
 icon: FileText
 ---
 
-We provide an auto-generated OpenAPI specification via Swagger to document our REST endpoints.
+Fornecemos uma especificação OpenAPI gerada automaticamente via Swagger para documentar nossos endpoints REST.
 
-## Accessing Swagger
+## Acessando o Swagger
 
-When the API is running locally, the documentation is available at:
+Quando a API está rodando localmente, a documentação está disponível em:
 
 ```
 http://localhost:3000/swagger/docs
 ```
 
-This interface allows you to explore available endpoints, request parameters, response schemas, and even test requests directly from your browser.
+Esta interface permite explorar os endpoints disponíveis, parâmetros de requisição, esquemas de resposta e até testar requisições diretamente do seu navegador.
 
-## Authentication
+## Autenticação
 
-The API uses API Keys or Bearer Tokens (JWT) for authentication.
+A API utiliza API Keys ou Bearer Tokens (JWT) para autenticação.
 
--   **API Key**: Used for machine-to-machine communication or specific endpoints. Header: `X-API-Key` (configurable via environment variables).
--   **Bearer Token**: Used for user sessions. Header: `Authorization: Bearer <token>`.
+-   **API Key**: Usado para comunicação máquina-a-máquina ou endpoints específicos. Header: `X-API-Key` (configurável via variáveis de ambiente).
+-   **Bearer Token**: Usado para sessões de usuário. Header: `Authorization: Bearer <token>`.
 
-## Versioning
+## Versionamento
 
-Currently, the API is versioned via the URL path (e.g., `/v1/...`) if applicable, or managed through breaking change policies. (Note: Verify specific versioning strategy in `main.ts`).
+Atualmente, a API é versionada via caminho da URL (ex: `/v1/...`) se aplicável, ou gerenciada através de políticas de breaking changes. (Nota: Verifique a estratégia de versionamento específica em `main.ts`).

@@ -1,26 +1,14 @@
 import { Button } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 
-interface MenuToggleButtonProps {
-  onClick?: () => void;
-}
-
-export const MenuToggleButton = ({ onClick }: MenuToggleButtonProps) => {
+export const MenuToggleButton = () => {
   const { toggleDrawer } = useNavigationContext();
-
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    } else {
-      toggleDrawer();
-    }
-  };
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={handleClick}
+      onClick={toggleDrawer}
       className="mr-2"
       aria-label="Alternar menu"
     >

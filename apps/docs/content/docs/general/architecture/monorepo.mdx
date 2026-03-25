@@ -1,44 +1,40 @@
 ---
-title: Estrutura do Monorepo
-description: Entendendo a estrutura e flexibilidade do Turborepo.
+title: Monorepo Structure
+description: Understanding the Turborepo structure and flexibility.
 icon: Package
 ---
 
-Utilizamos o [Turborepo](https://turbo.build/) para gerenciar nosso monorepo. Essa estrutura nos permite hospedar várias aplicações e pacotes compartilhados em um único repositório Git, facilitando o compartilhamento de código e commits atômicos.
+We use [Turborepo](https://turbo.build/) to manage our monorepo. This structure allows us to host multiple applications and shared packages in a single Git repository, facilitating code sharing and atomic commits.
 
-## Estrutura de Diretórios
+## Directory Structure
 
 ```plaintext
 .
 ├── apps/
-│   ├── accounts/       # Aplicação Angular para gerenciamento de usuários
-│   ├── api/            # Aplicação backend NestJS
-│   ├── docs/           # Site de documentação (Next.js)
-│   ├── site/           # Aplicação do site principal (React/Vite)
-│   └── web/            # Aplicação web (React/Vite)
+│   ├── accounts/       # Angular application for user management
+│   ├── api/            # NestJS backend application
+│   └── docs/general/           # Documentation site (React/Vite)
 ├── packages/
-│   ├── eslint-config/  # Configurações compartilhadas do ESLint
-│   ├── numeracao-digital/ # Pacote de numeração digital
-│   ├── shared/         # Tipos compartilhados, DTOs e utilitários
-│   ├── typescript-config/ # TSConfigs compartilhados
-│   └── ui/             # Biblioteca de componentes UI compartilhada
-├── package.json        # Configuração raiz e scripts
-└── turbo.json          # Configuração do pipeline Turborepo
+│   ├── eslint-config/  # Shared ESLint configurations
+│   ├── shared/         # Shared types, DTOs, and utilities
+│   ├── typescript-config/ # Shared TSConfigs
+│   └── ui/             # Shared UI component library
+├── package.json        # Root configuration and scripts
+└── turbo.json          # Turborepo pipeline configuration
 ```
 
-## Principais Benefícios
+## Key Benefits
 
-1.  **Código Compartilhado**: O diretório `packages/shared` nos permite definir interfaces TypeScript (DTOs, Entidades) uma única vez e consumi-las tanto na API quanto nas aplicações Frontend. Isso garante que o frontend esteja sempre sincronizado com as estruturas de dados do backend.
-2.  **Ferramentas Unificadas**: Utilizamos um único arquivo de lock (`pnpm-lock.yaml`) e configurações consistentes para ESLint, Prettier e TypeScript em todos os projetos.
-3.  **Cache**: O Turborepo armazena em cache os resultados das builds. Se você não alterou um pacote, o Turbo não o reconstruirá, acelerando significativamente os pipelines de CI/CD.
-4.  **Gerenciamento de Dependências**: Os workspaces do `pnpm` nos permitem vincular pacotes localmente. Alterações em `packages/ui` são refletidas instantaneamente em `apps/docs` sem a necessidade de um ciclo de publicação/instalação.
+1.  **Shared Code**: The `packages/shared` directory allows us to define TypeScript interfaces (DTOs, Entities) once and consume them in both the API and Frontend applications. This guarantees that the frontend is always in sync with the backend data structures.
+2.  **Unified Tooling**: We use a single lockfile (`pnpm-lock.yaml`) and consistent configurations for ESLint, Prettier, and TypeScript across all projects.
+3.  **Caching**: Turborepo caches build outputs. If you haven't changed a package, Turbo won't rebuild it, significantly speeding up CI/CD pipelines.
+4.  **Dependency Management**: `pnpm` workspaces allow us to link packages locally. Changes in `packages/ui` are instantly reflected in `apps/docs` without needing a publish/install cycle.
 
 ## Workspaces
 
-Este projeto está configurado como um workspace `pnpm`. O arquivo `pnpm-workspace.yaml` define os locais dos pacotes do workspace:
+This project is configured as a `pnpm` workspace. The `pnpm-workspace.yaml` file defines the locations of the workspace packages:
 
 ```yaml
 packages:
   - 'apps/*'
   - 'packages/*'
-```

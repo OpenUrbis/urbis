@@ -23,22 +23,24 @@ export const MapLegend = () => {
   const { layerSchemas } = useMapContext();
   const { drawerOpen } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isOverlapping = useMediaQuery("(min-height: 1000px)");
 
   const layers = computed(() =>
     layerSchemas.value.filter(
       (schema: IGetConfigLayerSchema) =>
         schema.isVisible &&
-        schema.colors.filter((cl) => cl.type === "fill").length > 1
-    )
+        schema.colors.filter((cl) => cl.type === "fill").length > 1,
+    ),
   );
 
   const activedLayer = computed(() => {
     const currentLayer = layers.value.find(
-      (layer) => layer.id === activedTab.value
+      (layer) => layer.id === activedTab.value,
     );
     // Return current or first if none selected
-    return currentLayer ||
-      (layers.value.length > 0 ? layers.value[0] : undefined);
+    return (
+      currentLayer || (layers.value.length > 0 ? layers.value[0] : undefined)
+    );
   });
 
   useEffect(() => {
@@ -71,7 +73,12 @@ export const MapLegend = () => {
 
   if (!layers.value.length) return null;
 
-  const leftOffset = isDesktop && drawerOpen.value ? "left-[428px]" : "left-2";
+  const leftOffset =
+    isDesktop && drawerOpen.value
+      ? "left-[440px]"
+      : isOverlapping
+        ? "left-3"
+        : "left-[64px]";
 
   return (
     <>
@@ -79,8 +86,8 @@ export const MapLegend = () => {
         <Button
           onClick={() => (isCollapsed.value = true)}
           className={cn(
-            "absolute bottom-9 z-[8] shadow-md transition-all duration-300",
-            leftOffset
+            "absolute bottom-10 z-[8] shadow-md transition-all duration-300",
+            leftOffset,
           )}
         >
           <span className="material-symbols-outlined mr-2 text-base">
@@ -93,8 +100,8 @@ export const MapLegend = () => {
       {isCollapsed.value ? (
         <div
           className={cn(
-            "absolute bottom-9 z-[1000] w-[240px] max-w-[calc(100%-12px)] max-h-[66vh] bg-background rounded-lg shadow-lg overflow-auto border transition-all duration-300",
-            leftOffset
+            "absolute bottom-10 z-[1000] w-[240px] max-w-[calc(100%-12px)] max-h-[66vh] bg-background rounded-lg shadow-lg overflow-auto border transition-all duration-300",
+            leftOffset,
           )}
         >
           <div className="flex items-center justify-between p-2 pl-4 border-b bg-background sticky top-0">
@@ -112,7 +119,7 @@ export const MapLegend = () => {
 
           <div className="p-3 grid gap-1">
             <Select
-              value={activedTab.value || (layers.value[0]?.id || "")}
+              value={activedTab.value || layers.value[0]?.id || ""}
               onValueChange={(value) => (activedTab.value = value)}
             >
               <SelectTrigger className="w-full">

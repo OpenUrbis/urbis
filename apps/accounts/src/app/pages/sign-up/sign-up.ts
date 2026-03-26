@@ -164,27 +164,6 @@ export class SignUp {
   }
 
   async govBrLogin() {
-    if (window.location.hostname !== 'conta.urbis.sampa.br') {
-      // Create mock data for development environments
-      localStorage.setItem(
-        'govBrTokens',
-        JSON.stringify({
-          idToken: 'mock_id_token',
-          accessToken: 'mock_access_token',
-          userData: {
-            email: 'dev@urbis.sampa.br',
-            firstName: 'Usuário',
-            lastName: 'de Teste',
-            cpf: '12236731035',
-            birthDate: '1990-01-01',
-          },
-          timestamp: Date.now(),
-        }),
-      );
-      this.checkGovBrData();
-      return;
-    }
-
     try {
       const { idToken, isAuthenticated, accessToken } = await firstValueFrom(
         this.oidcSecurityService.authorizeWithPopUp(
@@ -230,11 +209,11 @@ export class SignUp {
         return;
       }
 
-      const { idToken, userData } = govBrTokens;
-
-      this.hasGovBrData.set(true);
+      const { userData } = govBrTokens;
+      console.log('userData', userData);
 
       if (userData) {
+        this.hasGovBrData.set(true);
         const partsName = userData.name.split(' ');
         this.formGroup.patchValue({
           email: userData.email,
@@ -247,19 +226,11 @@ export class SignUp {
           avatar: userData.picture || '',
         });
       } else {
-        const decodedToken: any = this.decodeToken(idToken);
-        if (decodedToken) {
-          if (decodedToken.email) {
-            this.formGroup.patchValue({ email: decodedToken.email });
-          }
-          if (decodedToken.name) {
-            const parts = decodedToken.name.split(' ');
-            this.formGroup.patchValue({
-              firstName: parts[0],
-              lastName: parts.slice(1).join(' '),
-            });
-          }
-        }
+        this.toaster.error(
+          'Não foi possível recuperar as informações do Gov.BR, tente novamente',
+        );
+        this.hasGovBrData.set(false);
+        return;
       }
 
       // Desabilita campos se dados preenchidos pelo gov.br
@@ -274,6 +245,9 @@ export class SignUp {
       if (this.formGroup.get('birthDate')?.value)
         this.formGroup.get('birthDate')?.disable();
     } else {
+      this.toaster.error(
+        'Não foi possível recuperar as informações do Gov.BR, tente novamente',
+      );
       this.hasGovBrData.set(false);
     }
   }

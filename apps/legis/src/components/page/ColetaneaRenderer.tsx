@@ -10,6 +10,7 @@ import { ViewMode, processElementsForConsolidated, isElementInactive } from './C
 import { processGaps, processGapsUnified } from './GapLogic';
 import { Link } from 'wouter';
 import { getElementKey } from '../../domain/display-logic';
+import { NORMATIVE_TYPES } from '../../data/normative-types';
 
 interface ColetaneaRendererProps {
     content?: JSONContent;
@@ -67,6 +68,9 @@ export function ColetaneaRenderer({ content, viewMode = 'full' }: ColetaneaRende
                     const { pageId, elementId, elementIds, segmentsMap } = referenceNode.attrs || {};
                     const doc = docs[pageId];
                     if (doc) {
+                        const normativeTypeLabel =
+                            NORMATIVE_TYPES[doc.normativeType as keyof typeof NORMATIVE_TYPES] ?? doc.normativeType;
+
                         // Handle Grouped Elements
                         if (elementIds && elementIds.length > 0) {
                             const selectedSet = new Set(elementIds);
@@ -98,7 +102,7 @@ export function ColetaneaRenderer({ content, viewMode = 'full' }: ColetaneaRende
                                         <div className="absolute -left-4 top-0 bottom-0 w-1 bg-muted group-hover:bg-primary/50 transition-colors rounded-full" />
                                         <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-4 pl-2 font-bold border-b pb-2 flex justify-between items-center">
                                             <span>
-                                                {doc.normativeType} 
+                                                {normativeTypeLabel}
                                                 {doc.number && <span> Nº {doc.number}</span>}
                                                 <span className="lowercase font-normal"> de </span>
                                                 {formatDate(doc.actDate || doc.publicationDate, true)}
@@ -210,7 +214,7 @@ export function ColetaneaRenderer({ content, viewMode = 'full' }: ColetaneaRende
                                         <div className="absolute -left-4 top-0 bottom-0 w-1 bg-muted group-hover:bg-primary/50 transition-colors rounded-full" />
                                         <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 pl-2 flex justify-between items-center">
                                             <span>
-                                                {doc.normativeType} 
+                                                {normativeTypeLabel}
                                                 {doc.number && <span> Nº {doc.number}</span>}
                                                 <span className="lowercase font-normal"> de </span>
                                                 {formatDate(doc.actDate || doc.publicationDate, true)}
@@ -238,7 +242,7 @@ export function ColetaneaRenderer({ content, viewMode = 'full' }: ColetaneaRende
                             // Root link
                             return (
                                 <div key={idx} className="border p-4 rounded my-4 bg-muted/10">
-                                    <div className="font-bold">{doc.normativeType} {doc.number}</div>
+                                    <div className="font-bold">{normativeTypeLabel} {doc.number}</div>
                                     <div className="text-sm italic">{doc.ementa}</div>
                                 </div>
                             );

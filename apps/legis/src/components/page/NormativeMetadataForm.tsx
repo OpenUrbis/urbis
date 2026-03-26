@@ -2,15 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
     Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label, 
     Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
-    Textarea, Separator, Card, CardContent, Badge, Switch
+    Textarea, Separator, Card, CardContent, Badge
 } from '@open-urbis/map-ui';
-import { Plus, Trash2, AlertCircle, PlusCircle, Calendar as CalendarIcon, Check, ExternalLink, Sparkles, X, Loader2, MousePointerClick, FileText, Edit, Link as LinkIcon, Search } from 'lucide-react';
+import { Plus, Trash2, AlertCircle, PlusCircle, Calendar as CalendarIcon, Check, ExternalLink, X, Loader2, MousePointerClick, FileText, Edit, Link as LinkIcon, Search } from 'lucide-react';
 import { format, parse, isValid, isAfter, isBefore, getYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { OriginalNormativo, Authority, EmentaAlteration, CollectionLink } from '../../domain/entities';
 import { NORMATIVE_TYPES, NormativeTypeKey } from '../../data/normative-types';
 import { AUTHORITIES } from '../../data/authorities';
-import { NormativeSocialBanner } from './NormativeSocialBanner';
 import { LegisEditor } from '../Editor/LegisEditor';
 import { SimpleEditor } from '../Editor/SimpleEditor';
 import { safeJSONParse } from '@/lib/content';
@@ -160,7 +159,6 @@ interface NormativeMetadataFormProps {
 export function NormativeMetadataForm({ data, onChange, disabled, title, onTitleChange }: NormativeMetadataFormProps & { title?: string, onTitleChange?: (v: string) => void }) {
     const [authorities, setAuthorities] = useState<Authority[]>(AUTHORITIES);
     const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
-    const [showBanner, setShowBanner] = useState(false);
 
     // Segment Selector State
     const [segmentSelectorOpen, setSegmentSelectorOpen] = useState(false);
@@ -401,29 +399,6 @@ export function NormativeMetadataForm({ data, onChange, disabled, title, onTitle
 
     return (
         <div className="space-y-8 pb-10">
-            {/* Banner Toggle */}
-            <div className="flex justify-end items-center gap-2 mb-4">
-                <Label htmlFor="banner-mode" className="text-xs font-medium text-muted-foreground flex items-center gap-1 cursor-pointer">
-                    <Sparkles className="w-3 h-3 text-yellow-500" />
-                    Modo Divulgação
-                </Label>
-                <Switch 
-                    id="banner-mode" 
-                    checked={showBanner} 
-                    onCheckedChange={setShowBanner} 
-                    className="scale-75"
-                />
-            </div>
-
-            {/* Social Banner */}
-            {showBanner && (
-                <NormativeSocialBanner 
-                    data={data} 
-                    authority={selectedAuthority} 
-                    onClose={() => setShowBanner(false)}
-                />
-            )}
-
             {/* Header / Errors */}
             {!isMinimumRequirementMet && (
                 <div className="bg-destructive/10 text-destructive p-3 rounded-md flex items-center text-sm">

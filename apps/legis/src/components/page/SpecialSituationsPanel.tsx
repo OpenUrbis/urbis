@@ -621,6 +621,14 @@ export function SpecialSituationsPanel({ selectedElements = [], allElements = []
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                <CollectionLinkManager
+                    open={linkManagerOpen}
+                    onOpenChange={setLinkManagerOpen}
+                    initialLinks={[]}
+                    onSave={(links, cache) => handleLinkSelection(links, cache)}
+                    selectionMode="single"
+                />
             </div>
         );
     }

@@ -112,6 +112,44 @@ const NormativeAttributes = Extension.create({
                 return { 'data-normative-id': attributes.normativeId };
              }
           },
+          originalStartValidity: {
+            default: null,
+            keepOnSplit: false,
+            parseHTML: element => {
+              const attr = element.getAttribute('data-original-start-validity');
+              try {
+                return attr ? JSON.parse(attr) : null;
+              } catch {
+                return null;
+              }
+            },
+            renderHTML: attributes => {
+              if (!attributes.originalStartValidity) return {};
+
+              return {
+                'data-original-start-validity': JSON.stringify(attributes.originalStartValidity),
+              };
+            },
+          },
+          originalEndValidity: {
+            default: null,
+            keepOnSplit: false,
+            parseHTML: element => {
+              const attr = element.getAttribute('data-original-end-validity');
+              try {
+                return attr ? JSON.parse(attr) : null;
+              } catch {
+                return null;
+              }
+            },
+            renderHTML: attributes => {
+              if (!attributes.originalEndValidity) return {};
+
+              return {
+                'data-original-end-validity': JSON.stringify(attributes.originalEndValidity),
+              };
+            },
+          },
           diffStatus: {
             default: null,
             parseHTML: element => element.getAttribute('data-diff-status'),

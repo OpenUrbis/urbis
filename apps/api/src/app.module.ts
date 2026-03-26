@@ -14,6 +14,8 @@ import { RedisModule } from './common/redis/redis.module';
 import { DynamicSystemDataModule } from './dynamic-system-data/dynamic-system-data.module';
 import { DynamicSystemDataEntities } from './dynamic-system-data/index.entity';
 import { FilesModule } from './files/files.module';
+import { LegisModuleEntities } from './legis/index.entity';
+import { LegisModule } from './legis/legis.module';
 import { MapsModuleEntities } from './maps/index.entity';
 import { MapsModule } from './maps/maps.module';
 import { OrganizationModuleEntities } from './organization/index.entity';
@@ -84,6 +86,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
         ...DynamicSystemDataEntities,
         ...SupportModuleEntities,
         ...RepresentationEntities,
+        ...LegisModuleEntities,
       ],
       [...UserModuleSubscribers],
     ),
@@ -99,6 +102,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     SupportModule,
     RepresentationModule,
     DynamicSystemDataModule,
+    LegisModule,
     QuestionAnswerModule,
     QuestionTabModule,
   ],

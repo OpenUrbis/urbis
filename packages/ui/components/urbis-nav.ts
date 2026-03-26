@@ -35,6 +35,7 @@ export function buildUrbisNav(opts: {
   // Detecção por host (produção)
   const byHostMapa = beginsWith(hostname, "mapa.");
   const byHostDados = beginsWith(hostname, "dadosabertos.");
+  const byHostLegis = beginsWith(hostname, "legis.");
   const byHostViabiliza = beginsWith(hostname, "viabiliza.");
   const byHostDocs = beginsWith(hostname, "docs.");
   const byHostMosaico = hostname === "urbis.prefeitura.sp.gov.br" || beginsWith(hostname, "urbis.");
@@ -57,7 +58,7 @@ export function buildUrbisNav(opts: {
   const isLegis =
     forced === "legis"
       ? true
-      : (byHostDocs && beginsWith(pathname, "/docs/legis")) || (isLocal && byPathLegis);
+      : byHostLegis || (byHostDocs && beginsWith(pathname, "/docs/legis")) || (isLocal && byPathLegis);
 
   // Mosaico só é "fallback" quando nada mais for verdadeiro
   const isMosaico =
@@ -81,7 +82,7 @@ export function buildUrbisNav(opts: {
     { label: "Mosaico", href: "https://urbis.prefeitura.sp.gov.br", active: isMosaico },
     { label: "Mapa", href: "https://mapa.urbis.prefeitura.sp.gov.br", active: isMapa },
     { label: "Dados Abertos", href: "https://dadosabertos.urbis.prefeitura.sp.gov.br", active: isDados },
-    { label: "Legis", href: "https://legis.urbis.sampa.br/ ", active: isLegis },
+    { label: "Legis", href: "https://legis.urbis.prefeitura.sp.gov.br/", active: isLegis },
     { label: "Viabiliza", href: "https://viabiliza.urbis.prefeitura.sp.gov.br/docs/legis", active: isViabiliza },
     { label: "Doc. técnica", href: "https://docs.urbis.prefeitura.sp.gov.br/", active: isDocs && !isLegis },
   ];

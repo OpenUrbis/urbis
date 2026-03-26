@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { OriginalNormativo, NormativeElementEntity } from '../../domain/entities';
 import { TableData, MapData, FigureData } from '../../domain/types';
 import { AUTHORITIES } from '../../data/authorities';
+import { NORMATIVE_TYPES } from '../../data/normative-types';
 import { format, parse, isValid, isAfter, isBefore } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { getElementKey } from '../../domain/display-logic';
@@ -35,6 +36,10 @@ export function NormativeDocumentRenderer({
     onSelectElement
 }: NormativeDocumentRendererProps) {
     const authority = useMemo(() => AUTHORITIES.find(a => a.id === data.authorityId), [data.authorityId]);
+    const normativeTypeLabel = useMemo(
+        () => NORMATIVE_TYPES[data.normativeType] ?? data.normativeType,
+        [data.normativeType]
+    );
 
     const visibleElements = useMemo(() => {
         let elements = viewMode === 'full' ? (data.elements || []) : processElementsForConsolidated(data.elements || []);
@@ -95,7 +100,7 @@ export function NormativeDocumentRenderer({
 
     const Epigrafe = () => (
         <div className="uppercase font-bold text-center text-sm tracking-wide mb-6">
-            {data.normativeType}
+            {normativeTypeLabel}
             {data.number && <span> Nº {data.number}</span>}
             {<span>, DE {formatDate(data.actDate || data.publicationDate, true)}</span>}
         </div>
@@ -258,6 +263,7 @@ export function ElementContent({
     onSelect?: () => void
 }) {
     const { type, index, text, tableData, figureData, mapData, specialSituations, originalEndValidity } = element;
+    const safeIndex = typeof index === 'string' ? index.trim() : index != null ? String(index) : '';
     if ((type as string) === 'Separator') return <div className="text-center text-muted-foreground my-4 font-mono text-sm tracking-widest">[...]</div>;
 
     const isFuture = isValidityNotStarted(element);
@@ -266,10 +272,10 @@ export function ElementContent({
     const isRepristinated = specialSituations?.some(s => s.type === 'Repristinação');
 
     let key = getElementKey(element);
-    if (type === 'Parágrafo') key = (index === 'único' || text?.toLowerCase().startsWith('único')) ? 'Parágrafo único - ' : `§ ${index} - `;
-    else if (type === 'Inciso' || type === 'Item') key = `${index} - `;
-    else if (type === 'Alínea') key = `${index}) `;
-    else if (type === 'Nota') key = `(${index}) - `;
+    if (type === 'Parágrafo') key = (safeIndex === 'único' || text?.toLowerCase().startsWith('único')) ? 'Parágrafo único - ' : (safeIndex ? `§ ${safeIndex} - ` : '');
+    else if (type === 'Inciso' || type === 'Item') key = safeIndex ? `${safeIndex} - ` : '';
+    else if (type === 'Alínea') key = safeIndex ? `${safeIndex}) ` : '';
+    else if (type === 'Nota') key = safeIndex ? `(${safeIndex}) - ` : '';
 
     const isUppercase = ['Parte', 'Livro', 'Título', 'Capítulo', 'Anexo', 'Epígrafe'].includes(type);
     const isCentered = ['Parte', 'Livro', 'Título', 'Capítulo', 'Seção', 'Subseção', 'Divisão desconforme', 'Anexo'].includes(type);

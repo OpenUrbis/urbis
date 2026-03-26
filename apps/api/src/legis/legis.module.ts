@@ -5,6 +5,11 @@ import { PagesModule } from './pages/pages.module';
 import { LegisSearchModule } from './search/legis-search.module';
 
 @Module({
-  imports: [PagesModule, CategoriesModule, LegisSearchModule, LegisImportModule],
+  imports: [
+    PagesModule,
+    CategoriesModule,
+    LegisSearchModule,
+    LegisImportModule,
+  ],
 })
 export class LegisModule {}

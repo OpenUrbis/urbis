@@ -42,7 +42,8 @@ export class PagesService {
       isPublic: createLegisPageDto.isPublic ?? false,
       content: createLegisPageDto.content,
       source: createLegisPageDto.source ?? null,
-      entityType: createLegisPageDto.entityType ?? createLegisPageDto.type ?? null,
+      entityType:
+        createLegisPageDto.entityType ?? createLegisPageDto.type ?? null,
       entityData: createLegisPageDto.entityData ?? null,
       createdBy: userId ?? null,
       updatedBy: userId ?? null,

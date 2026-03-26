@@ -23,11 +23,13 @@ const DEFAULT_VALIDITY = {
   deviceId: 'Lei 1.000',
 };
 
-const toDoc = (
-  content: Array<Record<string, unknown>>,
-): string => JSON.stringify({ type: 'doc', content });
+const toDoc = (content: Array<Record<string, unknown>>): string =>
+  JSON.stringify({ type: 'doc', content });
 
-const paragraph = (text: string, normativeId?: string): Record<string, unknown> => ({
+const paragraph = (
+  text: string,
+  normativeId?: string,
+): Record<string, unknown> => ({
   type: 'paragraph',
   ...(normativeId ? { attrs: { normativeId } } : {}),
   content: [{ type: 'text', text }],
@@ -118,7 +120,11 @@ const coletaneaTematica = ({
   id: string;
   title: string;
   slug: string;
-  collectionType: 'Exigências' | 'Competências' | 'Definições' | 'Fontes de Informação';
+  collectionType:
+    | 'Exigências'
+    | 'Competências'
+    | 'Definições'
+    | 'Fontes de Informação';
   category: string;
   theme: string;
   shortDescription?: string;
@@ -168,11 +174,26 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
       'Aprova o Plano Diretor Estratégico e revoga a Lei nº 13.430, de 13 de setembro de 2002.',
     editorContent: toDoc([
       paragraph('TÍTULO I - DOS PRINCÍPIOS FUNDAMENTAIS', 'pde_tit1'),
-      paragraph('Art. 1º Esta lei institui o Plano Diretor Estratégico do Município de São Paulo.', 'pde_art1'),
-      paragraph('Art. 7º São objetivos da política urbana ordenar o pleno desenvolvimento das funções sociais da cidade.', 'pde_art7'),
-      paragraph('Inciso I - garantir o direito à cidade sustentável.', 'pde_art7_inc1'),
-      paragraph('Inciso II - promover o desenvolvimento urbano equilibrado.', 'pde_art7_inc2'),
-      paragraph('Art. 8º O detalhamento das zonas de uso será objeto da Lei de Parcelamento, Uso e Ocupação do Solo.', 'pde_art8'),
+      paragraph(
+        'Art. 1º Esta lei institui o Plano Diretor Estratégico do Município de São Paulo.',
+        'pde_art1',
+      ),
+      paragraph(
+        'Art. 7º São objetivos da política urbana ordenar o pleno desenvolvimento das funções sociais da cidade.',
+        'pde_art7',
+      ),
+      paragraph(
+        'Inciso I - garantir o direito à cidade sustentável.',
+        'pde_art7_inc1',
+      ),
+      paragraph(
+        'Inciso II - promover o desenvolvimento urbano equilibrado.',
+        'pde_art7_inc2',
+      ),
+      paragraph(
+        'Art. 8º O detalhamento das zonas de uso será objeto da Lei de Parcelamento, Uso e Ocupação do Solo.',
+        'pde_art8',
+      ),
     ]),
     elements: [
       {
@@ -239,10 +260,19 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
     ementa:
       'Disciplina o parcelamento, o uso e a ocupação do solo no Município de São Paulo, de acordo com a Lei nº 16.050, de 31 de julho de 2014 – PDE.',
     editorContent: toDoc([
-      paragraph('Art. 1º Esta lei disciplina o parcelamento, o uso e a ocupação do solo no Município de São Paulo.', 'lpuos_art1'),
+      paragraph(
+        'Art. 1º Esta lei disciplina o parcelamento, o uso e a ocupação do solo no Município de São Paulo.',
+        'lpuos_art1',
+      ),
       paragraph('CAPÍTULO II - DAS ZONAS', 'lpuos_cap_zonas'),
-      paragraph('Art. 22. As zonas são porções do território onde incidem parâmetros específicos.', 'lpuos_art22'),
-      paragraph('Art. 23. As Zonas Exclusivamente Residenciais - ZER destinam-se à preservação da qualidade ambiental e urbanística.', 'lpuos_art23'),
+      paragraph(
+        'Art. 22. As zonas são porções do território onde incidem parâmetros específicos.',
+        'lpuos_art22',
+      ),
+      paragraph(
+        'Art. 23. As Zonas Exclusivamente Residenciais - ZER destinam-se à preservação da qualidade ambiental e urbanística.',
+        'lpuos_art23',
+      ),
     ]),
     elements: [
       {
@@ -298,10 +328,19 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
     publicationDate: '10.05.2017',
     ementa: 'Aprova o Código de Obras e Edificações do Município de São Paulo.',
     editorContent: toDoc([
-      paragraph('Art. 1º Fica aprovado o Código de Obras e Edificações do Município de São Paulo.', 'coe_art1'),
-      paragraph('Art. 15. São de responsabilidade do proprietário a manutenção das condições de estabilidade, segurança e salubridade do imóvel.', 'coe_art15'),
+      paragraph(
+        'Art. 1º Fica aprovado o Código de Obras e Edificações do Município de São Paulo.',
+        'coe_art1',
+      ),
+      paragraph(
+        'Art. 15. São de responsabilidade do proprietário a manutenção das condições de estabilidade, segurança e salubridade do imóvel.',
+        'coe_art15',
+      ),
       paragraph('Art. 22. (VETADO)', 'coe_art22'),
-      paragraph('Art. 55. Para o licenciamento de edificações, deverão ser observados os índices urbanísticos estabelecidos na LPUOS.', 'coe_art55'),
+      paragraph(
+        'Art. 55. Para o licenciamento de edificações, deverão ser observados os índices urbanísticos estabelecidos na LPUOS.',
+        'coe_art55',
+      ),
     ]),
     elements: [
       {
@@ -358,8 +397,14 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
     publicationDate: '31.12.1981',
     ementa: 'Dispõe sobre o parcelamento do solo no Município de São Paulo.',
     editorContent: toDoc([
-      paragraph('Art. 1º O parcelamento do solo urbano poderá ser feito mediante loteamento ou desmembramento.', 'lps_art1'),
-      paragraph('Art. 5º Os loteamentos deverão atender aos requisitos urbanísticos definidos no Plano Diretor.', 'lps_art5'),
+      paragraph(
+        'Art. 1º O parcelamento do solo urbano poderá ser feito mediante loteamento ou desmembramento.',
+        'lps_art1',
+      ),
+      paragraph(
+        'Art. 5º Os loteamentos deverão atender aos requisitos urbanísticos definidos no Plano Diretor.',
+        'lps_art5',
+      ),
     ]),
     elements: [
       {
@@ -395,9 +440,13 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
     number: '1.234',
     actDate: '01.01.2024',
     publicationDate: '02.01.2024',
-    ementa: 'Lei de testes para visualização de tabelas normativas simplificadas.',
+    ementa:
+      'Lei de testes para visualização de tabelas normativas simplificadas.',
     editorContent: toDoc([
-      paragraph('Art. 1º Os parâmetros de ocupação do solo são definidos na tabela abaixo:', 'lei_tab_art1'),
+      paragraph(
+        'Art. 1º Os parâmetros de ocupação do solo são definidos na tabela abaixo:',
+        'lei_tab_art1',
+      ),
       {
         type: 'table',
         attrs: { normativeId: 'tab_complexa' },
@@ -405,17 +454,65 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
           {
             type: 'tableRow',
             content: [
-              { type: 'tableHeader', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Zona' }] }] },
-              { type: 'tableHeader', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'C.A. Máximo' }] }] },
-              { type: 'tableHeader', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'T.O. Máxima' }] }] },
+              {
+                type: 'tableHeader',
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: 'Zona' }],
+                  },
+                ],
+              },
+              {
+                type: 'tableHeader',
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: 'C.A. Máximo' }],
+                  },
+                ],
+              },
+              {
+                type: 'tableHeader',
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: 'T.O. Máxima' }],
+                  },
+                ],
+              },
             ],
           },
           {
             type: 'tableRow',
             content: [
-              { type: 'tableCell', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'ZER-1' }] }] },
-              { type: 'tableCell', content: [{ type: 'paragraph', content: [{ type: 'text', text: '1.0' }] }] },
-              { type: 'tableCell', content: [{ type: 'paragraph', content: [{ type: 'text', text: '0.5' }] }] },
+              {
+                type: 'tableCell',
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: 'ZER-1' }],
+                  },
+                ],
+              },
+              {
+                type: 'tableCell',
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: '1.0' }],
+                  },
+                ],
+              },
+              {
+                type: 'tableCell',
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: '0.5' }],
+                  },
+                ],
+              },
             ],
           },
         ],
@@ -464,14 +561,44 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
     ementa:
       'Dispõe sobre a ordenação dos elementos que compõem a paisagem urbana do Município de São Paulo (Lei Cidade Limpa).',
     editorContent: toDoc([
-      paragraph('Art. 1º Esta lei dispõe sobre a paisagem urbana do Município de São Paulo.', 'post_art1'),
-      paragraph('Art. 2º A ordenação dos anúncios obedecerá critérios de interesse público.', 'post_art2'),
-      paragraph('Art. 15. Ficam estabelecidas regras para mobiliário urbano e anúncios.', 'post_art15'),
+      paragraph(
+        'Art. 1º Esta lei dispõe sobre a paisagem urbana do Município de São Paulo.',
+        'post_art1',
+      ),
+      paragraph(
+        'Art. 2º A ordenação dos anúncios obedecerá critérios de interesse público.',
+        'post_art2',
+      ),
+      paragraph(
+        'Art. 15. Ficam estabelecidas regras para mobiliário urbano e anúncios.',
+        'post_art15',
+      ),
     ]),
     elements: [
-      { id: 'post_art1', type: 'Artigo', index: '1º', text: 'Esta lei dispõe sobre a paisagem urbana do Município de São Paulo.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
-      { id: 'post_art2', type: 'Artigo', index: '2º', text: 'A ordenação dos anúncios obedecerá critérios de interesse público.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
-      { id: 'post_art15', type: 'Artigo', index: '15', text: 'Ficam estabelecidas regras para mobiliário urbano e anúncios.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
+      {
+        id: 'post_art1',
+        type: 'Artigo',
+        index: '1º',
+        text: 'Esta lei dispõe sobre a paisagem urbana do Município de São Paulo.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
+      {
+        id: 'post_art2',
+        type: 'Artigo',
+        index: '2º',
+        text: 'A ordenação dos anúncios obedecerá critérios de interesse público.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
+      {
+        id: 'post_art15',
+        type: 'Artigo',
+        index: '15',
+        text: 'Ficam estabelecidas regras para mobiliário urbano e anúncios.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
     ],
     tags: ['paisagem', 'publicidade'],
     categoryId: '3',
@@ -483,22 +610,73 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
     ementa: 'Institui o Código Civil.',
     editorContent: toDoc([
       paragraph('CAPÍTULO I - DISPOSIÇÕES GERAIS', 'cap_1'),
-      paragraph('Art. 1º Antigo texto de introdução normativa.', 'art_1_antigo'),
+      paragraph(
+        'Art. 1º Antigo texto de introdução normativa.',
+        'art_1_antigo',
+      ),
       paragraph('Art. 2º Antigo texto referente a calçamento.', 'art_2_antigo'),
-      paragraph('Art. 3º Texto adicional de referência histórica.', 'art_3_antigo'),
-      paragraph('Art. 4º Texto complementar para fins de teste.', 'art_4_antigo'),
+      paragraph(
+        'Art. 3º Texto adicional de referência histórica.',
+        'art_3_antigo',
+      ),
+      paragraph(
+        'Art. 4º Texto complementar para fins de teste.',
+        'art_4_antigo',
+      ),
       paragraph('Figura 88 - Faixas de Uso.', 'fig_88'),
       paragraph('Mapa APA Bororé-Colônia.', 'mapa_apa'),
       paragraph('Anexo 1 - Documentação complementar.', 'anexo_1'),
       paragraph('Nota 1 - Observação sobre dispositivos.', 'nota_1'),
     ]),
     elements: [
-      { id: 'cap_1', type: 'Capítulo', index: 'I', text: 'DISPOSIÇÕES GERAIS', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
-      { id: 'art_1_antigo', type: 'Artigo', index: '1º', text: 'Antigo texto de introdução normativa.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
-      { id: 'art_2_antigo', type: 'Artigo', index: '2º', text: 'Antigo texto referente a calçamento.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
-      { id: 'art_3_antigo', type: 'Artigo', index: '3º', text: 'Texto adicional de referência histórica.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
-      { id: 'art_4_antigo', type: 'Artigo', index: '4º', text: 'Texto complementar para fins de teste.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
-      { id: 'fig_88', type: 'Figura', text: 'Figura 88 - Faixas de Uso.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [], figureData: { url: 'https://placehold.co/800x600?text=Figura+88' } },
+      {
+        id: 'cap_1',
+        type: 'Capítulo',
+        index: 'I',
+        text: 'DISPOSIÇÕES GERAIS',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
+      {
+        id: 'art_1_antigo',
+        type: 'Artigo',
+        index: '1º',
+        text: 'Antigo texto de introdução normativa.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
+      {
+        id: 'art_2_antigo',
+        type: 'Artigo',
+        index: '2º',
+        text: 'Antigo texto referente a calçamento.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
+      {
+        id: 'art_3_antigo',
+        type: 'Artigo',
+        index: '3º',
+        text: 'Texto adicional de referência histórica.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
+      {
+        id: 'art_4_antigo',
+        type: 'Artigo',
+        index: '4º',
+        text: 'Texto complementar para fins de teste.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
+      {
+        id: 'fig_88',
+        type: 'Figura',
+        text: 'Figura 88 - Faixas de Uso.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+        figureData: { url: 'https://placehold.co/800x600?text=Figura+88' },
+      },
       {
         id: 'mapa_apa',
         type: 'Mapa',
@@ -507,10 +685,22 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
         specialSituations: [],
         mapData: {
           screen: { url: 'https://placehold.co/1024x768?text=Mapa+APA' },
-          minimap: { lat: -23.692, lng: -46.678, zoom: 10, layers: ['apa-borore-colonia'] },
+          minimap: {
+            lat: -23.692,
+            lng: -46.678,
+            zoom: 10,
+            layers: ['apa-borore-colonia'],
+          },
         },
       },
-      { id: 'anexo_1', type: 'Anexo', text: 'Documentação complementar do anexo 1.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [], attachmentId: 'anexo-1' },
+      {
+        id: 'anexo_1',
+        type: 'Anexo',
+        text: 'Documentação complementar do anexo 1.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+        attachmentId: 'anexo-1',
+      },
       {
         id: 'nota_1',
         type: 'Nota',
@@ -527,25 +717,56 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
     id: 'lei_situacoes_especiais',
     title: 'Situações especiais e coordenadas',
     slug: 'lei_situacoes_especiais',
-    ementa: 'Dispõe sobre a identificação de imóveis e sistemas de coordenadas.',
+    ementa:
+      'Dispõe sobre a identificação de imóveis e sistemas de coordenadas.',
     editorContent: toDoc([
       paragraph('Art. 1º Dispõe sobre identificação de imóveis.', 'se_art1'),
       paragraph('Art. 2º Trata de atualização cadastral.', 'se_art2'),
       paragraph('Art. 3º Define hipóteses especiais de vigência.', 'se_art3'),
-      paragraph('Art. 4º Consolida critérios de georreferenciamento.', 'se_art4'),
+      paragraph(
+        'Art. 4º Consolida critérios de georreferenciamento.',
+        'se_art4',
+      ),
     ]),
     elements: [
-      { id: 'se_art1', type: 'Artigo', index: '1º', text: 'Dispõe sobre identificação de imóveis.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
-      { id: 'se_art2', type: 'Artigo', index: '2º', text: 'Trata de atualização cadastral.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
+      {
+        id: 'se_art1',
+        type: 'Artigo',
+        index: '1º',
+        text: 'Dispõe sobre identificação de imóveis.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
+      {
+        id: 'se_art2',
+        type: 'Artigo',
+        index: '2º',
+        text: 'Trata de atualização cadastral.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
       {
         id: 'se_art3',
         type: 'Artigo',
         index: '3º',
         text: 'Define hipóteses especiais de vigência.',
         originalStartValidity: DEFAULT_VALIDITY,
-        specialSituations: [{ type: 'Suspensão de vigor/eficácia', date: '01.03.2024', relatedDeviceId: 'decisao-liminar-1' }],
+        specialSituations: [
+          {
+            type: 'Suspensão de vigor/eficácia',
+            date: '01.03.2024',
+            relatedDeviceId: 'decisao-liminar-1',
+          },
+        ],
       },
-      { id: 'se_art4', type: 'Artigo', index: '4º', text: 'Consolida critérios de georreferenciamento.', originalStartValidity: DEFAULT_VALIDITY, specialSituations: [] },
+      {
+        id: 'se_art4',
+        type: 'Artigo',
+        index: '4º',
+        text: 'Consolida critérios de georreferenciamento.',
+        originalStartValidity: DEFAULT_VALIDITY,
+        specialSituations: [],
+      },
     ],
     tags: ['vigencia', 'coordenadas'],
     categoryId: '2',
@@ -557,24 +778,46 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
     collectionType: 'Definições',
     category: 'Uso do Solo',
     theme: 'Zoneamento',
-    shortDescription: 'Coletânea temática para consultas rápidas sobre parcelamento e zoneamento.',
+    shortDescription:
+      'Coletânea temática para consultas rápidas sobre parcelamento e zoneamento.',
     fullDescription: toDoc([
       heading('Compêndio de Uso e Ocupação do Solo'),
-      paragraph('Esta coletânea agrupa referências úteis para compreender o zoneamento municipal.'),
-      referenceNode('Plano Diretor Estratégico', 'lei_pde', ['pde_art1', 'pde_art7', 'pde_art8']),
-      referenceNode('Lei de Parcelamento, Uso e Ocupação do Solo', 'lei_lpuos', ['lpuos_art1', 'lpuos_art22', 'lpuos_art23']),
-      referenceNode('Lei de Parcelamento do Solo', 'lei_lps', ['lps_art1', 'lps_art5']),
+      paragraph(
+        'Esta coletânea agrupa referências úteis para compreender o zoneamento municipal.',
+      ),
+      referenceNode('Plano Diretor Estratégico', 'lei_pde', [
+        'pde_art1',
+        'pde_art7',
+        'pde_art8',
+      ]),
+      referenceNode(
+        'Lei de Parcelamento, Uso e Ocupação do Solo',
+        'lei_lpuos',
+        ['lpuos_art1', 'lpuos_art22', 'lpuos_art23'],
+      ),
+      referenceNode('Lei de Parcelamento do Solo', 'lei_lps', [
+        'lps_art1',
+        'lps_art5',
+      ]),
     ]),
     links: [
       {
         resourceId: 'lei_pde',
         resourceType: 'original_normativo',
-        linkedElements: [{ elementId: 'pde_art1' }, { elementId: 'pde_art7' }, { elementId: 'pde_art8' }],
+        linkedElements: [
+          { elementId: 'pde_art1' },
+          { elementId: 'pde_art7' },
+          { elementId: 'pde_art8' },
+        ],
       },
       {
         resourceId: 'lei_lpuos',
         resourceType: 'original_normativo',
-        linkedElements: [{ elementId: 'lpuos_art1' }, { elementId: 'lpuos_art22' }, { elementId: 'lpuos_art23' }],
+        linkedElements: [
+          { elementId: 'lpuos_art1' },
+          { elementId: 'lpuos_art22' },
+          { elementId: 'lpuos_art23' },
+        ],
       },
       {
         resourceId: 'lei_lps',
@@ -590,11 +833,18 @@ export const LEGIS_SEED_PAGES: LegisSeedPage[] = [
     collectionType: 'Fontes de Informação',
     category: 'História Urbana',
     theme: 'Infraestrutura',
-    shortDescription: 'Coleção de referências históricas, técnicas e gráficas para o editor do Legis.',
+    shortDescription:
+      'Coleção de referências históricas, técnicas e gráficas para o editor do Legis.',
     fullDescription: toDoc([
       heading('Documentação Integrada'),
-      paragraph('Esta coletânea agrupa elementos cruciais para entender a infraestrutura urbana.'),
-      referenceNode('Código Civil - Introdução e Calçamento', 'lei_diversos', ['cap_1', 'art_1_antigo', 'art_2_antigo']),
+      paragraph(
+        'Esta coletânea agrupa elementos cruciais para entender a infraestrutura urbana.',
+      ),
+      referenceNode('Código Civil - Introdução e Calçamento', 'lei_diversos', [
+        'cap_1',
+        'art_1_antigo',
+        'art_2_antigo',
+      ]),
       paragraph('Abaixo, a representação gráfica das calçadas:'),
       referenceNode('Figura 88 - Faixas de Uso', 'lei_diversos', ['fig_88']),
       paragraph('E os dados de zoneamento consolidados:'),

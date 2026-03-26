@@ -105,7 +105,10 @@ export class LegisSearchService {
       const entityData = this.getEntityData(page);
       const elements = entityData.elements ?? [];
 
-      if (entityData.ementa && this.matchesAll(entityData, entityData.ementa, normalizedConditions)) {
+      if (
+        entityData.ementa &&
+        this.matchesAll(entityData, entityData.ementa, normalizedConditions)
+      ) {
         results.push({
           pageId: page.id,
           pageTitle: page.title,
@@ -184,17 +187,18 @@ export class LegisSearchService {
     entityData: NormativeEntityData,
     condition: SearchCondition,
   ): SearchMatch[] {
-    const fields: Array<{ field: string; value?: string; elementId?: string }> = [
-      { field: 'Título', value: page.title },
-      { field: 'Conteúdo', value: page.content },
-      { field: 'Ementa', value: entityData.ementa },
-      {
-        field: 'Escopo',
-        value: [entityData.category, entityData.theme, ...(page.tags ?? [])]
-          .filter(Boolean)
-          .join(' '),
-      },
-    ];
+    const fields: Array<{ field: string; value?: string; elementId?: string }> =
+      [
+        { field: 'Título', value: page.title },
+        { field: 'Conteúdo', value: page.content },
+        { field: 'Ementa', value: entityData.ementa },
+        {
+          field: 'Escopo',
+          value: [entityData.category, entityData.theme, ...(page.tags ?? [])]
+            .filter(Boolean)
+            .join(' '),
+        },
+      ];
 
     for (const element of entityData.elements ?? []) {
       fields.push({
@@ -205,7 +209,9 @@ export class LegisSearchService {
     }
 
     return fields
-      .filter(({ value }) => this.matchesCondition(entityData, value ?? '', condition))
+      .filter(({ value }) =>
+        this.matchesCondition(entityData, value ?? '', condition),
+      )
       .map(({ field, value, elementId }) => ({
         field,
         snippet: this.generateSnippet(value ?? '', condition.value),
@@ -244,7 +250,11 @@ export class LegisSearchService {
     condition: SearchCondition,
   ) {
     const normalizedValue = condition.value.toLowerCase();
-    const fieldValue = this.resolveFieldValue(entityData, text, condition.field);
+    const fieldValue = this.resolveFieldValue(
+      entityData,
+      text,
+      condition.field,
+    );
 
     if (!fieldValue) {
       return false;
@@ -284,7 +294,9 @@ export class LegisSearchService {
       case 'authorityId':
         return entityData.authorityId ?? '';
       case 'scope':
-        return [entityData.category, entityData.theme].filter(Boolean).join(' ');
+        return [entityData.category, entityData.theme]
+          .filter(Boolean)
+          .join(' ');
       case 'term':
       default:
         return text;

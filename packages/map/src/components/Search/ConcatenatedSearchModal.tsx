@@ -14,17 +14,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@open-urbis/map-ui";
 import { Info, Loader2 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { List } from "react-window";
 import axios from "axios";
 import { useSearchContext } from "../../hooks/useSearchContext";
@@ -49,11 +45,50 @@ const DEFAULT_TREE: FilterGroup = {
   children: [],
 };
 
+const getSearchParamKey = (
+  searchParams: URLSearchParams,
+  targetKey: string,
+) => {
+  return Array.from(searchParams.keys()).find(
+    (key) => key.toLowerCase() === targetKey.toLowerCase(),
+  );
+};
+
+const setSearchParam = (
+  searchParams: URLSearchParams,
+  key: string,
+  value?: string | number,
+) => {
+  const existingKey = getSearchParamKey(searchParams, key);
+
+  if (existingKey) {
+    searchParams.delete(existingKey);
+  }
+
+  if (value !== undefined && value !== null && value !== "") {
+    searchParams.set(key, String(value));
+  }
+};
+
+const ensureSearchParam = (
+  searchParams: URLSearchParams,
+  key: string,
+  value: string | number,
+) => {
+  const existingKey = getSearchParamKey(searchParams, key);
+
+  if (!existingKey) {
+    searchParams.set(key, String(value));
+  }
+};
+
 interface ConcatenatedSearchModalProps {
   trigger?: React.ReactNode;
 }
 
-export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProps) => {
+export const ConcatenatedSearchModal = ({
+  trigger,
+}: ConcatenatedSearchModalProps) => {
   const { searchConfig, concatenatedSearch } = useSearchContext();
   const { layerSchemas } = useMapContext();
   const auth = useAuth();
@@ -65,6 +100,10 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
     totalCount,
     isOpen: open,
   } = concatenatedSearch.value;
+
+  const searchResultColumns =
+    searchResults.length > 0 ? Object.keys(searchResults[0]) : [];
+  const resultsTableWidth = Math.max(searchResultColumns.length, 1) * 200;
 
   const setConcatenatedSearch = (newVal: Partial<ConcatenatedSearchState>) => {
     concatenatedSearch.value = { ...concatenatedSearch.value, ...newVal };
@@ -84,6 +123,31 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
   const maxAttempts = 3;
 
   const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
+
+  const buildSearchRequestConfig = (
+    origin: string,
+    typeName: string,
+    cql?: string,
+  ) => {
+    const resolvedUrl = origin.replace("{environment}", environment);
+    const [baseUrl, queryString = ""] = resolvedUrl.split("?");
+    const searchParams = new URLSearchParams(queryString);
+
+    ensureSearchParam(searchParams, "service", "WFS");
+    ensureSearchParam(searchParams, "version", "1.1.0");
+    ensureSearchParam(searchParams, "request", "GetFeature");
+    ensureSearchParam(searchParams, "outputFormat", "application/json");
+    ensureSearchParam(searchParams, "srsName", "EPSG:4326");
+
+    setSearchParam(searchParams, "typeName", typeName);
+    setSearchParam(searchParams, "CQL_FILTER", cql);
+    setSearchParam(searchParams, "maxFeatures", 1000);
+
+    return {
+      url: baseUrl,
+      params: searchParams,
+    };
+  };
 
   const fetchAttributes = async (layerId: string) => {
     if (!layerId || lastFetchedLayerId.current === layerId) return;
@@ -105,7 +169,7 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
       try {
         const attributes = await fetchAttributesFromIntegration(
           layerConfig.origin,
-          fullLayerName
+          fullLayerName,
         );
 
         if (attributes.length === 0) {
@@ -121,7 +185,7 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
             type: "text", // Integration helper returns only names, defaulting to text
             label:
               mapping[attrName]?.label || mapping[attrName]?.name || attrName,
-          }))
+          })),
         );
 
         lastFetchedLayerId.current = layerId;
@@ -131,12 +195,12 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
         attemptsRef.current++;
         console.error(
           `Failed to fetch attributes (Attempt ${attemptsRef.current})`,
-          error
+          error,
         );
         if (attemptsRef.current >= maxAttempts) {
           setLoadingAttributes(false);
           setErrorAttributes(
-            "Não foi possível carregar os atributos desta camada para realizar a busca."
+            "Não foi possível carregar os atributos desta camada para realizar a busca.",
           );
           break;
         } else {
@@ -160,25 +224,20 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
 
     try {
       const layerConfig = searchConfig.value.find(
-        (c) => c.id === selectedLayerId
+        (c) => c.id === selectedLayerId,
       );
       if (layerConfig) {
         const fullLayerName = getLayerNameFromConfig(layerConfig);
         if (!fullLayerName) return;
 
-        const url = layerConfig.origin.replace("{environment}", environment);
+        const { url, params } = buildSearchRequestConfig(
+          layerConfig.origin,
+          fullLayerName,
+          cql || undefined,
+        );
 
         const response = await axios.get(url, {
-          params: {
-            service: "WFS",
-            version: "1.1.0",
-            request: "GetFeature",
-            typeName: fullLayerName,
-            outputFormat: "application/json",
-            CQL_FILTER: cql || undefined,
-            srsName: "EPSG:4326",
-            maxFeatures: 1000,
-          },
+          params,
           transformResponse: (data) => data,
         });
 
@@ -186,7 +245,7 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
         let responseJson;
         try {
           responseJson = JSON.parse(responseText);
-        } catch (e) {
+        } catch (_error) {
           responseJson = {};
         }
 
@@ -197,7 +256,7 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
         }));
 
         const totalFeatures =
-          responseJson.totalFeatures || responseJson.numberMatched;
+          responseJson.totalFeatures ?? responseJson.numberMatched ?? items.length;
 
         setConcatenatedSearch({
           results: items,
@@ -349,12 +408,11 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
                     <SelectValue placeholder="Selecione uma camada para pesquisar..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {layerSchemas.value
-                      .map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
+                    {layerSchemas.value.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -459,7 +517,7 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
             </div>
           </div>
 
-          {searchResults.length > 0 && (
+          {totalCount !== undefined && (
             <div className="space-y-3 mt-6">
               <div className="flex justify-between items-center px-1">
                 <div className="flex flex-col">
@@ -469,87 +527,108 @@ export const ConcatenatedSearchModal = ({ trigger }: ConcatenatedSearchModalProp
                     {totalCount !== undefined ? totalCount : "?"} registros encontrados
                   </p>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExportCSV}
-                  className="h-8 text-[11px] rounded-full px-4"
-                >
-                  <span className="material-symbols-outlined text-sm mr-2">
-                    download
-                  </span>
-                  Exportar CSV
-                </Button>
+                {searchResults.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleExportCSV}
+                    className="h-8 text-[11px] rounded-full px-4"
+                  >
+                    <span className="material-symbols-outlined text-sm mr-2">
+                      download
+                    </span>
+                    Exportar CSV
+                  </Button>
+                )}
               </div>
-              <div className="border rounded-xl overflow-hidden shadow-sm bg-background">
-                <div className="relative overflow-x-auto">
-                  <div className="min-w-max">
-                    <Table className="w-full table-fixed border-separate border-spacing-0">
-                      <TableHeader className="sticky top-0 bg-muted/50 z-20 backdrop-blur-md">
-                        <TableRow>
-                          {Object.keys(searchResults[0]).map((key) => {
-                            const layer = searchConfig.value.find(
-                              (c) => c.id === selectedLayerId
-                            );
-                            const mapping =
-                              (layer?.layerSchema?.properties as any)?.attributeMapping?.[key];
-                            const displayName = mapping?.label || mapping?.name || key;
-                            const description = mapping?.description;
+              {searchResults.length > 0 ? (
+                <div className="border rounded-xl overflow-hidden shadow-sm bg-background">
+                  <div className="relative overflow-x-auto">
+                    <div style={{ width: resultsTableWidth }}>
+                      <div className="sticky top-0 z-20 flex border-b bg-muted/50 backdrop-blur-md">
+                        {searchResultColumns.map((key) => {
+                          const layer = searchConfig.value.find(
+                            (c) => c.id === selectedLayerId,
+                          );
+                          const mapping =
+                            (layer?.layerSchema?.properties as any)?.attributeMapping?.[key];
+                          const displayName = mapping?.label || mapping?.name || key;
+                          const description = mapping?.description;
 
-                            return (
-                              <TableHead
-                                key={key}
-                                className="whitespace-nowrap h-10 text-[10px] uppercase font-bold tracking-wider text-muted-foreground px-4 border-b w-[200px] min-w-[200px]"
-                              >
-                                {description ? (
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger className="flex items-center gap-1 cursor-help">
-                                        {displayName}
-                                        <Info className="h-3 w-3" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p className="max-w-xs">{description}</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                ) : (
-                                  displayName
-                                )}
-                              </TableHead>
-                            );
-                          })}
-                        </TableRow>
-                      </TableHeader>
-                    </Table>
-                    <List
-                      style={{ height: 400, width: Object.keys(searchResults[0]).length * 200 }}
-                      rowCount={searchResults.length}
-                      rowHeight={40}
-                      rowProps={{}}
-                      rowComponent={({ index, style }) => {
-                        const row = searchResults[index];
-                        return (
-                          <div
-                            style={style}
-                            className="flex border-b hover:bg-muted/30 transition-colors items-center"
-                          >
-                            {Object.values(row).map((val: any, j) => (
-                              <div
-                                key={j}
-                                className="whitespace-nowrap w-[200px] min-w-[200px] truncate text-[11px] py-2 px-4 shrink-0"
-                                title={String(val)}
-                              >
-                                {String(val)}
-                              </div>
-                            ))}
-                          </div>
-                        );
-                      }}
-                    />
+                          return (
+                            <div
+                              key={key}
+                              className="flex h-10 min-w-[200px] items-center px-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+                            >
+                              {description ? (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger className="flex items-center gap-1 cursor-help">
+                                      {displayName}
+                                      <Info className="h-3 w-3" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="max-w-xs">{description}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ) : (
+                                displayName
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <List
+                        style={{
+                          height: 400,
+                          width: resultsTableWidth,
+                          overflowX: "hidden",
+                          overflowY: "auto",
+                        }}
+                        rowCount={searchResults.length}
+                        rowHeight={40}
+                        rowProps={{}}
+                        rowComponent={({ index, style }) => {
+                          const row = searchResults[index];
+                          return (
+                            <div
+                              style={style}
+                              className="flex border-b hover:bg-muted/30 transition-colors items-center"
+                            >
+                              {searchResultColumns.map((key) => {
+                                const val = row[key] ?? "-";
+
+                                return (
+                                  <div
+                                    key={key}
+                                    className="whitespace-nowrap w-[200px] min-w-[200px] truncate text-[11px] py-2 px-4 shrink-0"
+                                    title={String(val)}
+                                  >
+                                    {String(val)}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="border rounded-xl shadow-sm bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 p-6">
+                  <div className="flex items-center justify-center gap-3 text-amber-900 dark:text-amber-100">
+                    <span className="material-symbols-outlined">info</span>
+                    <div className="text-center">
+                      <p className="font-medium">Nenhum resultado encontrado para os filtros informados.</p>
+                      <p className="text-sm text-amber-800/80 dark:text-amber-200/80 mt-1">
+                        Revise os critérios da busca ou tente uma combinação diferente.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

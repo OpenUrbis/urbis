@@ -1,6 +1,7 @@
 ---
-title: Workflow Settings
-description: Advanced workflow settings.
+title: Configurações de Fluxo de Trabalho
+description: Configurações avançadas de fluxo de trabalho.
+icon: Workflow
 ---
 
 ## Aceite
@@ -22,7 +23,7 @@ Feito essas configurações, uma vez o pedido protocolado serão:
 - Para configurar o apostilamento automático que é ativado a verificação sempre que um usuário tem algum dado cadastral atualizado, deverá utilizar o campo de integração habilitando `Edição no Apostilamento` com `Sim`.
 - O usuário em questão deverá estar envolvido pelo aceite com o pedido
 - O pedido deverá ter pago a taxa
-- Deverá ter um campo de integração com utilizando o seguinte endpointda API do sistema:
+- Deverá ter um campo de integração com utilizando o seguinte endpoint da API do sistema:
 
 ```
 context.cpf.length == 14
@@ -33,7 +34,7 @@ context.cpf.length == 14
   : {};
 ```
 
-Com isso, quando existir alguma auteração no cadastro, o sistema irá verificar quais pedidos o usuário está envolvido pelo aceite, rodará novamente o formulário, verificando se teve alguma alteração. Caso sim e o formulário sendo válido, ele irá realizar o apostilamento.
+Com isso, quando existir alguma alteração no cadastro, o sistema irá verificar quais pedidos o usuário está envolvido pelo aceite, rodará novamente o formulário, verificando se teve alguma alteração. Caso sim e o formulário sendo válido, ele irá realizar o apostilamento.
 
 ## Integração com o SEI
 

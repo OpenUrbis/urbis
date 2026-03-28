@@ -1,68 +1,67 @@
 ---
-title: Deploy com Helm
-description: Implantando a Infraestrutura Urbis Workflows com Helm.
-icon: CloudUpload
+title: Helm Deployment
+description: Deploying Urbis Workflows Infrastructure with Helm.
 ---
 
-Este documento fornece um guia básico para implantar a Infraestrutura Urbis Workflows usando Helm, referenciando o repositório [OpenUrbis/urbis-workflows-infra](https://github.com/OpenUrbis/urbis-workflows-infra).
+This document provides a basic guide to deploying the Urbis Workflows Infrastructure using Helm, referencing the [OpenUrbis/urbis-workflows-infra](https://github.com/OpenUrbis/urbis-workflows-infra) repository.
 
-## Pré-requisitos
+## Prerequisites
 
-Antes de prosseguir, certifique-se de ter:
-- Um cluster Kubernetes (versão 1.20 ou superior)
-- Helm 3 instalado
-- `kubectl` configurado para interagir com seu cluster
+Before proceeding, ensure you have:
+- A Kubernetes cluster (version 1.20 or higher)
+- Helm 3 installed
+- `kubectl` configured to interact with your cluster
 
-## Passos para Implantar
+## Steps to Deploy
 
-1. **Clonar o Repositório**  
-   Clone o repositório Urbis Workflows Infrastructure para sua máquina local:
+1. **Clone the Repository**  
+   Clone the Urbis Workflows Infrastructure repository to your local machine:
    ```bash
    git clone https://github.com/OpenUrbis/urbis-workflows-infra.git
    cd urbis-workflows-infra
    ```
 
-2. **Criar um Namespace**  
-   Crie um namespace Kubernetes para a implantação:
+2. **Create a Namespace**  
+   Create a Kubernetes namespace for the deployment:
    ```bash
    kubectl create namespace urbis-workflows
    ```
 
-3. **Configurar a Implantação**  
-   Personalize a implantação editando o arquivo `values.yaml` para configurações gerais e `secrets.yaml` para dados sensíveis (ex: senhas de banco de dados). Certifique-se de que `secrets.yaml` não seja comitado no controle de versão.  
-   Exemplo de modificação em `values.yaml`:
+3. **Configure the Deployment**  
+   Customize the deployment by editing the `values.yaml` file for general configurations and `secrets.yaml` for sensitive data (e.g., database passwords). Ensure `secrets.yaml` is not committed to version control.  
+   Example modification in `values.yaml`:
    ```yaml
    postgresql:
      replicaCount: 2
    ```
 
-4. **Instalar o Chart Helm**  
-   Implante a infraestrutura usando o chart Helm:
+4. **Install the Helm Chart**  
+   Deploy the infrastructure using the Helm chart:
    ```bash
    helm install urbis-workflows ./infra -f values.yaml -f secrets.yaml -n urbis-workflows
    ```
 
-5. **Verificar a Implantação**  
-   Verifique o status dos recursos implantados:
+5. **Verify the Deployment**  
+   Check the status of the deployed resources:
    ```bash
    kubectl get pods -n urbis-workflows
    ```
 
-## Atualizando a Implantação
+## Updating the Deployment
 
-Para aplicar alterações na configuração ou chart:
+To apply changes to the configuration or chart:
 ```bash
 helm upgrade urbis-workflows ./infra -f values.yaml -f secrets.yaml -n urbis-workflows
 ```
 
-## Desinstalando a Implantação
+## Uninstalling the Deployment
 
-Para remover a implantação:
+To remove the deployment:
 ```bash
 helm uninstall urbis-workflows -n urbis-workflows
 ```
-**Nota**: Dados persistentes (ex: volumes de banco de dados) devem ser excluídos manualmente se não forem mais necessários.
+**Note**: Persistent data (e.g., database volumes) must be deleted manually if no longer needed.
 
-## Informações Adicionais
+## Additional Information
 
-Para mais detalhes, consulte o [README](https://github.com/OpenUrbis/urbis-workflows-infra/blob/main/README.md) no repositório. Para suporte, abra uma issue no GitHub ou entre em contato com contas@urbis.sampa.br.
+For more details, refer to the [README](https://github.com/OpenUrbis/urbis-workflows-infra/blob/main/README.md) in the repository. For support, open an issue on GitHub or contact contas@urbis.sampa.br.

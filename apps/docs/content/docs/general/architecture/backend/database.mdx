@@ -1,44 +1,44 @@
 ---
-title: Banco de Dados e Migrações
-description: Gerenciando esquemas de banco de dados, migrações e seeds.
+title: Database & Migrations
+description: Managing database schemas, migrations, and seeds.
 icon: Database
 ---
 
-O Urbis utiliza PostgreSQL como seu banco de dados primário e TypeORM para mapeamento objeto-relacional.
+Monorepo Boilerplate uses PostgreSQL as its primary data store and TypeORM for object-relational mapping.
 
-## Conexão
+## Connection
 
-A conexão com o banco de dados é configurada em `apps/api/src/common/database/database.module.ts`. Ela lê as credenciais de variáveis de ambiente (`DB_HOST`, `DB_PORT`, `DB_USERNAME`, etc.).
+The database connection is configured in `apps/api/src/common/database/database.module.ts`. It reads credentials from environment variables (`DB_HOST`, `DB_PORT`, `DB_USERNAME`, etc.).
 
-## Migrações
+## Migrations
 
-Utilizamos migrações de banco de dados para gerenciar alterações de esquema ao longo do tempo. Isso garante que o esquema do banco de dados seja controlado por versão e possa ser replicado em diferentes ambientes (dev, staging, prod).
+We use database migrations to manage schema changes over time. This ensures that the database schema is version-controlled and can be replicated across different environments (dev, staging, prod).
 
-### Executando Migrações
+### Running Migrations
 
-Para aplicar migrações pendentes:
+To apply pending migrations:
 
 ```bash
 pnpm migration:run
 ```
 
-### Criando Migrações
+### Creating Migrations
 
-Para gerar uma nova migração baseada em alterações nas suas entidades:
-
-```bash
-pnpm migration:generate --name=NomeDaMigracao
-```
-
-Para criar um arquivo de migração vazio:
+To generate a new migration based on changes to your entities:
 
 ```bash
-pnpm migration:create --name=NomeDaMigracao
+pnpm migration:generate --name=NameOfMigration
 ```
 
-### Revertendo Migrações
+To create an empty migration file:
 
-Para desfazer a última migração:
+```bash
+pnpm migration:create --name=NameOfMigration
+```
+
+### Reverting Migrations
+
+To undo the last migration:
 
 ```bash
 pnpm migration:revert
@@ -46,12 +46,12 @@ pnpm migration:revert
 
 ## Seeding
 
-Seeding nos permite popular o banco de dados com dados iniciais ou de teste.
+Seeding allows us to populate the database with initial or test data.
 
-Para executar os seeds:
+To run the seeds:
 
 ```bash
 pnpm db:seed
 ```
 
-O script de seed está localizado em `apps/api/src/common/database/seeds/run-seed.ts`.
+The seed script is located at `apps/api/src/common/database/seeds/run-seed.ts`.

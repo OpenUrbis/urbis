@@ -10,6 +10,7 @@ import { normalizeTerm } from "../utils/layer-utils";
 const environment =
   (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
 
+// Public config fetch (probably for map usage)
 export const getSearchConfig = async (): Promise<
   IGetSearchConfigResponse[]
 > => {
@@ -19,6 +20,33 @@ export const getSearchConfig = async (): Promise<
   }
 
   return await response.json();
+};
+
+// CRUD Methods
+export const getSearchConfigs = async (page = 1, limit = 10): Promise<{ data: IGetSearchConfigResponse[], total: number } | IGetSearchConfigResponse[]> => {
+  const response = await axios.get(`${environment}/search`, {
+    params: { page, limit }
+  });
+  return response.data;
+};
+
+export const getSearchConfigById = async (id: string): Promise<IGetSearchConfigResponse> => {
+  const response = await axios.get(`${environment}/search/${id}`);
+  return response.data;
+};
+
+export const createSearchConfig = async (data: Partial<IGetSearchConfigResponse>): Promise<IGetSearchConfigResponse> => {
+  const response = await axios.post(`${environment}/search`, data);
+  return response.data;
+};
+
+export const updateSearchConfig = async (id: string, data: Partial<IGetSearchConfigResponse>): Promise<IGetSearchConfigResponse> => {
+  const response = await axios.put(`${environment}/search/${id}`, data);
+  return response.data;
+};
+
+export const deleteSearchConfig = async (id: string): Promise<void> => {
+  await axios.delete(`${environment}/search/${id}`);
 };
 
 export const fetchSearchItem = async (

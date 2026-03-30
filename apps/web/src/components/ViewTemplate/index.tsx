@@ -1,6 +1,8 @@
 import { ITemplate } from "./types/templates-type";
 import { ViewTemplateEngine } from "./ViewTemplateEngine";
 
+export { buildSemanticTemplateColumns } from "./semantic-columns";
+
 export interface IViewTemplate {
   templates: ITemplate[];
   rootTemplate?: ITemplate[];

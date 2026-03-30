@@ -190,6 +190,8 @@ export const layerSchemas: LayerSchema[] = [
         label: 'Identificador',
         properties: {
           helper: 'Identificador do lote, (setor.quadra.lote.condominio)',
+          printColumn: 1,
+          semanticCardWeight: 1,
         },
         templates: [
           {
@@ -203,6 +205,10 @@ export const layerSchemas: LayerSchema[] = [
       {
         type: 'wrapper-card',
         label: 'Localização',
+        properties: {
+          printColumn: 1,
+          semanticCardWeight: 1,
+        },
         templates: [
           {
             type: 'label-value',
@@ -279,6 +285,10 @@ export const layerSchemas: LayerSchema[] = [
       {
         type: 'wrapper-card',
         label: 'Informações prediais',
+        properties: {
+          printColumn: 1,
+          semanticCardWeight: 1,
+        },
         templates: [
           {
             type: 'wrapper-grid',
@@ -424,6 +434,10 @@ export const layerSchemas: LayerSchema[] = [
           {
             type: 'wrapper-card',
             label: 'Restrições',
+            properties: {
+              printColumn: 3,
+              semanticCardWeight: 1,
+            },
             templates: [
               {
                 type: 'label-value',
@@ -452,6 +466,10 @@ export const layerSchemas: LayerSchema[] = [
           {
             type: 'wrapper-card',
             label: 'IPTU',
+            properties: {
+              printColumn: 3,
+              semanticCardWeight: 1,
+            },
             templates: [
               {
                 type: 'wrapper-list-items',
@@ -473,33 +491,41 @@ export const layerSchemas: LayerSchema[] = [
             ],
           },
           {
-            type: 'wrapper-tabs',
+            type: 'wrapper-card',
+            label: 'Polígonos de Interseção',
             properties: {
-              data: `(data) => data.response.features.filter((f) => {
-                if (f.id.includes("lote_cidadao") || f.properties?.layer === "slui:lote_cidadao") {
-                  return String(f.properties?.cd_identificador_original_lote) !== String(data.properties?.cd_identificador_original_lote);
-                }
-                return true;
-              })`,
-              tabTitle: `(data) => {
-                const props = data.data.properties;
-                if (props.nm_tema_divisao_pde) return props.nm_tema_divisao_pde;
-                if (props.nm_subprefeitura) return props.nm_subprefeitura;
-                if (props.nm_distrito_municipal) return props.nm_distrito_municipal;
-                if (props.nm_area_tombada) return props.nm_area_tombada;
-                if (props.nm_area) return props.nm_area;
-                if (props.cd_lote) return "Lote " + props.cd_lote.padStart(4, "0");
-                if (props.layer) return props.layer.replace("slui:", "");
-                return "Polígono";
-              }`,
-              tabColor: '(data) => data.data.properties.ui_color_hex',
-              indexTab: {
-                title: 'Geral',
-                templates: [
-                  {
-                    type: 'polygon-map',
-                    properties: {
-                      polygonProps: `
+              printColumn: 2,
+              semanticCardWeight: 1,
+            },
+            templates: [
+              {
+                type: 'wrapper-tabs',
+                properties: {
+                  data: `(data) => data.response.features.filter((f) => {
+                    if (f.id.includes("lote_cidadao") || f.properties?.layer === "slui:lote_cidadao") {
+                      return String(f.properties?.cd_identificador_original_lote) !== String(data.properties?.cd_identificador_original_lote);
+                    }
+                    return true;
+                  })`,
+                  tabTitle: `(data) => {
+                    const props = data.data.properties;
+                    if (props.nm_tema_divisao_pde) return props.nm_tema_divisao_pde;
+                    if (props.nm_subprefeitura) return props.nm_subprefeitura;
+                    if (props.nm_distrito_municipal) return props.nm_distrito_municipal;
+                    if (props.nm_area_tombada) return props.nm_area_tombada;
+                    if (props.nm_area) return props.nm_area;
+                    if (props.cd_lote) return "Lote " + props.cd_lote.padStart(4, "0");
+                    if (props.layer) return props.layer.replace("slui:", "");
+                    return "Polígono";
+                  }`,
+                  tabColor: '(data) => data.data.properties.ui_color_hex',
+                  indexTab: {
+                    title: 'Geral',
+                    templates: [
+                      {
+                        type: 'polygon-map',
+                        properties: {
+                          polygonProps: `
                         (data) => {
                           const inters = data.response.features.filter(f => {
                             if (f.id.includes("lote_cidadao") || f.properties?.layer === "slui:lote_cidadao") {
@@ -549,7 +575,7 @@ export const layerSchemas: LayerSchema[] = [
                           };
                         }
                       `,
-                      initialViewState: `
+                          initialViewState: `
                         (data) => {
                           const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
                           const zoom = utils.calculateZoom(data);
@@ -563,18 +589,18 @@ export const layerSchemas: LayerSchema[] = [
                           };
                         }
                       `,
-                    },
-                  },
-                  {
-                    type: 'wrapper-card',
-                    label: 'Interseções no Perímetro',
-                    templates: [
+                        },
+                      },
                       {
-                        type: 'wrapper-list-items',
+                        type: 'wrapper-card',
+                        label: 'Interseções no Perímetro',
                         templates: [
                           {
-                            type: 'primary-item',
-                            value: `
+                            type: 'wrapper-list-items',
+                            templates: [
+                              {
+                                type: 'primary-item',
+                                value: `
                                   <% if (id.includes("macroareas")) { %>
                                     <%- properties.nm_perimetro_divisao_pde %>
                                   <% } else if (id.includes("minianel_viario")) { %>
@@ -599,10 +625,10 @@ export const layerSchemas: LayerSchema[] = [
                                     Não mapeado
                                   <% } %>
                                 `,
-                          },
-                          {
-                            type: 'secondary-item',
-                            value: `
+                              },
+                              {
+                                type: 'secondary-item',
+                                value: `
                                   <% if (id.includes("macroareas")) { %>
                                     Macroarea - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
                                   <% } else if (id.includes("minianel_viario")) { %>
@@ -627,23 +653,23 @@ export const layerSchemas: LayerSchema[] = [
                                     Não mapeado
                                   <% } %>
                                 `,
+                              },
+                            ],
+                            properties: {
+                              data: '(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))',
+                              twoLine: true,
+                            },
                           },
                         ],
-                        properties: {
-                          data: '(data) => data.response.features.filter(({ id }) => !id.includes("lote_cidadao"))',
-                          twoLine: true,
-                        },
                       },
                     ],
                   },
-                ],
-              },
-            },
-            templates: [
-              {
-                type: 'polygon-map',
-                properties: {
-                  polygonProps: `
+                },
+                templates: [
+                  {
+                    type: 'polygon-map',
+                    properties: {
+                      polygonProps: `
                     (data) => {
                       const polygonData = [];
                       
@@ -686,7 +712,7 @@ export const layerSchemas: LayerSchema[] = [
                       };
                     }
                   `,
-                  initialViewState: `
+                      initialViewState: `
                     (data) => {
                       /* Tenta focar na geometria do lote filho atual primeiro */
                       let centroid;
@@ -710,34 +736,31 @@ export const layerSchemas: LayerSchema[] = [
                       };
                     }
                   `,
-                },
-              },
-              {
-                type: 'wrapper-card',
-                label: 'Informações da Interseção',
-                templates: [
-                  {
-                    type: 'label-value',
-                    label: 'Classificação / Setor',
-                    value:
-                      "<%- properties.nm_perimetro_divisao_pde || properties.nm_tema_divisao_pde || properties.nm_subprefeitura || properties.cd_setor_fiscal || properties.nm_area_tombada || '-' %>",
+                    },
                   },
                   {
-                    type: 'label-value',
-                    label: 'Identificação',
-                    value: '<%- id || properties.layer %>',
-                  },
-                  {
-                    type: 'label-value',
-                    label: 'Área da Feição',
-                    value:
-                      "<%- properties.totalArea ? properties.totalArea.toFixed(2) + ' m²' : (properties.qt_area_terreno ? properties.qt_area_terreno + ' m²' : '-') %>",
-                  },
-                  {
-                    type: 'label-value',
-                    label: 'Porcentagem de Interseção',
-                    value:
-                      "<%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '-' %>",
+                    type: 'wrapper-card',
+                    label: 'Informações da Interseção',
+                    templates: [
+                      {
+                        type: 'label-value',
+                        label: 'Classificação / Setor',
+                        value:
+                          "<%- properties.nm_perimetro_divisao_pde || properties.nm_tema_divisao_pde || properties.nm_subprefeitura || properties.cd_setor_fiscal || properties.nm_area_tombada || '-' %>",
+                      },
+                      {
+                        type: 'label-value',
+                        label: 'Área da Feição',
+                        value:
+                          "<%- properties.totalArea ? properties.totalArea.toFixed(2) + ' m²' : (properties.qt_area_terreno ? properties.qt_area_terreno + ' m²' : '-') %>",
+                      },
+                      {
+                        type: 'label-value',
+                        label: 'Porcentagem de Interseção',
+                        value:
+                          "<%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '-' %>",
+                      },
+                    ],
                   },
                 ],
               },

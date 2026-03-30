@@ -4,6 +4,7 @@ import { useSignal } from "@preact/signals";
 import { QRCodeSVG } from "qrcode.react";
 import { FeaturesView } from "../../components/FeaturesView";
 import { ITemplate } from "../../components/ViewTemplate/types/templates-type";
+import { buildSemanticTemplateColumns } from "../../components/ViewTemplate";
 import { getLayerSchema } from "../../integrations/layer-schema-integration";
 import { useTheme } from "../../components/ThemeProvider";
 import Header from "../../components/Header";
@@ -21,6 +22,8 @@ const PrintPage = () => {
   const isInteractive = useSignal<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState("Carregando informações da área...");
   const [showOkCapybara, setShowOkCapybara] = useState(false);
+
+  const semanticColumns = buildSemanticTemplateColumns(template.value, 3);
 
   const messages = [
     "Carregando informações da área...",
@@ -205,51 +208,21 @@ const PrintPage = () => {
           </div>
           <section className="flex-1 bg-white rounded-2xl shadow-sm border p-6 overflow-auto w-full">
             <div className="hidden md:flex gap-6 w-full">
-              {(() => {
-                const totalTemplates = template.value.length;
-                if (totalTemplates === 0) return null;
-                
-                // Distribute templates into 3 columns
-                const baseCount = Math.floor(totalTemplates / 3);
-                const remainder = totalTemplates % 3;
+              {semanticColumns.map((columnTemplates, index) => {
+                if (!columnTemplates.length) return null;
 
-                const col1Count = baseCount + (remainder > 0 ? 1 : 0);
-                const col2Count = baseCount + (remainder > 1 ? 1 : 0);
-                
-                const col1 = template.value.slice(0, col1Count);
-                const col2 = template.value.slice(col1Count, col1Count + col2Count);
-                const col3 = template.value.slice(col1Count + col2Count);
-                
                 return (
-                  <>
-                    <div className="flex-1 flex flex-col gap-6">
-                      <FeaturesView
-                        feature={{ feature: data.value, template: col1 }}
-                        key="interactive-view-col-1"
-                        isPrint={true}
-                      />
-                    </div>
-                    {col2.length > 0 && (
-                      <div className="flex-1 flex flex-col gap-6">
-                        <FeaturesView
-                          feature={{ feature: data.value, template: col2 }}
-                          key="interactive-view-col-2"
-                          isPrint={true}
-                        />
-                      </div>
-                    )}
-                    {col3.length > 0 && (
-                      <div className="flex-1 flex flex-col gap-6">
-                        <FeaturesView
-                          feature={{ feature: data.value, template: col3 }}
-                          key="interactive-view-col-3"
-                          isPrint={true}
-                        />
-                      </div>
-                    )}
-                  </>
+                  <div
+                    className="flex-1 flex flex-col gap-6"
+                    key={`interactive-view-col-${index + 1}`}
+                  >
+                    <FeaturesView
+                      feature={{ feature: data.value, template: columnTemplates }}
+                      isPrint={true}
+                    />
+                  </div>
                 );
-              })()}
+              })}
             </div>
             
             <div className="md:hidden">

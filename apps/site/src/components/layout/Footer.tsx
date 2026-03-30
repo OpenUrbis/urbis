@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@open-urbis/map-ui/ui/button'
+import { UrbisFooter } from '@open-urbis/map-ui'
 
 export function Footer() {
   return (
@@ -256,7 +257,9 @@ export function Footer() {
             <div className="flex flex-col items-center md:items-end text-center md:text-right gap-4">
                <div className="text-primary-foreground/60 text-xs leading-relaxed font-light">
                   <p>Prefeitura Municipal de São Paulo - Viaduto do Chá, 15 - Centro - CEP: 01002-020</p>
-                  <p className="mt-1">© 2025 - Projeto de Código Aberto sob licença MIT</p>
+                  <div className="mt-1 opacity-80">
+                    <UrbisFooter />
+                  </div>
                </div>
                <a 
                  href="mailto:codata@prefeitura.sp.gov.br" 

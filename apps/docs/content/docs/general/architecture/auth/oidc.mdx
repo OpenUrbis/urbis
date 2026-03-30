@@ -1,33 +1,33 @@
 ---
-title: Authentication (OIDC)
-description: How authentication works using the OIDC provider.
+title: Autenticação (OIDC)
+description: Como a autenticação funciona usando o provedor OIDC.
 icon: Key
 ---
 
-Monorepo Boilerplate implements a centralized authentication system using the [OpenID Connect (OIDC)](https://openid.net/connect/) protocol. We use `node-oidc-provider` integrated directly into NestJS.
+O Urbis implementa um sistema de autenticação centralizado usando o protocolo [OpenID Connect (OIDC)](https://openid.net/connect/). Utilizamos o `node-oidc-provider` integrado diretamente no NestJS.
 
-## Why OIDC?
+## Por que OIDC?
 
--   **Centralized Identity**: Users log in once and can access multiple applications (Accounts, Docs, future apps).
--   **Standard Protocol**: It's an industry standard, making it compatible with libraries for every language and framework.
--   **Security**: Supports modern security flows like Authorization Code Flow with PKCE.
+-   **Identidade Centralizada**: Os usuários fazem login uma vez e podem acessar múltiplas aplicações (Contas, Docs, futuras aplicações).
+-   **Protocolo Padrão**: É um padrão da indústria, tornando-o compatível com bibliotecas para todas as linguagens e frameworks.
+-   **Segurança**: Suporta fluxos de segurança modernos, como o Fluxo de Código de Autorização com PKCE.
 
-## Flows
+## Fluxos
 
-### Authorization Code Flow with PKCE
+### Fluxo de Código de Autorização com PKCE
 
-This is the primary flow used by our frontend applications (SPAs).
+Este é o fluxo principal utilizado por nossas aplicações frontend (SPAs).
 
-1.  **User clicks Login**: The frontend redirects the user to the API's authorization endpoint.
-2.  **Login Page**: The API serves a login page (server-side rendered or static).
-3.  **Authentication**: The user enters credentials. The API validates them against the database.
-4.  **Consent**: (Optional) User consents to scopes.
-5.  **Redirect**: The API redirects back to the frontend with an authorization code.
-6.  **Token Exchange**: The frontend exchanges the code for an Access Token and ID Token.
+1.  **Usuário clica em Login**: O frontend redireciona o usuário para o endpoint de autorização da API.
+2.  **Página de Login**: A API serve uma página de login (renderizada no servidor ou estática).
+3.  **Autenticação**: O usuário insere as credenciais. A API as valida no banco de dados.
+4.  **Consentimento**: (Opcional) O usuário consente com os escopos.
+5.  **Redirecionamento**: A API redireciona de volta para o frontend com um código de autorização.
+6.  **Troca de Token**: O frontend troca o código por um Token de Acesso e um Token de ID.
 
 ## Endpoints
 
--   **Discovery**: `/auth/oidc/.well-known/openid-configuration`
--   **Authorization**: `/auth/oidc/auth`
+-   **Descoberta**: `/auth/oidc/.well-known/openid-configuration`
+-   **Autorização**: `/auth/oidc/auth`
 -   **Token**: `/auth/oidc/token`
--   **UserInfo**: `/auth/oidc/me`
+-   **Informações do Usuário**: `/auth/oidc/me`

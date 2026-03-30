@@ -51,7 +51,7 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
         fontFamily: {
-            sans: ["Hanken Grotesk", "sans-serif"],
+            sans: ["var(--font-family)"],
         }
   	}
   },

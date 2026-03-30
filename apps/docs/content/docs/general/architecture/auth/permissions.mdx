@@ -1,22 +1,22 @@
 ---
-title: Permissions & Roles
-description: How the permission system works in Monorepo Boilerplate.
+title: Permissões e Cargos
+description: Como o sistema de permissões funciona no Urbis.
 icon: Shield
 ---
 
-Monorepo Boilerplate employs a Role-Based Access Control (RBAC) system to manage authorization.
+O Urbis utiliza um sistema de Controle de Acesso Baseado em Função (RBAC) para gerenciar a autorização.
 
-## Concepts
+## Conceitos
 
--   **User**: An authenticated entity.
--   **Role**: A collection of permissions (e.g., Admin, Member, Viewer).
--   **Permission**: A granular right to perform an action (e.g., `user:create`, `post:delete`).
+-   **Usuário**: Uma entidade autenticada.
+-   **Cargo**: Uma coleção de permissões (ex: Admin, Membro, Visualizador).
+-   **Permissão**: Um direito granular para executar uma ação (ex: `user:create`, `post:delete`).
 
-## Implementation
+## Implementação
 
-### Backend Guards
+### Guards do Backend
 
-We use NestJS Guards to enforce permissions on endpoints.
+Utilizamos Guards do NestJS para impor permissões nos endpoints.
 
 ```typescript
 @UseGuards(PermissionsGuard)
@@ -27,9 +27,9 @@ create(@Body() createUserDto: CreateUserDto) {
 }
 ```
 
-### Database Schema
+### Esquema do Banco de Dados
 
-The relationship is typically:
+O relacionamento é tipicamente:
 `User` -> `UserRole` -> `Role` -> `RolePermission` -> `Permission`.
 
-(Note: Check `apps/api/src/role/index.entity.ts` for exact schema details if needed).
+(Nota: Verifique `apps/api/src/role/index.entity.ts` para detalhes exatos do esquema, se necessário).

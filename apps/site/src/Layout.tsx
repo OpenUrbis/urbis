@@ -72,7 +72,7 @@ function LayoutInner() {
         href: "https://dadosabertos.urbis.prefeitura.sp.gov.br",
       },
       { label: "Doc. técnica", href: "/doc-tecnica" },
-      { label: "Legis", href: "/info-urbis" },
+      { label: "Legis", href: "https://legis.urbis.prefeitura.sp.gov.br/" },
     ],
     [],
   );

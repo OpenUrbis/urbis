@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs'
 import { cn } from '../../../lib/utils'
 import { isEqual } from 'date-fns'
 import { format } from 'date-fns'
-import { MoreHorizontal } from 'lucide-react'
+import { Ellipsis } from 'lucide-react'
 import {
   cloneElement,
   isValidElement,
@@ -288,7 +288,7 @@ export function FilterValueDateDisplay<TData>({
   locale = 'en',
 }: FilterValueDisplayProps<TData, 'date'>) {
   if (!filter) return null
-  if (filter.values.length === 0) return <MoreHorizontal className="size-4" />
+  if (filter.values.length === 0) return <Ellipsis className="size-4" />
   if (filter.values.length === 1) {
     const value = filter.values[0]
 
@@ -310,7 +310,7 @@ export function FilterValueTextDisplay<TData>({
 }: FilterValueDisplayProps<TData, 'text'>) {
   if (!filter) return null
   if (filter.values.length === 0 || filter.values[0].trim() === '')
-    return <MoreHorizontal className="size-4" />
+    return <Ellipsis className="size-4" />
 
   const value = filter.values[0]
 

@@ -19,6 +19,8 @@ const step1Schema = z.object({
 
 const step2Schema = z.object({
   loadingMethod: z.string().min(1, "Selecione o método de carregamento"),
+  urlParameterType: z.enum(["WFS", "WMS"]),
+  origin: z.string().url("Insira uma URL válida"),
   groupId: z.string().min(1, "Selecione um grupo"),
   layerName: z.string().min(1, "Insira o nome da camada"),
   minZoom: z.string().optional(),
@@ -86,11 +88,59 @@ export const LayerSchemaFormSchema = step1Schema
 
 export type LayerSchemaFormValues = z.infer<typeof LayerSchemaFormSchema>;
 
+export const generateOriginUrl = (
+  url: string,
+  selectedLayer: { name: string; title: string } | undefined,
+  parameterType: "WFS" | "WMS"
+) => {
+  // Extract base URL
+  let baseUrl = url;
+  try {
+    const urlObj = new URL(url);
+    let pathname = urlObj.pathname;
+
+    // Adjust endpoint based on service type
+    if (parameterType === "WMS") {
+      // Replace /ows or /wfs with /wms
+      pathname = pathname.replace(/\/ows\/?$/, "/wms");
+      pathname = pathname.replace(/\/wfs\/?$/, "/wms");
+    } else {
+      // WFS: Replace /wms with /ows (or /wfs if preferred, but examples use /ows)
+      pathname = pathname.replace(/\/wms\/?$/, "/ows");
+    }
+
+    baseUrl = `${urlObj.origin}${pathname}`;
+  } catch (e) {
+    // Keep original URL if parsing fails
+  }
+
+  const params = new URLSearchParams();
+
+  if (parameterType === "WMS") {
+    params.set("LAYERS", selectedLayer?.name || "");
+    params.set("FORMAT", "image/jpeg");
+    params.set("TRANSPARENT", "true");
+  } else {
+    // WFS
+    params.set("service", "WFS");
+    params.set("version", "1.0.0");
+    params.set("request", "GetFeature");
+    params.set("typeName", selectedLayer?.name || "");
+    params.set("maxFeatures", "10000");
+    params.set("outputFormat", "json");
+    params.set("srsName", "EPSG:4326");
+  }
+
+  return `${baseUrl}?${params.toString()}`;
+};
+
 export const buildLayerSchema = (data: LayerSchemaFormValues) => {
   const {
     url,
     selectedLayer,
     loadingMethod,
+    urlParameterType,
+    origin,
     groupId,
     layerName,
     minZoom,
@@ -107,7 +157,10 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
   } = data;
 
   const id = selectedLayer?.name?.split(":").pop() || "";
-  const origin = `${url}?service=WFS&version=1.0.0&request=GetFeature&typeName=${selectedLayer?.name}&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326`;
+
+  // Use the origin from the form data, or generate it as a fallback
+  const finalOrigin =
+    origin || generateOriginUrl(url, selectedLayer, urlParameterType);
 
   let type = "GeoJsonLayer";
   if (loadingMethod === "CustomWMSLayer") type = "CustomWMSLayer";
@@ -201,7 +254,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
   return {
     id,
     name: layerName,
-    origin,
+    origin: finalOrigin,
     isActive,
     isVisible,
     type,
@@ -270,12 +323,22 @@ export const parseLayerSchemaToForm = (
   const urlParts = origin.split("?");
   const url = urlParts[0];
 
-  // Reconstruct selectedLayer from origin params if possible
+  let urlParameterType: "WFS" | "WMS" = "WFS";
   let selectedLayer = undefined;
+
   if (urlParts[1]) {
     const params = new URLSearchParams(urlParts[1]);
-    const typeName = params.get("typeName") || params.get("LAYERS");
-    if (typeName) {
+    const typeName = params.get("typeName");
+    const layers = params.get("LAYERS");
+
+    if (layers) {
+      urlParameterType = "WMS";
+      selectedLayer = {
+        name: layers,
+        title: name || layers,
+      };
+    } else if (typeName) {
+      urlParameterType = "WFS";
       selectedLayer = {
         name: typeName,
         title: name || typeName,
@@ -340,6 +403,15 @@ export const parseLayerSchemaToForm = (
   if (type === "CustomWMSLayer") loadingMethod = "CustomWMSLayer";
   if (type === "Stream") loadingMethod = "Stream";
 
+  // Infer parameter type if not detected from URL (fallback)
+  if (!urlParameterType && loadingMethod === "CustomWMSLayer") {
+    // If it was CustomWMSLayer but no params detected, default to WMS?
+    // Or maybe the user used WFS params for CustomWMSLayer (as in the example).
+    // The previous logic for urlParameterType detection handles the content.
+    // If explicit params were found, urlParameterType is set.
+    // If not found, default to WFS is safe or we can check loadingMethod.
+  }
+
   let formClickAction = "none";
   let formClickActionParams = {};
 
@@ -381,7 +453,9 @@ export const parseLayerSchemaToForm = (
   return {
     url,
     selectedLayer,
+    origin,
     loadingMethod,
+    urlParameterType,
     groupId: groupId || "geral",
     layerName: name,
     minZoom: minZoom?.toString() || "",

@@ -7,7 +7,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ChevronRight, Layers, Loader2 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { ChevronRight, Info, Layers, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
 interface LayerSelectionProps {
@@ -99,7 +105,27 @@ export const LayerSelection = ({
         name="url"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Link do GeoServer (WMS)</FormLabel>
+            <FormLabel className="flex items-center gap-2">
+              Link do GeoServer (WMS/WFS)
+              <TooltipProvider>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground hover:text-primary cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[400px] text-sm p-4 space-y-2">
+                    <p className="font-semibold">Formatos aceitos:</p>
+                    <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
+                      <li>URL Base: <span className="font-mono text-xs">https://dominio.com/geoserver/wms</span></li>
+                      <li>URL Completa (WMS): <span className="font-mono text-xs">.../wms?LAYERS=camada&FORMAT=image/jpeg</span></li>
+                      <li>URL Completa (WFS): <span className="font-mono text-xs">.../ows?service=WFS&typeName=camada</span></li>
+                    </ul>
+                    <p className="text-xs pt-2 border-t">
+                      Ao inserir uma URL completa, os parâmetros serão identificados automaticamente.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </FormLabel>
             <div className="flex gap-2">
               <FormControl>
                 <Input

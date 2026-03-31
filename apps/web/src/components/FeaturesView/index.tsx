@@ -1,8 +1,11 @@
-import { computed } from "@preact/signals";
+import { useNavigationContext } from "@/hooks/useNavigationContext";
+import { usePolygonEditContext } from "@/hooks/usePolygonEditContext";
 import { Button, Card } from "@open-urbis/map-ui";
+import { computed } from "@preact/signals";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { useMapContext } from "../../hooks/useMapContext";
 import { MapContextSelectedFeature } from "../../types/map-context-type";
+import { PolygonDetails } from "../PolygonDetails";
 import { ViewTemplate } from "../ViewTemplate";
 import "./style.scss";
 
@@ -14,6 +17,8 @@ export const FeaturesView = ({
   isPrint?: boolean;
 }) => {
   const { selectedFeatures } = useMapContext();
+  const { editFeature, editFeatureTemplate } = usePolygonEditContext();
+  const { navigateTo } = useNavigationContext();
 
   const view = computed(
     () =>
@@ -35,12 +40,25 @@ export const FeaturesView = ({
     window.open(url, "_blank");
   };
 
+  const handleEdit = () => {
+    if (!editFeatureTemplate.value) return;
+
+    editFeature(data.value);
+
+    navigateTo(
+      <PolygonDetails
+        template={editFeatureTemplate.value ?? []}
+        rootTemplate={template.value!}
+      />,
+    );
+  };
+
   if (!template.value.length) return null;
 
   return (
     <div className="relative">
       {hasPrintParams && !isPrint && (
-        <div className="flex px-4 pt-2 justify-end mb-2">
+        <div className="flex px-4 pt-2 justify-end mb-2 gap-2">
           <Card className="rounded-full shadow-sm p-1">
             <Tooltip.Provider delayDuration={300}>
               <Tooltip.Root>
@@ -68,6 +86,35 @@ export const FeaturesView = ({
               </Tooltip.Root>
             </Tooltip.Provider>
           </Card>
+          {editFeatureTemplate.value && (
+            <Card className="rounded-full shadow-sm p-1">
+              <Tooltip.Provider delayDuration={300}>
+                <Tooltip.Root>
+                  <Tooltip.Trigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full h-8 w-8 hover:bg-primary hover:text-primary-foreground transition-colors"
+                      onClick={handleEdit}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">
+                        edit
+                      </span>
+                    </Button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content
+                      side="top"
+                      className="z-50 px-3 py-1.5 text-xs font-medium bg-foreground text-background rounded-md shadow-md"
+                    >
+                      Ajustar Perímetro
+                      <Tooltip.Arrow className="fill-foreground" />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              </Tooltip.Provider>
+            </Card>
+          )}
         </div>
       )}
       <ViewTemplate

@@ -1,4 +1,5 @@
 import { ViewTemplateBuilder } from "@/components/ViewTemplate/builder/ViewTemplateBuilder";
+import { parseAndNormalizeViewTemplate } from "@/components/ViewTemplate/utils/normalize-template-ids";
 import { Button } from "@/components/ui/button";
 import {
   FormField,
@@ -18,33 +19,25 @@ export const LayerTemplate = ({}: LayerTemplateProps) => {
   const form = useFormContext();
 
   const url = form.watch("url");
-  const origin = form.watch("origin")
+  const origin = form.watch("origin");
   const selectedLayer = form.watch("selectedLayer");
 
   const initialTemplate = useMemo(() => {
     const value = form.getValues("viewTemplate");
-    if (!value) return [];
-    try {
-      if (typeof value === "string") {
-        return JSON.parse(value);
-      }
-      return value;
-    } catch {
-      return [];
-    }
+    return parseAndNormalizeViewTemplate(value);
   }, []); // Only parse on initial mount
 
   const propertyMapping = form.watch("propertyMapping");
 
   return (
-    <div className="animate-in fade-in slide-in-from-right-4 flex flex-col h-full w-full relative flex-1 min-h-0">
+    <div className="animate-in fade-in slide-in-from-right-4 relative flex h-full min-h-0 w-full flex-1 flex-col">
       <FormField
         control={form.control}
         name="viewTemplate"
         render={({ field }) => (
-          <FormItem className="flex-1 flex flex-col min-h-0 overflow-hidden m-0 p-0 border-none w-full h-full">
+          <FormItem className="m-0 flex h-full w-full flex-1 min-h-0 flex-col overflow-hidden border-none p-0">
             <FormLabel className="sr-only">Template</FormLabel>
-            <div className="flex-1 relative flex flex-col h-full overflow-hidden">
+            <div className="relative flex h-full flex-1 flex-col overflow-hidden">
               <ViewTemplateBuilder
                 initialTemplate={initialTemplate}
                 initialGeoUrl={url}
@@ -68,7 +61,6 @@ export const LayerTemplate = ({}: LayerTemplateProps) => {
           </FormItem>
         )}
       />
-
     </div>
   );
 };

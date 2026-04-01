@@ -1,5 +1,6 @@
 import { AdminHeader } from "@/components/AdminHeader";
 import { MapView } from "@/components/MapView";
+import { stringifyNormalizedViewTemplate } from "@/components/ViewTemplate/utils/normalize-template-ids";
 import { Form } from "@/components/ui/form";
 import { useMapContext } from "@/hooks/useMapContext";
 import { useToast } from "@/hooks/useToast";
@@ -159,41 +160,11 @@ const LayerHandlePage = () => {
             backendData as unknown as LayerSchema,
           );
 
-          // Add missing IDs to legacy templates so DND Kit handles it perfectly
           if (formData.viewTemplate) {
-            const addMissingIds = (items: any[]): any[] => {
-              return items.map((item) => {
-                const newItem = { ...item };
-                if (!newItem.id) {
-                  newItem.id = crypto.randomUUID();
-                }
-                ["templates", "polygonTemplate"].forEach((key) => {
-                  if (Array.isArray(newItem[key])) {
-                    newItem[key] = addMissingIds(newItem[key]);
-                  }
-                });
-                return newItem;
-              });
-            };
-
             try {
-              let parsed = formData.viewTemplate;
-              if (typeof parsed === "string") {
-                parsed = JSON.parse(parsed);
-              }
-              if (Array.isArray(parsed)) {
-                formData.viewTemplate = JSON.stringify(
-                  addMissingIds(parsed),
-                  null,
-                  2,
-                );
-              } else if (parsed && typeof parsed === "object") {
-                formData.viewTemplate = JSON.stringify(
-                  addMissingIds([parsed]),
-                  null,
-                  2,
-                );
-              }
+              formData.viewTemplate = stringifyNormalizedViewTemplate(
+                formData.viewTemplate,
+              );
             } catch (e) {
               // Ignore parsing errors and keep existing string
             }

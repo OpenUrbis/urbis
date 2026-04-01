@@ -16,6 +16,9 @@ const GroupHandleRoute = lazy(
 const SearchHandleRoute = lazy(
   () => import("./pages/SearchManager/SearchHandleRoute"),
 );
+const MapConfigHandleRoute = lazy(
+  () => import("./pages/MapConfigManager/MapConfigHandleRoute"),
+);
 const MapTestRoute = lazy(() => import("./pages/MapTest"));
 const MapDataIntegrationTestRoute = lazy(() => import("./pages/MapDataIntegrationTest"));
 
@@ -40,6 +43,9 @@ const AdminPage = () => {
               </Route>
               <Route path="/search-manager" nest>
                 {(<SearchHandleRoute />) as ReactNode}
+              </Route>
+              <Route path="/map-config-manager" nest>
+                {(<MapConfigHandleRoute />) as ReactNode}
               </Route>
               <Route path="/map-test">
                 {(<MapTestRoute />) as ReactNode}

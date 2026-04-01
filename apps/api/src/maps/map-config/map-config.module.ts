@@ -1,6 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccessControlModule } from 'common/guards/access-control/access-control.module';
 import { LayerGroupEntities } from '../../maps/layer-groups/entities';
 import { LayerSchemaEntities } from '../../maps/layer-schemas/entities';
 import { SearchModule } from '../../maps/search/search.module';
@@ -17,6 +18,7 @@ import { MapConfigService } from './map-config.service';
     ]),
     SearchModule,
     HttpModule,
+    forwardRef(() => AccessControlModule),
   ],
   controllers: [MapConfigController],
   providers: [MapConfigService],

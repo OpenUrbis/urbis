@@ -1,9 +1,29 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
+import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { SearchConfig } from 'maps/search/entities/search-config.entity';
 import { SearchService } from 'maps/search/search.service';
+import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 import { MapConfigResponseDto } from './dto/map-config-response.dto';
 import { TextLayerDtoResponse } from './dto/text-layer.dto';
+import { UpdateMapConfigDto } from './dto/update-map-config.dto';
+import { MapConfig } from './entities/map-config.entity';
 import { MapConfigService } from './map-config.service';
 
 @ApiTags('Configurations Getters')
@@ -13,6 +33,17 @@ export class MapConfigController {
     private readonly mapConfigService: MapConfigService,
     private readonly searchConfigService: SearchService,
   ) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Get all administrative map configs' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of administrative map configs',
+    type: [MapConfig],
+  })
+  findAll() {
+    return this.mapConfigService.findAll();
+  }
 
   @Get('map')
   @ApiOperation({
@@ -34,7 +65,7 @@ export class MapConfigController {
     description: 'Search field configuration',
     type: [SearchConfig],
   })
-  findAll() {
+  findAllSearchConfigs() {
     return this.searchConfigService.findAll();
   }
 
@@ -57,5 +88,29 @@ export class MapConfigController {
       throw new BadRequestException({ message: 'origin is required' });
 
     return this.mapConfigService.getTextLayer(params);
+  }
+
+  @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(AccessControlGuard)
+  @RequirePermission({
+    permissions: {
+      resource: 'map-config',
+      action: 'update',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
+  @ApiOperation({ summary: 'Update a map config by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Updated map config',
+    type: MapConfig,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Map config not found',
+  })
+  update(@Param('id') id: string, @Body() body: UpdateMapConfigDto) {
+    return this.mapConfigService.update(id, body);
   }
 }

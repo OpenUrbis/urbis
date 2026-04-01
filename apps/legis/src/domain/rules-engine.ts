@@ -23,63 +23,128 @@ const SPACE = '[\\s.-]';
 const SPACE_PLUS = SPACE + '+';
 const SPACE_OPT = SPACE + '*';
 
+const STRUCTURAL_CONNECTOR_WORDS = new Set(['DA', 'DAS', 'DE', 'DO', 'DOS', 'E']);
+
+function spacedWordPattern(word: string): string {
+    return word
+        .split('')
+        .map(char => /[A-Za-zÀ-ÿ]/.test(char) ? `${char}${SPACE_OPT}` : char)
+        .join('');
+}
+
+function normalizeIndexToken(token: string): string {
+    return token.replace(/[.]/g, '').trim();
+}
+
+function isStandaloneStructuralIndexToken(token: string): boolean {
+    const normalized = normalizeIndexToken(token)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase();
+
+    if (!normalized || STRUCTURAL_CONNECTOR_WORDS.has(normalized)) {
+        return false;
+    }
+
+    return (
+        /^[IVXLCDM]+$/.test(normalized) ||
+        /^\d+$/.test(normalized) ||
+        /^(?:[A-Z]+|\d+)(?:[-/](?:[A-Z]+|\d+))*$/.test(normalized)
+    );
+}
+
+function extractStructuralIndexAndContent(rawValue: string): { index?: string; content: string } {
+    const value = rawValue.trim();
+
+    if (!value) {
+        return { content: '' };
+    }
+
+    if (/^(?:[A-Za-zÀ-ÿ]\s+){1,}[A-Za-zÀ-ÿ]$/u.test(value)) {
+        return { index: value, content: '' };
+    }
+
+    const [firstToken, ...rest] = value.split(/\s+/);
+    if (!firstToken) {
+        return { content: '' };
+    }
+
+    if (!rest.length) {
+        return { index: firstToken, content: '' };
+    }
+
+    if (isStandaloneStructuralIndexToken(firstToken)) {
+        return { index: firstToken, content: rest.join(' ') };
+    }
+
+    return { index: value, content: '' };
+}
+
+const PARTE_PATTERN = spacedWordPattern('PARTE');
+const LIVRO_PATTERN = spacedWordPattern('LIVRO');
+const TITULO_PATTERN = spacedWordPattern('TÍTULO');
+const CAPITULO_PATTERN = spacedWordPattern('CAPÍTULO');
+const SECAO_PATTERN = spacedWordPattern('SEÇÃO');
+const SUBSECAO_PATTERN = spacedWordPattern('SUBSEÇÃO');
+
 export const DEFAULT_RULES: ParsingRule[] = [
     {
         id: 'parte',
         name: 'Parte',
-        regex: new RegExp(`^${TAGS_PREFIX}PARTE${SPACE_PLUS}([IVXLCDM]+|[A-Z]+)${SPACE_OPT}(.*)`, 'i'),
+        regex: new RegExp(`^${TAGS_PREFIX}${PARTE_PATTERN}${SPACE_PLUS}(.*)`, 'i'),
         type: 'Parte',
         priority: 5,
-        extract: (m) => ({ index: m[1], content: m[2] })
+        extract: (m) => extractStructuralIndexAndContent(m[1])
     },
     {
         id: 'livro',
         name: 'Livro',
-        regex: new RegExp(`^${TAGS_PREFIX}LIVRO${SPACE_PLUS}([IVXLCDM]+|[A-Z]+)${SPACE_OPT}(.*)`, 'i'),
+        regex: new RegExp(`^${TAGS_PREFIX}${LIVRO_PATTERN}${SPACE_PLUS}(.*)`, 'i'),
         type: 'Livro',
         priority: 6,
-        extract: (m) => ({ index: m[1], content: m[2] })
+        extract: (m) => extractStructuralIndexAndContent(m[1])
     },
     {
         id: 'titulo',
         name: 'Título',
-        regex: new RegExp(`^${TAGS_PREFIX}TÍTULO${SPACE_PLUS}([IVXLCDM]+)${SPACE_OPT}(.*)`, 'i'),
+        regex: new RegExp(`^${TAGS_PREFIX}${TITULO_PATTERN}${SPACE_PLUS}(.*)`, 'i'),
         type: 'Título',
         priority: 7,
-        extract: (m) => ({ index: m[1], content: m[2] })
+        extract: (m) => extractStructuralIndexAndContent(m[1])
     },
     {
         id: 'capitulo',
         name: 'Capítulo',
-        regex: new RegExp(`^${TAGS_PREFIX}CAPÍTULO${SPACE_PLUS}([IVXLCDM]+|\\d+)${SPACE_OPT}(.*)`, 'i'),
+        regex: new RegExp(`^${TAGS_PREFIX}${CAPITULO_PATTERN}${SPACE_PLUS}(.*)`, 'i'),
         type: 'Capítulo',
         priority: 10,
-        extract: (m) => ({ index: m[1], content: m[2] })
+        extract: (m) => extractStructuralIndexAndContent(m[1])
     },
     {
         id: 'secao',
         name: 'Seção',
-        regex: new RegExp(`^${TAGS_PREFIX}SEÇÃO${SPACE_PLUS}([IVXLCDM]+)${SPACE_OPT}(.*)`, 'i'),
+        regex: new RegExp(`^${TAGS_PREFIX}${SECAO_PATTERN}${SPACE_PLUS}(.*)`, 'i'),
         type: 'Seção',
         priority: 11,
-        extract: (m) => ({ index: m[1], content: m[2] })
+        extract: (m) => extractStructuralIndexAndContent(m[1])
     },
     {
         id: 'subsecao',
         name: 'Subseção',
-        regex: new RegExp(`^${TAGS_PREFIX}SUBSEÇÃO${SPACE_PLUS}([IVXLCDM]+)${SPACE_OPT}(.*)`, 'i'),
+        regex: new RegExp(`^${TAGS_PREFIX}${SUBSECAO_PATTERN}${SPACE_PLUS}(.*)`, 'i'),
         type: 'Subseção',
         priority: 12,
-        extract: (m) => ({ index: m[1], content: m[2] })
+        extract: (m) => extractStructuralIndexAndContent(m[1])
     },
     {
         id: 'artigo',
         name: 'Artigo',
-        regex: new RegExp(`^${TAGS_PREFIX}Art(?:igo|\\.)${SPACE_OPT}(\\d+)[.º°oᵒ∘ª]?${SPACE_OPT}(.*)`, 'i'),
+        regex: new RegExp(`^${TAGS_PREFIX}Art(?:igo|\\.)${SPACE_OPT}(\\d{1,3}(?:\\.\\d{3})*|\\d+)[.º°oᵒ∘ª]?${SPACE_OPT}(.*)`, 'i'),
         type: 'Artigo',
         priority: 20,
         extract: (m) => {
-            const num = parseInt(m[1], 10);
+            const normalizedNumber = m[1].replace(/\./g, '');
+            const num = parseInt(normalizedNumber, 10);
             const index = (num >= 1 && num <= 9) ? `${num}º` : `${num}`;
             // Clean content to avoid repeating the article prefix
             const content = m[2].trim();

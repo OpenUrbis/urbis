@@ -13,6 +13,42 @@ describe('RulesEngine', () => {
         expect(result.content).toBe('Fica instituída...');
     });
 
+    it('should parse Articles with thousand separators correctly', () => {
+        const line = 'Art. 1.000. A sociedade simples que instituir sucursal...';
+        const result = engine.parseLine(line);
+
+        expect(result.type).toBe('Artigo');
+        expect(result.index).toBe('1000');
+        expect(result.content).toBe('A sociedade simples que instituir sucursal...');
+    });
+
+    it('should parse structural headings with spaced letters and arbitrary index text', () => {
+        const line = 'P A R T E   G E R A L';
+        const result = engine.parseLine(line);
+
+        expect(result.type).toBe('Parte');
+        expect(result.index).toBe('G E R A L');
+        expect(result.content).toBe('');
+    });
+
+    it('should not merge chapter index with the beginning of the title content', () => {
+        const line = 'CAPÍTULO I Da Personalidade e da Capacidade';
+        const result = engine.parseLine(line);
+
+        expect(result.type).toBe('Capítulo');
+        expect(result.index).toBe('I');
+        expect(result.content).toBe('Da Personalidade e da Capacidade');
+    });
+
+    it('should parse structural headings with non-roman indices', () => {
+        const line = 'TÍTULO ESPECIAL';
+        const result = engine.parseLine(line);
+
+        expect(result.type).toBe('Título');
+        expect(result.index).toBe('ESPECIAL');
+        expect(result.content).toBe('');
+    });
+
     it('should parse Paragraphs correctly', () => {
         const line1 = '§ 1º O sistema...';
         const result1 = engine.parseLine(line1);

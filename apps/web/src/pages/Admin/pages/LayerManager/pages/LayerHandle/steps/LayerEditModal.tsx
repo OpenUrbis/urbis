@@ -61,6 +61,7 @@ export const LayerEditModal = ({
       isSelected: false,
       isVisible: true,
       isDynamic: false,
+      lineWidth: 0.5,
       colors: [
         {
           fillColor: [255, 0, 0, 0.5],
@@ -91,6 +92,7 @@ export const LayerEditModal = ({
         isSelected: false,
         isVisible: true,
         isDynamic: false,
+        lineWidth: 0.5,
         colors: [
           {
             fillColor: [255, 0, 0, 0.5],
@@ -119,7 +121,7 @@ export const LayerEditModal = ({
       // Mapping step - usually optional or handled internally
       isValid = true;
     } else if (step === 3) {
-      isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]);
+      isValid = await form.trigger(["isDynamic", "layerProperty", "lineWidth", "colors"]);
     }
 
     if (isValid || step === 4) {

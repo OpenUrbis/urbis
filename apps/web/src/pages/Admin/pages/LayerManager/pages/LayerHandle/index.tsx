@@ -99,6 +99,7 @@ const LayerHandlePage = () => {
       isSelected: false,
       isVisible: true,
       isDynamic: false,
+      lineWidth: 0.5,
       colors: [
         {
           fillColor: [255, 0, 0, 0.5],
@@ -422,6 +423,24 @@ const LayerHandlePage = () => {
   const loadingMethod = form.watch("loadingMethod");
   const isWms = loadingMethod === "CustomWMSLayer";
 
+  const steps = [
+    { number: 1, label: "Seleção" },
+    { number: 2, label: "Configuração" },
+    { number: 3, label: "Mapeamento" },
+    ...(isWms
+      ? []
+      : [
+          { number: 4, label: "Template" },
+          { number: 5, label: "Prancha" },
+          { number: 6, label: "Estilização" },
+        ]),
+    { number: isWms ? 4 : 7, label: "Revisão" },
+  ];
+
+  const availableStepNumbers = steps.map(({ number }) => number);
+  const currentStepIndex = availableStepNumbers.indexOf(step);
+  const finalStep = availableStepNumbers[availableStepNumbers.length - 1];
+
   const handleNext = async () => {
     let isValid = false;
     if (step === 1) {
@@ -449,15 +468,16 @@ const LayerHandlePage = () => {
     } else if (step === 5) {
       isValid = true; // Prancha
     } else if (step === 6) {
-      isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]); // Estilização
+      isValid = await form.trigger(["isDynamic", "layerProperty", "lineWidth", "colors"]); // Estilização
     }
 
     if (isValid) {
-      let nextStep = step + 1;
-      // Skip Template (4), Prancha (5) and Styling (6) for WMS
-      if (isWms && nextStep === 4) {
-        nextStep = 7;
+      const nextStep = availableStepNumbers[currentStepIndex + 1];
+
+      if (!nextStep) {
+        return;
       }
+
       setStep(nextStep);
       if (nextStep > maxReachedStep) {
         setMaxReachedStep(nextStep);
@@ -466,11 +486,12 @@ const LayerHandlePage = () => {
   };
 
   const handleBack = () => {
-    let prevStep = step - 1;
-    // Skip Styling (6), Prancha (5) and Template (4) for WMS
-    if (isWms && prevStep === 6) {
-      prevStep = 3;
+    const prevStep = availableStepNumbers[currentStepIndex - 1];
+
+    if (!prevStep) {
+      return;
     }
+
     setStep(prevStep);
   };
 
@@ -550,20 +571,6 @@ const LayerHandlePage = () => {
       setLoading(false);
     }
   };
-
-  const steps = [
-    { number: 1, label: "Seleção" },
-    { number: 2, label: "Configuração" },
-    { number: 3, label: "Mapeamento" },
-    ...(isWms
-      ? []
-      : [
-          { number: 4, label: "Template" },
-          { number: 5, label: "Prancha" },
-          { number: 6, label: "Estilização" },
-        ]),
-    { number: 7, label: "Revisão" },
-  ];
 
   if (isEditing && !isDataLoaded) {
     return (
@@ -765,8 +772,9 @@ const LayerHandlePage = () => {
               Voltar
             </button>
 
-            {step === 7 ? (
+            {step === finalStep ? (
               <button
+                key="save-button"
                 type="submit"
                 form="layer-handle-form"
                 disabled={loading}
@@ -780,6 +788,7 @@ const LayerHandlePage = () => {
               </button>
             ) : (
               <button
+                key="next-button"
                 type="button"
                 onClick={handleNext}
                 disabled={

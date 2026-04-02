@@ -18,7 +18,7 @@ const boundingBox = signal<MapBoundingBox>([
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const viewport = signal<any>(undefined);
 const zoom = signal<number>(10);
-const is3DActive = signal<boolean>(true);
+const is3DActive = signal<boolean>(false);
 const selectedBaseMap = signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets">("standard");
 const editFeatureTemplate = signal<ITemplate[]>([]);
 const layerWithRootEditTemplate = signal<string>('');

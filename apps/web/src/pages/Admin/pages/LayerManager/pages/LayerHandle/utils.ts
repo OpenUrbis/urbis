@@ -170,6 +170,7 @@ const step3Schema = z
   .object({
     isDynamic: z.boolean(),
     layerProperty: z.string().optional(),
+    lineWidth: z.coerce.number().min(0, "Informe uma espessura válida"),
     colors: z
       .array(z.any())
       .min(1, "É necessário configurar pelo menos uma cor"),
@@ -269,6 +270,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     isVisible,
     isDynamic,
     layerProperty,
+    lineWidth,
     colors,
     propertyMapping,
   } = data;
@@ -398,6 +400,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     colors: transformedColors,
     properties: {
       attributeMapping: propertyMapping,
+      getLineWidth: Number(lineWidth ?? 0.5),
       version,
       srs,
       typeName: selectedLayer?.name,
@@ -628,6 +631,7 @@ export const parseLayerSchemaToForm = (
 
   const finalMinZoom = minZoom ?? properties?.minZoom;
   const finalMaxZoom = maxZoom ?? properties?.maxZoom;
+  const finalLineWidth = Number(properties?.getLineWidth ?? 0.5);
 
   return {
     url,
@@ -650,6 +654,7 @@ export const parseLayerSchemaToForm = (
     isVisible: data.isVisible ?? true,
     isDynamic: !!getFillColorPropName,
     layerProperty: getFillColorPropName || "",
+    lineWidth: Number.isNaN(finalLineWidth) ? 0.5 : finalLineWidth,
     colors: formColors,
     propertyMapping: normalizedMapping,
   };

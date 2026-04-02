@@ -938,7 +938,7 @@ export const layerSchemas: LayerSchema[] = [
       wireframe: true,
       getPointRadius: 0,
       getTextSize: 12,
-      getLineWidth: 12,
+      getLineWidth: 0.5,
       autoHighlight: true,
       highlightColor: [252, 252, 255, 95],
       getElevation: `(allotment) => {

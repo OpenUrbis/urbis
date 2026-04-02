@@ -343,6 +343,166 @@ export const layerSchemas: LayerSchema[] = [
           },
         ],
       },
+    ],
+    boardTemplate: [
+      {
+        type: 'wrapper-card',
+        label: 'Identificador',
+        properties: {
+          helper: 'Identificador do lote, (setor.quadra.lote.condominio)',
+          printColumn: 1,
+          semanticCardWeight: 1,
+        },
+        templates: [
+          {
+            type: 'label-value',
+            label: 'Inscrição',
+            value:
+              "<%- properties.cd_setor_fiscal?.padStart(3, '0') ?? '000' %> <%- properties.cd_quadra_fiscal?.padStart(3, '0') ?? '000' %> <%- properties.cd_lote?.padStart(4, '0') ?? '0000' %> <%- properties.cd_condominio?.padStart(2, '0') ?? '00' %>",
+          },
+        ],
+      },
+      {
+        type: 'wrapper-card',
+        label: 'Localização',
+        properties: {
+          printColumn: 1,
+          semanticCardWeight: 1,
+        },
+        templates: [
+          {
+            type: 'label-value',
+            label: 'Endereço',
+            properties: { helper: 'Endereço do lote' },
+            value:
+              "<%- properties?.nm_logradouro_completo ?? '-' %>, <%- properties?.cd_numero_porta ?? '-' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Tipo de Imóvel',
+            value: "<%- properties?.dc_tipo_uso_imovel ?? '-' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Categoria SIAAU',
+            value: "<%- properties?.tx_tipo_lote ?? '-' %>",
+          },
+          {
+            type: 'polygon-map',
+            properties: {
+              polygonProps: `
+                (data) => ({
+                  id: "polygon-layer",
+                  data: [{ coordinates: data.geometry.coordinates }],
+                  pickable: false,
+                  stroked: true,
+                  filled: true,
+                  lineWidthMinPixels: 2,
+                  getPolygon: (d) => d.coordinates,
+                  getFillColor: [30, 111, 249, 100],
+                  getLineColor: [30, 111, 249],
+                })
+              `,
+              initialViewState: `
+                (data) => {
+                  const centroid = utils.calculateCenterId(data.geometry.coordinates[0]);
+                  const zoom = utils.calculateZoom(data);
+
+                  return {
+                    longitude: centroid[0],
+                    latitude: centroid[1],
+                    zoom: zoom,
+                    pitch: 0,
+                    bearing: 0,
+                  };
+                }
+              `,
+            },
+          },
+          {
+            type: 'label-value',
+            label: 'Distrito',
+            value: "<%- properties?.cd_setor_fiscal ?? '-' %>",
+          },
+          {
+            type: 'label-value',
+            label: 'Subprefeitura',
+            value: 'Não disponível',
+          },
+          /* {
+            type: 'edit-polygon',
+          }, */
+          /* {
+            type: 'button',
+            label: 'Imprimir',
+            properties: {
+              action:
+                "(data) => window.open(`/print?layerSchema=lotes&CQL_FILTER=cd_setor_fiscal = '${data.properties.cd_setor_fiscal}' AND cd_quadra_fiscal = '${data.properties.cd_quadra_fiscal}' AND cd_lote = '${data.properties.cd_lote}' AND cd_condominio = '${data.properties.cd_condominio}'`,'_blank')",
+            },
+          }, */
+        ],
+      },
+      {
+        type: 'wrapper-card',
+        label: 'Informações prediais',
+        properties: {
+          printColumn: 1,
+          semanticCardWeight: 1,
+        },
+        templates: [
+          {
+            type: 'wrapper-grid',
+            templates: [
+              {
+                type: 'wrapper-grid-column',
+                templates: [
+                  {
+                    type: 'label-value',
+                    label: 'Área do Terreno',
+                    value: "<%- properties?.qt_area_terreno ?? '-' %>",
+                  },
+                  {
+                    type: 'label-value',
+                    label: 'Situação do Lote',
+                    value: "<%- properties?.tx_situ_lote ?? '-' %>",
+                  },
+                  {
+                    type: 'label-value',
+                    label: 'Tipo de Quadra',
+                    value: "<%- properties?.tx_tipo_quadra ?? '-' %>",
+                  },
+                ],
+              },
+              {
+                type: 'wrapper-grid-column',
+                templates: [
+                  {
+                    type: 'label-value',
+                    label: 'Área Construída',
+                    value: "<%- properties?.qt_area_construida ?? '-' %>",
+                  },
+
+                  {
+                    type: 'label-value',
+                    label: 'Condomínio',
+                    value: "<%- properties?.cd_condominio ?? '-' %>",
+                  },
+
+                  {
+                    type: 'label-value',
+                    label: 'Numeração',
+                    value: "<%- properties?.cd_quadra_fiscal ?? '-' %>",
+                  },
+                ],
+              },
+            ],
+            properties: {
+              columns: [6, 6],
+            },
+            id: '94bef4de-7956-4cb0-829c-7a81548defdd',
+          },
+        ],
+      },
       {
         type: 'wrapper-request',
         properties: {

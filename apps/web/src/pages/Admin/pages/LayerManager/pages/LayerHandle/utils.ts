@@ -158,6 +158,7 @@ const step2Schema = z.object({
 const step2_5Schema = z
   .object({
     viewTemplate: z.string().optional(),
+    boardTemplate: z.string().optional(),
   })
   .refine(() => {
     // We can't access clickAction from previous step here easily in z.object().refine
@@ -262,6 +263,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     clickAction,
     clickActionParams,
     viewTemplate,
+    boardTemplate,
     isActive,
     isSelected,
     isVisible,
@@ -392,6 +394,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     groupId,
     clickAction: clickActionObj,
     viewTemplate: viewTemplate ? JSON.parse(viewTemplate) : undefined,
+    boardTemplate: boardTemplate ? JSON.parse(boardTemplate) : undefined,
     colors: transformedColors,
     properties: {
       attributeMapping: propertyMapping,
@@ -450,6 +453,7 @@ export interface LayerSchema {
     params?: any;
   };
   viewTemplate?: any;
+  boardTemplate?: any;
   properties?: Record<string, any>;
 }
 
@@ -468,6 +472,7 @@ export const parseLayerSchemaToForm = (
     colors,
     clickAction,
     viewTemplate,
+    boardTemplate,
     properties,
   } = data;
 
@@ -639,6 +644,7 @@ export const parseLayerSchemaToForm = (
     clickAction: formClickAction as any,
     clickActionParams: formClickActionParams,
     viewTemplate: viewTemplate ? JSON.stringify(viewTemplate, null, 2) : "",
+    boardTemplate: boardTemplate ? JSON.stringify(boardTemplate, null, 2) : "",
     isActive: data.isActive ?? true,
     isSelected: data.isSelected ?? false,
     isVisible: data.isVisible ?? true,

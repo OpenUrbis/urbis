@@ -91,6 +91,7 @@ export interface IGetConfigLayerSchema {
   getLineColorPropName?: string;
   clickAction: IGetConfigLayerSchemaClickAction;
   viewTemplate?: ITemplate[];
+  boardTemplate?: ITemplate[];
   groupId?: string;
   colors: IGetConfigColor[];
   layerGroup: IGetConfigLayerSchemaGroup;

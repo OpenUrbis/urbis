@@ -20,7 +20,9 @@ const PrintPage = () => {
   const data = useSignal<any[]>([]);
 
   const isInteractive = useSignal<boolean>(false);
-  const [loadingMessage, setLoadingMessage] = useState("Carregando informações da área...");
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Carregando informações da área...",
+  );
   const [showOkCapybara, setShowOkCapybara] = useState(false);
 
   const semanticColumns = buildSemanticTemplateColumns(template.value, 3);
@@ -60,11 +62,11 @@ const PrintPage = () => {
   const fetchLayerConfig = async (layerSchema: string) => {
     if (!layerSchema) throw { message: "LayerSchema is not found" };
 
-    const { origin, viewTemplate } = await getLayerSchema(layerSchema);
+    const { origin, boardTemplate } = await getLayerSchema(layerSchema);
 
-    if (!viewTemplate) throw { message: "ViewTemplate is not found" };
+    if (!boardTemplate) throw { message: "BoardTemplate is not found" };
 
-    template.value = viewTemplate;
+    template.value = boardTemplate;
 
     return origin;
   };
@@ -99,7 +101,7 @@ const PrintPage = () => {
 
     const loadData = async () => {
       await fetchData(queryObject);
-      
+
       if (isInteractive.value) {
         setShowOkCapybara(true);
         setTimeout(() => {
@@ -122,30 +124,34 @@ const PrintPage = () => {
               {showOkCapybara ? "Prontinho!" : loadingMessage}
             </h2>
           </div>
-          
+
           <div className="absolute bottom-4 right-4 z-10 transition-all duration-1000 ease-in-out">
             {!showOkCapybara ? (
-              <img 
-                src="/capybara-sing.png" 
-                alt="Capivara cantando" 
+              <img
+                src="/capybara-sing.png"
+                alt="Capivara cantando"
                 className="w-48 md:w-64 origin-bottom animate-[wiggle_2s_ease-in-out_infinite]"
-                style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
+                style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))" }}
               />
             ) : (
-              <img 
-                src="/capybara-ok.png" 
-                alt="Capivara Ok" 
+              <img
+                src="/capybara-ok.png"
+                alt="Capivara Ok"
                 className="w-48 md:w-64 animate-in fade-in duration-500 zoom-in-95"
-                style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
+                style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))" }}
               />
             )}
           </div>
-          <style dangerouslySetInnerHTML={{__html: `
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
             @keyframes wiggle {
               0%, 100% { transform: rotate(-3deg); }
               50% { transform: rotate(3deg); }
             }
-          `}} />
+          `,
+            }}
+          />
         </div>
       );
     }
@@ -156,7 +162,9 @@ const PrintPage = () => {
           <Header />
           <div className="flex-1 flex items-center justify-center text-destructive p-8">
             <div className="bg-destructive/10 p-6 rounded-xl border border-destructive/20 max-w-md text-center">
-              <span className="material-symbols-outlined text-4xl mb-4">error</span>
+              <span className="material-symbols-outlined text-4xl mb-4">
+                error
+              </span>
               <p className="font-medium">{error.value}</p>
             </div>
           </div>
@@ -170,38 +178,44 @@ const PrintPage = () => {
         <Header />
         <main className="flex-1 flex flex-col w-full px-4 md:px-8 max-w-7xl mx-auto gap-6 mt-6 mb-12">
           <div className="w-full shrink-0">
-            <Search 
-              isInteractiveView={true} 
+            <Search
+              isInteractiveView={true}
               onItemClick={(config, item) => {
                 const url = new URL(window.location.href);
-                const isInteractive = url.searchParams.get('interactive');
-                url.search = '';
-                
+                const isInteractive = url.searchParams.get("interactive");
+                url.search = "";
+
                 if (isInteractive) {
-                  url.searchParams.set('interactive', isInteractive);
+                  url.searchParams.set("interactive", isInteractive);
                 }
 
                 if (config.layerSchemaId) {
-                  url.searchParams.set('layerSchema', config.layerSchemaId);
-                } else if (config.id === 'lots') {
-                  url.searchParams.set('layerSchema', 'lotes');
+                  url.searchParams.set("layerSchema", config.layerSchemaId);
+                } else if (config.id === "lots") {
+                  url.searchParams.set("layerSchema", "lotes");
                 }
-                
+
                 // Construct CQL_FILTER based on rawData properties for lots
                 const props = item.rawData?.properties || {};
                 const cqlParts = [];
-                if (props.cd_setor_fiscal) cqlParts.push(`cd_setor_fiscal = '${props.cd_setor_fiscal}'`);
-                if (props.cd_quadra_fiscal) cqlParts.push(`cd_quadra_fiscal = '${props.cd_quadra_fiscal}'`);
-                if (props.cd_lote) cqlParts.push(`cd_lote = '${props.cd_lote}'`);
-                if (props.cd_condominio) cqlParts.push(`cd_condominio = '${props.cd_condominio}'`);
-                
+                if (props.cd_setor_fiscal)
+                  cqlParts.push(`cd_setor_fiscal = '${props.cd_setor_fiscal}'`);
+                if (props.cd_quadra_fiscal)
+                  cqlParts.push(
+                    `cd_quadra_fiscal = '${props.cd_quadra_fiscal}'`,
+                  );
+                if (props.cd_lote)
+                  cqlParts.push(`cd_lote = '${props.cd_lote}'`);
+                if (props.cd_condominio)
+                  cqlParts.push(`cd_condominio = '${props.cd_condominio}'`);
+
                 if (cqlParts.length > 0) {
-                  url.searchParams.set('CQL_FILTER', cqlParts.join(' AND '));
+                  url.searchParams.set("CQL_FILTER", cqlParts.join(" AND "));
                 } else {
                   // Fallback to featureId if no properties found (unlikely for lots)
-                  url.searchParams.set('featureId', item.id);
+                  url.searchParams.set("featureId", item.id);
                 }
-                
+
                 window.location.href = url.toString();
               }}
             />
@@ -217,14 +231,17 @@ const PrintPage = () => {
                     key={`interactive-view-col-${index + 1}`}
                   >
                     <FeaturesView
-                      feature={{ feature: data.value, template: columnTemplates }}
+                      feature={{
+                        feature: data.value,
+                        template: columnTemplates,
+                      }}
                       isPrint={true}
                     />
                   </div>
                 );
               })}
             </div>
-            
+
             <div className="md:hidden">
               <FeaturesView
                 feature={{ feature: data.value, template: template.value }}
@@ -241,7 +258,9 @@ const PrintPage = () => {
 
   return loading.value ? (
     <div className="h-screen w-screen flex items-center justify-center">
-      <span className="material-symbols-outlined text-4xl animate-spin">progress_activity</span>
+      <span className="material-symbols-outlined text-4xl animate-spin">
+        progress_activity
+      </span>
     </div>
   ) : error.value ? (
     <div className="h-screen w-screen flex items-center justify-center text-destructive">
@@ -253,7 +272,11 @@ const PrintPage = () => {
       <span id="ready"></span>
       <header className="flex items-center justify-between pb-5 px-12">
         <div className="flex items-center justify-center">
-          <img src="logo.svg" alt="Logo da cidade de São paulo" className="w-[100px]" />
+          <img
+            src="logo.svg"
+            alt="Logo da cidade de São paulo"
+            className="w-[100px]"
+          />
         </div>
         <div className="flex flex-col items-center justify-center text-center">
           <span className="font-bold">Prefeitura de São Paulo</span>

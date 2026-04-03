@@ -51,9 +51,8 @@ export class SearchController {
     return this.service.findOne(id);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Post()
   @ApiOperation({ summary: 'Create a new search config' })
   @ApiResponse({
@@ -74,9 +73,8 @@ export class SearchController {
     return this.service.create(dto);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Put(':id')
   @ApiOperation({ summary: 'Update a search config by ID' })
   @ApiResponse({
@@ -109,9 +107,8 @@ export class SearchController {
     return this.service.update(id, dto);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a search config by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })
@@ -128,9 +125,8 @@ export class SearchController {
     return this.service.delete(id);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Post('upsert')
   @ApiOperation({ summary: 'Create or update a search config based on ID' })
   @ApiResponse({

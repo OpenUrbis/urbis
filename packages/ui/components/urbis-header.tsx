@@ -28,14 +28,13 @@ import {
 import { cn } from "../lib/utils";
 import React from "react";
 import { CircleUser, Menu } from "lucide-react";
-import { UrbisSettings, UrbisSettingsProps } from "./urbis-settings";
 
-interface UrbisHeaderProps extends UrbisSettingsProps {
+interface UrbisHeaderProps {
   logoSrc?: string;
   logoAlt?: string;
   logoHref?: string;
   badgeText?: string | null;
-  menuItems?: { label: string; href: string; active?: boolean }[];
+  menuItems?: { label: string; href: string }[];
   user?: {
     name?: string;
     email?: string;
@@ -51,7 +50,7 @@ interface UrbisHeaderProps extends UrbisSettingsProps {
 }
 
 export const UrbisHeader = ({
-  logoSrc,
+  logoSrc = "https://urbis.sampa.br/assets/images/logo.webp",
   logoAlt = "Urbis",
   logoHref = "/",
   badgeText = "DEMO",
@@ -65,8 +64,6 @@ export const UrbisHeader = ({
   showMobileMenu = true,
   showLogin = true,
   onMobileMenuClick,
-  theme,
-  setTheme,
 }: UrbisHeaderProps) => {
   return (
     <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -78,10 +75,10 @@ export const UrbisHeader = ({
         <div className="mr-4 flex items-center">
           <a className="mr-6 flex items-center space-x-2" href={logoHref}>
             <img
-              className="urbis-logo h-6 w-auto object-contain"
+              fetchPriority="high"
+              src={logoSrc}
+              className="h-6 w-auto object-contain"
               alt={logoAlt}
-              src="/logo.png"
-              style={logoSrc ? ({ '--app-logo': `url('${logoSrc}')` } as React.CSSProperties) : undefined}
             />
             {badgeText && (
               <span className="hidden font-bold sm:inline-block text-muted-foreground text-sm">
@@ -101,8 +98,7 @@ export const UrbisHeader = ({
                     href={item.href}
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      "rounded-full border border-input h-8 px-4 bg-transparent hover:bg-accent",
-                      item.active && "bg-accent text-accent-foreground"
+                      "rounded-full border border-input h-8 px-4 bg-transparent hover:bg-accent"
                     )}
                   >
                     {item.label}
@@ -116,7 +112,6 @@ export const UrbisHeader = ({
         <div className="flex flex-1 items-center justify-end space-x-2">
           <div className="flex items-center gap-2">
              {/* Right Slot for Debugger, ModeToggle etc */}
-             <UrbisSettings theme={theme} setTheme={setTheme} />
              {rightSlot}
 
              {/* User Menu */}
@@ -169,18 +164,15 @@ export const UrbisHeader = ({
                          <DrawerTitle>Menu</DrawerTitle>
                        </DrawerHeader>
                        <div className="p-4 flex flex-col gap-4">
-                       {menuItems.map((item) => (
-                         <a
-                           key={item.label}
-                           href={item.href}
-                           className={cn(
-                             "text-lg font-medium hover:text-primary transition-colors",
-                             item.active && "text-primary"
-                           )}
-                         >
-                           {item.label}
-                         </a>
-                       ))}
+                         {menuItems.map((item) => (
+                           <a
+                             key={item.label}
+                             href={item.href}
+                             className="text-lg font-medium hover:text-primary transition-colors"
+                           >
+                             {item.label}
+                           </a>
+                         ))}
                        </div>
                        <DrawerFooter>
                          <DrawerClose asChild>

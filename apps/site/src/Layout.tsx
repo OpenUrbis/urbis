@@ -2,15 +2,17 @@ import { Outlet } from 'react-router-dom'
 import { UrbisHeader } from '@open-urbis/map-ui/urbis-header'
 import { Footer } from './components/layout/Footer'
 import { ScrollToTop } from './components/ScrollToTop'
+import { ModeToggle } from './components/mode-toggle'
 
 function Layout() {
   const menuItems = [
-    { label: 'Mosaico', href: 'https://urbis.prefeitura.sp.gov.br', active: true },
-    { label: 'Mapa', href: 'https://mapa.urbis.prefeitura.sp.gov.br' },
-    { label: 'Dados Abertos', href: 'https://dadosabertos.urbis.prefeitura.sp.gov.br' },
-    { label: 'Legis', href: 'https://docs.urbis.prefeitura.sp.gov.br/docs/legis' },
-    { label: 'Viabiliza', href: 'https://viabiliza.urbis.prefeitura.sp.gov.br/docs/legis' },
-    { label: 'Doc. técnica', href: 'https://docs.urbis.prefeitura.sp.gov.br/' },
+    { label: 'Início', href: '/' },
+    { label: 'Mapa', href: 'https://mapa.urbis.sampa.br' },
+    { label: 'Viabiliza', href: 'https://viabiliza.urbis.sampa.br' },
+    { label: 'Dados Abertos', href: 'https://dadosabertos.urbis.sampa.br' },
+    { label: 'Doc. técnica', href: '/doc-tecnica' },
+    { label: '+Info', href: '/info-urbis' },
+    { label: 'Data Lake', href: 'https://datalake.urbis.sampa.br/' },
   ]
 
   return (
@@ -23,6 +25,7 @@ function Layout() {
         badgeText={null}
         menuItems={menuItems}
         showLogin={false}
+        rightSlot={<ModeToggle />}
       />
       <main className="flex-1">
         <Outlet />

@@ -1,0 +1,32 @@
+---
+description: Rules for Map implementation in apps/web using Mapbox and Deck.gl
+globs: ["apps/web/src/components/MapView/**", "apps/web/src/hooks/useMapContext.ts"]
+---
+
+# Map Implementation Rules
+
+## Tech Stack
+- **Base Map**: `react-map-gl` (Mapbox GL JS wrapper).
+- **Visualization**: `deck.gl` via `MapboxOverlay` (@deck.gl/mapbox).
+- **State Management**: `@preact/signals` for high-performance reactive state (viewport, zoom, layers).
+- **Persistence**: `@signaldb/indexeddb` (via `useLayerPersistence`) for saving state across sessions.
+
+## Integration Pattern
+- Use interleaved rendering where Deck.gl layers are rendered into the Mapbox WebGL context.
+- **DeckGLOverlay**: This component wraps `MapboxOverlay` and syncs props via `useControl`.
+- **MapView**: Main component that coordinates `Map` and `DeckGLOverlay`.
+
+## State & Props
+- `MapContext`: Holds the state of the map (viewport, features, selected style).
+- **Signals**: Use signals for frequently changing values (viewport, hover state) to avoid full React re-renders. Use `layerSchemas.value = ...` to update.
+- **Layer Transformation**: Logic to convert schema definitions into Deck.gl layers lives in `map-layer-transform.ts`.
+
+## Persistence Strategy
+- Map state (layers, zoom, search) is persisted to IndexedDB using SignalDB.
+- `useLayerPersistence`: Hook that handles init/restore logic. It waits for API configuration before restoring local state.
+- **Sessions**: Uses session IDs (`shareId` in URL or generated UUID) to track distinct map states.
+
+## Best Practices
+- **Interactivity**: Handle clicks and hover events in Deck.gl layers, not Mapbox layers (unless necessary).
+- **Performance**: Use `computed` signals for derived state (like the list of active layers) to ensure minimal re-computation.
+- **Coordinates**: Standardize on `[longitude, latitude]` for GeoJSON and internal logic.

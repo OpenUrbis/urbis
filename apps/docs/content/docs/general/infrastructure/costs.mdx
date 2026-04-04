@@ -1,0 +1,82 @@
+---
+title: Estimativa de Custos
+description: Detalhamento dos custos de infraestrutura por Workspace.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Este documento apresenta uma estimativa de custos de infraestrutura utilizando o provedor **Microsoft Azure** como referência. A arquitetura proposta prioriza a robustez e o isolamento de recursos, separando a camada de computação da camada de dados para garantir performance e escalabilidade.
+
+A escolha do **Kubernetes** como orquestrador assegura flexibilidade e portabilidade (estratégia *Multi-Cloud*), evitando o aprisionamento tecnológico (*vendor lock-in*) a um único provedor.
+
+A infraestrutura do Urbis opera em **Workspaces Independentes**. Cada workspace possui sua própria infraestrutura isolada, permitindo a contratação modular das funcionalidades.
+
+## 1. Workspace Datalake
+
+Ambiente dedicado à gestão e orquestração de dados, integrando Datalake (CKAN), ETL (Dagster), servidor geoespacial (GeoServer) e aplicações web de suporte.
+
+**Composição do Workspace:**
+*   **Aplicações:** Datalake (CKAN), Dagster (ETL), GeoServer e 2 WebApps.
+*   **Bancos de Dados:**
+    *   Banco Datalake (Leve): Metadados e controle.
+    *   Banco PostGIS (Robusto): Processamento geoespacial intenso.
+*   **Infraestrutura de Computação:** Cluster Kubernetes dimensionado para múltiplos serviços.
+
+| Item | Detalhes | Custo Estimado (Mensal) |
+| --- | --- | --- |
+| **Cluster Kubernetes** | 2 a 3 Nodes Standard_D4s_v5 (8 a 12 vCPU, 32 a 48GB RAM) | R$ 3.300,00 - R$ 4.950,00 |
+| **Banco PostGIS** | Dedicated Flexible Server (2 vCPU, 8GB, 128GB Storage) | R$ 1.100,00 |
+| **Banco Datalake** | Burstable Flexible Server (2 vCPU, 8GB, 64GB Storage) | R$ 650,00 |
+| **Storage/Net/Backup** | Discos, Tráfego e Retenção | R$ 800,00 |
+| **TOTAL MENSAL** | **Estimativa Datalake** | **~R$ 5.850,00 - R$ 7.500,00** |
+
+## 2. Workspace Mapa
+
+Ambiente otimizado para a visualização e disponibilização de mapas interativos.
+
+**Composição do Workspace:**
+*   **Aplicações:** WebApp de Mapa (Frontend).
+*   **Banco de Dados:** Postgres para dados vetoriais simples.
+*   **Infraestrutura:** Cluster simplificado e serviço de hospedagem web.
+
+| Item | Detalhes | Custo Estimado (Mensal) |
+| --- | --- | --- |
+| **Cluster Kubernetes** | 1 a 2 Nodes Simples (2 vCPU, 8GB RAM) | R$ 825,00 - R$ 1.650,00 |
+| **WebApp (PaaS)** | Azure App Service (Basic Plan) ou equivalente | R$ 300,00 |
+| **Banco de Dados** | PostgreSQL Flexible (General Purpose) | R$ 1.050,00 |
+| **Networking** | Load Balancer Básico | R$ 200,00 |
+| **TOTAL MENSAL** | **Estimativa Mapa** | **~R$ 2.375,00 - R$ 3.200,00** |
+
+## 3. Workspace Viabiliza
+
+Ambiente dedicado ao processamento de regras de negócio e viabilidade urbanística.
+
+**Composição do Workspace:**
+*   **Aplicações:** WebApp e Backend Viabiliza (API).
+*   **Banco de Dados:** Postgres para regras e persistência.
+
+| Item | Detalhes | Custo Estimado (Mensal) |
+| --- | --- | --- |
+| **Cluster Kubernetes** | 1 a 2 Nodes Simples (2 vCPU, 8GB RAM) | R$ 825,00 - R$ 1.650,00 |
+| **WebApp (PaaS)** | Azure App Service (Basic Plan) ou equivalente | R$ 300,00 |
+| **Banco de Dados** | PostgreSQL Flexible (General Purpose) | R$ 1.050,00 |
+| **Networking** | Load Balancer Básico | R$ 200,00 |
+| **TOTAL MENSAL** | **Estimativa Viabiliza** | **~R$ 2.375,00 - R$ 3.200,00** |
+
+---
+
+## Otimização e Sinergia
+
+<Callout title="Economia Compartilhada">
+  Caso os Workspaces **Mapa** e **Viabiliza** sejam contratados em conjunto, é possível otimizar a camada de dados. Ambos podem compartilhar a mesma instância de Banco de Dados (criando *schemas* lógicos separados), gerando uma economia imediata de **R$ 1.050,00/mês**.
+</Callout>
+
+## Investimento Necessário
+
+| Categoria | Custo Estimado (Mensal) |
+| --- | --- |
+| 1. Workspace Datalake | R$ 5.850,00 - R$ 7.500,00 |
+| 2. Workspace Mapa | R$ 2.375,00 - R$ 3.200,00 |
+| 3. Workspace Viabiliza | R$ 2.375,00 - R$ 3.200,00 |
+| **Total Mensal Estimado** | **R$ 9.000,00 - R$ 12.850,00** |
+| **Total com Reserva** | **R$ 6.700,00 - R$ 9.000,00** |

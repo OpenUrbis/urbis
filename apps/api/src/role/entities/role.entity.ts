@@ -41,7 +41,7 @@ export class Role extends BaseEntity {
   name: string;
 
   @Column({ nullable: true })
-  description?: string | null;
+  description?: string;
 
   @Column({
     type: 'enum',
@@ -54,7 +54,7 @@ export class Role extends BaseEntity {
   type: RoleTypeEnum;
 
   @Column({ nullable: true })
-  organizationId?: string | null;
+  organizationId?: string;
 
   @ManyToOne(
     () => Organization,

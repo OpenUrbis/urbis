@@ -1,43 +1,44 @@
 ---
-title: Solução de Problemas
-description: Problemas comuns e como resolvê-los.
+title: Troubleshooting
+description: Common issues and how to resolve them.
+icon: Box
 ---
 
-Problemas comuns que os desenvolvedores podem encontrar e suas soluções.
+Common issues developers might encounter and their solutions.
 
-## Conexão com Banco de Dados Recusada
+## Database Connection Refused
 
-**Erro**: `ECONNREFUSED 127.0.0.1:5432`
+**Error**: `ECONNREFUSED 127.0.0.1:5432`
 
-**Solução**:
-1.  Certifique-se de que o Docker está rodando.
-2.  Verifique se o container do banco de dados está no ar: `docker ps`.
-3.  Se executar `pnpm composer:up` falhar com "port already in use", pare outras instâncias do Postgres rodando na sua máquina.
+**Solution**:
+1.  Ensure Docker is running.
+2.  Check if the database container is up: `docker ps`.
+3.  If running `pnpm composer:up` fails with "port already in use", stop other Postgres instances running on your machine.
 
-## Permissões do Docker (Linux)
+## Docker Permissions (Linux)
 
-**Erro**: `permission denied while trying to connect to the Docker daemon socket`
+**Error**: `permission denied while trying to connect to the Docker daemon socket`
 
-**Solução**:
-Adicione seu usuário ao grupo docker:
+**Solution**:
+Add your user to the docker group:
 ```bash
 sudo usermod -aG docker $USER
 newgrp docker
 ```
 
-## Problemas de Cache do Turbo Build
+## Turbo Build Caching Issues
 
-**Problema**: Alterações não estão sendo refletidas no build.
+**Issue**: Changes aren't being reflected in the build.
 
-**Solução**:
-Force um rebuild ignorando o cache:
+**Solution**:
+Force a rebuild by ignoring the cache:
 ```bash
 pnpm build --force
 ```
 
-## Problemas de Redirecionamento OIDC
+## OIDC Redirect Issues
 
-**Problema**: "Invalid redirect_uri" ao tentar fazer login.
+**Issue**: "Invalid redirect_uri" when trying to log in.
 
-**Solução**:
-Certifique-se de que a URL do seu frontend corresponde ao que está na lista de permissões na configuração do Provedor OIDC (`apps/api/src/auth/oidc/oidc.config.ts`).
+**Solution**:
+Ensure your frontend URL matches what is whitelisted in the OIDC Provider configuration (`apps/api/src/auth/oidc/oidc.config.ts`).

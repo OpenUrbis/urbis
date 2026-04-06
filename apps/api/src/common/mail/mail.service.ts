@@ -25,17 +25,13 @@ export class MailService {
     template: 'reset-password' | 'confirm-account' | 'invite',
     data,
   ): string {
-    try {
-      const filePath = join(
-        './',
-        this.configService.get('mail.templatesPath'),
-        `${template}.hbs`,
-      );
-      const templateContent = readFileSync(filePath, 'utf8');
-      return Handlebars.compile(templateContent)(data);
-    } catch (err) {
-      console.error(err);
-    }
+    const filePath = join(
+      './',
+      this.configService.get('mail.templatesPath'),
+      `${template}.hbs`,
+    );
+    const templateContent = readFileSync(filePath, 'utf8');
+    return Handlebars.compile(templateContent)(data);
   }
 
   /**
@@ -51,33 +47,28 @@ export class MailService {
     }>,
     language = 'en',
   ): Promise<void> {
-    try {
-      // Create subject title in the correct language
-      const subject = `${this.i18n.translate('common.confirmEmail', {
-        lang: language,
-      })}`;
+    // Create subject title in the correct language
+    const subject = `${this.i18n.translate('common.confirmEmail', {
+      lang: language,
+    })} - Slingui`;
 
-      // Create email content
-      const html = this.buildTemplate('confirm-account', {
-        ...mailData.data,
-        accountsUrl: this.configService.get('app.accountsUrl'),
-        i18n: (key, options) =>
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          this.i18n.translate(key, { lang: language, ...options }),
-      });
+    // Create email content
+    const html = this.buildTemplate('confirm-account', {
+      ...mailData.data,
+      frontendDomain: this.configService.get('app.frontendDomain'),
+      i18n: (key, options) =>
+        this.i18n.translate(key, { lang: language, ...options }),
+    });
 
-      const emailParams = {
-        to: mailData.to,
-        from: this.configService.get('mail.from'),
-        fromname: 'Monorepo',
-        subject,
-        html,
-      };
+    const emailParams = {
+      to: mailData.to,
+      from: this.configService.get('mail.from'),
+      fromname: 'Slingui',
+      subject,
+      html,
+    };
 
-      await this.sendGridService.send(emailParams);
-    } catch (err) {
-      console.error(err);
-    }
+    await this.sendGridService.send(emailParams);
   }
 
   /**
@@ -93,32 +84,27 @@ export class MailService {
     }>,
     language = 'en',
   ): Promise<void> {
-    try {
-      // Create subject title in the correct language
-      const subject = `${this.i18n.translate('common.resetPassword', {
-        lang: language,
-      })} - Monorepo`;
+    // Create subject title in the correct language
+    const subject = `${await this.i18n.translate('common.resetPassword', {
+      lang: language,
+    })} - Slingui`;
 
-      // Create email content
-      const html = this.buildTemplate('reset-password', {
-        ...mailData.data,
-        accountsUrl: this.configService.get('app.accountsUrl'),
-        i18n: (key, options) =>
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          this.i18n.translate(key, { lang: language, ...options }),
-      });
+    // Create email content
+    const html = this.buildTemplate('reset-password', {
+      ...mailData.data,
+      frontendDomain: this.configService.get('app.frontendDomain'),
+      i18n: (key, options) =>
+        this.i18n.translate(key, { lang: language, ...options }),
+    });
 
-      const emailParams = {
-        to: mailData.to,
-        from: this.configService.get('mail.from'),
-        subject,
-        fromname: 'Monorepo',
-        html,
-      };
-      await this.sendGridService.send(emailParams);
-    } catch (err) {
-      console.error(err);
-    }
+    const emailParams = {
+      to: mailData.to,
+      from: this.configService.get('mail.from'),
+      subject,
+      fromname: 'Slingui',
+      html,
+    };
+    await this.sendGridService.send(emailParams);
   }
 
   async invite(
@@ -131,32 +117,27 @@ export class MailService {
     }>,
     language = 'en',
   ): Promise<void> {
-    try {
-      // Create subject title in the correct language
-      const subject = `${this.i18n.translate('common.invite', {
-        lang: language,
-      })} - Monorepo`;
+    // Create subject title in the correct language
+    const subject = `${await this.i18n.translate('common.invite', {
+      lang: language,
+    })} - Slingui`;
 
-      // Create email content
-      const html = this.buildTemplate('invite', {
-        ...mailData.data,
-        accountsUrl: this.configService.get('app.accountsUrl'),
-        i18n: (key, options) =>
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          this.i18n.translate(key, { lang: language, ...options }),
-      });
+    // Create email content
+    const html = this.buildTemplate('invite', {
+      ...mailData.data,
+      frontendDomain: this.configService.get('app.frontendDomain'),
+      i18n: (key, options) =>
+        this.i18n.translate(key, { lang: language, ...options }),
+    });
 
-      const emailParams = {
-        to: mailData.to,
-        from: this.configService.get('mail.from'),
-        fromname: 'Monorepo',
-        subject,
-        html,
-      };
-      await this.sendGridService.send(emailParams);
-    } catch (err) {
-      console.error(err);
-    }
+    const emailParams = {
+      to: mailData.to,
+      from: this.configService.get('mail.from'),
+      fromname: 'Slingui',
+      subject,
+      html,
+    };
+    await this.sendGridService.send(emailParams);
   }
 
   async supportEmail(mailData: {
@@ -164,51 +145,43 @@ export class MailService {
     subject: string;
     description: string;
   }): Promise<void> {
-    try {
-      const html = Object.values(mailData).join('<br>');
-      const emailParams = {
-        to: this.configService.get('mail.from'),
-        from: this.configService.get('mail.from'),
-        subject: mailData.subject,
-        html,
-      };
-      await this.sendGridService.send(emailParams);
-    } catch (err) {
-      console.error(err);
-    }
+    const html = Object.values(mailData).join('<br>');
+    const emailParams = {
+      to: this.configService.get('mail.from'),
+      from: this.configService.get('mail.from'),
+      subject: mailData.subject,
+      html,
+    };
+    await this.sendGridService.send(emailParams);
   }
 
   async sendScheduledNotification(
     mailData: { message; to; subject },
     language = 'en',
   ): Promise<void> {
-    try {
-      // Título do assunto em múltiplos idiomas
-      const alternataiveSubject = `${this.i18n.translate(
-        'common.scheduledNotification',
-        {
-          lang: language,
-        },
-      )} - Monorepo`;
+    // Título do assunto em múltiplos idiomas
+    const alternataiveSubject = `${await this.i18n.translate(
+      'common.scheduledNotification',
+      {
+        lang: language,
+      },
+    )} - Slingui`;
 
-      const subject: string = mailData.subject ?? alternataiveSubject;
+    const subject: string = mailData.subject ?? alternataiveSubject;
 
-      // Criar o conteúdo do e-mail
-      const html = mailData.message;
+    // Criar o conteúdo do e-mail
+    const html = mailData.message;
 
-      const emailParams = {
-        to: mailData.to,
-        from: this.configService.get('mail.from'),
-        subject,
-        fromname: 'Monorepo',
-        html,
-      };
+    const emailParams = {
+      to: mailData.to,
+      from: this.configService.get('mail.from'),
+      subject,
+      fromname: 'Slingui',
+      html,
+    };
 
-      // Enviar o e-mail usando o SendGrid
-      await this.sendGridService.send(emailParams);
-    } catch (err) {
-      console.error(err);
-    }
+    // Enviar o e-mail usando o SendGrid
+    await this.sendGridService.send(emailParams);
   }
 
   async sendOtpCode(code: string, to: string) {

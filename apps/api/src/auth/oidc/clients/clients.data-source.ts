@@ -13,16 +13,12 @@ export const buildClientsDataSource = (
       redirect_uris: [
         'http://localhost:4200',
         'http://localhost:4200/callback',
-        'https://accounts.atlascli.io',
-        'https://accounts.atlascli.io/callback',
       ],
       response_types: ['code'],
       grant_types: ['refresh_token', 'authorization_code'],
       post_logout_redirect_uris: [
         'http://localhost:4200',
         'http://localhost:4200/callback',
-        'https://accounts.atlascli.io',
-        'https://accounts.atlascli.io/callback',
       ],
       token_endpoint_auth_method: 'none',
     },

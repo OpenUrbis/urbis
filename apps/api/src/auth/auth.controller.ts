@@ -17,7 +17,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Recaptcha } from '@nestlab/google-recaptcha';
+import { UserData } from 'common/decorators/user-data/user-data.decorator';
+import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { User } from 'user/entities/user.entity';
 import { AuthService } from './auth.service';
 import { AuthConfirmEmailDto } from './dto/auth-confirm-email.dto';
@@ -46,11 +47,7 @@ export class AuthController {
   } */
 
   @Post('email/register')
-  @Recaptcha({
-    response: (req) => req.body.recaptcha,
-    action: 'signup',
-    score: 0.5,
-  })
+  // To do: Recaptcha
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() createUserDto: AuthRegisterLoginDto) {
     return await this.service.register(createUserDto);
@@ -122,7 +119,7 @@ export class AuthController {
         (key) => `${encodeURIComponent(key)}=${encodeURIComponent(query[key])}`,
       )
       .join('&');
-    const redirectUrl = `com.application-name.app:/callback?${params}`;
+    const redirectUrl = `com.slingui.app:/callback?${params}`;
     return res.redirect(redirectUrl);
   }
 }

@@ -21,7 +21,7 @@ export class User extends BaseEntity {
   id: string;
 
   @Column({ unique: true, nullable: true })
-  email: string;
+  email: string | null;
 
   @Column({ nullable: true })
   @Exclude({ toPlainOnly: true })
@@ -29,14 +29,11 @@ export class User extends BaseEntity {
 
   @Index()
   @Column({ nullable: true })
-  firstName: string;
+  firstName: string | null;
 
   @Index()
   @Column({ nullable: true })
-  lastName: string;
-
-  @Column({ nullable: true })
-  avatarUrl: string;
+  lastName: string | null;
 
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
@@ -44,10 +41,10 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   @Index()
   @Exclude({ toPlainOnly: true })
-  emailHashConfirm?: string;
+  emailHashConfirm?: string | null;
 
   @Column({ nullable: true })
-  otpSecret!: string;
+  otpSecret!: string | null;
 
   @Column({ default: false })
   otpValidated!: boolean;
@@ -56,14 +53,6 @@ export class User extends BaseEntity {
     default: false,
   })
   requires2fa!: boolean;
-
-  @Column({
-    default: 'BR',
-  })
-  country!: string;
-
-  @Column({ nullable: true })
-  phone?: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -82,11 +71,8 @@ export class User extends BaseEntity {
     this.previousPassword = this.password;
   }
 
-  public isEmailConfirmed: boolean;
-
-  @AfterLoad()
-  public computeIsEmailConfirmed(): void {
-    this.isEmailConfirmed = !this.emailHashConfirm;
+  get isEmailConfirmed() {
+    return !this.emailHashConfirm;
   }
 
   validatePassword(plainPassword: string) {

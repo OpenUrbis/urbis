@@ -71,9 +71,9 @@ export class SearchService {
       isActive,
       layerSchemaId,
       method,
-      transformParams: transformParams || null,
-      transformRequest: transformRequest || null,
-      transformResponse: transformResponse || null,
+      transformParams,
+      transformRequest,
+      transformResponse,
       layerSchema,
     });
 
@@ -115,22 +115,15 @@ export class SearchService {
     searchConfig.isActive = isActive;
     searchConfig.layerSchemaId = layerSchemaId;
     searchConfig.method = method;
-    searchConfig.transformParams = transformParams || null;
-    searchConfig.transformRequest = transformRequest || null;
-    searchConfig.transformResponse = transformResponse || null;
-
-    if (layerSchemaId) {
-      searchConfig.layerSchema =
-        await this.layerSchemaService.findOne(layerSchemaId);
-    } else {
-      searchConfig.layerSchema = null;
-    }
+    searchConfig.transformParams = transformParams;
+    searchConfig.transformRequest = transformRequest;
+    searchConfig.transformResponse = transformResponse;
 
     return await this.repository.save(searchConfig);
   }
 
   async delete(id: string): Promise<void> {
-    await this.repository.softDelete(id);
+    await this.repository.delete(id);
   }
 
   async upsert(dto: SearchConfigDto): Promise<SearchConfig> {

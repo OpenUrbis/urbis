@@ -1,25 +1,25 @@
 ---
-title: Accounts
-description: Understanding the accounts system and user management.
+title: Contas
+description: Entendendo o sistema de contas e gerenciamento de usuários.
 icon: Users
 ---
 
-The `apps/accounts` application is the primary interface for users to manage their identity.
+A aplicação `apps/accounts` é a interface principal para os usuários gerenciarem suas identidades.
 
-## Features
+## Funcionalidades
 
--   **Profile Management**: Update name, email, and avatar.
--   **Security Settings**: Change password, enable 2FA.
--   **Organization Management**: Create and manage organizations, invite members.
+-   **Gerenciamento de Perfil**: Atualização de nome, e-mail e avatar.
+-   **Configurações de Segurança**: Alteração de senha, ativação de 2FA.
+-   **Gerenciamento de Organização**: Criação e gerenciamento de organizações, convite de membros.
 
-## Integration
+## Integração
 
-It is built with Angular and communicates with the API via standard REST endpoints protected by OIDC tokens.
+É construída com Angular e se comunica com a API via endpoints REST padrão protegidos por tokens OIDC.
 
-## Structure
+## Estrutura
 
-The Angular app follows a feature-based structure:
+A aplicação Angular segue uma estrutura baseada em features:
 
--   `src/app/pages/`: Routing components for each page.
--   `src/app/components/`: Reusable UI components.
--   `src/app/states/`: State management (if applicable, e.g., NgRx or Signals).
+-   `src/app/pages/`: Componentes de roteamento para cada página.
+-   `src/app/components/`: Componentes de UI reutilizáveis.
+-   `src/app/states/`: Gerenciamento de estado (se aplicável, ex: NgRx ou Signals).

@@ -1,21 +1,21 @@
 ---
-title: Environment Setup
-description: Setting up your local development environment.
+title: Configuração do Ambiente
+description: Configurando seu ambiente de desenvolvimento local.
 icon: Settings
 ---
 
-This guide covers everything you need to install and configure to start contributing to Monorepo Boilerplate.
+Este guia cobre tudo o que você precisa instalar e configurar para começar a contribuir para o Urbis.
 
-## System Requirements
+## Requisitos do Sistema
 
--   **OS**: macOS, Linux, or Windows (via WSL2).
--   **Node.js**: v20.x (LTS recommended).
--   **Package Manager**: pnpm v9.x.
--   **Docker**: Docker Desktop or Docker Engine + Compose.
+-   **SO**: macOS, Linux, ou Windows (via WSL2).
+-   **Node.js**: v20.x (LTS recomendado).
+-   **Gerenciador de Pacotes**: pnpm v9.x.
+-   **Docker**: Docker Desktop ou Docker Engine + Compose.
 
-## 1. Install Node.js & pnpm
+## 1. Instalar Node.js & pnpm
 
-We recommend using [nvm](https://github.com/nvm-sh/nvm) (Node Version Manager) to install Node.js.
+Recomendamos usar [nvm](https://github.com/nvm-sh/nvm) (Node Version Manager) para instalar o Node.js.
 
 ```bash
 nvm install 20
@@ -24,39 +24,39 @@ corepack enable
 corepack prepare pnpm@latest --activate
 ```
 
-## 2. Clone and Install
+## 2. Clonar e Instalar
 
 ```bash
-git clone https://github.com/atlas-cli/monorepo.git Monorepo Boilerplate
-cd Monorepo Boilerplate
+git clone https://github.com/OpenUrbis/urbis-map.git urbis
+cd urbis
 pnpm install
 ```
 
-## 3. Environment Variables
+## 3. Variáveis de Ambiente
 
-Copy the example environment files:
+Copie os arquivos de ambiente de exemplo:
 
 ```bash
 cp apps/api/.env.example apps/api/.env
 ```
 
-Review `.env` and update values if necessary (e.g., database credentials if not using the default Docker setup).
+Revise o `.env` e atualize os valores se necessário (ex: credenciais do banco de dados se não estiver usando a configuração padrão do Docker).
 
-## 4. Start Infrastructure
+## 4. Iniciar Infraestrutura
 
-Run the docker compose file to start Postgres and Redis.
+Execute o comando para iniciar os containers Docker (Postgres, Redis).
 
 ```bash
 pnpm composer:up
 ```
 
-## 5. Verify Setup
+## 5. Verificar Configuração
 
-Run the API locally to ensure everything connects:
+Execute a API localmente para garantir que tudo se conecte:
 
 ```bash
 cd apps/api
 pnpm start:dev
 ```
 
-You should see NestJS logs indicating a successful startup.
+Você deve ver logs do NestJS indicando uma inicialização bem-sucedida.

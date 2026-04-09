@@ -2,11 +2,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ClickActionEnum } from '@open-urbis/map-shared';
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { LayerGroup } from './../../layer-groups/entities/layer-group.entity';
 import { LayerSchemaTypeEnum } from './../enums/layer-schema.enum';
@@ -18,6 +22,7 @@ export interface IClickAction {
 }
 
 @Entity('layer_schemas')
+@Index(['id'], { unique: true, where: '"deletedAt" IS NULL' })
 export class LayerSchema {
   @ApiProperty({
     example: 'lotes',
@@ -174,4 +179,13 @@ export class LayerSchema {
     },
   )
   colors?: LayerSchemaColors[];
+
+  @CreateDateColumn()
+  createdAt?: Date;
+
+  @UpdateDateColumn()
+  updatedAt?: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

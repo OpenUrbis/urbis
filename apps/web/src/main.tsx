@@ -13,10 +13,12 @@ import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
 import { PolygonEditProvider } from "./context/PolygonEditContext";
 import { SearchProvider } from "./context/SearchContext";
+import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./components/AuthProvider";
 
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
+const AdminPage = lazy(() => import("./pages/Admin"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,32 +39,43 @@ const App = () => (
             <QueryClientProvider client={queryClient}>
               {
                 (
-                  <NavigationProvider>
-                    <MapProvider>
-                      <SearchProvider>
-                        <PolygonEditProvider>
-                          <Router>
-                            {
-                              (
-                                <Suspense
-                                  fallback={
-                                    <div className="h-screen w-screen flex items-center justify-center">
-                                      <Loader2 className="h-10 w-10 animate-spin" />
-                                    </div>
-                                  }
-                                >
-                                  <Route path="/">{(<MapPage />) as ReactNode}</Route>
-                                  <Route path="/print">
-                                    {(<PrintPage />) as ReactNode}
-                                  </Route>
-                                </Suspense>
-                              ) as ReactNode
-                            }
-                          </Router>
-                        </PolygonEditProvider>
-                      </SearchProvider>
-                    </MapProvider>
-                  </NavigationProvider>
+                  <>
+                    <NavigationProvider>
+                      <MapProvider>
+                        <SearchProvider>
+                          <PolygonEditProvider>
+                            <Router>
+                              {
+                                (
+                                  <Suspense
+                                    fallback={
+                                      <div className="h-screen w-screen flex items-center justify-center">
+                                        <Loader2 className="h-10 w-10 animate-spin" />
+                                      </div>
+                                    }
+                                  >
+                                    <Route path="/callback">
+                                      <div className="h-screen w-screen flex items-center justify-center">
+                                        <Loader2 className="h-10 w-10 animate-spin" />
+                                      </div>
+                                    </Route>
+                                    <Route path="/">{(<MapPage />) as ReactNode}</Route>
+                                    <Route path="/print">
+                                      {(<PrintPage />) as ReactNode}
+                                    </Route>
+                                    <Route path="/admin" nest>
+                                      {(<AdminPage />) as ReactNode}
+                                    </Route>
+                                  </Suspense>
+                                ) as ReactNode
+                              }
+                            </Router>
+                          </PolygonEditProvider>
+                        </SearchProvider>
+                      </MapProvider>
+                    </NavigationProvider>
+                    <Toaster />
+                  </>
                 ) as ReactNode
               }
             </QueryClientProvider>

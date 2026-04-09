@@ -1,5 +1,5 @@
 {
   "title": "Geral",
   "root": true,
-  "pages": ["index", "mapa", "forms", "infrastructure", "development", "architecture"]
+  "pages": ["index", "mapa", "forms", "infrastructure", "development", "architecture", "andamento"]
 }

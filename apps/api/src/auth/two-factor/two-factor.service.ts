@@ -9,8 +9,6 @@ import * as speakeasy from 'speakeasy';
 import { User } from 'user/entities/user.entity';
 import { UserService } from 'user/user.service';
 
-const TEST_CODE = '869562';
-
 const PREFIX_REDIS_EMAIL_OTP = 'USER_EMAIL_OTP';
 const algorithm = 'aes-256-ctr';
 const iv = crypto.randomBytes(16);
@@ -25,11 +23,6 @@ export class TwoFactorService {
   ) {}
 
   async checkEmailOtp(userId: string, code: string) {
-    if (
-      code === TEST_CODE &&
-      this.configService.get('app.nodeEnv') !== 'production'
-    )
-      return true;
     const sendedCode = await this.redisService.get(
       `${PREFIX_REDIS_EMAIL_OTP}_${userId}`,
     );
@@ -39,8 +32,6 @@ export class TwoFactorService {
         message: 'Invalid code',
         isInvalid: true,
       });
-
-    await this.userService.confirmEmail(userId);
 
     return true;
   }
@@ -88,10 +79,10 @@ export class TwoFactorService {
     const { base32, otpauth_url } = speakeasy.generateSecret({
       name: `${this.configService.get('auth.twoFactorAppName')} - ${user.email}`,
     });
-    const otpSecret = this.encrypt(base32 as string);
+    const otpSecret = this.encrypt(base32);
 
     await this.userService.saveOtpSecret(user.id, otpSecret);
-    const qrcode = await QRCode.toDataURL(otpauth_url as string);
+    const qrcode = await QRCode.toDataURL(otpauth_url);
 
     return {
       message: '2FA key generated successfully',
@@ -107,16 +98,12 @@ export class TwoFactorService {
       });
     const secret = this.decrypt(user.otpSecret);
 
-    const isValid =
-      code === TEST_CODE &&
-      this.configService.get('app.nodeEnv') !== 'production'
-        ? true
-        : speakeasy.totp.verify({
-            secret,
-            encoding: 'base32',
-            token: code,
-            window: 1,
-          });
+    const isValid = speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token: code,
+      window: 1,
+    });
 
     if (isValid) await this.userService.otpSecretIsValidated(user.id);
 
@@ -126,7 +113,7 @@ export class TwoFactorService {
   async resendEmailOtp(user: User) {
     const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
 
-    await this.redisService.set(`${PREFIX_REDIS_EMAIL_OTP}_${user.id}`, code);
+    this.redisService.set(`${PREFIX_REDIS_EMAIL_OTP}_${user.id}`, code);
 
     try {
       await this.mailService.sendOtpCode(code, user.email);
@@ -137,16 +124,5 @@ export class TwoFactorService {
     if (this.configService.get('app.nodeEnv') !== 'production') return { code };
 
     return { message: 'Ok' };
-  }
-
-  async desactive(user: User, code: string) {
-    const { isValid } = await this.verify2FACode(user, code);
-    if (!isValid)
-      throw new BadRequestException({
-        message: 'Invalid code',
-        isInvalid: true,
-      });
-
-    return await this.userService.remove2FA(user.id);
   }
 }

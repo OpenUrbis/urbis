@@ -2,7 +2,7 @@ import { UrbisHeader } from "@open-urbis/map-ui";
 import { useAuth } from "react-oidc-context";
 import { Debugger } from "../Debugger";
 import { MenuToggleButton } from "../MenuToogleButton";
-import { useTheme } from "../ThemeProvider";
+import { ModeToggle } from "../ModeToggle";
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -10,23 +10,15 @@ interface HeaderProps {
 
 const Header = ({ onMenuToggle }: HeaderProps) => {
   const auth = useAuth();
-  const { theme, setTheme } = useTheme();
 
   const menuItems = [
-    { label: "Mosaico", href: "https://urbis.prefeitura.sp.gov.br" },
-    { label: "Mapa", href: "https://mapa.urbis.prefeitura.sp.gov.br", active: true },
-    { label: "Dados Abertos", href: "https://dadosabertos.urbis.prefeitura.sp.gov.br" },
-    { label: "Legis", href: "https://docs.urbis.prefeitura.sp.gov.br/docs/legis" },
-    { label: "Viabiliza", href: "https://viabiliza.urbis.prefeitura.sp.gov.br/docs/legis" },
-    { label: "Doc. técnica", href: "https://docs.urbis.prefeitura.sp.gov.br/" },
+    { label: "Início", href: "/" },
+    { label: "Mapa", href: "#" },
+    { label: "Viabiliza", href: "#" },
+    { label: "Dados Abertos", href: "#" },
+    { label: "GitHub", href: "https://github.com/atlas-cli/monorepo" },
+    { label: "Documentação", href: "/docs" },
   ];
-
-  if (auth.isAuthenticated) {
-    menuItems.push({
-      label: "Datalake",
-      href: "https://datalake.urbis.prefeitura.sp.gov.br",
-    });
-  }
 
   return (
     <UrbisHeader
@@ -38,13 +30,14 @@ const Header = ({ onMenuToggle }: HeaderProps) => {
       }}
       onLogin={() => auth.signinRedirect()}
       onLogout={() => auth.removeUser()}
-      leftSlot={<MenuToggleButton />}
-      theme={theme}
-      setTheme={(t) => setTheme(t as "light" | "dark" | "system")}
+      leftSlot={<MenuToggleButton onClick={onMenuToggle} />}
       rightSlot={
-        <div className="hidden lg:block">
-          <Debugger />
-        </div>
+        <>
+          <ModeToggle />
+          <div className="hidden lg:block">
+            <Debugger />
+          </div>
+        </>
       }
     />
   );

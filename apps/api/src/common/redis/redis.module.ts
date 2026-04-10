@@ -10,7 +10,6 @@ import { RedisService } from './redis.service';
   providers: [
     {
       provide: 'REDIS_CLIENT',
-      // eslint-disable-next-line @typescript-eslint/require-await
       useFactory: async (configService: ConfigService) => {
         const client = new Redis({
           host: configService.get('database.redis.host', 'localhost'),

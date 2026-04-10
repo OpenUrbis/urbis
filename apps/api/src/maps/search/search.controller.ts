@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -31,8 +32,14 @@ export class SearchController {
     description: 'List of search configs',
     type: [SearchConfig],
   })
-  async findAll(): Promise<SearchConfig[]> {
-    return this.service.findAll();
+  async findAll(
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+    @Query('search') search?: string,
+    @Query('orderBy') orderBy?: string,
+    @Query('orderType') orderType?: 'ASC' | 'DESC',
+  ): Promise<SearchConfig[] | { data: SearchConfig[]; total: number }> {
+    return this.service.findAll(page, pageSize, search, orderBy, orderType);
   }
 
   @Get(':id')

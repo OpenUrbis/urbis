@@ -36,8 +36,10 @@ export class LayerSchemasController {
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
     @Query('search') search?: string,
+    @Query('orderBy') orderBy?: string,
+    @Query('orderType') orderType?: 'ASC' | 'DESC',
   ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
-    return this.service.findAll(page, pageSize, search);
+    return this.service.findAll(page, pageSize, search, orderBy, orderType);
   }
 
   @Get(':id')

@@ -14,7 +14,7 @@ export class RedisService {
     }
   }
 
-  async get<T = any>(key: string): Promise<T> {
+  async get<T = any>(key: string): Promise<T | null> {
     const value = await this.redisClient.get(key);
     return value ? JSON.parse(value) : null;
   }

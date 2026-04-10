@@ -14,10 +14,6 @@ import { DatabaseModule } from './shared/database.module';
 import { SharedModule } from './shared/shared.module';
 import { UserModuleEntities, UserModuleSubscribers } from './user/index.entity';
 import { UserModule } from './user/user.module';
-import { WhitelabelModuleEntities } from './whitelabel/index.entity';
-import { WhitelabelModule } from './whitelabel/whitelabel.module';
-import { AppSettingsModuleEntities } from './app-settings/index.entity';
-import { AppSettingsModule } from './app-settings/app-settings.module';
 
 @Module({
   imports: [
@@ -30,8 +26,6 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
         ...UserModuleEntities,
         ...OrganizationModuleEntities,
         ...RoleModuleEntities,
-        ...WhitelabelModuleEntities,
-        ...AppSettingsModuleEntities,
       ],
       [...UserModuleSubscribers],
     ),
@@ -42,10 +36,8 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
     OrganizationModule,
     RoleModule,
     RedisModule,
-    WhitelabelModule,
-    AppSettingsModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

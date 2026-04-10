@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { deleteLayerGroup, getLayerGroups } from "@/integrations/layer-group-integration";
 import { useQuery } from "@preact-signals/query";
-import { ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/useToast";
@@ -16,12 +16,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+type SortOrder = 'ASC' | 'DESC';
+
 const GroupManagerPage = () => {
   const [, setLocation] = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+  
+  // Sorting state
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
+
   const { toastSuccess, toastError } = useToast();
 
   const {
@@ -30,8 +37,8 @@ const GroupManagerPage = () => {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["layer-groups", currentPage, itemsPerPage],
-    queryFn: () => getLayerGroups(currentPage, itemsPerPage),
+    queryKey: ["layer-groups", currentPage, itemsPerPage, sortBy, sortOrder],
+    queryFn: () => getLayerGroups(currentPage, itemsPerPage, undefined, sortBy, sortOrder),
   });
 
   const handleDelete = async () => {
@@ -49,13 +56,19 @@ const GroupManagerPage = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      setSortBy(column);
+      setSortOrder('ASC');
+    }
+  };
+
+  const renderSortIcon = (column: string) => {
+    if (sortBy !== column) return null;
+    return sortOrder === 'ASC' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />;
+  };
 
   if (isError) {
     return <div className="p-4 text-red-500">Erro ao carregar grupos.</div>;
@@ -95,12 +108,18 @@ const GroupManagerPage = () => {
         </Button>
       </AdminHeader>
 
-      <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-auto">
+      <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-auto relative min-h-[200px]">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 sticky top-0 z-10">
             <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-              <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                Nome
+              <th 
+                className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
+                onClick={() => handleSort('name')}
+              >
+                <div className="flex items-center">
+                  Nome
+                  {renderSortIcon('name')}
+                </div>
               </th>
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                 Grupo pai
@@ -111,46 +130,58 @@ const GroupManagerPage = () => {
             </tr>
           </thead>
           <tbody className="[&_tr:last-child]:border-0">
-            {currentGroups.map((group) => (
-              <tr
-                key={group.id}
-                className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-              >
-                <td className="p-4 align-middle font-medium">{group.name}</td>
-                <td className="p-4 align-middle font-medium">
-                  {group?.parentGroup?.name ?? "-"}
-                </td>
-                <td className="p-4 flex align-middle text-right space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setLocation(`/${group.id}`)}
+            {isLoading ? (
+               <tr>
+                 <td colSpan={3} className="h-24 text-center">
+                   <div className="flex items-center justify-center">
+                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                   </div>
+                 </td>
+               </tr>
+            ) : (
+              <>
+                {currentGroups.map((group) => (
+                  <tr
+                    key={group.id}
+                    className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                   >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => {
-                      setGroupToDelete(group.id);
-                      setDeleteDialogOpen(true);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-            {currentGroups.length === 0 && (
-              <tr>
-                <td
-                  colSpan={3}
-                  className="p-4 text-center text-muted-foreground"
-                >
-                  Nenhum grupo encontrado.
-                </td>
-              </tr>
+                    <td className="p-4 align-middle font-medium">{group.name}</td>
+                    <td className="p-4 align-middle font-medium">
+                      {group?.parentGroup?.name ?? "-"}
+                    </td>
+                    <td className="p-4 flex align-middle text-right space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setLocation(`/${group.id}`)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setGroupToDelete(group.id);
+                          setDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+                {currentGroups.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={3}
+                      className="p-4 text-center text-muted-foreground"
+                    >
+                      Nenhum grupo encontrado.
+                    </td>
+                  </tr>
+                )}
+              </>
             )}
           </tbody>
         </table>
@@ -167,7 +198,7 @@ const GroupManagerPage = () => {
               variant="outline"
               size="sm"
               onClick={handlePreviousPage}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || isLoading}
             >
               <ChevronLeft className="h-4 w-4" />
               Anterior
@@ -179,7 +210,7 @@ const GroupManagerPage = () => {
               variant="outline"
               size="sm"
               onClick={handleNextPage}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || isLoading}
             >
               Próxima
               <ChevronRight className="h-4 w-4" />

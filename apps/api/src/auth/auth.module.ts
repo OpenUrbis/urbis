@@ -10,7 +10,6 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ForgotModule } from './forgot/forgot.module';
 import { EmailStrategy } from './strategies/email.strategy';
-import { ExternalOidcStrategy } from './strategies/external-oidc.strategy';
 import { TwoFactorModule } from './two-factor/two-factor.module';
 
 @Module({
@@ -24,13 +23,7 @@ import { TwoFactorModule } from './two-factor/two-factor.module';
     AccessControlModule,
   ],
   controllers: [AuthController],
-  providers: [
-    IsExist,
-    IsNotExist,
-    EmailStrategy,
-    ExternalOidcStrategy,
-    AuthService,
-  ],
+  providers: [IsExist, IsNotExist, EmailStrategy, AuthService],
   exports: [AuthService],
 })
 export class AuthModule {}

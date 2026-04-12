@@ -23,7 +23,7 @@ export class UserRoleAssignment extends BaseEntity {
   roleId: string;
 
   @Column({ nullable: true })
-  organizationId?: string | null;
+  organizationId?: string;
 
   @CreateDateColumn({ name: 'assignAt' })
   assignAt: Date;

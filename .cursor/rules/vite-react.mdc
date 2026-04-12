@@ -1,0 +1,27 @@
+---
+description: Rules for Vite + React applications
+globs: ["apps/web/**", "apps/site/**"]
+---
+
+# Vite + React Rules
+
+## Architecture
+- Use **Functional Components** with Hooks.
+- Avoid class components.
+- State management: Use `preact/signals` or React Context where appropriate (seen in dependencies).
+- Routing: Use `wouter` or `react-router-dom` (check specific app).
+
+## Styling
+- Use **Tailwind CSS** for styling.
+- Use `clsx` and `tailwind-merge` for conditional classes.
+- Avoid inline styles.
+
+## Directory Structure
+- `src/components`: Reusable components.
+- `src/pages` or `src/views`: Page components.
+- `src/hooks`: Custom hooks.
+- `src/utils`: Helper functions.
+
+## Performance
+- lazy load routes using `React.lazy`.
+- Optimize heavy components.

@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/require-await
 export const logoutSource = async (ctx: any, form: any) => {
   ctx.body = `
   <html>

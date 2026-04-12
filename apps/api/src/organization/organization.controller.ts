@@ -4,7 +4,6 @@ import {
   DefaultValuePipe,
   Get,
   Param,
-  ParseEnumPipe,
   ParseIntPipe,
   Post,
   Put,
@@ -18,7 +17,6 @@ import { User } from 'user/entities/user.entity';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { OrganizationService } from './organization.service';
-import { ApplicationName } from './enums/application-name.enum';
 
 @ApiTags('Organization')
 @UseGuards(AccessControlGuard)
@@ -88,17 +86,13 @@ export class OrganizationController {
     return this.service.create(data);
   }
 
+  @Post('own')
+  async createOwn(@Body() data: CreateOrganizationDto, @UserData() user: User) {
+    return this.service.createOwn(data, user);
+  }
+
   @Put(':id')
   update(@Param('id') id: string, @Body() data: UpdateOrganizationDto) {
     return this.service.update(id, data);
-  }
-
-  @Get(':id/whitelabel/:application')
-  getWhitelabel(
-    @Param('id') id: string,
-    @Param('application', new ParseEnumPipe(ApplicationName))
-    application: ApplicationName,
-  ) {
-    return this.service.getUnifiedWhitelabel(application, id);
   }
 }

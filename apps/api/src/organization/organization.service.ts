@@ -1,14 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
 import { RoleService } from 'role/role.service';
-import { FindOptionsWhere, ILike, In, Not, Or, Repository } from 'typeorm';
+import {
+  EntityManager,
+  FindOptionsWhere,
+  ILike,
+  In,
+  Not,
+  Or,
+  Repository,
+} from 'typeorm';
+import { User } from 'user/entities/user.entity';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Organization } from './entities/organization.entity';
-import { OrganizationGlobalWhitelabel } from './entities/organization-shared-whitelabel.entity';
-import { OrganizationApplicationWhitelabel } from './entities/organization-application-whitelabel.entity';
-import { ApplicationName } from './enums/application-name.enum';
 
 @Injectable()
 export class OrganizationService {
@@ -16,11 +23,8 @@ export class OrganizationService {
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
 
-    @InjectRepository(OrganizationGlobalWhitelabel)
-    private organizationGlobalWhitelabel: Repository<OrganizationGlobalWhitelabel>,
-
-    @InjectRepository(OrganizationApplicationWhitelabel)
-    private organizationApplicationWhitelabel: Repository<OrganizationApplicationWhitelabel>,
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
 
     private readonly roleService: RoleService,
   ) {}
@@ -36,11 +40,12 @@ export class OrganizationService {
     return organization;
   }
 
-  list(
+  async list(
     pagination: IPaginationOptions,
     search?: string,
     exclude?: string[],
-  ): Promise<Organization[]> {
+  ): Promise<{ data: Organization[]; total: number }> {
+    if (pagination.page > 0) pagination.page--;
     const { limit, page } = pagination;
     const where: FindOptionsWhere<Organization> = {};
 
@@ -48,17 +53,21 @@ export class OrganizationService {
 
     if (exclude && exclude?.length > 0) where.id = Not(In(exclude));
 
-    return this.organizationRepository.find({
+    const [data, total] = await this.organizationRepository.findAndCount({
       where: where,
       take: limit,
       skip: page * limit,
     });
+
+    return { data, total };
   }
 
-  async create(data: CreateOrganizationDto) {
+  async create(data: CreateOrganizationDto, entityManager?: EntityManager) {
     const organization = this.organizationRepository.create(data);
 
-    return await this.organizationRepository.save(organization);
+    return entityManager
+      ? entityManager.save(Organization, organization)
+      : this.organizationRepository.save(organization);
   }
 
   async update(id: string, data: UpdateOrganizationDto) {
@@ -91,20 +100,21 @@ export class OrganizationService {
     });
   }
 
-  async getUnifiedWhitelabel(
-    application: ApplicationName,
-    organizationId: string,
-  ) {
-    const [globalWhitelabel, applicationWhitelabel] = await Promise.all([
-      this.organizationGlobalWhitelabel.findOneBy({
-        organizationId,
-      }),
-      this.organizationApplicationWhitelabel.findOneBy({
-        organizationId,
-        application,
-      }),
-    ]);
+  async createOwn(data: CreateOrganizationDto, user: User) {
+    return this.entityManager.transaction(async (manager) => {
+      const organization = await this.create(data, manager);
 
-    return { global: globalWhitelabel, application: applicationWhitelabel };
+      await this.roleService.assign(
+        {
+          organizationId: organization.id,
+          userId: user.id,
+          roleId: SYSTEM_ROLES.admin,
+        },
+        organization,
+        manager,
+      );
+
+      return organization;
+    });
   }
 }

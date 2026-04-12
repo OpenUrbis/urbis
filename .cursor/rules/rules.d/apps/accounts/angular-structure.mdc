@@ -1,0 +1,36 @@
+---
+description: Specific structure rules for Urbis Map Accounts (Angular)
+globs: ["apps/accounts/src/**"]
+---
+
+# Accounts App Structure
+
+## Architecture
+- **Standalone API**: This application uses Angular Standalone Components exclusively. `NgModule` is avoided.
+- **Routing**: Routes are defined in `app.routes.ts` using `loadComponent` for lazy loading.
+- **State Management**:
+  - Use simple services with Signals for local state.
+  - Avoid complex state libraries unless strictly necessary (files referenced `states/` directory, inspect patterns there).
+
+## Directory Structure
+- `src/app/pages`: Top-level route components.
+    - **Pattern**: List pages often use a `*-component.ts`, `*.html`, `*.scss`, and a `*.data-source.ts`.
+- `src/app/components`: Reusable UI components specific to this app.
+- `src/app/shared`: Shared logic (guards, interceptors) often imported from `projects/shared`.
+- `projects/shared`: Workspace library for shared Angular logic (Auth, Utils).
+
+## UI Patterns
+- **Tables**:
+  - Use `MatTable` with a dedicated `DataSource` class (e.g., `UserDataSource`) extending `AbstractDataSource` (if exists) or standard `DataSource`.
+  - Handle filters and pagination within the DataSource logic.
+  - Use `PageStructure` component to wrap page content, providing consistent title/subtitle/actions.
+- **Forms**: Use Reactive Forms. Signal inputs (`input<T>()`) are used for component props.
+
+## Authentication
+- Uses `angular-auth-oidc-client`.
+- Configuration in `projects/shared/src/lib/auth`.
+- Guards: `autoLoginPartialRoutesGuardWithConfig`, `onboardingGuard`.
+
+## Styling
+- SCSS is used.
+- Angular Material is integrated (`@angular/material`).

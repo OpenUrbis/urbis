@@ -1,9 +1,10 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+import { SYSTEM_ROLES } from '../../constants/system-roles.const';
 
 export class InsertSystemRoles1761621560975 implements MigrationInterface {
   roles = [
     {
-      id: 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4',
+      id: SYSTEM_ROLES.admin,
       name: 'Administrador',
       description:
         'Permite ao usuário gerenciar grupos de permissões, usuários, e organizações',

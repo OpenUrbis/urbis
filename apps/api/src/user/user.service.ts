@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IPaginationOptions } from 'common/utils/types/pagination-options';
 import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -18,8 +19,20 @@ export class UserService {
     );
   }
 
-  list() {
-    return this.usersRepository.find();
+  async list(pagination: IPaginationOptions, organizationId?: string) {
+    if (pagination.page > 0) pagination.page--;
+    const { limit, page } = pagination;
+    const where: FindOptionsWhere<User> = {};
+
+    if (organizationId) where.userRoleAssignments = { organizationId };
+
+    const [data, total] = await this.usersRepository.findAndCount({
+      where,
+      take: limit,
+      skip: page * limit,
+    });
+
+    return { data, total };
   }
 
   findOne(
@@ -36,8 +49,8 @@ export class UserService {
     });
   }
 
-  get save() {
-    return this.usersRepository.save.bind(this);
+  save(user: User) {
+    return this.usersRepository.save(user);
   }
 
   update(id: string, updateProfileDto: UpdateUserDto) {
@@ -63,11 +76,35 @@ export class UserService {
     if (!user) throw new NotFoundException({ message: 'User is not found' });
 
     user.otpSecret = secret;
+    user.requires2fa = true;
 
     return this.usersRepository.save(user);
   }
 
-  otpSecretIsValidated(userId: string) {
-    return this.usersRepository.update({ id: userId }, { otpValidated: true });
+  async otpSecretIsValidated(userId: string) {
+    const user = await this.findOne({ id: userId });
+
+    user.otpValidated = true;
+
+    return await this.usersRepository.save(user);
+  }
+
+  async remove2FA(userId: string) {
+    const user = await this.findOne({ id: userId });
+
+    user.otpValidated = false;
+    user.requires2fa = false;
+    user.otpSecret = null;
+
+    return await this.usersRepository.save(user);
+  }
+
+  async confirmEmail(userId: string) {
+    const user = await this.findOne({ id: userId });
+
+    if (!user) throw new NotFoundException({ message: 'User is not found' });
+
+    user.emailHashConfirm = null;
+    await this.save(user);
   }
 }

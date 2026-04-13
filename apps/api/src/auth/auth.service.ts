@@ -12,7 +12,6 @@ import { UserService } from 'user/user.service';
 import { User } from '../user/entities/user.entity';
 import { MailService } from './../common/mail/mail.service';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
-import { AuthExternalStrategyDto } from './dto/auth-external-strategy.dto';
 import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
 import { AuthUpdateDto } from './dto/auth-update.dto';
 import { ForgotService } from './forgot/forgot.service';
@@ -31,6 +30,7 @@ export class AuthService {
     const user = await this.userService.findOne({
       email: loginDto.email,
     });
+    console.log(user);
     if (!user || !(await user.validatePassword(loginDto.password))) {
       throw new BadRequestException({
         message: 'Email is not found or password is wrong',
@@ -63,12 +63,11 @@ export class AuthService {
     if (!emailConfirmation) {
       emailHashConfirm = null;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const user = await this.userService.create({
       ...dto,
       email: dto.email,
       emailHashConfirm,
-    } as any);
+    });
     if (emailConfirmation) {
       await this.mailService.userSignUp({
         to: user.email,
@@ -269,28 +268,5 @@ export class AuthService {
         firstName: user.firstName,
       },
     });
-  }
-
-  async createOrValidateExternalOidcUser(payload: AuthExternalStrategyDto) {
-    payload.email = payload.email.toLowerCase();
-    const user = await this.userService.findOne({
-      email: payload.email,
-    });
-    if (user === null) {
-      await this.register(
-        {
-          email: payload.email,
-          firstName: payload.firstName,
-          lastName: payload.lastName,
-          country: payload.country,
-          password: null,
-        },
-        false,
-      );
-      const user = await this.userService.findOne({ email: payload.email });
-      return { ...user, isNewUser: true };
-    } else {
-      return user;
-    }
   }
 }

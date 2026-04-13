@@ -24,7 +24,7 @@ export class CreateRoleDto {
   })
   @IsString()
   @IsOptional()
-  description?: string;
+  description?: string | null;
 
   @IsOptional()
   @IsString()

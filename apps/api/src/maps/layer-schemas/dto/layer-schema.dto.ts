@@ -119,6 +119,15 @@ export class LayerSchemaDto {
   isVisible?: boolean;
 
   @ApiProperty({
+    example: 10,
+    required: false,
+    description: 'Index for sorting',
+  })
+  @IsOptional()
+  @IsNumber()
+  index?: number;
+
+  @ApiProperty({
     example: 17,
     required: false,
     description: 'Minimum zoom level for layer visibility',

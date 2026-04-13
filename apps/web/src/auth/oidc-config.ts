@@ -3,5 +3,4 @@ export const oidcConfig = {
   client_id: import.meta.env.VITE_OIDC_CLIENT_ID || "94a86322-269e-44df-803a-534c0382215d",
   redirect_uri: import.meta.env.VITE_OIDC_REDIRECT_URI || "http://localhost:5173/callback",
   scope: "openid profile email",
-  loadUserInfo: true,
 };

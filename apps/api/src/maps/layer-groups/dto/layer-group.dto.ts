@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 // Main DTO for LayerGroup
 export class LayerGroupDto {
@@ -24,4 +24,12 @@ export class LayerGroupDto {
   @IsString()
   @IsOptional()
   ownerGroup?: string;
+
+  @ApiPropertyOptional({
+    description: 'Index for sorting',
+    example: 10,
+  })
+  @IsNumber()
+  @IsOptional()
+  index?: number;
 }

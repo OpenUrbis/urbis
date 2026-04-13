@@ -1,19 +1,11 @@
 export class AccountProvider {
   // Alterado para static arrow function
-  static findAccount = async (_: any, id: string, authService: any) => {
-    const user = await authService.me({ id });
-    if (!user) return undefined;
-
+  static findAccount = (_: any, id: any) => {
     return {
       accountId: id,
-      async claims(use: string, scope: string) {
+      claims() {
         return {
           sub: id,
-          email: user.email,
-          email_verified: true,
-          name: `${user.firstName} ${user.lastName}`.trim(),
-          given_name: user.firstName,
-          family_name: user.lastName,
         };
       },
     };
@@ -26,7 +18,7 @@ export class AccountProvider {
       clientId: ctx.oidc.client.clientId,
       accountId: ctx.oidc.session.accountId,
     });
-    grant.addOIDCScope('openid profile email offline_access');
+    grant.addOIDCScope('openid profile offline_access');
     await grant.save();
     return grant;
   };

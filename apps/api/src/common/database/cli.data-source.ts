@@ -1,5 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import databaseConfig from '../config/database.config';
+
 const config = databaseConfig();
 
 const options = {

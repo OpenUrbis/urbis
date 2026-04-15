@@ -1,50 +1,51 @@
 ---
 title: Configuração de Busca
 description: Documentação da configuração de busca.
+icon: Search
 ---
 
-## Table of Contents
-- [Overview](#overview)
-- [Search Object Properties](#search-object-properties)
-- [Example Search Configurations](#example-search-configurations)
+## Índice
+- [Visão Geral](#visão-geral)
+- [Propriedades do Objeto de Busca](#propriedades-do-objeto-de-busca)
+- [Exemplos de Configuração de Busca](#exemplos-de-configuração-de-busca)
 
-## Overview
+## Visão Geral
 
-This document describes the structure and functionality of the search configuration system in the layout construction engine. The search configuration defines how search queries are processed, including the data source, request parameters, response transformation, and user interactions. Each search configuration is represented by a record in a single row of a database, specifying the behavior of a search feature and enabling dynamic retrieval and display of geospatial data.
+Este documento descreve a estrutura e funcionalidade do sistema de configuração de busca no mecanismo de construção de layout. A configuração de busca define como as consultas de busca são processadas, incluindo a fonte de dados, parâmetros de requisição, transformação de resposta e interações do usuário. Cada configuração de busca é representada por um registro em uma única linha de um banco de dados, especificando o comportamento de uma funcionalidade de busca e permitindo a recuperação e exibição dinâmica de dados geoespaciais.
 
-**Note**: All configured searches are executed in parallel in the frontend when a user performs a query, allowing multiple results to be returned simultaneously from different search configurations.
+**Nota**: Todas as buscas configuradas são executadas em paralelo no frontend quando um usuário realiza uma consulta, permitindo que múltiplos resultados sejam retornados simultaneamente de diferentes configurações de busca.
 
-## Search Object Properties
+## Propriedades do Objeto de Busca
 
-The database record that defines a search configuration contains several properties that control its functionality, data processing, and rendering behavior. The table below lists all properties, their descriptions, default values, and examples.
+O registro do banco de dados que define uma configuração de busca contém várias propriedades que controlam sua funcionalidade, processamento de dados e comportamento de renderização. A tabela abaixo lista todas as propriedades, suas descrições, valores padrão e exemplos.
 
-| Property                | Description                                                                 | Default Value | Example                                                                 |
+| Propriedade             | Descrição                                                                   | Valor Padrão  | Exemplo                                                                 |
 |-------------------------|-----------------------------------------------------------------------------|---------------|-------------------------------------------------------------------------|
-| `id`                    | Unique identifier for the search configuration. Must be unique across all configurations. | None (required) | `"lots"`                                                                |
-| `name`                  | Descriptive name of the search, used for rendering in the user interface.   | None (required) | `"Tax Addresses"`                                                       |
-| `layerSchemaId`         | Optional. Identifier of a layer schema (defined in `layer-schema.md`) used to apply a click action when a search result is selected. If not provided, the `clickAction` property is used. | `null`        | `"lotes"`                                                               |
-| `index`                 | Integer specifying the rendering order of search results on the screen. Higher values are rendered last (on top). | None (required) | `10`                                                                    |
-| `origin`                | URL or endpoint for the data source (e.g., a WFS GeoServer). May include environment variables, such as `{environment}`. | None (required) | `"https://geoserver.slui.dev/geoserver/slui/ows"`                       |
-| `transformParams`       | Optional. JavaScript function called before the request to process URL query parameters. Receives an object with a `term` property containing the search input. Returns an object with query parameters (e.g., `CQL_FILTER`). The `utils` object is available, providing functions like `calculateCenterId`. | `null`        | `({term}) => { ... }` (see example below)                               |
-| `transformRequest`      | Optional. JavaScript function called before the request to process the request body (if applicable). Receives the request data and can modify it. The `utils` object is available. | `null`        | `null`                                                                  |
-| `transformResponse`     | Optional. JavaScript function called after the API response to transform the data. Receives the `data` parameter (API response) and must return an array of objects in the frontend-expected format: `{ id, latitude, longitude, name, rawData }`. The `utils` object is available, including `calculateCenterId` for calculating the center of coordinates. | `null`        | `(data) => { ... }` (see example below)                                 |
-| `clickAction`           | Optional. Defines the action executed when a search result is clicked. Follows the same structure as layer click actions (see [Actions on Polygon Click](#actions-on-polygon-click) in [Layer Schema Documentation](./layer-schema.md)). Used if `layerSchemaId` is not defined. | `null`        | `{ "action": "setZoom", "params": { "zoom": 17.1 } }`                    |
-| `method`                | Optional. HTTP request method (e.g., GET, POST, PUT).                      | `"GET"`       | `"POST"`                                                                |
-| `isActive`              | Optional. Boolean indicating whether the search configuration is active (i.e., whether requests are executed). | `true`        | `true`                                                                  |
+| `id`                    | Identificador único para a configuração de busca. Deve ser único em todas as configurações. | Nenhum (obrigatório) | `"lotes"`                                                                |
+| `name`                  | Nome descritivo da busca, usado para renderização na interface do usuário.   | Nenhum (obrigatório) | `"Endereços Fiscais"`                                                       |
+| `layerSchemaId`         | Opcional. Identificador de um esquema de camada (definido em `layer-schema.md`) usado para aplicar uma ação de clique quando um resultado de busca é selecionado. Se não fornecido, a propriedade `clickAction` é usada. | `null`        | `"lotes"`                                                               |
+| `index`                 | Inteiro especificando a ordem de renderização dos resultados de busca na tela. Valores mais altos são renderizados por último (no topo). | Nenhum (obrigatório) | `10`                                                                    |
+| `origin`                | URL ou endpoint para a fonte de dados (ex: um WFS GeoServer). Pode incluir variáveis de ambiente, como `{environment}`. | Nenhum (obrigatório) | `"https://geoserver.slui.dev/geoserver/slui/ows"`                       |
+| `transformParams`       | Opcional. Função JavaScript chamada antes da requisição para processar parâmetros de query da URL. Recebe um objeto com uma propriedade `term` contendo a entrada da busca. Retorna um objeto com parâmetros de query (ex: `CQL_FILTER`). O objeto `utils` está disponível, fornecendo funções como `calculateCenterId`. | `null`        | `({term}) => { ... }` (veja exemplo abaixo)                               |
+| `transformRequest`      | Opcional. Função JavaScript chamada antes da requisição para processar o corpo da requisição (se aplicável). Recebe os dados da requisição e pode modificá-los. O objeto `utils` está disponível. | `null`        | `null`                                                                  |
+| `transformResponse`     | Opcional. Função JavaScript chamada após a resposta da API para transformar os dados. Recebe o parâmetro `data` (resposta da API) e deve retornar um array de objetos no formato esperado pelo frontend: `{ id, latitude, longitude, name, rawData }`. O objeto `utils` está disponível, incluindo `calculateCenterId` para calcular o centro de coordenadas. | `null`        | `(data) => { ... }` (veja exemplo abaixo)                                 |
+| `clickAction`           | Opcional. Define a ação executada quando um resultado de busca é clicado. Segue a mesma estrutura das ações de clique de camada (veja [Ações no Clique do Polígono](#ações-no-clique-do-polígono) na [Documentação do Esquema de Camada](./layer-schema.md)). Usado se `layerSchemaId` não estiver definido. | `null`        | `{ "action": "setZoom", "params": { "zoom": 17.1 } }`                    |
+| `method`                | Opcional. Método de requisição HTTP (ex: GET, POST, PUT).                      | `"GET"`       | `"POST"`                                                                |
+| `isActive`              | Opcional. Booleano indicando se a configuração de busca está ativa (ou seja, se as requisições são executadas). | `true`        | `true`                                                                  |
 
-**Note on Expected Response**: When defined, the `transformResponse` function must return an array of objects in the format `{ id, latitude, longitude, name, rawData }`, which is the standard expected by the frontend for rendering search results.
+**Nota sobre Resposta Esperada**: Quando definida, a função `transformResponse` deve retornar um array de objetos no formato `{ id, latitude, longitude, name, rawData }`, que é o padrão esperado pelo frontend para renderizar resultados de busca.
 
-### Notes on `utils` Functions
-The `transformParams`, `transformRequest`, and `transformResponse` functions have access to a `utils` object that provides helper functions. Currently, the following function is available:
-- **`calculateCenterId(coordinates)`**: Takes an array of coordinates and returns the center point as `[longitude, latitude]`.
+### Notas sobre Funções `utils`
+As funções `transformParams`, `transformRequest` e `transformResponse` têm acesso a um objeto `utils` que fornece funções auxiliares. Atualmente, a seguinte função está disponível:
+- **`calculateCenterId(coordinates)`**: Recebe um array de coordenadas e retorna o ponto central como `[longitude, latitude]`.
 
-### Notes on `clickAction`
-The `clickAction` property follows the same schema as the `clickAction` in the layer configuration (see [Actions on Polygon Click](#actions-on-polygon-click) in [Layer Schema Documentation](./layer-schema.md)). It supports actions such as `SelectFeature`, `setZoom`, and `openFeature`. If `layerSchemaId` is provided, the click action is derived from the referenced layer schema, and `clickAction` is ignored.
+### Notas sobre `clickAction`
+A propriedade `clickAction` segue o mesmo esquema que a `clickAction` na configuração da camada (veja [Ações no Clique do Polígono](#ações-no-clique-do-polígono) na [Documentação do Esquema de Camada](./layer-schema.md)). Ela suporta ações como `SelectFeature`, `setZoom` e `openFeature`. Se `layerSchemaId` for fornecido, a ação de clique é derivada do esquema de camada referenciado, e `clickAction` é ignorado.
 
-## Example Search Configurations
+## Exemplos de Configuração de Busca
 
-### Complex Configuration (Tax Addresses)
-This example demonstrates a search configuration for tax addresses, with custom parameter and response transformations to handle specific query formats and standardize the output.
+### Configuração Complexa (Endereços Fiscais)
+Este exemplo demonstra uma configuração de busca para endereços fiscais, com transformações personalizadas de parâmetros e resposta para lidar com formatos de consulta específicos e padronizar a saída.
 
 ```javascript
 {
@@ -110,8 +111,8 @@ This example demonstrates a search configuration for tax addresses, with custom 
 }
 ```
 
-### Simple Configuration (Monuments)
-This example shows a minimal search configuration for monuments, using default values where possible and a simple response transformation.
+### Configuração Simples (Monumentos)
+Este exemplo mostra uma configuração de busca mínima para monumentos, usando valores padrão onde possível e uma transformação de resposta simples.
 
 ```javascript
 {
@@ -155,8 +156,8 @@ This example shows a minimal search configuration for monuments, using default v
 }
 ```
 
-### Configuration for Districts
-This example illustrates a search configuration for municipal districts, with parameter and response transformations to search and display district names.
+### Configuração para Distritos
+Este exemplo ilustra uma configuração de busca para distritos municipais, com transformações de parâmetros e resposta para buscar e exibir nomes de distritos.
 
 ```javascript
 {
@@ -197,8 +198,8 @@ This example illustrates a search configuration for municipal districts, with pa
 }
 ```
 
-### Configuration for Address Geocoding
-This example demonstrates a search configuration for address geocoding, using an external API and a custom click action to apply zoom.
+### Configuração para Geocodificação de Endereços
+Este exemplo demonstra uma configuração de busca para geocodificação de endereços, usando uma API externa e uma ação de clique personalizada para aplicar zoom.
 
 ```javascript
 {

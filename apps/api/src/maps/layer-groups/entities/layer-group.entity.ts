@@ -28,10 +28,6 @@ export class LayerGroup {
   @Column({ nullable: true })
   ownerGroup?: string;
 
-  @ApiProperty({ description: 'Index for sorting', example: 10 })
-  @Column({ nullable: true })
-  index?: number;
-
   @ManyToOne(() => LayerGroup, { nullable: true })
   @JoinColumn({ name: 'ownerGroup' })
   @ApiPropertyOptional()

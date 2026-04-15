@@ -1,30 +1,31 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { ImageFallbackDirective } from '../../shared/guards/fallback-image.guard';
+import { HlmAvatarDirective, HlmAvatarFallbackDirective } from '../../../../projects/shared/src/lib/ui/avatar/hlm-avatar.directive';
 
 @Component({
   selector: 'app-user-avatar',
   imports: [
     CommonModule,
-    MatButtonModule,
-    MatIconModule,
     ImageFallbackDirective,
+    HlmAvatarDirective,
+    HlmAvatarFallbackDirective
   ],
   template: `
-    <div class="avatar-wrapper">
+    <hlm-avatar [style.width.px]="width()" [style.height.px]="height()">
       <img
         [src]="src()"
         fallbackSrc="https://api.dicebear.com/9.x/initials/svg?seed={{
           firstName()
         }}-{{ lastName() }}&radius=50"
-        [style.width.px]="width()"
-        [style.height.px]="height()"
+        class="h-full w-full object-cover"
+        alt="User Avatar"
       />
-    </div>
+      <span hlmAvatarFallback class="text-lg bg-primary text-primary-foreground">
+        {{ firstName()[0] }}{{ lastName()[0] }}
+      </span>
+    </hlm-avatar>
   `,
-  styleUrl: './user-avatar.scss',
 })
 export class UserAvatarComponent {
   src = input.required<string | undefined>();

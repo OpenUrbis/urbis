@@ -6,27 +6,30 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+  HlmInputDirective,
+  HlmLabelDirective,
+  LoadingButton,
+} from '../../../../../../projects/shared/src/public-api';
+import { HlmToasterService } from '../../../../../../projects/shared/src/public-api';
 import { firstValueFrom } from 'rxjs';
-import { LoadingButton } from '../../../../../../projects/shared/src/public-api';
 import { SignInApi } from '../../../../pages/sign-in/services/sign-in-api';
 import { TwoFactorApi } from '../../services/two-factor-api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-two-factor-verify',
+  standalone: true,
   imports: [
-    MatFormFieldModule,
-    MatInputModule,
-    ReactiveFormsModule,
     CommonModule,
+    ReactiveFormsModule,
+    HlmInputDirective,
+    HlmLabelDirective,
     LoadingButton,
     TranslateModule,
+
   ],
   templateUrl: './two-factor-verify.html',
-  styleUrl: './two-factor-verify.scss',
 })
 export class TwoFactorVerify {
   form = new FormGroup({});
@@ -40,13 +43,13 @@ export class TwoFactorVerify {
 
   signInApi = inject(SignInApi);
   twoFactorApi = inject(TwoFactorApi);
-  matSnackBar = inject(MatSnackBar);
+  toaster = inject(HlmToasterService);
   translate = inject(TranslateService);
 
   async send(): Promise<any> {
     if (this.otp.invalid)
-      return this.matSnackBar.open(
-        this.translate.instant('components.twoFactorVerify.errors.invalid'),
+      return this.toaster.error(
+        this.translate.instant('components.twoFactorVerify.errors.invalid')
       );
 
     this.loading.set(true);
@@ -68,14 +71,14 @@ export class TwoFactorVerify {
     } catch (err: any) {
       console.error(err);
       const isInvalid = err?.error?.message === 'Invalid code';
-      this.matSnackBar.open(
+      this.toaster.error(
         isInvalid
           ? this.translate.instant(
-              'components.twoFactorVerify.errors.invalidProvided',
-            )
+            'components.twoFactorVerify.errors.invalidProvided'
+          )
           : this.translate.instant(
-              'components.twoFactorVerify.errors.validate',
-            ),
+            'components.twoFactorVerify.errors.validate'
+          )
       );
     } finally {
       this.loading.set(false);

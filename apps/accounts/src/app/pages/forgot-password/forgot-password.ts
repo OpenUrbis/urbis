@@ -1,7 +1,18 @@
 import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
+import {
+  HlmButtonDirective,
+  HlmCardDirective,
+  HlmCardContentDirective,
+  HlmCardFooterDirective,
+  HlmCardHeaderDirective,
+  HlmCardTitleDirective,
+  HlmCardDescriptionDirective,
+  HlmInputDirective,
+  HlmLabelDirective,
+  HlmIconComponent,
+} from '../../../../projects/shared/src/public-api';
+import { provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft } from '@ng-icons/lucide';
 import { ForgotServiceApi } from './services/forgot-password-api';
 import {
   FormControl,
@@ -9,32 +20,42 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { catchError, EMPTY } from 'rxjs';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { _, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { HlmToasterService } from '../../../../projects/shared/src/public-api';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-forgot-password',
-  templateUrl: './forgot-password.html',
-  styleUrl: './forgot-password.scss',
+  standalone: true,
+  providers: [
+    provideIcons({ lucideArrowLeft }),
+  ],
   imports: [
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
+    CommonModule,
+    RouterModule,
+    HlmInputDirective,
+    HlmButtonDirective,
+    HlmLabelDirective,
+    HlmCardDirective,
+    HlmCardContentDirective,
+    HlmCardFooterDirective,
+    HlmCardHeaderDirective,
+    HlmCardTitleDirective,
+    HlmCardDescriptionDirective,
+    HlmIconComponent,
     ReactiveFormsModule,
     TranslateModule,
   ],
+  templateUrl: './forgot-password.html',
+  styleUrls: ['./forgot-password.scss'],
 })
 export class ForgotPassword {
   private readonly api = inject(ForgotServiceApi);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly matSnackBar = inject(MatSnackBar);
+  private readonly toaster = inject(HlmToasterService);
   private readonly translate = inject(TranslateService);
 
   protected readonly form = new FormGroup({
@@ -51,8 +72,8 @@ export class ForgotPassword {
       .pipe(
         catchError((error) => {
           console.error(error);
-          this.matSnackBar.open(
-            this.translate.instant('pages.forgotPassword.errors.sendEmail'),
+          this.toaster.error(
+            this.translate.instant('pages.forgotPassword.errors.sendEmail')
           );
           return EMPTY;
         }),

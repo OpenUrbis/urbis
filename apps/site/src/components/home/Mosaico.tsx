@@ -18,7 +18,7 @@ export function Mosaico() {
   return (
     <div className="container mx-auto px-4 xl:px-8 py-8 font-sans">
       <div className="relative mb-8 pb-4 w-full">
-        <h1 className="font-sans text-5xl md:text-6xl font-black text-primary tracking-tight m-0 leading-tight">
+        <h1 className="font-sans text-5xl md:text-6xl font-bold text-primary tracking-tight m-0 leading-tight">
           Urbis
         </h1>
         <div className="absolute bottom-0 left-0 h-2 bg-primary w-[60%] rounded-full"></div>

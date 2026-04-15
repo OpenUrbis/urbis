@@ -76,7 +76,7 @@ export const MapView = ({
       return transformSchemaLayers(previewLayers, {
         zoom: zoom.value,
         boundingBox: boundingBox.value,
-        selectedFeatureIds: [],
+        selectedFeatureIds: selectedFeatures.value,
         is3DActive: is3DActive.value,
       }).flat();
     }
@@ -84,10 +84,7 @@ export const MapView = ({
     const baseLayers = transformSchemaLayers(layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      selectedFeatureIds: selectedFeatures.value as any,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      selectedFeature: selectedFeatures.value as any,
+      selectedFeatureIds: selectedFeatures.value,
       is3DActive: is3DActive.value,
     }).flat();
 
@@ -285,13 +282,12 @@ export const MapView = ({
                 longitude: evt.lngLat.lng,
               };
             }}
-            onMoveEnd={() => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const viewport = (overlayRef?.current as any)?._deck?.getViewports()?.[0];
-              if (viewport) {
-                handleViewportChange(viewport);
-              }
-            }}
+            onMoveEnd={() =>
+              handleViewportChange(
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (overlayRef!.current as any)._deck.getViewports()[0]
+              )
+            }
           >
             <DeckGLOverlay
               ref={overlayRef}
@@ -301,7 +297,7 @@ export const MapView = ({
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 addMapControls((overlayRef.current as any)._map, polygonEdit, () => {
                     isPickingLocation.value = !isPickingLocation.value;
-                }, hideControls);
+                });
               }}
               style={{ cursor: isPickingLocation.value ? 'crosshair' : 'default' }}
             />

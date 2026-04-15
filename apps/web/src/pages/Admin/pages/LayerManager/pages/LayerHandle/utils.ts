@@ -1,86 +1,4 @@
 import * as z from "zod";
-import axios from "axios";
-
-export interface LayerCapability {
-  name: string;
-  title: string;
-  crs: string[];
-  bbox?: number[];
-}
-
-export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCapability[], version: string }> => {
-  let baseUrlStr = url;
-  try {
-    const urlObj = new URL(url);
-    baseUrlStr = `${urlObj.origin}${urlObj.pathname}`;
-  } catch (e) {
-    // Keep original URL
-  }
-
-  const environment = import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br";
-  const params = `service=WMS&version=1.3.0&request=GetCapabilities`;
-
-  const response = await axios.get(`${environment}/maps/proxy`, {
-    params: { url: `${baseUrlStr}?${params}` }
-  });
-
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(response.data, "text/xml");
-
-  const root = xmlDoc.documentElement;
-  const serviceVersion = root.getAttribute("version") || "1.1.1";
-
-  const extractedLayers: LayerCapability[] = [];
-  const layerNodes = xmlDoc.getElementsByTagName("Layer");
-
-  for (let i = 0; i < layerNodes.length; i++) {
-    const node = layerNodes[i];
-    const nameNode = node.getElementsByTagName("Name")[0];
-    const titleNode = node.getElementsByTagName("Title")[0];
-
-    if (nameNode && titleNode) {
-      const name = nameNode.textContent || "";
-      const title = titleNode.textContent || "";
-
-      const crsList: string[] = [];
-      const crsNodes = node.getElementsByTagName("CRS");
-      const srsNodes = node.getElementsByTagName("SRS");
-      
-      for (let j = 0; j < crsNodes.length; j++) {
-        if (crsNodes[j].textContent) crsList.push(crsNodes[j].textContent!);
-      }
-      for (let j = 0; j < srsNodes.length; j++) {
-        if (srsNodes[j].textContent) crsList.push(srsNodes[j].textContent!);
-      }
-
-      // Extract BBox
-      let bbox: number[] | undefined;
-      const exBbox = node.getElementsByTagName("EX_GeographicBoundingBox")[0];
-      if (exBbox) {
-         const west = parseFloat(exBbox.getElementsByTagName("westBoundLongitude")[0]?.textContent || "0");
-         const east = parseFloat(exBbox.getElementsByTagName("eastBoundLongitude")[0]?.textContent || "0");
-         const south = parseFloat(exBbox.getElementsByTagName("southBoundLatitude")[0]?.textContent || "0");
-         const north = parseFloat(exBbox.getElementsByTagName("northBoundLatitude")[0]?.textContent || "0");
-         bbox = [west, south, east, north];
-      } else {
-         const llBbox = node.getElementsByTagName("LatLonBoundingBox")[0];
-         if (llBbox) {
-            const minx = parseFloat(llBbox.getAttribute("minx") || "0");
-            const miny = parseFloat(llBbox.getAttribute("miny") || "0");
-            const maxx = parseFloat(llBbox.getAttribute("maxx") || "0");
-            const maxy = parseFloat(llBbox.getAttribute("maxy") || "0");
-            bbox = [minx, miny, maxx, maxy];
-         }
-      }
-
-      if (name && !extractedLayers.some(l => l.name === name)) {
-        extractedLayers.push({ name, title, crs: Array.from(new Set(crsList)), bbox });
-      }
-    }
-  }
-  
-  return { layers: extractedLayers, version: serviceVersion };
-}
 
 export enum LayerSchemaColorTypeEnum {
   TEXT = "text",
@@ -108,7 +26,6 @@ const step2Schema = z.object({
   origin: z.string().url("Insira uma URL válida"),
   groupId: z.string().min(1, "Selecione um grupo"),
   layerName: z.string().min(1, "Insira o nome da camada"),
-  index: z.coerce.number().optional(),
   minZoom: z.string().optional(),
   maxZoom: z.string().optional(),
   clickAction: z.enum(["SelectFeature", "setZoom", "openFeature", "none"]),
@@ -193,9 +110,19 @@ export const generateOriginUrl = (
   const params = new URLSearchParams();
 
   if (loadingMethod === "CustomWMSLayer") {
-    // For CustomWMSLayer, we return the base URL because the component constructs the GetMap request
-    // The params are saved in properties or handled by the component
-    return baseUrl;
+    params.set("service", "WMS");
+    params.set("version", version || "1.1.0");
+    params.set("request", "GetMap");
+    params.set("layers", selectedLayer?.name || "");
+    params.set("styles", "");
+    params.set("format", "image/png");
+    params.set("transparent", "true");
+
+    if (version === "1.3.0") {
+      params.set("CRS", srs || "EPSG:4326");
+    } else {
+      params.set("SRS", srs || "EPSG:4326");
+    }
   } else {
     // GeoJsonLayer or Stream
     params.set("service", "WFS");
@@ -223,7 +150,6 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     origin,
     groupId,
     layerName,
-    index,
     minZoom,
     maxZoom,
     clickAction,
@@ -339,7 +265,6 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     isActive,
     isVisible,
     type,
-    index,
     minZoom: minZoom ? Number.parseInt(minZoom) : null,
     maxZoom: maxZoom ? Number.parseInt(maxZoom) : null,
     getTextColorPropName: isDynamic ? layerProperty : null,
@@ -353,8 +278,6 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
       attributeMapping: propertyMapping,
       version,
       srs,
-      typeName: selectedLayer?.name,
-      maxZoom: maxZoom ? Number.parseInt(maxZoom) : undefined,
     },
   };
 };
@@ -371,7 +294,6 @@ export interface LayerSchema {
   origin: string;
   name: string;
   type: string;
-  index?: number;
   minZoom?: number | null;
   maxZoom?: number | null;
   getFillColorPropName?: string | null;
@@ -396,7 +318,6 @@ export const parseLayerSchemaToForm = (
     origin,
     name,
     type,
-    index,
     minZoom,
     maxZoom,
     getFillColorPropName,
@@ -440,14 +361,6 @@ export const parseLayerSchemaToForm = (
     // Fallback if URL params are missing (e.g. cleaned WMS URL), check properties
     if (properties?.version) version = properties.version;
     if (properties?.srs) srs = properties.srs;
-    
-    // Try to reconstruct selectedLayer from properties.typeName
-    if (properties?.typeName) {
-      selectedLayer = {
-        name: properties.typeName,
-        title: data.name || properties.typeName,
-      };
-    }
   }
 
   // Group colors by label/value to reconstruct form items
@@ -545,9 +458,6 @@ export const parseLayerSchemaToForm = (
     }
   });
 
-  const finalMinZoom = minZoom ?? properties?.minZoom;
-  const finalMaxZoom = maxZoom ?? properties?.maxZoom;
-
   return {
     url,
     selectedLayer,
@@ -557,9 +467,8 @@ export const parseLayerSchemaToForm = (
     srs,
     groupId: groupId || "geral",
     layerName: name,
-    index,
-    minZoom: finalMinZoom?.toString() || "",
-    maxZoom: finalMaxZoom?.toString() || "",
+    minZoom: minZoom?.toString() || "",
+    maxZoom: maxZoom?.toString() || "",
     clickAction: formClickAction as any,
     clickActionParams: formClickActionParams,
     viewTemplate: viewTemplate ? JSON.stringify(viewTemplate, null, 2) : "",

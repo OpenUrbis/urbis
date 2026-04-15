@@ -27,9 +27,7 @@ export class LayerSchemasService {
   ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
     const where = search ? { name: ILike(`%${search}%`) } : {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const order: any = orderBy
-      ? { [orderBy]: orderType ?? 'ASC' }
-      : { index: 'ASC', isActive: 'DESC' };
+    const order: any = orderBy ? { [orderBy]: orderType ?? 'ASC' } : { isActive: 'DESC' };
 
     if (page && pageSize) {
       const take = pageSize;
@@ -77,7 +75,6 @@ export class LayerSchemasService {
     properties,
     groupId,
     colors,
-    index,
   }: LayerSchemaDto): Promise<LayerSchema> {
     const another = await this.repository.findOneBy({ id: id });
     if (another)
@@ -102,7 +99,6 @@ export class LayerSchemasService {
       groupId,
       layerGroup,
       colors,
-      index,
     });
 
     return this.repository.save(entity);
@@ -125,7 +121,6 @@ export class LayerSchemasService {
       properties,
       groupId,
       colors,
-      index,
 
       ...dto
     }: LayerSchemaDto,
@@ -156,7 +151,6 @@ export class LayerSchemasService {
     layerSchema.groupId = groupId;
     layerSchema.layerGroup = layerGroup;
     layerSchema.colors = colors;
-    layerSchema.index = index;
 
     return await this.repository.save(layerSchema);
   }

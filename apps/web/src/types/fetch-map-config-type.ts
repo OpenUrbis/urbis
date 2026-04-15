@@ -27,7 +27,6 @@ export interface IGetConfigLayerGroup {
   id: string;
   name: string;
   ownerGroup: string;
-  index?: number;
   parentGroup?: IGetConfigLayerGroup;
   childGroups: IGetConfigLayerGroup[];
 }
@@ -74,7 +73,6 @@ export interface IGetConfigLayerSchema {
   isActive: boolean;
   type: IGetConfigLayerSchemaTypeEnum;
   isVisible: boolean;
-  index?: number;
   minZoom?: number;
   getTextColorPropName?: string;
   getFillColorPropName?: string;

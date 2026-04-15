@@ -1,14 +1,39 @@
 import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { firstValueFrom } from 'rxjs';
 import {
+  HlmIconComponent,
+  HlmButtonDirective,
+  HlmSidebarMenuDirective,
+  HlmSidebarMenuButtonDirective,
+  HlmSidebarGroupDirective,
+  HlmSidebarService,
+  HlmDialogService,
+  HlmDropdownMenuDirective,
+  HlmDropdownMenuTriggerDirective,
+  HlmDropdownMenuItemDirective,
+  HlmDropdownMenuLabelDirective,
+  HlmDropdownMenuSeparatorDirective,
+  HlmDropdownMenuGroupDirective
+} from '../../../../../../projects/shared/src/public-api';
+import { provideIcons } from '@ng-icons/core';
+import {
+  lucideUser,
+  lucideShieldCheck,
+  lucideUsers,
+  lucideBuilding2,
+  lucidePalette,
+  lucideSettings,
+  lucideShuffle,
+  lucideLogOut,
+  lucideChevronsUpDown,
+  lucideCheck,
+  lucidePlus
+} from '@ng-icons/lucide';
+import {
   AUTH_CONFIG_ID,
-  EXTERNAL_OIDC_AUTH_CONFIG_ID,
 } from '../../../../../../projects/shared/src/lib/auth/auth.config';
 import { OrganizationState } from '../../../../states/organization/organization.state';
 import { SwitchOrganizationDialog } from '../../../switch-organization-dialog/switch-organization-dialog';
@@ -16,25 +41,50 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-sidenav',
+  standalone: true,
   imports: [
-    MatListModule,
-    MatIconModule,
-    MatButtonModule,
+    CommonModule,
     RouterModule,
-    MatDialogModule,
-    // SwitchOrganizationDialog,
+    HlmIconComponent,
+    HlmButtonDirective,
+    HlmSidebarMenuDirective,
+    HlmSidebarMenuButtonDirective,
+    HlmSidebarGroupDirective,
     TranslateModule,
+    HlmDropdownMenuDirective,
+    HlmDropdownMenuTriggerDirective,
+    HlmDropdownMenuItemDirective,
+    HlmDropdownMenuLabelDirective,
+    HlmDropdownMenuSeparatorDirective,
+    HlmDropdownMenuGroupDirective
+  ],
+  providers: [
+    provideIcons({
+      lucideUser,
+      lucideShieldCheck,
+      lucideUsers,
+      lucideBuilding2,
+      lucidePalette,
+      lucideSettings,
+      lucideShuffle,
+      lucideLogOut,
+      lucideChevronsUpDown,
+      lucideCheck,
+      lucidePlus
+    })
   ],
   templateUrl: './sidenav.html',
-  styleUrl: './sidenav.scss',
 })
 export class Sidenav {
+  private sidebarService = inject(HlmSidebarService);
   oidcSecurityService = inject(OidcSecurityService);
   organizationState = inject(OrganizationState);
-  matDialog = inject(MatDialog);
+  dialog = inject(HlmDialogService);
+
+  state = this.sidebarService.state;
 
   changeOrganization() {
-    this.matDialog.open(SwitchOrganizationDialog);
+    this.dialog.open(SwitchOrganizationDialog);
   }
 
   async logout() {

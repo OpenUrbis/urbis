@@ -26,7 +26,6 @@ import {
 const formSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   ownerGroup: z.string().optional(),
-  index: z.coerce.number().optional(),
 });
 
 const GroupHandlePage = () => {
@@ -54,7 +53,6 @@ const GroupHandlePage = () => {
         .then((data) => {
           form.setValue("name", data.name);
           form.setValue("ownerGroup", data.ownerGroup || "");
-          form.setValue("index", data.index);
         })
         .catch((err) => {
           console.error(err);
@@ -69,13 +67,12 @@ const GroupHandlePage = () => {
     try {
       setIsLoading(true);
 
-      const { name, ownerGroup, index } = values;
+      const { name, ownerGroup } = values;
 
       if (isEditing && id) {
         await updateLayerGroup(id, {
           name,
           ownerGroup: ownerGroup ? ownerGroup : undefined,
-          index: index ? index : undefined,
           id,
         });
         toastSuccess("Grupo atualizado com sucesso");
@@ -87,7 +84,6 @@ const GroupHandlePage = () => {
         await createLayerGroup({
           name,
           ownerGroup: ownerGroup ? ownerGroup : undefined,
-          index: index ? index : undefined,
           id: generatedId,
         });
         toastSuccess("Grupo criado com sucesso");
@@ -142,16 +138,6 @@ const GroupHandlePage = () => {
                     {form.formState.errors.name.message}
                   </p>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="index">Index (Ordenação)</Label>
-                <Input
-                  id="index"
-                  type="number"
-                  {...form.register("index")}
-                  placeholder="Digite o index"
-                />
               </div>
 
               <div className="space-y-2 flex flex-col">

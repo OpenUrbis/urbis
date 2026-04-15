@@ -24,9 +24,7 @@ export class LayerGroupsService {
   ): Promise<LayerGroup[] | { data: LayerGroup[]; total: number }> {
     const where = search ? { name: ILike(`%${search}%`) } : {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const order: any = orderBy
-      ? { [orderBy]: orderType ?? 'ASC' }
-      : { index: 'ASC', name: 'ASC' };
+    const order: any = orderBy ? { [orderBy]: orderType ?? 'ASC' } : { name: 'ASC' };
 
     if (page && pageSize) {
       const take = pageSize;
@@ -63,12 +61,7 @@ export class LayerGroupsService {
     return group;
   }
 
-  async create({
-    id,
-    name,
-    ownerGroup,
-    index,
-  }: LayerGroupDto): Promise<LayerGroup> {
+  async create({ id, name, ownerGroup }: LayerGroupDto): Promise<LayerGroup> {
     const another = await this.repository.findOneBy({ id: id });
     if (another)
       throw new BadRequestException(`Layer group with ID ${id} already exist`);
@@ -76,7 +69,6 @@ export class LayerGroupsService {
       id,
       name,
       ownerGroup,
-      index,
       parentGroup: await this.checkOwnerGroup(ownerGroup),
     });
     return this.repository.save(entity);
@@ -84,7 +76,7 @@ export class LayerGroupsService {
 
   async update(
     id: string,
-    { name, ownerGroup, index, ...dto }: LayerGroupDto,
+    { name, ownerGroup, ...dto }: LayerGroupDto,
   ): Promise<LayerGroup> {
     if (id !== dto.id) {
       const another = await this.repository.findOneBy({ id: dto.id });
@@ -99,7 +91,6 @@ export class LayerGroupsService {
       id: dto.id,
       name,
       ownerGroup,
-      index,
       parentGroup: await this.checkOwnerGroup(ownerGroup),
     });
     return this.findOne(id);

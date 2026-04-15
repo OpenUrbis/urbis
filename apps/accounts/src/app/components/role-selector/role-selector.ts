@@ -10,51 +10,42 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-  AbstractControl,
-  FormControl,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
-import { IRoleResponse } from '../role-manager/dto/role.dto';
-import { RoleManagerApi } from '../role-manager/services/role-manager-api';
+import { IRoleResponse } from '../../components/role-manager/dto/role.dto';
+import { RoleManagerApi } from '../../components/role-manager/services/role-manager-api';
 import { TranslateModule } from '@ngx-translate/core';
+import { HlmInputDirective, HlmIconComponent } from '../../../../projects/shared/src/public-api';
+import { provideIcons } from '@ng-icons/core';
+import { lucideSearch, lucideX } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-role-selector',
+  standalone: true,
   imports: [
     CommonModule,
-    MatAutocompleteModule,
-    MatChipsModule,
-    MatFormFieldModule,
-    MatIconModule,
     ReactiveFormsModule,
-    MatInputModule,
     TranslateModule,
+    HlmInputDirective,
+    HlmIconComponent
   ],
+  providers: [provideIcons({ lucideSearch, lucideX })],
   templateUrl: './role-selector.html',
-  styleUrl: './role-selector.scss',
 })
 export class RoleSelector implements OnInit {
-  control = input.required<FormControl | AbstractControl>();
+  control = input.required<FormControl>();
   multi = input<boolean>(false);
 
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   search = new FormControl();
   searchLoading = signal<boolean>(false);
-  selectedRoles = signal<IRoleResponse[]>([]);
+  selectedRoles = signal<any[]>([]); 
 
   roleManagerApi = inject(RoleManagerApi);
 
-  selectedRoleIds = computed(() => this.selectedRoles().map(({ id }) => id));
+  selectedRoleIds = computed(() =>
+    this.selectedRoles().map(({ id }) => id),
+  );
 
   roles = toSignal(
     this.search.valueChanges.pipe(
@@ -67,7 +58,7 @@ export class RoleSelector implements OnInit {
             search: typeof search === 'string' ? search : '',
             exclude: this.multi() ? this.selectedRoleIds() : [],
           })
-          .pipe(map((res) => (Array.isArray(res) ? res : res.data))),
+          .pipe(map((value) => (value as any)?.data ?? [])),
       ),
       tap(() => this.searchLoading.set(false)),
     ),
@@ -82,11 +73,19 @@ export class RoleSelector implements OnInit {
 
   ngOnInit(): void {
     const subs = this.control()?.valueChanges.subscribe((value) => {
-      if (!value) return;
-      if (this.multi() && !value?.length) return;
+      if (!value) {
+          if (this.selectedRoles().length > 0) this.selectedRoles.set([]);
+          return;
+      }
+      if (this.multi() && !value?.length) {
+          this.selectedRoles.set([]);
+          return;
+      }
 
-      this.selectedRoles.update(() => (Array.isArray(value) ? value : [value]));
-      if (!this.multi()) this.search.setValue(value, { emitEvent: false });
+      this.selectedRoles.update(() =>
+        Array.isArray(value) ? value : [value],
+      );
+      if (!this.multi()) this.search.setValue('', { emitEvent: false });
 
       subs.unsubscribe();
     });
@@ -99,20 +98,12 @@ export class RoleSelector implements OnInit {
     });
   }
 
-  selected(event: MatAutocompleteSelectedEvent): void {
-    const newRegister = event.option.value as IRoleResponse;
-    if (this.selectedRoleIds().includes(newRegister.id)) return;
+  select(role: any): void {
+    if (this.selectedRoleIds().includes(role.id)) return;
 
     this.selectedRoles.update((roles) =>
-      this.multi() ? [...roles, newRegister] : [newRegister],
+      this.multi() ? [...roles, role] : [role],
     );
-    if (this.multi()) {
-      this.search.setValue('');
-      event.option.deselect();
-    }
-  }
-
-  displayFn(role: IRoleResponse): string {
-    return role?.name ?? '';
+    this.search.setValue('');
   }
 }

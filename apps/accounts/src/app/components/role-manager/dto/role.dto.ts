@@ -13,6 +13,7 @@ export interface IRoleResponse {
   status: string;
   type: string;
   organizationId?: string;
+  isDefault?: boolean;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string;
@@ -31,10 +32,12 @@ export interface ICreateRoleRequest {
   name: string;
   description?: string | null;
   permissions: string[];
+  isDefault?: boolean;
 }
 
 export interface IUpdateRoleRequest {
   name?: string;
   description?: string | null;
   permissions?: string[];
+  isDefault?: boolean;
 }

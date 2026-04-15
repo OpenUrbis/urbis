@@ -19,7 +19,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import { generateOriginUrl, fetchCapabilities } from "../utils";
+import { generateOriginUrl } from "../utils";
 import { useEffect, useState } from "react";
 
 interface LayerConfigurationProps {
@@ -39,38 +39,7 @@ export const LayerConfiguration = ({
   const version = form.watch("version");
   const srs = form.watch("srs");
 
-  const [forceCustomSrs, setForceCustomSrs] = useState(false);
-  const [isFetchingCrs, setIsFetchingCrs] = useState(false);
-
-  useEffect(() => {
-    const fetchCrs = async () => {
-      if (url && selectedLayer?.name && (!selectedLayer.crs || selectedLayer.crs.length === 0)) {
-        setIsFetchingCrs(true);
-        try {
-          const { layers } = await fetchCapabilities(url);
-          const found = layers.find(l => l.name === selectedLayer.name || l.title === selectedLayer.name);
-          if (found && found.crs && found.crs.length > 0) {
-            const updatedLayer = {
-               ...selectedLayer,
-               crs: found.crs,
-               bbox: found.bbox || selectedLayer.bbox
-            };
-            form.setValue("selectedLayer", updatedLayer);
-          }
-        } catch (error) {
-          console.error("Failed to fetch CRS options", error);
-        } finally {
-          setIsFetchingCrs(false);
-        }
-      }
-    };
-    
-    fetchCrs();
-  }, [url, selectedLayer?.name]);
-
-  useEffect(() => {
-    setForceCustomSrs(false);
-  }, [selectedLayer?.name]);
+  const [suggestedOrigin, setSuggestedOrigin] = useState("");
 
   useEffect(() => {
     if (url && loadingMethod) {
@@ -81,17 +50,20 @@ export const LayerConfiguration = ({
         version,
         srs
       );
-      
-      if (origin !== suggested) {
+      setSuggestedOrigin(suggested);
+
+      // Auto-set on first load if empty
+      if (!origin) {
         form.setValue("origin", suggested);
       }
     }
   }, [url, selectedLayer, loadingMethod, version, srs]);
 
-  const hasCrsOptions = selectedLayer?.crs && selectedLayer.crs.length > 0;
-  const isKnownSrs = selectedLayer?.crs?.includes(srs);
-  const showCustomSrsInput = forceCustomSrs || !isKnownSrs || !hasCrsOptions;
-  const srsSelectValue = showCustomSrsInput ? "custom" : srs;
+  const handleApplySuggestion = () => {
+    form.setValue("origin", suggestedOrigin);
+  };
+
+  const isDifferent = origin !== suggestedOrigin && suggestedOrigin !== "";
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
@@ -139,47 +111,9 @@ export const LayerConfiguration = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>SRS / CRS</FormLabel>
-              <div className="flex flex-col gap-2">
-                <Select
-                  value={srsSelectValue}
-                  onValueChange={(val) => {
-                    if (val === "custom") {
-                      setForceCustomSrs(true);
-                    } else {
-                      setForceCustomSrs(false);
-                      field.onChange(val);
-                    }
-                  }}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {selectedLayer?.crs?.map((crs: string) => (
-                      <SelectItem key={crs} value={crs}>
-                        {crs}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="custom">Personalizada</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {(showCustomSrsInput || !hasCrsOptions) && (
-                  <FormControl>
-                    <Input
-                      placeholder="EPSG:4326"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        // If user types something that matches list, we could auto-switch back to select mode?
-                        // But maybe keep custom mode to avoid jumping UI.
-                      }}
-                    />
-                  </FormControl>
-                )}
-              </div>
+                <FormControl>
+                  <Input placeholder="EPSG:4326" {...field} />
+                </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -196,8 +130,42 @@ export const LayerConfiguration = ({
               <FormControl>
                 <Input placeholder="URL completa..." {...field} />
               </FormControl>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                title="Regerar URL padrão"
+                onClick={handleApplySuggestion}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
             </div>
             <FormMessage />
+            {isDifferent && (
+              <div className="mt-2 bg-blue-50 border border-blue-200 rounded-md p-4 flex gap-3">
+                <AlertCircle className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-2">
+                  <h5 className="font-medium text-blue-900 leading-none">
+                    Sugestão de Ajuste
+                  </h5>
+                  <div className="text-sm text-blue-700 flex flex-col gap-2">
+                    <span>
+                      A URL atual difere do padrão recomendado para o tipo
+                      selecionado ({loadingMethod}).
+                    </span>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="w-fit bg-blue-100 text-blue-800 hover:bg-blue-200 border border-blue-200"
+                      onClick={handleApplySuggestion}
+                    >
+                      Aplicar URL Recomendada
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </FormItem>
         )}
       />
@@ -222,20 +190,6 @@ export const LayerConfiguration = ({
             <FormLabel>Nome da Camada</FormLabel>
             <FormControl>
               <Input placeholder="Nome da camada" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="index"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Index (Ordenação)</FormLabel>
-            <FormControl>
-              <Input type="number" placeholder="Ex: 10" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

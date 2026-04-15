@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs'
 import { cn } from '../../../lib/utils'
 import { isEqual } from 'date-fns'
 import { format } from 'date-fns'
-import { Ellipsis } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import {
   cloneElement,
   isValidElement,
@@ -185,7 +185,10 @@ export function FilterValueOptionDisplay<TData>({
           (isValidElement(Icon) ? (
             Icon
           ) : (
-            <Icon className="size-4 text-primary" />
+            (() => {
+              const ValidIcon = Icon as React.ElementType
+              return <ValidIcon className="size-4 text-primary" />
+            })()
           ))}
         <span>{label}</span>
       </span>
@@ -202,11 +205,9 @@ export function FilterValueOptionDisplay<TData>({
       {hasOptionIcons &&
         take(selected, 3).map(({ value, icon }) => {
           const Icon = icon!
-          return isValidElement(Icon) ? (
-            Icon
-          ) : (
-            <Icon key={value} className="size-4" />
-          )
+          if (isValidElement(Icon)) return Icon
+          const ValidIcon = Icon as React.ElementType
+          return <ValidIcon key={value} className="size-4" />
         })}
       <span className={cn(hasOptionIcons && 'ml-1.5')}>
         {selected.length} {pluralName}
@@ -233,7 +234,10 @@ export function FilterValueMultiOptionDisplay<TData>({
           (isValidElement(Icon) ? (
             Icon
           ) : (
-            <Icon className="size-4 text-primary" />
+            (() => {
+              const ValidIcon = Icon as React.ElementType
+              return <ValidIcon className="size-4 text-primary" />
+            })()
           ))}
 
         <span>{label}</span>
@@ -251,11 +255,9 @@ export function FilterValueMultiOptionDisplay<TData>({
         <div key="icons" className="inline-flex items-center gap-0.5">
           {take(selected, 3).map(({ value, icon }) => {
             const Icon = icon!
-            return isValidElement(Icon) ? (
-              cloneElement(Icon, { key: value })
-            ) : (
-              <Icon key={value} className="size-4" />
-            )
+            if (isValidElement(Icon)) return cloneElement(Icon, { key: value })
+            const ValidIcon = Icon as React.ElementType
+            return <ValidIcon key={value} className="size-4" />
           })}
         </div>
       )}
@@ -288,7 +290,7 @@ export function FilterValueDateDisplay<TData>({
   locale = 'en',
 }: FilterValueDisplayProps<TData, 'date'>) {
   if (!filter) return null
-  if (filter.values.length === 0) return <Ellipsis className="size-4" />
+  if (filter.values.length === 0) return <MoreHorizontal className="size-4" />
   if (filter.values.length === 1) {
     const value = filter.values[0]
 
@@ -310,7 +312,7 @@ export function FilterValueTextDisplay<TData>({
 }: FilterValueDisplayProps<TData, 'text'>) {
   if (!filter) return null
   if (filter.values.length === 0 || filter.values[0].trim() === '')
-    return <Ellipsis className="size-4" />
+    return <MoreHorizontal className="size-4" />
 
   const value = filter.values[0]
 
@@ -462,8 +464,12 @@ const OptionItem = memo(function OptionItem({
           (isValidElement(Icon) ? (
             Icon
           ) : (
-            <Icon className="size-4 text-primary" />
+            (() => {
+              const ValidIcon = Icon as React.ElementType
+              return <ValidIcon className="size-4 text-primary" />
+            })()
           ))}
+
         <span>
           {label}
           <sup

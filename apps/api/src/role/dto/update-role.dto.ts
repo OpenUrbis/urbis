@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
-  IsBoolean,
   IsEnum,
   IsOptional,
   IsString,
@@ -26,7 +25,7 @@ export class UpdateRoleDto {
   })
   @IsString()
   @IsOptional()
-  description?: string;
+  description?: string | null;
 
   @IsOptional()
   @IsEnum(RoleStatusEnum)
@@ -36,11 +35,6 @@ export class UpdateRoleDto {
   @IsString()
   @Validate(IsExist, ['Organization', 'id'])
   organizationId?: string;
-
-  @ApiProperty({ example: true })
-  @IsBoolean()
-  @IsOptional()
-  isDefault?: boolean;
 
   @ApiProperty({
     example: [{ action: 'role:create', scope: RolePermissionScopeEnum.OWN }],

@@ -7,18 +7,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  HlmButtonDirective,
-  HlmCardDirective,
-  HlmCardContentDirective,
-  HlmCardFooterDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
-  HlmCardDescriptionDirective,
-  HlmInputDirective,
-  HlmLabelDirective,
-} from '../../../../projects/shared/src/public-api';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import {
@@ -34,19 +28,13 @@ import { SignInApi } from './services/sign-in-api';
 
 @Component({
   selector: 'app-sign-in',
-  standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
-    HlmInputDirective,
-    HlmButtonDirective,
-    HlmLabelDirective,
-    HlmCardDirective,
-    HlmCardContentDirective,
-    HlmCardFooterDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
-    HlmCardDescriptionDirective,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatCardModule,
     ReactiveFormsModule,
     TranslateModule,
     RecaptchaV3Module,
@@ -61,7 +49,7 @@ import { SignInApi } from './services/sign-in-api';
     },
   ],
   templateUrl: './sign-in.html',
-  styleUrls: ['./sign-in.scss'],
+  styleUrl: './sign-in.scss',
 })
 export class SignIn implements OnInit {
   formGroup = new FormGroup({
@@ -117,15 +105,13 @@ export class SignIn implements OnInit {
 
   async signInWithExternalOidc() {
     try {
-      const { idToken, isAuthenticated, accessToken, ...all } = await firstValueFrom(
+      const { idToken, isAuthenticated, accessToken } = await firstValueFrom(
         this.oidcSecurityService.authorizeWithPopUp(
           undefined,
           undefined,
           EXTERNAL_OIDC_AUTH_CONFIG_ID,
         ),
       );
-      console.log('all', all);
-      console.log('accessToken', accessToken);
 
       if (isAuthenticated) {
         this.resolveCaptcha(

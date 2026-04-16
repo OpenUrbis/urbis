@@ -1,0 +1,52 @@
+[mat-list-item] {
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--mat-sys-on-surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  .icon-container {
+    border-radius: 12px;
+    padding-top: 8px;
+    width: 90%;
+  }
+
+  &.active {
+    color: var(--mat-sys-primary) !important;
+
+    .icon-container {
+      background-color: var(--mat-sys-secondary-container, transparent);
+    }
+
+    mat-icon {
+      color: var(--mat-sys-primary);
+    }
+
+    * {
+      color: var(--mat-sys-primary);
+    }
+  }
+
+  &:hover {
+    color: var(--mat-sys-primary) !important;
+
+    mat-icon {
+      color: var(--mat-sys-primary);
+    }
+
+    * {
+      color: var(--mat-sys-primary);
+    }
+  }
+}
+
+::ng-deep {
+  .mdc-list-item:focus::before {
+    display: none;
+  }
+}

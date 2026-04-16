@@ -349,10 +349,7 @@ function __QuickSearchFilters<TData>({
                         (isValidElement(v.icon) ? (
                           v.icon
                         ) : (
-                          (() => {
-                            const Icon = v.icon as React.ElementType
-                            return <Icon className="size-4 text-primary" />
-                          })()
+                          <v.icon className="size-4 text-primary" />
                         ))}
                     </div>
                     <div className="flex items-center gap-0.5">

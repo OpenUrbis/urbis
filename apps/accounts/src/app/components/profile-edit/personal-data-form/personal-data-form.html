@@ -1,42 +1,38 @@
-<form [formGroup]="form" class="flex flex-col gap-6" (ngSubmit)="submit()">
-  <div class="flex flex-col gap-1.5">
-    <label hlmLabel for="firstName">{{
+<form [formGroup]="form" class="profile-form" (ngSubmit)="submit()">
+  <mat-form-field appearance="outline">
+    <mat-label>{{
       "pages.profile.edit.personal.fields.firstName" | translate
-    }}</label>
+    }}</mat-label>
     <input
-      hlmInput
-      id="firstName"
+      matInput
       formControlName="firstName"
       [attr.aria-label]="
         'pages.profile.edit.personal.fields.firstName' | translate
       "
     />
-  </div>
+  </mat-form-field>
 
-  <div class="flex flex-col gap-1.5">
-    <label hlmLabel for="lastName">{{
+  <mat-form-field appearance="outline">
+    <mat-label>{{
       "pages.profile.edit.personal.fields.lastName" | translate
-    }}</label>
+    }}</mat-label>
     <input
-      hlmInput
-      id="lastName"
+      matInput
       formControlName="lastName"
       [attr.aria-label]="
         'pages.profile.edit.personal.fields.lastName' | translate
       "
     />
-  </div>
+  </mat-form-field>
 
   <lib-phone-form-group [formGroup]="form" />
 
   <lib-country-select [formGroup]="form" />
 
-  <div class="flex justify-end pt-4">
-    <button
-      hlmBtn
-      [attr.aria-label]="'pages.profile.edit.personal.buttons.save' | translate"
-    >
-      {{ "pages.profile.edit.personal.buttons.save" | translate }}
-    </button>
-  </div>
+  <button
+    matButton="filled"
+    [attr.aria-label]="'pages.profile.edit.personal.buttons.save' | translate"
+  >
+    {{ "pages.profile.edit.personal.buttons.save" | translate }}
+  </button>
 </form>

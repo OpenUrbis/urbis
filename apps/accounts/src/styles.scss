@@ -1,148 +1,63 @@
-@use "@uppy/core/dist/style.min.css" as *;
-@use "@uppy/status-bar/dist/style.min.css" as *;
-@use "@uppy/dashboard/dist/style.min.css" as *;
-@use "@uppy/image-editor/dist/style.min.css" as *;
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use "@angular/material" as mat;
+@use "bootstrap/scss/bootstrap";
+@use "@uppy/core/css/style.scss" as uppyCore;
+@use "@uppy/status-bar/css/style.scss" as uppyStatusBar;
+@use "@uppy/dashboard/css/style.scss" as uppyDashboard;
+@use "@uppy/image-editor/css/style.css" as uppyImageEditor;
 
-@import "tailwindcss/base";
-@import "tailwindcss/utilities";
-
-@layer base {
-    html, body {
-        --font-family: 'Noto Sans', sans-serif;
-        font-family: var(--font-family);
-        font-weight: 500;
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
 }
-    :root {
-        --font-family: 'Noto Sans', sans-serif;
-        --radius: 16px;
 
-        --background: #f6fafe;
-        --foreground: #181c20;
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
 
-        --card: #f0f4f8;
-        --card-foreground: #181c20;
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
 
-        --popover: #ffffff;
-        --popover-foreground: #181c20;
+  // Reset the user agent margin.
+  margin: 0;
+}
 
-        --primary: #1e6ff9;
-        --primary-foreground: #ffffff;
+/* You can add global styles to this file, and also import other style files */
 
-        --secondary: #a8f0b8;
-        --secondary-foreground: #0a1f0e;
+html,
+body {
+  height: 100%;
+}
 
-        --muted: #dde3ea;
-        --muted-foreground: #41474d;
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
-        --accent: #a8f0b8;
-        --accent-foreground: #0a1f0e;
+.cursor-pointer {
+  cursor: pointer !important;
+}
 
-        --destructive: #ba1a1a;
-        --destructive-foreground: #ffffff;
-
-        --border: #c1c7ce;
-        --input: #c1c7ce;
-        --ring: #1e88e5;
-
-        /* Sidebar matches main theme */
-        --sidebar: #f6fafe;
-        --sidebar-foreground: #181c20;
-        --sidebar-primary: #1e6ff9;
-        --sidebar-primary-foreground: #ffffff;
-        --sidebar-accent: #a8f0b8;
-        --sidebar-accent-foreground: #0a1f0e;
-        --sidebar-border: #c1c7ce;
-        --sidebar-ring: #1e88e5;
-
-        body {
-            --font-family: 'Noto Sans', sans-serif;
-            --background: #f6fafe;
-            --foreground: #181c20;
-            --primary: #1e6ff9;
-        }
-    }
-
-    .dark {
-        --background: #101417;
-        --foreground: #dfe3e7;
-
-        --card: #1b2023;
-        --card-foreground: #dfe3e7;
-
-        --popover: #0a0f12;
-        --popover-foreground: #dfe3e7;
-
-        --primary: #92cef5;
-        --primary-foreground: #00344c;
-
-        --secondary: #0a1f0e;
-        --secondary-foreground: #e8fbe7;
-
-        --muted: #41474d;
-        --muted-foreground: #c1c7ce;
-
-        --accent: #9ed49d;
-        --accent-foreground: #033912;
-
-        --destructive: #ffb4ab;
-        --destructive-foreground: #690005;
-
-        --border: #41474d;
-        --input: #41474d;
-        --ring: #6ee7e7;
-
-        /* Sidebar matches dark theme */
-        --sidebar: #101417;
-        --sidebar-foreground: #dfe3e7;
-        --sidebar-primary: #92cef5;
-        --sidebar-primary-foreground: #00344c;
-        --sidebar-accent: #9ed49d;
-        --sidebar-accent-foreground: #033912;
-        --sidebar-border: #41474d;
-        --sidebar-ring: #6ee7e7;
-
-        body {
-            --background: #101417;
-            --foreground: #dfe3e7;
-            --primary: #92cef5;
-        }
-    }
-
-    .high-contrast {
-        --border: #41474d;
-        --input: #41474d;
-        --ring: #6ee7e7;
-    }
-
-    .dark.high-contrast {
-        --border: #d9e0e8;
-        --input: #d9e0e8;
-        --ring: #d9e0e8;
-    }
-
-    * {
-        @apply border-border;
-    }
-
-    body {
-        --font-family: 'Noto Sans', sans-serif;
-        font-family: var(--font-family);
-        font-weight: 500;
-        overflow-x: hidden;
-    }
-
-    .material-symbols-outlined {
-        font-family: 'Material Symbols Outlined' !important;
-        font-weight: normal;
-        font-style: normal;
-        font-size: 24px;
-        display: inline-block;
-        line-height: 1;
-        text-transform: none;
-        letter-spacing: normal;
-        word-wrap: normal;
-        white-space: nowrap;
-        direction: ltr;
-        -webkit-font-smoothing: antialiased;
-    }
+.dialog-lg-content {
+  mat-dialog-container {
+    min-width: 100%;
+  }
 }

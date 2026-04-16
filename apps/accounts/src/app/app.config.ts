@@ -1,6 +1,5 @@
 import {
   ApplicationConfig,
-  APP_INITIALIZER,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
@@ -12,10 +11,10 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import { provideTranslateService } from '@ngx-translate/core';
+import { MatPaginatorIntl } from '@angular/material/paginator';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { provideAuth, OidcSecurityService } from 'angular-auth-oidc-client';
-import { firstValueFrom } from 'rxjs';
+import { provideAuth } from 'angular-auth-oidc-client';
 import { RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-2';
 import {
   authConfig,
@@ -24,6 +23,7 @@ import {
 import { AccessTokenInterceptor } from '../../projects/shared/src/lib/auth/interceptors/access-token/access-token-interceptor';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { MatPaginatorI18n } from './shared/table/mat-paginator-i18n';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -32,13 +32,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimations(),
     provideAuth({ config: [authConfig, externalOidcAuthConfig] }),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (oidcSecurityService: OidcSecurityService) => () =>
-        firstValueFrom(oidcSecurityService.checkAuthMultiple()),
-      deps: [OidcSecurityService],
-      multi: true,
-    },
     provideHttpClient(withInterceptorsFromDi()),
     {
       provide: RECAPTCHA_V3_SITE_KEY,
@@ -48,6 +41,11 @@ export const appConfig: ApplicationConfig = {
       provide: HTTP_INTERCEPTORS,
       useClass: AccessTokenInterceptor,
       multi: true,
+    },
+    {
+      provide: MatPaginatorIntl,
+      useClass: MatPaginatorI18n,
+      deps: [TranslateService],
     },
     provideTranslateService({
       loader: provideTranslateHttpLoader({

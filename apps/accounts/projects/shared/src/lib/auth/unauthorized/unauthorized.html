@@ -1,19 +1,20 @@
 <div class="unauthorized-page text-center">
   <div class="unauthorized-content">
     <div>
-      <h1 style="font-size: 72px" class="mb-4 text-foreground">:(</h1>
-      <h4 class="text-xl font-semibold mb-2">{{ "pages.auth.unauthorized.title" | translate }}</h4>
-      <p class="text-muted-foreground mb-4">{{ "pages.auth.unauthorized.description" | translate }}</p>
-      <ol class="list-decimal list-inside text-left inline-block mb-4">
+      <h1 style="font-size: 72px" class="mb-4">:(</h1>
+      <h4>{{ "pages.auth.unauthorized.title" | translate }}</h4>
+      <p>{{ "pages.auth.unauthorized.description" | translate }}</p>
+      <ol>
         <li>
           {{ "pages.auth.unauthorized.steps.checkTime" | translate }}
         </li>
         <li>{{ "pages.auth.unauthorized.steps.clearCache" | translate }}</li>
       </ol>
-      <p class="text-muted-foreground mb-4">{{ "pages.auth.unauthorized.support" | translate }}</p>
+      <p>{{ "pages.auth.unauthorized.support" | translate }}</p>
       <div class="mt-4">
         <a
-          hlmBtn
+          mat-flat-button
+          color="primary"
           routerLink="/"
           [attr.aria-label]="'pages.auth.unauthorized.button' | translate"
         >

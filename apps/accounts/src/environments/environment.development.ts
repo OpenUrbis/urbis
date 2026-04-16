@@ -3,9 +3,9 @@ export const environment = {
 
   appClientId: '0375600b-cd37-4b89-82e1-68fd374b83e8',
 
-  externalOidcClientId: 'h-urbis.sampa.br',
-  externalOidcSecureRoutes: ['https://sso.staging.acesso.gov.br'],
-  externalOidcAuthority: 'https://sso.staging.acesso.gov.br',
+  externalOidcClientId: 'e8f4d33e-2ac0-11ec-8d3d-0242ac130003',
+  externalOidcSecureRoutes: ['https://dev.api.slingui.com'],
+  externalOidcAuthority: 'https://dev.api.slingui.com',
 
   googleRecaptchaSiteKey: '6LfwDx4sAAAAABrm5sINZvaY9Fq3pFttsX-wikjG',
 

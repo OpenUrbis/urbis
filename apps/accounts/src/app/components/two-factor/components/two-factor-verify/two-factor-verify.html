@@ -1,13 +1,19 @@
-<form [formGroup]="form" (ngSubmit)="send()" class="flex flex-col gap-4">
-  <div class="flex flex-col gap-1.5">
-    <label hlmLabel for="otp">{{ "components.twoFactorVerify.label" | translate }}</label>
-    <input hlmInput id="otp" placeholder="{{ 'components.twoFactorVerify.placeholder' | translate }}"
-      [formControl]="otp" class="w-full" />
-  </div>
+<form [formGroup]="form" (ngSubmit)="send()">
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>{{ "components.twoFactorVerify.label" | translate }}</mat-label>
+    <input
+      matInput
+      [placeholder]="'components.twoFactorVerify.placeholder' | translate"
+      [attr.aria-label]="'components.twoFactorVerify.label' | translate"
+      [formControl]="otp"
+    />
+  </mat-form-field>
 
-  <div class="flex justify-end gap-2">
-    <lib-loading-button [loading]="loading()"
-      [attr.aria-label]="'components.twoFactorVerify.buttons.validate' | translate" class="w-full sm:w-auto">
+  <div class="d-flex justify-content-end gap-2">
+    <lib-loading-button
+      [loading]="loading()"
+      [attr.aria-label]="'components.twoFactorVerify.buttons.validate' | translate"
+    >
       {{ "components.twoFactorVerify.buttons.validate" | translate }}
     </lib-loading-button>
   </div>

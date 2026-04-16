@@ -6,65 +6,74 @@
   >
     <section leftActions>
       <a
-        routerLink="/organizations"
-        hlmBtn
-        variant="ghost"
-        size="icon"
+        matIconButton
         [attr.aria-label]="
           'pages.organizations.form.actions.back' | translate
         "
+        routerLink="/organizations"
+        class="me-3"
       >
-        <hlm-icon name="lucideArrowLeft" size="18" />
+        <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
       </a>
     </section>
 
-    <!-- Tabs Header -->
-    <div class="flex border-b border-border mb-4">
-        <button 
-            hlmBtn variant="ghost" 
-            class="rounded-none border-b-2 border-transparent px-4 py-2 hover:bg-transparent hover:text-foreground"
-            [class.border-primary]="selectedTab() === 0"
-            [class.text-primary]="selectedTab() === 0"
-            [class.text-muted-foreground]="selectedTab() !== 0"
-            (click)="selectedTab.set(0)">
-            {{ 'pages.organizations.form.tabs.details' | translate }}
-        </button>
-        <button 
-            *ngIf="id()"
-            hlmBtn variant="ghost" 
-            class="rounded-none border-b-2 border-transparent px-4 py-2 hover:bg-transparent hover:text-foreground"
-            [class.border-primary]="selectedTab() === 1"
-            [class.text-primary]="selectedTab() === 1"
-            [class.text-muted-foreground]="selectedTab() !== 1"
-            (click)="selectedTab.set(1)">
-            {{ 'pages.organizations.form.tabs.users' | translate }}
-        </button>
-    </div>
+    <mat-tab-group
+      mat-stretch-tabs="false"
+      mat-align-tabs="start"
+      dynamicHeight
+    >
+      <!-- Aba de detalhes (apenas UM mat-tab aqui) -->
+      <mat-tab
+        [label]="'pages.organizations.form.tabs.details' | translate"
+      >
+        <mat-card class="my-3">
+          <mat-card-content>
+            <form
+              [formGroup]="form"
+              (ngSubmit)="save()"
+              class="p-3 d-flex flex-column gap-2"
+            >
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'pages.organizations.form.fields.name' | translate }}
+                </mat-label>
+                <input
+                  matInput
+                  formControlName="name"
+                  [attr.aria-label]="
+                    'pages.organizations.form.fields.name' | translate
+                  "
+                />
+              </mat-form-field>
 
-    <!-- Tab Content 0: Details -->
-    <div *ngIf="selectedTab() === 0" hlmCard class="p-6">
-        <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
-            <div class="flex flex-col gap-1.5">
-                <label hlmLabel for="org-name">{{ 'pages.organizations.form.fields.name' | translate }}</label>
-                <input hlmInput id="org-name" formControlName="name" [attr.aria-label]="'pages.organizations.form.fields.name' | translate" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-                <label hlmLabel for="org-desc">{{ 'pages.organizations.form.fields.description' | translate }}</label>
-                <input hlmInput id="org-desc" formControlName="description" [attr.aria-label]="'pages.organizations.form.fields.description' | translate" />
-            </div>
-            <div class="flex justify-end mt-4">
-                <button hlmBtn type="submit" [disabled]="loadingSave() || form.invalid">
-                    <hlm-icon name="lucideLoader2" class="mr-2 animate-spin" *ngIf="loadingSave()" />
-                    {{ 'pages.organizations.form.buttons.save' | translate }}
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Tab Content 1: Users -->
-    <div *ngIf="selectedTab() === 1 && id()">
-        <app-users [onlyTable]="true" [organizationId]="id()!" />
-    </div>
-
+              <mat-form-field appearance="outline">
+                <mat-label>
+                  {{ 'pages.organizations.form.fields.description' | translate }}
+                </mat-label>
+                <input
+                  matInput
+                  formControlName="description"
+                  [attr.aria-label]="
+                    'pages.organizations.form.fields.description' | translate
+                  "
+                />
+              </mat-form-field>
+            </form>
+          </mat-card-content>
+          <mat-card-actions class="d-flex justify-content-end">
+            <lib-loading-button [loading]="loadingSave()">
+              {{ 'pages.organizations.form.buttons.save' | translate }}
+            </lib-loading-button>
+          </mat-card-actions>
+        </mat-card>
+      </mat-tab>
+      @if (id()) {
+        <mat-tab
+          [label]="'pages.organizations.form.tabs.users' | translate"
+        >
+          <app-users [onlyTable]="true" [organizationId]="id()!" />
+        </mat-tab>
+      }
+    </mat-tab-group>
   </app-page-structure>
 </lib-loading-content>

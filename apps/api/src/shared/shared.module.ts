@@ -2,31 +2,20 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { JwtStrategy } from 'auth/strategies/jwt.strategy';
+import geocodingConfig from 'common/config/geocoding.config';
+import mapsConfig from 'common/config/maps.config';
 import { HeaderResolver, I18nModule } from 'nestjs-i18n';
 import { join } from 'path';
-import adminConfig from './../common/config/admin.config';
 import appConfig from './../common/config/app.config';
 import authConfig from './../common/config/auth.config';
 import databaseConfig from './../common/config/database.config';
-import geocodingConfig from './../common/config/geocoding.config';
-import mapsConfig from './../common/config/maps.config';
-import recaptchaConfig from './../common/config/recaptcha.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [
-        adminConfig,
-        appConfig,
-        authConfig,
-        databaseConfig,
-        geocodingConfig,
-        mapsConfig,
-        recaptchaConfig,
-      ],
+      load: [appConfig, databaseConfig, authConfig, geocodingConfig, mapsConfig],
       envFilePath: ['.env'],
     }),
     JwtModule.registerAsync({
@@ -62,13 +51,6 @@ import recaptchaConfig from './../common/config/recaptcha.config';
       inject: [ConfigService],
     }),
     PassportModule,
-
-    GoogleRecaptchaModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) =>
-        configService.get('reacaptcha'),
-      inject: [ConfigService],
-    }),
   ],
   providers: [JwtStrategy],
   exports: [JwtStrategy, JwtModule],

@@ -1,51 +1,90 @@
-<div class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-6 overflow-y-auto">
-  <div class="w-full max-w-[424px]">
-    <form (ngSubmit)="submit()" [formGroup]="formGroup" class="w-full">
-      <section hlmCard class="w-full border-border">
-        <header hlmCardHeader class="pt-0 pb-0 flex flex-row items-center gap-0">
-          <a hlmBtn variant="ghost" size="icon" [attr.aria-label]="'pages.signUp.actions.back' | translate" href="/"
-            class="shrink-0 rounded-full h-8 w-8 mt-2">
-            <hlm-icon name="lucideArrowLeft" size="18" />
-          </a>
-          <h1 hlmCardTitle class="text-xl ml-4 mt-0 font-bold tracking-tight text-primary">
-            {{ "pages.signUp.title" | translate }}
-          </h1>
-        </header>
-
-        <div hlmCardContent class="flex flex-col gap-3 p-1 pt-2">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="firstName" class="text-xs">{{ "pages.signUp.form.fields.firstName" | translate }}</label>
-              <input hlmInput id="firstName" placeholder="{{ 'pages.signUp.form.fields.firstName' | translate }}"
-                formControlName="firstName" class="w-full h-9 text-sm" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="lastName" class="text-xs">{{ "pages.signUp.form.fields.lastName" | translate }}</label>
-              <input hlmInput id="lastName" placeholder="{{ 'pages.signUp.form.fields.lastName' | translate }}"
-                formControlName="lastName" class="w-full h-9 text-sm" />
-            </div>
+<div class="row justify-content-center align-items-center h-100">
+  <div class="col-10 col-xl-3 col-lg-4 col-md-6 sign-in-container">
+    <form
+      (ngSubmit)="submit()"
+      class="d-flex justify-content-center align-items-center flex-column"
+      [formGroup]="formGroup"
+      class="h-100 w-100"
+    >
+      <mat-card class="py-3">
+        <mat-card-header class="pt-0 d-flex flex-column">
+          <div class="d-flex flex-row align-items-center">
+            <a
+              matCardAvatar
+              matIconButton
+              [attr.aria-label]="'pages.signUp.actions.back' | translate"
+              href="/"
+              class="me-3"
+            >
+              <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
+            </a>
+            <h1 matCardTitle class="mb-3">
+              {{ "pages.signUp.title" | translate }}
+            </h1>
           </div>
+        </mat-card-header>
+        <mat-card-content class="d-flex flex-column">
+          <mat-form-field appearance="outline">
+            <mat-label>{{
+              "pages.signUp.form.fields.firstName" | translate
+            }}</mat-label>
+            <input
+              matInput
+              formControlName="firstName"
+              autofocus
+              [attr.aria-label]="
+                'pages.signUp.form.fields.firstName' | translate
+              "
+            />
+          </mat-form-field>
 
-          <div class="flex flex-col gap-1.5">
-            <label hlmLabel for="email" class="text-xs">{{ "pages.signUp.form.fields.email" | translate }}</label>
-            <input hlmInput id="email" type="email" placeholder="{{ 'pages.signUp.form.fields.email' | translate }}"
-              formControlName="email" class="w-full h-9 text-sm" />
-          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>{{
+              "pages.signUp.form.fields.lastName" | translate
+            }}</mat-label>
+            <input
+              matInput
+              formControlName="lastName"
+              [attr.aria-label]="
+                'pages.signUp.form.fields.lastName' | translate
+              "
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{
+              "pages.signUp.form.fields.email" | translate
+            }}</mat-label>
+            <input
+              matInput
+              formControlName="email"
+              [attr.aria-label]="
+                'pages.signUp.form.fields.email' | translate
+              "
+            />
+          </mat-form-field>
 
           <lib-country-select [formGroup]="formGroup" />
 
           <lib-phone-form-group [formGroup]="formGroup" />
 
           <lib-password-form-group [formGroup]="formGroup" />
-        </div>
-
-        <div class="flex items-center p-1 pt-0">
-          <button hlmBtn class="w-full font-semibold h-9 text-sm" [disabled]="formGroup.invalid"
-            [attr.aria-label]="'pages.signUp.form.buttons.submit' | translate">
+        </mat-card-content>
+        <mat-card-actions
+          class="justify-content-center align-items-center d-flex flex-column px-3 gap-3"
+        >
+          <button
+            matButton="filled"
+            class="w-100"
+            [disabled]="formGroup.invalid"
+            [attr.aria-label]="
+              'pages.signUp.form.buttons.submit' | translate
+            "
+          >
             {{ "pages.signUp.form.buttons.submit" | translate }}
           </button>
-        </div>
-      </section>
+        </mat-card-actions>
+      </mat-card>
     </form>
   </div>
 </div>

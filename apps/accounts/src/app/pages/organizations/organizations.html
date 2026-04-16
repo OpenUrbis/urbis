@@ -4,102 +4,78 @@
 >
   <section rightActions>
     <a
-      hlmBtn
+      matButton="filled"
       [attr.aria-label]="
         'pages.organizations.page.buttons.create.ariaLabel' | translate
       "
       routerLink="create"
     >
-      <hlm-icon name="lucidePlus" size="16" class="mr-2" />
+      <mat-icon class="material-symbols-outlined">add</mat-icon>
       {{ "pages.organizations.page.buttons.create.title" | translate }}
     </a>
   </section>
 
-  <div class="rounded-md border border-border overflow-hidden bg-card text-card-foreground shadow-sm">
+  <div class="table-box">
     @if (dataSource.loading()) {
-        <div class="w-full flex justify-center p-4">
-            <hlm-icon name="lucideLoader2" class="animate-spin h-6 w-6 text-primary" />
-        </div>
+      <mat-progress-bar mode="indeterminate" />
     }
 
-    <div class="relative w-full overflow-auto">
-      <table class="w-full caption-bottom text-sm text-left">
-        <thead class="[&_tr]:border-b">
-          <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
-              {{ "pages.organizations.table.columns.name" | translate }}
-            </th>
-            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
-              {{ "pages.organizations.table.columns.description" | translate }}
-            </th>
-            <th class="h-12 px-4 align-middle font-medium text-muted-foreground text-right">
-              {{ "pages.organizations.table.columns.actions" | translate }}
-            </th>
-          </tr>
-        </thead>
-        <tbody class="[&_tr:last-child]:border-0">
-          @for (organization of dataSource.data(); track organization.id) {
-            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-              <td class="p-4 align-middle font-medium">
-                {{ organization.name }}
-              </td>
-              <td class="p-4 align-middle text-muted-foreground">
-                {{ organization.description }}
-              </td>
-              <td class="p-4 align-middle text-right">
-                <a
-                  hlmBtn
-                  variant="ghost"
-                  size="icon"
-                  [attr.aria-label]="
-                    'pages.organizations.page.buttons.edit.ariaLabel' | translate
-                  "
-                  [routerLink]="['/organizations/edit', organization.id]"
-                >
-                  <hlm-icon name="lucidePencil" size="16" />
-                </a>
-              </td>
-            </tr>
-          } @empty {
-            @if (!dataSource.loading()) {
-                <tr>
-                    <td colspan="3" class="p-4 align-middle text-center text-muted-foreground">
-                        {{ "pages.organizations.table.noData" | translate }}
-                    </td>
-                </tr>
-            }
-          }
-        </tbody>
-      </table>
-    </div>
+    <table mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="name">
+          {{ "pages.organizations.table.columns.name" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let organization">
+          {{ organization.name }}
+        </td>
+      </ng-container>
 
-    <!-- Pagination -->
-    <div class="flex items-center justify-end space-x-2 py-4 px-4 border-t border-border">
-        <div class="flex-1 text-sm text-muted-foreground">
-            {{ (dataSource.currentParams().page - 1) * dataSource.currentParams().limit + 1 }} - 
-            {{ (dataSource.currentParams().page * dataSource.currentParams().limit) > dataSource.totalCount() ? dataSource.totalCount() : (dataSource.currentParams().page * dataSource.currentParams().limit) }}
-            of {{ dataSource.totalCount() }}
-        </div>
-        <div class="space-x-2">
-            <button
-                hlmBtn
-                variant="outline"
-                size="sm"
-                (click)="prevPage()"
-                [disabled]="dataSource.currentParams().page <= 1 || dataSource.loading()"
-            >
-                <hlm-icon name="lucideChevronLeft" size="16" />
-            </button>
-            <button
-                hlmBtn
-                variant="outline"
-                size="sm"
-                (click)="nextPage()"
-                [disabled]="(dataSource.currentParams().page * dataSource.currentParams().limit) >= dataSource.totalCount() || dataSource.loading()"
-            >
-                <hlm-icon name="lucideChevronRight" size="16" />
-            </button>
-        </div>
-    </div>
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.organizations.table.columns.description" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let organization">
+          {{ organization.description ?? "-" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ "pages.organizations.table.columns.actions" | translate }}
+        </th>
+        <td mat-cell *matCellDef="let organization">
+          <a
+            matIconButton
+            [attr.aria-label]="
+              'pages.organizations.page.buttons.edit.ariaLabel' | translate
+            "
+            [routerLink]="['/organizations/edit', organization.id]"
+          >
+            <mat-icon class="material-symbols-outlined">create</mat-icon>
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="5">
+          @if (dataSource.loading()) {
+            {{ "components.shared.table.loading" | translate }}
+          } @else {
+            {{ "pages.organizations.table.noData" | translate }}
+          }
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="dataSource.totalCount()"
+      [pageSize]="dataSource.currentParams().limit"
+      [pageIndex]="dataSource.currentParams().page - 1"
+      [pageSizeOptions]="[15, 30, 50]"
+      (page)="onPageChange($event)"
+    />
   </div>
 </app-page-structure>

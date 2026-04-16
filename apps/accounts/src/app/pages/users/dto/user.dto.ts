@@ -16,10 +16,6 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
-  cpf?: string;
-  govBrData?: any;
-  lastGovBrLoginAt?: Date;
-  govBrFirstLoginAt?: Date;
 }
 
 export interface IUpdateUserRequest {

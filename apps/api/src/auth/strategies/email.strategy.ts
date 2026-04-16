@@ -14,7 +14,6 @@ export class EmailStrategy extends PassportStrategy(Strategy, 'email') {
 
   async validate(email: string, password: string): Promise<any> {
     try {
-      console.log('EmailStrategy validate called with email:', email);
       const user = await this.authService.validateLogin({
         email: email.toLowerCase().trim(),
         password,

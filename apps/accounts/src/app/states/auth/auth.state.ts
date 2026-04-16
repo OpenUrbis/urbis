@@ -9,8 +9,4 @@ export class AuthState {
   isAuthenticated = toSignal(this.oidc.isAuthenticated(AUTH_CONFIG_ID), {
     initialValue: false,
   });
-
-  logout() {
-    this.oidc.logoff();
-  }
 }

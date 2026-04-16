@@ -1,74 +1,104 @@
-<div hlmSidebarGroup class="h-full flex flex-col pt-0 px-0">
-  <div class="px-2 py-2 mb-2">
-    <button [hlmDropdownMenuTrigger]="organizations" hlmBtn variant="ghost" class="w-full justify-start gap-2 h-12 px-2 border border-sidebar-border hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-        <div class="flex h-8 w-8 items-center justify-center rounded-md border bg-background">
-            <hlm-icon name="lucideBuilding2" size="16" />
-        </div>
-        <div class="flex flex-col items-start truncate flex-1" *ngIf="state() === 'expanded'">
-            <span class="text-xs font-medium truncate w-full text-left">
-                {{ organizationState.selectedOrganization()?.name || ('components.profileMenu.changeOrganization' | translate) }}
-            </span>
-        </div>
-        <hlm-icon name="lucideChevronsUpDown" size="14" class="ml-auto opacity-50" *ngIf="state() === 'expanded'" />
-    </button>
-    <ng-template #organizations>
-      <div hlmDropdownMenu class="w-60">
-        <hlm-dropdown-menu-label>Organizações</hlm-dropdown-menu-label>
-        <hlm-dropdown-menu-group>
-          @for (org of organizationState.value().myOrganizations; track org.id) {
-            <button hlmDropdownMenuItem (click)="organizationState.selectOrganization(org)" class="relative pl-8 w-full">
-              <span class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center" *ngIf="organizationState.selectedOrganization()?.id === org.id">
-                <hlm-icon name="lucideCheck" size="16" />
-              </span>
-              <span class="truncate font-normal">{{ org.name }}</span>
-            </button>
-          }
-        </hlm-dropdown-menu-group>
-        <hlm-dropdown-menu-separator></hlm-dropdown-menu-separator>
-        <button hlmDropdownMenuItem (click)="changeOrganization()">
-          <hlm-icon name="lucidePlus" size="14" class="mr-2" />
-          Adicionar organização
-        </button>
-      </div>
-    </ng-template>
-  </div>
-
-  <div hlmSidebarMenu class="flex-1 px-2 pt-2">
-    <div *ngIf="state() === 'expanded'"
-      class="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-      {{ "components.profileMenu.title" | translate }}
+<mat-nav-list class="d-flex flex-column gap-1">
+  <h3 mat-subheader>{{ "components.profileMenu.title" | translate }}</h3>
+  <a
+    mat-list-item
+    routerLink="/profile"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.myProfile' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      person
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.myProfile" | translate }}
     </div>
+  </a>
 
-    <a routerLink="/profile" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
-      hlmSidebarMenuButton [attr.aria-label]="'components.profileMenu.myProfile' | translate">
-      <hlm-icon name="lucideUser" size="18px" />
-      <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.myProfile" | translate }}</span>
+  <a
+    mat-list-item
+    routerLink="/roles"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.roles' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      security
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.roles" | translate }}
+    </div>
+  </a>
+
+  <a
+    mat-list-item
+    routerLink="/users"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.users' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      group
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.users" | translate }}
+    </div>
+  </a>
+
+  <a
+    mat-list-item
+    routerLink="/organizations"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.organizations' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      domain
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.organizations" | translate }}
+    </div>
+  </a>
+
+  <a
+    mat-list-item
+    routerLink="/whitelabel"
+    routerLinkActive="active"
+    [attr.aria-label]="'components.profileMenu.whitelabel' | translate"
+  >
+    <mat-icon matListItemIcon class="material-symbols-outlined">
+      palette
+    </mat-icon>
+    <div matListItemTitle>
+      {{ "components.profileMenu.whitelabel" | translate }}
+    </div>
+  </a>
+
+  <div class="selection-footer">
+    <mat-divider></mat-divider>
+
+    <a
+      (click)="changeOrganization()"
+      mat-list-item
+      [attr.aria-label]="
+        'components.profileMenu.changeOrganization' | translate
+      "
+    >
+      <mat-icon matListItemIcon class="material-symbols-outlined"
+        >swap_vert</mat-icon
+      >
+      <div matListItemTitle>
+        {{ "components.profileMenu.changeOrganization" | translate }}
+      </div>
     </a>
 
-    <a routerLink="/roles" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
-      hlmSidebarMenuButton [attr.aria-label]="'components.profileMenu.roles' | translate">
-      <hlm-icon name="lucideShieldCheck" size="18px" />
-      <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.roles" | translate }}</span>
-    </a>
-
-    <a routerLink="/users" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
-      hlmSidebarMenuButton [attr.aria-label]="'components.profileMenu.users' | translate">
-      <hlm-icon name="lucideUsers" size="18px" />
-      <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.users" | translate }}</span>
-    </a>
-
-    <a routerLink="/organizations" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
-      hlmSidebarMenuButton [attr.aria-label]="'components.profileMenu.organizations' | translate">
-      <hlm-icon name="lucideBuilding2" size="18px" />
-      <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.organizations" | translate
-        }}</span>
-    </a>
-
-    <a routerLink="/settings" routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
-      hlmSidebarMenuButton [attr.aria-label]="'components.profileMenu.whitelabel' | translate">
-      <hlm-icon name="lucideSettings" size="18px" />
-      <span *ngIf="state() === 'expanded'" class="text-sm">{{ "components.profileMenu.whitelabel" | translate }}</span>
+    <a
+      (click)="logout()"
+      mat-list-item
+      [attr.aria-label]="'components.profileMenu.logout' | translate"
+    >
+      <mat-icon matListItemIcon class="material-symbols-outlined"
+        >logout</mat-icon
+      >
+      <div matListItemTitle>
+        {{ "components.profileMenu.logout" | translate }}
+      </div>
     </a>
   </div>
-
-</div>
+</mat-nav-list>

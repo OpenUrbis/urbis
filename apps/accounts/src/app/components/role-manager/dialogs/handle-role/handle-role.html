@@ -1,78 +1,156 @@
-<lib-loading-content [loading]="loading()">
-  <h2 class="text-lg font-semibold mb-4">{{ title }}</h2>
-  
-  <div class="max-h-[80vh] overflow-y-auto p-1">
-    <form [formGroup]="form" class="flex flex-col gap-4">
-      <div class="flex flex-col gap-1.5">
-        <label hlmLabel for="name">{{ "pages.roles.form.fields.name" | translate }}</label>
-        <input hlmInput id="name" formControlName="name" class="w-full" />
-      </div>
+<h2 mat-dialog-title>{{ title }}</h2>
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content class="w-100">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>{{ "pages.roles.form.fields.name" | translate }}</mat-label>
+      <input
+        matInput
+        [placeholder]="'pages.roles.form.fields.name' | translate"
+        [attr.aria-label]="'pages.roles.form.fields.name' | translate"
+        formControlName="name"
+      />
+    </mat-form-field>
 
-      <div class="flex flex-col gap-1.5">
-        <label hlmLabel for="description">{{ "pages.roles.form.fields.description" | translate }}</label>
-        <input hlmInput id="description" formControlName="description" class="w-full" />
-      </div>
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>{{
+        "pages.roles.form.fields.description" | translate
+      }}</mat-label>
+      <input
+        matInput
+        [placeholder]="'pages.roles.form.fields.description' | translate"
+        [attr.aria-label]="
+          'pages.roles.form.fields.description' | translate
+        "
+        formControlName="description"
+      />
+    </mat-form-field>
 
-      <div class="flex items-center space-x-2">
-          <hlm-switch id="isDefault" formControlName="isDefault" />
-          <label hlmLabel for="isDefault">{{ "pages.roles.form.fields.isDefault" | translate }}</label>
-      </div>
+    <mat-form-field class="w-100 d-flex flex-column" appearance="outline">
+      <mat-label>{{
+        "pages.roles.form.fields.permissions" | translate
+      }}</mat-label>
 
-      <div class="flex flex-col gap-2">
-        <label hlmLabel>{{ "pages.roles.form.fields.permissions" | translate }}</label>
-        
-        <div class="flex flex-wrap gap-2 mb-2" *ngIf="selectedPermissions().length > 0">
-          @for (prm of selectedPermissions(); track prm.id; let i = $index) {
-            <div class="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1.5 rounded-md text-sm border border-border">
-              <span class="font-medium">{{ prm.name }}</span>
-              <select 
-                class="bg-transparent border-0 p-0 pl-2 pr-6 text-xs font-semibold focus:ring-0 cursor-pointer h-auto py-0"
-                [value]="prm.scope"
-                (change)="changeScope(i, $event)"
+      <mat-chip-grid
+        #chipGrid
+        class="w-100"
+        [attr.aria-label]="
+          'pages.roles.form.permissions.selectedAria' | translate
+        "
+      >
+        <input
+          type="text"
+          matInput
+          class="w-100 mt-2"
+          #permissionInputSearch
+          [formControl]="searchPermissions"
+          [matAutocomplete]="permissionInputAuto"
+          [matChipInputFor]="chipGrid"
+          [placeholder]="'pages.roles.form.placeholders.permissions' | translate"
+          [attr.aria-label]="
+            'pages.roles.form.placeholders.permissions' | translate
+          "
+        />
+      </mat-chip-grid>
+      <mat-autocomplete
+        #permissionInputAuto="matAutocomplete"
+        (optionSelected)="
+          addPermission($event); permissionInputSearch.value = ''
+        "
+      >
+        @for (option of permissions(); track option.id) {
+          <mat-option [value]="option">
+            {{ option.name }}
+          </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-card>
+      <mat-card-header>
+        <h5 matCardTitle>
+          {{ "pages.roles.form.selectedTitle" | translate }}
+        </h5>
+      </mat-card-header>
+      <mat-card-content>
+        @if (!selectedPermissions().length) {
+          <p class="text-center w-100 my-5">
+            {{ "pages.roles.form.selectedEmpty" | translate }}
+          </p>
+        }
+
+        <mat-list>
+          @for (
+            item of selectedPermissions();
+            track item.id;
+            let index = $index;
+            let isLast = $last
+          ) {
+            <mat-list-item class="my-3">
+              <span
+                matListItemTitle
+                [matTooltip]="item.name"
+                [ariaLabel]="item.name"
               >
-                <option value="global">{{ "pages.roles.form.scopeOptions.global" | translate }}</option>
-                <option value="any">{{ "pages.roles.form.scopeOptions.any" | translate }}</option>
-                <option value="own">{{ "pages.roles.form.scopeOptions.own" | translate }}</option>
-              </select>
-              <button type="button" (click)="rmPermission(prm)" class="ml-1 hover:text-destructive flex items-center justify-center">
-                <hlm-icon name="lucideX" size="14" />
-              </button>
-            </div>
-          }
-        </div>
-
-        <div class="relative">
-            <hlm-icon name="lucideSearch" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input 
-                hlmInput 
-                [formControl]="searchPermissions" 
-                placeholder="{{ 'pages.roles.form.placeholders.permissions' | translate }}"
-                class="pl-9 w-full"
-            />
-        </div>
-
-        <div class="border border-border rounded-md max-h-40 overflow-y-auto mt-1" *ngIf="permissions()?.length">
-            @for (prm of permissions(); track prm.id) {
-                <button 
-                    type="button" 
-                    class="w-full text-left px-3 py-2 hover:bg-muted/50 text-sm transition-colors border-b border-border/50 last:border-0"
-                    (click)="addPermission(prm)"
+                {{ item.name }}
+              </span>
+              @if (item.description) {
+                <span
+                  matListItemLine
+                  [matTooltip]="item.description"
+                  [ariaLabel]="item.description"
                 >
-                    <div class="font-medium">{{ prm.name }}</div>
-                    <div class="text-xs text-muted-foreground">{{ prm.description }}</div>
-                </button>
+                  {{ item.description }}
+                </span>
+              }
+              <span matListItemMeta class="py-1">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{
+                    "pages.roles.form.fields.scope" | translate
+                  }}</mat-label>
+                  <mat-select
+                    [value]="item.scope"
+                    (selectionChange)="changeScope(index, $event)"
+                    [attr.aria-label]="
+                      'pages.roles.form.fields.scope' | translate
+                    "
+                  >
+                    <mat-option value="global">
+                      {{ "pages.roles.form.scopeOptions.global" | translate }}
+                    </mat-option>
+                    <mat-option value="any">
+                      {{ "pages.roles.form.scopeOptions.any" | translate }}
+                    </mat-option>
+                    <mat-option value="own">
+                      {{ "pages.roles.form.scopeOptions.own" | translate }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </span>
+            </mat-list-item>
+            @if (!isLast) {
+              <mat-divider />
             }
-        </div>
-      </div>
+          }
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </mat-dialog-content>
 
-      <div class="flex justify-end gap-2 pt-4">
-        <button hlmBtn variant="outline" type="button" (click)="dialogRef.close()">
-            {{ "pages.roles.form.buttons.cancel" | translate }}
-        </button>
-        <lib-loading-button [loading]="loading()" (click)="save()">
-            {{ "pages.roles.form.buttons.save" | translate }}
-        </lib-loading-button>
-      </div>
-    </form>
-  </div>
-</lib-loading-content>
+  <mat-dialog-actions class="d-flex gap-2">
+    <button
+      matButton="outlined"
+      type="button"
+      mat-dialog-close
+      [attr.aria-label]="'pages.roles.form.buttons.cancel' | translate"
+    >
+      {{ "pages.roles.form.buttons.cancel" | translate }}
+    </button>
+
+    <lib-loading-button
+      [loading]="loading()"
+      [attr.aria-label]="'pages.roles.form.buttons.save' | translate"
+    >
+      {{ "pages.roles.form.buttons.save" | translate }}
+    </lib-loading-button>
+  </mat-dialog-actions>
+</form>

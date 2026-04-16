@@ -6,19 +6,19 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, firstValueFrom, of, switchMap, tap } from 'rxjs';
 import {
   LoadingButton,
   LoadingContent,
-  HlmToasterService
-} from '../../../../../../projects/shared/src/public-api';
-import {
-  HlmButtonDirective,
-  HlmCardDirective,
-  HlmInputDirective,
-  HlmLabelDirective,
-  HlmIconComponent
 } from '../../../../../../projects/shared/src/public-api';
 import {
   IRequestCreateOrganization,
@@ -26,16 +26,20 @@ import {
 } from '../../dto/organization.dto';
 import { OrganizationsApi } from '../../services/organizations-api';
 import { Users } from '../../../users/users';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { PageStructure } from '../../../../components/page-structure/page-structure';
-import { provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideTrash2, lucideLoader2 } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-handle-organization',
-  standalone: true,
   imports: [
+    MatListModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule,
     ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
     CommonModule,
     RouterLink,
     LoadingContent,
@@ -43,14 +47,9 @@ import { lucideArrowLeft, lucideTrash2, lucideLoader2 } from '@ng-icons/lucide';
     Users,
     TranslateModule,
     PageStructure,
-    HlmButtonDirective,
-    HlmCardDirective,
-    HlmInputDirective,
-    HlmLabelDirective,
-    HlmIconComponent
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideTrash2, lucideLoader2 })],
   templateUrl: './handle-organization.html',
+  styleUrl: './handle-organization.scss',
 })
 export class HandleOrganization {
   form = new FormGroup({
@@ -62,13 +61,11 @@ export class HandleOrganization {
   name = signal<string | undefined>(undefined);
   loading = signal<boolean>(false);
   loadingSave = signal<boolean>(false);
-  selectedTab = signal<number>(0);
 
-  toaster = inject(HlmToasterService);
+  matSnackBar = inject(MatSnackBar);
   activatedRoute = inject(ActivatedRoute);
   router = inject(Router);
   organizationApi = inject(OrganizationsApi);
-  translate = inject(TranslateService);
 
   constructor() {
     effect(() => {
@@ -81,7 +78,9 @@ export class HandleOrganization {
               return this.organizationApi.get(id).pipe(
                 catchError((err) => {
                   console.error(err);
-                  this.toaster.error('Houve um erro ao carregar a organização');
+                  this.matSnackBar.open(
+                    'Houve um erro ao carregar a organização',
+                  );
                   this.router.navigate(['/organizations']);
                   return of(undefined);
                 }),
@@ -122,12 +121,12 @@ export class HandleOrganization {
         this.router.navigate(['/organizations/edit', response?.id]);
       }
 
-      this.toaster.success(
+      this.matSnackBar.open(
         `Organização ${id ? 'atualizada' : 'criada'} com sucesso`,
       );
     } catch (error) {
       console.error(error);
-      this.toaster.error(
+      this.matSnackBar.open(
         `Houve um erro ao ${id ? 'atualizar' : 'criar'} a organização`,
       );
     } finally {

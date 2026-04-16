@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { RolesManager } from '../../components/role-manager/roles-manager/roles-manager';
+import { RoleManagerModule } from '../../components/role-manager/role-manager-module';
 
 @Component({
   selector: 'app-roles',
-  imports: [RolesManager],
+  imports: [RoleManagerModule],
   templateUrl: './roles.html',
+  styleUrl: './roles.scss',
 })
 export class Roles {}

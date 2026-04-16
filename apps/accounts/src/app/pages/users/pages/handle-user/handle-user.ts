@@ -6,50 +6,55 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, firstValueFrom, of, switchMap, tap } from 'rxjs';
 import { passwordFormGroup } from '../../../../../../projects/shared/src/lib/components/password-form-group/form-group/password-form-group';
 import { PasswordFormGroup } from '../../../../../../projects/shared/src/lib/components/password-form-group/password-form-group';
 import {
+  ConfirmDialogModule,
   LoadingButton,
   LoadingContent,
   useConfirmDialog,
-  HlmButtonDirective,
-  HlmInputDirective,
-  HlmLabelDirective,
-  HlmIconComponent,
-  HlmToasterService
 } from '../../../../../../projects/shared/src/public-api';
-import { UserRoleManager } from '../../../../components/role-manager/user-role-manager/user-role-manager';
+import { RoleManagerModule } from '../../../../components/role-manager/role-manager-module';
 import { UserOrganizationManager } from '../../../../components/user-organization-manager/user-organization-manager';
 import { ICreateUserRequest, IUpdateUserRequest } from '../../dto/user.dto';
 import { UsersApi } from '../../services/users-api';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { PageStructure } from '../../../../components/page-structure/page-structure';
-import { provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideTrash2 } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-handle-user',
-  standalone: true,
   imports: [
-    ReactiveFormsModule,
+    MatListModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule,
     PasswordFormGroup,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
     CommonModule,
+    RoleManagerModule,
     RouterLink,
     LoadingContent,
     LoadingButton,
     UserOrganizationManager,
-    UserRoleManager,
+    ConfirmDialogModule,
     TranslateModule,
     PageStructure,
-    HlmButtonDirective,
-    HlmInputDirective,
-    HlmLabelDirective,
-    HlmIconComponent
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideTrash2 })],
   templateUrl: './handle-user.html',
+  styleUrl: './handle-user.scss',
 })
 export class HandleUser {
   form = new FormGroup({
@@ -63,14 +68,12 @@ export class HandleUser {
   name = signal<string | undefined>(undefined);
   loading = signal<boolean>(false);
   loadingSave = signal<boolean>(false);
-  selectedTab = signal<number>(0);
 
-  toaster = inject(HlmToasterService);
+  matSnackBar = inject(MatSnackBar);
   activatedRoute = inject(ActivatedRoute);
   router = inject(Router);
   userApi = inject(UsersApi);
   confirmDialog = useConfirmDialog();
-  translate = inject(TranslateService);
 
   constructor() {
     effect(() => {
@@ -83,7 +86,7 @@ export class HandleUser {
               return this.userApi.get(id).pipe(
                 catchError((err) => {
                   console.error(err);
-                  this.toaster.error('Houve um erro ao carregar o usuário');
+                  this.matSnackBar.open('Houve um erro ao carregar o usuário');
                   this.router.navigate(['/users']);
                   return of(undefined);
                 }),
@@ -137,12 +140,12 @@ export class HandleUser {
         this.router.navigate(['/users/edit', response?.id]);
       }
 
-      this.toaster.success(
+      this.matSnackBar.open(
         `Usuário ${id ? 'atualizado' : 'criado'} com sucesso`,
       );
     } catch (error) {
       console.error(error);
-      this.toaster.error(
+      this.matSnackBar.open(
         `Houve um erro ao ${id ? 'atualizar' : 'criar'} o usuário`,
       );
     } finally {
@@ -169,7 +172,7 @@ export class HandleUser {
       console.error(err);
       if (err?.internalMessage) return;
 
-      this.toaster.error('Não foi possivel excluir este usuário');
+      this.matSnackBar.open('Não foi possivel excluir este usuário');
     } finally {
       this.loading.set(false);
     }

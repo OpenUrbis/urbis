@@ -1,29 +1,34 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 import { Subject, switchMap, tap } from 'rxjs';
-import { LoadingContent, HlmButtonDirective, HlmIconComponent, HlmDialogService } from '../../../../projects/shared/src/public-api';
+import { LoadingContent } from '../../../../projects/shared/src/public-api';
 import { IResponseOrganizationWithRole } from '../../pages/organizations/dto/organization.dto';
 import { OrganizationsApi } from '../../pages/organizations/services/organizations-api';
 import { HandleUserOrganization } from './components/handle-user-organization/handle-user-organization';
 import { TranslateModule } from '@ngx-translate/core';
 import { PageStructure } from '../page-structure/page-structure';
 import { TranslateService } from '@ngx-translate/core';
-import { provideIcons } from '@ng-icons/core';
-import { lucidePlus, lucidePencil } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-user-organization-manager',
   imports: [
     CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
     LoadingContent,
+    MatDialogModule,
     TranslateModule,
     PageStructure,
-    HlmButtonDirective,
-    HlmIconComponent
   ],
-  providers: [provideIcons({ lucidePlus, lucidePencil })],
   templateUrl: './user-organization-manager.html',
+  styleUrl: './user-organization-manager.scss',
 })
 export class UserOrganizationManager {
   userId = input.required<string>();
@@ -31,10 +36,11 @@ export class UserOrganizationManager {
   loading = signal<boolean>(false);
 
   organizationApi = inject(OrganizationsApi);
-  dialogService = inject(HlmDialogService);
+  matDialog = inject(MatDialog);
   translate = inject(TranslateService);
 
   organizations = toSignal(
+    // TO DO: Paginação dos users
     this.user$.pipe(
       tap(() => this.loading.set(true)),
       switchMap((userId: string) => this.organizationApi.listByUser(userId)),
@@ -63,11 +69,11 @@ export class UserOrganizationManager {
   }
 
   handleAssign(item?: IResponseOrganizationWithRole) {
-    const dialogRef = this.dialogService.open(HandleUserOrganization, {
+    const dialogRef = this.matDialog.open(HandleUserOrganization, {
       data: { organization: item, userId: this.userId() },
-      width: '500px',
+      width: '50%',
     });
 
-    dialogRef.afterClosed().then(() => this.user$.next(this.userId()));
+    dialogRef.afterClosed().subscribe(() => this.user$.next(this.userId()));
   }
 }

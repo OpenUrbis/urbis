@@ -7,39 +7,62 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatDivider, MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, startWith, switchMap } from 'rxjs';
-import { LoadingButton, LoadingContent, HlmInputDirective, HlmLabelDirective, HlmButtonDirective, HlmIconComponent, HlmToasterService, DialogRef, DIALOG_DATA, HlmSwitchComponent } from '../../../../../../projects/shared/src/public-api';
+import { LoadingButton } from '../../../../../../projects/shared/src/public-api';
 import { IPermissionResponse } from '../../dto/permission.dto';
-import { IInternalPermission, IRoleResponse, ScopeType } from '../../dto/role.dto';
+import { IInternalPermission, IRoleResponse } from '../../dto/role.dto';
 import { RoleManagerApi } from '../../services/role-manager-api';
-import { provideIcons } from '@ng-icons/core';
-import { lucidePlus, lucideX, lucideSearch } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-handle-role',
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatChipsModule,
+    MatIconModule,
+    MatDialogModule,
+    MatListModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    MatDivider,
+    MatCardModule,
     LoadingButton,
-    LoadingContent,
     TranslateModule,
-    HlmInputDirective,
-    HlmLabelDirective,
-    HlmButtonDirective,
-    HlmIconComponent,
-    HlmSwitchComponent
   ],
-  providers: [provideIcons({ lucidePlus, lucideX, lucideSearch })],
   templateUrl: './handle-role.html',
+  styleUrl: './handle-role.scss',
 })
 export class HandleRole {
   searchPermissions = new FormControl('');
   form = new FormGroup({
     name: new FormControl('', Validators.required),
     description: new FormControl(),
-    isDefault: new FormControl(false),
     permissions: new FormControl([], Validators.required),
   });
 
@@ -50,12 +73,12 @@ export class HandleRole {
     this.selectedPermissions().map((prm) => prm.id),
   );
 
-  toaster = inject(HlmToasterService);
+  matSnackBar = inject(MatSnackBar);
   roleManagerApi = inject(RoleManagerApi);
   translate = inject(TranslateService);
 
-  readonly dialogRef = inject(DialogRef<HandleRole>);
-  readonly data = inject<IRoleResponse | undefined>(DIALOG_DATA);
+  readonly dialogRef = inject(MatDialogRef<HandleRole>);
+  readonly data = inject<IRoleResponse | undefined>(MAT_DIALOG_DATA);
 
   title = this.data?.name
     ? `${this.translate.instant('pages.roles.page.buttons.edit.ariaLabel')} ${this.data.name}`
@@ -67,7 +90,7 @@ export class HandleRole {
       debounceTime(300),
       switchMap((search) =>
         this.roleManagerApi.listPermissions({
-          search: search || '',
+          search,
           exclude: this.selectedToString(),
         }),
       ),
@@ -75,31 +98,24 @@ export class HandleRole {
   );
 
   constructor() {
-    if (this.data) {
-      const { permissions, rolePermissions, ...rest } = this.data;
-      
-      let initPermissions: IInternalPermission[] = [];
-      if (permissions) {
-          initPermissions = permissions;
-      } else if (rolePermissions) {
-          initPermissions = rolePermissions.map(rp => ({
-              ...rp.permission,
-              scope: rp.scope
-          }));
-      }
+    if (!this.data) return;
 
-      this.selectedPermissions.set(initPermissions);
-      this.form.patchValue({
-        ...rest,
-      } as any);
-    }
+    const { permissions, ...rest } = this.data;
+
+    this.selectedPermissions.set(permissions!);
+    this.form.patchValue({
+      ...rest,
+      permissions: this.selectedPermissions,
+    } as any);
 
     effect(() => {
       this.updatePermissionsInForm();
     });
   }
 
-  addPermission(permission: IPermissionResponse) {
+  addPermission(event: MatAutocompleteSelectedEvent) {
+    const permission = event.option.value as IInternalPermission;
+
     if (
       this.selectedPermissions().findIndex(
         (prm) => prm.action === permission.action,
@@ -110,20 +126,23 @@ export class HandleRole {
     const newPermission: IInternalPermission = { ...permission, scope: 'own' };
 
     this.selectedPermissions.update((lst) => [...lst, newPermission]);
+
     this.updatePermissionsInForm();
+
     this.searchPermissions.setValue('');
   }
 
-  rmPermission(permission: IInternalPermission) {
+  rmPermission(permission: IPermissionResponse) {
     this.selectedPermissions.update((selected) =>
       selected.filter((prm) => prm.action !== permission.action),
     );
+
     this.updatePermissionsInForm();
   }
 
   save() {
     if (!this.selectedPermissions().length) {
-      this.toaster.error(
+      this.matSnackBar.open(
         this.translate.instant(
           'components.roleManager.handleRole.errors.missingPermission',
         ),
@@ -131,7 +150,7 @@ export class HandleRole {
       return;
     }
     if (this.form.invalid) {
-      this.toaster.error(
+      this.matSnackBar.open(
         this.translate.instant(
           'components.roleManager.handleRole.errors.invalidForm',
         ),
@@ -155,7 +174,7 @@ export class HandleRole {
 
   processReponse(response: IRoleResponse) {
     this.loading.set(false);
-    this.toaster.success(
+    this.matSnackBar.open(
       this.translate.instant(
         this.data?.id
           ? 'components.roleManager.handleRole.success.updated'
@@ -167,19 +186,20 @@ export class HandleRole {
 
   processError(err: any) {
     this.loading.set(false);
-    this.toaster.error(
+    this.matSnackBar.open(
       this.translate.instant(
         'components.roleManager.handleRole.errors.save',
       ),
     );
   }
 
-  changeScope(index: number, event: Event) {
-    const value = (event.target as HTMLSelectElement).value as ScopeType;
+  changeScope(index: number, change: MatSelectChange) {
+    const value = change.value;
 
     this.selectedPermissions.update((permissions) => {
       permissions[index].scope = value;
-      return [...permissions]; // ensure new reference
+
+      return permissions;
     });
 
     this.updatePermissionsInForm();

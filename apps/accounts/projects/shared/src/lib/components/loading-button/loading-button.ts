@@ -1,53 +1,37 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, output } from '@angular/core';
-import { provideIcons } from '@ng-icons/core';
-import { lucideLoader2 } from '@ng-icons/lucide';
-import { HlmButtonDirective } from '../../ui/button/hlm-button.directive';
-import { HlmIconComponent } from '../../ui/icon/hlm-icon.component';
-
-type ButtonAppearance = 'filled' | 'outlined' | 'ghost'; // Approximate mapping
+import { MatButtonAppearance, MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'lib-loading-button',
-  standalone: true,
-  imports: [CommonModule, HlmButtonDirective, HlmIconComponent],
-  providers: [provideIcons({ lucideLoader2 })],
+  imports: [CommonModule, MatButtonModule, MatProgressSpinnerModule],
   template: `
     <button
-      hlmBtn
-      [variant]="getVariant()"
+      [matButton]="apperance()"
       [type]="type()"
-      [disabled]="loading() || disabled()"
+      [disabled]="loading()"
       (click)="clickOnButton($event)"
-      class="flex items-center gap-2 justify-center"
+      [disabled]="disabled()"
     >
       @if (loading()) {
-        <hlm-icon name="lucideLoader2" class="animate-spin h-4 w-4" />
+        <mat-spinner [diameter]="20" />
+      } @else {
+        <ng-content />
       }
-      <ng-content />
     </button>
   `,
 })
 export class LoadingButton {
   loading = input<boolean>(false);
   type = input<'submit' | 'reset' | 'button'>('submit');
-  apperance = input<ButtonAppearance | string>('filled'); // Keep name for compatibility
+  apperance = input<MatButtonAppearance>('filled');
   disabled = input<boolean>(false);
 
   click = output();
 
   clickOnButton(event: Event) {
-    // If not disabled/loading
-    if (this.loading() || this.disabled()) return;
-    
-    // event.stopImmediatePropagation(); // Maybe not needed with native button
+    event.stopImmediatePropagation();
     this.click.emit();
-  }
-
-  getVariant(): 'default' | 'outline' | 'ghost' | 'secondary' | 'destructive' | 'link' {
-      const app = this.apperance();
-      if (app === 'outlined' || app === 'stroked') return 'outline';
-      if (app === 'ghost') return 'ghost';
-      return 'default';
   }
 }

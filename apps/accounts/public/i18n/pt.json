@@ -1,16 +1,16 @@
 {
   "pages": {
     "signIn": {
-      "title": "Identifique-se no sistema",
-      "subtitle": "Insira os dados abaixo para acessar sua conta na Urbis.",
+      "title": "Acessar conta",
+      "subtitle": "Insira os dados abaixo.",
       "form": {
         "fields": {
-          "email": "E-mail",
+          "email": "Email",
           "password": "Senha"
         },
         "placeholders": {
-          "email": "example@prefeitura.gov.br",
-          "password": "******"
+          "email": "Placeholder",
+          "password": "Placeholder"
         },
         "buttons": {
           "govbr": "Entrar com GovBR",
@@ -83,7 +83,7 @@
       }
     },
     "onboarding": {
-      "welcome": "Seja bem vindo",
+      "welcome": "Bem vindo {{name}}",
       "titles": {
         "selectOrganization": "Selecione uma organização para continuar:",
         "fillInformation": "Preencha as informações abaixo:"
@@ -332,8 +332,8 @@
     },
     "whitelabel": {
       "page": {
-        "title": "Configurações",
-        "subtitle": "Gerencie as configurações da organização."
+        "title": "Whitelabel",
+        "subtitle": "Customize a plataforma conforme sua identidade visual."
       }
     }
   },
@@ -344,7 +344,7 @@
       "roles": "Cargos",
       "users": "Usuários",
       "organizations": "Organizações",
-      "whitelabel": "Configurações",
+      "whitelabel": "Whitelabel",
       "changeOrganization": "Alterar organização",
       "logout": "Logout"
     },
@@ -395,8 +395,8 @@
         "loading": "Carregando..."
       },
       "status": {
-        "active": "Ativo",
-        "inactive": "Inativo"
+        "active": "ativo",
+        "inactive": "inativo"
       }
     },
     "lib": {

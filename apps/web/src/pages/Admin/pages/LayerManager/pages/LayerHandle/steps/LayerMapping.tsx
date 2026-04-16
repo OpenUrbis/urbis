@@ -12,11 +12,12 @@ import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 interface LayerMappingProps {
-  onBack: () => void;
-  onNext: () => void;
+  onBack?: () => void;
+  onNext?: () => void;
+  hideNavigation?: boolean;
 }
 
-export const LayerMapping = ({ onBack, onNext }: LayerMappingProps) => {
+export const LayerMapping = ({ onBack, onNext, hideNavigation = false }: LayerMappingProps) => {
   const form = useFormContext();
   const [attributes, setAttributes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -134,14 +135,16 @@ export const LayerMapping = ({ onBack, onNext }: LayerMappingProps) => {
         </div>
       )}
 
-      <div className="flex justify-between pt-4">
-        <Button type="button" variant="outline" onClick={onBack}>
-          <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
-        </Button>
-        <Button type="button" onClick={onNext}>
-          Próximo <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
+      {!hideNavigation && (
+        <div className="flex justify-between pt-4">
+          <Button type="button" variant="outline" onClick={onBack}>
+            <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
+          </Button>
+          <Button type="button" onClick={onNext}>
+            Próximo <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,13 +1,24 @@
-<div hlmSidebarWrapper class="border-t border-border bg-background">
-  <hlm-sidebar>
-    <div hlmSidebarContent class="pt-4 h-full min-h-0">
-      <app-sidenav class="block h-full" />
-    </div>
-  </hlm-sidebar>
+<div class="d-flex h-100 w-100">
+  <div class="left-menu">
+    <button
+      matIconButton
+      (click)="drawer.toggle()"
+      [attr.aria-label]="'components.drawer.buttons.toggle' | translate"
+    >
+      <mat-icon class="material-symbols-outlined"> menu </mat-icon>
+    </button>
 
-  <main class="flex-1 h-full min-h-0 min-w-0 overflow-y-auto overflow-x-hidden bg-background">
-    <div class="min-h-full p-4 md:p-6">
-      <router-outlet></router-outlet>
-    </div>
-  </main>
+    <app-rails />
+  </div>
+  <div class="application w-100">
+    <mat-drawer-container class="drawer-container w-100">
+      <mat-drawer #drawer class="sidenav" mode="side" opened>
+        <app-sidenav />
+      </mat-drawer>
+
+      <mat-drawer-content class="drawer-content h-100">
+        <router-outlet></router-outlet>
+      </mat-drawer-content>
+    </mat-drawer-container>
+  </div>
 </div>

@@ -45,23 +45,13 @@ export class SignInApi {
   authenticate(authenticate: any) {
     const { session } = this.getStoredSession();
     console.log('authenticate', authenticate);
-    let data = new HttpParams().set('session', session);
-
-    if (authenticate.recaptcha) {
-      data = data.set('recaptcha', authenticate.recaptcha);
-    }
-    if (authenticate.email) {
-      data = data.set('email', authenticate.email);
-    }
-    if (authenticate.password) {
-      data = data.set('password', authenticate.password);
-    }
-    if (authenticate.idToken) {
-      data = data.set('idToken', authenticate.idToken);
-    }
-    if (authenticate.accessToken) {
-      data = data.set('accessToken', authenticate.accessToken);
-    }
+    const data = new HttpParams()
+      .set('recaptcha', authenticate.recaptcha)
+      .set('email', authenticate.email)
+      .set('password', authenticate.password)
+      .set('session', session)
+      .set('idToken', authenticate.idToken)
+      .set('accessToken', authenticate.accessToken);
 
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',

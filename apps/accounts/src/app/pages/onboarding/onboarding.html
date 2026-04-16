@@ -1,37 +1,66 @@
-<lib-loading-content [loading]="isLoading()">
-  @if (organizationState.errors() || profileState.errors()) {
-    <div class="flex flex-col items-center justify-center h-full min-h-[50vh] gap-4">
-        <h3 class="text-xl font-bold text-destructive">Error loading data</h3>
-        <p class="text-sm text-muted-foreground text-center max-w-md">
-            There was a problem loading your profile or organizations. Please try again.
-        </p>
-        <button hlmBtn (click)="retry()">
-            Retry
-        </button>
-    </div>
-  } @else if (!hasOrganizations()) {
-    <div
-      class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-10 overflow-y-auto">
-      <div class="w-full max-w-[640px] flex flex-col gap-8">
-        <h3 class="text-3xl font-bold tracking-tight text-center text-primary">
+<lib-loading-content
+  [loading]="profileState.loading() || organizationState.loading()"
+>
+  <div class="container h-100">
+    <div class="row justify-content-center align-content-center h-100">
+      <div class="col-10 col-lg-6">
+        <h3 class="text-center mb-4">
           {{
-          "pages.onboarding.welcome"
-          | translate: { name: profileState.value().firstName }
+            "pages.onboarding.welcome"
+              | translate: { name: profileState.value().firstName }
           }}
         </h3>
-
-        <section hlmCard class="w-full p-4 sm:p-6 shadow-lg border-border">
-          <header hlmCardHeader class="pt-0 pb-6 flex flex-col gap-2">
-            <p class="text-muted-foreground text-sm">
-              You are not in any organization.
-            </p>
-          </header>
-        </section>
+        <mat-card>
+          <mat-card-header class="px-3">
+            @if (step() === 2) {
+              <a
+                matIconButton
+                [attr.aria-label]="'pages.onboarding.actions.back' | translate"
+                (click)="step.set(1)"
+                class="me-3"
+                matCardAvatar
+              >
+                <mat-icon class="material-symbols-outlined"
+                  >arrow_back</mat-icon
+                >
+              </a>
+            }
+            <h1 matCardTitle [ngClass]="{ 'mt-2 ps-0': step() === 2 }">
+              {{
+                step() === 1
+                  ? ("pages.onboarding.titles.selectOrganization" | translate)
+                  : ("pages.onboarding.titles.fillInformation" | translate)
+              }}
+            </h1>
+          </mat-card-header>
+          <mat-card-content class="px-3">
+            <lib-loading-content [loading]="loading()">
+              @if (step() === 0 || step() === 2) {
+                <app-create-organization
+                  [autoAssign]="true"
+                  (created)="selectOrganization($event)"
+                />
+              } @else {
+                <app-organization-switcher />
+              }
+            </lib-loading-content>
+          </mat-card-content>
+          @if (step() !== 0 && step() !== 2) {
+            <mat-card-actions class="d-flex justify-content-end pb-3 pe-3">
+              <button
+                matButton="filled"
+                type="button"
+                (click)="step.set(2)"
+                [attr.aria-label]="
+                  'pages.onboarding.actions.createNew' | translate
+                "
+              >
+                {{ "pages.onboarding.actions.createNew" | translate }}
+              </button>
+            </mat-card-actions>
+          }
+        </mat-card>
       </div>
     </div>
-  } @else {
-    <div class="flex justify-center items-center h-full min-h-[50vh]">
-        <hlm-icon name="lucideLoader2" class="animate-spin h-10 w-10 text-primary" />
-    </div>
-  }
+  </div>
 </lib-loading-content>

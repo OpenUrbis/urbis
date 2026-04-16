@@ -1,48 +1,38 @@
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import {
-  HlmButtonDirective,
-  HlmCardDirective,
-  HlmCardContentDirective,
-  HlmCardFooterDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
   passwordFormGroup,
   PasswordFormGroup,
-  LogoComponent,
 } from '../../../../../../projects/shared/src/public-api';
 import { ForgotServiceApi } from '../../services/forgot-password-api';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, EMPTY } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { HlmToasterService } from '../../../../../../projects/shared/src/public-api';
-import { CommonModule } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-forgot-password-reset',
-  standalone: true,
+  selector: 'app-forgot-password',
+  templateUrl: './forgot-password-reset.html',
+  styleUrl: './forgot-password-reset.scss',
   imports: [
-    CommonModule,
-    RouterModule,
-    HlmCardDirective,
-    HlmCardContentDirective,
-    HlmCardFooterDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
-    HlmButtonDirective,
+    MatCardModule,
+    MatInputModule,
+    MatButtonModule,
+    MatFormFieldModule,
     ReactiveFormsModule,
     PasswordFormGroup,
     TranslateModule,
-    LogoComponent,
-
   ],
-  templateUrl: './forgot-password-reset.html',
 })
 export class ForgotPasswordReset {
   private readonly api = inject(ForgotServiceApi);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly toaster = inject(HlmToasterService);
+  private readonly matSnackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
 
   protected readonly form = passwordFormGroup();
@@ -55,10 +45,10 @@ export class ForgotPasswordReset {
       .pipe(
         catchError((error) => {
           console.error(error);
-          this.toaster.error(
+          this.matSnackBar.open(
             this.translate.instant(
-              'pages.forgotPassword.errors.submitNewPassword'
-            )
+              'pages.forgotPassword.errors.submitNewPassword',
+            ),
           );
           return EMPTY;
         }),

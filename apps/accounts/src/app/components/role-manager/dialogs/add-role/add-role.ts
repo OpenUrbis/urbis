@@ -1,40 +1,54 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
 import { PermissionScopePipe } from '../../../../pipes/permission-scope-pipe';
 import { IRoleResponse } from '../../dto/role.dto';
 import { RoleManagerApi } from '../../services/role-manager-api';
-import { LoadingContent, HlmButtonDirective, HlmIconComponent, HlmToasterService, DialogRef, DIALOG_DATA } from '../../../../../../projects/shared/src/public-api';
+import { LoadingContent } from '../../../../../../projects/shared/src/public-api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { provideIcons } from '@ng-icons/core';
-import { lucidePlus, lucideCheck, lucideChevronDown } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-add-role',
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    HlmButtonDirective,
-    HlmIconComponent,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatListModule,
+    MatProgressSpinnerModule,
     PermissionScopePipe,
     LoadingContent,
     TranslateModule,
   ],
-  providers: [provideIcons({ lucidePlus, lucideCheck, lucideChevronDown })],
   templateUrl: './add-role.html',
+  styleUrl: './add-role.scss',
 })
 export class AddRole {
   searchRole = new FormControl();
 
   loading = signal<boolean>(false);
 
-  toaster = inject(HlmToasterService);
+  matSnackBar = inject(MatSnackBar);
   roleManagerApi = inject(RoleManagerApi);
   translate = inject(TranslateService);
-  readonly dialogRef = inject(DialogRef<AddRole>);
-  readonly data = inject<{ userId: string; roles: string[] }>(DIALOG_DATA);
+  readonly dialogRef = inject(MatDialogRef<AddRole>);
+  readonly data = inject<{ userId: string; roles: string[] }>(MAT_DIALOG_DATA);
 
   result$ = this.searchRole.valueChanges.pipe(
     startWith(''),
@@ -42,7 +56,7 @@ export class AddRole {
     tap(() => this.loading.set(true)),
     switchMap((search) =>
       this.roleManagerApi
-        .listRoles({ search: search || '' })
+        .listRoles({ search })
         .pipe(map((value) => (value as any)?.data ?? [])),
     ),
     tap(() => this.loading.set(false)),
@@ -57,7 +71,7 @@ export class AddRole {
           this.data.roles.push(result.roleId);
         },
         error: (err) => {
-          this.toaster.error(
+          this.matSnackBar.open(
             this.translate.instant(
               'components.roleManager.addRole.errors.assign',
             ),

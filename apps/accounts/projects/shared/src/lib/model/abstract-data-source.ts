@@ -10,12 +10,8 @@ import {
 } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormGroup } from '@angular/forms';
+import { Sort } from '@angular/material/sort';
 import { Observable } from 'rxjs';
-
-export interface Sort {
-  active: string;
-  direction: 'asc' | 'desc' | '';
-}
 
 // --- TIPAGENS NECESSÁRIAS ---
 

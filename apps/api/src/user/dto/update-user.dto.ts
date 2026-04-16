@@ -23,24 +23,4 @@ export class UpdateUserDto {
   @IsOptional()
   @IsEnum(UserStatus)
   status?: UserStatus = UserStatus.ACTIVE;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  cpf?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  govBrData?: any;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  lastGovBrLoginAt?: Date;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  govBrFirstLoginAt?: Date;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  avatarUrl?: string;
 }

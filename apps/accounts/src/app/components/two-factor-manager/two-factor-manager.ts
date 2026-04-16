@@ -8,32 +8,35 @@ import {
   signal,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { firstValueFrom } from 'rxjs';
-import { LoadingContent, HlmButtonDirective, HlmIconComponent, HlmToasterService } from '../../../../projects/shared/src/public-api';
+import { LoadingContent } from '../../../../projects/shared/src/public-api';
 import { IUser } from '../../pages/users/dto/user.dto';
 import { ProfileState } from '../../states/profile/profile.state';
 import { TwoFactorVerify } from '../two-factor/components/two-factor-verify/two-factor-verify';
 import { TwoFactorApi } from '../two-factor/services/two-factor-api';
 import { TwoFactor } from '../two-factor/two-factor';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { provideIcons } from '@ng-icons/core';
-import { lucideLock, lucideUnlock } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-two-factor-manager',
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    HlmButtonDirective,
-    HlmIconComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
     TwoFactorVerify,
     TwoFactor,
     LoadingContent,
     TranslateModule,
   ],
-  providers: [provideIcons({ lucideLock, lucideUnlock })],
   templateUrl: './two-factor-manager.html',
+  styleUrl: './two-factor-manager.scss',
 })
 export class TwoFactorManager {
   loading = signal<boolean>(false);
@@ -52,7 +55,7 @@ export class TwoFactorManager {
   oidcSecurityService = inject(OidcSecurityService);
   profileState = inject(ProfileState);
   twoFactorApi = inject(TwoFactorApi);
-  toaster = inject(HlmToasterService);
+  matSnackBar = inject(MatSnackBar);
   translate = inject(TranslateService);
 
   constructor() {
@@ -85,7 +88,7 @@ export class TwoFactorManager {
       this.profileState.refresh();
       this.step.set(0);
     } catch (err) {
-      this.toaster.error(
+      this.matSnackBar.open(
         this.translate.instant(
           'components.twoFactorManager.errors.disable',
         ),

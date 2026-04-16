@@ -1,6 +1,6 @@
 import { IOrganization } from '../../pages/organizations/dto/organization.dto';
 
-export type ApplicationTheme = 'light' | 'dark' | 'system';
+export type ApplicationTheme = 'light' | 'dark';
 export type ApplicationName = 'accounts' | 'docs';
 
 interface ISharedWhitelabelLayoutRailsItem {

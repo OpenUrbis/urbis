@@ -81,8 +81,18 @@ class PickLocationControl implements mapboxgl.IControl {
 export const addMapControls = (
   map: mapboxgl.Map,
   polygonEdit: IPolygonEditContextActions,
-  onPickLocation?: () => void
+  onPickLocation?: () => void,
+  hideControls?: boolean
 ) => {
+  // Adiciona controles de desenho (sempre necessário para edição?)
+  // Se hideControls for true (preview), talvez não precisemos de draw? 
+  // Mas o retorno espera { draw }.
+  const draw = addDrawControls(map, polygonEdit);
+
+  if (hideControls) {
+    return { draw };
+  }
+
   // Adiciona o controle de troca de estilo ao mapa
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
@@ -99,9 +109,6 @@ export const addMapControls = (
 
   // Compass Control
   map.addControl(new CompassControl({ instant: true }), "top-right");
-
-  // Adiciona controles de desenho
-  const draw = addDrawControls(map, polygonEdit);
 
   // Tooltip Control
   map.addControl(

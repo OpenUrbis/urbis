@@ -1,12 +1,11 @@
 <button
-  class="flex w-full items-center justify-center gap-2 rounded-full border border-[#1351b4] bg-[#f8f8f8] px-4 py-2 text-sm font-semibold text-[#1351b4] transition-colors hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#1351b4] focus:ring-offset-2"
+  class="br-sign-in w-100"
   type="button"
   (click)="clickOnButton($event)"
+  [attr.aria-label]="'components.signInGovBr.button' | translate"
 >
-  {{ "components.signInGovBr.button" | translate }}
-  <img
+  {{ "components.signInGovBr.button" | translate }}&nbsp;<img
     src="https://www.gov.br/++theme++padrao_govbr/img/govbr-colorido-b.png"
     alt="gov.br"
-    class="h-5"
   />
 </button>

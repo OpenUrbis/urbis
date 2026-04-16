@@ -4,47 +4,41 @@
 >
   <section rightActions>
     <button
-      hlmBtn
+      matButton="filled"
       [attr.aria-label]="'components.userRoleManager.buttons.add' | translate"
       (click)="openAddRole()"
     >
-      <hlm-icon name="lucidePlus" size="sm" class="mr-2" />
       {{ "pages.users.edit.roles.buttons.add" | translate }}</button
     >
   </section>
 
   <lib-loading-content [loading]="loading()">
-    <div class="rounded-md border border-border divide-y divide-border">
+    <mat-list>
       @for (item of userRoles(); track item.id) {
-        <div class="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-          <div class="flex flex-col gap-1">
-            <span class="font-medium text-sm flex items-center gap-2">
-              <b>{{ item.role.name }}</b>
-              @if (item?.organization) {
-                <span class="text-xs text-muted-foreground">
-                  {{
-                    "components.userRoleManager.labels.inOrganization"
-                      | translate: { organization: item?.organization?.name }
-                  }}
-                </span>
-              }
-            </span>
-            <span class="text-xs text-muted-foreground">{{ formatPermissions(item.role) }}</span>
-          </div>
-
-          <button
-            hlmBtn
-            variant="ghost"
-            size="icon"
-            [attr.aria-label]="
-              'components.userRoleManager.buttons.remove' | translate
-            "
-            (click)="rmRole(item)"
-          >
-            <hlm-icon name="lucideTrash2" size="sm" />
-          </button>
-        </div>
+        <mat-list-item>
+          <span matListItemTitle>
+            <b>{{ item.role.name }}</b>
+            @if (item?.organization) {
+              {{
+                "components.userRoleManager.labels.inOrganization"
+                  | translate: { organization: item?.organization?.name }
+              }}
+            }
+          </span>
+          <span matListItemLine>{{ formatPermissions(item.role) }}</span>
+          <span matListItemMeta>
+            <button
+              matIconButton
+              [attr.aria-label]="
+                'components.userRoleManager.buttons.remove' | translate
+              "
+              (click)="rmRole(item)"
+            >
+              <mat-icon class="material-symbols-outlined">delete</mat-icon>
+            </button>
+          </span>
+        </mat-list-item>
       }
-    </div>
+    </mat-list>
   </lib-loading-content>
 </app-page-structure>

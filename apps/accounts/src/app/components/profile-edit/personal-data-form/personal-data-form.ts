@@ -1,34 +1,18 @@
 import { Component, effect, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProfileState } from '../../../states/profile/profile.state';
 import { ProfileEditApi } from '../services/profile-edit-api';
 import {
   countrySelectFormGroup,
   phoneFormGroup,
-  PhoneFormGroup,
-  CountrySelectFormGroup,
-  HlmInputDirective,
-  HlmLabelDirective,
-  HlmButtonDirective
 } from '../../../../../projects/shared/src/public-api';
 import { mergeFormGroups } from '../../../shared/utils/merge-form-groups';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  standalone: true,
+  standalone: false,
   selector: 'app-personal-data-form',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    TranslateModule,
-    PhoneFormGroup,
-    CountrySelectFormGroup,
-    HlmInputDirective,
-    HlmLabelDirective,
-    HlmButtonDirective
-  ],
   templateUrl: './personal-data-form.html',
+  styleUrl: './personal-data-form.scss',
 })
 export class PersonalDataForm {
   api = inject(ProfileEditApi);

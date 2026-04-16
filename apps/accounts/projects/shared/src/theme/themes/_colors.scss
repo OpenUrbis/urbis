@@ -1,0 +1,223 @@
+@use "sass:map";
+@use "sass:color";
+
+$dark-primary-text: rgba(black, 0.87);
+$light-primary-text: white;
+// tonal pallets
+// primary palette
+$primary-color: #003543;
+$primary-palette: (
+  0: #ffffff,
+  1: #f4fff6,
+  50: #ddf5ff,
+  100: #b6eaff,
+  200: #86d1ec,
+  300: #6ab5d0,
+  400: #4e9ab4,
+  500: #2f8099,
+  600: #00677f,
+  700: $primary-color,
+  800: #001f28,
+  900: #000000,
+  contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+  ),
+);
+$primary-background: map.get($primary-palette, 50);
+// secondary palette
+$secondary-color: #006c4a;
+$secondary-palette: (
+  0: #ffffff,
+  1: #f4fff6,
+  50: #beffdc,
+  100: #a0f4ca,
+  200: #81d8ae,
+  300: #66bc94,
+  400: #4aa07a,
+  500: #2d8662,
+  600: $secondary-color,
+  700: #00452e,
+  800: #003825,
+  900: #002114,
+  contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+  ),
+);
+
+$success-color: #006c4a;
+$success-palette: (
+  0: #ffffff,
+  1: #f4fff6,
+  50: #beffdc,
+  100: #a0f4ca,
+  200: #81d8ae,
+  300: #66bc94,
+  400: #4aa07a,
+  500: #2d8662,
+  600: $secondary-color,
+  700: #00452e,
+  800: #003825,
+  900: #002114,
+  contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+  ),
+);
+$success-background: map.get($success-palette, 50);
+
+// tertiary palette
+$tertiary-color: #795900;
+$tertiary-palette: (
+  1: #fffbff,
+  50: #ffefd5,
+  100: #ffdfa0,
+  200: #ecc165,
+  300: #cea64d,
+  400: #b18b36,
+  500: #95721e,
+  600: $tertiary-color,
+  700: #5c4300,
+  800: #402d00,
+  900: #261a00,
+  contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+  ),
+);
+
+// error palette
+$error-color: #b71752;
+$error-palette: (
+  1: #fffbff,
+  50: #ffecee,
+  100: #ffd9df,
+  200: #ffb1c0,
+  300: #ff85a1,
+  400: #fc5183,
+  500: #d9366a,
+  600: $error-color,
+  700: #90003c,
+  800: #660029,
+  900: #3f0016,
+  contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+  ),
+);
+$error-background: map.get($error-palette, 50);
+
+// neutral palette
+$neutral-color: #2f3038;
+$neutral-palette: (
+  1: #fcfcff,
+  50: #f4f0ef,
+  100: #e5e2e1,
+  200: #c9c6c5,
+  300: #adaaaa,
+  400: #929090,
+  500: #787776,
+  600: #5f5e5e,
+  700: #484646,
+  800: $neutral-color,
+  900: #1c1b1b,
+  contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+  ),
+);
+
+// neutral variant
+$neutral-variant-color: #2f3038;
+$neutral-variant-palette: (
+  1: #f8f9fc,
+  50: #f4f0ef,
+  100: #e5e2e1,
+  200: #c9c6c5,
+  300: #adaaaa,
+  400: #929090,
+  500: #787776,
+  600: #5f5e5e,
+  700: #484646,
+  800: $neutral-variant-color,
+  900: #1a1b23,
+  contrast: (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $light-primary-text,
+    400: $light-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+  ),
+);
+
+$surface: #fff;
+
+$surface-base-color: map.get($primary-palette, 200);
+
+$surface-1: color.mix($surface-base-color, $surface, 5%);
+$surface-2: color.mix($surface-base-color, $surface, 8%);
+$surface-3: color.mix($surface-base-color, $surface, 11%);
+$surface-4: color.mix($surface-base-color, $surface, 12%);
+$surface-5: color.mix($surface-base-color, $surface, 15%);
+
+$surface-dark: map.get($neutral-variant-palette, 900);
+$surface-dark-1: color.mix(map.get($primary-palette, 100), $surface-dark, 5%);
+$surface-dark-2: color.mix(map.get($primary-palette, 100), $surface-dark, 8%);
+$surface-dark-3: color.mix(map.get($primary-palette, 100), $surface-dark, 11%);
+$surface-dark-4: color.mix(map.get($primary-palette, 100), $surface-dark, 12%);
+
+$divider-color: color.mix(#fff, $primary-color, 80%);

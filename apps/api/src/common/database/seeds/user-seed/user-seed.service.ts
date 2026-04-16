@@ -21,7 +21,7 @@ export class UserSeedService {
 
   async createOrg() {
     const existingOrg = await this.organizationRepository.findOne({
-      where: { name: 'Codata' },
+      where: { name: 'John organization' },
     });
 
     if (existingOrg) {
@@ -29,12 +29,7 @@ export class UserSeedService {
     }
 
     const org = this.organizationRepository.create({
-      name: 'Codata',
-      metadata: {
-        tenantType: 'mono',
-        organizationType: 'Secretaria',
-        organizationTypes: ['Secretaria', 'Empresa', 'Autarquia'],
-      },
+      name: 'John organization',
     });
 
     return await this.organizationRepository.save(org);

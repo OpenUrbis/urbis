@@ -103,7 +103,7 @@ export const routes: Routes = [
               ),
           },
           {
-            path: 'settings',
+            path: 'whitelabel',
             loadComponent: () =>
               import('./pages/whitelabel/whitelabel').then((m) => m.Whitelabel),
           },

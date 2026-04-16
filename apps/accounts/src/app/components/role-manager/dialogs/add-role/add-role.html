@@ -1,55 +1,59 @@
 <lib-loading-content [loading]="loading()">
-  <h2 class="text-lg font-semibold mb-4">
+  <h2 mat-dialog-title>
     {{ "components.roleManager.addRole.title" | translate }}
   </h2>
-  
-  <div class="space-y-2">
-    @for (item of result$ | async; track item.id) {
-      <details class="group border border-border rounded-md open:bg-muted/30">
-        <summary class="flex items-center justify-between p-4 cursor-pointer list-none select-none hover:bg-muted/50 rounded-md transition-colors">
-          <span class="font-medium">{{ item.name }}</span>
-          <div class="flex items-center gap-2">
+  <mat-dialog-content>
+    <mat-accordion>
+      @for (item of result$ | async; track item.id) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ item.name }}
+            </mat-panel-title>
+
             <button
-              hlmBtn
-              variant="ghost"
-              size="icon"
+              matIconButton
               [attr.aria-label]="
                 'components.roleManager.addRole.buttons.add' | translate
               "
               (click)="addRole($event, item)"
-              class="h-8 w-8"
+              class="me-3"
               [disabled]="data.roles.includes(item.id)"
             >
-              <hlm-icon name="lucidePlus" size="sm" />
+              <mat-icon class="material-symbols-outlined">add</mat-icon>
             </button>
-            <hlm-icon name="lucideChevronDown" size="sm" class="transition-transform group-open:rotate-180" />
-          </div>
-        </summary>
-        
-        <div class="px-4 pb-4 pt-0 border-t border-border/50">
-          <p class="text-sm text-muted-foreground mt-2 mb-4">
-            {{ item.description }}
-          </p>
+          </mat-expansion-panel-header>
+          <div MatExpansionPanelContent>
+            <p>
+              {{ item.description }}
+            </p>
 
-          <h6 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-            {{ "components.roleManager.addRole.permissionsTitle" | translate }}
-          </h6>
-          
-          <ul class="space-y-1">
-            @for (rolePermission of item.rolePermissions; track rolePermission.id) {
-              <li class="text-sm flex flex-col p-2 rounded hover:bg-muted/50">
-                <span class="font-medium">{{ rolePermission.permission.name }}</span>
-                @if (item.description) {
-                  <span class="text-xs text-muted-foreground">{{ rolePermission.permission.description }}</span>
-                }
-                <span class="text-xs text-muted-foreground mt-1">
-                  {{ rolePermission.scope | permissionScope }}
-                </span>
-              </li>
-            }
-          </ul>
-        </div>
-      </details>
-    }
-  </div>
+            <h6>
+              {{ "components.roleManager.addRole.permissionsTitle" | translate }}
+            </h6>
+            <mat-list>
+              @for (
+                rolePermission of item.rolePermissions;
+                track rolePermission.id
+              ) {
+                <mat-list-item>
+                  <span matListItemTitle>{{
+                    rolePermission.permission.name
+                  }}</span>
+                  @if (item.description) {
+                    <span matListItemTitle>{{
+                      rolePermission.permission.description
+                    }}</span>
+                  }
+                  <span matListItemLine>
+                    {{ rolePermission.scope | permissionScope }}
+                  </span>
+                </mat-list-item>
+              }
+            </mat-list>
+          </div>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  </mat-dialog-content>
 </lib-loading-content>

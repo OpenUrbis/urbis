@@ -1,0 +1,31 @@
+@use "sass:map";
+@use  "@angular/material" as mat;
+@use  "./_colors" as colors;
+
+$monorepo-primary-pallete: mat.m2-define-palette(colors.$primary-palette, 700);
+$monorepo-secondary-pallete: mat.m2-define-palette(colors.$secondary-palette, 400);
+
+$monorepo-error-pallete: mat.m2-define-palette(colors.$error-palette);
+$monorepo-success-pallete: mat.m2-define-palette(colors.$success-palette);
+$monorepo-info-pallete: mat.m2-define-palette(mat.$m2-blue-palette);
+
+$monorepo-light-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $monorepo-primary-pallete,
+      secondary: $monorepo-secondary-pallete,
+      // accent is equal to secondary
+      accent: $monorepo-secondary-pallete,
+      warn: $monorepo-error-pallete,
+      success: $monorepo-success-pallete,
+    ),
+    density: 0,
+  )
+);
+
+@include mat.strong-focus-indicators-theme($monorepo-light-theme);
+
+$monorepo-light-variants: (
+  success: $monorepo-success-pallete,
+  info: $monorepo-info-pallete,
+);

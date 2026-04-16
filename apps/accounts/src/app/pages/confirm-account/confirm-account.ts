@@ -1,30 +1,16 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-  HlmCardDirective,
-  HlmCardContentDirective,
-  HlmCardFooterDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
-} from '../../../../projects/shared/src/public-api';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ConfirmAccountApi } from './services/confirm-account';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-confirm-account',
-  standalone: true,
-  imports: [
-    CommonModule,
-    HlmCardDirective,
-    HlmCardContentDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
-    RouterModule,
-    TranslateModule,
-  ],
+  imports: [MatCardModule, MatButtonModule, RouterModule, TranslateModule],
   templateUrl: './confirm-account.html',
+  styleUrl: './confirm-account.scss',
 })
 export class ConfirmAccount {
   error = signal<string | undefined>(undefined);

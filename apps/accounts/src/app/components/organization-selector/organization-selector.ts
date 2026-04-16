@@ -15,26 +15,33 @@ import {
   FormControl,
   ReactiveFormsModule,
 } from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
 import { IOrganization } from '../../pages/organizations/dto/organization.dto';
 import { OrganizationsApi } from '../../pages/organizations/services/organizations-api';
 import { TranslateModule } from '@ngx-translate/core';
-import { HlmInputDirective, HlmIconComponent } from '../../../../projects/shared/src/public-api';
-import { provideIcons } from '@ng-icons/core';
-import { lucideSearch, lucideX } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-organization-selector',
-  standalone: true,
   imports: [
     CommonModule,
+    MatAutocompleteModule,
+    MatChipsModule,
+    MatFormFieldModule,
+    MatIconModule,
     ReactiveFormsModule,
+    MatInputModule,
     TranslateModule,
-    HlmInputDirective,
-    HlmIconComponent
   ],
-  providers: [provideIcons({ lucideSearch, lucideX })],
   templateUrl: './organization-selector.html',
+  styleUrl: './organization-selector.scss',
 })
 export class OrganizationSelector implements OnInit {
   control = input.required<FormControl | AbstractControl>();
@@ -77,25 +84,14 @@ export class OrganizationSelector implements OnInit {
 
   ngOnInit(): void {
     const subs = this.control()?.valueChanges.subscribe((value) => {
-      if (!value) {
-          if (this.multi() && this.selectedOrganizations().length > 0) {
-              this.selectedOrganizations.set([]);
-          } else if (!this.multi() && this.selectedOrganizations().length > 0) {
-              this.selectedOrganizations.set([]);
-          }
-          return;
-      }
-      
-      if (this.multi() && !value?.length) {
-          this.selectedOrganizations.set([]);
-          return;
-      }
+      if (!value) return;
+      if (this.multi() && !value?.length) return;
 
       this.selectedOrganizations.update(() =>
         Array.isArray(value) ? value : [value],
       );
-      // Ensure search doesn't clear immediately if we want to show selected? No, separate state.
-      
+      if (!this.multi()) this.search.setValue(value, { emitEvent: false });
+
       subs.unsubscribe();
     });
   }
@@ -107,12 +103,20 @@ export class OrganizationSelector implements OnInit {
     });
   }
 
-  select(org: IOrganization): void {
-    if (this.selectedOrganizationIds().includes(org.id)) return;
+  selected(event: MatAutocompleteSelectedEvent): void {
+    const newRegister = event.option.value as IOrganization;
+    if (this.selectedOrganizationIds().includes(newRegister.id)) return;
 
     this.selectedOrganizations.update((orgs) =>
-      this.multi() ? [...orgs, org] : [org],
+      this.multi() ? [...orgs, newRegister] : [newRegister],
     );
-    this.search.setValue('');
+    if (this.multi()) {
+      this.search.setValue('');
+      event.option.deselect();
+    }
+  }
+
+  displayFn(org: IOrganization): string {
+    return org?.name ?? '';
   }
 }

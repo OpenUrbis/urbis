@@ -12,5 +12,5 @@ export class PageStructure {
   title = input<string>();
   subtitle = input<string>();
 
-  containerClasses = input<string[]>(['']);
+  containerClasses = input<string[]>(['pt-5']);
 }

@@ -1,22 +1,22 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { NgxMatInputTelComponent } from 'ngx-mat-input-tel';
 import { phoneFormGroup } from './form-group/phone-form-group';
 import { TranslateModule } from '@ngx-translate/core';
-import { HlmInputDirective } from '../../ui/input/hlm-input.directive';
-import { HlmLabelDirective } from '../../ui/label/hlm-label.directive';
 
 @Component({
   selector: 'lib-phone-form-group',
-  standalone: true,
   imports: [
     CommonModule,
+    MatInputModule,
+    NgxMatInputTelComponent,
     ReactiveFormsModule,
     TranslateModule,
-    HlmInputDirective,
-    HlmLabelDirective
   ],
   templateUrl: './phone-form-group.html',
+  styleUrl: './phone-form-group.scss',
 })
 export class PhoneFormGroup {
   formGroup = input<FormGroup>(phoneFormGroup());
@@ -26,5 +26,16 @@ export class PhoneFormGroup {
     return this.formGroup().controls['phone'] as FormControl;
   }
 
-  // preferredCountries logic removed as it was specific to the library
+  preferredCountries = computed<any>(() => {
+    if (
+      this.defaultCountry() === 'br' ||
+      this.defaultCountry() === 'us' ||
+      !this.defaultCountry()
+    ) {
+      return ['br', 'us'];
+    }
+    return [this.defaultCountry(), 'br', 'us'].filter(
+      (country) => country !== undefined,
+    );
+  });
 }

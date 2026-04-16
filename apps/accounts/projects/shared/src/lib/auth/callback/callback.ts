@@ -1,33 +1,30 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterModule } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { firstValueFrom } from 'rxjs';
 import { AUTH_CONFIG_ID } from '../auth.config';
 import { TranslateModule } from '@ngx-translate/core';
-import { HlmButtonDirective, HlmIconComponent } from '../../../public-api';
-import { provideIcons } from '@ng-icons/core';
-import { lucideLoader2 } from '@ng-icons/lucide';
 
 @Component({
   selector: 'lib-callback',
-  standalone: true,
   imports: [
     CommonModule,
+    MatProgressSpinnerModule,
+    MatButtonModule,
     RouterModule,
     TranslateModule,
-    HlmButtonDirective,
-    HlmIconComponent,
   ],
-  providers: [provideIcons({ lucideLoader2 })],
   templateUrl: './callback.html',
+  styleUrl: './callback.scss',
 })
 export class Callback implements OnInit {
   errorMessage: any;
   loading = true;
 
   oidcSecurityService = inject(OidcSecurityService);
-  router = inject(Router);
 
   async ngOnInit() {
     try {
@@ -38,10 +35,9 @@ export class Callback implements OnInit {
       checkedAuths.forEach(async (auth) => {
         const { isAuthenticated, userData, errorMessage, configId } = auth;
 
-        if (configId !== AUTH_CONFIG_ID) return;
+        if (configId !== AUTH_CONFIG_ID) return
 
         if (isAuthenticated) {
-          this.router.navigate(['/']);
           return;
         }
         if (userData === null) {

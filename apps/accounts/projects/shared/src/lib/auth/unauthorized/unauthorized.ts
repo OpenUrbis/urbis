@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { HlmButtonDirective } from '../../../public-api';
 
 @Component({
   selector: 'lib-unauthorized',
-  imports: [CommonModule, RouterModule, TranslateModule, HlmButtonDirective],
+  imports: [CommonModule, MatButtonModule, RouterModule, TranslateModule],
   templateUrl: './unauthorized.html',
+  styleUrl: './unauthorized.scss',
 })
 export class Unauthorized {}

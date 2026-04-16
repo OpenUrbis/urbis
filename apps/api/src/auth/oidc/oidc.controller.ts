@@ -17,7 +17,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { Recaptcha } from '@nestlab/google-recaptcha';
 import { AuthService } from 'auth/auth.service';
 import { TwoFactorService } from 'auth/two-factor/two-factor.service';
 import { TwoFactorGuard } from 'common/guards/two-factor/two-factor.guard';
@@ -35,7 +34,7 @@ export class OidcController {
     private readonly authService: AuthService,
     private readonly twoFactorService: TwoFactorService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   @ApiBearerAuth()
   @SerializeOptions({
@@ -47,15 +46,7 @@ export class OidcController {
   public async me(@Req() request) {
     const user = await this.authService.me(request.user);
 
-    return {
-      sub: user.id,
-      id: user.id,
-      _id: user.id,
-      email: user.email,
-      name: `${user.firstName} ${user.lastName}`.trim(),
-      given_name: user.firstName,
-      family_name: user.lastName,
-    };
+    return { sub: user.id, _id: user.id };
   }
 
   @Get('interaction/:uuid')
@@ -96,7 +87,7 @@ export class OidcController {
       `);
       return;
     }
-    const clientUrl = this.configService.get('app.accountsUrl');
+    const clientUrl = this.configService.get('app.frontendDomain');
     res.redirect(
       [
         clientUrl,
@@ -119,9 +110,7 @@ export class OidcController {
     req.headers.cookie = '_interaction=' + uuid;
     try {
       const { uid, prompt } = await this.oidcProvider.interactionDetails(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         req,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         res,
       );
       res.send({ uid, prompt });
@@ -159,17 +148,13 @@ export class OidcController {
         accountId: user.id,
       },
     };
-    const { isValid } = await this.twoFactorService.verify2FACode(
-      user,
-      code as string,
-    );
+    const { isValid } = await this.twoFactorService.verify2FACode(user, code);
     if (!isValid)
       throw new BadRequestException({
         message: 'Invalid code',
         isInvalid: true,
       });
     const redirectToCallback = await this.oidcProvider.interactionResult(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       req,
       res,
       session,
@@ -181,11 +166,6 @@ export class OidcController {
   }
 
   @UseGuards(LoginGuard)
-  @Recaptcha({
-    response: (req) => req.body.recaptcha,
-    action: 'signin',
-    score: 0.5,
-  })
   @Post('interaction/login/:uuid')
   async loginConfirm(
     @Req() req,
@@ -195,9 +175,6 @@ export class OidcController {
     req.body = {
       email: '',
       password: '',
-      session: '',
-      idToken: '',
-      accessToken: '',
     };
     req.headers.cookie = '_interaction=' + uuid;
     req.url = req.originalUrl
@@ -213,20 +190,12 @@ export class OidcController {
       },
     };
 
-    const redirectToCallback = await this.oidcProvider.interactionResult(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      req,
-      res,
-      session,
-      {
-        mergeWithLastSubmission: true,
-      },
-    );
-
+    await this.oidcProvider.interactionResult(req, res, session, {
+      mergeWithLastSubmission: true,
+    });
     res.send({
       otpValidated,
       requires2fa,
-      redirectToCallback: requires2fa ? undefined : redirectToCallback,
       accessToken: this.jwtService.sign(
         {
           _id: id,
@@ -242,6 +211,6 @@ export class OidcController {
   @All('/*')
   public mountedOidc(@Req() req: Request, @Res() res: Response) {
     req.url = req.originalUrl.replace('/auth/oidc', '');
-    void this.oidcProvider.callback()(req, res);
+    this.oidcProvider.callback()(req, res);
   }
 }

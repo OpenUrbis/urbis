@@ -1,14 +1,17 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { HlmToasterService } from '../../../../../projects/shared/src/public-api';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { IPaginationResponse } from '../../../shared/dto/pagination.dto';
+import {
+  IPaginationResponse,
+  IPaginationWithExclude,
+} from '../../../shared/dto/pagination.dto';
 import {
   IRequestCreateOrganization,
+  IRequestUpdateOrganization,
   IOrganization,
   IResponseOrganizationWithRole,
-  IRequestUpdateOrganization,
 } from '../dto/organization.dto';
 
 const API_BASE = `${environment.api}/organization`;
@@ -18,20 +21,29 @@ const API_BASE = `${environment.api}/organization`;
 })
 export class OrganizationsApi {
   httpClient = inject(HttpClient);
-  toaster = inject(HlmToasterService);
+  matSnackBar = inject(MatSnackBar);
 
-  list(filters?: any) {
+  list(params: IPaginationWithExclude = {}) {
     return this.httpClient
       .get<IPaginationResponse<IOrganization>>(`${API_BASE}`, {
-        params: filters,
+        params: params
+          ? new HttpParams({ fromObject: params as any })
+          : undefined,
       })
       .pipe(
         catchError((err) => {
           console.error(err);
-          this.toaster.error('Houve um erro ao carregar as organizações');
-          return of({ data: [], total: 0 } as IPaginationResponse<IOrganization>);
+          this.matSnackBar.open('Houve um erro ao carregar as organizações');
+
+          return of([]);
         }),
       );
+  }
+
+  listByUser(userId: string) {
+    return this.httpClient.get<IResponseOrganizationWithRole[]>(
+      `${API_BASE}/user/${userId}`,
+    );
   }
 
   get(id: string) {
@@ -47,22 +59,9 @@ export class OrganizationsApi {
   }
 
   update(id: string, data: IRequestUpdateOrganization) {
-    return this.httpClient.put<IOrganization>(`${API_BASE}/${id}`, data);
-  }
-
-  delete(id: string) {
-    return this.httpClient.delete(`${API_BASE}/${id}`);
-  }
-
-  listByUser(userId: string) {
-    return this.httpClient.get<IResponseOrganizationWithRole[]>(
-      `${API_BASE}/user/${userId}`,
+    return this.httpClient.put<IOrganization>(
+      `${API_BASE}/${id}`,
+      data,
     );
-  }
-
-  assignUser(organizationId: string, userId: string, roles: string[]) {
-    return this.httpClient.post(`${API_BASE}/${organizationId}/user/${userId}`, {
-      roles,
-    });
   }
 }

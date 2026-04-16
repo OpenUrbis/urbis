@@ -17,12 +17,7 @@ export const oidcProviderFactory = (
   const configuration = {
     clients: ClientsService.getClients(),
     clientBasedCORS: () => true,
-    claims: {
-      openid: ['sub'],
-      email: ['email', 'email_verified'],
-      profile: ['name', 'given_name', 'family_name', 'nickname', 'preferred_username', 'profile', 'picture', 'website', 'gender', 'birthdate', 'zoneinfo', 'locale', 'updated_at'],
-    },
-    findAccount: (ctx, id) => AccountProvider.findAccount(ctx, id, authService),
+    findAccount: AccountProvider.findAccount,
     loadExistingGrant: AccountProvider.loadExistingGrant,
     jwks: jwks,
     ttl: {
@@ -36,7 +31,7 @@ export const oidcProviderFactory = (
     features: {
       rpInitiatedLogout: {
         logoutSource,
-        postLogoutSuccessSource: () => { },
+        postLogoutSuccessSource: () => {},
       },
     },
   };

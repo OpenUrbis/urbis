@@ -6,20 +6,14 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  HlmButtonDirective,
-  HlmCardDirective,
-  HlmCardContentDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
-  HlmInputDirective,
-  HlmLabelDirective,
-  HlmIconComponent,
-} from '../../../../projects/shared/src/public-api';
-import { provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft } from '@ng-icons/lucide';
-import { HlmToasterService } from '../../../../projects/shared/src/public-api';
-import { Router, RouterModule } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   RECAPTCHA_V3_SITE_KEY,
@@ -43,7 +37,6 @@ import { SignUpApi } from './services/sign-up-api';
   selector: 'app-sign-up',
   standalone: true,
   providers: [
-    provideIcons({ lucideArrowLeft }),
     {
       provide: RECAPTCHA_V3_SITE_KEY,
       useValue: environment.googleRecaptchaSiteKey,
@@ -51,15 +44,12 @@ import { SignUpApi } from './services/sign-up-api';
   ],
   imports: [
     CommonModule,
-    RouterModule,
-    HlmInputDirective,
-    HlmButtonDirective,
-    HlmLabelDirective,
-    HlmCardDirective,
-    HlmCardContentDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
-    HlmIconComponent,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatIconModule,
     ReactiveFormsModule,
     PasswordFormGroup,
     CountrySelectFormGroup,
@@ -68,7 +58,7 @@ import { SignUpApi } from './services/sign-up-api';
     RecaptchaV3Module,
   ],
   templateUrl: './sign-up.html',
-  styleUrls: ['./sign-up.scss'],
+  styleUrl: './sign-up.scss',
 })
 export class SignUp {
   loading = signal<boolean>(false);
@@ -76,7 +66,7 @@ export class SignUp {
   private api = inject(SignUpApi);
   private router = inject(Router);
   private recaptchaV3Service = inject(ReCaptchaV3Service);
-  private toaster = inject(HlmToasterService);
+  private matSnackBar = inject(MatSnackBar);
   private translate = inject(TranslateService);
 
   formGroup = mergeFormGroups(
@@ -118,8 +108,8 @@ export class SignUp {
       await firstValueFrom(this.api.register(this.formGroup.value));
       this.router.navigate(['/sign-in']);
     } catch (err) {
-      this.toaster.error(
-        this.translate.instant('pages.signUp.errors.submit')
+      this.matSnackBar.open(
+        this.translate.instant('pages.signUp.errors.submit'),
       );
     } finally {
       this.loading.set(false);

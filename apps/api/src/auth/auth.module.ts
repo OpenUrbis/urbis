@@ -1,4 +1,3 @@
-import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { AccessControlModule } from 'common/guards/access-control/access-control.module';
@@ -9,11 +8,8 @@ import { IsNotExist } from './../common/utils/validators/is-not-exists.validator
 import { SharedModule } from './../shared/shared.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { ExternalOidcController } from './external-oidc/external-oidc.controller';
-import { ExternalOidcService } from './external-oidc/external-oidc.service';
 import { ForgotModule } from './forgot/forgot.module';
 import { EmailStrategy } from './strategies/email.strategy';
-import { ExternalOidcStrategy } from './strategies/external-oidc.strategy';
 import { TwoFactorModule } from './two-factor/two-factor.module';
 
 @Module({
@@ -25,17 +21,9 @@ import { TwoFactorModule } from './two-factor/two-factor.module';
     MailModule,
     TwoFactorModule,
     AccessControlModule,
-    HttpModule,
   ],
-  controllers: [AuthController, ExternalOidcController],
-  providers: [
-    IsExist,
-    IsNotExist,
-    EmailStrategy,
-    ExternalOidcStrategy,
-    AuthService,
-    ExternalOidcService,
-  ],
+  controllers: [AuthController],
+  providers: [IsExist, IsNotExist, EmailStrategy, AuthService],
   exports: [AuthService],
 })
 export class AuthModule {}

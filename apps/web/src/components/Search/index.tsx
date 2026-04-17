@@ -21,7 +21,6 @@ import {
 import { ITemplate } from "../ViewTemplate/types/templates-type";
 import { ConcatenatedSearchModal } from "./ConcatenatedSearchModal";
 import proj4 from "proj4";
-import { useDebounce } from "@/hooks/useDebounce";
 
 proj4.defs(
   "EPSG:31983",
@@ -75,15 +74,6 @@ export const Search = () => {
   const clickActions = CLICK_ACTIONS_CONFIG();
   const { reset: resetPolygonEdit } = usePolygonEditContext();
   const [jsonFeature, setJsonFeature] = useState<any>(null);
-  const debouncedTerm = useDebounce(currentTerm.value, 500);
-
-  useEffect(() => {
-    if (debouncedTerm) {
-      fetchData(debouncedTerm);
-    } else {
-      clearResults();
-    }
-  }, [debouncedTerm]);
 
   const handleCopyJson = () => {
     if (jsonFeature) {

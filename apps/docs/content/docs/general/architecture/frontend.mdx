@@ -1,35 +1,36 @@
 ---
-title: Frontend Architecture
-description: Strategy for Angular and React applications in the monorepo.
+title: Arquitetura Frontend
+description: Estratégia para aplicações Angular e React no monorepo.
 icon: Box
 ---
 
-Monorepo Boilerplate is framework-agnostic when it comes to the frontend. While the monorepo supports multiple frameworks, our current implementation leverages the strengths of both Angular and React.
+O Urbis é agnóstico em relação a frameworks no frontend. Embora o monorepo suporte múltiplos frameworks, nossa implementação atual aproveita os pontos fortes tanto do Angular quanto do React.
 
-## Strategy
+## Estratégia
 
-We choose the best tool for the job:
+Escolhemos a melhor ferramenta para o trabalho:
 
--   **Angular (`apps/accounts`)**: Used for the Accounts application. Angular's opinionated structure, robust form handling, and dependency injection make it excellent for complex, enterprise-grade management portals.
--   **React (`apps/docs`)**: Used for the documentation site. React's ecosystem (Vite, MDX support, Fumadocs) is superior for static site generation and content-heavy sites.
--   **React (`apps/app`)**: Used for the AI Assistant application. React's ecosystem allows us to leverage Vercel's AI SDK and `assistant-ui` for building rich, streaming chat interfaces.
+-   **Angular (`apps/accounts`)**: Utilizado para a aplicação de Contas (Gerenciamento de Usuários). A estrutura opinativa do Angular, o tratamento robusto de formulários e a injeção de dependência o tornam excelente para portais de gerenciamento complexos e de nível empresarial.
+-   **Next.js (`apps/docs`)**: Utilizado para o site de documentação. O ecossistema do Next.js é excelente para geração de sites estáticos e sites com muito conteúdo.
+-   **React (`apps/web`)**: Utilizado para a aplicação principal de Mapa e Datalake. Utiliza tecnologias como Deck.gl e Mapbox para visualização de dados geoespaciais de alta performance.
+-   **React (`apps/site`)**: Utilizado para o site institucional.
 
-## Shared UI Library
+## Biblioteca de UI Compartilhada
 
-To maintain consistency across different frameworks, we use `packages/ui`. Currently, this package hosts React components.
+Para manter a consistência entre diferentes frameworks, utilizamos o `packages/ui`. Atualmente, este pacote hospeda componentes React.
 
-*Note: For Angular apps, we typically implement a parallel set of components or use web components if cross-framework reusability is a strict requirement. In this specific setup, `apps/accounts` manages its own styles or consumes shared SCSS variables from `packages/ui` if applicable.*
+*Nota: Para aplicações Angular, normalmente implementamos um conjunto paralelo de componentes ou usamos web components se a reutilização entre frameworks for um requisito estrito. Nesta configuração específica, o `apps/accounts` gerencia seus próprios estilos ou consome variáveis SCSS compartilhadas do `packages/ui` se aplicável.*
 
-## API Consumption
+## Consumo da API
 
-All frontend applications consume the Backend API. To ensure type safety:
+Todas as aplicações frontend consomem a API Backend. Para garantir a segurança de tipos:
 
-1.  DTOs (Data Transfer Objects) are defined in `apps/api` but exported or moved to `packages/shared`.
-2.  Frontend apps import these types from `@monorepo/shared`.
-3.  This ensures that if the API response shape changes, the frontend build will fail, alerting the developer immediately.
+1.  DTOs (Objetos de Transferência de Dados) são definidos em `apps/api` mas exportados ou movidos para `packages/shared`.
+2.  As aplicações frontend importam esses tipos de `@urbis/shared` (ou `@open-urbis/map-shared`).
+3.  Isso garante que, se o formato da resposta da API mudar, o build do frontend falhará, alertando o desenvolvedor imediatamente.
 
-## Styling
+## Estilização
 
-We use **Tailwind CSS** for utility-first styling.
--   Configuration is shared where possible.
--   This ensures consistent spacing, colors, and typography across the entire platform.
+Utilizamos **Tailwind CSS** para estilização utility-first.
+-   A configuração é compartilhada onde possível.
+-   Isso garante espaçamento, cores e tipografia consistentes em toda a plataforma.

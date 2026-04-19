@@ -10,15 +10,11 @@ export function Mosaico() {
   const [searchTerm, setSearchTerm] = useState('')
 
   const handleSearch = (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault()
+    console.log('Search:', searchTerm)
+    // Implement search logic
+  }
 
-  const query = searchTerm.trim();
-  if (!query) return;
-
-  const url = `https://mapa.urbis.sampa.br/?search=${encodeURIComponent(query)}`;
-
-  window.open(url, "_blank");
-};
   return (
     <div className="container mx-auto px-4 xl:px-8 py-8 font-sans">
       <div className="relative mb-8 pb-4 w-full">
@@ -39,46 +35,39 @@ export function Mosaico() {
           >
             <CardContent className="p-4">
               <form onSubmit={handleSearch} className="flex flex-col gap-3">
-  <label className="font-semibold text-xl block text-foreground">
-    Busca Direta:
-  </label>
+                <label className="font-semibold text-xl block text-foreground">
+                  Busca Direta:
+                </label>
+                
+                <div className="relative w-full">
+                  <div className="flex gap-2">
+                     <Input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Ex: Paulista, SQL, coordenadas..."
+                      className="flex-1 h-11 text-base rounded-sm"
+                      required
+                    />
+                    <Button type="submit" size="icon" className="h-11 w-11 shrink-0 rounded-sm">
+                      <Search className="h-5 w-5" />
+                    </Button>
+                  </div>
+                   <div className="mt-1 text-xs text-muted-foreground">
+                     Av. Paulista, 1578 (exemplo)
+                   </div>
+                </div>
 
-  <div className="relative w-full">
-    <div className="flex gap-2">
-      <Input
-        type="text"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Ex: Paulista, SQL, coordenadas..."
-        className="flex-1 h-11 text-base rounded-sm"
-        required
-      />
-
-      <Button type="submit" size="icon" className="h-11 w-11 shrink-0 rounded-sm">
-        <Search className="h-5 w-5" />
-      </Button>
-    </div>
-
-    <div className="mt-1 text-xs text-muted-foreground">
-      Av. Paulista, 1578 (exemplo)
-    </div>
-  </div>
-
-  <div className="text-sm text-muted-foreground leading-relaxed">
-    Pesquise por endereço, código tributário do imóvel, coordenadas ou nº de documento. <br />
-    <span className="block mt-1">
-      <strong>Obs:</strong> para buscas georreferenciadas, acesse o{" "}
-      <a
-        href="https://mapa.urbis.sampa.br/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary font-medium hover:underline inline-flex items-center gap-0.5"
-      >
-        Mapa.Urbis <ExternalLink className="h-3.5 w-3.5" />
-      </a>.
-    </span>
-  </div>
-</form>
+                <div className="text-sm text-muted-foreground leading-relaxed">
+                  Pesquise por endereço, código tributário do imóvel, coordenadas ou nº de documento. <br />
+                  <span className="block mt-1">
+                    <strong>Obs:</strong> para buscas georreferenciadas, acesse o{' '}
+                    <a href="https://mapa.urbis.sampa.br/" target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline inline-flex items-center gap-0.5">
+                      Mapa.Urbis <ExternalLink className="h-3.5 w-3.5" />
+                    </a>.
+                  </span>
+                </div>
+              </form>
             </CardContent>
           </Card>
 

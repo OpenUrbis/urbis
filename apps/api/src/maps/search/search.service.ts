@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { LayerSchema } from 'maps/layer-schemas/entities/layer-schema.entity';
 import { LayerSchemasService } from 'maps/layer-schemas/layer-schemas.service';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { SearchConfigDto } from './dto/search.dto';
 import { SearchConfig } from './entities/search-config.entity';
 
@@ -19,10 +19,33 @@ export class SearchService {
     private readonly layerSchemaService: LayerSchemasService,
   ) {}
 
-  async findAll(): Promise<SearchConfig[]> {
+  async findAll(
+    page?: number,
+    pageSize?: number,
+    search?: string,
+    orderBy?: string,
+    orderType?: 'ASC' | 'DESC',
+  ): Promise<SearchConfig[] | { data: SearchConfig[]; total: number }> {
+    const where = search ? { name: ILike(`%${search}%`) } : {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const order: any = orderBy ? { [orderBy]: orderType ?? 'ASC' } : { index: 'ASC' };
+
+    if (page && pageSize) {
+      const take = pageSize;
+      const skip = (page - 1) * pageSize;
+      const [data, total] = await this.repository.findAndCount({
+        where,
+        relations: ['layerSchema'],
+        order,
+        take,
+        skip,
+      });
+      return { data, total };
+    }
     return this.repository.find({
+      where,
       relations: ['layerSchema'],
-      order: { index: 'ASC' },
+      order,
     });
   }
 
@@ -71,9 +94,9 @@ export class SearchService {
       isActive,
       layerSchemaId,
       method,
-      transformParams,
-      transformRequest,
-      transformResponse,
+      transformParams: transformParams || null,
+      transformRequest: transformRequest || null,
+      transformResponse: transformResponse || null,
       layerSchema,
     });
 
@@ -115,15 +138,22 @@ export class SearchService {
     searchConfig.isActive = isActive;
     searchConfig.layerSchemaId = layerSchemaId;
     searchConfig.method = method;
-    searchConfig.transformParams = transformParams;
-    searchConfig.transformRequest = transformRequest;
-    searchConfig.transformResponse = transformResponse;
+    searchConfig.transformParams = transformParams || null;
+    searchConfig.transformRequest = transformRequest || null;
+    searchConfig.transformResponse = transformResponse || null;
+
+    if (layerSchemaId) {
+      searchConfig.layerSchema =
+        await this.layerSchemaService.findOne(layerSchemaId);
+    } else {
+      searchConfig.layerSchema = null;
+    }
 
     return await this.repository.save(searchConfig);
   }
 
   async delete(id: string): Promise<void> {
-    await this.repository.delete(id);
+    await this.repository.softDelete(id);
   }
 
   async upsert(dto: SearchConfigDto): Promise<SearchConfig> {

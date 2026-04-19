@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @source "../../../../packages/ui";
+@import "../../../../packages/ui/globals.css";
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
 @import "fumadocs-openapi/css/preset.css";
@@ -46,24 +47,24 @@ body {
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -80,28 +81,6 @@ body {
 }
 
 :root {
-  /* Light - M3 */
-  --radius: 1rem;
-  --background: hsl(210 50% 98%);
-  --foreground: hsl(210 14% 11%);
-  --card: hsl(210 33% 96%);
-  --card-foreground: hsl(210 14% 11%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(210 14% 11%);
-  --primary: hsl(201 61% 33%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(205 16% 37%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(212 23% 89%);
-  --muted-foreground: hsl(210 8% 28%);
-  --accent: hsl(125 30% 32%);
-  --accent-foreground: hsl(0 0% 100%);
-  --destructive: hsl(0 75% 42%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(212 11% 78%);
-  --input: hsl(212 11% 78%);
-  --ring: hsl(201 61% 33%);
-  
   /* Sidebar defaults to card or similar */
   --sidebar: hsl(210 33% 96%);
   --sidebar-foreground: hsl(210 14% 11%);
@@ -120,37 +99,16 @@ body {
   --chart-5: oklch(0.769 0.188 70.08);
 
   /* Fumadocs */
-  --color-fd-background: var(--background);
-  --color-fd-foreground: var(--foreground);
-  --color-fd-card: var(--card);
-  --color-fd-card-foreground: var(--card-foreground);
+  --color-fd-background: hsl(var(--background));
+  --color-fd-foreground: hsl(var(--foreground));
+  --color-fd-card: hsl(var(--card));
+  --color-fd-card-foreground: hsl(var(--card-foreground));
 
   --fd-docs-row-1: 65px;
   --fd-toc-popover-height: 32px;
 }
 
 .dark {
-  /* Dark - M3 */
-  --background: hsl(206 18% 8%);
-  --foreground: hsl(210 14% 89%);
-  --card: hsl(202 13% 12%);
-  --card-foreground: hsl(210 14% 89%);
-  --popover: hsl(202 29% 5%);
-  --popover-foreground: hsl(210 14% 89%);
-  --primary: hsl(204 83% 77%);
-  --primary-foreground: hsl(200 100% 15%);
-  --secondary: hsl(206 28% 78%);
-  --secondary-foreground: hsl(205 30% 19%);
-  --muted: hsl(210 8% 28%);
-  --muted-foreground: hsl(212 11% 78%);
-  --accent: hsl(119 41% 73%);
-  --accent-foreground: hsl(137 90% 12%);
-  --destructive: hsl(6 100% 84%);
-  --destructive-foreground: hsl(357 100% 21%);
-  --border: hsl(210 8% 28%);
-  --input: hsl(210 8% 28%);
-  --ring: hsl(204 83% 77%);
-  
   /* Sidebar dark */
   --sidebar: hsl(202 13% 12%);
   --sidebar-foreground: hsl(210 14% 89%);
@@ -169,10 +127,10 @@ body {
   --chart-5: oklch(0.645 0.246 16.439);
 
   /* Fumadocs */
-  --color-fd-background: var(--background);
-  --color-fd-foreground: var(--foreground);
-  --color-fd-card: var(--card);
-  --color-fd-card-foreground: var(--card-foreground);
+  --color-fd-background: hsl(var(--background));
+  --color-fd-foreground: hsl(var(--foreground));
+  --color-fd-card: hsl(var(--card));
+  --color-fd-card-foreground: hsl(var(--card-foreground));
 }
 
 @layer base {

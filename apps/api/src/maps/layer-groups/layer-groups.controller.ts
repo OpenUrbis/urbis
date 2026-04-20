@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -32,14 +31,8 @@ export class LayerGroupsController {
     description: 'List of layer groups',
     type: [LayerGroup],
   })
-  async findAll(
-    @Query('page') page?: number,
-    @Query('pageSize') pageSize?: number,
-    @Query('search') search?: string,
-    @Query('orderBy') orderBy?: string,
-    @Query('orderType') orderType?: 'ASC' | 'DESC',
-  ): Promise<LayerGroup[] | { data: LayerGroup[]; total: number }> {
-    return this.service.findAll(page, pageSize, search, orderBy, orderType);
+  async findAll(): Promise<LayerGroup[]> {
+    return this.service.findAll();
   }
 
   @Get(':id')
@@ -62,9 +55,8 @@ export class LayerGroupsController {
     return this.service.findOne(id);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Post()
   @ApiOperation({ summary: 'Create a new layer group' })
   @ApiResponse({
@@ -85,9 +77,8 @@ export class LayerGroupsController {
     return this.service.create(dto);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Put(':id')
   @ApiOperation({ summary: 'Update a layer group by ID' })
   @ApiResponse({
@@ -120,9 +111,8 @@ export class LayerGroupsController {
     return this.service.update(id, dto);
   }
 
-  // TO DO: Reativar e adicionar access key guard
-  // @ApiSecurity('api_key')
-  // @UseGuards(AuthGuard('api-key'))
+  @ApiSecurity('api_key')
+  @UseGuards(AuthGuard('api-key'))
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a layer group by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })

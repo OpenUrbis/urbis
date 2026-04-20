@@ -27,8 +27,6 @@ export interface IGetConfigLayerGroup {
   id: string;
   name: string;
   ownerGroup: string;
-  index?: number;
-  parentGroup?: IGetConfigLayerGroup;
   childGroups: IGetConfigLayerGroup[];
 }
 
@@ -61,12 +59,6 @@ export interface IGetConfigLayerSchemaClickAction {
   };
 }
 
-export interface IGetConfigLayerSchemaGroup {
-  id: string;
-  name: string;
-  ownerGroup?: string;
-}
-
 export interface IGetConfigLayerSchema {
   id: string;
   name: string;
@@ -74,7 +66,6 @@ export interface IGetConfigLayerSchema {
   isActive: boolean;
   type: IGetConfigLayerSchemaTypeEnum;
   isVisible: boolean;
-  index?: number;
   minZoom?: number;
   getTextColorPropName?: string;
   getFillColorPropName?: string;
@@ -83,9 +74,7 @@ export interface IGetConfigLayerSchema {
   viewTemplate?: ITemplate[];
   groupId?: string;
   colors: IGetConfigColor[];
-  layerGroup: IGetConfigLayerSchemaGroup;
   cqlFilter?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filters?: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: any;

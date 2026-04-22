@@ -4,7 +4,6 @@ import {
   DefaultValuePipe,
   Get,
   Param,
-  ParseEnumPipe,
   ParseIntPipe,
   Post,
   Put,
@@ -18,9 +17,6 @@ import { User } from 'user/entities/user.entity';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { OrganizationService } from './organization.service';
-import { ApplicationName } from './enums/application-name.enum';
-import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
-import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 
 @ApiTags('Organization')
 @UseGuards(AccessControlGuard)
@@ -29,37 +25,16 @@ export class OrganizationController {
   constructor(private readonly service: OrganizationService) {}
 
   @Get('my')
-  @RequirePermission({
-    permissions: {
-      action: 'list',
-      resource: 'organization',
-      scope: RolePermissionScopeEnum.OWN,
-    },
-  })
   my(@UserData() user: User) {
     return this.service.my(user.id);
   }
 
   @Get('user/:id')
-  @RequirePermission({
-    permissions: {
-      action: 'list',
-      resource: 'organization',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
   getByUser(@Param('id') userId: string) {
     return this.service.getByUser(userId);
   }
 
   @Get()
-  @RequirePermission({
-    permissions: {
-      action: 'list',
-      resource: 'organization',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -102,47 +77,22 @@ export class OrganizationController {
   }
 
   @Get(':id')
-  @RequirePermission({
-    permissions: {
-      action: 'view',
-      resource: 'organization',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
   get(@Param('id') id: string) {
     return this.service.findOne(id);
   }
 
   @Post()
-  @RequirePermission({
-    permissions: {
-      action: 'create',
-      resource: 'organization',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
   create(@Body() data: CreateOrganizationDto) {
     return this.service.create(data);
   }
 
-  @Put(':id')
-  @RequirePermission({
-    permissions: {
-      action: 'update',
-      resource: 'organization',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
-  update(@Param('id') id: string, @Body() data: UpdateOrganizationDto) {
-    return this.service.update(id, data);
+  @Post('own')
+  async createOwn(@Body() data: CreateOrganizationDto, @UserData() user: User) {
+    return this.service.createOwn(data, user);
   }
 
-  @Get(':id/whitelabel/:application')
-  getWhitelabel(
-    @Param('id') id: string,
-    @Param('application', new ParseEnumPipe(ApplicationName))
-    application: ApplicationName,
-  ) {
-    return this.service.getUnifiedWhitelabel(application, id);
+  @Put(':id')
+  update(@Param('id') id: string, @Body() data: UpdateOrganizationDto) {
+    return this.service.update(id, data);
   }
 }

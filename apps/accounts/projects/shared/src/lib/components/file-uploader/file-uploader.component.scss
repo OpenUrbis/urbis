@@ -1,36 +1,5 @@
-:host {
-  display: block;
-  width: 100%;
-}
 :root {
   .uppy-Dashboard-inner {
     height: 120px !important;
-}
-}
-
-.file-uploader-container {
-  width: 100%;
-}
-
-.image-preview-container {
-  padding: 16px;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid #e0e0e0;
-
-  &.bg-light {
-    background-color: #ffffff;
-    border-color: #e0e0e0;
-  }
-
-  &.bg-dark {
-    background-color: #1a1a1a;
-    border-color: #333333;
-  }
-
-  img {
-    max-width: 100%;
   }
 }

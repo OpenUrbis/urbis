@@ -1,22 +1,23 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
-import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
-import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 
 @UseGuards(AccessControlGuard)
 @ApiTags('Users')
@@ -25,21 +26,32 @@ export class UserController {
   constructor(private readonly service: UserService) {}
 
   @Post()
-  @RequirePermission({
-    permissions: {
-      action: 'create',
-      resource: 'user',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createProfileDto: CreateUserDto) {
     return this.service.create(createProfileDto);
   }
 
   @Get()
-  list() {
-    return this.service.list();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: String,
+    description: 'Page of pagination',
+    example: 0,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: String,
+    description: 'Limit of registers',
+    example: 100,
+  })
+  list(
+    @Query('page', new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('organizationId') organizationId?: string,
+  ) {
+    return this.service.list({ page, limit }, organizationId);
   }
 
   @Get(':id')

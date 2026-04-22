@@ -1,0 +1,24 @@
+---
+description: Rules for the static site (Lp / Marketing)
+globs: ["apps/site/**"]
+---
+
+# Site Rules (SSG)
+
+## Tech Stack
+- **Framework**: Vite + React
+- **SSG**: `vite-react-ssg` for Static Site Generation.
+- **Routing**: `react-router-dom` configuration object in `src/routes.tsx`.
+- **Styling**: Tailwind CSS + Shadcn UI (in components/ui).
+
+## Architecture
+- **Entry Point**: `src/main.tsx` exports `createApp` using `ViteReactSSG`.
+- **Routes**: Defined explicitly in `src/routes.tsx` as `RouteObject[]`. NOT file-based routing.
+- **Components**:
+  - `Layout.tsx`: Main layout wrapper (Header/Footer).
+  - `pages/`: Page components corresponding to routes.
+
+## Best Practices
+- **Browser-only code**: Ensure code accessing `window` or `document` checks execution context or is wrapped in `useEffect`, as SSG runs in Node.js during build.
+- **Navigation**: Use standard `<Link>` from `react-router-dom`.
+- **Hydration**: Be mindful of hydration mismatches. content matches between server (build time) and client.

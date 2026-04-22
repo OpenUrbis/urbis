@@ -1,22 +1,30 @@
 import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
+import {
+  HlmButtonDirective,
+  HlmCardDirective,
+  HlmCardContentDirective,
+  HlmCardFooterDirective,
+  HlmCardHeaderDirective,
+  HlmCardTitleDirective,
+} from '../../../../../../projects/shared/src/public-api';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-forgot-password',
-  templateUrl: './forgot-password-sent.html',
-  styleUrl: './forgot-password-sent.scss',
+  selector: 'app-forgot-password-sent',
+  standalone: true,
   imports: [
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
+    CommonModule,
+    HlmCardDirective,
+    HlmCardContentDirective,
+    HlmCardFooterDirective,
+    HlmCardHeaderDirective,
+    HlmCardTitleDirective,
+    HlmButtonDirective,
     RouterModule,
     TranslateModule,
   ],
+  templateUrl: './forgot-password-sent.html',
 })
-export class ForgotPasswordSent {}
+export class ForgotPasswordSent { }

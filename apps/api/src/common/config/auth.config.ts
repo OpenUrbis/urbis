@@ -7,4 +7,10 @@ export default registerAs('auth', () => ({
 
   twoFactorAppName: process.env.TWO_FACTORY_APP_NAME ?? 'AppName',
   twoFactorSecret: process.env.TWO_FACTORY_SECRET ?? '2FAsecret',
+
+  externalOidc: {
+    authority: process.env.EXTERNAL_OIDC_AUTHORITY,
+    clientId: process.env.EXTERNAL_OIDC_CLIENT_ID,
+    clientSecret: process.env.EXTERNAL_OIDC_CLIENT_SECRET,
+  },
 }));

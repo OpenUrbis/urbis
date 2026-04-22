@@ -20,7 +20,9 @@ export class TwoFactorGuard implements CanActivate {
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization.split('Bearer ').join('');
+    const token: string = request?.headers?.authorization
+      ?.split('Bearer ')
+      ?.join('');
 
     if (!token) throw new UnauthorizedException();
 
@@ -35,7 +37,8 @@ export class TwoFactorGuard implements CanActivate {
       request.user = user;
 
       return true;
-    } catch (_err) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
       throw new UnauthorizedException();
     }
   }

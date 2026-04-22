@@ -1,11 +1,15 @@
 import { Component, input } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
+import { HlmIconComponent } from '../../../ui/icon/hlm-icon.component';
+import { provideIcons } from '@ng-icons/core';
+import { lucideXCircle, lucideCheckCircle } from '@ng-icons/lucide';
 
 @Component({
   selector: 'lib-hint-error',
-  imports: [MatIconModule],
+  standalone: true,
+  imports: [CommonModule, HlmIconComponent],
+  providers: [provideIcons({ lucideXCircle, lucideCheckCircle })],
   templateUrl: './hint-error.html',
-  styleUrl: './hint-error.scss',
 })
 export class HintError {
   errorKeys = input.required<string[]>();

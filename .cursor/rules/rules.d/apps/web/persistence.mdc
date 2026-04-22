@@ -1,0 +1,21 @@
+---
+description: Rules for Client-Side Persistence with SignalDB
+globs: ["apps/web/src/integrations/**", "apps/web/src/hooks/useLayerPersistence.ts"]
+---
+
+# Web Persistence Rules
+
+## Technology
+- **Library**: `@signaldb/core` + `@signaldb/indexeddb`.
+- **Purpose**: Persist application state (Map context, Search history) to IndexedDB for session restoration.
+
+## Collections
+- **AppState**: Stores the *current* active session metadata (e.g. `sessionId`).
+- **AppHistory**: Stores actual snapshots of the state, keyed by `sessionId`.
+
+## Usage
+- **Reactivity**: SignalDB collections are reactive. Use `useSignal` or `useRenderedValue` when querying to update UI on changes.
+- **Serialization**: Ensure data stored is JSON-serializable. Avoid storing complex class instances directly without serialization logic.
+- **Pattern**:
+  - `apps/web/src/integrations` contains the repository/adapter logic.
+  - `hooks/useLayerPersistence.ts` orchestrates the save/load cycle. 

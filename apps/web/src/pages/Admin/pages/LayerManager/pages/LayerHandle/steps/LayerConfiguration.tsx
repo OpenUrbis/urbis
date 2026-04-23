@@ -19,17 +19,21 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import { generateOriginUrl } from "../utils";
+import { generateOriginUrl, fetchCapabilities } from "../utils";
 import { useEffect, useState } from "react";
 
 interface LayerConfigurationProps {
-  onNext: () => void;
-  onBack: () => void;
+  onNext?: () => void;
+  onBack?: () => void;
+  hideNavigation?: boolean;
+  simpleMode?: boolean;
 }
 
 export const LayerConfiguration = ({
   onNext,
   onBack,
+  hideNavigation = false,
+  simpleMode = false,
 }: LayerConfigurationProps) => {
   const form = useFormContext();
   const loadingMethod = form.watch("loadingMethod");
@@ -39,7 +43,38 @@ export const LayerConfiguration = ({
   const version = form.watch("version");
   const srs = form.watch("srs");
 
-  const [suggestedOrigin, setSuggestedOrigin] = useState("");
+  const [forceCustomSrs, setForceCustomSrs] = useState(false);
+  const [isFetchingCrs, setIsFetchingCrs] = useState(false);
+
+  useEffect(() => {
+    const fetchCrs = async () => {
+      if (url && selectedLayer?.name && (!selectedLayer.crs || selectedLayer.crs.length === 0)) {
+        setIsFetchingCrs(true);
+        try {
+          const { layers } = await fetchCapabilities(url);
+          const found = layers.find(l => l.name === selectedLayer.name || l.title === selectedLayer.name);
+          if (found && found.crs && found.crs.length > 0) {
+            const updatedLayer = {
+               ...selectedLayer,
+               crs: found.crs,
+               bbox: found.bbox || selectedLayer.bbox
+            };
+            form.setValue("selectedLayer", updatedLayer);
+          }
+        } catch (error) {
+          console.error("Failed to fetch CRS options", error);
+        } finally {
+          setIsFetchingCrs(false);
+        }
+      }
+    };
+    
+    fetchCrs();
+  }, [url, selectedLayer?.name]);
+
+  useEffect(() => {
+    setForceCustomSrs(false);
+  }, [selectedLayer?.name]);
 
   useEffect(() => {
     if (url && loadingMethod) {
@@ -50,125 +85,130 @@ export const LayerConfiguration = ({
         version,
         srs
       );
-      setSuggestedOrigin(suggested);
-
-      // Auto-set on first load if empty
-      if (!origin) {
+      
+      if (origin !== suggested) {
         form.setValue("origin", suggested);
       }
     }
   }, [url, selectedLayer, loadingMethod, version, srs]);
 
-  const handleApplySuggestion = () => {
-    form.setValue("origin", suggestedOrigin);
-  };
-
-  const isDifferent = origin !== suggestedOrigin && suggestedOrigin !== "";
+  const hasCrsOptions = selectedLayer?.crs && selectedLayer.crs.length > 0;
+  const isKnownSrs = selectedLayer?.crs?.includes(srs);
+  const showCustomSrsInput = forceCustomSrs || !isKnownSrs || !hasCrsOptions;
+  const srsSelectValue = showCustomSrsInput ? "custom" : srs;
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-      <FormField
-        control={form.control}
-        name="loadingMethod"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Forma de carregar os dados</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="CustomWMSLayer">WMS (Imagem)</SelectItem>
-                <SelectItem value="GeoJsonLayer">WFS (Vetorial)</SelectItem>
-                <SelectItem value="Stream">Vector Tile (PBF)</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="version"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Versão (Service Version)</FormLabel>
-              <FormControl>
-                <Input placeholder="1.0.0" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="srs"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>SRS / CRS</FormLabel>
-                <FormControl>
-                  <Input placeholder="EPSG:4326" {...field} />
-                </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <FormField
-        control={form.control}
-        name="origin"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>URL Final da Camada (Origin)</FormLabel>
-            <div className="flex gap-2">
-              <FormControl>
-                <Input placeholder="URL completa..." {...field} />
-              </FormControl>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                title="Regerar URL padrão"
-                onClick={handleApplySuggestion}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </div>
-            <FormMessage />
-            {isDifferent && (
-              <div className="mt-2 bg-blue-50 border border-blue-200 rounded-md p-4 flex gap-3">
-                <AlertCircle className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
-                <div className="flex-1 space-y-2">
-                  <h5 className="font-medium text-blue-900 leading-none">
-                    Sugestão de Ajuste
-                  </h5>
-                  <div className="text-sm text-blue-700 flex flex-col gap-2">
-                    <span>
-                      A URL atual difere do padrão recomendado para o tipo
-                      selecionado ({loadingMethod}).
-                    </span>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className="w-fit bg-blue-100 text-blue-800 hover:bg-blue-200 border border-blue-200"
-                      onClick={handleApplySuggestion}
-                    >
-                      Aplicar URL Recomendada
-                    </Button>
-                  </div>
-                </div>
-              </div>
+      {!simpleMode && (
+        <>
+          <FormField
+            control={form.control}
+            name="loadingMethod"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Forma de carregar os dados</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="CustomWMSLayer">WMS (Imagem)</SelectItem>
+                    <SelectItem value="GeoJsonLayer">WFS (Vetorial)</SelectItem>
+                    <SelectItem value="Stream">Vector Tile (PBF)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
             )}
-          </FormItem>
-        )}
-      />
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="version"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Versão (Service Version)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="1.0.0" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="srs"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>SRS / CRS</FormLabel>
+                  <div className="flex flex-col gap-2">
+                    <Select
+                      value={srsSelectValue}
+                      onValueChange={(val) => {
+                        if (val === "custom") {
+                          setForceCustomSrs(true);
+                        } else {
+                          setForceCustomSrs(false);
+                          field.onChange(val);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {selectedLayer?.crs?.map((crs: string) => (
+                          <SelectItem key={crs} value={crs}>
+                            {crs}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="custom">Personalizada</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {(showCustomSrsInput || !hasCrsOptions) && (
+                      <FormControl>
+                        <Input
+                          placeholder="EPSG:4326"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            // If user types something that matches list, we could auto-switch back to select mode?
+                            // But maybe keep custom mode to avoid jumping UI.
+                          }}
+                        />
+                      </FormControl>
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="origin"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>URL Final da Camada (Origin)</FormLabel>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input placeholder="URL completa..." {...field} />
+                  </FormControl>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      )}
 
       <FormField
         control={form.control}
@@ -196,7 +236,21 @@ export const LayerConfiguration = ({
         )}
       />
 
-      <ClickActionConfiguration />
+      <FormField
+        control={form.control}
+        name="index"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Index (Ordenação)</FormLabel>
+            <FormControl>
+              <Input type="number" placeholder="Ex: 10" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {!simpleMode && <ClickActionConfiguration />}
 
       <div className="grid grid-cols-2 gap-4">
         <FormField
@@ -227,57 +281,61 @@ export const LayerConfiguration = ({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="isActive"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Ativa</FormLabel>
-                <div className="text-[0.8rem] text-muted-foreground">
-                  Se a camada está disponível para uso
+      {!simpleMode && (
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Ativa</FormLabel>
+                  <div className="text-[0.8rem] text-muted-foreground">
+                    Se a camada está disponível para uso
+                  </div>
                 </div>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="isVisible"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Visível por padrão</FormLabel>
-                <div className="text-[0.8rem] text-muted-foreground">
-                  Se a camada inicia visível no mapa
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="isVisible"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Visível por padrão</FormLabel>
+                  <div className="text-[0.8rem] text-muted-foreground">
+                    Se a camada inicia visível no mapa
+                  </div>
                 </div>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+      )}
 
-      <div className="flex justify-between pt-4">
-        <Button type="button" variant="outline" onClick={onBack}>
-          <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
-        </Button>
-        <Button type="button" onClick={onNext}>
-          Próximo <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
+      {!hideNavigation && (
+        <div className="flex justify-between pt-4">
+          <Button type="button" variant="outline" onClick={onBack}>
+            <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
+          </Button>
+          <Button type="button" onClick={onNext}>
+            Próximo <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

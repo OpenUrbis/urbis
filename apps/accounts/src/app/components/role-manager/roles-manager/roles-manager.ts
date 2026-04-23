@@ -1,14 +1,25 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { provideIcons } from '@ng-icons/core';
+import {
+  lucideChevronLeft,
+  lucideChevronRight,
+  lucideLoader2,
+  lucidePencil,
+  lucidePlus,
+} from '@ng-icons/lucide';
+import { TranslateModule } from '@ngx-translate/core';
+import {
+  HlmButtonDirective,
+  HlmDialogService,
+  HlmIconComponent,
+} from '../../../../../projects/shared/src/public-api';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
+import { PageStructure } from '../../page-structure/page-structure';
+import { StatusBadgeComponent } from '../../status-badge/status-badge.component';
 import { HandleRole } from '../dialogs/handle-role/handle-role';
 import { IRoleResponse } from '../dto/role.dto';
 import { RolesManagerDataSource } from './roles-manager.data-source';
-import { HlmButtonDirective, HlmIconComponent, HlmDialogService } from '../../../../../projects/shared/src/public-api';
-import { provideIcons } from '@ng-icons/core';
-import { lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
-import { PageStructure } from '../../page-structure/page-structure';
-import { TranslateModule } from '@ngx-translate/core';
-import { CommonModule } from '@angular/common';
-import { StatusBadgeComponent } from '../../status-badge/status-badge.component';
 
 @Component({
   selector: 'app-roles-manager',
@@ -19,23 +30,28 @@ import { StatusBadgeComponent } from '../../status-badge/status-badge.component'
     PageStructure,
     HlmButtonDirective,
     HlmIconComponent,
-    StatusBadgeComponent
+    StatusBadgeComponent,
+    HasPermissionDirective,
   ],
-  providers: [provideIcons({ lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight })],
+  providers: [
+    provideIcons({
+      lucidePlus,
+      lucidePencil,
+      lucideLoader2,
+      lucideChevronLeft,
+      lucideChevronRight,
+    }),
+  ],
   templateUrl: './roles-manager.html',
 })
 export class RolesManager {
   dialogService = inject(HlmDialogService);
   dataSource = inject(RolesManagerDataSource);
-  
-  displayedColumns = [
-    'name',
-    'status',
-    'actions',
-  ];
+
+  displayedColumns = ['name', 'status', 'actions'];
 
   constructor() {
-      this.dataSource.resetAndReload();
+    this.dataSource.resetAndReload();
   }
 
   nextPage() {
@@ -68,7 +84,7 @@ export class RolesManager {
       width: '90%',
     });
 
-    const value = await dialogRef.afterClosed() as IRoleResponse | undefined;
+    const value = (await dialogRef.afterClosed()) as IRoleResponse | undefined;
     if (value?.id) this.dataSource.resetAndReload();
   }
 }

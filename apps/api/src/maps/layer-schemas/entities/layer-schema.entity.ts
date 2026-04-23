@@ -75,6 +75,14 @@ export class LayerSchema {
   isVisible?: boolean;
 
   @ApiProperty({
+    example: 10,
+    required: false,
+    description: 'Index for sorting',
+  })
+  @Column({ nullable: true })
+  index?: number;
+
+  @ApiProperty({
     example: 17,
     required: false,
     description: 'Minimum zoom level at which the layer becomes visible',

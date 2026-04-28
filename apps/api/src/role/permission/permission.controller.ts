@@ -10,6 +10,8 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { Permission } from 'role/entities/permission.entity';
 import { PermissionService } from './permission.service';
+import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
+import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 
 @ApiTags('Permission')
 @UseGuards(AccessControlGuard)
@@ -18,6 +20,13 @@ export class PermissionController {
   constructor(private readonly service: PermissionService) {}
 
   @Get('list')
+  @RequirePermission({
+    permissions: {
+      action: 'list',
+      resource: 'permission',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
   @ApiOperation({ summary: 'Get permissions' })
   @ApiResponse({ status: 200, description: 'Permissions' })
   @ApiResponse({ status: 400, description: 'Error' })

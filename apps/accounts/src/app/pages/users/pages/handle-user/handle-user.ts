@@ -7,27 +7,28 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft, lucideTrash2 } from '@ng-icons/lucide';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, firstValueFrom, of, switchMap, tap } from 'rxjs';
 import { passwordFormGroup } from '../../../../../../projects/shared/src/lib/components/password-form-group/form-group/password-form-group';
 import { PasswordFormGroup } from '../../../../../../projects/shared/src/lib/components/password-form-group/password-form-group';
 import {
+  HlmButtonDirective,
+  HlmIconComponent,
+  HlmInputDirective,
+  HlmLabelDirective,
+  HlmToasterService,
   LoadingButton,
   LoadingContent,
   useConfirmDialog,
-  HlmButtonDirective,
-  HlmInputDirective,
-  HlmLabelDirective,
-  HlmIconComponent,
-  HlmToasterService
 } from '../../../../../../projects/shared/src/public-api';
+import { PageStructure } from '../../../../components/page-structure/page-structure';
 import { UserRoleManager } from '../../../../components/role-manager/user-role-manager/user-role-manager';
 import { UserOrganizationManager } from '../../../../components/user-organization-manager/user-organization-manager';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { ICreateUserRequest, IUpdateUserRequest } from '../../dto/user.dto';
 import { UsersApi } from '../../services/users-api';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PageStructure } from '../../../../components/page-structure/page-structure';
-import { provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideTrash2 } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-handle-user',
@@ -46,7 +47,8 @@ import { lucideArrowLeft, lucideTrash2 } from '@ng-icons/lucide';
     HlmButtonDirective,
     HlmInputDirective,
     HlmLabelDirective,
-    HlmIconComponent
+    HlmIconComponent,
+    HasPermissionDirective,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideTrash2 })],
   templateUrl: './handle-user.html',

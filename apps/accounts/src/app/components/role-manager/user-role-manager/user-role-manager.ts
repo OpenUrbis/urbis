@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -7,17 +8,22 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { provideIcons } from '@ng-icons/core';
+import { lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subject, switchMap, tap } from 'rxjs';
+import {
+  HlmButtonDirective,
+  HlmDialogService,
+  HlmIconComponent,
+  LoadingContent,
+} from '../../../../../projects/shared/src/public-api';
+import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
+import { PageStructure } from '../../page-structure/page-structure';
 import { AddRole } from '../dialogs/add-role/add-role';
 import { IRoleResponse } from '../dto/role.dto';
 import { IUserAssigmentResponse } from '../dto/user-assignment.dto';
 import { RoleManagerApi } from '../services/role-manager-api';
-import { LoadingContent, HlmButtonDirective, HlmIconComponent, HlmDialogService } from '../../../../../projects/shared/src/public-api';
-import { CommonModule } from '@angular/common';
-import { PageStructure } from '../../page-structure/page-structure';
-import { TranslateModule } from '@ngx-translate/core';
-import { provideIcons } from '@ng-icons/core';
-import { lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-user-role-manager',
@@ -28,7 +34,8 @@ import { lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
     PageStructure,
     TranslateModule,
     HlmButtonDirective,
-    HlmIconComponent
+    HlmIconComponent,
+    HasPermissionDirective,
   ],
   providers: [provideIcons({ lucidePlus, lucideTrash2 })],
   templateUrl: './user-role-manager.html',

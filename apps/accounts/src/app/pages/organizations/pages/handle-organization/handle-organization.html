@@ -16,12 +16,14 @@
       >
         <hlm-icon name="lucideArrowLeft" size="18" />
       </a>
+
+      <!-- TO DO: Add delete button -->
     </section>
 
     <!-- Tabs Header -->
     <div class="flex border-b border-border mb-4">
-        <button 
-            hlmBtn variant="ghost" 
+        <button
+            hlmBtn variant="ghost"
             class="rounded-none border-b-2 border-transparent px-4 py-2 hover:bg-transparent hover:text-foreground"
             [class.border-primary]="selectedTab() === 0"
             [class.text-primary]="selectedTab() === 0"
@@ -29,16 +31,19 @@
             (click)="selectedTab.set(0)">
             {{ 'pages.organizations.form.tabs.details' | translate }}
         </button>
-        <button 
-            *ngIf="id()"
-            hlmBtn variant="ghost" 
-            class="rounded-none border-b-2 border-transparent px-4 py-2 hover:bg-transparent hover:text-foreground"
-            [class.border-primary]="selectedTab() === 1"
-            [class.text-primary]="selectedTab() === 1"
-            [class.text-muted-foreground]="selectedTab() !== 1"
-            (click)="selectedTab.set(1)">
-            {{ 'pages.organizations.form.tabs.users' | translate }}
-        </button>
+
+        @if (id()){
+          <button
+              *hasPermission="'user:list'"
+              hlmBtn variant="ghost"
+              class="rounded-none border-b-2 border-transparent px-4 py-2 hover:bg-transparent hover:text-foreground"
+              [class.border-primary]="selectedTab() === 1"
+              [class.text-primary]="selectedTab() === 1"
+              [class.text-muted-foreground]="selectedTab() !== 1"
+              (click)="selectedTab.set(1)">
+              {{ 'pages.organizations.form.tabs.users' | translate }}
+          </button>
+        }
     </div>
 
     <!-- Tab Content 0: Details -->

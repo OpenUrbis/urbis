@@ -31,13 +31,6 @@ export class RoleController {
   constructor(private readonly service: RoleService) {}
 
   @Get('list')
-  @RequirePermission({
-    permissions: {
-      action: 'list',
-      resource: 'role',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
   @ApiQuery({
     name: 'page',
     required: false,

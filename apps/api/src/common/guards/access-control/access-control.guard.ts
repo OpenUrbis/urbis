@@ -32,13 +32,12 @@ export class AccessControlGuard
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isValid = (await super.canActivate(context)) as boolean;
-    const request = context.switchToHttp().getRequest();
-    if (!request?.user?.id || !request?.user?._id) return false;
 
     if (!isValid) {
       throw new UnauthorizedException('Invalid token.');
     }
 
+    const request = context.switchToHttp().getRequest();
     const user = await this.userService.findOne({
       id: request?.user?.id ?? request?.user?._id,
     });

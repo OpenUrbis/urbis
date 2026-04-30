@@ -11,16 +11,11 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
-  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
-import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
-import { OrGuard } from 'common/guards/or-guard/or.guard';
-import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 import { LayerGroupDto } from './dto/layer-group.dto';
 import { LayerGroup } from './entities/layer-group.entity';
 import { LayerGroupsService } from './layer-groups.service';
@@ -67,16 +62,9 @@ export class LayerGroupsController {
     return this.service.findOne(id);
   }
 
-  @ApiSecurity('api_key')
-  @ApiBearerAuth()
-  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
-  @RequirePermission({
-    permissions: {
-      action: 'create',
-      resource: 'layer-group',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
+  // TO DO: Reativar e adicionar access key guard
+  // @ApiSecurity('api_key')
+  // @UseGuards(AuthGuard('api-key'))
   @Post()
   @ApiOperation({ summary: 'Create a new layer group' })
   @ApiResponse({
@@ -97,16 +85,9 @@ export class LayerGroupsController {
     return this.service.create(dto);
   }
 
-  @ApiSecurity('api_key')
-  @ApiBearerAuth()
-  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
-  @RequirePermission({
-    permissions: {
-      action: 'update',
-      resource: 'layer-group',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
+  // TO DO: Reativar e adicionar access key guard
+  // @ApiSecurity('api_key')
+  // @UseGuards(AuthGuard('api-key'))
   @Put(':id')
   @ApiOperation({ summary: 'Update a layer group by ID' })
   @ApiResponse({
@@ -139,16 +120,9 @@ export class LayerGroupsController {
     return this.service.update(id, dto);
   }
 
-  @ApiSecurity('api_key')
-  @ApiBearerAuth()
-  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
-  @RequirePermission({
-    permissions: {
-      action: 'delete',
-      resource: 'layer-group',
-      scope: RolePermissionScopeEnum.ANY,
-    },
-  })
+  // TO DO: Reativar e adicionar access key guard
+  // @ApiSecurity('api_key')
+  // @UseGuards(AuthGuard('api-key'))
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a layer group by ID' })
   @ApiResponse({ status: 200, description: 'Deletion successful' })
@@ -166,23 +140,7 @@ export class LayerGroupsController {
   }
 
   @ApiSecurity('api_key')
-  @ApiBearerAuth()
-  @UseGuards(OrGuard(AccessControlGuard, AuthGuard('api-key')))
-  @RequirePermission({
-    permissions: [
-      {
-        action: 'create',
-        resource: 'layer-group',
-        scope: RolePermissionScopeEnum.ANY,
-      },
-      {
-        action: 'update',
-        resource: 'layer-group',
-        scope: RolePermissionScopeEnum.ANY,
-      },
-    ],
-    mode: 'AND',
-  })
+  @UseGuards(AuthGuard('api-key'))
   @Post('upsert')
   @ApiOperation({ summary: 'Create or update a layer group based on ID' })
   @ApiResponse({

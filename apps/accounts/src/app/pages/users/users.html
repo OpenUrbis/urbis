@@ -6,7 +6,7 @@
   @if (!onlyTable()) {
     <section rightActions>
       <a
-        *hasPermission="'user:create'"
+      *hasPermission="'user:create'"
         hlmBtn
         [attr.aria-label]="'pages.users.page.buttons.create.ariaLabel' | translate"
         routerLink="create"
@@ -80,7 +80,7 @@
     <!-- Pagination -->
     <div class="flex items-center justify-end space-x-2 py-4 px-4 border-t border-border">
         <div class="flex-1 text-sm text-muted-foreground">
-            {{ (dataSource.currentParams().page - 1) * dataSource.currentParams().limit + 1 }} -
+            {{ (dataSource.currentParams().page - 1) * dataSource.currentParams().limit + 1 }} - 
             {{ (dataSource.currentParams().page * dataSource.currentParams().limit) > dataSource.totalCount() ? dataSource.totalCount() : (dataSource.currentParams().page * dataSource.currentParams().limit) }}
             of {{ dataSource.totalCount() }}
         </div>

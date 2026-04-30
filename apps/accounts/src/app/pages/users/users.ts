@@ -1,24 +1,15 @@
-import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { provideIcons } from '@ng-icons/core';
-import {
-  lucideChevronLeft,
-  lucideChevronRight,
-  lucideLoader2,
-  lucidePencil,
-  lucidePlus,
-} from '@ng-icons/lucide';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  HlmButtonDirective,
-  HlmIconComponent,
-} from '../../../../projects/shared/src/public-api';
 import { PageStructure } from '../../components/page-structure/page-structure';
-import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
-import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import { OrganizationState } from '../../states/organization/organization.state';
 import { UserDataSource } from './users.data-source';
+import { HlmButtonDirective, HlmIconComponent } from '../../../../projects/shared/src/public-api';
+import { provideIcons } from '@ng-icons/core';
+import { lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
+import { CommonModule } from '@angular/common';
+import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-users',
@@ -31,17 +22,9 @@ import { UserDataSource } from './users.data-source';
     HlmButtonDirective,
     HlmIconComponent,
     StatusBadgeComponent,
-    HasPermissionDirective,
+    HasPermissionDirective
   ],
-  providers: [
-    provideIcons({
-      lucidePlus,
-      lucidePencil,
-      lucideLoader2,
-      lucideChevronLeft,
-      lucideChevronRight,
-    }),
-  ],
+  providers: [provideIcons({ lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight })],
   templateUrl: './users.html',
 })
 export class Users {
@@ -50,7 +33,7 @@ export class Users {
 
   organizationState = inject(OrganizationState);
   dataSource = inject(UserDataSource);
-
+  
   // Columns are now handled in template, but good to keep track
   displayedColumns = ['name', 'email', 'status', 'actions'];
 

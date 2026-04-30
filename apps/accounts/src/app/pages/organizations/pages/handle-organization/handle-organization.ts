@@ -7,28 +7,30 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideLoader2, lucideTrash2 } from '@ng-icons/lucide';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, firstValueFrom, of, switchMap, tap } from 'rxjs';
+import {
+  LoadingButton,
+  LoadingContent,
+  HlmToasterService
+} from '../../../../../../projects/shared/src/public-api';
 import {
   HlmButtonDirective,
   HlmCardDirective,
-  HlmIconComponent,
   HlmInputDirective,
   HlmLabelDirective,
-  HlmToasterService,
-  LoadingButton,
-  LoadingContent,
+  HlmIconComponent
 } from '../../../../../../projects/shared/src/public-api';
-import { PageStructure } from '../../../../components/page-structure/page-structure';
-import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
-import { Users } from '../../../users/users';
 import {
   IRequestCreateOrganization,
   IRequestUpdateOrganization,
 } from '../../dto/organization.dto';
 import { OrganizationsApi } from '../../services/organizations-api';
+import { Users } from '../../../users/users';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PageStructure } from '../../../../components/page-structure/page-structure';
+import { provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft, lucideTrash2, lucideLoader2 } from '@ng-icons/lucide';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-handle-organization',
@@ -46,8 +48,8 @@ import { OrganizationsApi } from '../../services/organizations-api';
     HlmCardDirective,
     HlmInputDirective,
     HlmLabelDirective,
-    HlmIconComponent,
-    HasPermissionDirective,
+    HlmIconComponent, 
+    HasPermissionDirective
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideTrash2, lucideLoader2 })],
   templateUrl: './handle-organization.html',

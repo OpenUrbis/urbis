@@ -1,4 +1,3 @@
-import { getAuthHeaders } from "../utils/auth-headers";
 import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 
 const environment =
@@ -16,13 +15,10 @@ export const getLayerSchema = async (
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const createLayerSchema = async (
-  data: any
-): Promise<IGetConfigLayerSchema> => {
-  const headers = await getAuthHeaders();
+export const createLayerSchema = async (data: any): Promise<IGetConfigLayerSchema> => {
   const response = await fetch(`${environment}/layer-schemas`, {
     method: "POST",
-    headers,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
   if (!response.ok) {
@@ -32,14 +28,10 @@ export const createLayerSchema = async (
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const updateLayerSchema = async (
-  id: string,
-  data: any
-): Promise<IGetConfigLayerSchema> => {
-  const headers = await getAuthHeaders();
+export const updateLayerSchema = async (id: string, data: any): Promise<IGetConfigLayerSchema> => {
   const response = await fetch(`${environment}/layer-schemas/${id}`, {
     method: "PUT",
-    headers,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
   if (!response.ok) {
@@ -49,10 +41,8 @@ export const updateLayerSchema = async (
 };
 
 export const deleteLayerSchema = async (id: string): Promise<void> => {
-  const headers = await getAuthHeaders();
   const response = await fetch(`${environment}/layer-schemas/${id}`, {
     method: "DELETE",
-    headers,
   });
   if (!response.ok) {
     throw new Error("Failed to delete layer schema");

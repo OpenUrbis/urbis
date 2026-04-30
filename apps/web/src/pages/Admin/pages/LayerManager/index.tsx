@@ -7,8 +7,6 @@ import { useToast } from "@/hooks/useToast";
 import { AdminHeader } from "@/components/AdminHeader";
 import { useLocation } from "wouter";
 import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
-import { HasPermission } from "@/components/AccessControl/HasPermission";
-import { RolePermissionScopeEnum } from "@/utils/access-control";
 import {
   Dialog,
   DialogContent,
@@ -114,19 +112,10 @@ const LayerManagerPage = () => {
   return (
     <div className="p-6 space-y-4 overflow-auto h-full flex flex-col">
       <AdminHeader title="Camadas do sistema" subtitle="Camadas globais do mapa">
-        <HasPermission
-          permissions={{
-            id: 'layer-schema:create',
-            action: 'create',
-            resource: 'layer-schema',
-            scope: RolePermissionScopeEnum.ANY,
-          }}
-        >
-          <Button onClick={() => setLocation("~/admin/layer-manager/handle")}>
-            <Plus className="mr-2 h-4 w-4" />
-            Criar Camada
-          </Button>
-        </HasPermission>
+        <Button onClick={() => setLocation("~/admin/layer-manager/handle")}>
+          <Plus className="mr-2 h-4 w-4" />
+          Criar Camada
+        </Button>
       </AdminHeader>
 
       <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-auto relative min-h-[200px]">
@@ -222,42 +211,24 @@ const LayerManagerPage = () => {
                       )}
                     </td>
                     <td className="p-4 flex align-middle text-right space-x-2">
-                      <HasPermission
-                        permissions={{
-                          id: 'layer-schema:update',
-                          action: 'update',
-                          resource: 'layer-schema',
-                          scope: RolePermissionScopeEnum.ANY,
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setLocation(`~/admin/layer-manager/${layer.id}`)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setLayerToDelete(layer.id);
+                          setDeleteDialogOpen(true);
                         }}
                       >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setLocation(`~/admin/layer-manager/${layer.id}`)}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                      </HasPermission>
-                      <HasPermission
-                        permissions={{
-                          id: 'layer-schema:delete',
-                          action: 'delete',
-                          resource: 'layer-schema',
-                          scope: RolePermissionScopeEnum.ANY,
-                        }}
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => {
-                            setLayerToDelete(layer.id);
-                            setDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </HasPermission>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </td>
                   </tr>
                 ))}

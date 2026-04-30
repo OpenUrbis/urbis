@@ -1,22 +1,12 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { provideIcons } from '@ng-icons/core';
-import {
-  lucideChevronLeft,
-  lucideChevronRight,
-  lucideLoader2,
-  lucidePencil,
-  lucidePlus,
-} from '@ng-icons/lucide';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  HlmButtonDirective,
-  HlmIconComponent,
-} from '../../../../projects/shared/src/public-api';
 import { PageStructure } from '../../components/page-structure/page-structure';
-import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import { OrganizationDataSource } from './organizations.data-source';
+import { HlmButtonDirective, HlmIconComponent } from '../../../../projects/shared/src/public-api';
+import { provideIcons } from '@ng-icons/core';
+import { lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-organizations',
@@ -27,18 +17,9 @@ import { OrganizationDataSource } from './organizations.data-source';
     TranslateModule,
     PageStructure,
     HlmButtonDirective,
-    HlmIconComponent,
-    HasPermissionDirective,
+    HlmIconComponent
   ],
-  providers: [
-    provideIcons({
-      lucidePlus,
-      lucidePencil,
-      lucideLoader2,
-      lucideChevronLeft,
-      lucideChevronRight,
-    }),
-  ],
+  providers: [provideIcons({ lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight })],
   templateUrl: './organizations.html',
 })
 export class Organizations {
@@ -46,7 +27,7 @@ export class Organizations {
   displayedColumns = ['name', 'description', 'actions'];
 
   constructor() {
-    this.dataSource.resetAndReload();
+      this.dataSource.resetAndReload();
   }
 
   nextPage() {

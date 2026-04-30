@@ -7,8 +7,6 @@ import { useToast } from "@/hooks/useToast";
 import { AdminHeader } from "@/components/AdminHeader";
 import { useLocation } from "wouter";
 import { IGetSearchConfigResponse } from "@/types/fetch-search-config-type";
-import { HasPermission } from "@/components/AccessControl/HasPermission";
-import { RolePermissionScopeEnum } from "@/utils/access-control";
 import {
   Dialog,
   DialogContent,
@@ -104,19 +102,10 @@ const SearchManagerPage = () => {
   return (
     <div className="p-6 space-y-4 overflow-auto h-full flex flex-col">
       <AdminHeader title="Pesquisas do sistema" subtitle="Configurações de pesquisa">
-        <HasPermission
-          permissions={{
-            id: 'search-config:create',
-            action: 'create',
-            resource: 'search-config',
-            scope: RolePermissionScopeEnum.ANY,
-          }}
-        >
-          <Button onClick={() => setLocation("~/admin/search-manager/handle")}>
-            <Plus className="mr-2 h-4 w-4" />
-            Criar Pesquisa
-          </Button>
-        </HasPermission>
+        <Button onClick={() => setLocation("~/admin/search-manager/handle")}>
+          <Plus className="mr-2 h-4 w-4" />
+          Criar Pesquisa
+        </Button>
       </AdminHeader>
 
       <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-auto relative min-h-[200px]">
@@ -189,42 +178,24 @@ const SearchManagerPage = () => {
                       )}
                     </td>
                     <td className="p-4 flex align-middle justify-end space-x-2">
-                      <HasPermission
-                        permissions={{
-                          id: 'search-config:update',
-                          action: 'update',
-                          resource: 'search-config',
-                          scope: RolePermissionScopeEnum.ANY,
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setLocation(`~/admin/search-manager/${item.id}`)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setSearchToDelete(item.id);
+                          setDeleteDialogOpen(true);
                         }}
                       >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setLocation(`~/admin/search-manager/${item.id}`)}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                      </HasPermission>
-                      <HasPermission
-                        permissions={{
-                          id: 'search-config:delete',
-                          action: 'delete',
-                          resource: 'search-config',
-                          scope: RolePermissionScopeEnum.ANY,
-                        }}
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => {
-                            setSearchToDelete(item.id);
-                            setDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </HasPermission>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </td>
                   </tr>
                 ))}

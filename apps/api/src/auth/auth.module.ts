@@ -12,7 +12,6 @@ import { AuthService } from './auth.service';
 import { ExternalOidcController } from './external-oidc/external-oidc.controller';
 import { ExternalOidcService } from './external-oidc/external-oidc.service';
 import { ForgotModule } from './forgot/forgot.module';
-import { ApiKeyStrategy } from './strategies/api-key.strategy';
 import { EmailStrategy } from './strategies/email.strategy';
 import { ExternalOidcStrategy } from './strategies/external-oidc.strategy';
 import { TwoFactorModule } from './two-factor/two-factor.module';
@@ -32,7 +31,6 @@ import { TwoFactorModule } from './two-factor/two-factor.module';
   providers: [
     IsExist,
     IsNotExist,
-    ApiKeyStrategy,
     EmailStrategy,
     ExternalOidcStrategy,
     AuthService,

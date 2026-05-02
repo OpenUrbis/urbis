@@ -6,7 +6,6 @@
   @if (!onlyTable()) {
     <section rightActions>
       <a
-      *hasPermission="'user:create'"
         hlmBtn
         [attr.aria-label]="'pages.users.page.buttons.create.ariaLabel' | translate"
         routerLink="create"
@@ -52,7 +51,7 @@
               <td class="p-4 align-middle">
                 <app-status-badge [status]="user.status" />
               </td>
-              <td class="p-4 align-middle text-right" *hasPermission="'user:update'">
+              <td class="p-4 align-middle text-right">
                 <a
                   hlmBtn
                   variant="ghost"

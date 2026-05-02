@@ -35,7 +35,7 @@ export class OidcController {
     private readonly authService: AuthService,
     private readonly twoFactorService: TwoFactorService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   @ApiBearerAuth()
   @SerializeOptions({
@@ -119,9 +119,8 @@ export class OidcController {
     req.headers.cookie = '_interaction=' + uuid;
     try {
       const { uid, prompt } = await this.oidcProvider.interactionDetails(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         req,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
         res,
       );
       res.send({ uid, prompt });
@@ -169,7 +168,6 @@ export class OidcController {
         isInvalid: true,
       });
     const redirectToCallback = await this.oidcProvider.interactionResult(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       req,
       res,
       session,
@@ -214,7 +212,6 @@ export class OidcController {
     };
 
     const redirectToCallback = await this.oidcProvider.interactionResult(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       req,
       res,
       session,

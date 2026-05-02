@@ -5,7 +5,6 @@
   >
     <section rightActions>
       <button
-      *hasPermission="'role:assign'"
         hlmBtn
         [attr.aria-label]="
           'components.userOrganizationManager.page.buttons.add.ariaLabel'
@@ -35,9 +34,8 @@
               {{ buildRoles(item) }}
             </span>
           </div>
- 
+
           <button
-            *hasPermission="'role:assign'"
             hlmBtn
             variant="ghost"
             size="icon"

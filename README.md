@@ -1,15 +1,15 @@
-# Urbis Map
+# Urbis
 
-![Capa do Repositório](docs/cover.png)
+![Capa do Repositório](apps/docs/public/cover.png)
 
 [![CI Pipeline](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml)
-[![Build and Push](https://github.com/OpenUrbis/urbis-map/actions/workflows/build-and-deploy.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/build-and-deploy.yaml)
+[![Docker Build and Push - API](https://github.com/OpenUrbis/urbis-map/actions/workflows/docker-deploy-api.yml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/docker-deploy-api.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Version](https://img.shields.io/github/v/release/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/releases)
 [![Contribute](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/OpenUrbis/urbis-map/blob/main/docs/CONTRIBUTING.md)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/pulls)
 
-Urbis Map is an open-source platform designed to support city governments in mapping and managing public resources, services, and infrastructure. It provides flexible, modular tools to enhance transparency, optimize decision-making, and improve municipal governance.
+Urbis is an open-source platform designed to support city governments in mapping and managing public resources, services, and infrastructure. It provides flexible, modular tools to enhance transparency, optimize decision-making, and improve municipal governance.
 
 This is a community-maintained project. If you encounter an issue, please submit a pull request with a fix. GitHub Issues will be closed.
 
@@ -17,7 +17,7 @@ This is a community-maintained project. If you encounter an issue, please submit
 
 ## Overview
 
-Urbis Map is an open-source monorepo created to empower municipal administrations with a robust mapping system for public management. It enables cities to visualize and manage urban data, streamline resource allocation, and foster data-driven governance.
+Urbis is an open-source monorepo created to empower municipal administrations with a robust mapping system for public management. It enables cities to visualize and manage urban data, streamline resource allocation, and foster data-driven governance.
 
 - **Website**: [mapa.urbis.sampa.br](http://mapa.urbis.sampa.br/)
 - **GitHub Repository**: [github.com/OpenUrbis/urbis-map](https://github.com/OpenUrbis/urbis-map)
@@ -26,7 +26,7 @@ Urbis Map is an open-source monorepo created to empower municipal administration
 
 ## Installation
 
-To get started with Urbis Map, install the dependencies using pnpm:
+To get started with Urbis, install the dependencies using pnpm:
 
 ```bash
 pnpm install
@@ -94,23 +94,37 @@ pnpm build
 
 ---
 
-## Documentation
+## Database Management
 
-Explore the documentation to learn how to set up, use, and extend Urbis Map:
+We use TypeORM for database interactions. To manage the database schema and data, you can use the following commands:
 
-- [Full Documentation](http://docs.urbis.sampa.br/)
-- [Layers Configuration](docs/layer-schema.md)
-- [Search Configuration](docs/search-config.md)
-- [Contributing Guide](docs/CONTRIBUTING.md)
-- [Commit Guidelines](docs/commit-guidelines.md)
-- [Pull Request Guidelines](docs/pull-request-guidelines.md)
-- [Deploy Guidelines](docs/DEPLOY.md)
+### Migrations
+
+To run pending migrations:
+
+```bash
+pnpm --filter @open-urbis/map-api migration:run
+```
+
+To revert the last applied migration:
+
+```bash
+pnpm --filter @open-urbis/map-api migration:revert
+```
+
+### Seeds
+
+To populate the database with initial data:
+
+```bash
+pnpm --filter @open-urbis/map-api seed:run
+```
 
 ---
 
 ## Local Development
 
-To contribute to Urbis Map, follow these steps:
+To contribute to Urbis, follow these steps:
 
 1. **Clone the repository**:
 
@@ -145,13 +159,13 @@ We welcome community contributions! Read our [Contributing Guidelines](CONTRIBUT
 
 ## License
 
-Urbis Map is licensed under the [AGPL v3](https://www.gnu.org/licenses/agpl-3.0). You are free to use, modify, and distribute this software under the terms of the AGPL v3, ensuring that any derivative works remain open source.
+Urbis is licensed under the [AGPL v3](https://www.gnu.org/licenses/agpl-3.0). You are free to use, modify, and distribute this software under the terms of the AGPL v3, ensuring that any derivative works remain open source.
 
 ---
 
 ## Community
 
-We’re building a community around Urbis Map! Join the conversation and help us improve the project:
+We’re building a community around Urbis! Join the conversation and help us improve the project:
 
 Stay tuned for updates on our official channels (coming soon). For now, feel free to reach out via [contas@urbis.sampa.br](mailto:contas@urbis.sampa.br) or open a discussion in the repository.
 
@@ -159,7 +173,7 @@ Stay tuned for updates on our official channels (coming soon). For now, feel fre
 
 ## Contributors
 
-A huge thanks to all our contributors! Your efforts make Urbis Map better for everyone.
+A huge thanks to all our contributors! Your efforts make Urbis better for everyone.
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

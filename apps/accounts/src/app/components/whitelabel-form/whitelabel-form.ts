@@ -21,7 +21,6 @@ import { ApplicationTheme } from '../../states/whitelabel/whitelabel.types';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import {
-  FileUploaderComponent,
   UploadStrategyPathEnum,
   HlmInputDirective,
   HlmLabelDirective,
@@ -37,7 +36,6 @@ import { lucideLoader2, lucideSave, lucideCheck, lucideX, lucideChevronsUpDown }
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FileUploaderComponent,
     HlmInputDirective,
     HlmLabelDirective,
     HlmButtonDirective,

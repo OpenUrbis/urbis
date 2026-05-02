@@ -9,7 +9,6 @@ import { provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
 import { CommonModule } from '@angular/common';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
-import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-users',
@@ -21,8 +20,7 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
     PageStructure,
     HlmButtonDirective,
     HlmIconComponent,
-    StatusBadgeComponent,
-    HasPermissionDirective
+    StatusBadgeComponent
   ],
   providers: [provideIcons({ lucidePlus, lucidePencil, lucideLoader2, lucideChevronLeft, lucideChevronRight })],
   templateUrl: './users.html',

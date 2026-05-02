@@ -38,7 +38,6 @@ import {
 import { OrganizationState } from '../../../../states/organization/organization.state';
 import { SwitchOrganizationDialog } from '../../../switch-organization-dialog/switch-organization-dialog';
 import { TranslateModule } from '@ngx-translate/core';
-import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-sidenav',
@@ -57,8 +56,7 @@ import { HasPermissionDirective } from '../../../../shared/directives/has-permis
     HlmDropdownMenuItemDirective,
     HlmDropdownMenuLabelDirective,
     HlmDropdownMenuSeparatorDirective,
-    HlmDropdownMenuGroupDirective, 
-    HasPermissionDirective
+    HlmDropdownMenuGroupDirective
   ],
   providers: [
     provideIcons({

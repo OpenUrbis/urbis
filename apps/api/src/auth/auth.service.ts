@@ -69,7 +69,7 @@ export class AuthService {
     if (!emailConfirmation) {
       emailHashConfirm = null;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
     const user = await this.userService.create({
       ...dto,
       email: dto.email,

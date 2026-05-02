@@ -1,4 +1,3 @@
-import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -9,7 +8,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Folder, Layers, Search } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "react-oidc-context";
 import { useLocation } from "wouter";
 import Header from "../Header";
 
@@ -18,15 +16,13 @@ interface MainLayoutProps {
 }
 
 export const MainLayout = ({ children }: MainLayoutProps) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed] = useState(false);
 
-  const auth = useAuth();
   const [location, setLocation] = useLocation();
-  const { theme, setTheme } = useTheme();
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-background">
-      <Header onMenuToggle={() => setIsCollapsed(!isCollapsed)} />
+      <Header />
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
         <aside

@@ -14,7 +14,6 @@ export class DatabaseModule {
         options.entities = entities;
         options.subscribers = subscribers;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const dataSource = await new DataSource(options).initialize();
 
         return dataSource as any;

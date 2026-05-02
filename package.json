@@ -1,10 +1,10 @@
 {
   "private": true,
   "scripts": {
-    "build": "turbo run build",
+    "build": "turbo run build --filter=!urbis-site",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "test": "turbo run test -- --passWithNoTests",
+    "test": "turbo run test",
     "composer:up": "docker-compose -f apps/api/docker-compose.yaml up -d",
     "composer:down": "docker-compose -f apps/api/docker-compose.yaml down",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -13,7 +13,8 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
-    "eslint": "^8.57.0",
+    "@open-urbis/map-eslint-config": "workspace:^",
+    "eslint": "^9.39.2",
     "prettier": "^3.2.5",
     "turbo": "^2.4.4"
   },

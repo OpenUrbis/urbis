@@ -1,13 +1,5 @@
 {
   "title": "Geral",
   "root": true,
-  "pages": [
-    "index",
-    "mapa",
-    "forms",
-    "infrastructure",
-    "development",
-    "architecture",
-    "andamento"
-  ]
+  "pages": ["index", "mapa", "forms", "infrastructure", "development", "architecture", "andamento"]
 }

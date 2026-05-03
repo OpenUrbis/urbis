@@ -9,6 +9,7 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, firstValueFrom, of, switchMap, tap } from 'rxjs';
 import {
+  LoadingButton,
   LoadingContent,
   HlmToasterService
 } from '../../../../../../projects/shared/src/public-api';
@@ -29,6 +30,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PageStructure } from '../../../../components/page-structure/page-structure';
 import { provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideTrash2, lucideLoader2 } from '@ng-icons/lucide';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-handle-organization',
@@ -38,6 +40,7 @@ import { lucideArrowLeft, lucideTrash2, lucideLoader2 } from '@ng-icons/lucide';
     CommonModule,
     RouterLink,
     LoadingContent,
+    LoadingButton,
     Users,
     TranslateModule,
     PageStructure,
@@ -45,7 +48,8 @@ import { lucideArrowLeft, lucideTrash2, lucideLoader2 } from '@ng-icons/lucide';
     HlmCardDirective,
     HlmInputDirective,
     HlmLabelDirective,
-    HlmIconComponent
+    HlmIconComponent, 
+    HasPermissionDirective
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideTrash2, lucideLoader2 })],
   templateUrl: './handle-organization.html',

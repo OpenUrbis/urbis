@@ -1,10 +1,4 @@
 {
   "title": "Mapa",
-  "pages": [
-    "layer-configuration",
-    "layer-schema",
-    "search-config",
-    "view-template",
-    "storage"
-  ]
+  "pages": ["layer-configuration", "layer-schema", "search-config", "view-template", "storage"]
 }

@@ -7,23 +7,23 @@
     "dev": "vite",
     "build": "tsc && vite-react-ssg build",
     "preview": "vite preview",
-    "lint": "eslint \"src/**/*.{ts,tsx}\""
+    "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
-    "@open-urbis/map-ui": "workspace:*",
     "@radix-ui/react-accordion": "^1.2.12",
+    "@open-urbis/map-ui": "workspace:*",
     "@radix-ui/react-navigation-menu": "^1.1.4",
     "@radix-ui/react-slot": "^1.0.2",
     "clsx": "^2.1.0",
     "lucide-react": "^0.330.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-helmet-async": "^2.0.4",
     "react-router-dom": "^6.22.0",
-    "tailwind-merge": "^2.2.1"
+    "tailwind-merge": "^2.2.1",
+    "vite-react-ssg": "^0.6.1"
   },
   "devDependencies": {
-    "@open-urbis/map-eslint-config": "workspace:^",
     "@open-urbis/map-typescript-config": "workspace:*",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
@@ -33,7 +33,6 @@
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.3.3",
-    "vite": "^5.1.4",
-    "vite-react-ssg": "^0.8.9"
+    "vite": "^5.1.4"
   }
 }

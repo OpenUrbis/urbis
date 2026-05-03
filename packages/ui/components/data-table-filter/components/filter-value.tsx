@@ -12,6 +12,7 @@ import {
 } from '../../ui/command'
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from '../../ui/popover'
@@ -162,6 +163,8 @@ export function FilterValueDisplay<TData, TType extends ColumnDataType>({
 export function FilterValueOptionDisplay<TData>({
   filter,
   column,
+  actions,
+  locale = 'en',
 }: FilterValueDisplayProps<TData, 'option'>) {
   const options = useMemo(() => column.getOptions(), [column])
   const selected = options.filter((o) => filter?.values.includes(o.value))
@@ -216,6 +219,8 @@ export function FilterValueOptionDisplay<TData>({
 export function FilterValueMultiOptionDisplay<TData>({
   filter,
   column,
+  actions,
+  locale = 'en',
 }: FilterValueDisplayProps<TData, 'multiOption'>) {
   const options = useMemo(() => column.getOptions(), [column])
   const selected = options.filter((o) => filter.values.includes(o.value))
@@ -280,6 +285,9 @@ function formatDateRange(start: Date, end: Date) {
 
 export function FilterValueDateDisplay<TData>({
   filter,
+  column,
+  actions,
+  locale = 'en',
 }: FilterValueDisplayProps<TData, 'date'>) {
   if (!filter) return null
   if (filter.values.length === 0) return <MoreHorizontal className="size-4" />
@@ -298,6 +306,9 @@ export function FilterValueDateDisplay<TData>({
 
 export function FilterValueTextDisplay<TData>({
   filter,
+  column,
+  actions,
+  locale = 'en',
 }: FilterValueDisplayProps<TData, 'text'>) {
   if (!filter) return null
   if (filter.values.length === 0 || filter.values[0].trim() === '')
@@ -310,6 +321,8 @@ export function FilterValueTextDisplay<TData>({
 
 export function FilterValueNumberDisplay<TData>({
   filter,
+  column,
+  actions,
   locale = 'en',
 }: FilterValueDisplayProps<TData, 'number'>) {
   if (!filter || !filter.values || filter.values.length === 0) return null

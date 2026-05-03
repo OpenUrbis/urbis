@@ -1,7 +1,7 @@
 export function memo<TDeps extends readonly any[], TResult>(
   getDeps: () => TDeps,
   compute: (deps: TDeps) => TResult,
-  _options: { key: string },
+  options: { key: string },
 ): () => TResult {
   let prevDeps: TDeps | undefined
   let cachedResult: TResult | undefined

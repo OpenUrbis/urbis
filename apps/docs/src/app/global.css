@@ -1,9 +1,9 @@
 @import "tailwindcss";
+@source "../../../../packages/ui";
 @import "../../../../packages/ui/globals.css";
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
 @import "fumadocs-openapi/css/preset.css";
-@source "../../../../packages/ui";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -90,7 +90,7 @@ body {
   --sidebar-accent-foreground: hsl(0 0% 100%);
   --sidebar-border: hsl(212 11% 78%);
   --sidebar-ring: hsl(201 61% 33%);
-
+  
   /* Chart placeholders */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -118,7 +118,7 @@ body {
   --sidebar-accent-foreground: hsl(137 90% 12%);
   --sidebar-border: hsl(210 8% 28%);
   --sidebar-ring: hsl(204 83% 77%);
-
+  
   /* Chart placeholders */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
@@ -150,8 +150,8 @@ html {
 
 /* User provided specific override for sidebar */
 .sticky.top-\(--fd-docs-row-1\).z-20.\[grid-area\:sidebar\].pointer-events-none.\*\:pointer-events-auto.h-\[calc\(var\(--fd-docs-height\)-var\(--fd-docs-row-1\)\)\].md\:layout\:\[--fd-sidebar-width\:268px\].max-md\:hidden {
-  --fd-docs-row-1: 65px;
-  --fd-toc-popover-height: 32px;
+    --fd-docs-row-1: 65px;
+    --fd-toc-popover-height: 32px;
 }
 
 #nd-sidebar-mobile {

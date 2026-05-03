@@ -48,4 +48,4 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

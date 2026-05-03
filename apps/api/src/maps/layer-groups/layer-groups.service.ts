@@ -23,7 +23,7 @@ export class LayerGroupsService {
     orderType?: 'ASC' | 'DESC',
   ): Promise<LayerGroup[] | { data: LayerGroup[]; total: number }> {
     const where = search ? { name: ILike(`%${search}%`) } : {};
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const order: any = orderBy
       ? { [orderBy]: orderType ?? 'ASC' }
       : { index: 'ASC', name: 'ASC' };

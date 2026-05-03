@@ -1,10 +1,4 @@
 {
   "title": "Desenvolvimento",
-  "pages": [
-    "setup",
-    "contributing",
-    "commit-guidelines",
-    "pull-request-guidelines",
-    "troubleshooting"
-  ]
+  "pages": ["setup", "contributing", "commit-guidelines", "pull-request-guidelines", "troubleshooting"]
 }

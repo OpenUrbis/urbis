@@ -21,35 +21,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9
-          run_install: false
+      # Detects package manager (npm or yarn)
+      - name: Detect Package Manager
+        id: detect-package-manager
+        run: |
+          if [ -f "${{ github.workspace }}/yarn.lock" ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+            echo "command=install" >> $GITHUB_OUTPUT
+            echo "runner=yarn" >> $GITHUB_OUTPUT
+          elif [ -f "${{ github.workspace }}/package.json" ]; then
+            echo "manager=npm" >> $GITHUB_OUTPUT
+            echo "command=ci" >> $GITHUB_OUTPUT
+            echo "runner=npx --no-install" >> $GITHUB_OUTPUT
+          else
+            echo "Unable to determine package manager"
+            exit 1
+          fi
 
-      # Sets up Node.js with pnpm cache
+      # Sets up Node.js with dynamic cache based on package manager
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: ${{ steps.detect-package-manager.outputs.manager }}
 
-      # Installs dependencies
+      # Installs dependencies using detected package manager
       - name: Install dependencies
-        run: pnpm install
+        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
 
-      # Builds with Turborepo
+      # Builds with Turborepo using detected runner
       - name: Build
-        run: pnpm exec turbo run build
+        run: ${{ steps.detect-package-manager.outputs.runner }} turbo run build
 
-      # Runs linting
+      # Runs linting using detected runner
       - name: Run lint
-        run: pnpm exec turbo run lint
+        run: ${{ steps.detect-package-manager.outputs.runner }} turbo run lint
 
-      # Runs tests
+      # Runs tests using detected runner
       - name: Run tests
-        run: pnpm test
+        run: ${{ steps.detect-package-manager.outputs.runner }} test
 
       # Turborepo cache setup
       - name: Setup Turborepo cache
@@ -58,6 +68,6 @@ jobs:
           path: |
             .turbo
             node_modules/.cache/turbo
-          key: ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-turbo-${{ hashFiles(steps.detect-package-manager.outputs.manager == 'yarn' && 'yarn.lock' || 'package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-turbo-

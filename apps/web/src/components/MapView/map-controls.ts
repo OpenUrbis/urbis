@@ -47,6 +47,7 @@ const addDrawControls = (
 
 class PickLocationControl implements mapboxgl.IControl {
   private container!: HTMLElement;
+  private map?: mapboxgl.Map;
   private onPick: () => void;
   private button!: HTMLButtonElement;
 
@@ -54,7 +55,8 @@ class PickLocationControl implements mapboxgl.IControl {
     this.onPick = onPick;
   }
 
-  onAdd(_map: mapboxgl.Map) {
+  onAdd(map: mapboxgl.Map) {
+    this.map = map;
     this.container = document.createElement("div");
     this.container.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
     
@@ -72,6 +74,7 @@ class PickLocationControl implements mapboxgl.IControl {
 
   onRemove() {
     this.container.parentNode?.removeChild(this.container);
+    this.map = undefined;
   }
 }
 

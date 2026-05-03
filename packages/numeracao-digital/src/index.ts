@@ -85,7 +85,7 @@ export function converterDeBase27(codigoBase27: string): string {
  * @returns {string} 5 dígitos decimais
  */
 export function extrair5Decimais(valor: number | string): string {
-  const partes = valor.toString().split('.');
+  let partes = valor.toString().split('.');
   if (partes.length === 1) {
     return '00000';
   }
@@ -277,7 +277,7 @@ export function calculateArea(polygon: Array<{lat: number, lon: number}>): numbe
     const points = polygon.map(p => [p.lat, p.lon]);
     
     for (let i = 0; i < points.length; i++) {
-        const j = (i + 1) % points.length;
+        let j = (i + 1) % points.length;
         area += points[i][1] * points[j][0];
         area -= points[j][1] * points[i][0];
     }

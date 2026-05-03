@@ -10,7 +10,7 @@ export class GeoserverProxyService {
   private get auth() {
     const username = this.configService.get<string>('GEOSERVER_USER');
     const password = this.configService.get<string>('GEOSERVER_PASSWORD');
-
+    
     if (!username || !password) {
       throw new Error('GeoServer credentials not configured');
     }
@@ -23,7 +23,7 @@ export class GeoserverProxyService {
 
   private get baseUrl() {
     const url = this.configService.get<string>('GEOSERVER_URL');
-    if (!url) {
+     if (!url) {
       throw new Error('GeoServer URL not configured');
     }
     return url;
@@ -32,19 +32,17 @@ export class GeoserverProxyService {
   async getLayerAttributes(workspace: string, layerName: string) {
     try {
       const resourceUrl = `${this.baseUrl}/rest/workspaces/${workspace}/datastores/geoserver/featuretypes/${layerName}.json`;
-
+      
       // Get Resource details (FeatureType)
       const resourceRes = await axios.get(resourceUrl, { auth: this.auth });
-
+      
       // Handle different response structures if necessary, but usually it's featureType.attributes.attribute
       const attributes = resourceRes.data.featureType.attributes.attribute;
 
-      return attributes;
+      return attributes; 
     } catch (error) {
       console.error('Error fetching layer attributes', error);
-      throw new InternalServerErrorException(
-        'Failed to fetch layer attributes from GeoServer',
-      );
+      throw new InternalServerErrorException('Failed to fetch layer attributes from GeoServer');
     }
   }
 
@@ -68,15 +66,7 @@ export class GeoserverProxyService {
 
       Object.keys(response.headers).forEach((key) => {
         // Filter out headers that might cause issues
-        if (
-          ![
-            'host',
-            'connection',
-            'content-length',
-            'transfer-encoding',
-            'content-encoding',
-          ].includes(key.toLowerCase())
-        ) {
+        if (!['host', 'connection', 'content-length', 'transfer-encoding', 'content-encoding'].includes(key.toLowerCase())) {
           res.setHeader(key, response.headers[key]);
         }
       });

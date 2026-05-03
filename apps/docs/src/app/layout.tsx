@@ -11,7 +11,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3010",
   ),
-  title: "Urbis Documentation - Integração e Dados Geoespaciais",
+  title:
+    "Urbis Documentation - Integração e Dados Geoespaciais",
   description:
     "Documentação oficial da plataforma Urbis da Prefeitura de São Paulo. Sistema de integração, datalake e análise geoespacial.",
   keywords: [
@@ -22,10 +23,11 @@ export const metadata: Metadata = {
     "formulários dinâmicos",
     "mapa",
     "infraestrutura",
-    "documentação",
+    "documentação"
   ],
   openGraph: {
-    title: "Urbis Documentation - Integração e Dados Geoespaciais",
+    title:
+      "Urbis Documentation - Integração e Dados Geoespaciais",
     description:
       "Documentação oficial da plataforma Urbis da Prefeitura de São Paulo. Sistema de integração, datalake e análise geoespacial.",
     url: "https://docs.urbis.sampa.br/",

@@ -6,6 +6,7 @@ import { ChangePasswordForm } from '../../../../components/profile-edit/change-p
 import { TwoFactorManager } from '../../../../components/two-factor-manager/two-factor-manager';
 import { ProfileState } from '../../../../states/profile/profile.state';
 import { TranslateModule } from '@ngx-translate/core';
+import { PageStructure } from '../../../../components/page-structure/page-structure';
 import { HlmButtonDirective, HlmIconComponent } from '../../../../../../projects/shared/src/public-api';
 import { signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -22,6 +23,7 @@ import { lucideArrowLeft } from '@ng-icons/lucide';
     RouterModule,
     TwoFactorManager,
     TranslateModule,
+    PageStructure,
     HlmButtonDirective,
     HlmIconComponent,
     CommonModule

@@ -294,6 +294,8 @@ function __QuickSearchFilters<TData>({
   filters,
   columns,
   actions,
+  strategy,
+  locale = 'en',
 }: QuickSearchFiltersProps<TData>) {
   if (!search || search.trim().length < 2) return null
 

@@ -126,6 +126,7 @@ export class AuthController {
     const query = req.query as object;
     const params = Object.keys(query)
       .map(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         (key) => `${encodeURIComponent(key)}=${encodeURIComponent(query[key])}`,
       )
       .join('&');

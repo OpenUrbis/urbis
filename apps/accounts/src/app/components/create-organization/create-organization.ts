@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { HlmToasterService, HlmInputDirective, HlmLabelDirective, HlmButtonDirective, HlmIconComponent } from '../../../../projects/shared/src/public-api';
+import { LoadingButton, HlmToasterService, HlmInputDirective, HlmLabelDirective, HlmButtonDirective, HlmIconComponent } from '../../../../projects/shared/src/public-api';
 import { provideIcons } from '@ng-icons/core';
 import { lucideLoader2 } from '@ng-icons/lucide';
 import {
@@ -23,6 +23,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    LoadingButton,
     TranslateModule,
     HlmInputDirective,
     HlmLabelDirective,

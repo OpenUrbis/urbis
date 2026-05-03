@@ -141,7 +141,6 @@ export function ActiveFiltersMobileContainer({
         resizeObserver.disconnect()
       }
     }
-    return undefined
   }, [])
 
   // Update blur states when children change

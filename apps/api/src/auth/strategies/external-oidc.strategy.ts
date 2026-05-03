@@ -52,14 +52,12 @@ export class ExternalOidcStrategy extends PassportStrategy(
     const payloadAccessToken = accessToken
       ? this.jwtService.decode(accessToken as string)
       : null;
-    console.log('External OIDC accessToken payload:', payloadAccessToken);
+      console.log('External OIDC accessToken payload:', payloadAccessToken);
     const email = payload?.email ?? payloadAccessToken?.email;
-    const name =
-      payload?.social_name ?? payload?.name ?? payloadAccessToken?.name;
-    const preferredUsername =
-      payload?.preferred_username ?? payloadAccessToken?.preferred_username;
+    const name = payload?.social_name ?? payload?.name ?? payloadAccessToken?.name;
+    const preferredUsername = payload?.preferred_username ?? payloadAccessToken?.preferred_username;
     const picture = payload?.picture ?? payloadAccessToken?.picture;
-
+    
     let firstName = '';
     let lastName = '';
 

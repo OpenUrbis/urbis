@@ -1,11 +1,14 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import {
   HlmCardDirective,
+  HlmCardContentDirective,
   HlmCardHeaderDirective,
+  HlmCardTitleDirective,
   HlmIconComponent,
   LoadingContent,
 } from '../../../../projects/shared/src/public-api';
 import { Router, RouterModule } from '@angular/router';
+import { CreateOrganization } from '../../components/create-organization/create-organization';
 import { OrganizationState } from '../../states/organization/organization.state';
 import { IOrganization } from '../organizations/dto/organization.dto';
 import { CommonModule } from '@angular/common';
@@ -22,8 +25,11 @@ import { lucideLoader2 } from '@ng-icons/lucide';
     CommonModule,
     RouterModule,
     LoadingContent,
+    CreateOrganization,
     HlmCardDirective,
+    HlmCardContentDirective,
     HlmCardHeaderDirective,
+    HlmCardTitleDirective,
     HlmIconComponent,
     TranslateModule,
   ],

@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground pt-10 pb-10 font-sans">
       <div className="container mx-auto px-4">
-        <h1 className="text-transparent text-[9vw] font-black leading-none m-0 px-3 h-auto" style={{ WebkitTextStroke: '2px hsl(var(--primary-foreground))', fontVariationSettings: '"wght" 1000, "wdth" 125' }}>URBIS{'\''}SP</h1>
+        <h1 className="text-transparent text-[9vw] font-black leading-none m-0 px-3 h-auto" style={{ WebkitTextStroke: '2px hsl(var(--primary-foreground))', fontVariationSettings: '"wght" 1000, "wdth" 125' }}>URBIS'SP</h1>
 
         {/* INICIO */}
         <div className="flex justify-start mt-12 mb-6">

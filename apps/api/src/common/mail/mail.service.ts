@@ -62,6 +62,7 @@ export class MailService {
         ...mailData.data,
         accountsUrl: this.configService.get('app.accountsUrl'),
         i18n: (key, options) =>
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           this.i18n.translate(key, { lang: language, ...options }),
       });
 
@@ -103,6 +104,7 @@ export class MailService {
         ...mailData.data,
         accountsUrl: this.configService.get('app.accountsUrl'),
         i18n: (key, options) =>
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           this.i18n.translate(key, { lang: language, ...options }),
       });
 
@@ -140,6 +142,7 @@ export class MailService {
         ...mailData.data,
         accountsUrl: this.configService.get('app.accountsUrl'),
         i18n: (key, options) =>
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           this.i18n.translate(key, { lang: language, ...options }),
       });
 

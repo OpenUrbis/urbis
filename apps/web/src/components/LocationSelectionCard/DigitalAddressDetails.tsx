@@ -1,4 +1,4 @@
-import { encode } from '@open-urbis/numeracao-digital';
+import { encode, getPolygon, getAddressMetrics } from '@open-urbis/numeracao-digital';
 import { Button } from "@open-urbis/map-ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@open-urbis/map-ui";
 import {
@@ -31,6 +31,8 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
   const { navigatePop } = useNavigationContext();
   const { digitalAddressFeature } = useMapContext();
   const address = encode(latitude, longitude);
+  const polygon = getPolygon(address);
+  const metrics = getAddressMetrics(address);
   const [prefix, code] = address.split(' ');
 
   const utm = proj4("EPSG:4326", "EPSG:31983", [longitude, latitude]);

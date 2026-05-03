@@ -1,10 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService, ConfigType } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
 import authConfig from '../../common/config/auth.config';
@@ -24,9 +19,7 @@ export class ExternalOidcService {
   async getDiscoveryDocument() {
     const authority = this.config.externalOidc.authority;
     if (!authority) {
-      throw new BadRequestException(
-        'External OIDC Authority is not configured',
-      );
+      throw new BadRequestException('External OIDC Authority is not configured');
     }
 
     const wellKnownUrl = `${authority.replace(/\/$/, '')}/.well-known/openid-configuration`;
@@ -57,9 +50,7 @@ export class ExternalOidcService {
 
     const authority = this.config.externalOidc.authority;
     if (!authority) {
-      throw new BadRequestException(
-        'External OIDC Authority is not configured',
-      );
+      throw new BadRequestException('External OIDC Authority is not configured');
     }
 
     // Try to get discovery document
@@ -71,25 +62,17 @@ export class ExternalOidcService {
         return this.tokenEndpoint;
       }
     } catch (error) {
-      this.logger.warn(
-        `Failed to fetch discovery document from ${authority}: ${error.message}`,
-      );
+      this.logger.warn(`Failed to fetch discovery document from ${authority}: ${error.message}`);
     }
 
     throw new BadRequestException('Could not discover token endpoint');
   }
 
-  async exchangeToken(
-    code: string,
-    redirectUri: string,
-    codeVerifier?: string,
-  ) {
+  async exchangeToken(code: string, redirectUri: string, codeVerifier?: string) {
     const { clientId, clientSecret } = this.config.externalOidc;
 
     if (!clientId || !clientSecret) {
-      throw new BadRequestException(
-        'External OIDC Client ID and Secret are not configured',
-      );
+      throw new BadRequestException('External OIDC Client ID and Secret are not configured');
     }
 
     const endpoint = await this.getTokenEndpoint();
@@ -115,13 +98,8 @@ export class ExternalOidcService {
       );
       return response.data;
     } catch (error) {
-      this.logger.error(
-        'Error exchanging token',
-        error.response?.data || error.message,
-      );
-      throw new BadRequestException(
-        'Failed to exchange token with external provider',
-      );
+      this.logger.error('Error exchanging token', error.response?.data || error.message);
+      throw new BadRequestException('Failed to exchange token with external provider');
     }
   }
 }

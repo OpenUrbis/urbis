@@ -123,9 +123,9 @@ export type ColumnConfig<
 }
 
 export type OptionColumnId<T> = T extends ColumnConfig<
-  infer _TData,
+  infer TData,
   'option' | 'multiOption',
-  infer _TVal,
+  infer TVal,
   infer TId
 >
   ? TId
@@ -138,9 +138,9 @@ export type OptionColumnIds<
 }[number]
 
 export type NumberColumnId<T> = T extends ColumnConfig<
-  infer _TData,
+  infer TData,
   'number',
-  infer _TVal,
+  infer TVal,
   infer TId
 >
   ? TId
@@ -171,7 +171,7 @@ export type DataTableFilterConfig<TData> = {
   columns: ColumnConfig<TData>[]
 }
 
-export type ColumnProperties<_TData, TVal> = {
+export type ColumnProperties<TData, TVal> = {
   getOptions: () => ColumnOption[]
   getValues: () => ElementType<NonNullable<TVal>>[]
   getFacetedUniqueValues: () => Map<string, number> | undefined
@@ -182,7 +182,7 @@ export type ColumnProperties<_TData, TVal> = {
   prefetchFacetedMinMaxValues: () => Promise<void> // Prefetch faceted min/max values
 }
 
-export type ColumnPrivateProperties<_TData, TVal> = {
+export type ColumnPrivateProperties<TData, TVal> = {
   _prefetchedOptionsCache: ColumnOption[] | null
   _prefetchedValuesCache: ElementType<NonNullable<TVal>>[] | null
   _prefetchedFacetedUniqueValuesCache: Map<string, number> | null

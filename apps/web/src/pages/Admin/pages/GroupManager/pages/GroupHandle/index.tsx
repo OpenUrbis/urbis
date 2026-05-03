@@ -40,7 +40,7 @@ const GroupHandlePage = () => {
   const { toastSuccess, toastError } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema) as any,
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       ownerGroup: "",
@@ -121,7 +121,7 @@ const GroupHandlePage = () => {
       <div className=" flex items-center justify-center p-0 md:p-6">
         <Card className="w-full md:max-w-lg border-0 md:border shadow-none md:shadow-sm h-full md:h-auto rounded-none md:rounded-lg">
           <form
-            onSubmit={form.handleSubmit(onSubmit as any)}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col h-full"
           >
             <CardHeader>

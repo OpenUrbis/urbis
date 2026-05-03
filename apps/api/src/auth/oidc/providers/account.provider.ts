@@ -6,7 +6,7 @@ export class AccountProvider {
 
     return {
       accountId: id,
-      claims(_use: string, _scope: string) {
+      async claims(use: string, scope: string) {
         return {
           sub: id,
           email: user.email,

@@ -4,7 +4,6 @@
   "type": "module",
   "private": true,
   "exports": {
-    ".": "./index.js",
     "./base": "./base.js",
     "./index": "./index.js",
     "./nestjs": "./nestjs.js"

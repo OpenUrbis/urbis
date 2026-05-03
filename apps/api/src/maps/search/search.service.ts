@@ -27,10 +27,8 @@ export class SearchService {
     orderType?: 'ASC' | 'DESC',
   ): Promise<SearchConfig[] | { data: SearchConfig[]; total: number }> {
     const where = search ? { name: ILike(`%${search}%`) } : {};
-
-    const order: any = orderBy
-      ? { [orderBy]: orderType ?? 'ASC' }
-      : { index: 'ASC' };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const order: any = orderBy ? { [orderBy]: orderType ?? 'ASC' } : { index: 'ASC' };
 
     if (page && pageSize) {
       const take = pageSize;

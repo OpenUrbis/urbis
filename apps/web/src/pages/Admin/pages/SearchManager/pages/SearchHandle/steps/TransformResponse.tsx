@@ -8,6 +8,7 @@ import {
 import { useFormContext } from "react-hook-form";
 import { SearchSchemaFormValues } from "../utils";
 import { CodeEditor } from "@/components/CodeEditor";
+import { Save } from "lucide-react";
 
 interface TransformResponseProps {
   onBack: () => void;

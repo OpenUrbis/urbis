@@ -1,12 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { deleteLayerGroup, getLayerGroups } from "@/integrations/layer-group-integration";
-import { useQuery } from "@preact-signals/query";
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { useLocation } from "wouter";
-import { useToast } from "@/hooks/useToast";
+import { HasPermission } from "@/components/AccessControl/HasPermission";
 import { AdminHeader } from "@/components/AdminHeader";
-import { IGetConfigLayerGroup } from "@/types/fetch-map-config-type";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +9,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/useToast";
+import {
+  deleteLayerGroup,
+  getLayerGroups,
+} from "@/integrations/layer-group-integration";
+import { IGetConfigLayerGroup } from "@/types/fetch-map-config-type";
+import { RolePermissionScopeEnum } from "@/utils/access-control";
+import { useQuery } from "@preact-signals/query";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  Edit2,
+  Loader2,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { useState } from "react";
+import { useLocation } from "wouter";
 
-type SortOrder = 'ASC' | 'DESC';
+type SortOrder = "ASC" | "DESC";
 
 const GroupManagerPage = () => {
   const [, setLocation] = useLocation();
@@ -24,10 +38,10 @@ const GroupManagerPage = () => {
   const itemsPerPage = 10;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
-  
+
   // Sorting state
-  const [sortBy, setSortBy] = useState<string>('name');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
+  const [sortBy, setSortBy] = useState<string>("name");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("ASC");
 
   const { toastSuccess, toastError } = useToast();
 
@@ -38,7 +52,8 @@ const GroupManagerPage = () => {
     refetch,
   } = useQuery({
     queryKey: ["layer-groups", currentPage, itemsPerPage, sortBy, sortOrder],
-    queryFn: () => getLayerGroups(currentPage, itemsPerPage, undefined, sortBy, sortOrder),
+    queryFn: () =>
+      getLayerGroups(currentPage, itemsPerPage, undefined, sortBy, sortOrder),
   });
 
   const handleDelete = async () => {
@@ -58,16 +73,20 @@ const GroupManagerPage = () => {
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
-      setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+      setSortOrder(sortOrder === "ASC" ? "DESC" : "ASC");
     } else {
       setSortBy(column);
-      setSortOrder('ASC');
+      setSortOrder("ASC");
     }
   };
 
   const renderSortIcon = (column: string) => {
     if (sortBy !== column) return null;
-    return sortOrder === 'ASC' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />;
+    return sortOrder === "ASC" ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
+    );
   };
 
   if (isError) {
@@ -102,23 +121,32 @@ const GroupManagerPage = () => {
   return (
     <div className="p-6 space-y-4 overflow-auto h-full flex flex-col">
       <AdminHeader title="Grupos de Camadas" subtitle="Gerenciamento de grupos">
-        <Button onClick={() => setLocation("/handle")}>
-          <Plus className="mr-2 h-4 w-4" />
-          Criar Grupo
-        </Button>
+        <HasPermission
+          permissions={{
+            id: "layer-group:create",
+            action: "create",
+            resource: "layer-group",
+            scope: RolePermissionScopeEnum.ANY,
+          }}
+        >
+          <Button onClick={() => setLocation("/handle")}>
+            <Plus className="mr-2 h-4 w-4" />
+            Criar Grupo
+          </Button>
+        </HasPermission>
       </AdminHeader>
 
       <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-auto relative min-h-[200px]">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 sticky top-0 z-10">
             <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-              <th 
+              <th
                 className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
-                onClick={() => handleSort('name')}
+                onClick={() => handleSort("name")}
               >
                 <div className="flex items-center">
                   Nome
-                  {renderSortIcon('name')}
+                  {renderSortIcon("name")}
                 </div>
               </th>
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
@@ -131,13 +159,13 @@ const GroupManagerPage = () => {
           </thead>
           <tbody className="[&_tr:last-child]:border-0">
             {isLoading ? (
-               <tr>
-                 <td colSpan={3} className="h-24 text-center">
-                   <div className="flex items-center justify-center">
-                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                   </div>
-                 </td>
-               </tr>
+              <tr>
+                <td colSpan={3} className="h-24 text-center">
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                </td>
+              </tr>
             ) : (
               <>
                 {currentGroups.map((group) => (
@@ -145,29 +173,49 @@ const GroupManagerPage = () => {
                     key={group.id}
                     className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                   >
-                    <td className="p-4 align-middle font-medium">{group.name}</td>
+                    <td className="p-4 align-middle font-medium">
+                      {group.name}
+                    </td>
                     <td className="p-4 align-middle font-medium">
                       {group?.parentGroup?.name ?? "-"}
                     </td>
                     <td className="p-4 flex align-middle text-right space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setLocation(`/${group.id}`)}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => {
-                          setGroupToDelete(group.id);
-                          setDeleteDialogOpen(true);
+                      <HasPermission
+                        permissions={{
+                          id: "layer-group:update",
+                          action: "update",
+                          resource: "layer-group",
+                          scope: RolePermissionScopeEnum.ANY,
                         }}
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setLocation(`/${group.id}`)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                      </HasPermission>
+                      <HasPermission
+                        permissions={{
+                          id: "layer-group:delete",
+                          action: "delete",
+                          resource: "layer-group",
+                          scope: RolePermissionScopeEnum.ANY,
+                        }}
+                      >
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => {
+                            setGroupToDelete(group.id);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </HasPermission>
                     </td>
                   </tr>
                 ))}
@@ -224,7 +272,8 @@ const GroupManagerPage = () => {
           <DialogHeader>
             <DialogTitle>Excluir Grupo</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir este grupo? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir este grupo? Esta ação não pode ser
+              desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -234,10 +283,7 @@ const GroupManagerPage = () => {
             >
               Cancelar
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-            >
+            <Button variant="destructive" onClick={handleDelete}>
               Excluir
             </Button>
           </DialogFooter>

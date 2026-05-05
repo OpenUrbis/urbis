@@ -16,7 +16,7 @@ export function debounce<T extends (...args: any[]) => any>(
   options: DebounceOptions = {},
 ): ((...args: Parameters<T>) => ReturnType<T> | undefined) & ControlFunctions {
   const { leading = false, trailing = true, maxWait } = options
-  let timeout: NodeJS.Timeout | null = null
+  let timeout: ReturnType<typeof setTimeout> | null = null
   let lastArgs: Parameters<T> | null = null
   let lastThis: any
   let result: ReturnType<T> | undefined
@@ -51,7 +51,7 @@ export function debounce<T extends (...args: any[]) => any>(
   function startTimer(
     pendingFunc: () => void,
     waitTime: number,
-  ): NodeJS.Timeout {
+  ): ReturnType<typeof setTimeout> {
     return setTimeout(pendingFunc, waitTime)
   }
 
@@ -71,6 +71,7 @@ export function debounce<T extends (...args: any[]) => any>(
       return trailingEdge(time)
     }
     timeout = startTimer(timerExpired, remainingWait(time))
+    return undefined
   }
 
   function leadingEdge(time: number): ReturnType<T> | undefined {

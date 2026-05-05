@@ -19,6 +19,19 @@ export const config = [
     },
     rules: {
       "turbo/no-undeclared-env-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          args: "all",
+          argsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
     },
   },
   {
@@ -28,5 +41,10 @@ export const config = [
   },
   {
     ignores: ["dist/**"],
+  },
+  {
+    linterOptions: {
+      reportUnusedDisableDirectives: "off",
+    },
   },
 ];

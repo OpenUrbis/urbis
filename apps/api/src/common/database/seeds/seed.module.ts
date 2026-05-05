@@ -52,4 +52,4 @@ import { MapsModuleEntities } from '../../../maps/index.entity';
     UserSeedService,
   ],
 })
-export class SeedModule { }
+export class SeedModule {}

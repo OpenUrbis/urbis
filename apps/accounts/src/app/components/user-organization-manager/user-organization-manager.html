@@ -5,7 +5,7 @@
   >
     <section rightActions>
       <button
-      *hasPermission="'role:assign'"
+        *hasPermission="'role:assign'"
         hlmBtn
         [attr.aria-label]="
           'components.userOrganizationManager.page.buttons.add.ariaLabel'
@@ -26,16 +26,16 @@
         <div class="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
           <div class="flex flex-col gap-1">
             <span class="font-medium text-sm">{{ item.name }}</span>
-            
+
             @if (item.description) {
               <span class="text-xs text-muted-foreground">{{ item.description }}</span>
             }
-            
+
             <span class="text-xs text-muted-foreground">
               {{ buildRoles(item) }}
             </span>
           </div>
- 
+
           <button
             *hasPermission="'role:assign'"
             hlmBtn

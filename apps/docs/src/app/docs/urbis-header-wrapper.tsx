@@ -2,7 +2,7 @@
 
 import { UrbisHeader } from "@open-urbis/map-ui";
 import { useTheme } from "next-themes";
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 
 export function UrbisHeaderWrapper(props: ComponentProps<typeof UrbisHeader>) {
   const { theme, setTheme } = useTheme();
@@ -14,7 +14,7 @@ export function UrbisHeaderWrapper(props: ComponentProps<typeof UrbisHeader>) {
       setTheme={setTheme}
       showLogin={false}
       onMobileMenuClick={() => {
-        window.dispatchEvent(new CustomEvent('urbis:toggle-sidebar'));
+        window.dispatchEvent(new CustomEvent("urbis:toggle-sidebar"));
       }}
     />
   );

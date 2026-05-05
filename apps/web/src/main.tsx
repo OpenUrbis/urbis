@@ -15,6 +15,7 @@ import { PolygonEditProvider } from "./context/PolygonEditContext";
 import { SearchProvider } from "./context/SearchContext";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./components/AuthProvider";
+import { RequireAuth } from "./components/AccessControl/RequireAuth";
 
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
@@ -64,7 +65,9 @@ const App = () => (
                                       {(<PrintPage />) as ReactNode}
                                     </Route>
                                     <Route path="/admin" nest>
-                                      {(<AdminPage />) as ReactNode}
+                                      <RequireAuth>
+                                        {(<AdminPage />) as ReactNode}
+                                      </RequireAuth>
                                     </Route>
                                   </Suspense>
                                 ) as ReactNode

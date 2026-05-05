@@ -1,4 +1,4 @@
-import React from "react";
+import "react";
 import { cn } from "../lib/utils";
 
 export function UrbisFooter({ className }: { className?: string }) {

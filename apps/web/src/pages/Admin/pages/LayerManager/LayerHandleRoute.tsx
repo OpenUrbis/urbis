@@ -1,5 +1,7 @@
 import "preact/debug";
 
+import { RequirePermission } from "@/components/AccessControl/RequirePermission";
+import { RolePermissionScopeEnum } from "@/utils/access-control";
 import "@open-urbis/map-ui";
 import { Loader2 } from "lucide-react";
 import "preact/debug";
@@ -22,7 +24,26 @@ const AdminPage = () => {
             }
           >
             <Route path="/">{(<LayerManagerPage />) as ReactNode}</Route>
-            <Route path="/:id">{(<LayerHandlePage />) as ReactNode}</Route>
+            <Route path="/:id">
+              {(params) => {
+                const isCreate = params.id === "handle";
+                const action = isCreate ? "create" : "update";
+
+                return (
+                  <RequirePermission
+                    permissions={{
+                      id: `layer-schema:${action}`,
+                      action,
+                      resource: "layer-schema",
+                      scope: RolePermissionScopeEnum.ANY,
+                    }}
+                    redirectTo="~/admin/layer-manager"
+                  >
+                    <LayerHandlePage />
+                  </RequirePermission>
+                );
+              }}
+            </Route>
           </Suspense>
         ) as ReactNode
       }

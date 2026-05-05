@@ -5,7 +5,6 @@ import {
   getSearchConfigById,
   updateSearchConfig,
 } from "@/integrations/search-integration";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -34,7 +33,6 @@ const SearchHandlePage = () => {
 
   const [step, setStep] = useState(1);
   const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 5 : 1);
-  const [loading, setLoading] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [originalData, setOriginalData] = useState<IGetSearchConfigResponse | null>(null);
   const [, setLocation] = useLocation();
@@ -128,7 +126,6 @@ const SearchHandlePage = () => {
   };
 
   const onSubmit: SubmitHandler<SearchSchemaFormValues> = async (data) => {
-    setLoading(true);
     try {
       const transformed = buildSearchSchema(data);
 
@@ -156,8 +153,6 @@ const SearchHandlePage = () => {
     } catch (error) {
       console.error("Failed to save search", error);
       toastError("Erro ao salvar pesquisa");
-    } finally {
-      setLoading(false);
     }
   };
 

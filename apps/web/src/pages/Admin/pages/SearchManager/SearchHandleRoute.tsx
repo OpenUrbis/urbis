@@ -1,5 +1,7 @@
 import "preact/debug";
 
+import { RequirePermission } from "@/components/AccessControl/RequirePermission";
+import { RolePermissionScopeEnum } from "@/utils/access-control";
 import "@open-urbis/map-ui";
 import { Loader2 } from "lucide-react";
 import "preact/debug";
@@ -22,7 +24,26 @@ const SearchHandleRoute = () => {
             }
           >
             <Route path="/">{(<SearchManagerPage />) as ReactNode}</Route>
-            <Route path="/:id">{(<SearchHandlePage />) as ReactNode}</Route>
+            <Route path="/:id">
+              {(params) => {
+                const isCreate = params.id === "handle";
+                const action = isCreate ? "create" : "update";
+
+                return (
+                  <RequirePermission
+                    permissions={{
+                      id: `search-config:${action}`,
+                      action,
+                      resource: "search-config",
+                      scope: RolePermissionScopeEnum.ANY,
+                    }}
+                    redirectTo="~/admin/search-manager"
+                  >
+                    <SearchHandlePage />
+                  </RequirePermission>
+                );
+              }}
+            </Route>
           </Suspense>
         ) as ReactNode
       }

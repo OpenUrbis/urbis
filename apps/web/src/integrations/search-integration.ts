@@ -6,6 +6,7 @@ import {
 } from "../types/fetch-search-config-type";
 import { createFn } from "../utils/createFn";
 import { normalizeTerm } from "../utils/layer-utils";
+import { getAuthHeaders } from "../utils/auth-headers";
 
 const environment =
   (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
@@ -36,17 +37,20 @@ export const getSearchConfigById = async (id: string): Promise<IGetSearchConfigR
 };
 
 export const createSearchConfig = async (data: Partial<IGetSearchConfigResponse>): Promise<IGetSearchConfigResponse> => {
-  const response = await axios.post(`${environment}/search`, data);
+  const headers = await getAuthHeaders();
+  const response = await axios.post(`${environment}/search`, data, { headers });
   return response.data;
 };
 
 export const updateSearchConfig = async (id: string, data: Partial<IGetSearchConfigResponse>): Promise<IGetSearchConfigResponse> => {
-  const response = await axios.put(`${environment}/search/${id}`, data);
+  const headers = await getAuthHeaders();
+  const response = await axios.put(`${environment}/search/${id}`, data, { headers });
   return response.data;
 };
 
 export const deleteSearchConfig = async (id: string): Promise<void> => {
-  await axios.delete(`${environment}/search/${id}`);
+  const headers = await getAuthHeaders();
+  await axios.delete(`${environment}/search/${id}`, { headers });
 };
 
 export const fetchSearchItem = async (

@@ -24,7 +24,6 @@ import { useState, useMemo } from "react";
 import axios from "axios";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { filtersToCQL } from "../../utils/cql-builder";
-import { createFn } from "../../utils/createFn";
 import { getColumnType, getIcon, getLayerNameFromConfig, normalizeTerm } from "../../utils/layer-utils";
 
 export const ConcatenatedSearchModal = () => {

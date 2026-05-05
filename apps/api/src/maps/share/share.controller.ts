@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Patch,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ShareService } from './share.service';
 import { CreateSharedMapDto } from './dto/create-shared-map.dto';
@@ -54,7 +62,10 @@ export class ShareController {
     description: 'The map state has been successfully updated.',
     type: SharedMap,
   })
-  update(@Param('id') id: string, @Body() updateSharedMapDto: UpdateSharedMapDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateSharedMapDto: UpdateSharedMapDto,
+  ) {
     return this.shareService.update(id, updateSharedMapDto);
   }
 }

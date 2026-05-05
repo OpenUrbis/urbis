@@ -47,11 +47,10 @@
             >
                 {{ 'pages.users.edit.tabs.dadosDoUsuarios' | translate }}
             </button>
-            
 
             @if (id()) {
                 <button
-                  *hasPermission="'role:list'"
+                    *hasPermission="'role:list'"
                     type="button"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
                     [class.border-primary]="selectedTab() === 1"
@@ -64,7 +63,7 @@
                     {{ 'pages.users.edit.tabs.roles' | translate }}
                 </button>
                 <button
-                  *hasPermission="'organization:list'"
+                    *hasPermission="'organization:list'"
                     type="button"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
                     [class.border-primary]="selectedTab() === 2"

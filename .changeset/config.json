@@ -9,7 +9,9 @@
   "updateInternalDependencies": "patch",
   "ignore": [
     "@open-urbis/map-ui",
-    "@open-urbis/map-web"
+    "@open-urbis/map-web",
+    "docs",
+    "urbis-site"
   ],
   "privatePackages": false
 }

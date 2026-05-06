@@ -45,6 +45,23 @@ const addDrawControls = (
   return draw;
 };
 
+
+class SpacerControl implements mapboxgl.IControl {
+  private container!: HTMLElement;
+
+  onAdd(_map: mapboxgl.Map) {
+    this.container = document.createElement("div");
+    this.container.className = "mapboxgl-ctrl";
+    this.container.style.height = "132px";
+    this.container.style.width = "0px";
+    return this.container;
+  }
+
+  onRemove() {
+    this.container.parentNode?.removeChild(this.container);
+  }
+}
+
 class PickLocationControl implements mapboxgl.IControl {
   private container!: HTMLElement;
   private onPick: () => void;
@@ -92,6 +109,7 @@ export const addMapControls = (
 
   // Adiciona o controle de troca de estilo ao mapa
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  map.addControl(new SpacerControl(), "top-right");
 
   if (onPickLocation) {
       map.addControl(new PickLocationControl(onPickLocation), "top-right");

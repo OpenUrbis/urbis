@@ -15,7 +15,7 @@ export const fetchAttributes = async (url: string, layerName: string): Promise<s
 
     const baseUrl = getBaseUrl(url);
     const environment =
-      import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br";
+      import.meta.env.VITE_API_URL || "/api";
 
     // Try WFS 2.0.0 first, usually gives clean XSD
     const response = await axios.get(`${environment}/maps/proxy`, {

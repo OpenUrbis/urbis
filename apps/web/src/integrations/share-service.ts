@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const environment =
-  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
+  (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
 export interface SyncData {
   root: {
@@ -57,10 +57,11 @@ export const shareService = {
     return { success: true, id: 'mock-id-' + Date.now() };
   },
   
-  share: async (data: SyncData, name: string, description?: string): Promise<ShareResponse> => {
+  share: async (data: SyncData, name: string, description?: string, type: string = 'map'): Promise<ShareResponse> => {
      const payload = {
          name,
          description,
+         type,
          state: data
      };
      
@@ -86,20 +87,21 @@ export const shareService = {
       }
   },
 
-  update: async (id: string, data: SyncData, name: string, description?: string): Promise<SharedMap> => {
+  update: async (id: string, data: SyncData, name: string, description?: string, type: string = 'map'): Promise<SharedMap> => {
       const payload = {
          name,
          description,
+         type,
          state: data
       };
       const { data: responseData } = await axios.patch(`${environment}/share/${id}`, payload);
       return responseData;
   },
 
-  getHistory: async (userId: string, page: number = 1, limit: number = 10): Promise<{ items: SharedMapItem[], total: number }> => {
+  getHistory: async (userId: string, page: number = 1, limit: number = 10, type: string = 'map'): Promise<{ items: SharedMapItem[], total: number }> => {
       try {
         const { data } = await axios.get(`${environment}/share/user/${userId}`, {
-            params: { page, limit }
+            params: { page, limit, type }
         });
         return data;
       } catch (error) {

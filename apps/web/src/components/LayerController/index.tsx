@@ -1,4 +1,5 @@
 import { signal, useSignal } from "@preact/signals";
+import { useEffect } from "preact/hooks";
 import "preact/compat";
 import { Button } from "@open-urbis/map-ui";
 import { Input } from "@open-urbis/map-ui";
@@ -14,7 +15,16 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@open-urbis/map-ui";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@open-urbis/map-ui";
+import { Switch } from "@open-urbis/map-ui";
 import { cn } from "@open-urbis/map-ui";
 import { useMapContext } from "../../hooks/useMapContext";
 import { exportGeoJson } from "../../integrations/map-integration";
@@ -29,12 +39,32 @@ import { ExportOptionsModal } from "./modals/ExportOptionsModal";
 const isCollapsed = signal<boolean>(false);
 
 const environment =
-  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
+  (import.meta.env.VITE_API_URL || "/api") + "/maps";
+
+const MAP_STYLES = [
+  { id: "standard", label: "Padrão", icon: "map" },
+  { id: "light", label: "Claro", icon: "light_mode" },
+  { id: "dark", label: "Escuro", icon: "dark_mode" },
+  { id: "outdoors", label: "Ar Livre", icon: "forest" },
+  { id: "satellite", label: "Satélite", icon: "satellite" },
+  { id: "satellite-streets", label: "Híbrido", icon: "public" },
+  { id: "maxar-satellite", label: "Maxar Sat", icon: "satellite" },
+] as const;
 
 export const LayerController = () => {
-  const { layerGroups, layerSchemas, boundingBox, zoom } = useMapContext();
+  const { layerGroups, layerSchemas, boundingBox, zoom, selectedBaseMap, is3DActive } = useMapContext();
   
   const activeTab = useSignal<'sources' | 'visible'>('sources');
+
+  useEffect(() => {
+    isCollapsed.value = true;
+    const timeout = setTimeout(() => {
+      isCollapsed.value = false;
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  const selectedStyle = MAP_STYLES.find(s => s.id === selectedBaseMap.value) || MAP_STYLES[0];
   const searchValue = useSignal('');
   const isAddLayerOpen = useSignal(false);
   const isShareOpen = useSignal(false);
@@ -164,23 +194,88 @@ export const LayerController = () => {
 
   return (
     <>
-      <div className="fixed bottom-9 right-2 z-[8] flex gap-2 items-center">
+      <div className="fixed top-[84px] right-[10px] z-[8] flex gap-2 items-center">
         {!isCollapsed.value && (
-          <Button
-            onClick={() => (isCollapsed.value = true)}
-            variant="outline"
-            className="shadow-md rounded-full h-12 px-5 text-base bg-background/80 backdrop-blur-md hover:bg-accent hover:text-accent-foreground"
-          >
-            <span className="material-symbols-outlined mr-1 text-xl">
-              layers
-            </span>
-            Gerenciar
-          </Button>
+          <>
+            <DropdownMenu>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    className="shadow-md rounded-full h-12 w-12 p-0"
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      {selectedStyle.icon}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{selectedStyle.label}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Mapa Base</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {MAP_STYLES.map((style) => (
+              <DropdownMenuItem
+                key={style.id}
+                onClick={() => (selectedBaseMap.value = style.id)}
+                className={cn(
+                  "flex items-center justify-between cursor-pointer",
+                  selectedBaseMap.value === style.id && "bg-accent"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-lg">
+                    {style.icon}
+                  </span>
+                  {style.label}
+                </div>
+                {selectedBaseMap.value === style.id && (
+                  <span className="material-symbols-outlined text-sm">
+                    check
+                  </span>
+                )}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+            <div className="flex items-center justify-between px-2 py-1.5 text-sm select-none">
+              <span className="font-medium">Visualização 3D</span>
+              <Switch
+                checked={is3DActive.value}
+                onCheckedChange={(checked) => (is3DActive.value = checked)}
+              />
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+            <Button
+              onClick={() => (isCollapsed.value = true)}
+              variant="outline"
+              className="shadow-md rounded-full h-12 px-5 text-base bg-background/80 backdrop-blur-md hover:bg-accent hover:text-accent-foreground"
+            >
+              <span className="material-symbols-outlined mr-1 text-xl">
+                layers
+              </span>
+              Gerenciar
+            </Button>
+          </>
         )}
       </div>
 
-      {isCollapsed.value && (
-        <div className="fixed top-[74px] right-[46px] z-[10] w-[340px] max-w-[70vw] bg-background/80 backdrop-blur-md rounded-xl shadow-lg overflow-hidden max-h-[calc(100vh-100px)] border flex flex-col transition-all">
+        <div
+          className={cn(
+            "fixed top-[82px] right-[46px] z-[10] w-[340px] max-w-[70vw] bg-background/80 backdrop-blur-md rounded-xl shadow-lg overflow-hidden max-h-[calc(100vh-100px)] border flex flex-col transition-all duration-300 ease-in-out",
+            isCollapsed.value
+              ? "translate-x-0 opacity-100 visible"
+              : "translate-x-[120%] opacity-0 invisible"
+          )}
+        >
           <div className="flex items-center justify-between p-3 border-b bg-background/50">
             <h5 className="text-sm font-semibold m-0">Gerenciar Camadas</h5>
             <Button
@@ -254,7 +349,7 @@ export const LayerController = () => {
               <span className="material-symbols-outlined text-base mr-2">
                 share
               </span>
-              Compartilhar
+              Compartilhar Visualização
             </Button>
 
             <DropdownMenu>
@@ -278,7 +373,7 @@ export const LayerController = () => {
                   <span className="material-symbols-outlined mr-2">
                     history
                   </span>
-                  Histórico de Compartilhamento
+                  Histórico de Visualizações
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleExportGeoJSON}>
                   <span className="material-symbols-outlined mr-2">
@@ -290,7 +385,6 @@ export const LayerController = () => {
             </DropdownMenu>
           </div>
         </div>
-      )}
 
       <AddLayerModal isOpen={isAddLayerOpen.value} onOpenChange={(v) => (isAddLayerOpen.value = v)} />
       <ShareModal isOpen={isShareOpen.value} onOpenChange={(v) => (isShareOpen.value = v)} />

@@ -19,7 +19,6 @@ export const SearchSchemaFormSchema = z.object({
   
   // Step 2
   transformParams: z.string().optional(),
-  filterTree: z.any().optional(),
   
   // Step 3
   transformRequest: z.string().optional(),
@@ -54,7 +53,6 @@ export const buildSearchSchema = (data: SearchSchemaFormValues): Partial<IGetSea
     isActive: data.isActive,
     clickAction: clickActionObj,
     ...(data.transformParams ? { transformParams: data.transformParams } : {}),
-    ...(data.filterTree ? { filterTree: data.filterTree } : {}),
     ...(data.transformRequest ? { transformRequest: data.transformRequest } : {}),
     ...(data.transformResponse ? { transformResponse: data.transformResponse } : {}),
   };
@@ -84,7 +82,6 @@ export const parseSearchSchemaToForm = (data: IGetSearchConfigResponse): SearchS
     clickAction: formClickAction,
     clickActionParams: formClickActionParams,
     transformParams: data.transformParams || "",
-    filterTree: data.filterTree,
     transformRequest: data.transformRequest || "",
     transformResponse: data.transformResponse || "",
   };

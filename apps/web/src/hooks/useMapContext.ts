@@ -118,6 +118,7 @@ const getMapHandlers = (context: MapContextType) => {
       longitude,
       bearing,
       pitch,
+      padding,
       layerSchemas: cLayerSchemas,
       layerGroups: cLayerGroups,
       zoom: cZoom,
@@ -134,21 +135,18 @@ const getMapHandlers = (context: MapContextType) => {
       layerWithRootEditTemplate.value = cLayerWithRootEditTemplate;
     }
 
-    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-    const uiPadding = {
-      top: 64,
-      bottom: 0,
-      left: isDesktop ? 420 : 0,
-      right: 0,
-    };
-
     viewport.value = {
       latitude,
       longitude,
       zoom: zoom ?? 10,
       bearing: bearing ?? 0,
       pitch: pitch ?? 0,
-      padding: uiPadding,
+      padding: padding ?? {
+        top: 0,
+        bottom: 0,
+        left: 182,
+        right: 0,
+      },
     };
   };
 
@@ -171,9 +169,8 @@ const getMapHandlers = (context: MapContextType) => {
     handleActiveLayer,
     populateMapContext,
     selectFeature,
-  handleViewportChange,
-  flyTo,
-  flyToWithPadding: flyTo,
+    handleViewportChange,
+    flyTo,
   };
 };
 

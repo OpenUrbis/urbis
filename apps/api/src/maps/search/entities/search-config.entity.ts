@@ -70,13 +70,6 @@ export class SearchConfig {
   transformParams?: string;
 
   @ApiPropertyOptional({
-    description: 'Filter Tree structure',
-    example: {},
-  })
-  @Column({ nullable: true, type: 'jsonb', default: null })
-  filterTree?: any;
-
-  @ApiPropertyOptional({
     description: 'Function to transform header and body before request',
     example: '() => ({})',
   })

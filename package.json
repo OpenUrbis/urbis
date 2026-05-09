@@ -1,9 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "build": "turbo run build",
+    "build": "turbo run build --filter=!urbis-site",
     "dev": "turbo run dev",
-    "dev:ssl": "turbo run dev:ssl --filter=accounts & turbo run dev --filter=!accounts",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "composer:up": "docker-compose -f apps/api/docker-compose.yaml up -d",

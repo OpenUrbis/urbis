@@ -65,13 +65,6 @@ export class SearchConfigDto {
   transformParams?: string;
 
   @ApiProperty({
-    description: 'Filter Tree structure',
-    example: {},
-  })
-  @IsOptional()
-  filterTree?: any;
-
-  @ApiProperty({
     description: 'Function to transform body before request',
     example: '() => ({})',
   })

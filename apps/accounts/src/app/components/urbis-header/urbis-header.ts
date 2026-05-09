@@ -22,8 +22,6 @@ import { OrganizationState } from '../../states/organization/organization.state'
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { AUTH_CONFIG_ID } from '../../../../projects/shared/src/lib/auth/auth.config';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { UserAvatarComponent } from '../user-avatar/user-avatar';
 
 export interface NavItem {
   label: string;
@@ -47,7 +45,6 @@ export interface NavItem {
     HlmSidebarTriggerDirective,
     LogoComponent,
     UrbisAccessibilityMenu,
-    UserAvatarComponent,
   ],
   providers: [provideIcons({ lucideMenu, lucideX, lucideUser, lucideLogOut })],
   template: `
@@ -112,13 +109,11 @@ export interface NavItem {
                 class="h-9 gap-2 rounded-full border-border bg-background px-2 transition-colors hover:bg-red hover:text-accent-foreground"
               >
                 <div class="flex items-center gap-2">
-                  <app-user-avatar 
-                    [src]="avatarSrc()" 
-                    [firstName]="getFirstName()" 
-                    [lastName]="getLastName()" 
-                    [width]="28" 
-                    [height]="28" 
-                  />
+                  <div hlmAvatar class="h-7 w-7 border border-border">
+                    <span hlmAvatarFallback class="bg-primary/10 text-[10px] font-bold text-primary">
+                      {{ getUserInitials() }}
+                    </span>
+                  </div>
                   <span class="hidden text-sm font-medium sm:inline-block">
                     {{ getUserName() }}
                   </span>
@@ -127,13 +122,11 @@ export interface NavItem {
 
               <div *ngIf="userMenuOpen" hlmMenu class="absolute right-0 top-full mt-2 w-56">
                 <div class="flex items-center gap-3 px-3 py-2 border-b border-border">
-                  <app-user-avatar 
-                    [src]="avatarSrc()" 
-                    [firstName]="getFirstName()" 
-                    [lastName]="getLastName()" 
-                    [width]="40" 
-                    [height]="40" 
-                  />
+                  <div hlmAvatar class="h-10 w-10 border border-border">
+                    <span hlmAvatarFallback class="bg-primary/10 text-sm font-bold text-primary">
+                      {{ getUserInitials() }}
+                    </span>
+                  </div>
                   <div class="flex flex-col truncate">
                     <span class="text-sm font-semibold truncate">{{ getFullUserName() }}</span>
                     <span class="text-xs text-muted-foreground truncate" *ngIf="profileState.value() as user">{{ user.email }}</span>
@@ -223,24 +216,10 @@ export class UrbisHeader {
   mobileMenuOpen = false;
   userMenuOpen = false;
 
-  readonly avatarSrc = computed(() => {
-    const profile = this.profileState.value();
-    if (!profile?.id) return undefined;
-    return `${environment.s3EndpointPublic}/avatars/${profile.id}`;
-  });
-
   isDarkMode = computed(() => {
     const val = this.whitelabel.value();
     return (val as any)?.theme === 'dark';
   });
-
-  getFirstName(): string {
-    return this.profileState.value()?.firstName || 'U';
-  }
-
-  getLastName(): string {
-    return this.profileState.value()?.lastName || '';
-  }
 
   onLogin() {
     window.location.href = '/sign-in';

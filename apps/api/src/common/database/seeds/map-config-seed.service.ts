@@ -31,7 +31,7 @@ export class MapConfigSeedService {
         id: 'padding',
         value: {
           top: 0,
-          bottom: 0,
+          bottom: 400,
           left: 0,
           right: 0,
         },
@@ -56,8 +56,8 @@ export class MapConfigSeedService {
                           filled: true,
                           lineWidthMinPixels: 2,
                           getPolygon: (d) => d.coordinates,
-                          getFillColor: [30, 111, 249, 100],
-                          getLineColor: [30, 111, 249],
+                          getFillColor: [255, 165, 0, 100],
+                          getLineColor: [255, 140, 0],
                         })
                       `,
                   initialViewState: `

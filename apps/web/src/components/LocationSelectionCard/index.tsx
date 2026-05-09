@@ -4,19 +4,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@open-urbis/map-ui";
 import { Input } from "@open-urbis/map-ui";
 import { Label } from "@open-urbis/map-ui";
 import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from "@open-urbis/map-ui";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@open-urbis/map-ui";
-import { MapPin, FileJson, ChevronRight, Hash } from "lucide-react";
 import { useMapContext } from "../../hooks/useMapContext";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { transformFileToJson } from "../../utils/transformFileToJson";
 import { calculateCentroid } from "../MapView/utils";
 import { PolygonDetails } from "../PolygonDetails";
+import { BaseMapSelector } from "../BaseMapSelector";
 import { DigitalAddressDetails } from "./DigitalAddressDetails";
 import { decode, getPolygon, encode } from "@open-urbis/numeracao-digital";
 // @ts-ignore
@@ -355,61 +362,41 @@ export const LocationSelectionCard = () => {
     <div className="grid gap-2">
       {step.value === 1 ? (
         <div className="flex flex-col gap-2">
-          <div
-            className="cursor-pointer bg-card shadow-sm hover:bg-accent/50 transition-colors rounded-lg border p-3 flex items-center gap-3"
-            onClick={() => {
-              inputType.value = "latlon";
-              handleOptionSelect("coordenadas");
-            }}
+          <Item
+            variant="outline"
+            className="cursor-pointer bg-card shadow-sm"
+            onClick={() => handleOptionSelect("coordenadas")}
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <MapPin className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col flex-1 text-left">
-              <span className="text-sm font-semibold">Localizar Endereço</span>
-              <span className="text-xs text-muted-foreground">
-                Busque por Coordenadas ou Plus Code.
+            <ItemContent>
+              <ItemTitle>Localizar Endereço</ItemTitle>
+              <ItemDescription>
+                Busque por Coordenadas, Endereço Digital ou Plus Code.
+              </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <span className="material-symbols-outlined text-muted-foreground">
+                chevron_right
               </span>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </div>
+            </ItemActions>
+          </Item>
 
-          <div
-            className="cursor-pointer bg-card shadow-sm hover:bg-accent/50 transition-colors rounded-lg border p-3 flex items-center gap-3"
-            onClick={() => {
-              inputType.value = "digital";
-              handleOptionSelect("coordenadas");
-            }}
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Hash className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col flex-1 text-left">
-              <span className="text-sm font-semibold">Numeração Digital</span>
-              <span className="text-xs text-muted-foreground">
-                Busque por Endereço Digital.
-              </span>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </div>
-
-          <div
-            className="cursor-pointer bg-card shadow-sm hover:bg-accent/50 transition-colors rounded-lg border p-3 flex items-center gap-3"
+          <Item
+            variant="outline"
+            className="cursor-pointer bg-card shadow-sm"
             onClick={() => handleOptionSelect("geoJson")}
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <FileJson className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col flex-1 text-left">
-              <span className="text-sm font-semibold">
-                Buscar com perímetro georeferenciado
-              </span>
-              <span className="text-xs text-muted-foreground">
+            <ItemContent>
+              <ItemTitle>Buscar com perímetro georeferenciado</ItemTitle>
+              <ItemDescription>
                 Carregar arquivo GeoJSON para localização.
+              </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <span className="material-symbols-outlined text-muted-foreground">
+                chevron_right
               </span>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </div>
+            </ItemActions>
+          </Item>
         </div>
       ) : (
         <Card className="rounded-xl border shadow-sm">
@@ -582,6 +569,7 @@ export const LocationSelectionCard = () => {
         </Card>
       )}
 
+      {step.value === 1 && <BaseMapSelector />}
     </div>
   );
 };

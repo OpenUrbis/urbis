@@ -17,10 +17,7 @@
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "dev:ssl": {
-      "cache": false,
-      "persistent": true
     }
   }
 }
+

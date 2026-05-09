@@ -1,5 +1,6 @@
 import { computed, useSignal } from "@preact/signals";
-import { PickingInfo } from "deck.gl";
+import type { PickingInfo } from "deck.gl";
+import type { Style } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useMemo } from "react";
 import { Map } from "react-map-gl/mapbox";
@@ -8,7 +9,6 @@ import { cn } from "@open-urbis/map-ui";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
 import { useMapContext } from "../../hooks/useMapContext";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
-import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { LayerController } from "../LayerController";
 import { DeckGLOverlay } from "./DeckGLOverlay";
@@ -43,19 +43,8 @@ export const MapView = ({
   const mapContext = useMapContext();
   const { theme } = useTheme();
   const { drawerOpen, navigateTo } = useNavigationContext();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-  const sidebarOpen = isDesktop && drawerOpen.value;
 
   const isPickingLocation = useSignal(false);
-
-  useEffect(() => {
-    if (sidebarOpen) {
-      document.body.classList.add("sidebar-open");
-    } else {
-      document.body.classList.remove("sidebar-open");
-    }
-    return () => document.body.classList.remove("sidebar-open");
-  }, [sidebarOpen]);
 
   const {
     layerSchemas,
@@ -87,7 +76,7 @@ export const MapView = ({
       return transformSchemaLayers(previewLayers, {
         zoom: zoom.value,
         boundingBox: boundingBox.value,
-        selectedFeature: selectedFeatures.value,
+        selectedFeatureIds: [],
         is3DActive: is3DActive.value,
       }).flat();
     }
@@ -95,7 +84,10 @@ export const MapView = ({
     const baseLayers = transformSchemaLayers(layerSchemas.value, {
       zoom: zoom.value,
       boundingBox: boundingBox.value,
-      selectedFeature: selectedFeatures.value,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      selectedFeatureIds: selectedFeatures.value as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      selectedFeature: selectedFeatures.value as any,
       is3DActive: is3DActive.value,
     }).flat();
 
@@ -122,29 +114,29 @@ export const MapView = ({
           case "satellite": return "mapbox://styles/mapbox/satellite-v9";
           case "satellite-streets": return "mapbox://styles/mapbox/satellite-streets-v9";
           case "maxar-satellite": {
-            const baseUrl = (import.meta.env.VITE_API_URL || "/api");
+            const baseUrl = (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br");
             return {
               version: 8,
               sources: {
                 "maxar-wms": {
                   type: "raster",
                   tiles: [
-                    `${baseUrl}/maps/geoserver-proxy/maxar?service=WMS&request=GetMap&layers=Maxar:Imagery&styles=&format=image/jpeg&transparent=false&version=1.3.0&width=256&height=256&crs=EPSG:3857&bbox={bbox-epsg-3857}`
-                  ],
-                  tileSize: 256
-                }
-              },
-              layers: [
-                {
-                  id: "maxar-wms",
-                  type: "raster",
-                  source: "maxar-wms",
-                  paint: {}
-                }
-              ]
-            } as mapboxgl.Style;
-          }
-          default: return "mapbox://styles/mapbox/light-v9";
+                    `${baseUrl}/maps/geoserver-proxy/maxar?service=WMS&request=GetMap&layers=DigitalGlobe:ImageryTileService&styles=&format=image/jpeg&transparent=false&version=1.1.1&width=256&height=256&srs=EPSG:3857&bbox={bbox-epsg-3857}`
+              ],
+              tileSize: 256
+            }
+          },
+          layers: [
+            {
+              id: "maxar-wms",
+              type: "raster",
+              source: "maxar-wms",
+              paint: {}
+            }
+          ]
+        } as Style;
+      }
+      default: return "mapbox://styles/mapbox/light-v9";
       }
   }, [theme, selectedBaseMap.value]);
 
@@ -293,12 +285,13 @@ export const MapView = ({
                 longitude: evt.lngLat.lng,
               };
             }}
-            onMoveEnd={() =>
-              handleViewportChange(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (overlayRef!.current as any)._deck.getViewports()[0]
-              )
-            }
+            onMoveEnd={() => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const viewport = (overlayRef?.current as any)?._deck?.getViewports()?.[0];
+              if (viewport) {
+                handleViewportChange(viewport);
+              }
+            }}
           >
             <DeckGLOverlay
               ref={overlayRef}
@@ -308,7 +301,7 @@ export const MapView = ({
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 addMapControls((overlayRef.current as any)._map, polygonEdit, () => {
                     isPickingLocation.value = !isPickingLocation.value;
-                });
+                }, hideControls);
               }}
               style={{ cursor: isPickingLocation.value ? 'crosshair' : 'default' }}
             />

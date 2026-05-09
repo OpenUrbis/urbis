@@ -12,7 +12,7 @@ export const LeftNav = () => {
     return (
       <div
         className={cn(
-          "relative h-full border-r transition-all duration-300 overflow-hidden flex flex-col pt-16 pointer-events-auto bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+          "relative h-full bg-background border-r transition-all duration-300 overflow-hidden flex flex-col",
           drawerOpen.value ? "w-[420px]" : "w-0 border-none"
         )}
       >

@@ -48,7 +48,7 @@ export const WebLayer = ({ onBack, onClose }: WebLayerProps) => {
 
     try {
       const baseUrl = getBaseUrl(url.value);
-      const environment = import.meta.env.VITE_API_URL || "/api";
+      const environment = import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br";
       
       let params = "";
       if (serviceType.value === "WMS") {

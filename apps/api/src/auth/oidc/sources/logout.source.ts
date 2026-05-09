@@ -76,7 +76,7 @@ export const logoutSource = async (ctx: any, form: any) => {
     <body>
       <div class="container-content">
         <h1>
-          Você deseja desconectar?
+          Do you want to disconnect?
         </h1>
         
         <script>
@@ -96,10 +96,10 @@ export const logoutSource = async (ctx: any, form: any) => {
         </script>
         ${form}
         <button onclick="logout()" class="yes">
-          Sim, desconectar
+          Yes, disconnect
         </button>
         <button onclick="rpLogoutOnly()" class="no">
-          Não, voltar
+          No, take me back
         </button>
       </div>
     </body>

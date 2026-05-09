@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/popover";
 import { getLayerSchemas } from "@/integrations/layer-schema-integration";
 import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
-import { useMapContext } from "@/hooks/useMapContext";
 
 interface LayerSelectProps {
   value: string;
@@ -28,49 +27,19 @@ export const LayerSelect = ({
   const [layers, setLayers] = useState<IGetConfigLayerSchema[]>([]);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 300);
-  
-  // Try to get from context first if available, otherwise fetch
-  let contextLayers: any = null;
-  try {
-      const context = useMapContext();
-      contextLayers = context.layerSchemas.value;
-  } catch (e) {
-      // Ignore if not in provider
-  }
 
   useEffect(() => {
-    // If contextLayers is available and populated, use it
-    if (contextLayers && contextLayers.length > 0) {
-      if (debouncedSearch) {
-        setLayers(
-          contextLayers.filter((l: any) =>
-            l.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-          )
-        );
-      } else {
-        setLayers(contextLayers);
-      }
-    } else {
-      // Otherwise fetch from API
-      const fetchLayers = async () => {
-        try {
-          const res = await getLayerSchemas(1, 100, debouncedSearch);
-          const data =
-            res && typeof res === "object" && "data" in res
-              ? (res.data as IGetConfigLayerSchema[])
-              : Array.isArray(res)
-              ? res
-              : [];
-          setLayers(data);
-        } catch (error) {
-          console.error("Failed to fetch layers for select", error);
-          setLayers([]);
-        }
-      };
-      
-      fetchLayers();
-    }
-  }, [debouncedSearch, contextLayers]);
+    // Using search term in getLayerSchemas if it supports it
+    getLayerSchemas(1, 100, debouncedSearch).then((res) => {
+      const data =
+        res && typeof res === "object" && "data" in res
+          ? (res.data as IGetConfigLayerSchema[])
+          : Array.isArray(res)
+            ? res
+            : [];
+      setLayers(data);
+    });
+  }, [debouncedSearch]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

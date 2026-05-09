@@ -216,4 +216,55 @@ export class MailService {
       html: `Seu código de verificação é: ${code}`,
     });
   }
+
+  async sendSupportTicket(ticket: {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    type: string;
+    files?: string[];
+  }): Promise<void> {
+    try {
+      let subjectPrefix = 'Reporte de problemas no';
+      switch (ticket.type) {
+        case 'inquiry':
+          subjectPrefix = 'Dúvida sobre';
+          break;
+        case 'suggestion':
+          subjectPrefix = 'Sugestão ao';
+          break;
+        case 'bug-report':
+          subjectPrefix = 'Reporte de problemas no';
+          break;
+      }
+      const subject = `[${ticket.id}] ${subjectPrefix} sistema Urbis`;
+
+      const fileList =
+        ticket.files && ticket.files.length > 0
+          ? ticket.files.map((file) => file).join('\n')
+          : 'Nenhum arquivo anexado.';
+
+      const html = `
+        <p><strong>Nome:</strong> ${ticket.name}</p>
+        <p><strong>Email:</strong> ${ticket.email}</p>
+        <p><strong>Mensagem:</strong></p>
+        <p>${ticket.message.replace(/\n/g, '<br>')}</p>
+        <p><strong>Arquivos:</strong></p>
+        <pre>${fileList}</pre>
+      `;
+
+      const emailParams = {
+        to: 'contas@urbis.sampa.br',
+        cc: ticket.email,
+        from: this.configService.get('mail.from'),
+        subject,
+        html,
+      };
+
+      await this.sendGridService.send(emailParams);
+    } catch (err) {
+      console.error('Error sending support ticket email:', err);
+    }
+  }
 }

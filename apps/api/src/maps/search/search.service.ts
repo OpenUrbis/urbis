@@ -69,7 +69,6 @@ export class SearchService {
     layerSchemaId,
     method,
     transformParams,
-    filterTree,
     transformRequest,
     transformResponse,
   }: SearchConfigDto): Promise<SearchConfig> {
@@ -98,7 +97,6 @@ export class SearchService {
       layerSchemaId,
       method,
       transformParams: transformParams || null,
-      filterTree: filterTree || null,
       transformRequest: transformRequest || null,
       transformResponse: transformResponse || null,
       layerSchema,
@@ -118,7 +116,6 @@ export class SearchService {
       layerSchemaId,
       method,
       transformParams,
-      filterTree,
       transformRequest,
       transformResponse,
       ...dto
@@ -144,7 +141,6 @@ export class SearchService {
     searchConfig.layerSchemaId = layerSchemaId;
     searchConfig.method = method;
     searchConfig.transformParams = transformParams || null;
-    searchConfig.filterTree = filterTree || null;
     searchConfig.transformRequest = transformRequest || null;
     searchConfig.transformResponse = transformResponse || null;
 

@@ -4,14 +4,13 @@ import { SupportService } from './support.service';
 
 describe('SupportController', () => {
   let controller: SupportController;
-  let module: TestingModule;
 
   const mockSupportService = {
     createTicket: jest.fn(),
   };
 
   beforeEach(async () => {
-    module = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [SupportController],
       providers: [
         {
@@ -22,12 +21,6 @@ describe('SupportController', () => {
     }).compile();
 
     controller = module.get<SupportController>(SupportController);
-  });
-
-  afterAll(async () => {
-    if (module) {
-      await module.close();
-    }
   });
 
   it('should be defined', () => {

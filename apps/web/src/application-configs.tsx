@@ -1,6 +1,5 @@
 import { FillStyleExtension } from "@deck.gl/extensions";
 import { ClickActionEnum } from "@open-urbis/map-shared";
-import polylabel from "polylabel";
 import { BackButton } from "./components/BackButton";
 import { FeaturesView } from "./components/FeaturesView";
 import { useMapContext } from "./hooks/useMapContext";
@@ -109,18 +108,17 @@ export const MAP_CONFIGS: MapConfigs = {
       selectedFeature
         ? selectedFeature.map(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (item) =>
-              (item.feature as any).id || (item.feature as any).properties?.id
+            (item) => (item.feature as any).properties.id
           )
         : [],
     CHECK_ARRAY_OF_PROPERTIES: (
       selectedFeatureIds: string[],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       polygon: any
-    ): [number, number, number, number] | null => {
-      const id = polygon.id || polygon?.properties?.id;
-      return selectedFeatureIds.includes(id) ? [255, 0, 0, 255] : null;
-    },
+    ): [number, number, number, number] | null =>
+      selectedFeatureIds.includes(polygon?.properties?.id)
+        ? [255, 0, 0, 255]
+        : null,
   },
 };
 
@@ -148,37 +146,11 @@ export const CLICK_ACTIONS_CONFIG = (): {
         return console.error(
           'clickAction(selectFeature) Error: Property "template" is not defined'
         );
-
-      let center = [longitude, latitude];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const geom = (feature as any)?.geometry;
-      if (geom && (geom.type === "Polygon" || geom.type === "MultiPolygon")) {
-        try {
-          const coords =
-            geom.type === "Polygon" ? geom.coordinates : geom.coordinates[0];
-          const centroid = polylabel(coords, 0.000001);
-          if (centroid && !isNaN(centroid[0]) && !isNaN(centroid[1])) {
-            center = centroid;
-          }
-        } catch (e) {
-          console.warn("Failed to calculate centroid", e);
-        }
-      }
-
       if (!isDesktop) toggleDrawer();
       selectFeature({ feature, template });
-
-      const padding = { top: 0, bottom: 0, left: 0, right: 0 };
-
-      if (isDesktop) {
-        padding.left = 420;
-      }
-      padding.top = 64;
-
       flyTo({
-        center,
+        center: [longitude, latitude],
         zoom,
-        padding,
         ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
       });
       navigateTo(

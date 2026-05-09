@@ -5,11 +5,8 @@
   "exports": {
     ".": "./index.ts"
   },
-  "main": "./index.ts",
-  "module": "./index.ts",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"**/*.ts*\""
   },
   "dependencies": {},
   "devDependencies": {

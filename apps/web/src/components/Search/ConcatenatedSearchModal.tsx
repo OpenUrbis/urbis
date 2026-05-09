@@ -1,73 +1,63 @@
 import {
   Button,
+  createColumnConfigHelper,
+  DataTableFilter,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  useDataTableFilters,
   Table,
   TableHeader,
   TableRow,
   TableHead,
   TableBody,
   TableCell,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
 } from "@open-urbis/map-ui";
-import { Info } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import axios from "axios";
 import { useSearchContext } from "../../hooks/useSearchContext";
-import { useToast } from "@/hooks/useToast";
-import { getColumnType, getLayerNameFromConfig } from "../../utils/layer-utils";
-import { FilterBuilder, FilterField } from "../FilterBuilder";
-import { FilterGroup } from "../FilterBuilder/types";
-import { filterNodeToCQL } from "../../utils/cql-builder-advanced";
-import { ShareModal } from "../LayerController/modals/ShareModal";
-import { ShareHistoryModal } from "../LayerController/modals/ShareHistoryModal";
-import { useMapContext } from "../../hooks/useMapContext";
-
-const DEFAULT_TREE: FilterGroup = {
-  id: "root",
-  type: "group",
-  operator: "AND",
-  children: [],
-};
+import { filtersToCQL } from "../../utils/cql-builder";
+import { getColumnType, getIcon, getLayerNameFromConfig, normalizeTerm } from "../../utils/layer-utils";
 
 export const ConcatenatedSearchModal = () => {
   const { searchConfig } = useSearchContext();
-  const { layerSchemas } = useMapContext();
 
   const [selectedLayerId, setSelectedLayerId] = useState<string>("");
   const [loadingAttributes, setLoadingAttributes] = useState(false);
-  const [fields, setFields] = useState<FilterField[]>([]);
-  const [filterTree, setFilterTree] = useState<FilterGroup>(DEFAULT_TREE);
+  const [columnsConfig, setColumnsConfig] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [open, setOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
-  const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isShareHistoryOpen, setIsShareHistoryOpen] = useState(false);
-  const { toastSuccess, toastError } = useToast();
 
-const environment =
-  (import.meta.env.VITE_API_URL || "/api") + "/maps";
+  // Filter state managed by the hook
+  const [filters, setFilters] = useState<any[]>([]);
+
+  const helper = useMemo(() => createColumnConfigHelper<any>(), []);
+
+  const { columns, actions, strategy } = useDataTableFilters({
+    data: [], // No data needed for server strategy attribute-based filtering
+    columnsConfig,
+    filters,
+    onFiltersChange: setFilters,
+    strategy: "server",
+  });
+
+  const environment =
+    (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") +
+    "/maps";
 
   const handleLayerChange = async (layerId: string) => {
     setSelectedLayerId(layerId);
-    setFields([]);
-    setFilterTree(DEFAULT_TREE);
+    setColumnsConfig([]);
+    setFilters([]);
     setSearchResults([]);
     setTotalCount(undefined);
 
@@ -91,16 +81,29 @@ const environment =
         `${environment}/geoserver-proxy/layers/${workspace}/${layerName}/attributes`
       );
       const attributes = response.data; // Array of { name, binding, ... }
-      const layerConfig = searchConfig.value.find((c) => c.id === layerId);
-      const mapping = layerConfig?.layerSchema?.attributeMapping || {};
 
-      setFields(
-        attributes.map((a: any) => ({
-          name: a.name,
-          type: getColumnType(a.binding) || "text",
-          label: mapping[a.name]?.name || a.name,
-        }))
-      );
+      const newColumns = attributes
+        .map((attr: any) => {
+          const type = getColumnType(attr.binding);
+          if (!type) return null;
+
+          // helper.text(), helper.number() etc builders
+          let builder;
+          if (type === 'text') builder = helper.text();
+          else if (type === 'number') builder = helper.number();
+          else if (type === 'date') builder = helper.date();
+          else builder = helper.text();
+
+          return builder
+            .accessor((row) => row[attr.name])
+            .id(attr.name)
+            .displayName(attr.name)
+            .icon(getIcon(type))
+            .build();
+        })
+        .filter(Boolean);
+
+      setColumnsConfig(newColumns);
     } catch (error) {
       console.error("Failed to fetch attributes", error);
     } finally {
@@ -111,7 +114,15 @@ const environment =
   const handleSearch = async () => {
     if (!selectedLayerId) return;
 
-    const cql = filterNodeToCQL(filterTree);
+    // Normalize values for contains/does not contain operators
+    const normalizedFilters = filters.map(f => {
+        if ((f.operator === 'contains' || f.operator === 'does not contain') && f.type === 'text') {
+            return { ...f, values: f.values.map((v: any) => normalizeTerm(String(v))) };
+        }
+        return f;
+    });
+
+    const cql = filtersToCQL(normalizedFilters);
 
     setIsSearching(true);
     setSearchResults([]); // Clear previous results
@@ -178,24 +189,20 @@ const environment =
   };
 
   const handleExportCSV = () => {
-    if (searchResults.length === 0) return;
+      if (searchResults.length === 0) return;
 
-    try {
-      const headers = Object.keys(searchResults[0]).filter((k) => k !== "id");
+      const headers = Object.keys(searchResults[0]).filter(k => k !== 'id'); // Filter internal ID if needed
       const csvContent = [
-        headers.join(","),
-        ...searchResults.map((row) =>
-          headers
-            .map((header) => {
+          headers.join(','),
+          ...searchResults.map(row => headers.map(header => {
               const val = row[header];
-              const strVal = String(val === null || val === undefined ? "" : val);
-              return strVal.includes(",") ? `"${strVal}"` : strVal;
-            })
-            .join(",")
-        ),
-      ].join("\n");
+              // Handle commas in value by quoting
+              const strVal = String(val === null || val === undefined ? '' : val);
+              return strVal.includes(',') ? `"${strVal}"` : strVal;
+          }).join(','))
+      ].join('\n');
 
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
@@ -203,39 +210,6 @@ const environment =
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
-      toastSuccess("Exportação concluída com sucesso! (Limite: 1000 itens)");
-    } catch (error) {
-      console.error("Export failed", error);
-      toastError("Falha ao exportar CSV.");
-    }
-  };
-
-  const handleApplyToLayer = () => {
-    if (!selectedLayerId) return;
-
-    const layerConfig = searchConfig.value.find((c) => c.id === selectedLayerId);
-    if (!layerConfig || !layerConfig.layerSchema) {
-      toastError("Camada não encontrada ou não configurada corretamente.");
-      return;
-    }
-
-    const cql = filterNodeToCQL(filterTree);
-    const targetLayerId = layerConfig.layerSchema.id;
-
-    layerSchemas.value = layerSchemas.value.map((s) => {
-      if (s.id === targetLayerId) {
-        return {
-          ...s,
-          cqlFilter: cql || undefined,
-          filterTree: filterTree,
-          isVisible: true,
-        };
-      }
-      return s;
-    });
-
-    toastSuccess(`Filtro aplicado à camada "${layerConfig.layerSchema.name}"`);
   };
 
   return (
@@ -256,92 +230,54 @@ const environment =
         </DialogHeader>
 
         <div className="space-y-4 py-4 flex-1 overflow-y-auto">
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <Select value={selectedLayerId} onValueChange={handleLayerChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione uma camada" />
-                </SelectTrigger>
-                <SelectContent>
-                  {searchConfig.value
-                    .filter((c) => getLayerNameFromConfig(c) !== null)
-                    .map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <span className="material-symbols-outlined">more_vert</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsShareOpen(true)}>
-                  <span className="material-symbols-outlined mr-2">share</span>
-                  Compartilhar Busca
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsShareHistoryOpen(true)}>
-                  <span className="material-symbols-outlined mr-2">history</span>
-                  Histórico de Buscas
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex items-center gap-4">
+            <Select value={selectedLayerId} onValueChange={handleLayerChange}>
+              <SelectTrigger className="w-[280px]">
+                <SelectValue placeholder="Selecione uma camada" />
+              </SelectTrigger>
+              <SelectContent>
+                {searchConfig.value
+                  .filter((c) => getLayerNameFromConfig(c) !== null)
+                  .map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {loadingAttributes && (
-            <div className="text-sm text-muted-foreground">
-              Carregando atributos...
-            </div>
-          )}
+          {loadingAttributes && <div className="text-sm text-muted-foreground">Carregando atributos...</div>}
 
-          {fields.length > 0 && (
+          {columnsConfig.length > 0 && (
             <div className="border rounded-md p-4 bg-background">
-              <FilterBuilder
-                value={filterTree}
-                onChange={setFilterTree}
-                fields={fields}
+              <DataTableFilter
+                columns={columns}
+                filters={filters}
+                actions={actions}
+                strategy={strategy}
+                inline
               />
             </div>
           )}
 
-          <div className="flex justify-between pt-4">
-            <div className="text-xs text-muted-foreground flex items-center gap-2">
-              <span className="font-mono bg-muted px-1 rounded">
-                DEBUG: {filterNodeToCQL(filterTree)}
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                onClick={handleApplyToLayer}
-                disabled={!selectedLayerId}
-              >
-                Aplicar na Camada
-              </Button>
-              <Button
-                onClick={handleSearch}
-                disabled={isSearching || !selectedLayerId}
-              >
-                {isSearching ? (
-                  <>
-                    <span className="material-symbols-outlined animate-spin mr-2">
-                      progress_activity
-                    </span>
-                    Buscando...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined mr-2">search</span>
-                    Buscar
-                  </>
-                )}
-              </Button>
-            </div>
+          <div className="flex justify-end pt-4">
+            <Button
+              onClick={handleSearch}
+              disabled={isSearching || !selectedLayerId}
+            >
+              {isSearching ? (
+                <>
+                  <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+                  Buscando...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined mr-2">search</span>
+                  Buscar
+                </>
+              )}
+            </Button>
           </div>
 
           {searchResults.length > 0 && (
@@ -359,70 +295,31 @@ const environment =
                       </Button>
                   </div>
                   <div className="border rounded-md overflow-auto max-h-[400px]">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          {Object.keys(searchResults[0]).map((key) => {
-                            const layer = searchConfig.value.find(
-                              (c) => c.id === selectedLayerId
-                            );
-                            const mapping = layer?.layerSchema?.attributeMapping?.[key];
-                            const displayName = mapping?.name || key;
-                            const description = mapping?.description;
-
-                            return (
-                              <TableHead key={key} className="whitespace-nowrap">
-                                <div className="flex items-center gap-1">
-                                  {displayName}
-                                  {description && (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger>
-                                          <Info className="h-3 w-3 text-muted-foreground" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p>{description}</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  )}
-                                </div>
-                              </TableHead>
-                            );
-                          })}
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {searchResults.map((row, i) => (
-                          <TableRow key={i}>
-                            {Object.values(row).map((val: any, j) => (
-                              <TableCell
-                                key={j}
-                                className="whitespace-nowrap max-w-[200px] truncate"
-                                title={String(val)}
-                              >
-                                {String(val)}
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                      <Table>
+                          <TableHeader>
+                              <TableRow>
+                                  {Object.keys(searchResults[0]).map(key => (
+                                      <TableHead key={key} className="whitespace-nowrap">{key}</TableHead>
+                                  ))}
+                              </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                              {searchResults.map((row, i) => (
+                                  <TableRow key={i}>
+                                      {Object.values(row).map((val: any, j) => (
+                                          <TableCell key={j} className="whitespace-nowrap max-w-[200px] truncate" title={String(val)}>
+                                              {String(val)}
+                                          </TableCell>
+                                      ))}
+                                  </TableRow>
+                              ))}
+                          </TableBody>
+                      </Table>
                   </div>
               </div>
           )}
         </div>
       </DialogContent>
-      <ShareModal
-        isOpen={isShareOpen}
-        onOpenChange={setIsShareOpen}
-        type="search"
-      />
-      <ShareHistoryModal
-        isOpen={isShareHistoryOpen}
-        onOpenChange={setIsShareHistoryOpen}
-        type="search"
-      />
     </Dialog>
   );
 };

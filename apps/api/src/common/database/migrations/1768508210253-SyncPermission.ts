@@ -66,6 +66,8 @@ export class SyncPermissions1767807173873 implements MigrationInterface {
     let query = '';
     let query1 = '';
 
+    const adminRoleId = 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4';
+
     this.permissions.forEach((permission) => {
       query += `
 
@@ -77,7 +79,12 @@ export class SyncPermissions1767807173873 implements MigrationInterface {
       `;
       query1 += `
           INSERT INTO role_permissions ("roleId", "permissionId", "scope")
-          values ('${permission.resource}:${permission.action}', 'global');
+          SELECT '${adminRoleId}', '${permission.resource}:${permission.action}', 'global'
+          WHERE NOT EXISTS (
+            SELECT 1 FROM role_permissions 
+            WHERE "roleId" = '${adminRoleId}' 
+            AND "permissionId" = '${permission.resource}:${permission.action}'
+          );
 
       `;
     });

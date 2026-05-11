@@ -2,7 +2,7 @@ import { getAuthHeaders } from "../utils/auth-headers";
 import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 
 const environment =
-  (import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br") + "/maps";
+  (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
 export const getLayerSchema = async (
   id: string

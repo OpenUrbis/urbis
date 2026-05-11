@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsOptional, IsObject } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsObject,
+  IsBoolean,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSharedMapDto {
@@ -15,4 +21,14 @@ export class CreateSharedMapDto {
   @ApiProperty()
   @IsObject()
   state: any;
+
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  @IsOptional()
+  isPublic?: boolean;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  type?: string;
 }

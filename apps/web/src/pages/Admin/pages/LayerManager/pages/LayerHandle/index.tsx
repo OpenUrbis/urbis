@@ -199,7 +199,7 @@ const LayerHandlePage = () => {
 
     try {
       const baseUrl = getBaseUrl(url);
-      const environment = import.meta.env.VITE_API_URL || "https://api.mapa.urbis.sampa.br";
+      const environment = import.meta.env.VITE_API_URL || "/api";
       const params = `service=WMS&version=1.3.0&request=GetCapabilities`;
 
       const response = await axios.get(`${environment}/maps/proxy`, {

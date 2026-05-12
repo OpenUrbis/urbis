@@ -1,6 +1,6 @@
 import { computed, signal, useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
-import { Button, cn } from "@open-urbis/map-ui";
+import { Button } from "@open-urbis/map-ui";
 import {
   Select,
   SelectContent,
@@ -9,8 +9,6 @@ import {
   SelectValue,
 } from "@open-urbis/map-ui";
 import { useMapContext } from "../../hooks/useMapContext";
-import { useNavigationContext } from "../../hooks/useNavigationContext";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   IGetConfigColor,
   IGetConfigLayerSchema,
@@ -21,8 +19,6 @@ const isCollapsed = signal<boolean>(false);
 export const MapLegend = () => {
   const activedTab = useSignal<string>("");
   const { layerSchemas } = useMapContext();
-  const { drawerOpen } = useNavigationContext();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const layers = computed(() =>
     layerSchemas.value.filter(
@@ -33,18 +29,15 @@ export const MapLegend = () => {
   );
 
   const activedLayer = computed(() => {
-    const currentLayer = layers.value.find(
-      (layer) => layer.id === activedTab.value
-    );
+    const currentLayer = layers.value.find((layer) => layer.id === activedTab.value);
     // Return current or first if none selected
-    return currentLayer ||
-      (layers.value.length > 0 ? layers.value[0] : undefined);
+    return currentLayer || (layers.value.length > 0 ? layers.value[0] : undefined);
   });
 
   useEffect(() => {
-    if (!activedTab.value && layers.value.length > 0) {
-      activedTab.value = layers.value[0].id;
-    }
+      if (!activedTab.value && layers.value.length > 0) {
+          activedTab.value = layers.value[0].id;
+      }
   }, [layers.value]);
 
   const renderColorClass = (item: IGetConfigColor) => {
@@ -71,32 +64,20 @@ export const MapLegend = () => {
 
   if (!layers.value.length) return null;
 
-  const leftOffset = isDesktop && drawerOpen.value ? "left-[428px]" : "left-2";
-
   return (
     <>
       {!isCollapsed.value ? (
         <Button
           onClick={() => (isCollapsed.value = true)}
-          className={cn(
-            "absolute bottom-9 z-[8] shadow-md transition-all duration-300",
-            leftOffset
-          )}
+          className="absolute left-2 bottom-9 z-[8] shadow-md"
         >
-          <span className="material-symbols-outlined mr-2 text-base">
-            closed_caption
-          </span>
+          <span className="material-symbols-outlined mr-2 text-base">closed_caption</span>
           Legendas
         </Button>
       ) : null}
 
       {isCollapsed.value ? (
-        <div
-          className={cn(
-            "absolute bottom-9 z-[1000] w-[240px] max-w-[calc(100%-12px)] max-h-[66vh] bg-background rounded-lg shadow-lg overflow-auto border transition-all duration-300",
-            leftOffset
-          )}
-        >
+        <div className="absolute left-2 bottom-9 z-[1000] w-[324px] max-w-[calc(100%-12px)] max-h-[66vh] bg-background rounded-lg shadow-lg overflow-auto border">
           <div className="flex items-center justify-between p-2 pl-4 border-b bg-background sticky top-0">
             <h5 className="text-base font-semibold m-0">Legendas:</h5>
             <Button
@@ -106,7 +87,7 @@ export const MapLegend = () => {
               onClick={() => (isCollapsed.value = false)}
               aria-label="Fechar"
             >
-              <span className="material-symbols-outlined text-base">close</span>
+               <span className="material-symbols-outlined text-base">close</span>
             </Button>
           </div>
 
@@ -120,14 +101,16 @@ export const MapLegend = () => {
               </SelectTrigger>
               <SelectContent>
                 {layers.value.map((value) => (
-                  <SelectItem key={value.id} value={value.id}>
-                    {value.name}
-                  </SelectItem>
+                   <SelectItem key={value.id} value={value.id}>
+                     {value.name}
+                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <div className="mt-2">{renderLegend(activedLayer.value)}</div>
+            <div className="mt-2">
+              {renderLegend(activedLayer.value)}
+            </div>
           </div>
         </div>
       ) : null}

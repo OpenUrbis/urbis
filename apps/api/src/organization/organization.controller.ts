@@ -43,7 +43,8 @@ export class OrganizationController {
   @RequirePermission({
     permissions: {
       action: 'list',
-      resource: 'organization'
+      resource: 'organization',
+      scope: RolePermissionScopeEnum.ANY,
     },
   })
   getByUser(@Param('id') userId: string) {

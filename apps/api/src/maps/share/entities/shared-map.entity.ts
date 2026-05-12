@@ -28,14 +28,6 @@ export class SharedMap {
   @ApiProperty()
   state: any;
 
-  @Column({ default: false })
-  @ApiProperty()
-  isPublic: boolean;
-
-  @Column({ nullable: true })
-  @ApiProperty()
-  type: string;
-
   @CreateDateColumn()
   @ApiProperty()
   createdAt: Date;

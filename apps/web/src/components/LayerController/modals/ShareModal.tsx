@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useSignal } from "@preact/signals";
 import { useAuth } from "react-oidc-context";
 import {
@@ -11,7 +11,6 @@ import { Button } from "@open-urbis/map-ui";
 import { Input } from "@open-urbis/map-ui";
 import { Label } from "@open-urbis/map-ui";
 import { Textarea } from "@open-urbis/map-ui";
-import { Switch } from "@open-urbis/map-ui";
 import {
   Copy,
   Info,
@@ -23,11 +22,9 @@ import {
 } from "lucide-react";
 import { shareService } from "../../../integrations/share-service";
 import { useMapContext, currentShare } from "../../../hooks/useMapContext";
-import { useSearchContext } from "../../../hooks/useSearchContext";
-import { userManager } from "../../../auth/oidc-config";
+import { SearchContext } from "../../../context/SearchContext";
+import { appState, AppStateDoc } from "../../../integrations/signaldb";
 import { FilterGroup } from "../../../components/FilterBuilder/types";
-import { userProfile } from "../../../auth/user-state";
-import { PredefinedSearchSuggestions } from "../../Search/PredefinedSearchSuggestions";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -47,49 +44,47 @@ export const ShareModal = ({
 }: ShareModalProps) => {
   const typeLabel = type === "map" ? "Visualização" : "Busca";
   const mapContext = useMapContext();
-  const searchContext = useSearchContext();
-
+  const searchContext = useContext(SearchContext);
+  
   const shortUrl = useSignal("");
   const directUrl = useSignal("");
   const loading = useSignal(false);
   const name = useSignal("");
   const description = useSignal("");
-  const isPublic = useSignal(false);
   const error = useSignal("");
   const success = useSignal("");
-
+  
   const auth = useAuth();
 
-  const currentUserId = auth.user?.profile.sub || "mock-user-id-123";
-  const isOwner =
-    currentShare.value && currentShare.value.userId === currentUserId;
+  const currentUserId = auth.user?.profile.sub || 'mock-user-id-123';
+  const isOwner = currentShare.value && currentShare.value.userId === currentUserId;
 
   useEffect(() => {
-    if (isOpen && currentShare.value) {
-      if (!name.value) name.value = currentShare.value.name;
-      if (!description.value)
-        description.value = currentShare.value.description || "";
-    }
+      if (isOpen && currentShare.value) {
+          if (!name.value) name.value = currentShare.value.name;
+          if (!description.value) description.value = currentShare.value.description || "";
+      }
   }, [isOpen]);
 
   const getPayload = () => {
-    if (type === "search") {
-      // For search, only include the relevant search data
+    if (type === "search" && data) {
       return {
         root: {
-          searchContext: {
-            concatenatedSearch: searchContext?.concatenatedSearch.value,
+          concatenatedSearch: {
+            layerId: data.layerId,
+            filterTree: data.filterTree,
           },
         },
       };
     }
 
-    // For map (view), include all relevant map state and basic search context
-    return {
+    // Retrieve current state from SignalDB or construct it
+    const currentState = appState.findOne({ id: "current" }) || {
       root: {
         searchContext: {
           currentTerm: searchContext?.currentTerm.value || "",
           history: searchContext?.history.value || [],
+          searchQuery: searchContext?.searchQuery || {},
           searchConfig: searchContext?.searchConfig.value || [],
         },
         mapContext: {
@@ -106,93 +101,90 @@ export const ShareModal = ({
         },
       },
     };
+
+    const hasMapContext = "mapContext" in currentState;
+    return hasMapContext
+      ? {
+          root: {
+            searchContext: (currentState as unknown as AppStateDoc).searchContext,
+            mapContext: (currentState as unknown as AppStateDoc).mapContext,
+          },
+        }
+      : currentState;
   };
 
   const handleShare = async () => {
-    error.value = "";
-    success.value = "";
-    if (!name.value.trim()) return;
+     error.value = "";
+     success.value = "";
+     if (!name.value.trim()) return;
+     loading.value = true;
+     
+     const payload = getPayload();
 
-    const user = await userManager.getUser();
-    if (!user) {
-      error.value = "Você precisa estar autenticado para compartilhar.";
-      return;
-    }
-
-    loading.value = true;
-
-    const payload = getPayload();
-
-    try {
-      const result = await shareService.share(
-        payload as any,
-        name.value,
-        description.value,
-        type,
-        isPublic.value
-      );
-      shortUrl.value = result.shortUrl;
-      directUrl.value = result.directUrl;
-    } catch (e) {
-      console.error("Error sharing", e);
-      error.value = "Ocorreu um erro ao gerar o link. Tente novamente.";
-    } finally {
-      loading.value = false;
-    }
+     try {
+         const result = await shareService.share(
+           payload as any,
+           name.value,
+           description.value,
+           type
+         );
+         shortUrl.value = result.shortUrl;
+         directUrl.value = result.directUrl;
+     } catch (e) {
+         console.error("Error sharing", e);
+         error.value = "Ocorreu um erro ao gerar o link. Tente novamente.";
+     } finally {
+         loading.value = false;
+     }
   };
 
   const handleUpdate = async () => {
-    error.value = "";
-    success.value = "";
-    if (!name.value.trim() || !currentShare.value) return;
-    loading.value = true;
+     error.value = "";
+     success.value = "";
+     if (!name.value.trim() || !currentShare.value) return;
+     loading.value = true;
+     
+     const payload = getPayload();
 
-    const payload = getPayload();
-
-    try {
-      const result = await shareService.update(
-        currentShare.value.id,
-        payload as any,
-        name.value,
-        description.value,
-        type,
-        isPublic.value
-      );
-      currentShare.value = result;
-      success.value = "Compartilhamento atualizado com sucesso!";
-      directUrl.value = `${window.location.origin}/?shareId=${result.id}`;
-      shortUrl.value = `${window.location.origin}/?shareId=${result.id}`;
-    } catch (e) {
-      console.error("Error updating", e);
-      error.value = "Ocorreu um erro ao atualizar. Tente novamente.";
-    } finally {
-      loading.value = false;
-    }
+     try {
+         const result = await shareService.update(
+           currentShare.value.id,
+           payload as any,
+           name.value,
+           description.value,
+           type
+         );
+         currentShare.value = result;
+         success.value = "Compartilhamento atualizado com sucesso!";
+         directUrl.value = `${window.location.origin}/?shareId=${result.id}`;
+         shortUrl.value = `${window.location.origin}/?shareId=${result.id}`;
+     } catch (e) {
+         console.error("Error updating", e);
+         error.value = "Ocorreu um erro ao atualizar. Tente novamente.";
+     } finally {
+         loading.value = false;
+     }
   };
 
   const copyToClipboard = (text: string) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
   };
-
+  
   const resetForm = () => {
-    shortUrl.value = "";
-    directUrl.value = "";
-    name.value = "";
-    description.value = "";
-    isPublic.value = false;
-    error.value = "";
-    success.value = "";
+      shortUrl.value = "";
+      directUrl.value = "";
+      name.value = "";
+      description.value = "";
+      error.value = "";
+      success.value = "";
   };
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
+    <Dialog open={isOpen} onOpenChange={(open) => {
         if (!open) resetForm();
         onOpenChange(open);
-      }}
-    >
+    }}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
@@ -210,12 +202,6 @@ export const ShareModal = ({
           </p>
         </div>
 
-        {type === "search" && !shortUrl.value && (
-          <div className="py-2">
-            <PredefinedSearchSuggestions limit={4} />
-          </div>
-        )}
-
         <div className="grid gap-4 py-2">
           {error.value && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900 text-red-600 dark:text-red-300 p-3 rounded-lg text-sm flex items-center gap-2">
@@ -232,9 +218,7 @@ export const ShareModal = ({
           {!shortUrl.value ? (
             <>
               <div className="space-y-2">
-                <Label htmlFor="share-name">
-                  Nome da {typeLabel.toLowerCase()}
-                </Label>
+                <Label htmlFor="share-name">Nome da {typeLabel.toLowerCase()}</Label>
                 <Input
                   id="share-name"
                   value={name.value}
@@ -258,22 +242,6 @@ export const ShareModal = ({
                   rows={3}
                 />
               </div>
-              {userProfile.value?.position === "Administrador" && (
-                <div className="flex items-center justify-between space-x-2 py-2">
-                  <Label htmlFor="is-public" className="flex flex-col space-y-1">
-                    <span>Tornar Público</span>
-                    <span className="font-normal text-xs text-muted-foreground">
-                      Permite que qualquer pessoa acesse este compartilhamento
-                      sem autenticação.
-                    </span>
-                  </Label>
-                  <Switch
-                    id="is-public"
-                    checked={isPublic.value}
-                    onCheckedChange={(checked) => (isPublic.value = checked)}
-                  />
-                </div>
-              )}
               <div className="flex gap-2 mt-2">
                 <Button
                   className="flex-1 gap-2"

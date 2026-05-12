@@ -8,17 +8,6 @@ const currentTerm = signal<string>("");
 const lastTerm = signal<string>("");
 const history = signal<string[]>([]);
 const searchConfig = signal<IGetSearchConfigResponse[]>([]);
-const concatenatedSearch = signal({
-  selectedLayerId: "",
-  filterTree: {
-    id: "root",
-    type: "group",
-    operator: "AND",
-    children: [],
-  } as any,
-  results: [],
-  isOpen: false,
-});
 
 export const SearchContext = createContext<SearchContextType | null>(null);
 
@@ -49,7 +38,6 @@ export const SearchProvider = ({
         history,
         searchQuery,
         searchConfig,
-        concatenatedSearch,
       }}
     >
       {children}

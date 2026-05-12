@@ -105,14 +105,6 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @Get('roles')
-  @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
-  public async roles(@Request() request) {
-    return this.service.getRoles(request.user as User);
-  }
-
-  @ApiBearerAuth()
   @Patch('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)

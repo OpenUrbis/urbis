@@ -25,6 +25,9 @@ export const ShareHistoryModal = ({
     const limit = 5;
     const auth = useAuth();
 
+    // Use logged in user ID or mock fallback
+    const userId = auth.user?.profile.sub || 'mock-user-id-123';
+
     useEffect(() => {
         if (isOpen) {
             loadHistory();
@@ -34,7 +37,7 @@ export const ShareHistoryModal = ({
     const loadHistory = async () => {
         loading.value = true;
         try {
-            const result = await shareService.getHistory(page.value, limit, type);
+            const result = await shareService.getHistory(userId, page.value, limit, type);
             history.value = result.items;
             total.value = result.total;
         } catch (e) {

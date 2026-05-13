@@ -14,6 +14,8 @@ import { getLayerNameFromConfig } from "../../../utils/layer-utils";
 import { useMapContext } from "../../../hooks/useMapContext";
 import { FilterBuilder, FilterField } from "../../FilterBuilder";
 import { FilterGroup } from "../../FilterBuilder/types";
+import { PredefinedSearchSuggestions } from "../../Search/PredefinedSearchSuggestions";
+import { Loader2 } from "lucide-react";
 
 interface LayerFilterModalProps {
   open: boolean;
@@ -110,34 +112,45 @@ export const LayerFilterModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Filtrar Camada: {layer.name}</DialogTitle>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-6 flex flex-col">
+        <DialogHeader className="mb-4">
+          <DialogTitle className="text-xl font-bold text-primary">Filtrar Camada: {layer.name}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-6 flex-1 overflow-y-auto">
+          <PredefinedSearchSuggestions 
+            currentLayerId={layer.id} 
+            onSelect={(tree) => setFilterTree(tree)}
+          />
+
           {loadingAttributes && (
-            <div className="text-sm text-muted-foreground">
-              Carregando atributos...
+            <div className="text-sm text-muted-foreground flex items-center gap-2 py-4 justify-center">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Carregando atributos da camada...
             </div>
           )}
 
           {fields.length > 0 && (
-            <div className="border rounded-md p-4 bg-background">
-              <FilterBuilder
-                value={filterTree}
-                onChange={setFilterTree}
-                fields={fields}
-              />
+            <div className="space-y-2">
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
+                Critérios de filtro
+              </div>
+              <div className="border rounded-xl p-4 bg-background/50 shadow-sm backdrop-blur-sm">
+                <FilterBuilder
+                  value={filterTree}
+                  onChange={setFilterTree}
+                  fields={fields}
+                />
+              </div>
             </div>
           )}
         </div>
 
-        <DialogFooter>
-            <Button variant="outline" onClick={handleClear}>
+        <DialogFooter className="mt-6 pt-4 border-t gap-2">
+            <Button variant="outline" onClick={handleClear} className="rounded-full h-10 px-6">
                 Limpar Filtros
             </Button>
-            <Button onClick={handleApply}>
+            <Button onClick={handleApply} className="rounded-full h-10 px-8 shadow-md">
                 Aplicar Filtros
             </Button>
         </DialogFooter>

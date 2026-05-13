@@ -1,4 +1,5 @@
 import { Signal } from "@preact/signals";
+import { FilterGroup } from "../components/FilterBuilder/types";
 import {
   IGetSearchConfigResponse,
   ISearchResponse,
@@ -13,10 +14,19 @@ export interface ISearchFetchQuery {
   setResults: (results: ISearchResponse) => void;
 }
 
+export interface ConcatenatedSearchState {
+  selectedLayerId: string;
+  filterTree: FilterGroup;
+  results: any[];
+  totalCount?: number;
+  isOpen: boolean;
+}
+
 export interface SearchContextType {
   currentTerm: Signal<string>;
   lastTerm: Signal<string>;
   history: Signal<string[]>;
   searchQuery: ISearchFetchQuery;
   searchConfig: Signal<IGetSearchConfigResponse[]>;
+  concatenatedSearch: Signal<ConcatenatedSearchState>;
 }

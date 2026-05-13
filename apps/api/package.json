@@ -25,8 +25,9 @@
     "migration:revert": "npm run typeorm -- --dataSource=src/common/database/cli.data-source.ts migration:revert",
     "documentation": "npx @compodoc/compodoc -p tsconfig.json --includesName Documentation --includes docs --theme stripe",
     "documentation:serve": "npx @compodoc/compodoc -p tsconfig.json --includesName Documentation --includes docs --theme stripe -s",
-    "schema:drop": "npm run typeorm -- --dataSource=src/common/database/cli.data-source.ts schema:drop",
-    "seed:run": "ts-node ./src/common/database/seeds/run-seed.ts"
+    "schema:drop": "npx env-cmd -- ts-node ./src/common/database/drop-all.ts",
+    "seed:run": "npx env-cmd -- ts-node ./src/common/database/seeds/run-seed.ts",
+    "db:reset": "npm run schema:drop && npm run migration:run && npm run seed:run"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.6",
@@ -142,6 +143,9 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^common/(.*)$": "<rootDir>/common/$1"
+    }
   }
 }

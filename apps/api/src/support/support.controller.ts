@@ -1,6 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Recaptcha } from '@nestlab/google-recaptcha';
 import { SupportTicketDto } from './dto/support-ticket.dto';
 import { SupportService } from './support.service';
 
@@ -10,11 +9,6 @@ export class SupportController {
   constructor(private readonly service: SupportService) {}
 
   @Post('create-ticket')
-  @Recaptcha({
-    response: (req) => req.body.recaptcha,
-    action: 'create-ticket',
-    score: 0.5,
-  })
   @ApiOperation({ summary: 'Create a new support ticket' })
   @ApiResponse({
     status: 201,

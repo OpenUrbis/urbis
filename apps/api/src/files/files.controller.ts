@@ -8,7 +8,6 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { Recaptcha } from '@nestlab/google-recaptcha';
 import { DownloadUrlDto } from './dto/download-url.dto';
 import { UploadUrlDto } from './dto/upload-url.dto';
 import { FilesService } from './files.service';
@@ -19,11 +18,6 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post('public/upload-url')
-  @Recaptcha({
-    response: (req) => req.body.recaptcha,
-    action: 'upload-file',
-    score: 0.5,
-  })
   @ApiOperation({ summary: 'Generate S3 upload URL with Recaptcha' })
   @ApiBody({ type: UploadUrlDto })
   @ApiResponse({

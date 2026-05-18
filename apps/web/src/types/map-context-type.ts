@@ -68,7 +68,7 @@ export interface MapContextSelectedFeature {
 export interface IMapContextActions extends MapContextType {
   handleVisibleLayer: (layerId: string) => void;
   handleActiveLayer: (layerId: string) => void;
-  populateMapContext: (options?: { disablePadding?: boolean }) => Promise<void>;
+  populateMapContext: () => Promise<void>;
   selectFeature: (feature: MapContextSelectedFeature) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleViewportChange: (viewport: any) => void;

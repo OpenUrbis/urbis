@@ -35,8 +35,6 @@ import { AddLayerModal } from "./modals/AddLayerModal";
 import { ShareModal } from "./modals/ShareModal";
 import { ShareHistoryModal } from "./modals/ShareHistoryModal";
 import { ExportOptionsModal } from "./modals/ExportOptionsModal";
-import { AuthRequiredModal } from "../AuthRequiredModal";
-import { useAuth } from "react-oidc-context";
 
 const isCollapsed = signal<boolean>(false);
 
@@ -55,7 +53,6 @@ const MAP_STYLES = [
 
 export const LayerController = () => {
   const { layerGroups, layerSchemas, boundingBox, zoom, selectedBaseMap, is3DActive } = useMapContext();
-  const auth = useAuth();
   
   const activeTab = useSignal<'sources' | 'visible'>('sources');
 
@@ -72,7 +69,6 @@ export const LayerController = () => {
   const isAddLayerOpen = useSignal(false);
   const isShareOpen = useSignal(false);
   const isShareHistoryOpen = useSignal(false);
-  const isAuthModalOpen = useSignal(false);
   
   // Export states
   const isExporting = useSignal(false);
@@ -103,14 +99,6 @@ export const LayerController = () => {
 
     layersForExport.value = layers;
     isExportOptionsOpen.value = true;
-  };
-
-  const handleActionWithAuth = (action: () => void) => {
-    if (!auth.isAuthenticated) {
-      isAuthModalOpen.value = true;
-      return;
-    }
-    action();
   };
 
   const handleConfirmExport = async (format: "geojson" | "dwg") => {
@@ -206,7 +194,7 @@ export const LayerController = () => {
 
   return (
     <>
-      <div className="fixed top-[84px] right-[10px] z-[20] flex gap-2 items-center">
+      <div className="fixed top-[84px] right-[10px] z-[8] flex gap-2 items-center">
         {!isCollapsed.value && (
           <>
             <DropdownMenu>
@@ -282,7 +270,7 @@ export const LayerController = () => {
 
         <div
           className={cn(
-            "fixed top-[82px] right-[46px] z-[30] w-[340px] max-w-[70vw] bg-background/80 backdrop-blur-md rounded-xl shadow-lg overflow-hidden max-h-[calc(100vh-100px)] border flex flex-col transition-all duration-300 ease-in-out",
+            "fixed top-[82px] right-[46px] z-[10] w-[340px] max-w-[70vw] bg-background/80 backdrop-blur-md rounded-xl shadow-lg overflow-hidden max-h-[calc(100vh-100px)] border flex flex-col transition-all duration-300 ease-in-out",
             isCollapsed.value
               ? "translate-x-0 opacity-100 visible"
               : "translate-x-[120%] opacity-0 invisible"
@@ -356,12 +344,12 @@ export const LayerController = () => {
             <Button
               variant="outline"
               className="flex-1 justify-start text-xs h-9 px-3"
-              onClick={() => handleActionWithAuth(() => (isShareOpen.value = true))}
+              onClick={() => (isShareOpen.value = true)}
             >
               <span className="material-symbols-outlined text-base mr-2">
-                save
+                share
               </span>
-              Salvar Visualização
+              Compartilhar Visualização
             </Button>
 
             <DropdownMenu>
@@ -379,13 +367,13 @@ export const LayerController = () => {
                   <span className="material-symbols-outlined mr-2">
                     add_circle
                   </span>
-                  Adicionar Camada
+                  Adicionar Nova Camada
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleActionWithAuth(() => (isShareHistoryOpen.value = true))}>
+                <DropdownMenuItem onClick={() => (isShareHistoryOpen.value = true)}>
                   <span className="material-symbols-outlined mr-2">
                     history
                   </span>
-                  Histórico de visualizações salvas
+                  Histórico de Visualizações
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleExportGeoJSON}>
                   <span className="material-symbols-outlined mr-2">
@@ -401,7 +389,6 @@ export const LayerController = () => {
       <AddLayerModal isOpen={isAddLayerOpen.value} onOpenChange={(v) => (isAddLayerOpen.value = v)} />
       <ShareModal isOpen={isShareOpen.value} onOpenChange={(v) => (isShareOpen.value = v)} />
       <ShareHistoryModal isOpen={isShareHistoryOpen.value} onOpenChange={(v) => (isShareHistoryOpen.value = v)} />
-      <AuthRequiredModal isOpen={isAuthModalOpen.value} onOpenChange={(v) => (isAuthModalOpen.value = v)} />
       <ExportOptionsModal
         isOpen={isExportOptionsOpen.value}
         onOpenChange={(v) => (isExportOptionsOpen.value = v)}

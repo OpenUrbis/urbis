@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getAuthHeaders } from "../utils/auth-headers";
 
 const environment =
   (import.meta.env.VITE_API_URL || "/api") + "/maps";
@@ -11,7 +10,6 @@ export interface SyncData {
       history: any[];
       searchQuery: any;
       searchConfig: any[];
-      concatenatedSearch?: any;
     };
     mapContext: {
       layerSchemas: any[];
@@ -59,17 +57,15 @@ export const shareService = {
     return { success: true, id: 'mock-id-' + Date.now() };
   },
   
-  share: async (data: SyncData, name: string, description?: string, type: string = 'map', isPublic: boolean = false): Promise<ShareResponse> => {
-     const headers = await getAuthHeaders();
+  share: async (data: SyncData, name: string, description?: string, type: string = 'map'): Promise<ShareResponse> => {
      const payload = {
          name,
          description,
          type,
-         state: data,
-         isPublic
+         state: data
      };
      
-     const { data: responseData } = await axios.post(`${environment}/share`, payload, { headers });
+     const { data: responseData } = await axios.post(`${environment}/share`, payload);
      
      const id = responseData.id;
      const url = `${window.location.origin}/?shareId=${id}`;
@@ -91,53 +87,25 @@ export const shareService = {
       }
   },
 
-  findAllPublic: async (page: number = 1, limit: number = 10, type: string = 'map'): Promise<{ items: SharedMapItem[], total: number }> => {
-      try {
-        const { data } = await axios.get(`${environment}/share/public/list`, {
-            params: { page, limit, type }
-        });
-        return data;
-      } catch (error) {
-        console.error("Error loading public shares", error);
-        throw error;
-      }
-  },
-
-  update: async (id: string, data: SyncData, name: string, description?: string, type: string = 'map', isPublic: boolean = false): Promise<SharedMap> => {
-      const headers = await getAuthHeaders();
+  update: async (id: string, data: SyncData, name: string, description?: string, type: string = 'map'): Promise<SharedMap> => {
       const payload = {
          name,
          description,
          type,
-         state: data,
-         isPublic
+         state: data
       };
-      const { data: responseData } = await axios.patch(`${environment}/share/${id}`, payload, { headers });
+      const { data: responseData } = await axios.patch(`${environment}/share/${id}`, payload);
       return responseData;
   },
 
-  getHistory: async (page: number = 1, limit: number = 10, type: string = 'map'): Promise<{ items: SharedMapItem[], total: number }> => {
-      const headers = await getAuthHeaders();
+  getHistory: async (userId: string, page: number = 1, limit: number = 10, type: string = 'map'): Promise<{ items: SharedMapItem[], total: number }> => {
       try {
-        const { data } = await axios.get(`${environment}/share/user/history`, {
-            params: { page, limit, type },
-            headers
-        });
-        return data;
-      } catch (error) {
-        console.error("Error loading share history", error);
-        throw error;
-      }
-  },
-
-  getPublicShares: async (page: number = 1, limit: number = 10, type: string = 'map'): Promise<{ items: SharedMapItem[], total: number }> => {
-      try {
-        const { data } = await axios.get(`${environment}/share/public/list`, {
+        const { data } = await axios.get(`${environment}/share/user/${userId}`, {
             params: { page, limit, type }
         });
         return data;
       } catch (error) {
-        console.error("Error loading public shares", error);
+        console.error("Error loading share history", error);
         throw error;
       }
   }

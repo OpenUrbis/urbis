@@ -295,10 +295,6 @@ export class AuthService {
     return accessControl.permissions;
   }
 
-  async getRoles(user: User) {
-    return await this.roleService.listUserRoles(user.id);
-  }
-
   async createOrValidateExternalOidcUser(payload: AuthExternalStrategyDto) {
     payload.email = payload.email.toLowerCase();
     let user = await this.userService.findOne({

@@ -68,7 +68,7 @@ const getMapHandlers = (context: MapContextType) => {
     selectedFeatures.value = [/* ...selectedFeatures.value,  */ feature];
   };
 
-  const populateMapContext = async (options?: { disablePadding?: boolean }) => {
+  const populateMapContext = async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const shareId = urlParams.get('shareId');
     
@@ -79,10 +79,10 @@ const getMapHandlers = (context: MapContextType) => {
                  currentShare.value = sharedMap;
                  const { mapContext: loadedMapContext } = sharedMap.state.root;
                  
-                 layerSchemas.value = loadedMapContext.layerSchemas || [];
-                 layerGroups.value = loadedMapContext.layerGroups || [];
-                 zoom.value = loadedMapContext.zoom ?? 10;
-                 boundingBox.value = loadedMapContext.boundingBox || boundingBox.value;
+                 layerSchemas.value = loadedMapContext.layerSchemas;
+                 layerGroups.value = loadedMapContext.layerGroups;
+                 zoom.value = loadedMapContext.zoom;
+                 boundingBox.value = loadedMapContext.boundingBox;
                  viewport.value = loadedMapContext.viewport;
                  
                  if (loadedMapContext.editFeatureTemplate) {
@@ -135,30 +135,21 @@ const getMapHandlers = (context: MapContextType) => {
     }
 
     const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-    const uiPadding = options?.disablePadding
-      ? { top: 0, bottom: 0, left: 0, right: 0 }
-      : {
-          top: 64,
-          bottom: 0,
-          left: isDesktop ? 420 : 0,
-          right: 0,
-        };
+    const uiPadding = {
+      top: 64,
+      bottom: 0,
+      left: isDesktop ? 420 : 0,
+      right: 0,
+    };
 
-    if (viewport.value) {
-      viewport.value = {
-        ...viewport.value,
-        padding: uiPadding,
-      };
-    } else {
-      viewport.value = {
-        latitude,
-        longitude,
-        zoom: cZoom ?? 10,
-        bearing: bearing ?? 0,
-        pitch: pitch ?? 0,
-        padding: uiPadding,
-      };
-    }
+    viewport.value = {
+      latitude,
+      longitude,
+      zoom: zoom ?? 10,
+      bearing: bearing ?? 0,
+      pitch: pitch ?? 0,
+      padding: uiPadding,
+    };
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

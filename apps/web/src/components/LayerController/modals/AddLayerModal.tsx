@@ -28,40 +28,30 @@ export const AddLayerModal = ({ isOpen, onOpenChange }: AddLayerModalProps) => {
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>
-            {mode.value === "select" ? "Adicionar Camada" : 
-             mode.value === "web" ? "Integração GeoServer" : "Upload de Dados"}
+            {mode.value === "select" ? "Adicionar camada" : 
+             mode.value === "web" ? "Adicionar Camada Web" : "Upload de Dados"}
           </DialogTitle>
           <DialogDescription className="text-base text-muted-foreground pt-2">
-            {mode.value === "select" ? "Adicione camadas personalizadas ao seu mapa de forma rápida. Estas camadas são temporárias e ficam disponíveis apenas durante a sua sessão atual." : 
-             mode.value === "web" ? "Conecte-se a serviços externos via WMS ou WFS para visualizar dados geográficos em tempo real." : "Envie arquivos geográficos diretamente do seu computador (máx. 400MB)."}
+            {mode.value === "select" ? "Adicione uma camada ao seu mapa, seja de uma fonte web ou enviada do seu computador. Estas camadas são adicionadas apenas durante a sua sessão." : 
+             mode.value === "web" ? "Insira a URL de um serviço WMS ou WFS para adicionar camadas." : "Envie um arquivo GeoJSON para visualizar no mapa."}
           </DialogDescription>
         </DialogHeader>
         
         {mode.value === "select" && (
-          <div className="grid grid-cols-2 gap-4 py-6">
+          <div className="grid grid-cols-2 gap-4 py-4">
             <div 
-              className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-2xl hover:bg-primary/5 hover:border-primary/50 cursor-pointer transition-all group gap-4 text-center"
+              className="flex flex-col items-center justify-center p-6 border rounded-xl hover:bg-muted/50 cursor-pointer transition-colors group"
               onClick={() => (mode.value = "web")}
             >
-              <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-4xl text-blue-600">dns</span>
-              </div>
-              <div className="space-y-1">
-                <span className="text-foreground font-bold text-lg block">GeoServer</span>
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">WMS / WFS Integration</span>
-              </div>
+              <span className="material-symbols-outlined text-4xl text-blue-600 mb-3">public</span>
+              <span className="text-blue-600 font-medium text-lg">Adicionar camada web</span>
             </div>
             <div 
-              className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-2xl hover:bg-primary/5 hover:border-primary/50 cursor-pointer transition-all group gap-4 text-center"
+              className="flex flex-col items-center justify-center p-6 border rounded-xl hover:bg-muted/50 cursor-pointer transition-colors group"
               onClick={() => (mode.value = "upload")}
             >
-              <div className="bg-green-100 dark:bg-green-900/30 p-4 rounded-full group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-4xl text-green-600">cloud_upload</span>
-              </div>
-              <div className="space-y-1">
-                <span className="text-foreground font-bold text-lg block">Local File</span>
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Upload de Dados</span>
-              </div>
+              <span className="material-symbols-outlined text-4xl text-blue-600 mb-3">cloud_upload</span>
+              <span className="text-blue-600 font-medium text-lg">Upload de dados</span>
             </div>
           </div>
         )}

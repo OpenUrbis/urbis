@@ -48,18 +48,12 @@ const addDrawControls = (
 
 class SpacerControl implements mapboxgl.IControl {
   private container!: HTMLElement;
-  private height: string;
-
-  constructor(height: string = "76px") {
-    this.height = height;
-  }
 
   onAdd(_map: mapboxgl.Map) {
     this.container = document.createElement("div");
     this.container.className = "mapboxgl-ctrl";
-    this.container.style.height = this.height;
+    this.container.style.height = "132px";
     this.container.style.width = "0px";
-    this.container.style.pointerEvents = "none";
     return this.container;
   }
 
@@ -104,18 +98,18 @@ export const addMapControls = (
   onPickLocation?: () => void,
   hideControls?: boolean
 ) => {
-  // Clear header AND layer management buttons for top-right
-  map.addControl(new SpacerControl("124px"), "top-right");
-
   // Adiciona controles de desenho (sempre necessário para edição?)
+  // Se hideControls for true (preview), talvez não precisemos de draw? 
+  // Mas o retorno espera { draw }.
   const draw = addDrawControls(map, polygonEdit);
 
   if (hideControls) {
     return { draw };
   }
 
-  // Clear header for both sides
-  map.addControl(new SpacerControl("76px"), "top-left");
+  // Adiciona o controle de troca de estilo ao mapa
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  map.addControl(new SpacerControl(), "top-right");
 
   if (onPickLocation) {
       map.addControl(new PickLocationControl(onPickLocation), "top-right");
@@ -142,10 +136,13 @@ export const addMapControls = (
 
   // Ruler Control
   map.addControl(new RulerControl(), "top-left");
+  map.on("ruler.on", () => console.info("Ruler activated"));
+  map.on("ruler.off", () => console.info("Ruler deactivated"));
 
   // Image Control
   const imageControl = new ImageControl({ removeButton: true });
   map.addControl(imageControl, "top-left");
 
+  console.info("Todos os controles foram adicionados ao mapa com sucesso!");
   return { draw };
 };

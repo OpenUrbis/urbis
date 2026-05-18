@@ -15,8 +15,6 @@ import { createFn } from "../../utils/createFn";
 import { CustomWMSLayer } from "./CustomWMSLayer";
 import { formatBoundsForURL, transformBoundsToUTM } from "./transform-bounds";
 
-const environmentUrl = import.meta.env.VITE_API_URL || "/api";
-
 type Color = [number, number, number, number];
 type ColorConfig = { [key: string]: Color };
 
@@ -218,11 +216,6 @@ const createGeoJsonLayer = (
       data = `${data}${separator}CQL_FILTER=${encodeURIComponent(cqlFilter)}`;
   }
 
-  // Use proxy for external GeoJson/WFS sources to avoid CORS
-  if (typeof data === 'string' && data.startsWith('http') && !data.includes(window.location.host) && !data.includes('/maps/proxy')) {
-    data = `${environmentUrl}/maps/proxy?url=${data}`;
-  }
-
   const { getFillColor, getFillPattern, getLineColor, getTextColor } =
     generateGetColorFns(layer, selectedFeatureIds);
   const patternObj = { ...MAP_CONFIGS.PATTERN_PROPERTIES, getFillPattern };
@@ -258,82 +251,22 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
     const { boundingBox: bbox, selectedFeatureIds } = props;
     const { origin } = layer;
 
-    // Improved detection for geographic SRS
-    const srsName = (origin.match(/srsName=([^&]+)/i)?.[1] || "").toUpperCase();
-    
-    // Check if the service version is 1.3.0 or higher
-    const isWfs130 = origin.includes("version=1.3.0") || origin.includes("VERSION=1.3.0") || 
-                     origin.includes("version=2.0.0") || origin.includes("VERSION=2.0.0");
-
-    // Standard geographic SRS
-    const isGeographic = srsName === "EPSG:4326" || srsName === "CRS:84" || srsName === "CRS84" || srsName === "EPSG:4674";
-
     const gridCells = calculateGridCells(bbox);
     const layers = gridCells.map((cellBbox) => {
       const cellId = `cell-${self.crypto.randomUUID()}`.replace(/\./g, "_");
-      
-      let formattedBounds: string;
-      
-      if (isGeographic) {
-        // AXIS ORDER LOGIC FOR GEOGRAPHIC COORDINATES (LAT/LON)
-        // Standard (longitude first): [minLon, minLat, maxLon, maxLat]
-        // Swapped (latitude first): [minLat, minLon, maxLat, maxLon]
-        
-        let shouldSwap = false;
-        
-        if (isWfs130) {
-          // In WFS 1.3.0+ (and 1.1.0 often follows this too for EPSG codes), 
-          // EPSG:4326 and EPSG:4674 are officially [latitude, longitude].
-          // CRS:84 is explicitly defined as [longitude, latitude].
-          if (srsName === "EPSG:4326" || srsName === "EPSG:4674") {
-            shouldSwap = true;
-          }
-        }
+      const utmBounds = [
+        transformBoundsToUTM([cellBbox[0], cellBbox[1]]),
+        transformBoundsToUTM([cellBbox[2], cellBbox[3]]),
+      ];
 
-        if (shouldSwap) {
-          // Swapped axis order: [minLat, minLon, maxLat, maxLon]
-          formattedBounds = formatBoundsForURL([
-            cellBbox[1], // minLat
-            cellBbox[0], // minLon
-            cellBbox[3], // maxLat
-            cellBbox[2], // maxLon
-          ]);
-        } else {
-          // Standard axis order: [minLon, minLat, maxLon, maxLat]
-          formattedBounds = formatBoundsForURL([
-            cellBbox[0], // minLon
-            cellBbox[1], // minLat
-            cellBbox[2], // maxLon
-            cellBbox[3], // maxLat
-          ]);
-        }
-      } else {
-        // Default to UTM transformation (meters) - original behavior for slui.dev
-        const utmBounds = [
-          transformBoundsToUTM([cellBbox[0], cellBbox[1]]),
-          transformBoundsToUTM([cellBbox[2], cellBbox[3]]),
-        ];
+      const formattedBounds = formatBoundsForURL([
+        utmBounds[0][0],
+        utmBounds[0][1],
+        utmBounds[1][0],
+        utmBounds[1][1],
+      ]);
 
-        formattedBounds = formatBoundsForURL([
-          utmBounds[0][0],
-          utmBounds[0][1],
-          utmBounds[1][0],
-          utmBounds[1][1],
-        ]);
-      }
-
-      // Append SRS to BBOX if geographic to help GeoServer identify the projection
-      // And force CRS:84 specifically for Funai if geographic
-      const effectiveSrs = srsName === "EPSG:4674" ? "EPSG:4326" : srsName;
-      const bboxParam = isGeographic ? `${formattedBounds},${effectiveSrs}` : formattedBounds;
-      
-      // Ensure we don't have conflicting SRS params
-      let cleanOrigin = origin;
-      if (isGeographic && origin.includes("srsName=")) {
-        cleanOrigin = origin.replace(/srsName=[^&]+/i, `srsName=${effectiveSrs}`);
-      }
-
-      const originWithBBox = `${cleanOrigin}&bbox=${bboxParam}`;
+      const originWithBBox = `${origin}&bbox=${formattedBounds}`;
 
       return createGeoJsonLayer(
         {
@@ -350,35 +283,14 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
   GeoJsonLayer: (layer, props) => [createGeoJsonLayer(layer, props)],
   CustomWMSLayer: (layer) => {
     const { origin, properties, cqlFilter } = layer;
-    
-    // Support both nested properties.wms.layers and top-level typeName or layer.id
-    const layerNames = properties?.wms?.layers 
-      ? [properties.wms.layers] 
-      : properties?.typeName 
-        ? [properties.typeName] 
-        : [layer.id];
-
-    // For external WMS (like Funai), we should use our proxy for GetMap requests
-    // to avoid CORS issues. 
-    let finalOrigin = origin;
-    
-    // Check if nested wms url exists and is external
-    if (properties?.wms?.url && properties.wms.url.startsWith('http') && !properties.wms.url.includes(window.location.host)) {
-      finalOrigin = properties.wms.url;
-    }
-
-    if (finalOrigin.startsWith('http') && !finalOrigin.includes(window.location.host) && !finalOrigin.includes('/maps/proxy')) {
-      // If it's an absolute URL and not pointing to our own domain
-      // and not already proxied, we wrap it in our proxy.
-      finalOrigin = `${environmentUrl}/maps/proxy?url=${finalOrigin}`;
-    }
+    const layers = properties?.wms?.layers ? [properties.wms.layers] : [layer.id];
 
     return [
       new CustomWMSLayer({
         id: layer.id,
-        data: finalOrigin,
+        data: origin,
         serviceType: "wms",
-        layers: layerNames,
+        layers: layers,
         cqlFilter: cqlFilter,
       }),
     ];
@@ -396,15 +308,10 @@ export const transformSchemaLayers = (
 
   return layersConfig
     .filter((layer) => {
-      const { isVisible, minZoom, properties = {}, type } = layer;
+      const { isVisible, minZoom, properties = {} } = layer;
       const { maxZoom } = properties;
 
-      // Enforce minimum zoom of 12 for Stream layers
-      const effectiveMinZoom = type === "Stream" 
-        ? Math.max(minZoom || 0, 12) 
-        : minZoom;
-
-      if (checkZoom(zoom, effectiveMinZoom, maxZoom)) return false;
+      if (checkZoom(zoom, minZoom, maxZoom)) return false;
 
       return isVisible;
     })

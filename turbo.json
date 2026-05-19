@@ -21,6 +21,9 @@
     "dev:ssl": {
       "cache": false,
       "persistent": true
+    },
+    "db:reset": {
+      "cache": false
     }
   }
 }

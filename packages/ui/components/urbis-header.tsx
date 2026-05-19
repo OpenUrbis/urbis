@@ -29,6 +29,7 @@ import { cn } from "../lib/utils";
 import React from "react";
 import { Menu } from "lucide-react";
 import { UrbisSettings, UrbisSettingsProps } from "./urbis-settings";
+import { UrbisLogo } from "./urbis-logo";
 
 const UserAvatar = ({
   src,
@@ -93,7 +94,7 @@ export const UrbisHeader = ({
   logoSrc,
   logoAlt = "Urbis",
   logoHref = "/",
-  badgeText = "DEMO",
+  badgeText = "",
   menuItems = [],
   user,
   isAuthenticated = false,
@@ -116,19 +117,7 @@ export const UrbisHeader = ({
         {/* Logo */}
         <div className="mr-4 flex items-center">
           <a className="mr-6 flex items-center space-x-2" href={logoHref}>
-            {logoSrc ? (
-              <img
-                className="h-8 w-auto object-contain"
-                alt={logoAlt}
-                src={logoSrc}
-              />
-            ) : (
-              <img
-                className="h-8 w-auto object-contain"
-                alt={logoAlt}
-                src={theme === 'dark' ? '/logo-alt.svg' : '/logo.svg'}
-              />
-            )}
+            <UrbisLogo alt={logoAlt} src={logoSrc} />
             {badgeText && (
               <span className="hidden font-bold sm:inline-block text-muted-foreground text-sm">
                 {badgeText}
@@ -202,7 +191,7 @@ export const UrbisHeader = ({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <a href="http://localhost:4200" className="cursor-pointer">
-                      Perfil
+                      Minha conta
                     </a>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

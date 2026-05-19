@@ -18,10 +18,9 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
   }
 
   const environment = import.meta.env.VITE_API_URL || "/api";
-  const params = `service=WMS&version=1.3.0&request=GetCapabilities`;
 
   const response = await axios.get(`${environment}/maps/proxy`, {
-    params: { url: `${baseUrlStr}?${params}` }
+    params: { url: baseUrlStr, service: 'WMS', version: '1.3.0', request: 'GetCapabilities' }
   });
 
   const parser = new DOMParser();
@@ -332,7 +331,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     ];
   });
 
-  return {
+  const schema: any = {
     id,
     name: layerName,
     origin: finalOrigin,
@@ -357,6 +356,24 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
       maxZoom: maxZoom ? Number.parseInt(maxZoom) : undefined,
     },
   };
+
+  // For CustomWMSLayer, ensure we have the nested wms property that MapView/CustomWMSLayer expects
+  if (type === "CustomWMSLayer") {
+    schema.properties.wms = {
+      url: finalOrigin,
+      layers: selectedLayer?.name || "",
+      version: version || "1.3.0",
+      transparent: true,
+      format: "image/png",
+    };
+    
+    // Also ensure we have a clickAction for info if none is specified
+    if (!schema.clickAction) {
+      schema.clickAction = { action: "info", params: {} };
+    }
+  }
+
+  return schema;
 };
 
 export interface LayerSchemaColor {

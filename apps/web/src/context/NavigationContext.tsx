@@ -9,7 +9,7 @@ const lastPage = signal<any>(null);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const history = signal<any[]>([]);
 
-const drawerOpen = signal(true);
+const drawerOpen = signal(false);
 
 const navigationState: INavigationContextType = {
   currentPage,

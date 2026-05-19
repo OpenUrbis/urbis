@@ -8,6 +8,7 @@
     "test": "turbo run test",
     "composer:up": "docker-compose -f apps/api/docker-compose.yaml up -d",
     "composer:down": "docker-compose -f apps/api/docker-compose.yaml down",
+    "db:reset": "turbo run db:reset",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version"

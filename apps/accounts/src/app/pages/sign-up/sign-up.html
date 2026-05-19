@@ -1,51 +1,239 @@
-<div class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-6 overflow-y-auto">
+<div class="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-6 overflow-y-auto">
   <div class="w-full max-w-[424px]">
-    <form (ngSubmit)="submit()" [formGroup]="formGroup" class="w-full">
-      <section hlmCard class="w-full border-border">
-        <header hlmCardHeader class="pt-0 pb-0 flex flex-row items-center gap-0">
-          <a hlmBtn variant="ghost" size="icon" [attr.aria-label]="'pages.signUp.actions.back' | translate" href="/"
-            class="shrink-0 rounded-full h-8 w-8 mt-2">
-            <hlm-icon name="lucideArrowLeft" size="18" />
-          </a>
-          <h1 hlmCardTitle class="text-xl ml-4 mt-0 font-bold tracking-tight text-primary">
-            {{ "pages.signUp.title" | translate }}
-          </h1>
-        </header>
-
-        <div hlmCardContent class="flex flex-col gap-3 p-1 pt-2">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="firstName" class="text-xs">{{ "pages.signUp.form.fields.firstName" | translate }}</label>
-              <input hlmInput id="firstName" placeholder="{{ 'pages.signUp.form.fields.firstName' | translate }}"
-                formControlName="firstName" class="w-full h-9 text-sm" />
+    @if (currentStep() === 1) {
+      <form (ngSubmit)="nextStep()" [formGroup]="formGroup" class="w-full animate-in fade-in duration-500">
+        <section hlmCard class="w-full border-border bg-white dark:bg-card relative overflow-hidden">
+          <header hlmCardHeader class="pb-2">
+            <div class="flex items-center gap-0 -ml-2">
+              <a hlmBtn variant="ghost" size="icon" [attr.aria-label]="'pages.signUp.actions.back' | translate" href="/"
+                class="shrink-0 rounded-full h-8 w-8">
+                <hlm-icon name="lucideArrowLeft" size="18" />
+              </a>
+              <h1 hlmCardTitle class="text-xl m-0 p-0 font-bold text-primary">
+                {{ "pages.signUp.title" | translate }}
+              </h1>
             </div>
+          </header>
+
+          <div hlmCardContent class="flex flex-col gap-3 p-1 pt-2">
+            @if (loading()) {
+              <div class="absolute inset-0 z-50 bg-white dark:bg-black flex flex-col items-center justify-center rounded-lg animate-in fade-in duration-300">
+                <span class="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>
+                <p class="mt-4 text-sm font-semibold text-primary animate-pulse">Criando sua conta...</p>
+              </div>
+            }
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="firstName" class="text-xs font-semibold">{{ "pages.signUp.form.fields.firstName" | translate }}</label>
+                <input hlmInput id="firstName" placeholder="{{ 'pages.signUp.form.fields.firstName' | translate }}"
+                  formControlName="firstName" class="w-full h-9 text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="lastName" class="text-xs font-semibold">{{ "pages.signUp.form.fields.lastName" | translate }}</label>
+                <input hlmInput id="lastName" placeholder="{{ 'pages.signUp.form.fields.lastName' | translate }}"
+                  formControlName="lastName" class="w-full h-9 text-sm" />
+              </div>
+            </div>
+
             <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="lastName" class="text-xs">{{ "pages.signUp.form.fields.lastName" | translate }}</label>
-              <input hlmInput id="lastName" placeholder="{{ 'pages.signUp.form.fields.lastName' | translate }}"
-                formControlName="lastName" class="w-full h-9 text-sm" />
+              <label hlmLabel for="socialName" class="text-xs font-semibold">{{ "pages.signUp.form.fields.socialName" | translate }}</label>
+              <input hlmInput id="socialName" placeholder="{{ 'pages.signUp.form.fields.socialName' | translate }}"
+                formControlName="socialName" class="w-full h-9 text-sm" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label hlmLabel for="email" class="text-xs font-semibold">{{ "pages.signUp.form.fields.email" | translate }}</label>
+              <input hlmInput id="email" type="email" placeholder="{{ 'pages.signUp.form.fields.email' | translate }}"
+                formControlName="email" class="w-full h-9 text-sm" />
+            </div>
+
+          <!-- Address Declaration and Fields -->
+          <div class="flex flex-col gap-4 mt-2">
+            <div class="flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border">
+              <hlm-switch 
+                id="noOfficialAddress" 
+                [checked]="noOfficialAddress()"
+                (changed)="noOfficialAddress.set($event)">
+              </hlm-switch>
+              <label (click)="noOfficialAddress.set(!noOfficialAddress())" class="text-xs font-semibold cursor-pointer">
+                {{ 'pages.signUp.form.noOfficialAddress' | translate }}
+              </label>
+            </div>
+
+            @if (!noOfficialAddress()) {
+              <div [formGroup]="$any(formGroup.get('address'))" class="flex flex-col gap-2.5 animate-in fade-in duration-300">
+                <div class="flex flex-col gap-1 relative">
+                  <label hlmLabel for="cep" class="text-xs font-semibold">{{ "pages.signUp.form.fields.cep" | translate }}</label>
+                  <div class="relative">
+                    <input hlmInput id="cep" placeholder="00000-000" formControlName="cep" 
+                      class="w-full h-9 text-sm pr-10" (blur)="checkCep()" />
+                    @if (loadingCep()) {
+                      <span class="absolute right-3 top-2.5 h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
+                    }
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label hlmLabel for="street" class="text-xs font-semibold">{{ "pages.signUp.form.fields.street" | translate }}</label>
+                  <input hlmInput id="street" placeholder="{{ 'pages.signUp.form.fields.street' | translate }}"
+                    formControlName="street" class="w-full h-9 text-sm" />
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="flex flex-col gap-1 col-span-1">
+                    <label hlmLabel for="number" class="text-xs font-semibold">{{ "pages.signUp.form.fields.number" | translate }}</label>
+                    <input hlmInput id="number" placeholder="Nº" formControlName="number" class="w-full h-9 text-sm" />
+                  </div>
+                  <div class="flex flex-col gap-1 col-span-2">
+                    <label hlmLabel for="complement" class="text-xs font-semibold">{{ "pages.signUp.form.fields.complement" | translate }}</label>
+                    <input hlmInput id="complement" placeholder="Apt, bloco..." formControlName="complement" class="w-full h-9 text-sm" />
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label hlmLabel for="neighborhood" class="text-xs font-semibold">{{ "pages.signUp.form.fields.neighborhood" | translate }}</label>
+                  <input hlmInput id="neighborhood" placeholder="{{ 'pages.signUp.form.fields.neighborhood' | translate }}"
+                    formControlName="neighborhood" class="w-full h-9 text-sm" />
+                </div>
+
+                <div class="grid grid-cols-4 gap-3">
+                  <div class="flex flex-col gap-1 col-span-3">
+                    <label hlmLabel for="city" class="text-xs font-semibold">{{ "pages.signUp.form.fields.city" | translate }}</label>
+                    <input hlmInput id="city" placeholder="{{ 'pages.signUp.form.fields.city' | translate }}"
+                      formControlName="city" class="w-full h-9 text-sm" />
+                  </div>
+                  <div class="flex flex-col gap-1 col-span-1">
+                    <label hlmLabel for="state" class="text-xs font-semibold">{{ "pages.signUp.form.fields.state" | translate }}</label>
+                    <input hlmInput id="state" placeholder="UF" formControlName="state" class="w-full h-9 text-sm" />
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="flex flex-col gap-3 animate-in fade-in duration-300">
+                <div class="flex flex-row items-center gap-3 p-3 bg-primary rounded-lg border border-primary/20 shadow-inner">
+                  <img src="endereco_digital_logo.png" alt="Endereço Digital" class="h-10 w-auto brightness-0 invert" />
+                  <div class="flex flex-col flex-1">
+                    <p class="text-[10px] text-white font-bold leading-tight drop-shadow-sm">
+                      {{ 'pages.signUp.form.digitalAddressDescription' | translate }}
+                    </p>
+                    <a hlmBtn href="/" target="_blank" variant="secondary" size="sm" class="h-7 mt-1.5 gap-1.5 text-[10px] font-bold w-fit bg-white text-primary hover:bg-white/90 border-0 shadow-sm">
+                      <hlm-icon name="lucideMap" size="12" />
+                      {{ 'pages.signUp.form.buttons.openMap' | translate }}
+                    </a>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label hlmLabel for="digitalAddress" class="text-xs font-semibold">{{ "pages.signUp.form.fields.digitalAddress" | translate }}</label>
+                  <input hlmInput id="digitalAddress" placeholder="+00-00 ABC-DEFG"
+                    formControlName="digitalAddress" class="w-full h-9 text-sm uppercase font-mono" (input)="onDigitalAddressInput($event)" />
+                  @if (digitalAddressError()) {
+                    <div class="text-destructive text-[10px] font-medium animate-in fade-in mt-1">
+                      {{ digitalAddressError() }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+            <div class="flex flex-col gap-1.5 mt-2" [formGroup]="formGroup">
+              <label hlmLabel for="phone" class="text-xs font-semibold">
+                {{ "pages.signUp.form.fields.phone" | translate }}
+                <span class="text-muted-foreground font-normal ml-1">({{ 'pages.signUp.form.fields.optional' | translate }})</span>
+              </label>
+              <div class="flex h-10 w-full rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 overflow-hidden transition-all shadow-sm">
+                <div class="relative flex items-center border-r border-input bg-muted/30 hover:bg-muted/50 transition-colors px-1">
+                  <select
+                    formControlName="phoneCountry"
+                    class="appearance-none bg-transparent h-full pl-2 pr-6 text-sm font-medium focus:outline-none cursor-pointer z-10"
+                  >
+                    <option value="+55">🇧🇷 +55</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+351">🇵🇹 +351</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+34">🇪🇸 +34</option>
+                    <option value="+33">🇫🇷 +33</option>
+                    <option value="+49">🇩🇪 +49</option>
+                    <option value="+39">🇮🇹 +39</option>
+                  </select>
+                  <span class="absolute right-2 flex h-full w-4 items-center justify-center pointer-events-none">
+                    <hlm-icon name="lucideChevronDown" size="14" class="text-muted-foreground" />
+                  </span>
+                </div>
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  formControlName="phone" 
+                  placeholder="(00) 00000-0000"
+                  class="flex-1 bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                  (input)="onPhoneInput($event)"
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col -space-y-1 mt-2">
+              <lib-password-form-group [formGroup]="formGroup" />
             </div>
           </div>
 
-          <div class="flex flex-col gap-1.5">
-            <label hlmLabel for="email" class="text-xs">{{ "pages.signUp.form.fields.email" | translate }}</label>
-            <input hlmInput id="email" type="email" placeholder="{{ 'pages.signUp.form.fields.email' | translate }}"
-              formControlName="email" class="w-full h-9 text-sm" />
+          <div class="flex items-center p-1 pt-4">
+            <button hlmBtn type="submit" class="w-full font-semibold h-9 text-sm"
+              [attr.aria-label]="'pages.signUp.form.buttons.submit' | translate">
+              {{ "pages.signUp.form.buttons.submit" | translate }}
+            </button>
+          </div>
+        </section>
+      </form>
+    } @else {
+      <div class="fixed inset-0 z-[9999] flex items-center justify-end">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-500" (click)="prevStep()"></div>
+        <section class="w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-[60%] h-full bg-background flex flex-col relative z-[10000] shadow-2xl border-l border-border animate-in slide-in-from-right duration-500 ease-out">
+          <header class="flex flex-row items-center px-8 py-5 justify-between border-b bg-background">
+            <div class="flex flex-col gap-0.5">
+              <h2 class="text-lg font-bold text-primary">{{ currentTerm.label }}</h2>
+              <div class="flex items-center gap-3">
+                <span class="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70">Passo {{ currentTermIndex() + 1 }} de {{ terms.length }}</span>
+                <div class="flex gap-1">
+                  @for (t of terms; track t.id; let i = $index) {
+                    <div class="h-1 w-4 rounded-full transition-all duration-300" [class.bg-primary]="i <= currentTermIndex()" [class.bg-muted]="i > currentTermIndex()"></div>
+                  }
+                </div>
+              </div>
+            </div>
+            <button hlmBtn variant="ghost" size="icon" (click)="prevStep()" class="rounded-full h-8 w-8 hover:bg-black/5 dark:hover:bg-white/5">
+              <hlm-icon name="lucideX" size="18" />
+            </button>
+          </header>
+
+          <div class="flex-1 overflow-hidden bg-background">
+            <div class="h-full w-full overflow-y-auto custom-scrollbar border-y">
+              @if (currentTermIndex() === 0) {
+                <app-terms-of-use />
+              } @else {
+                <app-privacy-policy />
+              }
+            </div>
           </div>
 
-          <lib-country-select [formGroup]="formGroup" />
-
-          <lib-phone-form-group [formGroup]="formGroup" />
-
-          <lib-password-form-group [formGroup]="formGroup" />
-        </div>
-
-        <div class="flex items-center p-1 pt-0">
-          <button hlmBtn class="w-full font-semibold h-9 text-sm" [disabled]="formGroup.invalid"
-            [attr.aria-label]="'pages.signUp.form.buttons.submit' | translate">
-            {{ "pages.signUp.form.buttons.submit" | translate }}
-          </button>
-        </div>
-      </section>
-    </form>
+          <footer class="p-6 border-t bg-background flex items-center justify-between gap-4">
+            <button hlmBtn variant="ghost" size="sm" (click)="prevStep()" class="text-xs font-semibold uppercase tracking-tight">
+              {{ 'pages.signUp.actions.back' | translate }}
+            </button>
+            <button hlmBtn size="default" class="flex-1 sm:flex-none min-w-[140px] h-10 gap-2 px-6 relative overflow-hidden transition-all active:scale-95" (click)="acceptCurrentTerm()" [disabled]="!canAcceptTerm()">
+              @if (!canAcceptTerm()) {
+                <span class="absolute inset-0 bg-primary/20 animate-out fade-out fill-mode-forwards" [style.animation-duration]="termCountdown() + 's'"></span>
+                <span class="z-10 font-mono font-bold">{{ termCountdown() }}s</span>
+              } @else {
+                <span class="z-10 font-bold uppercase text-[11px] tracking-widest">
+                  {{ (currentTermIndex() === terms.length - 1 ? 'pages.signUp.form.buttons.submit' : 'pages.signUp.actions.next') | translate }}
+                </span>
+                <hlm-icon class="z-10" [name]="currentTermIndex() === terms.length - 1 ? 'lucideCheck' : 'lucideChevronRight'" size="16" />
+              }
+            </button>
+          </footer>
+        </section>
+      </div>
+    }
   </div>
 </div>

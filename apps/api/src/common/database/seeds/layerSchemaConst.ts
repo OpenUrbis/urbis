@@ -84,7 +84,7 @@ export const layerSchemas: LayerSchema[] = [
     getLineColorPropName: null,
     groupId: 'geral',
     clickAction: {
-      action: ClickActionEnum.SelectFeature,
+      action: ClickActionEnum.SetZoom,
       params: {
         zoom: 18.1,
       },
@@ -1049,12 +1049,6 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: 'cd_zoneamento_perimetro',
     getLineColorPropName: 'cd_zoneamento_perimetro',
     groupId: 'urbanistico',
-    clickAction: {
-      action: ClickActionEnum.SelectFeature,
-      params: {
-        zoom: 19.5,
-      },
-    },
     colors: [
       {
         color: [196, 80, 80, 190],
@@ -1131,12 +1125,6 @@ export const layerSchemas: LayerSchema[] = [
     getFillColorPropName: 'cd_zoneamento_perimetro',
     getLineColorPropName: 'cd_zoneamento_perimetro',
     groupId: 'urbanistico',
-    clickAction: {
-      action: ClickActionEnum.SelectFeature,
-      params: {
-        zoom: 19.5,
-      },
-    },
     colors: [
       {
         color: [223, 253, 178, 190],

@@ -67,7 +67,7 @@ export const MAP_CONFIGS: MapConfigs = {
     fillPatternMask: true,
     fillPatternAtlas: "/pattern.png",
     fillPatternMapping: "/pattern.json",
-    getFillPatternScale: 0.05,
+    getFillPatternScale: 0.5,
     getFillPatternOffset: [0, 0],
 
     // Define extensions

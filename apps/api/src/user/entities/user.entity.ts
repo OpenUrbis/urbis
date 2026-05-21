@@ -68,18 +68,6 @@ export class User extends BaseEntity {
   @Column({ nullable: true, unique: true })
   cpf?: string;
 
-  @Column({ nullable: true })
-  socialName?: string;
-
-  @Column({ nullable: true })
-  address?: string;
-
-  @Column({ nullable: true })
-  digitalAddress?: string;
-
-  @Column('jsonb', { nullable: true })
-  termsAccepted?: string[];
-
   @Column('jsonb', { nullable: true })
   govBrData?: any;
 

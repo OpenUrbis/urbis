@@ -14,7 +14,6 @@ import {
   FilterGroup,
   FilterNode,
 } from "./types";
-import { memo, useState, useEffect } from "preact/compat";
 
 export interface FilterField {
   name: string;
@@ -30,13 +29,13 @@ interface FilterBuilderProps {
   fields?: FilterField[];
 }
 
-export const FilterBuilder = memo(({
+export const FilterBuilder = ({
   value,
   onChange,
   fields = [],
 }: FilterBuilderProps) => {
   return <GroupNode group={value} onChange={onChange} fields={fields} isRoot />;
-});
+};
 
 interface GroupNodeProps {
   group: FilterGroup;
@@ -46,7 +45,7 @@ interface GroupNodeProps {
   isRoot?: boolean;
 }
 
-const GroupNode = memo(({
+const GroupNode = ({
   group,
   onChange,
   onDelete,
@@ -148,14 +147,14 @@ const GroupNode = memo(({
           <div key={child.id}>
             {child.type === "group" ? (
               <GroupNode
-                group={child as FilterGroup}
+                group={child}
                 onChange={(g) => updateChild(g)}
                 fields={fields}
                 onDelete={() => removeChild(child.id)}
               />
             ) : (
               <ConditionNode
-                condition={child as FilterCondition}
+                condition={child}
                 onChange={(c) => updateChild(c)}
                 fields={fields}
                 onDelete={() => removeChild(child.id)}
@@ -166,7 +165,7 @@ const GroupNode = memo(({
       </div>
     </div>
   );
-});
+};
 
 interface ConditionNodeProps {
   condition: FilterCondition;
@@ -175,33 +174,14 @@ interface ConditionNodeProps {
   fields: FilterField[];
 }
 
-const ConditionNode = memo(({
+const ConditionNode = ({
   condition,
   onChange,
   onDelete,
   fields,
 }: ConditionNodeProps) => {
-  const [localValue, setLocalValue] = useState(condition.value);
-
-  useEffect(() => {
-    setLocalValue(condition.value);
-  }, [condition.value]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localValue !== condition.value) {
-        onChange({ ...condition, value: localValue });
-      }
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [localValue, condition, onChange]);
-
   const handleChange = (key: keyof FilterCondition, val: any) => {
-    if (key === "value") {
-      setLocalValue(val);
-    } else {
-      onChange({ ...condition, [key]: val });
-    }
+    onChange({ ...condition, [key]: val });
   };
 
   const selectedField = fields.find((f) => f.name === condition.field);
@@ -265,7 +245,7 @@ const ConditionNode = memo(({
         ) : (
           <Input
             value={condition.field}
-            onInput={(e) => handleChange("field", e.currentTarget.value)}
+            onChange={(e) => handleChange("field", e.currentTarget.value)}
             placeholder="Campo"
             className="h-8 text-xs"
           />
@@ -294,8 +274,8 @@ const ConditionNode = memo(({
 
       {condition.operator !== "IS NULL" && (
         <Input
-          value={localValue}
-          onInput={(e) => handleChange("value", e.currentTarget.value)}
+          value={condition.value}
+          onChange={(e) => handleChange("value", e.currentTarget.value)}
           placeholder="Valor"
           className="flex-1 h-8 text-xs"
           type={fieldType === "number" ? "number" : "text"}
@@ -312,4 +292,4 @@ const ConditionNode = memo(({
       </Button>
     </div>
   );
-});
+};

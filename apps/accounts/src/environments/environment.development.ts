@@ -7,19 +7,6 @@ export const environment = {
   externalOidcSecureRoutes: ['https://sso.staging.acesso.gov.br'],
   externalOidcAuthority: 'https://sso.staging.acesso.gov.br',
 
-  terms: [
-    {
-      id: 'termos-de-uso',
-      label: 'Termos de Uso',
-      url: 'http://localhost:3010/docs/termos-de-uso',
-    },
-    {
-      id: 'politica-de-privacidade',
-      label: 'Política de Privacidade',
-      url: 'http://localhost:3010/docs/politica-de-privacidade',
-    },
-  ],
-
   googleRecaptchaSiteKey: '6LfwDx4sAAAAABrm5sINZvaY9Fq3pFttsX-wikjG',
 
   s3EndpointPublic: 'http://localhost:9000/public',

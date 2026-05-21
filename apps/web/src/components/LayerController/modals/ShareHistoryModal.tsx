@@ -1,5 +1,6 @@
 import { useEffect } from "preact/hooks";
 import { useSignal } from "@preact/signals";
+import { useAuth } from "react-oidc-context";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui";
 import { Calendar, Search, ArrowRight, Loader2, Clock } from "lucide-react";
@@ -22,6 +23,10 @@ export const ShareHistoryModal = ({
     const page = useSignal(1);
     const total = useSignal(0);
     const limit = 5;
+    const auth = useAuth();
+
+    // Use logged in user ID or mock fallback
+    const userId = auth.user?.profile.sub || 'mock-user-id-123';
 
     useEffect(() => {
         if (isOpen) {
@@ -32,7 +37,7 @@ export const ShareHistoryModal = ({
     const loadHistory = async () => {
         loading.value = true;
         try {
-            const result = await shareService.getHistory(page.value, limit, type);
+            const result = await shareService.getHistory(userId, page.value, limit, type);
             history.value = result.items;
             total.value = result.total;
         } catch (e) {

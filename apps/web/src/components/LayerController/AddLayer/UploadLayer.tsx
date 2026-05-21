@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useSignal, useComputed } from "@preact/signals";
-import { createElement, useEffect } from "react";
+import { createElement } from "react";
 import ReactJson from "react-json-view";
 import { Button } from "@open-urbis/map-ui";
 import { Input } from "@open-urbis/map-ui";
@@ -26,28 +26,10 @@ export const UploadLayer = ({ onBack, onClose }: UploadLayerProps) => {
 
   const flatGroups = useComputed(() => flattenLayerGroups(layerGroups.value));
 
-  // Pre-select the first group (usually "Geral")
-  useEffect(() => {
-    if (flatGroups.value.length > 0 && !selectedGroupId.value) {
-      selectedGroupId.value = flatGroups.value[0].id;
-    }
-  }, [flatGroups.value]);
-
-  const MAX_FILE_SIZE = 400 * 1024 * 1024; // 400MB
-
   const handleFileChange = (e: any) => {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
-      const selectedFile = target.files[0];
-      
-      if (selectedFile.size > MAX_FILE_SIZE) {
-        error.value = `O arquivo selecionado é muito grande (${(selectedFile.size / (1024 * 1024)).toFixed(2)}MB). O limite máximo permitido é 400MB.`;
-        file.value = null;
-        target.value = ""; // Clear input
-        return;
-      }
-
-      file.value = selectedFile;
+      file.value = target.files[0];
       error.value = "";
     }
   };

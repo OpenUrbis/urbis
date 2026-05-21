@@ -27,28 +27,12 @@ export class AuthRegisterLoginDto {
 
   @ApiProperty({ example: 'BR' })
   @IsCountryCode()
-  @IsOptional()
-  country?: string;
+  country: string;
 
   @ApiProperty({ example: '+554599900000' })
+  @IsPhoneNumber()
   @IsOptional()
   phone?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  socialName?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  address?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  digitalAddress?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  termsAccepted?: string[];
 
   @ApiProperty({ example: 'John' })
   @IsNotEmpty()

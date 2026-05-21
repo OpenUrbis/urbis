@@ -7,9 +7,9 @@ import { Component, input } from '@angular/core';
     imports: [CommonModule],
     template: `
     <img
-      [src]="variant() === 'alt' ? '/Fundo=Escuro.svg' : '/logo.png'"
+      [src]="variant() === 'alt' ? 'logo-alt.svg' : 'logo.svg'"
       [style.width]="width()"
-      alt="Prefeitura de São Paulo"
+      alt="Urbis Logo"
       class="logo"
     />
   `,

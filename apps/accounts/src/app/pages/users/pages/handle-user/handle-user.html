@@ -1,180 +1,161 @@
-<app-page-structure
-  [title]="id() ? 'Editar Usuário' : 'Novo Usuário'"
-  [subtitle]="id() ? 'Editando informações de ' + name() : 'Preencha as informações para criar um novo usuário'"
->
-  <div actions class="flex items-center gap-2">
-    @if (id()) {
-      <button
+<lib-loading-content [loading]="loading()">
+  <app-page-structure
+    [title]="name() ?? ('pages.users.edit.title.create' | translate)"
+  >
+    <section leftActions>
+      <a
         hlmBtn
-        variant="destructive"
-        size="sm"
-        class="gap-2"
-        (click)="deleteUser(id()!)"
-        *libHasPermission="'users.delete'"
+        variant="ghost"
+        size="icon"
+        [attr.aria-label]="'pages.users.page.buttons.back' | translate"
+        routerLink="/users"
+        class="mr-3"
       >
-        <hlm-icon name="lucideTrash2" size="16" />
-        Excluir Usuário
-      </button>
-    }
-    <a hlmBtn variant="ghost" size="sm" routerLink="/users">Voltar</a>
-    <lib-loading-button
-      [loading]="loadingSave()"
-      (click)="save()"
-      [disabled]="form.invalid"
-    >
-      Salvar Alterações
-    </lib-loading-button>
-  </div>
+        <hlm-icon name="lucideArrowLeft" size="18" />
+      </a>
+    </section>
 
-  <lib-loading-content [loading]="loading()">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 flex flex-col gap-6">
-        <section class="bg-card border rounded-lg p-6">
-          <h3 class="text-lg font-semibold mb-4">Informações Pessoais</h3>
-          <form [formGroup]="form" class="flex flex-col gap-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-1.5">
-                <label hlmLabel for="firstName">Nome</label>
-                <input hlmInput id="firstName" formControlName="firstName" placeholder="Nome" />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <label hlmLabel for="lastName">Sobrenome</label>
-                <input hlmInput id="lastName" formControlName="lastName" placeholder="Sobrenome" />
-              </div>
-            </div>
+    <section rightActions>
+      @if (id() && !loading()) {
+        <button
+          *hasPermission="'user:delete'"
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          [attr.aria-label]="
+            'pages.users.page.buttons.delete.ariaLabel' | translate
+          "
+          (click)="deleteUser(id()!)"
+          class="mr-3 text-destructive hover:text-destructive hover:bg-destructive/10"
+        >
+          <hlm-icon name="lucideTrash2" size="16" />
+        </button>
+      }
+    </section>
 
-            <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="socialName">Nome Social (Opcional)</label>
-              <input hlmInput id="socialName" formControlName="socialName" placeholder="Como o usuário prefere ser chamado" />
-            </div>
+    <div class="border-b border-border mb-4">
+        <nav class="-mb-px flex space-x-4">
+            <button
+                type="button"
+                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                [class.border-primary]="selectedTab() === 0"
+                [class.text-primary]="selectedTab() === 0"
+                [class.border-transparent]="selectedTab() !== 0"
+                [class.text-muted-foreground]="selectedTab() !== 0"
+                [class.hover:text-foreground]="selectedTab() !== 0"
+                (click)="selectedTab.set(0)"
+            >
+                {{ 'pages.users.edit.tabs.dadosDoUsuarios' | translate }}
+            </button>
 
-            <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="email">E-mail</label>
-              <input hlmInput id="email" formControlName="email" placeholder="email@exemplo.com" />
-            </div>
-
-            <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="phone">
-                Telefone
-                <span class="text-muted-foreground font-normal ml-1">({{ 'pages.signUp.form.fields.optional' | translate }})</span>
-              </label>
-              <input hlmInput id="phone" formControlName="phone" placeholder="(00) 00000-0000" />
-            </div>
-
-            @if (!id()) {
-              <div class="mt-2">
-                <lib-password-form-group [formGroup]="form" />
-              </div>
+            @if (id()) {
+                <button
+                    *hasPermission="'role:list'"
+                    type="button"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                    [class.border-primary]="selectedTab() === 1"
+                    [class.text-primary]="selectedTab() === 1"
+                    [class.border-transparent]="selectedTab() !== 1"
+                    [class.text-muted-foreground]="selectedTab() !== 1"
+                    [class.hover:text-foreground]="selectedTab() !== 1"
+                    (click)="selectedTab.set(1)"
+                >
+                    {{ 'pages.users.edit.tabs.roles' | translate }}
+                </button>
+                <button
+                    *hasPermission="'organization:list'"
+                    type="button"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                    [class.border-primary]="selectedTab() === 2"
+                    [class.text-primary]="selectedTab() === 2"
+                    [class.border-transparent]="selectedTab() !== 2"
+                    [class.text-muted-foreground]="selectedTab() !== 2"
+                    [class.hover:text-foreground]="selectedTab() !== 2"
+                    (click)="selectedTab.set(2)"
+                >
+                    {{ 'pages.users.edit.tabs.organizations' | translate }}
+                </button>
             }
-          </form>
-        </section>
-
-        <section class="bg-card border rounded-lg p-6">
-          <h3 class="text-lg font-semibold mb-4">Endereço</h3>
-          
-          <div class="flex flex-col gap-4">
-            <div class="flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border">
-              <hlm-switch 
-                id="noOfficialAddress" 
-                [checked]="noOfficialAddress()"
-                (changed)="noOfficialAddress.set($event)">
-              </hlm-switch>
-              <label (click)="noOfficialAddress.set(!noOfficialAddress())" class="text-sm font-semibold cursor-pointer">
-                Não possuo um endereço oficial (CEP)
-              </label>
-            </div>
-
-            @if (!noOfficialAddress()) {
-              <div [formGroup]="$any(form.get('address'))" class="flex flex-col gap-4 animate-in fade-in duration-300">
-                <div class="flex flex-col gap-1.5 relative">
-                  <label hlmLabel for="cep">CEP</label>
-                  <div class="relative">
-                    <input hlmInput id="cep" placeholder="00000-000" formControlName="cep" 
-                      class="w-full pr-10" (blur)="checkCep()" />
-                    @if (loadingCep()) {
-                      <span class="absolute right-3 top-2.5 h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
-                    }
-                  </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5">
-                  <label hlmLabel for="street">Logradouro</label>
-                  <input hlmInput id="street" formControlName="street" />
-                </div>
-
-                <div class="grid grid-cols-3 gap-3">
-                  <div class="flex flex-col gap-1.5 col-span-1">
-                    <label hlmLabel for="number">Número</label>
-                    <input hlmInput id="number" placeholder="Nº" formControlName="number" />
-                  </div>
-                  <div class="flex flex-col gap-1.5 col-span-2">
-                    <label hlmLabel for="complement">Complemento</label>
-                    <input hlmInput id="complement" placeholder="Apt, bloco..." formControlName="complement" />
-                  </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5">
-                  <label hlmLabel for="neighborhood">Bairro</label>
-                  <input hlmInput id="neighborhood" formControlName="neighborhood" />
-                </div>
-
-                <div class="grid grid-cols-4 gap-3">
-                  <div class="flex flex-col gap-1.5 col-span-3">
-                    <label hlmLabel for="city">Cidade</label>
-                    <input hlmInput id="city" formControlName="city" />
-                  </div>
-                  <div class="flex flex-col gap-1.5 col-span-1">
-                    <label hlmLabel for="state">Estado</label>
-                    <input hlmInput id="state" placeholder="UF" formControlName="state" />
-                  </div>
-                </div>
-              </div>
-            } @else {
-              <div class="flex flex-col gap-4 animate-in fade-in duration-300">
-                <div class="flex flex-row items-center gap-3 p-4 bg-primary rounded-lg border border-primary/20 shadow-inner">
-                  <img src="endereco_digital_logo.png" alt="Endereço Digital" class="h-12 w-auto brightness-0 invert" />
-                  <div class="flex flex-col flex-1">
-                    <p class="text-xs text-white font-bold leading-tight drop-shadow-sm">
-                      O Endereço Digital Urbis identifica qualquer local no mapa, mesmo onde não há CEP oficial.
-                    </p>
-                    <a hlmBtn href="/" target="_blank" variant="secondary" size="sm" class="h-8 mt-2 gap-1.5 text-xs font-bold w-fit bg-white text-primary hover:bg-white/90 border-0 shadow-sm">
-                      <hlm-icon name="lucideMap" size="14" />
-                      Abrir Mapa
-                    </a>
-                  </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5" [formGroup]="form">
-                  <label hlmLabel for="digitalAddress">Código do Endereço Digital</label>
-                  <input hlmInput id="digitalAddress" placeholder="+00-00 ABC-DEFG"
-                    formControlName="digitalAddress" class="w-full uppercase font-mono" (input)="onDigitalAddressInput($event)" />
-                  @if (digitalAddressError()) {
-                    <div class="text-destructive text-xs font-medium animate-in fade-in mt-1">
-                      {{ digitalAddressError() }}
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        </section>
-
-        @if (id()) {
-          <section class="bg-card border rounded-lg p-6">
-            <h3 class="text-lg font-semibold mb-4">Organizações</h3>
-            <app-user-organization-manager [userId]="id()!" />
-          </section>
-        }
-      </div>
-
-      <div class="flex flex-col gap-6">
-        @if (id()) {
-          <section class="bg-card border rounded-lg p-6">
-            <h3 class="text-lg font-semibold mb-4">Papéis e Permissões</h3>
-            <app-user-role-manager [userId]="id()!" />
-          </section>
-        }
-      </div>
+        </nav>
     </div>
-  </lib-loading-content>
-</app-page-structure>
+
+    @if (selectedTab() === 0) {
+        <div class="my-3 p-6 border border-border rounded-lg bg-card text-card-foreground shadow-sm">
+          <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label hlmLabel>{{ "pages.users.edit.fields.firstName" | translate }}</label>
+                <input
+                  hlmInput
+                  formControlName="firstName"
+                  [attr.aria-label]="
+                    'pages.users.edit.fields.firstName' | translate
+                  "
+                />
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label hlmLabel>{{ "pages.users.edit.fields.lastName" | translate }}</label>
+                <input
+                  hlmInput
+                  formControlName="lastName"
+                  [attr.aria-label]="
+                    'pages.users.edit.fields.lastName' | translate
+                  "
+                />
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label hlmLabel>{{ "pages.users.edit.fields.email" | translate }}</label>
+                <input
+                  type="email"
+                  hlmInput
+                  formControlName="email"
+                  placeholder="{{
+                    'pages.users.edit.placeholders.email' | translate
+                  }}"
+                  [attr.aria-label]="
+                    'pages.users.edit.fields.email' | translate
+                  "
+                />
+                @if (
+                  getFormControl("email").hasError("email") &&
+                  !getFormControl("email").hasError("required")
+                ) {
+                  <p class="text-sm font-medium text-destructive">{{
+                    "pages.users.edit.errors.emailInvalid" | translate
+                  }}</p>
+                }
+                @if (getFormControl("email").hasError("required")) {
+                  <p class="text-sm font-medium text-destructive">{{
+                    "pages.users.edit.errors.emailRequired" | translate
+                  }}</p>
+                }
+              </div>
+
+              @if (!id()) {
+                <lib-password-form-group [formGroup]="form.controls.password" />
+              }
+
+            <div class="flex justify-end pt-4">
+              <lib-loading-button [loading]="loadingSave()">{{
+                "pages.users.edit.buttons.save" | translate
+              }}</lib-loading-button>
+            </div>
+          </form>
+        </div>
+    }
+
+    @if (id() && selectedTab() === 1) {
+        <div class="pt-4">
+            <app-user-role-manager [userId]="id()!" />
+        </div>
+    }
+
+    @if (id() && selectedTab() === 2) {
+        <div class="pt-4">
+            <app-user-organization-manager [userId]="id()!" />
+        </div>
+    }
+
+  </app-page-structure>
+</lib-loading-content>

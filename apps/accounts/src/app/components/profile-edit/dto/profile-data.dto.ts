@@ -5,7 +5,4 @@ export interface IProfileData {
   password?: string | null;
   phone?: string | null;
   country?: string | null;
-  socialName?: string | null;
-  address?: string | null;
-  digitalAddress?: string | null;
 }

@@ -12,13 +12,10 @@ export class ShareService {
     private readonly sharedMapRepository: Repository<SharedMap>,
   ) {}
 
-  async create(
-    createSharedMapDto: CreateSharedMapDto,
-    userId: string,
-  ): Promise<SharedMap> {
+  async create(createSharedMapDto: CreateSharedMapDto): Promise<SharedMap> {
     const sharedMap = this.sharedMapRepository.create({
       ...createSharedMapDto,
-      userId,
+      userId: 'mock-user-id-123', // Mocked user ID
     });
     return this.sharedMapRepository.save(sharedMap);
   }
@@ -37,32 +34,6 @@ export class ShareService {
     return { items, total };
   }
 
-  async findAllPublic(
-    page: number = 1,
-    limit: number = 10,
-    type: string = 'map',
-  ): Promise<{ items: SharedMap[]; total: number }> {
-    const query = this.sharedMapRepository
-      .createQueryBuilder('share')
-      .where('share.isPublic = :isPublic', { isPublic: true });
-
-    if (type === 'map') {
-      query.andWhere('(share.type = :type OR share.type IS NULL)', {
-        type: 'map',
-      });
-    } else {
-      query.andWhere('share.type = :type', { type });
-    }
-
-    const [items, total] = await query
-      .orderBy('share.createdAt', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-
-    return { items, total };
-  }
-
   async findOne(id: string): Promise<SharedMap> {
     const sharedMap = await this.sharedMapRepository.findOne({ where: { id } });
     if (!sharedMap) {
@@ -74,14 +45,8 @@ export class ShareService {
   async update(
     id: string,
     updateSharedMapDto: UpdateSharedMapDto,
-    userId: string,
   ): Promise<SharedMap> {
     const sharedMap = await this.findOne(id);
-
-    if (sharedMap.userId !== userId) {
-      throw new Error('You do not have permission to update this shared map');
-    }
-
     Object.assign(sharedMap, updateSharedMapDto);
     return this.sharedMapRepository.save(sharedMap);
   }

@@ -20,19 +20,12 @@ export interface IUser {
   govBrData?: any;
   lastGovBrLoginAt?: Date;
   govBrFirstLoginAt?: Date;
-  socialName?: string;
-  address?: string;
-  digitalAddress?: string;
 }
 
 export interface IUpdateUserRequest {
   email: string;
   firstName: string;
   lastName: string;
-  socialName?: string;
-  address?: string;
-  digitalAddress?: string;
-  phone?: string;
 }
 
 export interface ICreateUserRequest extends IUpdateUserRequest {

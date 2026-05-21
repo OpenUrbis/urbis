@@ -295,33 +295,32 @@ export class AuthService {
     return accessControl.permissions;
   }
 
-  async getRoles(user: User) {
-    return await this.roleService.listUserRoles(user.id);
-  }
-
   async createOrValidateExternalOidcUser(payload: AuthExternalStrategyDto) {
     payload.email = payload.email.toLowerCase();
-    const user = await this.userService.findOne({
+    let user = await this.userService.findOne({
       email: payload.email,
     });
 
     const now = new Date();
 
     if (user === null) {
-      throw new HttpException(
+      await this.register(
         {
-          status: HttpStatus.UNAUTHORIZED,
-          message: 'USER_NOT_FOUND',
-          data: {
-            email: payload.email,
-            firstName: payload.firstName,
-            lastName: payload.lastName,
-            cpf: payload.cpf,
-            picture: payload.picture,
-          },
+          email: payload.email,
+          firstName: payload.firstName,
+          lastName: payload.lastName,
+          country: payload.country,
+          password: null,
+          cpf: payload.cpf,
+          govBrData: payload.govBrData,
+          lastGovBrLoginAt: now,
+          govBrFirstLoginAt: now,
+          avatarUrl: payload.picture,
         },
-        HttpStatus.UNAUTHORIZED,
+        false,
       );
+      user = await this.userService.findOne({ email: payload.email });
+      return { ...user, isNewUser: true };
     } else {
       const updateData: any = {
         lastGovBrLoginAt: now,

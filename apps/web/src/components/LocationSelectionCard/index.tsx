@@ -10,10 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@open-urbis/map-ui";
-import { MapPin, FileJson, ChevronRight, Hash, Library } from "lucide-react";
+import { MapPin, FileJson, ChevronRight, Hash } from "lucide-react";
 import { useMapContext } from "../../hooks/useMapContext";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
-import { MapLibrary } from "../../pages/Map/MapLibrary";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { transformFileToJson } from "../../utils/transformFileToJson";
 import { calculateCentroid } from "../MapView/utils";
@@ -34,7 +33,7 @@ export const LocationSelectionCard = () => {
   const { flyTo, layerSchemas, digitalAddressFeature } = useMapContext();
   const { editFeature, editFeatureTemplate, layerWithRootEditTemplate } =
     usePolygonEditContext();
-  const { navigateTo, navigateReplace } = useNavigationContext();
+  const { navigateTo } = useNavigationContext();
 
   const step = useSignal(1);
   const geoJsonFile = useSignal<File | null>(null);
@@ -268,7 +267,7 @@ export const LocationSelectionCard = () => {
 
         flyTo(destination);
         
-        navigateReplace(
+        navigateTo(
             <DigitalAddressDetails 
                 latitude={lat} 
                 longitude={lon} 
@@ -407,22 +406,6 @@ export const LocationSelectionCard = () => {
               </span>
               <span className="text-xs text-muted-foreground">
                 Carregar arquivo GeoJSON para localização.
-              </span>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </div>
-
-          <div
-            className="cursor-pointer bg-card shadow-sm hover:bg-accent/50 transition-colors rounded-lg border p-3 flex items-center gap-3"
-            onClick={() => navigateTo(<MapLibrary />)}
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Library className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col flex-1 text-left">
-              <span className="text-sm font-semibold text-foreground">Biblioteca e Histórico</span>
-              <span className="text-xs text-muted-foreground">
-                Acesse suas visualizações e buscas salvas.
               </span>
             </div>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />

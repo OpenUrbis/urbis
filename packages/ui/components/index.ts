@@ -1,5 +1,4 @@
 export * from "./urbis-header";
-export * from "./urbis-logo";
 export * from "./urbis-settings";
 export * from "./urbis-footer";
 export * from "./ui";

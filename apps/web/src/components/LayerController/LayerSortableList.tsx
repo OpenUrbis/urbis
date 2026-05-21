@@ -18,8 +18,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { useMapContext } from "../../hooks/useMapContext";
 import { LayerItem } from "./LayerItem";
-import { cn, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@open-urbis/map-ui";
-import { Info, Layers } from "lucide-react";
+import { cn } from "@open-urbis/map-ui";
 
 function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
   const { handleVisibleLayer } = useMapContext();
@@ -66,9 +65,6 @@ function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
 export const LayerSortableList = () => {
   const { layerSchemas } = useMapContext();
   
-  // GIS standard: top layers in list are rendered on top of the map.
-  // mapbox/deck.gl usually renders in the order of the array (last is top).
-  // So the list should show the array in reverse order.
   const visibleLayers = layerSchemas.value.filter(l => l.isActive).reverse();
 
   const sensors = useSensors(
@@ -86,7 +82,6 @@ export const LayerSortableList = () => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-       // We find indexes in the underlying signal array
        const oldIndex = layerSchemas.value.findIndex((item) => item.id === active.id);
        const newIndex = layerSchemas.value.findIndex((item) => item.id === over?.id);
        
@@ -97,50 +92,26 @@ export const LayerSortableList = () => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {visibleLayers.length > 0 && (
-        <div className="flex items-center justify-between px-4 py-2 bg-muted/30 border-b shrink-0">
-          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            <Layers className="h-3 w-3" />
-            <span>Ordem de Sobreposição</span>
-          </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="cursor-help text-muted-foreground hover:text-primary transition-colors">
-                  <Info className="h-3.5 w-3.5" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-[200px]">
-                <p className="text-xs">Camadas no topo da lista são desenhadas sobre as camadas abaixo no mapa.</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      )}
-      
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={visibleLayers.map(l => l.id)}
+        strategy={verticalListSortingStrategy}
       >
-        <SortableContext
-          items={visibleLayers.map(l => l.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="pb-0">
-            {visibleLayers.length === 0 && (
-              <div className="text-center text-muted-foreground text-sm p-8 flex flex-col items-center gap-2">
-                <Layers className="h-8 w-8 opacity-20" />
-                <p>Nenhuma camada ativa.</p>
-              </div>
-            )}
-            {visibleLayers.map((item) => (
-              <SortableItem key={item.id} item={item} />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-    </div>
+        <div className="pb-20">
+          {visibleLayers.length === 0 && (
+            <div className="text-center text-muted-foreground text-sm p-4">
+              Nenhuma camada selecionada no momento.
+            </div>
+          )}
+          {visibleLayers.map((item) => (
+            <SortableItem key={item.id} item={item} />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 };

@@ -21,60 +21,25 @@
           "signUp": "Criar conta"
         },
         "divider": "OU:"
-      },
-      "errors": {
-        "userNotFound": "Sua conta GovBR ainda não está vinculada a um usuário Urbis. Por favor, realize o cadastro para continuar.",
-        "submit": "Houve um erro ao realizar o login",
-        "userNotFoundSignUp": "Conta GovBR não encontrada no Urbis. Por favor, preencha os dados abaixo para se cadastrar e vincular sua conta."
-      },
-      "notifications": {
-        "welcomeGovBr": "Bem-vindo! Identificamos seu login pelo Gov.br. Para continuar, por favor complete seu cadastro abaixo. Seus dados já foram pré-preenchidos para facilitar.",
-        "finalizeGovBr": "Cadastro realizado com sucesso! Agora, basta clicar no botão 'Entrar com GovBR' abaixo para vincular sua conta e acessar o sistema."
       }
     },
     "signUp": {
       "title": "Criar conta",
       "actions": {
-        "back": "Voltar",
-        "next": "Continuar"
+        "back": "Voltar"
       },
       "form": {
         "fields": {
           "firstName": "Nome",
           "lastName": "Sobrenome",
-          "socialName": "Nome Social",
-          "email": "Email",
-          "address": "Endereço",
-          "digitalAddress": "Endereço Digital",
-          "cep": "CEP",
-          "street": "Rua/Logradouro",
-          "number": "Número",
-          "complement": "Complemento",
-          "neighborhood": "Bairro",
-          "city": "Cidade",
-          "state": "Estado",
-          "phoneCountry": "DDI",
-          "phone": "Telefone"
-        },
-        "tabs": {
-          "residential": "Endereço Residencial",
-          "digital": "Endereço Digital"
-        },
-        "digitalAddressDescription": "Utilize o endereço digital para uma localização precisa. Você pode encontrar seu código no mapa da Urbis.",
-        "noOfficialAddress": "Não possuo um endereço oficial",
-        "terms": {
-          "accept": "Eu aceito os"
+          "email": "Email"
         },
         "buttons": {
-          "submit": "Criar conta",
-          "openMap": "Abrir Mapa"
+          "submit": "Criar conta"
         }
       },
       "errors": {
-        "submit": "Houve um erro realizar o registro",
-        "termsRequired": "Você precisa aceitar todos os termos para continuar.",
-        "invalidDigitalAddress": "Endereço Digital inválido.",
-        "invalidForm": "Por favor, preencha todos os campos obrigatórios corretamente antes de prosseguir."
+        "submit": "Houve um erro realizar o registro"
       }
     },
     "forgotPassword": {
@@ -104,7 +69,7 @@
         }
       },
       "errors": {
-        "sendEmail": "Houve um erro ao prosseguir with a redefinacao de senha",
+        "sendEmail": "Houve um erro ao prosseguir com a redefinacao de senha",
         "submitNewPassword": "Houve um erro ao redefinir sua senha"
       }
     },

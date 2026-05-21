@@ -19,9 +19,8 @@ import {
   HlmLabelDirective,
 } from '../../../../projects/shared/src/public-api';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { HlmToasterService } from '../../../../projects/shared/src/public-api';
 import {
   RECAPTCHA_V3_SITE_KEY,
   RecaptchaV3Module,
@@ -79,23 +78,12 @@ export class SignIn implements OnInit {
   signInService = inject(SignInApi);
   oidcSecurityService = inject(OidcSecurityService);
   private recaptchaV3Service = inject(ReCaptchaV3Service);
-  private toaster = inject(HlmToasterService);
-  private translate = inject(TranslateService);
 
   ngOnInit() {
     this.validateSession();
     if (localStorage.getItem('redirect-to-sign-up')) {
       localStorage.removeItem('redirect-to-sign-up');
       this.router.navigate(['sign-up']);
-    }
-    if (localStorage.getItem('govBrFinalize')) {
-      localStorage.removeItem('govBrFinalize');
-      setTimeout(() => {
-        this.toaster.show(
-          this.translate.instant('pages.signIn.notifications.finalizeGovBr'),
-          { type: 'info' },
-        );
-      }, 500);
     }
   }
 
@@ -146,34 +134,15 @@ export class SignIn implements OnInit {
 
         console.log('formGroup.value', this.formGroup.value);
 
-        try {
-          const response = await firstValueFrom(
-            this.signInService.authenticate({
-              idToken,
-              accessToken,
-              recaptcha: this.formGroup.value.recaptcha,
-            }),
-          );
+        const response = await firstValueFrom(
+          this.signInService.authenticate({
+            idToken,
+            accessToken,
+            recaptcha: this.formGroup.value.recaptcha,
+          }),
+        );
 
-          this.redirectOnSuccess(response);
-        } catch (err: any) {
-          if (err.status === 401 && err.error?.message === 'USER_NOT_FOUND') {
-            localStorage.setItem(
-              'govBrTokens',
-              JSON.stringify({
-                idToken,
-                accessToken,
-                userData: err.error.data,
-                timestamp: Date.now(),
-              }),
-            );
-            this.toaster.show(this.translate.instant('pages.signIn.errors.userNotFound'), { type: 'info' });
-            this.router.navigate(['/sign-up']);
-            return;
-          }
-          this.toaster.error(this.translate.instant('pages.signIn.errors.submit'));
-          throw err;
-        }
+        this.redirectOnSuccess(response);
       }
     } catch (err) {
       console.error('Error on sign in with another provider', err);

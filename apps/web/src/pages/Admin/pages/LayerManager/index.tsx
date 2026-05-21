@@ -112,12 +112,8 @@ const LayerManagerPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-2 overflow-auto h-full flex flex-col">
-      <AdminHeader
-        title="Camadas do sistema"
-        subtitle="Camadas globais do mapa"
-        className="mb-0 pb-0"
-      >
+    <div className="p-6 space-y-4 overflow-auto h-full flex flex-col">
+      <AdminHeader title="Camadas do sistema" subtitle="Camadas globais do mapa">
         <HasPermission
           permissions={{
             id: 'layer-schema:create',

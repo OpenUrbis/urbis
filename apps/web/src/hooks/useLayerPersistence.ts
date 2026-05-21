@@ -1,5 +1,6 @@
-import { effect, signal, batch } from "@preact/signals";
+import { effect, signal } from "@preact/signals";
 import { useContext, useEffect } from "react";
+import { appState, appHistory } from "../integrations/signaldb";
 import { useMapContext } from "./useMapContext";
 import { SearchContext } from "../context/SearchContext";
 import { shareService } from "../integrations/share-service";
@@ -14,104 +15,144 @@ export const useLayerPersistence = () => {
 
   // Monitor when map is populated by API
   effect(() => {
-    if (mapContext.layerSchemas.value.length > 0 && !isMapPopulated.value) {
-      isMapPopulated.value = true;
-    }
+      if (mapContext.layerSchemas.value.length > 0 && !isMapPopulated.value) {
+          isMapPopulated.value = true;
+      }
   });
 
   // Init / Restore logic
   useEffect(() => {
     const init = async () => {
       // Wait for Map to be populated from API first
+      // This prevents API defaults from overwriting our restored state later
+      // We check the signal in a loop or wait for it
       if (!isMapPopulated.value) {
-        const unsubs = effect(() => {
-          if (isMapPopulated.value) {
-            unsubs();
-            performRestore();
-          }
-        });
+          const unsubs = effect(() => {
+              if (isMapPopulated.value) {
+                  unsubs();
+                  performRestore();
+              }
+          });
       } else {
-        performRestore();
+          performRestore();
       }
     };
 
     const performRestore = async () => {
       const params = new URLSearchParams(window.location.search);
-      const id = params.get("id");
-      const shareId = params.get("shareId");
+      const id = params.get('id');
 
-      if (id || shareId) {
-        const effectiveId = (shareId || id)!;
-        currentSessionId.value = effectiveId;
+      if (id) {
+        currentSessionId.value = id;
         try {
-          const data = await shareService.load(effectiveId);
-          if (data && data.state) {
-            restoreState(data.state, (data as any).type);
-          }
+            const data = await shareService.load(id);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (data && (data as any).root) {
+                // Restore from API (Mock) logic if needed
+                console.log('Restored from API', data);
+            } else {
+                const local = appHistory.findOne({ id });
+                if (local) {
+                    restoreState(local.state);
+                    console.log('Restored from Local History', local);
+                }
+            }
         } catch (e) {
-          console.error("Failed to load session", e);
+            console.error("Failed to load session", e);
         }
+      } else {
+         const active = appState.findOne({ id: 'active' });
+         if (active && (active as any).sessionId) {
+             const sessionId = (active as any).sessionId;
+             currentSessionId.value = sessionId;
+             const history = appHistory.findOne({ id: sessionId });
+             if (history) {
+                 restoreState(history.state);
+                 console.log('Restored from Active Session', history);
+             }
+         }
       }
-
+      
       // Allow saving after restore is done
       isRestored.value = true;
     };
 
-    const restoreState = (state: any, type?: string) => {
-      if (!state) return;
+    const restoreState = (state: any) => {
+        if (!state || !state.mapContext) return;
+        
+        if (state.mapContext.layerSchemas) mapContext.layerSchemas.value = state.mapContext.layerSchemas;
+        if (state.mapContext.layerGroups) mapContext.layerGroups.value = state.mapContext.layerGroups;
+        if (state.mapContext.zoom) mapContext.zoom.value = state.mapContext.zoom;
+        if (state.mapContext.boundingBox) mapContext.boundingBox.value = state.mapContext.boundingBox;
+        if (state.mapContext.is3DActive !== undefined) mapContext.is3DActive.value = state.mapContext.is3DActive;
+        if (state.mapContext.selectedBaseMap) mapContext.selectedBaseMap.value = state.mapContext.selectedBaseMap;
+        if (state.mapContext.selectedFeatures) mapContext.selectedFeatures.value = state.mapContext.selectedFeatures;
+        if (state.mapContext.viewport) mapContext.viewport.value = state.mapContext.viewport;
 
-      // Handle nested root if coming from Share service
-      const root = state.root || state;
-
-      batch(() => {
-        // If type is 'map' or not specified, restore map state
-        if ((!type || type === "map") && root.mapContext) {
-          const mapState = root.mapContext;
-          if (mapState.layerSchemas)
-            mapContext.layerSchemas.value = [...mapState.layerSchemas];
-          if (mapState.layerGroups)
-            mapContext.layerGroups.value = [...mapState.layerGroups];
-          if (mapState.zoom !== undefined) mapContext.zoom.value = mapState.zoom;
-          if (mapState.boundingBox)
-            mapContext.boundingBox.value = mapState.boundingBox;
-          if (mapState.is3DActive !== undefined)
-            mapContext.is3DActive.value = mapState.is3DActive;
-          if (mapState.selectedBaseMap)
-            mapContext.selectedBaseMap.value = mapState.selectedBaseMap;
-          if (mapState.selectedFeatures)
-            mapContext.selectedFeatures.value = [...mapState.selectedFeatures];
-          if (mapState.viewport) mapContext.viewport.value = mapState.viewport;
+        if (state.searchContext) {
+            if (state.searchContext.currentTerm) searchContext!.currentTerm.value = state.searchContext.currentTerm;
+            if (state.searchContext.history) searchContext!.history.value = state.searchContext.history;
+            if (state.searchContext.searchConfig) searchContext!.searchConfig.value = state.searchContext.searchConfig;
         }
-
-        // If type is 'search', restore concatenated search state and force it open
-        if (type === "search" && root.searchContext?.concatenatedSearch) {
-          const searchState = root.searchContext;
-          searchContext!.concatenatedSearch.value = {
-            selectedLayerId: searchState.concatenatedSearch.selectedLayerId || "",
-            filterTree: searchState.concatenatedSearch.filterTree || {
-              id: "root",
-              type: "group",
-              operator: "AND",
-              children: [],
-            },
-            results: searchState.concatenatedSearch.results || [],
-            totalCount: searchState.concatenatedSearch.totalCount,
-            isOpen: true, // Auto-open for search shares
-          };
-        } else if ((!type || type === "map") && root.searchContext && searchContext) {
-          // Restore basic search context for map shares
-          const searchState = root.searchContext;
-          if (searchState.currentTerm !== undefined)
-            searchContext.currentTerm.value = searchState.currentTerm;
-          if (searchState.history)
-            searchContext.history.value = [...searchState.history];
-          if (searchState.searchConfig)
-            searchContext.searchConfig.value = [...searchState.searchConfig];
-        }
-      });
     };
 
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  effect(() => {
+    if (!isRestored.value) return;
+
+    const state = {
+        id: currentSessionId.value,
+        searchContext: {
+            currentTerm: searchContext?.currentTerm.value || "",
+            history: searchContext?.history.value || [],
+            searchQuery: {
+                data: searchContext?.searchQuery?.data,
+                loading: searchContext?.searchQuery?.loading,
+                error: searchContext?.searchQuery?.error
+            },
+            searchConfig: searchContext?.searchConfig.value || []
+        },
+        mapContext: {
+            selectedFeatures: mapContext.selectedFeatures.value,
+            layerSchemas: mapContext.layerSchemas.value,
+            layerGroups: mapContext.layerGroups.value,
+            zoom: mapContext.zoom.value,
+            viewport: mapContext.viewport.value,
+            is3DActive: mapContext.is3DActive.value,
+            selectedBaseMap: mapContext.selectedBaseMap.value,
+        },
+        lastUpdate: Date.now()
+    };
+
+    let safeState;
+    try {
+        safeState = JSON.parse(JSON.stringify(state));
+    } catch (e) {
+        console.error("Failed to serialize state:", e);
+        return;
+    }
+
+    console.log('Saving state to IndexedDB:', safeState);
+
+    const existing = appHistory.findOne({ id: currentSessionId.value });
+    if (existing) {
+        appHistory.updateOne({ id: currentSessionId.value }, { $set: { state: safeState, timestamp: Date.now() } });
+    } else {
+        appHistory.insert({
+            id: currentSessionId.value,
+            state: safeState,
+            timestamp: Date.now()
+        });
+    }
+    
+    const active = appState.findOne({ id: 'active' });
+    if (active) {
+        appState.updateOne({ id: 'active' }, { $set: { sessionId: currentSessionId.value, lastUpdate: Date.now() } });
+    } else {
+        appState.insert({ id: 'active', sessionId: currentSessionId.value, lastUpdate: Date.now() } as any);
+    }
+  });
 };

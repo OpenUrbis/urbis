@@ -28,6 +28,13 @@ export class OrganizationController {
   constructor(private readonly service: OrganizationService) {}
 
   @Get('my')
+  @RequirePermission({
+    permissions: {
+      action: 'list',
+      resource: 'organization',
+      scope: RolePermissionScopeEnum.OWN,
+    },
+  })
   my(@UserData() user: User) {
     return this.service.my(user.id);
   }
@@ -37,6 +44,7 @@ export class OrganizationController {
     permissions: {
       action: 'list',
       resource: 'organization',
+      scope: RolePermissionScopeEnum.ANY,
     },
   })
   getByUser(@Param('id') userId: string) {

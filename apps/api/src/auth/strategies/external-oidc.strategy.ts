@@ -75,15 +75,20 @@ export class ExternalOidcStrategy extends PassportStrategy(
       throw new UnauthorizedException('Payload do token incompleto.');
     }
 
-    const user = await this.authService.createOrValidateExternalOidcUser({
-      email: email.toLowerCase().trim(),
-      firstName,
-      lastName,
-      cpf: preferredUsername,
-      govBrData: payload,
-      country: 'BR',
-      picture,
-    });
-    return user;
+    try {
+      const user = await this.authService.createOrValidateExternalOidcUser({
+        email: email.toLowerCase().trim(),
+        firstName,
+        lastName,
+        cpf: preferredUsername,
+        govBrData: payload,
+        country: 'BR',
+        picture,
+      });
+      return user;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   }
 }

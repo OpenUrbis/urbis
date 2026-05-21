@@ -48,18 +48,12 @@ const addDrawControls = (
 
 class SpacerControl implements mapboxgl.IControl {
   private container!: HTMLElement;
-  private height: string;
-
-  constructor(height: string = "76px") {
-    this.height = height;
-  }
 
   onAdd(_map: mapboxgl.Map) {
     this.container = document.createElement("div");
     this.container.className = "mapboxgl-ctrl";
-    this.container.style.height = this.height;
+    this.container.style.height = "132px";
     this.container.style.width = "0px";
-    this.container.style.pointerEvents = "none";
     return this.container;
   }
 
@@ -80,11 +74,10 @@ class PickLocationControl implements mapboxgl.IControl {
   onAdd(_map: mapboxgl.Map) {
     this.container = document.createElement("div");
     this.container.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
-    this.container.style.zIndex = "100000000000";
     
     this.button = document.createElement("button");
     this.button.type = "button";
-    this.button.title = "Numeração Digital";
+    this.button.title = "Identificar Local";
     this.button.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; line-height: 29px;">pin_drop</span>';
     this.button.addEventListener("click", () => {
         this.onPick();
@@ -103,26 +96,23 @@ export const addMapControls = (
   map: mapboxgl.Map,
   polygonEdit: IPolygonEditContextActions,
   onPickLocation?: () => void,
-  hideControls?: boolean,
-  isDrawerOpen?: boolean
+  hideControls?: boolean
 ) => {
-  // Clear header AND layer management buttons for top-right
-  map.addControl(new SpacerControl("124px"), "top-right");
-
   // Adiciona controles de desenho (sempre necessário para edição?)
+  // Se hideControls for true (preview), talvez não precisemos de draw? 
+  // Mas o retorno espera { draw }.
   const draw = addDrawControls(map, polygonEdit);
 
   if (hideControls) {
     return { draw };
   }
 
-  // Clear header for both sides
-  const isDesktop = window.innerWidth >= 768;
-  const spacerHeight = isDesktop && !isDrawerOpen ? "192px" : "76px";
-  map.addControl(new SpacerControl(spacerHeight), "top-left");
+  // Adiciona o controle de troca de estilo ao mapa
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  map.addControl(new SpacerControl(), "top-right");
 
   if (onPickLocation) {
-      map.addControl(new PickLocationControl(onPickLocation), "top-left");
+      map.addControl(new PickLocationControl(onPickLocation), "top-right");
   }
 
   // Controle de escala
@@ -146,10 +136,13 @@ export const addMapControls = (
 
   // Ruler Control
   map.addControl(new RulerControl(), "top-left");
+  map.on("ruler.on", () => console.info("Ruler activated"));
+  map.on("ruler.off", () => console.info("Ruler deactivated"));
 
   // Image Control
   const imageControl = new ImageControl({ removeButton: true });
   map.addControl(imageControl, "top-left");
 
+  console.info("Todos os controles foram adicionados ao mapa com sucesso!");
   return { draw };
 };

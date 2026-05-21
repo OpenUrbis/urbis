@@ -42,24 +42,4 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(UserStatus)
   status?: UserStatus = UserStatus.ACTIVE;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  socialName?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  address?: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  digitalAddress?: string;
 }

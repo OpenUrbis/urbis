@@ -119,12 +119,8 @@ const GroupManagerPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-2 overflow-auto h-full flex flex-col">
-      <AdminHeader
-        title="Grupos de Camadas"
-        subtitle="Gerenciamento de grupos"
-        className="mb-0 pb-0"
-      >
+    <div className="p-6 space-y-4 overflow-auto h-full flex flex-col">
+      <AdminHeader title="Grupos de Camadas" subtitle="Gerenciamento de grupos">
         <HasPermission
           permissions={{
             id: "layer-group:create",

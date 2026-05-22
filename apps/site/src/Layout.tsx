@@ -2,7 +2,6 @@ import { Outlet } from "react-router-dom";
 import { UrbisHeader } from "@open-urbis/map-ui/urbis-header";
 import { Footer } from "./components/layout/Footer";
 import { ScrollToTop } from "./components/ScrollToTop";
-import { ModeToggle } from "./components/mode-toggle";
 import { useEffect, useState } from "react";
 import { HelpSidebarContent } from "@open-urbis/map-ui";
 
@@ -10,26 +9,30 @@ import { SidebarProvider, useSidebar } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui/ui/button";
 
 function LayoutInner() {
-  const [isDark, setIsDark] = useState(false);
+  const [theme, setTheme] = useState<string>("system");
+  const [_isDark, setIsDark] = useState(false);
   const { openSidebar } = useSidebar();
 
   useEffect(() => {
-    const root = document.documentElement;
-    const observer = new MutationObserver(() => {
-      setIsDark(root.classList.contains("dark"));
-    });
-
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-
-    setIsDark(root.classList.contains("dark"));
-
-    return () => observer.disconnect();
+    const savedTheme = localStorage.getItem("theme") || "system";
+    setTheme(savedTheme);
   }, []);
 
-  const lightLogo =
-    "https://cdn.prod.website-files.com/67865f11fa887f4b5ad6611a/67939d8b8a93192ceb8c26d0_LOGOTIPO_PREFEITURA_HORIZONTAL_FUNDO_CLARO-p-1080.png";
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
 
-  const darkLogo = "/Fundo=Escuro.svg";
+    const activeTheme =
+      theme === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : theme;
+
+    root.classList.add(activeTheme);
+    setIsDark(activeTheme === "dark");
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   const menuItems = [
     { label: "Início", href: "/" },
@@ -37,7 +40,7 @@ function LayoutInner() {
     { label: "Viabiliza", href: "https://viabiliza.urbis.sampa.br" },
     { label: "Dados Abertos", href: "https://dadosabertos.urbis.sampa.br" },
     { label: "Doc. técnica", href: "/doc-tecnica" },
-    { label: "+Info", href: "/info-urbis" },
+    { label: "Legis", href: "/info-urbis" },
     { label: "Data Lake", href: "https://datalake.urbis.sampa.br/" },
   ];
 
@@ -46,7 +49,6 @@ function LayoutInner() {
       <ScrollToTop />
 
       <UrbisHeader
-        logoSrc={isDark ? darkLogo : lightLogo}
         logoAlt="Prefeitura de São Paulo"
         logoHref="https://www.prefeitura.sp.gov.br/"
         badgeText={null}
@@ -80,9 +82,10 @@ function LayoutInner() {
               Ajuda
             </Button>
 
-            <ModeToggle />
           </div>
         }
+        theme={theme}
+        setTheme={setTheme}
       />
 
       <main className="flex-1">

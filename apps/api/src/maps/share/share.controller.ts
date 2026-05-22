@@ -6,8 +6,16 @@ import {
   Post,
   Query,
   Patch,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import { ShareService } from './share.service';
 import { CreateSharedMapDto } from './dto/create-shared-map.dto';
 import { UpdateSharedMapDto } from './dto/update-shared-map.dto';
@@ -19,29 +27,33 @@ export class ShareController {
   constructor(private readonly shareService: ShareService) {}
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Share current map state' })
   @ApiResponse({
     status: 201,
     description: 'The map state has been successfully shared.',
     type: SharedMap,
   })
-  create(@Body() createSharedMapDto: CreateSharedMapDto) {
-    return this.shareService.create(createSharedMapDto);
+  create(@Body() createSharedMapDto: CreateSharedMapDto, @Req() req: any) {
+    return this.shareService.create(createSharedMapDto, req.user.id);
   }
 
-  @Get('user/:userId')
-  @ApiOperation({ summary: 'Get shared maps by user' })
+  @Get('user/history')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Get shared maps by current user' })
   @ApiResponse({
     status: 200,
-    description: 'List of shared maps by user.',
+    description: 'List of shared maps by current user.',
     type: [SharedMap],
   })
   findAllByUser(
-    @Param('userId') userId: string,
+    @Req() req: any,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    return this.shareService.findAllByUser(userId, page, limit);
+    return this.shareService.findAllByUser(req.user.id, page, limit);
   }
 
   @Get(':id')
@@ -55,7 +67,24 @@ export class ShareController {
     return this.shareService.findOne(id);
   }
 
+  @Get('public/list')
+  @ApiOperation({ summary: 'Get public shared maps' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of public shared maps.',
+    type: [SharedMap],
+  })
+  findAllPublic(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('type') type: string = 'map',
+  ) {
+    return this.shareService.findAllPublic(page, limit, type);
+  }
+
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Update shared map state' })
   @ApiResponse({
     status: 200,
@@ -65,7 +94,8 @@ export class ShareController {
   update(
     @Param('id') id: string,
     @Body() updateSharedMapDto: UpdateSharedMapDto,
+    @Req() req: any,
   ) {
-    return this.shareService.update(id, updateSharedMapDto);
+    return this.shareService.update(id, updateSharedMapDto, req.user.id);
   }
 }

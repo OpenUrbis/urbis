@@ -10,8 +10,9 @@
   "ignore": [
     "@open-urbis/map-ui",
     "@open-urbis/map-web",
-    "docs",
-    "urbis-site"
+    "@open-urbis/map-docs",
+    "@open-urbis/map-site",
+    "@open-urbis/map-accounts"
   ],
   "privatePackages": false
 }

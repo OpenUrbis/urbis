@@ -33,7 +33,7 @@ export class HlmCardTitleDirective {
     @Input() class: string = '';
     @HostBinding('class')
     get columnClass() {
-        return hlm('text-2xl font-semibold leading-none tracking-tight', this.class);
+        return hlm('text-2xl font-extrabold', this.class);
     }
 }
 

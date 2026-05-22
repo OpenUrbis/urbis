@@ -7,8 +7,21 @@ export const environment = {
   externalOidcSecureRoutes: ['https://api.atlascli.io'],
   externalOidcAuthority: 'https://api.atlascli.io',
 
+  terms: [
+    {
+      id: 'termos-de-uso',
+      label: 'Termos de Uso',
+      url: 'https://docs.atlascli.io/docs/termos-de-uso',
+    },
+    {
+      id: 'politica-de-privacidade',
+      label: 'Política de Privacidade',
+      url: 'https://docs.atlascli.io/docs/politica-de-privacidade',
+    },
+  ],
+
   googleRecaptchaSiteKey: '6LfwDx4sAAAAABrm5sINZvaY9Fq3pFttsX-wikjG',
 
   s3EndpointPublic: 'https://files.atlascli.io',
-  docsEndpoint: 'http://localhost:3010',
+  docsEndpoint: 'https://docs.atlascli.io',
 };

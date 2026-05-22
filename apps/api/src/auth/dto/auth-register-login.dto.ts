@@ -3,7 +3,6 @@ import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
-  IsPhoneNumber,
   MinLength,
   Validate,
 } from 'class-validator';
@@ -27,12 +26,28 @@ export class AuthRegisterLoginDto {
 
   @ApiProperty({ example: 'BR' })
   @IsCountryCode()
-  country: string;
+  @IsOptional()
+  country?: string;
 
   @ApiProperty({ example: '+554599900000' })
-  @IsPhoneNumber()
   @IsOptional()
   phone?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  socialName?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  address?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  digitalAddress?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  termsAccepted?: string[];
 
   @ApiProperty({ example: 'John' })
   @IsNotEmpty()

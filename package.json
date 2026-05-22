@@ -8,6 +8,7 @@
     "test": "turbo run test",
     "composer:up": "docker-compose -f apps/api/docker-compose.yaml up -d",
     "composer:down": "docker-compose -f apps/api/docker-compose.yaml down",
+    "db:reset": "turbo run db:reset",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version"
@@ -15,6 +16,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@open-urbis/map-eslint-config": "workspace:^",
+    "@types/minimatch": "^6.0.0",
     "eslint": "^9.39.2",
     "prettier": "^3.2.5",
     "turbo": "^2.4.4"
@@ -24,7 +26,9 @@
   "pnpm": {
     "overrides": {
       "@types/react": "^18.3.1",
-      "@types/react-dom": "^18.3.0"
+      "@types/react-dom": "^18.3.0",
+      "minimatch": "9.0.5",
+      "uuid": "11.0.5"
     }
   },
   "workspaces": [

@@ -102,8 +102,12 @@ const SearchManagerPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-4 overflow-auto h-full flex flex-col">
-      <AdminHeader title="Pesquisas do sistema" subtitle="Configurações de pesquisa">
+    <div className="p-6 space-y-2 overflow-auto h-full flex flex-col">
+      <AdminHeader
+        title="Pesquisas do sistema"
+        subtitle="Configurações de pesquisa"
+        className="mb-0 pb-0"
+      >
         <HasPermission
           permissions={{
             id: 'search-config:create',

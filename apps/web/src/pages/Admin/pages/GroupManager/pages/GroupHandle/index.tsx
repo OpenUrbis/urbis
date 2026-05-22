@@ -27,7 +27,7 @@ const formSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   ownerGroup: z.string().optional(),
   index: z.coerce.number().optional(),
-});
+}) as any;
 
 const GroupHandlePage = () => {
   const [, setLocation] = useLocation();
@@ -40,7 +40,7 @@ const GroupHandlePage = () => {
   const { toastSuccess, toastError } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema) as any,
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       ownerGroup: "",
@@ -139,7 +139,7 @@ const GroupHandlePage = () => {
                 />
                 {form.formState.errors.name && (
                   <p className="text-sm text-red-500">
-                    {form.formState.errors.name.message}
+                    {form.formState.errors.name.message as string}
                   </p>
                 )}
               </div>

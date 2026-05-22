@@ -26,7 +26,7 @@ export const SearchSchemaFormSchema = z.object({
   
   // Step 4
   transformResponse: z.string().optional(),
-});
+}) as any;
 
 export type SearchSchemaFormValues = z.infer<typeof SearchSchemaFormSchema>;
 

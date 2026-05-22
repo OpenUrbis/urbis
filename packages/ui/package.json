@@ -9,6 +9,7 @@
   "exports": {
     ".": "./index.ts",
     "./urbis-header": "./components/urbis-header.tsx",
+    "./urbis-logo": "./components/urbis-logo.tsx",
     "./ui/button": "./components/ui/button.tsx",
     "./ui/card": "./components/ui/card.tsx",
     "./ui/input": "./components/ui/input.tsx",

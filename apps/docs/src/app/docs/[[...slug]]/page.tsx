@@ -13,15 +13,33 @@ import { APIPage } from "@/components/api-page";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
+
+  // Check if it's an OpenAPI page by slug
+  const isOpenApiSlug = params.slug && params.slug[0] === "openapi";
+
+  if (isOpenApiSlug) {
+    return (
+      <DocsPage full>
+        <h1 className="text-[1.75em] font-semibold">API Reference</h1>
+        <DocsBody>
+          <APIPage />
+        </DocsBody>
+      </DocsPage>
+    );
+  }
+
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
-  if (page.data.type === "openapi") {
+  // Handle virtual pages correctly
+  if ((page.data as any).type === "openapi") {
     return (
       <DocsPage full>
-        <h1 className="text-[1.75em] font-semibold">{page.data.title}</h1>
+        <h1 className="text-[1.75em] font-semibold">
+          {(page.data as any).title ?? "API Reference"}
+        </h1>
         <DocsBody>
-          <APIPage {...page.data.getAPIPageProps()} />
+          <APIPage />
         </DocsBody>
       </DocsPage>
     );
@@ -46,13 +64,25 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 }
 
 export async function generateStaticParams() {
-  return source.generateParams();
+  const params = await source.generateParams();
+  // Filter out any params that start with openapi and manually add them
+  // to ensure they are included in the static export
+  const filtered = params.filter((p) => !p.slug || p.slug[0] !== "openapi");
+  return [...filtered, { slug: ["openapi"] }, { slug: ["openapi", "reference"] }];
 }
 
 export async function generateMetadata(
   props: PageProps<"/docs/[[...slug]]">,
 ): Promise<Metadata> {
   const params = await props.params;
+
+  if (params.slug && params.slug[0] === "openapi") {
+    return {
+      title: "API Reference",
+      description: "API Reference document",
+    };
+  }
+
   const page = source.getPage(params.slug);
   if (!page) notFound();
 

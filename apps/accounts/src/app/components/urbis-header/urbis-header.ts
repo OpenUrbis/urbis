@@ -52,7 +52,7 @@ export interface NavItem {
   providers: [provideIcons({ lucideMenu, lucideX, lucideUser, lucideLogOut })],
   template: `
     <header class="sticky top-0 z-[1000] h-16 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div class="mx-auto flex h-full max-w-[1440px] items-center justify-between px-4">
+      <div class="flex h-full items-center px-4 w-full">
         
         <div class="flex items-center gap-4">
           <!-- Sidebar Toggle -->
@@ -96,7 +96,7 @@ export interface NavItem {
           </nav>
         </div>
 
-        <div class="flex items-center justify-end gap-2">
+        <div class="flex flex-1 items-center justify-end gap-2">
           
           <!-- Accessibility & Settings -->
           <app-urbis-accessibility-menu />

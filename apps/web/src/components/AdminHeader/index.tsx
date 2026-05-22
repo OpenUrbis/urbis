@@ -10,10 +10,10 @@ interface AdminHeaderProps {
 
 export const AdminHeader = ({ title, subtitle, children, className }: AdminHeaderProps) => {
   return (
-    <div className={cn("flex items-center justify-between pb-6 border-b mb-6", className)}>
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+    <div className={cn("flex items-center justify-between pb-4 mb-4", className)}>
+      <div className="space-y-0.5">
+        <h1 className="text-xl font-bold tracking-tight">{title}</h1>
+        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-2">
         {children}

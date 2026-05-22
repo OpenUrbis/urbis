@@ -26,11 +26,7 @@ export const LayerMetadataModal = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const metadata = properties?.metadata || {};
 
-  const description =
-    metadata.description || properties.description || "Descrição não disponível.";
   const keywords = metadata.keywords || properties.keywords || [];
-  const attribution =
-    metadata.attribution || properties.attribution || "© Autor desconhecido";
   const links = metadata.links || properties.links || [];
 
   return (
@@ -45,15 +41,6 @@ export const LayerMetadataModal = ({
             <div>
               <h2 className="text-2xl font-bold">{layer.name}</h2>
             </div>
-
-            <section>
-              <h3 className="font-semibold text-lg border-b pb-1 mb-2">
-                Descrição
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {description}
-              </p>
-            </section>
 
             {keywords.length > 0 && (
               <section>
@@ -78,13 +65,6 @@ export const LayerMetadataModal = ({
                 </div>
               </section>
             )}
-
-            <section>
-              <h3 className="font-semibold text-lg border-b pb-1 mb-2">
-                Attribution
-              </h3>
-              <p className="text-xs text-muted-foreground">{attribution}</p>
-            </section>
 
             {links.length > 0 && (
               <section>
@@ -143,7 +123,7 @@ export const LayerMetadataModal = ({
               <span className="material-symbols-outlined mr-2 text-base">
                 layers
               </span>
-              Layer
+              Configuração da Camada
             </Button>
           </div>
           <Button variant="ghost" onClick={() => onOpenChange(false)} size="sm">

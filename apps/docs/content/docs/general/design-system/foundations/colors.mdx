@@ -1,0 +1,52 @@
+---
+title: Cores
+icon: SwatchBook
+description: Sistema de cores semânticas e tokens.
+---
+
+O sistema de cores da Urbis adota uma abordagem semântica, onde cada cor representa uma intenção funcional.
+
+A arquitetura usa variáveis CSS (HSL) nativas, garantindo suporte automático a Dark Mode e Alto Contraste, sem reescrever código.
+
+## Mapa de Tokens Semânticos
+
+Abaixo descrevemos a função de cada token do projeto.
+
+| **Token (Classe)** | **Função e Significado** | **Exemplo de Uso** |
+| --- | --- | --- |
+| **Primary** | **Ação Principal.** A cor de marca. Deve ser usada para o elementos de destaque. | Botões e items ativos |
+| **Secondary** | **Apoio.** Elementos de destaque que não exigem ação imediata. | Estado de hover, Botões secundários, Tags. |
+| **Destructive** | **Perigo / Erro.** Indica ações destrutivas ou estados de erro. | Botão "Excluir", Erros em formulários. |
+| **Muted** | **Neutro** Informações de apoio, com baixo destaque. Essencial para reduzir ruído visual em interfaces densas. | Legendas, metadados, áreas desabilitadas. |
+| **Accent** | **Interativo.** Usado para indicar interatividade sutil. | Item de menu ou dropdown selecionado. |
+| **Card / Popover** | **Superfícies.** Camadas de fundo para agrupar conteúdo se diferenciando sutilmente do background. | Cards de estatísticas, Modais, Tooltips. |
+| **Border / Input** | **Limites.** Bordas sutis para separar conteúdo ou delimitar campos. | Linhas divisórias de tabelas, inputs de texto. |
+| **Ring** | **Foco.** O anel de foco para navegação via teclado. | Contorno focar em um input ou botão. |
+
+## Como usar na prática
+
+O Tailwind e o Shadcn aplicam essas cores através de classes utilitárias. Note como a semântica facilita a leitura do código:
+
+**Exemplo Errado (Hardcoded):**
+
+Quebra se o tema mudar ou se o usuário ativar o modo escuro.
+
+```tsx
+<button className="bg-[#273ff0] text-white border border-gray-200">
+  Salvar Mapa
+</button>
+```
+
+**Exemplo Correto (Semântico):**
+
+Adapta-se automaticamente a qualquer tema.
+
+```tsx
+<button className="bg-primary text-primary-foreground border border-input">
+  Salvar Mapa
+</button>
+```
+
+## Nota Técnica sobre HSL
+
+Utilizamos HSL para facilitar a manipulação de cores via CSS (ajustes de luminosidade, saturação) mantendo a compatibilidade com os utilitários de opacidade do Tailwind (ex: `bg-primary/50`).

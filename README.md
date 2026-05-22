@@ -66,6 +66,17 @@ Required variables:
 - `VITE_PUBLIC_MAPBOX_ACCESS_TOKEN`: Mapbox token for map rendering.
 - `VITE_API_URL`: URL of the backend API (default: `http://localhost:3000`).
 
+### Accounts (`apps/accounts`)
+
+To run the Accounts app locally with SSL (required for full OIDC support), follow these steps:
+
+1.  **SSL Certificates**: Ensure you have `conta.urbis.sampa.br.pem` and `conta.urbis.sampa.br-key.pem` in `apps/accounts/`.
+2.  **Hosts File**: Add `127.0.0.1 conta.urbis.sampa.br` to your systems hosts file.
+3.  **Run**: Use the following command to start both Angular and the SSL proxy:
+    ```bash
+    pnpm --filter @open-urbis/map-accounts dev:ssl
+    ```
+
 ---
 
 ## Usage

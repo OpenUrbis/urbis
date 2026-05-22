@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useSignal, useComputed } from "@preact/signals";
-import { createElement } from "react";
+import { createElement, useEffect } from "react";
 import ReactJson from "react-json-view";
 import { Button } from "@open-urbis/map-ui";
 import { Input } from "@open-urbis/map-ui";
@@ -31,6 +31,13 @@ export const WebLayer = ({ onBack, onClose }: WebLayerProps) => {
 
   const flatGroups = useComputed(() => flattenLayerGroups(layerGroups.value));
 
+  // Pre-select the first group (usually "Geral")
+  useEffect(() => {
+    if (flatGroups.value.length > 0 && !selectedGroupId.value) {
+      selectedGroupId.value = flatGroups.value[0].id;
+    }
+  }, [flatGroups.value]);
+
   const getBaseUrl = (inputUrl: string) => {
     try {
       const urlObj = new URL(inputUrl);
@@ -59,7 +66,10 @@ export const WebLayer = ({ onBack, onClose }: WebLayerProps) => {
 
       const response = await axios.get(`${environment}/maps/proxy`, {
         params: {
-          url: `${baseUrl}?${params}`
+          url: baseUrl,
+          service: serviceType.value,
+          version: serviceType.value === "WMS" ? "1.3.0" : "1.1.0",
+          request: "GetCapabilities"
         }
       });
 

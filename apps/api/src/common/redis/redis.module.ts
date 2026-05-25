@@ -17,6 +17,7 @@ import { RedisService } from './redis.service';
           port: configService.get('database.redis.port', 6379),
           password: configService.get('database.redis.password'),
           db: configService.get('database.redis.db', 0),
+          maxRetriesPerRequest: null,
         });
 
         client.on('connect', () => console.info('✅ Redis conected!'));

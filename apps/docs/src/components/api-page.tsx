@@ -1,8 +1,8 @@
 "use client";
 
-import { fallbackSchema, openapi } from "@/lib/openapi";
-import client from "./api-page.client";
 import dynamic from "next/dynamic";
+import { openapi } from "@/lib/openapi";
+import client from "./api-page.client";
 
 const BaseAPIPage = dynamic(
   async () => {

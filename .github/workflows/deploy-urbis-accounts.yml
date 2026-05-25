@@ -37,6 +37,8 @@ jobs:
 
       - name: Build urbis-accounts (Angular)
         run: pnpm turbo run build --filter=@open-urbis/map-accounts
+        env:
+          APP_API_URL: https://api.mapa.urbis.sampa.br
 
       - name: Build And Deploy
         id: builddeploy

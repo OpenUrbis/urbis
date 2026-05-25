@@ -38,7 +38,7 @@ spec:
         - name: SWAGGER_ENABLED
           value: "true"
         - name: I18N_DIRECTORY
-          value: "apps/api/dist/app/i18n"
+          value: "dist/app/i18n"
         - name: DATABASE_TYPE
           value: "postgres"
         - name: DATABASE_HOST
@@ -59,19 +59,58 @@ spec:
           value: "false"
         - name: DATABASE_REJECT_UNAUTHORIZED
           value: "false"
+        - name: REDIS_HOST
+          value: "UrbisMap.brazilsouth.redis.azure.net"
+        - name: REDIS_PORT
+          value: "10000"
+        - name: REDIS_PASSWORD
+          value: "***REMOVED***"
+        - name: REDIS_DB
+          value: "1"
+        - name: AUTH_SECRET
+          value: "secret"
         - name: AUTH_API_KEY
           value: "secret"
+        - name: AUTH_SESSION_TABLE
+          value: "session"
+        - name: TWO_FACTORY_APP_NAME
+          value: "URbis"
+        - name: TWO_FACTORY_SECRET
+          value: "a27d0702331e500fa9be21baf002fe1f486b6ebee81a122fd6b1057eeadc6566"
+        - name: EXTERNAL_OIDC_JWKS_URI
+          value: "https://sso.staging.acesso.gov.br/jwk"
+        - name: EXTERNAL_OIDC_AUTHORITY
+          value: "https://sso.staging.acesso.gov.br"
+        - name: EXTERNAL_OIDC_CLIENT_ID
+          value: "h-urbis.sampa.br"
+        - name: EXTERNAL_OIDC_CLIENT_SECRET
+          value: "4bMiC7VrABUwEEjLmJzMg5ddPrJQM0qijBVgM4LBr0OZTMKedxFyrx-Vw61D_3GQVmoid6TXrg6uYCuwU5BUgQ"
+        - name: GEOSERVER_URL
+          value: "https://geoserver.slui.dev/geoserver"
+        - name: GEOSERVER_USER
+          value: "dagster"
+        - name: GEOSERVER_PASSWORD
+          value: "***REMOVED***"
+        - name: MAXAR_API_KEY
+          value: "***REMOVED***"
+        - name: GOOGLE_RECAPTCHA_SECRET_KEY
+          value: "***REMOVED***"
+        - name: GOOGLE_GENERATIVE_AI_API_KEY
+          value: "***REMOVED***"
+        - name: MAIL_SENDGRID_API_KEY
+          value: ""
         - name: MAIL_TEMPLATES_PATH
           value: "templates"
         - name: MAIL_FROM
           value: "info@yourdomain.com.br"
+        - name: AWS_S3_REGION
+          value: "us-east-1"
         - name: AWS_REGION
           value: "us-east-1"
-        - name: AWS_ACCESS_KEY_ID
+        - name: AWS_ACCESS_KEY
           value: "***REMOVED***"
         - name: AWS_SECRET_ACCESS_KEY
           value: "***REMOVED***"
-        - name: S3_BUCKET_NAME
           value: "storage"
         - name: AWS_S3_ENDPOINT
           value: "https://api.mapa.urbis.sampa.br"

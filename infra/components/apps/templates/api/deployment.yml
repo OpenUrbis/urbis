@@ -77,8 +77,6 @@ spec:
           value: "URbis"
         - name: TWO_FACTORY_SECRET
           value: "a27d0702331e500fa9be21baf002fe1f486b6ebee81a122fd6b1057eeadc6566"
-        - name: EXTERNAL_OIDC_JWKS_URI
-          value: "https://sso.staging.acesso.gov.br/jwk"
         - name: EXTERNAL_OIDC_AUTHORITY
           value: "https://sso.staging.acesso.gov.br"
         - name: EXTERNAL_OIDC_CLIENT_ID

@@ -36,30 +36,37 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
   const handleDownloadPDF = async () => {
     const element = document.getElementById('digital-address-plate');
     if (!element) return;
-    
+
     try {
-        const canvas = await html2canvas(element, { scale: 4, useCORS: true });
-        const imgData = canvas.toDataURL('image/png');
-        
-        const pdf = new jsPDF({
-            orientation: 'landscape',
-            unit: 'mm',
-            format: 'a4'
-        });
-        
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        
-        const imgWidth = 180; 
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        const x = (pdfWidth - imgWidth) / 2;
-        const y = (pdfHeight - imgHeight) / 2;
-        
-        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
-        pdf.save(`endereco-digital-${address.replace(/\s+/g, '-')}.pdf`);
+      // Temporarily remove rounded corners for capture
+      const originalBorderRadius = element.style.borderRadius;
+      element.style.borderRadius = '0px';
+
+      const canvas = await html2canvas(element, {
+        scale: 4,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+      });
+
+      // Restore original border radius
+      element.style.borderRadius = originalBorderRadius;
+      const imgData = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // Use full page dimensions to eliminate white borders
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`endereco-digital-${address.replace(/\s+/g, '-')}.pdf`);
     } catch (err) {
-        console.error("Failed to generate PDF", err);
+      console.error("Failed to generate PDF", err);
     }
   };
 
@@ -67,10 +74,10 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
     <Card className="rounded-xl border shadow-sm mt-4">
       <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
         <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="rounded-full h-8 w-8" 
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full h-8 w-8"
             onClick={() => {
               digitalAddressFeature.value = null;
               clearCurrentPage();
@@ -82,7 +89,7 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
         </div>
       </CardHeader>
       <CardContent className="p-4 space-y-6">
-        
+
         {/* Códigos (Moved to Top) */}
         <div className="space-y-3">
           {/* Digital Address */}
@@ -92,12 +99,12 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
 
           {/* Plus Code */}
           {sourceType === 'pluscode' && plusCode && (
-             <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 text-center shadow-sm">
-                <span className="block text-xs font-bold text-primary mb-1 uppercase tracking-widest">Plus Code (Google)</span>
-                <span className="text-xl font-mono font-bold tracking-wide text-foreground block">
-                  {plusCode}
-                </span>
-             </div>
+            <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 text-center shadow-sm">
+              <span className="block text-xs font-bold text-primary mb-1 uppercase tracking-widest">Plus Code (Google)</span>
+              <span className="text-xl font-mono font-bold tracking-wide text-foreground block">
+                {plusCode}
+              </span>
+            </div>
           )}
         </div>
 
@@ -111,7 +118,7 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
               O polígono destacado no mapa representa o metro quadrado exato identificado por este Endereço Digital.
             </p>
           </div>
-          
+
           <div className="bg-muted/30 p-3 rounded-md border border-border/50">
             <span className="block text-[10px] uppercase font-bold text-primary/70 mb-2 tracking-tighter">
               Coordenada Selecionada (SIRGAS 2000 / Graus decimais)
@@ -130,33 +137,31 @@ export const DigitalAddressDetails = ({ latitude, longitude, plusCode, sourceTyp
         </div>
 
         <div className="pt-2">
-           <Dialog>
-             <DialogTrigger asChild>
-               <Button className="w-full rounded-full font-semibold shadow-sm">
-                 <span className="material-symbols-outlined mr-2 text-lg">directions_car</span>
-                 Gerar Placa Virtual
-               </Button>
-             </DialogTrigger>
-             <DialogContent className="sm:max-w-2xl">
-               <DialogHeader>
-                 <DialogTitle>Placa Virtual</DialogTitle>
-               </DialogHeader>
-               <div className="flex flex-col items-center justify-center p-6 gap-6 w-full">
-                 <DigitalAddressPlate 
-                    address={address} 
-                    prefix={prefix} 
-                    code={code} 
-                    latitude={latitude} 
-                    longitude={longitude} 
-                 />
-                 
-                 <Button onClick={handleDownloadPDF} variant="default" className="w-full max-w-sm rounded-full mt-4">
-                    <span className="material-symbols-outlined mr-2">download</span>
-                    Baixar PDF (A4)
-                 </Button>
-               </div>
-             </DialogContent>
-           </Dialog>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-full rounded-full font-semibold shadow-sm">
+                <span className="material-symbols-outlined mr-2 text-lg">directions_car</span>
+                Gerar Placa Virtual
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Placa Virtual</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col items-center justify-center p-6 gap-6 w-full">
+                <DigitalAddressPlate
+                  address={address}
+                  prefix={prefix}
+                  code={code}
+                />
+
+                <Button onClick={handleDownloadPDF} variant="default" className="w-full max-w-sm rounded-full mt-4">
+                  <span className="material-symbols-outlined mr-2">download</span>
+                  Baixar PDF (A4)
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </CardContent>
     </Card>

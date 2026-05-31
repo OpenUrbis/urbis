@@ -263,9 +263,9 @@ export function Footer() {
         {/* Prefeitura Links */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 border-t border-primary-foreground/30 pt-8 pb-6 text-primary-foreground/90 text-sm">
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Prefeitura de São Paulo
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a href="https://capital.sp.gov.br/agenda-do-prefeito" className="hover:underline">
@@ -312,9 +312,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Serviços para o Cidadão
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -416,9 +416,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Serviços para Empresas
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -520,9 +520,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Serviços para o Servidor
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -592,9 +592,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h2 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Acontece na cidade
-            </h6>
+            </h2>
             <ul className="space-y-1.5">
               <li>
                 <a href="https://capital.sp.gov.br/noticias" className="hover:underline">
@@ -653,7 +653,7 @@ export function Footer() {
         {/* Partners Section */}
         <div className="border-t border-primary-foreground/10 py-12 mt-12">
           <div className="flex flex-col items-center gap-8">
-            <span className="text-primary-foreground/60 text-xs font-bold uppercase tracking-[0.2em]">
+            <span className="text-primary-foreground/80 text-xs font-bold uppercase tracking-[0.2em]">
               Parceiros e Colaboradores
             </span>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
@@ -702,6 +702,9 @@ export function Footer() {
                 src="https://github.com/FernandoDorstSilva/imagens-publicas/blob/main/67ed4d18b423c93557cb4b9b_logo-prefeitura.png?raw=true"
                 alt="Prefeitura SP"
                 className="h-24 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
+                loading="lazy"
+                width="200"
+                height="96"
               />
             </a>
             <div className="h-12 w-px bg-primary-foreground/20" />
@@ -715,6 +718,9 @@ export function Footer() {
                 src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/25e3fad688128822ab408216cab33a8eb7d255ff/logo%20codata%20negativo.svg"
                 alt="Codata"
                 className="h-14 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
+                loading="lazy"
+                width="140"
+                height="56"
               />
             </a>
           </div>
@@ -754,10 +760,11 @@ export function Footer() {
                 >
                   <img
                     src="/sa.svg"
+                    alt="AGPL v3"
                     className="w-4 h-4 opacity-80 text-white dark:text-black"
                   />
                   <span>AGPL v3</span>
-                  <span className="font-normal opacity-70 text-[12px]">(software)</span>
+                  <span className="font-normal opacity-90 text-[12px]">(software)</span>
                 </a>
 
                 <span className="opacity-40 dark:opacity-50 text-white dark:text-black">•</span>
@@ -771,13 +778,22 @@ export function Footer() {
                 >
                   <img
                     src="/cc.svg"
+                    alt="CC"
                     className="w-4 h-4 opacity-90 text-white dark:text-black"
                   />
-                  <img src="/by.svg" className="w-4 h-4 opacity-80 text-white dark:text-black" />
-                  <img src="/sa.svg" className="w-4 h-4 opacity-80 text-white dark:text-black" />
+                  <img
+                    src="/by.svg"
+                    alt="BY"
+                    className="w-4 h-4 opacity-80 text-white dark:text-black"
+                  />
+                  <img
+                    src="/sa.svg"
+                    alt="SA"
+                    className="w-4 h-4 opacity-80 text-white dark:text-black"
+                  />
 
                   <span>CC BY-SA 4.0</span>
-                  <span className="font-normal opacity-70 text-[12px]">(outros)</span>
+                  <span className="font-normal opacity-90 text-[12px]">(outros)</span>
                 </a>
 
               </div>

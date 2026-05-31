@@ -12,7 +12,7 @@ import { lucideArrowLeft, lucideTrash2, lucideMap, lucideChevronDown } from '@ng
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, firstValueFrom, of, switchMap, tap, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { decode } from '@open-urbis/numeracao-digital';
+import { decode } from '@open-urbis/endereco-digital';
 import { HttpClient } from '@angular/common/http';
 import { passwordFormGroup } from '../../../../../../projects/shared/src/lib/components/password-form-group/form-group/password-form-group';
 import { PasswordFormGroup } from '../../../../../../projects/shared/src/lib/components/password-form-group/password-form-group';
@@ -30,7 +30,6 @@ import {
 import { PageStructure } from '../../../../components/page-structure/page-structure';
 import { UserRoleManager } from '../../../../components/role-manager/user-role-manager/user-role-manager';
 import { UserOrganizationManager } from '../../../../components/user-organization-manager/user-organization-manager';
-import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { ICreateUserRequest, IUpdateUserRequest } from '../../dto/user.dto';
 import { UsersApi } from '../../services/users-api';
 
@@ -53,8 +52,6 @@ import { UsersApi } from '../../services/users-api';
     HlmLabelDirective,
     HlmIconComponent,
     HlmSwitchComponent,
-    HasPermissionDirective,
-    PageStructure,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideTrash2, lucideMap, lucideChevronDown })],
   templateUrl: './handle-user.html',

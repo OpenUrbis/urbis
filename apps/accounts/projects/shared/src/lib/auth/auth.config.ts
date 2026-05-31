@@ -26,6 +26,8 @@ export const authConfig: OpenIdConfiguration = {
   authority: environment.api + '/auth/oidc',
   redirectUrl: `${window.location.origin}/callback`,
   clientId: environment.appClientId,
+  authWellknownEndpointUrl:
+    environment.api + '/auth/oidc/.well-known/openid-configuration',
 };
 
 export const externalOidcAuthConfig: OpenIdConfiguration = {

@@ -1,4 +1,4 @@
-import { encode } from '@open-urbis/numeracao-digital';
+import { encode } from '@open-urbis/endereco-digital';
 import { Button } from "@open-urbis/map-ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@open-urbis/map-ui";
 import {

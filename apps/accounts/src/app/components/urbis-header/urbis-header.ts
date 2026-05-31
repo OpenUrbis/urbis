@@ -7,8 +7,6 @@ import {
   HlmMenuDirective,
   HlmMenuItemDirective,
   HlmMenuSeparatorDirective,
-  HlmAvatarDirective,
-  HlmAvatarFallbackDirective,
   HlmSidebarTriggerDirective,
 } from '../../../../projects/shared/src/public-api';
 import { provideIcons } from '@ng-icons/core';
@@ -42,8 +40,6 @@ export interface NavItem {
     HlmMenuDirective,
     HlmMenuItemDirective,
     HlmMenuSeparatorDirective,
-    HlmAvatarDirective,
-    HlmAvatarFallbackDirective,
     HlmSidebarTriggerDirective,
     LogoComponent,
     UrbisAccessibilityMenu,

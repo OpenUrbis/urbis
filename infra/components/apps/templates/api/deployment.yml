@@ -20,7 +20,7 @@ spec:
         - containerPort: 3000
         env:
         - name: NODE_ENV
-          value: "development"
+          value: "production"
         - name: APP_PORT
           value: "3000"
         - name: APP_NAME
@@ -32,9 +32,9 @@ spec:
         - name: APP_HEADER_LANGUAGE
           value: "x-custom-lang"
         - name: FRONTEND_DOMAIN
-          value: "https://localhost:4200"
+          value: "https://conta.urbis.sampa.br"
         - name: BACKEND_DOMAIN
-          value: "http://localhost:3000"
+          value: "https://api.mapa.urbis.sampa.br"
         - name: SWAGGER_ENABLED
           value: "true"
         - name: I18N_DIRECTORY

@@ -20,7 +20,7 @@ export default function Home() {
                    rounded-full flex items-center justify-center shadow-xl 
                    hover:bg-primary/90 hover:scale-105 transition-all duration-200 
                    z-50 ring-offset-2 ring-2 ring-transparent hover:ring-primary/50"
-        aria-label="Ajuda"
+        aria-label="Abrir central de ajuda"
       >
         <HelpCircle className="h-7 w-7" />
       </button>

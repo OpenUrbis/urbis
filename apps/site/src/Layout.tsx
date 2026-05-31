@@ -49,7 +49,7 @@ function LayoutInner() {
       <ScrollToTop />
 
       <UrbisHeader
-        logoAlt="Prefeitura de São Paulo"
+        logoAlt="Logotipo da Prefeitura de São Paulo"
         logoHref="https://www.prefeitura.sp.gov.br/"
         badgeText={null}
         menuItems={menuItems}

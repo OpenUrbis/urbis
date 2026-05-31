@@ -17,7 +17,7 @@ import { transformSchemaLayers } from "./map-layer-transform";
 import { useTheme } from "../ThemeProvider";
 import { MapCoordinates } from "./MapCoordinates";
 import { getDigitalAddressLayers } from "./digital-address-layer";
-import { encode, getPolygon } from "@open-urbis/numeracao-digital";
+import { encode, getPolygon } from "@open-urbis/endereco-digital";
 import { DigitalAddressDetails } from "../LocationSelectionCard/DigitalAddressDetails";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 // @ts-ignore

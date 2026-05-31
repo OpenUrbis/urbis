@@ -84,7 +84,7 @@ class PickLocationControl implements mapboxgl.IControl {
     
     this.button = document.createElement("button");
     this.button.type = "button";
-    this.button.title = "Numeração Digital";
+    this.button.title = "Endereço Digital";
     this.button.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; line-height: 29px;">pin_drop</span>';
     this.button.addEventListener("click", () => {
         this.onPick();

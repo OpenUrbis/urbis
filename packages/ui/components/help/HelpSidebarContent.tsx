@@ -15,9 +15,8 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "O que é a plataforma Urbis?",
     answer: (
       <p className="text-xs text-muted-foreground">
-        A plataforma Urbis é um conjunto de ferramentas digitais da Prefeitura de São Paulo para
-        consulta de mapas, dados urbanísticos, ambientais e serviços relacionados ao planejamento
-        urbano da cidade.
+        A plataforma Urbis é um conjunto de ferramentas digitais da Prefeitura de São Paulo para consulta de mapas, dados
+        urbanísticos, ambientais e serviços relacionados ao planejamento urbano da cidade.
       </p>
     ),
   },
@@ -26,8 +25,8 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "Como usar o mapa para consultar um endereço ou lote?",
     answer: (
       <p className="text-xs text-muted-foreground">
-        Utilize a barra de busca do Mapa.Urbis para digitar o endereço, número de contribuinte ou
-        inscrição cadastral e visualize informações usando as camadas disponíveis.
+        Utilize a barra de busca do Mapa.Urbis para digitar o endereço, número de contribuinte ou inscrição cadastral e
+        visualize informações usando as camadas disponíveis.
       </p>
     ),
   },
@@ -36,8 +35,8 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "Onde encontro documentos e certidões urbanísticas?",
     answer: (
       <p className="text-xs text-muted-foreground">
-        Os links estão nas seções &quot;Doc. técnica&quot; e &quot;+Info&quot;, além dos sistemas
-        específicos da Prefeitura.
+        Os links estão nas seções &quot;Doc. técnica&quot; e &quot;+Info&quot;, além dos sistemas específicos da
+        Prefeitura.
       </p>
     ),
   },
@@ -45,9 +44,7 @@ const FAQ_ITEMS: FaqItem[] = [
     id: "como-enviar-sugestoes",
     question: "Como posso enviar sugestões?",
     answer: (
-      <p className="text-xs text-muted-foreground">
-        Utilize a seção de Sugestões ou +Info para compartilhar melhorias para a plataforma.
-      </p>
+      <p className="text-xs text-muted-foreground">Utilize a seção de Sugestões ou +Info para compartilhar melhorias para a plataforma.</p>
     ),
   },
 ];
@@ -86,20 +83,6 @@ function mergeHeaders(a: Record<string, string>, b: Record<string, string>) {
   return out;
 }
 
-function getApiBase() {
-  return "http://localhost:3000";
-}
-
-function getApiKey() {
-  return "secret";
-}
-
-function buildApiKeyHeaders(): Record<string, string> {
-  var key = getApiKey();
-  if (!key) return {};
-  return { "x-api-key": key };
-}
-
 function safeJsonParse(text: string) {
   try {
     return JSON.parse(text);
@@ -120,6 +103,131 @@ function normalizePublicUrlMaybe(url: string) {
   return String(url || "");
 }
 
+/**
+ * =========================
+ * CONFIG FIXO (sem .env)
+ * =========================
+ */
+const API_BASE = "http://localhost:3000";
+const RECAPTCHA_SITE_KEY = "6LfwDx4sAAAAABrm5sINZvaY9Fq3pFttsX-wikjG";
+
+function getApiBase() {
+  return API_BASE;
+}
+
+function getApiKey() {
+  // opcional: se você usa x-api-key no backend
+  return "";
+}
+
+function buildApiKeyHeaders(): Record<string, string> {
+  var key = getApiKey();
+  if (!key) return {};
+  return { "x-api-key": key };
+}
+
+/**
+ * =========================
+ * reCAPTCHA v3 (script no index.html)
+ * =========================
+ * ✅ NÃO injeta script aqui
+ * ✅ NÃO usa useEffect
+ * ✅ apenas espera window.grecaptcha existir
+ */
+declare global {
+  interface Window {
+    grecaptcha?: {
+      ready: (cb: () => void) => void;
+      execute: (
+        siteKey: string,
+        opts: { action: string }
+      ) => { then: (cb: (token: string) => void) => any; catch?: (cb: (err: any) => void) => any };
+    };
+  }
+}
+
+function getRecaptchaSiteKey() {
+  return RECAPTCHA_SITE_KEY;
+}
+
+type RecaptchaCallback = (err: Error | null, token?: string) => void;
+
+let recaptchaCache: { token: string; at: number } | null = null;
+
+function waitForGrecaptcha(timeoutMs: number, cb: (err: Error | null) => void) {
+  if (window.grecaptcha) {
+    cb(null);
+    return;
+  }
+
+  var start = Date.now();
+  var timer = setInterval(function () {
+    if (window.grecaptcha) {
+      clearInterval(timer);
+      cb(null);
+      return;
+    }
+
+    if (Date.now() - start > timeoutMs) {
+      clearInterval(timer);
+      cb(
+        new Error(
+          "reCAPTCHA não carregou. Confirme que o script está no index.html do site e não foi bloqueado."
+        )
+      );
+    }
+  }, 50);
+}
+
+function getRecaptchaToken(action: string, callback: RecaptchaCallback, reuseMs: number) {
+  if (recaptchaCache && Date.now() - recaptchaCache.at < reuseMs) {
+    callback(null, recaptchaCache.token);
+    return;
+  }
+
+  waitForGrecaptcha(6000, function (loadErr) {
+    if (loadErr) {
+      callback(loadErr);
+      return;
+    }
+
+    if (!window.grecaptcha) {
+      callback(new Error("reCAPTCHA não carregado (grecaptcha)."));
+      return;
+    }
+
+    var siteKey = getRecaptchaSiteKey();
+    if (!siteKey) {
+      callback(new Error("Site key do reCAPTCHA não configurada."));
+      return;
+    }
+
+    window.grecaptcha.ready(function () {
+      try {
+        var p = window.grecaptcha!.execute(siteKey, { action: action });
+
+        p.then(function (token: string) {
+          recaptchaCache = { token: token, at: Date.now() };
+          callback(null, token);
+        });
+
+        if (typeof p.catch === "function") {
+          p.catch(function (err: any) {
+            callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
+          });
+        }
+      } catch (err: any) {
+        callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
+      }
+    });
+  });
+}
+
+/**
+ * =========================
+ * API calls
+ * =========================
+ */
 function createSupportTicket(params: {
   endpoint?: string;
   payload: {
@@ -128,6 +236,7 @@ function createSupportTicket(params: {
     message: string;
     files: string[];
     type: FeedbackType;
+    recaptcha: string;
     includeSectionData?: boolean;
     sectionData?: ReturnType<typeof buildSectionData>;
   };
@@ -160,16 +269,17 @@ function createSupportTicket(params: {
   });
 }
 
-function requestPublicUploadUrl(params: { contentType: string; folderPath: string }) {
+function requestPublicUploadUrl(params: { contentType: string; folderPath: string; recaptcha: string }) {
   var base = getApiBase().replace(/\/$/, "");
   var url = base + "/files/public/upload-url";
 
   return fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: mergeHeaders({ "Content-Type": "application/json" }, buildApiKeyHeaders()),
     body: JSON.stringify({
       contentType: params.contentType,
       folderPath: normalizeFolderPath(params.folderPath),
+      recaptcha: params.recaptcha,
     }),
   }).then(function (res) {
     return res.text().then(function (t) {
@@ -188,9 +298,7 @@ function requestPublicUploadUrl(params: { contentType: string; folderPath: strin
 
       var rawFields = data && data.fields;
       var fields =
-        rawFields && typeof rawFields === "object" && Object.keys(rawFields).length > 0
-          ? rawFields
-          : null;
+        rawFields && typeof rawFields === "object" && Object.keys(rawFields).length > 0 ? rawFields : null;
 
       if (!uploadURL || !key) throw new Error("Resposta inválida da API pública de upload.");
 
@@ -215,8 +323,7 @@ function requestDownloadUrl(key: string) {
       var data = t ? safeJsonParse(t) : null;
 
       if (!res.ok) {
-        var msg =
-          (data && typeof data.message === "string" && data.message) || ("Erro HTTP " + res.status);
+        var msg = (data && typeof data.message === "string" && data.message) || "Erro HTTP " + res.status;
         throw new Error(msg);
       }
 
@@ -241,7 +348,7 @@ function crc32Table() {
   for (var n = 0; n < 256; n++) {
     c = n;
     for (var k = 0; k < 8; k++) {
-      c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
     }
     table[n] = c >>> 0;
   }
@@ -319,15 +426,19 @@ function uploadToS3(uploadInfo: { uploadURL: string; fields: any; key: string },
   });
 }
 
-function uploadFilesSequentially(params: { files: File[]; folderPath: string }) {
+/**
+ * Upload sequencial COM reCAPTCHA v3
+ */
+type UploadCb = (err: Error | null, keys?: string[]) => void;
+
+function uploadFilesSequentiallyWithRecaptcha(params: { files: File[]; folderPath: string }, cb: UploadCb) {
   var outKeys: string[] = [];
   var idx = 0;
 
-  function next(): any {
+  function next() {
     if (idx >= params.files.length) {
-      return fetch("data:application/json,{}").then(function () {
-        return outKeys;
-      });
+      cb(null, outKeys);
+      return;
     }
 
     var f = params.files[idx];
@@ -335,19 +446,34 @@ function uploadFilesSequentially(params: { files: File[]; folderPath: string }) 
 
     var contentType = (f && f.type) || "application/octet-stream";
 
-    return requestPublicUploadUrl({ contentType: contentType, folderPath: params.folderPath }).then(
-      function (info: any) {
-        return uploadToS3({ uploadURL: info.uploadURL, fields: info.fields, key: info.key }, f).then(
-          function () {
-            outKeys.push(info.key);
-            return next();
-          }
-        );
-      }
+    getRecaptchaToken(
+      "upload-file",
+      function (err, token) {
+        if (err || !token) {
+          cb(err || new Error("Falha ao validar reCAPTCHA no upload."));
+          return;
+        }
+
+        requestPublicUploadUrl({
+          contentType: contentType,
+          folderPath: params.folderPath,
+          recaptcha: token,
+        })
+          .then(function (info: any) {
+            return uploadToS3({ uploadURL: info.uploadURL, fields: info.fields, key: info.key }, f).then(function () {
+              outKeys.push(info.key);
+              next();
+            });
+          })
+          .catch(function (e: any) {
+            cb(new Error(e && e.message ? String(e.message) : "Falha ao enviar anexos."));
+          });
+      },
+      90_000
     );
   }
 
-  return next();
+  next();
 }
 
 function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
@@ -373,10 +499,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
   const [success, setSuccess] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const toggle = () =>
-    setOpen(function (o) {
-      return !o;
-    });
+  const toggle = () => setOpen((o) => !o);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -437,34 +560,36 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
     setSubmitting(true);
     setSelectedFileNames(names);
 
-    uploadFilesSequentially({ files: list, folderPath: folderPath })
-      .then(function (keys: any) {
-        var ks = keys || [];
-        setFiles(ks);
-
-        var firstKey = ks && ks.length ? ks[0] : null;
-        if (firstKey) {
-          return requestDownloadUrl(firstKey)
-            .then(function (dl: string) {
-              setPreviewUrl(dl);
-              setSubmitting(false);
-            })
-            .catch(function () {
-              setPreviewUrl(null);
-              setSubmitting(false);
-            });
-        }
-
-        setPreviewUrl(null);
-        setSubmitting(false);
-      })
-      .catch(function (err: any) {
-        setError(err && err.message ? err.message : "Falha ao enviar anexos.");
+    uploadFilesSequentiallyWithRecaptcha({ files: list, folderPath: folderPath }, function (err, keys) {
+      if (err) {
+        setError(err.message || "Falha ao enviar anexos.");
         setFiles([]);
         setSelectedFileNames([]);
         setPreviewUrl(null);
         setSubmitting(false);
-      });
+        return;
+      }
+
+      var ks = keys || [];
+      setFiles(ks);
+
+      var firstKey = ks && ks.length ? ks[0] : null;
+      if (firstKey) {
+        requestDownloadUrl(firstKey)
+          .then(function (dl: string) {
+            setPreviewUrl(dl);
+            setSubmitting(false);
+          })
+          .catch(function () {
+            setPreviewUrl(null);
+            setSubmitting(false);
+          });
+        return;
+      }
+
+      setPreviewUrl(null);
+      setSubmitting(false);
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -489,37 +614,49 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
 
     setSubmitting(true);
 
-    createSupportTicket({
-      endpoint: endpoint,
-      payload: {
-        name: name.trim(),
-        email: email.trim(),
-        message: message.trim(),
-        files: files || [],
-        type: type,
+    getRecaptchaToken(
+      "create-ticket",
+      function (err, token) {
+        if (err || !token) {
+          setError(err ? err.message : "Falha ao validar reCAPTCHA no envio.");
+          setSubmitting(false);
+          return;
+        }
+
+        createSupportTicket({
+          endpoint: endpoint,
+          payload: {
+            name: name.trim(),
+            email: email.trim(),
+            message: message.trim(),
+            files: files || [],
+            type: type,
+            recaptcha: token,
+          },
+        })
+          .then(function () {
+            setSuccess("Mensagem enviada com sucesso. Uma cópia foi enviada para o seu e-mail cadastrado.");
+
+            setName("");
+            setEmail("");
+            setMessage("");
+            setFiles([]);
+            setSelectedFileNames([]);
+            setPreviewUrl(null);
+
+            setSubmitting(false);
+          })
+          .catch(function (err2: any) {
+            setError(err2 && err2.message ? String(err2.message) : "Falha ao enviar. Tente novamente.");
+            setSubmitting(false);
+          });
       },
-    })
-      .then(function () {
-        setSuccess("Mensagem enviada com sucesso. Uma cópia foi enviada para o seu e-mail cadastrado.");
-
-        setName("");
-        setEmail("");
-        setMessage("");
-        setFiles([]);
-        setSelectedFileNames([]);
-        setPreviewUrl(null);
-
-        setSubmitting(false);
-      })
-      .catch(function (err: any) {
-        setError(err && err.message ? err.message : "Falha ao enviar. Tente novamente.");
-        setSubmitting(false);
-      });
+      90_000
+    );
   };
 
   const firstFileName = selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
-  const extraCount =
-    selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
+  const extraCount = selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
 
   return (
     <div key={id} className="border border-border rounded-md bg-card text-card-foreground">
@@ -529,9 +666,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
         className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
       >
         <span className="text-xs font-semibold">{title}</span>
-        <ChevronDown
-          className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")}
-        />
+        <ChevronDown className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")} />
       </button>
 
       {open && (
@@ -572,9 +707,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
                 autoComplete="email"
                 inputMode="email"
               />
-              {email.trim() && !isValidEmail(email) && (
-                <p className="text-[11px] text-destructive">E-mail inválido.</p>
-              )}
+              {email.trim() && !isValidEmail(email) && <p className="text-[11px] text-destructive">E-mail inválido.</p>}
             </div>
 
             <div className="space-y-1">
@@ -608,11 +741,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
               {previewUrl && (
                 <div className="mt-2 flex items-center gap-2">
                   <div className="relative h-12 w-12 overflow-hidden rounded-md border border-border">
-                    <img
-                      src={previewUrl}
-                      alt="Pré-visualização do primeiro anexo"
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={previewUrl} alt="Pré-visualização do primeiro anexo" className="h-full w-full object-cover" />
                   </div>
                   <span className="text-[11px] text-muted-foreground truncate max-w-[180px]">
                     {firstFileName}
@@ -635,9 +764,7 @@ function CollapsibleFeedbackSection(props: CollapsibleFeedbackSectionProps) {
               {submitting ? "Enviando..." : "Enviar"}
             </button>
 
-            <p className="text-[10px] text-muted-foreground">
-              Um e-mail de confirmação será enviado para o endereço cadastrado.
-            </p>
+            <p className="text-[10px] text-muted-foreground">Um e-mail de confirmação será enviado para o endereço cadastrado.</p>
           </form>
         </div>
       )}
@@ -664,10 +791,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
   const [success, setSuccess] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const toggle = () =>
-    setOpen(function (o) {
-      return !o;
-    });
+  const toggle = () => setOpen((o) => !o);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -728,34 +852,36 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
     setSubmitting(true);
     setSelectedFileNames(names);
 
-    uploadFilesSequentially({ files: list, folderPath: folderPath })
-      .then(function (keys: any) {
-        var ks = keys || [];
-        setFiles(ks);
-
-        var firstKey = ks && ks.length ? ks[0] : null;
-        if (firstKey) {
-          return requestDownloadUrl(firstKey)
-            .then(function (dl: string) {
-              setPreviewUrl(dl);
-              setSubmitting(false);
-            })
-            .catch(function () {
-              setPreviewUrl(null);
-              setSubmitting(false);
-            });
-        }
-
-        setPreviewUrl(null);
-        setSubmitting(false);
-      })
-      .catch(function (err: any) {
-        setError(err && err.message ? err.message : "Falha ao enviar anexos.");
+    uploadFilesSequentiallyWithRecaptcha({ files: list, folderPath: folderPath }, function (err, keys) {
+      if (err) {
+        setError(err.message || "Falha ao enviar anexos.");
         setFiles([]);
         setSelectedFileNames([]);
         setPreviewUrl(null);
         setSubmitting(false);
-      });
+        return;
+      }
+
+      var ks = keys || [];
+      setFiles(ks);
+
+      var firstKey = ks && ks.length ? ks[0] : null;
+      if (firstKey) {
+        requestDownloadUrl(firstKey)
+          .then(function (dl: string) {
+            setPreviewUrl(dl);
+            setSubmitting(false);
+          })
+          .catch(function () {
+            setPreviewUrl(null);
+            setSubmitting(false);
+          });
+        return;
+      }
+
+      setPreviewUrl(null);
+      setSubmitting(false);
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -780,39 +906,51 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
 
     setSubmitting(true);
 
-    createSupportTicket({
-      endpoint: endpoint,
-      payload: {
-        name: name.trim(),
-        email: email.trim(),
-        message: message.trim(),
-        files: files || [],
-        type: "bug-report",
-        includeSectionData: includeSectionData,
-        sectionData: includeSectionData ? buildSectionData() : undefined,
+    getRecaptchaToken(
+      "create-ticket",
+      function (err, token) {
+        if (err || !token) {
+          setError(err ? err.message : "Falha ao validar reCAPTCHA no envio.");
+          setSubmitting(false);
+          return;
+        }
+
+        createSupportTicket({
+          endpoint: endpoint,
+          payload: {
+            name: name.trim(),
+            email: email.trim(),
+            message: message.trim(),
+            files: files || [],
+            type: "bug-report",
+            recaptcha: token,
+            includeSectionData: includeSectionData,
+            sectionData: includeSectionData ? buildSectionData() : undefined,
+          },
+        })
+          .then(function () {
+            setSuccess("Erro reportado com sucesso. Uma cópia foi enviada para o seu e-mail cadastrado.");
+
+            setName("");
+            setEmail("");
+            setMessage("");
+            setFiles([]);
+            setSelectedFileNames([]);
+            setPreviewUrl(null);
+
+            setSubmitting(false);
+          })
+          .catch(function (err2: any) {
+            setError(err2 && err2.message ? String(err2.message) : "Falha ao enviar. Tente novamente.");
+            setSubmitting(false);
+          });
       },
-    })
-      .then(function () {
-        setSuccess("Erro reportado com sucesso. Uma cópia foi enviada para o seu e-mail cadastrado.");
-
-        setName("");
-        setEmail("");
-        setMessage("");
-        setFiles([]);
-        setSelectedFileNames([]);
-        setPreviewUrl(null);
-
-        setSubmitting(false);
-      })
-      .catch(function (err: any) {
-        setError(err && err.message ? err.message : "Falha ao enviar. Tente novamente.");
-        setSubmitting(false);
-      });
+      90_000
+    );
   };
 
   const firstFileName = selectedFileNames && selectedFileNames.length ? selectedFileNames[0] : "";
-  const extraCount =
-    selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
+  const extraCount = selectedFileNames && selectedFileNames.length > 1 ? selectedFileNames.length - 1 : 0;
 
   return (
     <div className="border border-border rounded-md bg-card text-card-foreground">
@@ -822,16 +960,12 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
         className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
       >
         <span className="text-xs font-semibold">Relatar erro</span>
-        <ChevronDown
-          className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")}
-        />
+        <ChevronDown className={"w-4 h-4 transition-transform " + (open ? "rotate-180" : "rotate-0")} />
       </button>
 
       {open && (
         <div className="px-3 pb-3 pt-1 space-y-3">
-          <p className="text-xs text-muted-foreground">
-            Relate problemas de funcionamento, erros de informação ou comportamentos inesperados.
-          </p>
+          <p className="text-xs text-muted-foreground">Relate problemas de funcionamento, erros de informação ou comportamentos inesperados.</p>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="space-y-1">
@@ -867,9 +1001,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
                 autoComplete="email"
                 inputMode="email"
               />
-              {email.trim() && !isValidEmail(email) && (
-                <p className="text-[11px] text-destructive">E-mail inválido.</p>
-              )}
+              {email.trim() && !isValidEmail(email) && <p className="text-[11px] text-destructive">E-mail inválido.</p>}
             </div>
 
             <div className="space-y-1">
@@ -903,11 +1035,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
               {previewUrl && (
                 <div className="mt-2 flex items-center gap-2">
                   <div className="relative h-12 w-12 overflow-hidden rounded-md border border-border">
-                    <img
-                      src={previewUrl}
-                      alt="Pré-visualização do primeiro anexo"
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={previewUrl} alt="Pré-visualização do primeiro anexo" className="h-full w-full object-cover" />
                   </div>
                   <span className="text-[11px] text-muted-foreground truncate max-w-[180px]">
                     {firstFileName}
@@ -943,9 +1071,7 @@ function ErrorFeedbackSection(props: { endpoint?: string; folderPath?: string })
               {submitting ? "Enviando..." : "Enviar"}
             </button>
 
-            <p className="text-[10px] text-muted-foreground">
-              Um e-mail de confirmação será enviado para o endereço cadastrado.
-            </p>
+            <p className="text-[10px] text-muted-foreground">Um e-mail de confirmação será enviado para o endereço cadastrado.</p>
           </form>
         </div>
       )}
@@ -970,9 +1096,7 @@ export function HelpSidebarContent() {
           className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
         >
           <span className="text-xs font-semibold">FAQ</span>
-          <ChevronDown
-            className={"w-4 h-4 transition-transform " + (faqOpen ? "rotate-180" : "rotate-0")}
-          />
+          <ChevronDown className={"w-4 h-4 transition-transform " + (faqOpen ? "rotate-180" : "rotate-0")} />
         </button>
 
         {faqOpen && (
@@ -988,16 +1112,10 @@ export function HelpSidebarContent() {
                     className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
                   >
                     <span className="text-xs font-medium">{item.question}</span>
-                    <ChevronDown
-                      className={
-                        "w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")
-                      }
-                    />
+                    <ChevronDown className={"w-4 h-4 transition-transform " + (isOpen ? "rotate-180" : "rotate-0")} />
                   </button>
 
-                  {isOpen && (
-                    <div className="px-3 pb-3 pt-1 text-xs text-muted-foreground">{item.answer}</div>
-                  )}
+                  {isOpen && <div className="px-3 pb-3 pt-1 text-xs text-muted-foreground">{item.answer}</div>}
                 </div>
               );
             })}

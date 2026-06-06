@@ -152,7 +152,7 @@ function getRecaptchaSiteKey() {
 
 type RecaptchaCallback = (err: Error | null, token?: string) => void;
 
-let recaptchaCache: { token: string; at: number } | null = null;
+let recaptchaCache: { token: string; at: number; action: string } | null = null;
 
 function waitForGrecaptcha(timeoutMs: number, cb: (err: Error | null) => void) {
   if (window.grecaptcha) {
@@ -180,7 +180,7 @@ function waitForGrecaptcha(timeoutMs: number, cb: (err: Error | null) => void) {
 }
 
 function getRecaptchaToken(action: string, callback: RecaptchaCallback, reuseMs: number) {
-  if (recaptchaCache && Date.now() - recaptchaCache.at < reuseMs) {
+  if (recaptchaCache && recaptchaCache.action === action && Date.now() - recaptchaCache.at < reuseMs) {
     callback(null, recaptchaCache.token);
     return;
   }
@@ -207,16 +207,18 @@ function getRecaptchaToken(action: string, callback: RecaptchaCallback, reuseMs:
         var p = window.grecaptcha!.execute(siteKey, { action: action });
 
         p.then(function (token: string) {
-          recaptchaCache = { token: token, at: Date.now() };
+          recaptchaCache = { token: token, at: Date.now(), action: action };
           callback(null, token);
         });
 
         if (typeof p.catch === "function") {
           p.catch(function (err: any) {
+            console.log("Erro caralho", err);
             callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
           });
         }
       } catch (err: any) {
+            console.log("Erro caralho", err);
         callback(new Error(err && err.message ? String(err.message) : "Falha no reCAPTCHA."));
       }
     });
@@ -447,7 +449,7 @@ function uploadFilesSequentiallyWithRecaptcha(params: { files: File[]; folderPat
     var contentType = (f && f.type) || "application/octet-stream";
 
     getRecaptchaToken(
-      "upload-file",
+      "upload_file",
       function (err, token) {
         if (err || !token) {
           cb(err || new Error("Falha ao validar reCAPTCHA no upload."));

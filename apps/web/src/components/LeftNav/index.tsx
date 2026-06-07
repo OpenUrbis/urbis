@@ -2,7 +2,7 @@ import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { Search } from "../Search";
 import { Drawer, DrawerContent, DrawerTitle } from "@open-urbis/map-ui";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { cn } from "@open-urbis/map-ui";
+import { cn, UrbisFooter } from "@open-urbis/map-ui";
 
 export const LeftNav = () => {
   const { drawerOpen, toggleDrawer, currentPage } = useNavigationContext();
@@ -38,8 +38,6 @@ export const LeftNav = () => {
             {currentPage.value}
           </div>
         </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
         <div
           className={cn(
             "w-[420px] transition-all duration-300",
@@ -50,10 +48,6 @@ export const LeftNav = () => {
         >
           <UrbisFooter />
         </div>
-=======
->>>>>>> e4cd745 (adjusting footer on web)
-=======
->>>>>>> 160c23a77887189628a4c976f2e6af7024ad6327
       </div>
     );
   }
@@ -67,10 +61,10 @@ export const LeftNav = () => {
     >
       <DrawerContent className="h-[80vh]">
         <DrawerTitle className="sr-only">Navegação</DrawerTitle>
-
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <Search />
           {currentPage.value}
+          <UrbisFooter />
         </div>
       </DrawerContent>
     </Drawer>

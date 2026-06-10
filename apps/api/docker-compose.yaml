@@ -59,7 +59,6 @@ services:
       mc alias set myminio http://minio:9000 minioadmin minioadmin123;
       mc mb myminio/public --ignore-existing;
       mc mb myminio/private --ignore-existing;
-      mc mb myminio/uploads --ignore-existing;
       mc anonymous set download myminio/public;
       exit 0;
       "

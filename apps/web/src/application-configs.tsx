@@ -4,8 +4,8 @@ import polylabel from "polylabel";
 import { BackButton } from "./components/BackButton";
 import { FeaturesView } from "./components/FeaturesView";
 import { useMapContext } from "./hooks/useMapContext";
-import { useNavigationContext } from "./hooks/useNavigationContext";
 import { useMediaQuery } from "./hooks/useMediaQuery";
+import { useNavigationContext } from "./hooks/useNavigationContext";
 import {
   IMapActionProps,
   MapContextLayerSchemaTypeMapProps,
@@ -43,11 +43,11 @@ type PreProcessingLayerProperties = (properties: {
 
 interface CheckerPolygonIsSelected {
   BUILD_ARRAY_OF_PROPERTIES: (
-    props: MapContextLayerSchemaTypeMapProps
+    props: MapContextLayerSchemaTypeMapProps,
   ) => string[];
   CHECK_ARRAY_OF_PROPERTIES: (
     selectedFeatureIds: string[],
-    polygon: { properties?: { id?: string } }
+    polygon: { properties?: { id?: string } },
   ) => [number, number, number, number] | null;
 }
 
@@ -67,7 +67,7 @@ export const MAP_CONFIGS: MapConfigs = {
     fillPatternMask: true,
     fillPatternAtlas: "/pattern.png",
     fillPatternMapping: "/pattern.json",
-    getFillPatternScale: 0.05,
+    getFillPatternScale: 0.25,
     getFillPatternOffset: [0, 0],
 
     // Define extensions
@@ -110,13 +110,13 @@ export const MAP_CONFIGS: MapConfigs = {
         ? selectedFeature.map(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (item) =>
-              (item.feature as any).id || (item.feature as any).properties?.id
+              (item.feature as any).id || (item.feature as any).properties?.id,
           )
         : [],
     CHECK_ARRAY_OF_PROPERTIES: (
       selectedFeatureIds: string[],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      polygon: any
+      polygon: any,
     ): [number, number, number, number] | null => {
       const id = polygon.id || polygon?.properties?.id;
       return selectedFeatureIds.includes(id) ? [255, 0, 0, 255] : null;
@@ -128,7 +128,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
   [key in ClickActionEnum]: (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clickActionParams: any,
-    informations: IMapActionProps
+    informations: IMapActionProps,
   ) => void;
 } => {
   const { selectFeature, flyTo } = useMapContext();
@@ -138,15 +138,15 @@ export const CLICK_ACTIONS_CONFIG = (): {
   return {
     [ClickActionEnum.SelectFeature]: function (
       { zoom = 17.1 },
-      { latitude, longitude, template, feature }
+      { latitude, longitude, template, feature },
     ): void {
       if (!feature || !(feature as { id: string })?.id)
         return console.error(
-          'clickAction(selectFeature) Error: Property "feature" is not defined'
+          'clickAction(selectFeature) Error: Property "feature" is not defined',
         );
       if (!template)
         return console.error(
-          'clickAction(selectFeature) Error: Property "template" is not defined'
+          'clickAction(selectFeature) Error: Property "template" is not defined',
         );
 
       let center = [longitude, latitude];
@@ -184,16 +184,16 @@ export const CLICK_ACTIONS_CONFIG = (): {
       navigateTo(
         <div className="initial-page">
           <FeaturesView />
-        </div>
+        </div>,
       );
     },
     [ClickActionEnum.SetZoom]: function (
       { zoom },
-      { latitude, longitude }
+      { latitude, longitude },
     ): void {
       if (!zoom)
         return console.error(
-          'clickAction(setZoom) Error: Property "zoom" is not defined'
+          'clickAction(setZoom) Error: Property "zoom" is not defined',
         );
 
       setTimeout(() => {
@@ -211,7 +211,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
             <BackButton />
           </div>
           <FeaturesView feature={{ template: template ?? [], feature }} />
-        </div>
+        </div>,
       );
     },
   };

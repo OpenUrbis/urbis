@@ -13,8 +13,20 @@ export class SupportService {
     private readonly mailService: MailService,
   ) {}
 
-  async createTicket(data: SupportTicketDto): Promise<SupportTicket> {
-    const ticket = this.repository.create(data);
+  async createTicket({
+    email,
+    message,
+    name,
+    type,
+    files,
+  }: SupportTicketDto): Promise<SupportTicket> {
+    const ticket = this.repository.create({
+      email,
+      message,
+      name,
+      type,
+      files,
+    });
     const savedTicket = await this.repository.save(ticket);
 
     await this.mailService.sendSupportTicket({

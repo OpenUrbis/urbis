@@ -190,7 +190,7 @@ export const UrbisHeader = ({
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <a href="https://conta.urbis.sampa.br" className="cursor-pointer">
+                    <a href="https://conta.urbis.ampa.br" className="cursor-pointer">
                       Minha conta
                     </a>
                   </DropdownMenuItem>

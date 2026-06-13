@@ -1,4 +1,3 @@
-import { UrbisFooter } from "@open-urbis/map-ui";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/lib/layout.shared";
@@ -31,14 +30,11 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      <UrbisHeaderWrapper menuItems={menuItems} showMobileMenu={true} />
+      <UrbisHeaderWrapper menuItems={menuItems} showMobileMenu />
       <div className="flex-1">
         <DocsLayout
           tree={source.pageTree}
           {...baseOptions()}
-          sidebar={{
-            footer: <UrbisFooter className="pt-4 border-t mt-2" />,
-          }}
         >
           <SidebarController />
           {children}

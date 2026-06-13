@@ -4,7 +4,6 @@ import { MAP_CONFIGS } from "../../application-configs";
 import { createGetTextLayerUri } from "../../integrations/map-integration";
 import {
   IGetConfigFillPattern,
-  IGetConfigFillPatternConfig,
   IGetConfigLayerSchema,
 } from "../../types/fetch-map-config-type";
 import {
@@ -28,16 +27,12 @@ const buildColorsObj = (layer: IGetConfigLayerSchema) => {
   const lineColors: ColorConfig = {};
   const textColors: ColorConfig = {};
   const patterns: { [key: string]: IGetConfigFillPattern } = {};
-  const patternConfigs: { [key: string]: IGetConfigFillPatternConfig } = {};
 
   if (colors.length > 0)
     colors.forEach((color) => {
       const key: string = color.value ?? color.label;
 
-      if (color?.pattern) {
-        patterns[key] = color.pattern;
-        if (color.patternConfig) patternConfigs[key] = color.patternConfig;
-      }
+      if (color?.pattern) patterns[key] = color.pattern;
 
       if (color?.type === "line") lineColors[key] = color.color;
       else if (color?.type === "text") textColors[key] = color.color;
@@ -46,7 +41,7 @@ const buildColorsObj = (layer: IGetConfigLayerSchema) => {
   else
     fillColors.default = colors?.[0]?.color ?? MAP_CONFIGS.DEFAULT_LAYER_COLOR;
 
-  return { fillColors, lineColors, textColors, patterns, patternConfigs };
+  return { fillColors, lineColors, textColors, patterns };
 };
 
 const calculateGridCells = (bbox: MapBoundingBox): MapBoundingBox[] => {
@@ -84,7 +79,7 @@ const generateGetColorFns = (
 ) => {
   const { getTextColorPropName, getFillColorPropName, getLineColorPropName } =
     layer;
-  const { fillColors, lineColors, textColors, patterns, patternConfigs } =
+  const { fillColors, lineColors, textColors, patterns } =
     buildColorsObj(layer);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -132,24 +127,7 @@ const generateGetColorFns = (
   const getFillPattern = (d: any): IGetConfigFillPattern =>
     patterns?.[d?.properties?.[getFillColorPropName!] ?? "default"] ?? "full";
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getFillPatternScale = (d: any): number =>
-    patternConfigs?.[d?.properties?.[getFillColorPropName!] ?? "default"]
-      ?.getFillPatternScale ?? 1;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getFillPatternOffset = (d: any): [number, number] =>
-    patternConfigs?.[d?.properties?.[getFillColorPropName!] ?? "default"]
-      ?.getFillPatternOffset ?? [0, 0];
-
-  return {
-    getTextColor,
-    getFillColor,
-    getLineColor,
-    getFillPattern,
-    getFillPatternScale,
-    getFillPatternOffset,
-  };
+  return { getTextColor, getFillColor, getLineColor, getFillPattern };
 };
 
 const prepareLayerProperties = (
@@ -245,20 +223,9 @@ const createGeoJsonLayer = (
     data = `${environmentUrl}/maps/proxy?url=${data}`;
   }
 
-  const {
-    getFillColor,
-    getFillPattern,
-    getLineColor,
-    getTextColor,
-    getFillPatternScale,
-    getFillPatternOffset,
-  } = generateGetColorFns(layer, selectedFeatureIds);
-  const patternObj = {
-    ...MAP_CONFIGS.PATTERN_PROPERTIES,
-    getFillPattern,
-    getFillPatternScale,
-    getFillPatternOffset,
-  };
+  const { getFillColor, getFillPattern, getLineColor, getTextColor } =
+    generateGetColorFns(layer, selectedFeatureIds);
+  const patternObj = { ...MAP_CONFIGS.PATTERN_PROPERTIES, getFillPattern };
   const textLayer = createTextLayer(layer, props, getTextColor, data);
 
   const result: any[] = [

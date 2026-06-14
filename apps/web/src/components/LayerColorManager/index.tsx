@@ -1,4 +1,12 @@
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -17,6 +25,13 @@ export interface ILayerColor {
   borderColor: number[];
   textColor: number[];
   pattern?: ILayerPattern;
+  patternConfig?: {
+    fillPatternMask?: boolean;
+    fillPatternAtlas?: string;
+    fillPatternMapping?: string;
+    getFillPatternScale?: number;
+    getFillPatternOffset?: [number, number];
+  };
   label?: string;
   value?: string;
 }
@@ -55,7 +70,7 @@ const LayerColorManager = ({
       };
       onChange(nextColors);
     },
-    [colors, onChange]
+    [colors, onChange],
   );
 
   const handleAddColor = () => {
@@ -75,7 +90,7 @@ const LayerColorManager = ({
           (c) =>
             c.fillColor[0] === newColor![0] &&
             c.fillColor[1] === newColor![1] &&
-            c.fillColor[2] === newColor![2]
+            c.fillColor[2] === newColor![2],
         );
       }
 
@@ -102,12 +117,13 @@ const LayerColorManager = ({
   const renderPatternSelector = (
     currentPattern: ILayerPattern | undefined,
     fillColor: number[],
-    onSelect: (p: ILayerPattern) => void
+    onSelect: (p: ILayerPattern) => void,
   ) => {
     return (
       <div className="grid grid-cols-4 gap-2 mt-2">
         {patterns.map((p) => {
           const isSelected = (currentPattern || "full") === p.value;
+          const isLight = Color(fillColor).isLight();
 
           return (
             <div
@@ -116,10 +132,19 @@ const LayerColorManager = ({
               className="flex flex-col items-center gap-1 cursor-pointer group"
             >
               <div
-                className={`w-12 h-12 border rounded-md transition-all bg-muted/20 ${isSelected ? "ring-2 ring-primary border-primary" : "hover:border-primary/50"}`}
-                style={getPatternStyle(p.value, Color(fillColor).hex(), 0.4)}
+                className={`w-12 h-12 border rounded-md transition-all overflow-hidden ${isSelected ? "ring-2 ring-primary border-primary" : "hover:border-primary/50"}`}
+                style={{ backgroundColor: isLight ? "#000" : "#fff" }}
                 title={p.label}
-              />
+              >
+                <div
+                  className="w-full h-full"
+                  style={
+                    p.value === "full"
+                      ? { backgroundColor: Color(fillColor).hex() }
+                      : getPatternStyle(p.value, Color(fillColor).hex(), 0.4)
+                  }
+                />
+              </div>
               <span
                 className={`text-[9px] text-center w-full truncate ${isSelected ? "font-medium" : "text-muted-foreground"}`}
               >
@@ -182,7 +207,7 @@ const LayerColorManager = ({
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-4 items-end">
+        <div className="grid grid-cols-3 gap-4 items-center">
           <div className="space-y-1 flex flex-col items-center">
             <Label className="text-xs">Preenchimento</Label>
             <ColorPickerSwatch
@@ -195,7 +220,7 @@ const LayerColorManager = ({
                   Padrão
                 </Label>
                 {renderPatternSelector(value.pattern, value.fillColor, (p) =>
-                  updateColor(index, "pattern", p)
+                  updateColor(index, "pattern", p),
                 )}
               </>
             </ColorPickerSwatch>
@@ -215,6 +240,69 @@ const LayerColorManager = ({
             />
           </div>
         </div>
+
+        {value.pattern && value.pattern !== "full" && (
+          <div className="w-full pt-2 mt-2 border-t">
+            <div className="flex items-center justify-between mb-1">
+              <Label className="text-[10px]">Escala</Label>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Info className="h-3 w-3 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Escala do Padrão</DialogTitle>
+                    <DialogDescription>
+                      Ajuste o tamanho do padrão de preenchimento.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <p className="text-sm">
+                      O usuário pode colocar o número que desejar no campo, de 0
+                      a 1000, incluindo números quebrados.
+                    </p>
+                    <p className="text-sm font-medium">
+                      Nota: Em polígonos pequenos, até 10 é aceitável, depois a
+                      imagem fica distorcida.
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Escala 0.5</Label>
+                        <img
+                          src="/example-scale-05-pattern.png"
+                          alt="Exemplo escala 0.5"
+                          className="border rounded w-full h-auto"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Escala 10</Label>
+                        <img
+                          src="/example-scale-10-pattern.png"
+                          alt="Exemplo escala 10"
+                          className="border rounded w-full h-auto"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <Input
+              type="number"
+              min="0"
+              max="1000"
+              step="0.1"
+              value={value.patternConfig?.getFillPatternScale}
+              onChange={(e) =>
+                updateColor(index, "patternConfig", {
+                  ...value.patternConfig,
+                  getFillPatternScale: parseFloat(e.target.value) || 0,
+                })
+              }
+              className="h-7 text-xs"
+            />
+          </div>
+        )}
       </div>
     );
   };

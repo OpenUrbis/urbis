@@ -306,6 +306,10 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
           ...common,
           type: LayerSchemaColorTypeEnum.FILL,
           pattern: c.pattern && c.pattern !== "full" ? c.pattern : undefined,
+          patternConfig:
+            c.patternConfig && Object.keys(c.patternConfig).length > 0
+              ? c.patternConfig
+              : undefined,
           color: fillColor,
         },
       ];
@@ -316,6 +320,10 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
         ...common,
         type: LayerSchemaColorTypeEnum.FILL,
         pattern: c.pattern && c.pattern !== "full" ? c.pattern : undefined,
+        patternConfig:
+          c.patternConfig && Object.keys(c.patternConfig).length > 0
+            ? c.patternConfig
+            : undefined,
         color: fillColor,
       },
       {
@@ -382,6 +390,7 @@ export interface LayerSchemaColor {
   label?: string;
   value?: string;
   pattern?: string;
+  patternConfig?: Record<string, any>;
 }
 
 export interface LayerSchema {
@@ -473,6 +482,7 @@ export const parseLayerSchemaToForm = (
       label: string;
       value: string;
       pattern: string;
+      patternConfig?: Record<string, any>;
       fillColor?: number[];
       borderColor?: number[];
       textColor?: number[];
@@ -486,7 +496,10 @@ export const parseLayerSchemaToForm = (
         label: c.label === "default" ? "" : c.label || "",
         value: c.value || "",
         pattern: c.pattern || "full",
+        patternConfig: c.patternConfig,
       };
+    } else if (c.patternConfig && !colorGroups[key].patternConfig) {
+      colorGroups[key].patternConfig = c.patternConfig;
     }
 
     const alpha = c.color[3] !== undefined ? c.color[3] : 255;
@@ -500,6 +513,7 @@ export const parseLayerSchemaToForm = (
     if (c.type === LayerSchemaColorTypeEnum.FILL) {
       colorGroups[key].fillColor = colorWithAlpha;
       if (c.pattern) colorGroups[key].pattern = c.pattern;
+      if (c.patternConfig) colorGroups[key].patternConfig = c.patternConfig;
     } else if (c.type === LayerSchemaColorTypeEnum.LINE) {
       colorGroups[key].borderColor = colorWithAlpha;
     } else if (c.type === LayerSchemaColorTypeEnum.TEXT) {
@@ -514,6 +528,7 @@ export const parseLayerSchemaToForm = (
       borderColor: group.borderColor || fill, // Fallback to fill if missing
       textColor: group.textColor || fill, // Fallback to fill if missing
       pattern: group.pattern,
+      patternConfig: group.patternConfig,
       label: group.label,
       value: group.value,
     };

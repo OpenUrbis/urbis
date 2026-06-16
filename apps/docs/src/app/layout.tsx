@@ -1,5 +1,6 @@
 import { RootProvider } from "fumadocs-ui/provider/next";
 import "./global.css";
+import { UrbisFooter } from "@open-urbis/map-ui";
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
 
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Urbis Documentation - Integração e Dados Geoespaciais",
     description:
-      "Documentação oficial da plataforma Urbis da Prefeitura de São Paulo. Sistema de integração, datalake e análise geoespacial.",
+      "Documentação oficial da plataforma Urbis da Prefeitura de São Paulo.",
     url: "https://docs.urbis.sampa.br/",
     siteName: "Urbis Docs",
     images: [
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
 
 export default function Layout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={notoSans.className} suppressHydrationWarning>
+    <html lang="pt-BR" className={notoSans.className} suppressHydrationWarning>
       <head>
         <link
           href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
@@ -58,7 +59,12 @@ export default function Layout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="flex flex-col min-h-screen">
-        <RootProvider>{children}</RootProvider>
+        <RootProvider>
+          <main className="flex-1">{children}</main>
+
+          {/* Footer global */}
+          <UrbisFooter className="border-t mt-8" />
+        </RootProvider>
       </body>
     </html>
   );

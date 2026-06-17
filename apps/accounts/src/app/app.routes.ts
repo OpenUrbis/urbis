@@ -107,6 +107,8 @@ export const routes: Routes = [
           },
           {
             path: 'settings',
+            canActivate: [permissionGuard],
+            data: { permission: 'app-settings:list' },
             loadComponent: () =>
               import('./pages/whitelabel/whitelabel').then((m) => m.Whitelabel),
           },

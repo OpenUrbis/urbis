@@ -4,7 +4,6 @@ import {
   Drawer,
   DrawerContent,
   DrawerTitle,
-  UrbisFooter,
 } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { Search } from "../Search";
@@ -43,16 +42,6 @@ export const LeftNav = () => {
             {currentPage.value}
           </div>
         </div>
-        <div
-          className={cn(
-            "w-[420px] transition-all duration-300",
-            drawerOpen.value
-              ? "border-t bg-background opacity-100 pointer-events-auto"
-              : "border-transparent bg-transparent opacity-0 h-0 overflow-hidden pointer-events-none",
-          )}
-        >
-          <UrbisFooter />
-        </div>
       </div>
     );
   }
@@ -70,7 +59,6 @@ export const LeftNav = () => {
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <Search />
           {currentPage.value}
-          <UrbisFooter />
         </div>
       </DrawerContent>
     </Drawer>

@@ -3,16 +3,16 @@ import "preact/debug";
 import "@open-urbis/map-ui";
 import "./globals.css";
 
-import { Loader2 } from "lucide-react";
 import { render } from "preact";
 import { lazy, Suspense } from "react";
+import { Loader2 } from "lucide-react";
 import { Route, Router } from "wouter";
 
 import { QueryClient, QueryClientProvider } from "@preact-signals/query";
 
-import { RequireAuth } from "./components/AccessControl/RequireAuth";
-import { AuthProvider } from "./components/AuthProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { AuthProvider } from "./components/AuthProvider";
+import { RequireAuth } from "./components/AccessControl/RequireAuth";
 
 import { MapProvider } from "./context/MapContext";
 import { NavigationProvider } from "./context/NavigationContext";
@@ -23,6 +23,8 @@ import { Toaster } from "@/components/ui/toaster";
 
 // ✅ Provider do sidebar global (pra useSidebar funcionar em qualquer página)
 import { SidebarProvider } from "@open-urbis/map-ui";
+import { UrbisFooter } from "@open-urbis/map-ui";
+
 
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
@@ -55,6 +57,7 @@ const App = () => (
                 <PolygonEditProvider>
                   {/* 🔥 Layout principal */}
                   <div className="min-h-screen flex flex-col">
+                    
                     {/* Conteúdo */}
                     <main className="flex-1">
                       <Router>
@@ -79,6 +82,10 @@ const App = () => (
                         </Suspense>
                       </Router>
                     </main>
+
+                    {/* ✅ Footer SEMPRE no final */}
+                    <UrbisFooter />
+
                   </div>
                 </PolygonEditProvider>
               </SearchProvider>
@@ -91,5 +98,6 @@ const App = () => (
     </ThemeProvider>
   </AuthProvider>
 );
+
 
 render(<App />, document.getElementById("app")!);

@@ -1,14 +1,13 @@
 import { UrbisHeader, Button, HelpSidebarContent } from "@open-urbis/map-ui";
 import { useAuth } from "react-oidc-context";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-import { accessControl } from "../../auth/user-state";
+import { accessControl, userProfile } from "../../auth/user-state";
 import { RolePermissionScopeEnum } from "../../utils/access-control";
-
-import { Debugger } from "../Debugger";
-import { MenuToggleButton } from "../MenuToogleButton";
 import { useTheme } from "../ThemeProvider";
-import { userProfile } from "../../auth/user-state";
+
+// ✅ novo: usar o nav pronto do UI
+import { buildUrbisNav } from "@open-urbis/map-ui";
 
 const Header = () => {
   const auth = useAuth();
@@ -18,42 +17,19 @@ const Header = () => {
   const s3Endpoint =
     import.meta.env.VITE_S3_ENDPOINT_PUBLIC || "http://localhost:9000/public";
 
-  const menuItems = [
-    { label: "Mosaico", href: "https://urbis.sampa.br" },
-    { label: "Mapa", href: "https://mapa.urbis.sampa.br", active: true },
-    { label: "Dados Abertos", href: "https://dadosabertos.urbis.sampa.br" },
-    { label: "Legis", href: "https://docs.urbis.sampa.br/docs/legis" },
-    { label: "Viabiliza", href: "https://viabiliza.urbis.sampa.br/docs/legis" },
-    { label: "Doc. técnica", href: "https://docs.urbis.sampa.br/" },
-  ];
-
-  if (auth.isAuthenticated) {
-    menuItems.push({
-      label: "Datalake",
-      href: "https://datalake.urbis.sampa.br",
-    });
-  }
+  // ✅ badgeText ao lado da logo + menu sem o item da página atual
+  const { menuItems, badgeText } = useMemo(() => {
+  return buildUrbisNav({
+    isAuthenticated: auth.isAuthenticated,
+    currentApp: "mapa", // ✅ força “Mapa” como atual
+  });
+}, [auth.isAuthenticated]);
 
   const canSeeAdmin = accessControl.value.hasPermission({
     permissions: [
-      {
-        resource: "layer-schema",
-        action: "create",
-        scope: RolePermissionScopeEnum.ANY,
-        id: "layer-schema:create",
-      },
-      {
-        resource: "layer-schema",
-        action: "update",
-        scope: RolePermissionScopeEnum.ANY,
-        id: "layer-schema:update",
-      },
-      {
-        resource: "layer-schema",
-        action: "delete",
-        scope: RolePermissionScopeEnum.ANY,
-        id: "layer-schema:delete",
-      },
+      { resource: "layer-schema", action: "create", scope: RolePermissionScopeEnum.ANY, id: "layer-schema:create" },
+      { resource: "layer-schema", action: "update", scope: RolePermissionScopeEnum.ANY, id: "layer-schema:update" },
+      { resource: "layer-schema", action: "delete", scope: RolePermissionScopeEnum.ANY, id: "layer-schema:delete" },
     ],
     mode: "OR",
   });
@@ -61,6 +37,7 @@ const Header = () => {
   return (
     <>
       <UrbisHeader
+        badgeText={badgeText}
         menuItems={menuItems}
         isAuthenticated={auth.isAuthenticated}
         user={{
@@ -72,7 +49,7 @@ const Header = () => {
         }}
         onLogin={() => auth.signinRedirect()}
         onLogout={() => auth.removeUser()}
-        leftSlot={<MenuToggleButton />}
+        leftSlot={null}
         theme={theme}
         setTheme={(t) => setTheme(t as "light" | "dark" | "system")}
         rightSlot={
@@ -91,7 +68,6 @@ const Header = () => {
               </Button>
             )}
 
-            {/* Botão Ajuda */}
             <button
               type="button"
               onClick={() => setHelpOpen(true)}
@@ -100,24 +76,17 @@ const Header = () => {
             >
               <span className="hidden md:inline">Ajuda</span>
             </button>
-
-            <div className="hidden lg:block">
-              <Debugger />
-            </div>
           </div>
         }
       />
 
-      {/* Sidebar de Ajuda */}
       {helpOpen && (
         <div className="fixed inset-0 z-50 flex">
-          {/* Overlay */}
           <div
             className="absolute inset-0 bg-black/40"
             onClick={() => setHelpOpen(false)}
           />
 
-          {/* Sidebar */}
           <div className="relative ml-auto h-full w-full max-w-[420px] bg-background shadow-xl overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-sm font-semibold">Ajuda</h2>

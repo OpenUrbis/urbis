@@ -33,13 +33,6 @@ spec:
                 name: urbis-map-storage-service
                 port:
                   number: 8080
-          - path: /.well-known/acme-challenge/(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: {{ index .Values "cm-acme-http-solver-name" | default "cm-acme-http-solver" }}
-                port:
-                  number: 8089
           - path: /(.*)
             pathType: ImplementationSpecific
             backend:

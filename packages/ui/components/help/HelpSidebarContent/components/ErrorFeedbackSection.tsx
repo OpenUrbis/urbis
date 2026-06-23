@@ -8,7 +8,6 @@ import {
   createSupportTicket,
   getRecaptchaToken,
   isValidEmail,
-  loadRecaptchaScript,
   uploadFilesSequentiallyWithRecaptcha,
 } from "../utils";
 
@@ -36,12 +35,7 @@ export function ErrorFeedbackSection(props: {
   const [success, setSuccess] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const toggle = () => {
-    if (!open) {
-      loadRecaptchaScript();
-    }
-    setOpen((o) => !o);
-  };
+  const toggle = () => setOpen((o) => !o);
 
   const removeFile = (key: string) => {
     setUploadedFiles((prev) => prev.filter((f) => f.key !== key));

@@ -84,7 +84,7 @@ export const layerSchemas: LayerSchema[] = [
     getLineColorPropName: null,
     groupId: 'geral',
     clickAction: {
-      action: ClickActionEnum.SetZoom,
+      action: ClickActionEnum.SelectFeature,
       params: {
         zoom: 18.1,
       },
@@ -549,7 +549,7 @@ export const layerSchemas: LayerSchema[] = [
         {
           icon: 'info',
           action:
-            "() => window.open('https://dadosabertos.urbis.sampa.br/','_blank')",
+            "() => window.open('https://dadosabertos.urbis.prefeitura.sp.gov.br/','_blank')",
         },
       ],
       getText: `(d) => d.properties.cd_lote?.padStart(4, '0') ?? ''`,

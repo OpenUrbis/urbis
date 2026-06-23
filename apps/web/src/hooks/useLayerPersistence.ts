@@ -5,9 +5,8 @@ import { SearchContext } from "../context/SearchContext";
 import { shareService } from "../integrations/share-service";
 
 export const currentSessionId = signal<string>(crypto.randomUUID());
-export const isRestored = signal(false);
-export const isMapPopulated = signal(false);
-export const isMapError = signal(false);
+const isRestored = signal(false);
+const isMapPopulated = signal(false);
 
 export const useLayerPersistence = () => {
   const mapContext = useMapContext();
@@ -19,27 +18,6 @@ export const useLayerPersistence = () => {
       isMapPopulated.value = true;
     }
   });
-
-  // Monitor map population timeout (fallback)
-  useEffect(() => {
-    if (!isMapPopulated.value) {
-      const timer = setTimeout(() => {
-        if (!isMapPopulated.value) {
-           // We can verify if it's really an error or just slow connection
-           // For now, if no layers after 30s, we flag error/warning
-           // but we don't block the app if layers are empty by design (rare)
-           if (mapContext.layerSchemas.value.length === 0) {
-               // Only flag error if we really have no data
-               // We could also check a specific error flag from mapContext if implemented
-               // For this task, we'll assume timeout = error
-               isMapError.value = true;
-           }
-        }
-      }, 30000); // 30s timeout
-      return () => clearTimeout(timer);
-    }
-    return () => {}; // Explicitly return void cleanup function
-  }, []);
 
   // Init / Restore logic
   useEffect(() => {

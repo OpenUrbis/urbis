@@ -7,7 +7,6 @@ import { ViewSelector } from "../../components/ViewSelector";
 import { LocationSelectionCard } from "../../components/LocationSelectionCard";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useLayerPersistence } from "../../hooks/useLayerPersistence";
-import { AppLoading } from "../../components/AppLoading";
 
 const MapPage = () => {
   const { navigateTo } = useNavigationContext();
@@ -21,7 +20,6 @@ const MapPage = () => {
 
   return (
     <div className="h-screen w-full overflow-hidden bg-background relative">
-      <AppLoading />
       <div className="fixed top-0 left-0 right-0 z-50">
         <Header />
       </div>

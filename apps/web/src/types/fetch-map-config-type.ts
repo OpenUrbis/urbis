@@ -38,19 +38,10 @@ export type IGetConfigFillPattern =
   | "full"
   | "hatch-cross";
 
-export interface IGetConfigFillPatternConfig {
-  fillPatternMask?: boolean;
-  fillPatternAtlas?: string;
-  fillPatternMapping?: string;
-  getFillPatternScale?: number;
-  getFillPatternOffset?: [number, number];
-}
-
 export interface IGetConfigColor {
   id: number;
   color: [number, number, number, number];
   pattern: IGetConfigFillPattern;
-  patternConfig?: IGetConfigFillPatternConfig;
   label: string;
   type?: "text" | "fill" | "line";
   value: string;

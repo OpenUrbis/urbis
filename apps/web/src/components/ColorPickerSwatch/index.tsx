@@ -15,7 +15,6 @@ import {
 import { getPatternStyle, ILayerPattern } from "@/lib/layer-patterns";
 import { cn } from "@/lib/utils";
 import Color, { ColorInstance, ColorLike } from "color";
-import { Pencil } from "lucide-react";
 import { useDeferredValue } from "preact/compat";
 import { useEffect, useState } from "react";
 
@@ -53,18 +52,21 @@ export function ColorPickerSwatch({
     setOpacity(Color(color).alpha());
   }, [color]);
 
-  const isLight = Color(deferredColor).isLight();
-
   return (
     <Popover>
       <PopoverTrigger asChild>
         <div
           className={cn(
-            "w-8 h-8 rounded-md cursor-pointer border border-input shadow-sm transition-colors relative grid place-items-center overflow-hidden dark:border-white/40 hover:border-accent-foreground/50",
+            "w-8 h-8 rounded-md cursor-pointer border border-input shadow-sm transition-colors hover:border-accent-foreground/50",
             className
           )}
-          style={{ backgroundColor: isLight ? "#000" : "#fff" }}
-          title={Color(internalColor).hex()}
+          style={{
+            ...(pattern
+              ? getPatternStyle(pattern, Color(deferredColor).hex())
+              : { backgroundColor: Color(deferredColor).hex() }),
+            opacity: deferredOpacity,
+          }}
+          title={Color(deferredColor).hex()}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
@@ -72,29 +74,7 @@ export function ColorPickerSwatch({
               e.currentTarget.click();
             }
           }}
-        >
-          <div
-            className="col-start-1 row-start-1 w-full h-full pointer-events-none"
-            style={{
-              ...(pattern && pattern !== "full"
-                ? getPatternStyle(pattern, Color(deferredColor).hex())
-                : { backgroundColor: Color(deferredColor).hex() }),
-              opacity: deferredOpacity,
-            }}
-          />
-          <Pencil
-            className={cn(
-              "col-start-1 row-start-1 h-3 w-3 z-10 pointer-events-none",
-              pattern && pattern !== "full"
-                ? isLight
-                  ? "text-white"
-                  : "text-black"
-                : isLight
-                  ? "text-black"
-                  : "text-white",
-            )}
-          />
-        </div>
+        />
       </PopoverTrigger>
       <PopoverContent className="w-64 h-auto p-3" align="start" side="top">
         <ColorPicker

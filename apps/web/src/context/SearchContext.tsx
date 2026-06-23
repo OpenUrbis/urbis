@@ -1,7 +1,6 @@
 import { effect, signal } from "@preact/signals";
-import { createContext, ReactNode, useEffect } from "react";
+import { createContext, ReactNode } from "react";
 import { useFetchSearch } from "../hooks/useFetchSearch";
-import { getSearchConfig } from "../integrations/search-integration";
 import { IGetSearchConfigResponse } from "../types/fetch-search-config-type";
 import { SearchContextType } from "../types/search-context-type";
 
@@ -20,8 +19,6 @@ const concatenatedSearch = signal({
   results: [],
   isOpen: false,
 });
-const isSearchConfigLoaded = signal(false);
-const searchConfigError = signal<string | null>(null);
 
 export const SearchContext = createContext<SearchContextType | null>(null);
 
@@ -31,24 +28,6 @@ export const SearchProvider = ({
   children: ReactNode;
 }) => {
   const searchQuery = useFetchSearch(searchConfig);
-
-  useEffect(() => {
-    const loadConfig = async () => {
-      try {
-        const response = await getSearchConfig();
-        if (response) {
-          searchConfig.value = response;
-        }
-      } catch (error) {
-        console.error("Error fetching search config:", error);
-        searchConfigError.value = String(error);
-      } finally {
-        isSearchConfigLoaded.value = true;
-      }
-    };
-
-    loadConfig();
-  }, []);
 
   effect(() => {
     const term = currentTerm.peek();
@@ -71,8 +50,6 @@ export const SearchProvider = ({
         searchQuery,
         searchConfig,
         concatenatedSearch,
-        isSearchConfigLoaded,
-        searchConfigError,
       }}
     >
       {children}

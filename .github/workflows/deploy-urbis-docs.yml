@@ -41,7 +41,7 @@ jobs:
 
       - name: Build urbis-docs
         env:
-          VITE_API_URL: https://api.mapa.urbis.prefeitura.sp.gov.br
+          VITE_API_URL: https://api.mapa.urbis.sampa.br
         run: |
           pnpm turbo run build --filter=@open-urbis/map-docs
           # Next.js 16 standalone structure fix for monorepo

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     title: "Urbis Documentation - Integração e Dados Geoespaciais",
     description:
       "Documentação oficial da plataforma Urbis da Prefeitura de São Paulo.",
-    url: "https://docs.urbis.prefeitura.sp.gov.br/",
+    url: "https://docs.urbis.sampa.br/",
     siteName: "Urbis Docs",
     images: [
       {

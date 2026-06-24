@@ -4,12 +4,12 @@ const fs = require('fs');
 const path = require('path');
 
 // SSL Certs paths (relative to this script: ../)
-const keyPath = path.join(__dirname, '../conta.urbis.prefeitura.sp.gov.br-key.pem');
-const certPath = path.join(__dirname, '../conta.urbis.prefeitura.sp.gov.br.pem');
+const keyPath = path.join(__dirname, '../conta.urbis.sampa.br-key.pem');
+const certPath = path.join(__dirname, '../conta.urbis.sampa.br.pem');
 
 if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
   console.error('Error: SSL certificates not found in apps/accounts root.');
-  console.error('Please generate them first (conta.urbis.prefeitura.sp.gov.br.pem and key).');
+  console.error('Please generate them first (conta.urbis.sampa.br.pem and key).');
   process.exit(1);
 }
 
@@ -56,12 +56,12 @@ const server = https.createServer(options, (req, res) => {
     });
 
     req.pipe(proxyReq, { end: true });
-    console.log(`[Proxy] ${req.method} https://conta.urbis.prefeitura.sp.gov.br${req.url} -> ${TARGET_URL}${req.url}`);
+    console.log(`[Proxy] ${req.method} https://conta.urbis.sampa.br${req.url} -> ${TARGET_URL}${req.url}`);
 
   } else {
     // Redirect to localhost:4200 preserving path and query
     const target = `${TARGET_URL}${req.url}`;
-    console.log(`[Redirect] https://conta.urbis.prefeitura.sp.gov.br${req.url} -> ${target}`);
+    console.log(`[Redirect] https://conta.urbis.sampa.br${req.url} -> ${target}`);
     
     res.writeHead(302, { 'Location': target });
     res.end();
@@ -71,7 +71,7 @@ const server = https.createServer(options, (req, res) => {
 const PORT = 443;
 server.listen(PORT, () => {
   console.log('---------------------------------------------------');
-  console.log(`Secure Server running on https://conta.urbis.prefeitura.sp.gov.br`);
+  console.log(`Secure Server running on https://conta.urbis.sampa.br`);
   console.log(`Mode: ${MODE.toUpperCase()}`);
   console.log(`Target: ${TARGET_URL}`);
   if (MODE === 'redirect') {

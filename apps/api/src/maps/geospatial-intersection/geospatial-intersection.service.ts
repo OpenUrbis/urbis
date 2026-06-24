@@ -525,7 +525,7 @@ export class GeospatialIntersectionService {
         },
         headers: {
           accept: 'application/json',
-          origin: 'https://mapa.urbis.prefeitura.sp.gov.br',
+          origin: 'https://mapa.urbis.sampa.br',
         },
       })
       .toPromise();

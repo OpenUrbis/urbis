@@ -38,7 +38,7 @@ export const externalOidcAuthConfig: OpenIdConfiguration = {
   authority: environment.externalOidcAuthority.endsWith('/')
     ? environment.externalOidcAuthority
     : environment.externalOidcAuthority + '/',
-  redirectUrl: 'https://conta.urbis.prefeitura.sp.gov.br/callback',
+  redirectUrl: 'https://conta.urbis.sampa.br/callback',
   authWellknownEndpointUrl:
     environment.api + '/auth/external/oidc/.well-known/openid-configuration',
   clientId: environment.externalOidcClientId,

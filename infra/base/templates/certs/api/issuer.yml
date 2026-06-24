@@ -6,7 +6,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: contas@urbis.prefeitura.sp.gov.br
+    email: contas@urbis.sampa.br
     privateKeySecretRef:
       name: urbis-issuer-key
     solvers:

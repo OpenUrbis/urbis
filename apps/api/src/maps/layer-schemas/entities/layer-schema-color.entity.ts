@@ -27,6 +27,9 @@ export class LayerSchemaColors {
   @Column({ default: 'full' })
   pattern?: string;
 
+  @Column({ type: 'jsonb', nullable: true })
+  patternConfig?: Record<string, any>;
+
   @Column()
   label: string;
 

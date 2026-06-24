@@ -20,7 +20,7 @@ export function Footer() {
           <div className="text-left">
             <h2 className="text-primary-foreground font-black text-4xl tracking-widest mb-4">
               <a
-                href="https://urbis.prefeitura.sp.gov.br/pt/"
+                href="https://urbis.sampa.br/pt/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
@@ -48,7 +48,7 @@ export function Footer() {
                 </Button>
               </Link>
               <a
-                href="https://viabiliza.urbis.prefeitura.sp.gov.br/sign-up"
+                href="https://viabiliza.urbis.sampa.br/sign-up"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -84,7 +84,7 @@ export function Footer() {
           <div className="text-left">
             <h2 className="text-primary-foreground font-black text-4xl tracking-widest mb-2">
               <a
-                href="https://mapa.urbis.prefeitura.sp.gov.br"
+                href="https://mapa.urbis.sampa.br"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
@@ -113,7 +113,7 @@ export function Footer() {
           <div className="text-left">
             <h2 className="text-primary-foreground font-black text-4xl tracking-widest mb-2">
               <a
-                href="https://viabiliza.urbis.prefeitura.sp.gov.br/"
+                href="https://viabiliza.urbis.sampa.br/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
@@ -165,7 +165,7 @@ export function Footer() {
             <ul className="list-none pl-0">
               <li className="mb-2.5">
                 <a
-                  href="https://urbis.prefeitura.sp.gov.br/info.urbis"
+                  href="https://urbis.sampa.br/info.urbis"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary-foreground/90 px-3 py-1.5 rounded-md hover:bg-primary-foreground hover:text-primary transition-all font-medium inline-block"
@@ -204,7 +204,7 @@ export function Footer() {
           <div>
             <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
               <a
-                href="https://dadosabertos.urbis.prefeitura.sp.gov.br/"
+                href="https://dadosabertos.urbis.sampa.br/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
@@ -224,7 +224,7 @@ export function Footer() {
           <div>
             <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
               <a
-                href="https://docs.urbis.prefeitura.sp.gov.br/"
+                href="https://docs.urbis.sampa.br/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"

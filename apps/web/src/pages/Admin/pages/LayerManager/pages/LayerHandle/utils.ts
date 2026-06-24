@@ -19,19 +19,27 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
 
   const environment = import.meta.env.VITE_API_URL || "/api";
 
+  console.time("fetchCapabilities-request");
   const response = await axios.get(`${environment}/maps/proxy`, {
     params: { url: baseUrlStr, service: 'WMS', version: '1.3.0', request: 'GetCapabilities' }
   });
+  console.timeEnd("fetchCapabilities-request");
+  
+  console.log("fetchCapabilities: Response size", response.data?.length);
 
+  console.time("fetchCapabilities-parse");
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(response.data, "text/xml");
+  console.timeEnd("fetchCapabilities-parse");
 
   const root = xmlDoc.documentElement;
   const serviceVersion = root.getAttribute("version") || "1.1.1";
 
   const extractedLayers: LayerCapability[] = [];
   const layerNodes = xmlDoc.getElementsByTagName("Layer");
+  console.log("fetchCapabilities: Layer nodes count", layerNodes.length);
 
+  console.time("fetchCapabilities-extract");
   for (let i = 0; i < layerNodes.length; i++) {
     const node = layerNodes[i];
     const nameNode = node.getElementsByTagName("Name")[0];
@@ -77,6 +85,7 @@ export const fetchCapabilities = async (url: string): Promise<{ layers: LayerCap
       }
     }
   }
+  console.timeEnd("fetchCapabilities-extract");
   
   return { layers: extractedLayers, version: serviceVersion };
 }
@@ -306,6 +315,10 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
           ...common,
           type: LayerSchemaColorTypeEnum.FILL,
           pattern: c.pattern && c.pattern !== "full" ? c.pattern : undefined,
+          patternConfig:
+            c.patternConfig && Object.keys(c.patternConfig).length > 0
+              ? c.patternConfig
+              : undefined,
           color: fillColor,
         },
       ];
@@ -316,6 +329,10 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
         ...common,
         type: LayerSchemaColorTypeEnum.FILL,
         pattern: c.pattern && c.pattern !== "full" ? c.pattern : undefined,
+        patternConfig:
+          c.patternConfig && Object.keys(c.patternConfig).length > 0
+            ? c.patternConfig
+            : undefined,
         color: fillColor,
       },
       {
@@ -382,6 +399,7 @@ export interface LayerSchemaColor {
   label?: string;
   value?: string;
   pattern?: string;
+  patternConfig?: Record<string, any>;
 }
 
 export interface LayerSchema {
@@ -473,6 +491,7 @@ export const parseLayerSchemaToForm = (
       label: string;
       value: string;
       pattern: string;
+      patternConfig?: Record<string, any>;
       fillColor?: number[];
       borderColor?: number[];
       textColor?: number[];
@@ -486,7 +505,10 @@ export const parseLayerSchemaToForm = (
         label: c.label === "default" ? "" : c.label || "",
         value: c.value || "",
         pattern: c.pattern || "full",
+        patternConfig: c.patternConfig,
       };
+    } else if (c.patternConfig && !colorGroups[key].patternConfig) {
+      colorGroups[key].patternConfig = c.patternConfig;
     }
 
     const alpha = c.color[3] !== undefined ? c.color[3] : 255;
@@ -500,6 +522,7 @@ export const parseLayerSchemaToForm = (
     if (c.type === LayerSchemaColorTypeEnum.FILL) {
       colorGroups[key].fillColor = colorWithAlpha;
       if (c.pattern) colorGroups[key].pattern = c.pattern;
+      if (c.patternConfig) colorGroups[key].patternConfig = c.patternConfig;
     } else if (c.type === LayerSchemaColorTypeEnum.LINE) {
       colorGroups[key].borderColor = colorWithAlpha;
     } else if (c.type === LayerSchemaColorTypeEnum.TEXT) {
@@ -514,6 +537,7 @@ export const parseLayerSchemaToForm = (
       borderColor: group.borderColor || fill, // Fallback to fill if missing
       textColor: group.textColor || fill, // Fallback to fill if missing
       pattern: group.pattern,
+      patternConfig: group.patternConfig,
       label: group.label,
       value: group.value,
     };

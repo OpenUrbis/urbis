@@ -4,27 +4,27 @@ import { createLayerSchema, getLayerSchema, updateLayerSchema } from "@/integrat
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useLocation, useRoute } from "wouter";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
-import { LayerConfiguration } from "./steps/LayerConfiguration";
-import { LayerMapping } from "./steps/LayerMapping";
-import { LayerReview } from "./steps/LayerReview";
-import { LayerSelection } from "./steps/LayerSelection";
-import { LayerStyling } from "./steps/LayerStyling";
 import { StepsNavigation } from "@/pages/Admin/components/StepsNavigation";
-import { LayerTemplate } from "./steps/LayerTemplate";
 import { buildLayerSchema, LayerSchema, LayerSchemaFormSchema, LayerSchemaFormValues, parseLayerSchemaToForm } from "./utils";
 import { MapView } from "@/components/MapView";
 import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
 import { useMapContext } from "@/hooks/useMapContext";
 
+const LayerConfiguration = lazy(() => import("./steps/LayerConfiguration").then(module => ({ default: module.LayerConfiguration })));
+const LayerMapping = lazy(() => import("./steps/LayerMapping").then(module => ({ default: module.LayerMapping })));
+const LayerReview = lazy(() => import("./steps/LayerReview").then(module => ({ default: module.LayerReview })));
+const LayerSelection = lazy(() => import("./steps/LayerSelection").then(module => ({ default: module.LayerSelection })));
+const LayerStyling = lazy(() => import("./steps/LayerStyling").then(module => ({ default: module.LayerStyling })));
+const LayerTemplate = lazy(() => import("./steps/LayerTemplate").then(module => ({ default: module.LayerTemplate })));
+
 const LayerHandlePage = () => {
   const [isEditMatch, editParams] = useRoute("/:id");
 
-  // @ts-ignore
   const isEditing = !!isEditMatch && editParams?.id !== "handle";
   const id = isEditing ? editParams?.id : undefined;
 
@@ -508,45 +508,56 @@ const LayerHandlePage = () => {
                   onSubmit={form.handleSubmit(onSubmit as any)}
                   className="space-y-6"
                 >
-                  {step === 1 && (
-                    <LayerSelection
-                      loading={loading}
-                      fetchError={fetchError}
-                      layers={layers}
-                      onFetch={handleFetchCapabilities}
-                      onNext={handleNext}
-                      onLayerSelect={handleLayerSelect}
-                      readOnly={isEditing}
-                    />
-                  )}
+                  <Suspense
+                    fallback={
+                      <div className="flex items-center justify-center p-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                      </div>
+                    }
+                  >
+                    {step === 1 && (
+                      <LayerSelection
+                        loading={loading}
+                        fetchError={fetchError}
+                        layers={layers}
+                        onFetch={handleFetchCapabilities}
+                        onNext={handleNext}
+                        onLayerSelect={handleLayerSelect}
+                        readOnly={isEditing}
+                      />
+                    )}
 
-                  {step === 2 && (
-                    <LayerConfiguration onNext={handleNext} onBack={handleBack} />
-                  )}
+                    {step === 2 && (
+                      <LayerConfiguration
+                        onNext={handleNext}
+                        onBack={handleBack}
+                      />
+                    )}
 
-                  {step === 3 && (
-                    <LayerTemplate onNext={handleNext} onBack={handleBack} />
-                  )}
+                    {step === 3 && (
+                      <LayerTemplate onNext={handleNext} onBack={handleBack} />
+                    )}
 
-                  {step === 4 && (
-                    <LayerStyling
-                      onBack={handleBack}
-                      onNext={handleNext}
-                      onDynamicChange={handleDynamicChange}
-                    />
-                  )}
+                    {step === 4 && (
+                      <LayerStyling
+                        onBack={handleBack}
+                        onNext={handleNext}
+                        onDynamicChange={handleDynamicChange}
+                      />
+                    )}
 
-                  {step === 5 && (
-                    <LayerMapping onBack={handleBack} onNext={handleNext} />
-                  )}
+                    {step === 5 && (
+                      <LayerMapping onBack={handleBack} onNext={handleNext} />
+                    )}
 
-                  {step === 6 && (
-                    <LayerReview
-                      onBack={handleBack}
-                      originalData={originalData}
-                      previewSchema={previewSchema}
-                    />
-                  )}
+                    {step === 6 && (
+                      <LayerReview
+                        onBack={handleBack}
+                        originalData={originalData}
+                        previewSchema={previewSchema}
+                      />
+                    )}
+                  </Suspense>
                 </form>
               </Form>
             </div>

@@ -19,7 +19,7 @@ This is a community-maintained project. If you encounter an issue, please submit
 
 Urbis is an open-source monorepo created to empower municipal administrations with a robust mapping system for public management. It enables cities to visualize and manage urban data, streamline resource allocation, and foster data-driven governance.
 
-- **Website**: [mapa.urbis.prefeitura.sp.gov.br](http://mapa.urbis.prefeitura.sp.gov.br/)
+- **Website**: [mapa.urbis.sampa.br](http://mapa.urbis.sampa.br/)
 - **GitHub Repository**: [github.com/OpenUrbis/urbis-map](https://github.com/OpenUrbis/urbis-map)
 
 ---
@@ -70,8 +70,8 @@ Required variables:
 
 To run the Accounts app locally with SSL (required for full OIDC support), follow these steps:
 
-1.  **SSL Certificates**: Ensure you have `conta.urbis.prefeitura.sp.gov.br.pem` and `conta.urbis.prefeitura.sp.gov.br-key.pem` in `apps/accounts/`.
-2.  **Hosts File**: Add `127.0.0.1 conta.urbis.prefeitura.sp.gov.br` to your systems hosts file.
+1.  **SSL Certificates**: Ensure you have `conta.urbis.sampa.br.pem` and `conta.urbis.sampa.br-key.pem` in `apps/accounts/`.
+2.  **Hosts File**: Add `127.0.0.1 conta.urbis.sampa.br` to your systems hosts file.
 3.  **Run**: Use the following command to start both Angular and the SSL proxy:
     ```bash
     pnpm --filter @open-urbis/map-accounts dev:ssl
@@ -178,7 +178,7 @@ Urbis is licensed under the [AGPL v3](https://www.gnu.org/licenses/agpl-3.0). Yo
 
 We’re building a community around Urbis! Join the conversation and help us improve the project:
 
-Stay tuned for updates on our official channels (coming soon). For now, feel free to reach out via [contas@urbis.prefeitura.sp.gov.br](mailto:contas@urbis.prefeitura.sp.gov.br) or open a discussion in the repository.
+Stay tuned for updates on our official channels (coming soon). For now, feel free to reach out via [contas@urbis.sampa.br](mailto:contas@urbis.sampa.br) or open a discussion in the repository.
 
 ---
 
@@ -218,4 +218,4 @@ A huge thanks to all our contributors! Your efforts make Urbis better for everyo
 
 ## Contact
 
-For questions, feedback, or support, reach out to us at [contas@urbis.prefeitura.sp.gov.br](mailto:contas@urbis.prefeitura.sp.gov.br).
+For questions, feedback, or support, reach out to us at [contas@urbis.sampa.br](mailto:contas@urbis.sampa.br).

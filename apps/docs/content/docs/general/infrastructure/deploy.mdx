@@ -25,10 +25,16 @@ Antes de prosseguir, certifique-se de ter:
 2. **Criar um Namespace**  
    Crie um namespace Kubernetes para a implantação:
    ```bash
-   kubectl create namespace urbis-workflows
+   kubectl create namespace urbis-map
    ```
 
-3. **Configurar a Implantação**  
+3. **Instalar os CRDs do Cert-Manager**  
+   O cert-manager requer que as Definições de Recursos Personalizados (CRDs) sejam instaladas antes do chart Helm, caso contrário, a instalação falhará ao tentar criar recursos do tipo `Certificate` ou `Issuer`.
+   ```bash
+   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml
+   ```
+
+4. **Configurar a Implantação**  
    Personalize a implantação editando o arquivo `values.yaml` para configurações gerais e `secrets.yaml` para dados sensíveis (ex: senhas de banco de dados). Certifique-se de que `secrets.yaml` não seja comitado no controle de versão.  
    Exemplo de modificação em `values.yaml`:
    ```yaml
@@ -36,33 +42,56 @@ Antes de prosseguir, certifique-se de ter:
      replicaCount: 2
    ```
 
-4. **Instalar o Chart Helm**  
-   Implante a infraestrutura usando o chart Helm:
+5. **Instalar o Chart Helm**  
+   Primeiro, baixe as dependências do chart:
    ```bash
-   helm install urbis-workflows ./infra -f values.yaml -f secrets.yaml -n urbis-workflows
+   helm dependency build ./infra
    ```
 
-5. **Verificar a Implantação**  
+   Em seguida, implante a infraestrutura usando o chart Helm:
+   ```bash
+   helm install urbis-map ./infra -f ./infra/values.yaml -n urbis-map
+   ```
+
+6. **Verificar a Implantação**  
    Verifique o status dos recursos implantados:
    ```bash
-   kubectl get pods -n urbis-workflows
+   kubectl get pods -n urbis-map
    ```
 
 ## Atualizando a Implantação
 
 Para aplicar alterações na configuração ou chart:
 ```bash
-helm upgrade urbis-workflows ./infra -f values.yaml -f secrets.yaml -n urbis-workflows
+helm upgrade urbis-map ./infra -f ./infra/values.yaml -n urbis-map
 ```
+
+### Problemas comuns com Certificados (ACME Solver)
+
+Ao utilizar o `cert-manager` com desafios HTTP-01, o `ingress-nginx` pode retornar erro **503 Service Temporarily Unavailable** durante a validação se o roteamento manual no Ingress estiver apontando para um serviço inexistente.
+
+Para resolver, você deve atualizar o nome do solver no seu `values.yaml`:
+
+1.  Identifique o nome do serviço temporário criado pelo `cert-manager`:
+    ```bash
+    kubectl get svc -n urbis-map | grep cm-acme-http-solver
+    ```
+2.  Copie o nome do serviço (ex: `cm-acme-http-solver-n7vxv`).
+3.  Atualize o arquivo `infra/values.yaml`:
+    ```yaml
+    components-api-gateway:
+      cm-acme-http-solver-name: cm-acme-http-solver-XXXXX # Substitua pelo nome encontrado
+    ```
+4.  Aplique o `helm upgrade`.
 
 ## Desinstalando a Implantação
 
 Para remover a implantação:
 ```bash
-helm uninstall urbis-workflows -n urbis-workflows
+helm uninstall urbis-map -n urbis-map
 ```
 **Nota**: Dados persistentes (ex: volumes de banco de dados) devem ser excluídos manualmente se não forem mais necessários.
 
 ## Informações Adicionais
 
-Para mais detalhes, consulte o [README](https://github.com/OpenUrbis/urbis-workflows-infra/blob/main/README.md) no repositório. Para suporte, abra uma issue no GitHub ou entre em contato com contas@urbis.prefeitura.sp.gov.br.
+Para mais detalhes, consulte o [README](https://github.com/OpenUrbis/urbis-workflows-infra/blob/main/README.md) no repositório. Para suporte, abra uma issue no GitHub ou entre em contato com contas@urbis.sampa.br.

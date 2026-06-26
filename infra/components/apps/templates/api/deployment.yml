@@ -32,7 +32,7 @@ spec:
         - name: APP_HEADER_LANGUAGE
           value: "x-custom-lang"
         - name: FRONTEND_DOMAIN
-          value: "https://conta.urbis.sampa.br"
+          value: "https://conta.urbis.prefeitura.sp.gov.br"
         - name: BACKEND_DOMAIN
           value: "https://api.mapa.urbis.sampa.br"
         - name: SWAGGER_ENABLED
@@ -82,7 +82,7 @@ spec:
         - name: EXTERNAL_OIDC_AUTHORITY
           value: "https://sso.staging.acesso.gov.br"
         - name: EXTERNAL_OIDC_CLIENT_ID
-          value: "h-urbis.sampa.br"
+          value: "h-urbis.prefeitura.sp.gov.br"
         - name: EXTERNAL_OIDC_CLIENT_SECRET
           value: "4bMiC7VrABUwEEjLmJzMg5ddPrJQM0qijBVgM4LBr0OZTMKedxFyrx-Vw61D_3GQVmoid6TXrg6uYCuwU5BUgQ"
         - name: GEOSERVER_URL

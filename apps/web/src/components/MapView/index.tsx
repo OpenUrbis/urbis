@@ -44,7 +44,7 @@ export const MapView = ({
 
   const mapContext = useMapContext();
   const { theme } = useTheme();
-  const { drawerOpen, navigateTo } = useNavigationContext();
+  const { drawerOpen, toggleDrawer, navigateTo } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const sidebarOpen = isDesktop && drawerOpen.value;
 
@@ -166,6 +166,8 @@ export const MapView = ({
   const handleClick = (info: PickingInfo) => {
     if (isPickingLocation.value) {
         if (info.coordinate) {
+            if (isDesktop && !drawerOpen.value) toggleDrawer();
+
             const lon = info.coordinate[0];
             const lat = info.coordinate[1];
 

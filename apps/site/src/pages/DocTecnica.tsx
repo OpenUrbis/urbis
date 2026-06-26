@@ -28,7 +28,7 @@ export default function DocTecnica() {
         </p>
         <div className="flex flex-wrap justify-center gap-6">
           <a 
-            href="https://docs.urbis.sampa.br" 
+            href="https://docs.urbis.prefeitura.sp.gov.br" 
             target="_blank" 
             rel="noopener noreferrer" 
           >

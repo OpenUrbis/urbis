@@ -1,8 +1,9 @@
-import { RootProvider } from "fumadocs-ui/provider/next";
-import "./global.css";
 import { UrbisFooter } from "@open-urbis/map-ui";
+import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import { Noto_Sans } from "next/font/google";
+import { ConfigInitializer } from "@/components/ConfigInitializer";
+import "./global.css";
 
 const notoSans = Noto_Sans({
   subsets: ["latin"],
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
     title: "Urbis Documentation - Integração e Dados Geoespaciais",
     description:
       "Documentação oficial da plataforma Urbis da Prefeitura de São Paulo.",
-    url: "https://docs.urbis.sampa.br/",
+    url: "https://docs.urbis.prefeitura.sp.gov.br/",
     siteName: "Urbis Docs",
     images: [
       {
@@ -59,6 +60,7 @@ export default function Layout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="flex flex-col min-h-screen">
+        <ConfigInitializer />
         <RootProvider>
           <main className="flex-1">{children}</main>
 

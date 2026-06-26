@@ -1,3 +1,4 @@
+import { buildUrbisNav } from "@open-urbis/map-ui";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/lib/layout.shared";
@@ -6,31 +7,20 @@ import { SidebarController } from "./sidebar-controller";
 import { UrbisHeaderWrapper } from "./urbis-header-wrapper";
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const menuItems = [
-    { label: "Mosaico", href: "https://urbis.sampa.br" },
-    { label: "Mapa", href: "https://mapa.urbis.sampa.br" },
-    {
-      label: "Dados Abertos",
-      href: "https://dadosabertos.urbis.sampa.br",
-    },
-    {
-      label: "Legis",
-      href: "https://docs.urbis.sampa.br/docs/legis",
-    },
-    {
-      label: "Viabiliza",
-      href: "https://viabiliza.urbis.sampa.br/docs/legis",
-    },
-    {
-      label: "Doc. técnica",
-      href: "https://docs.urbis.sampa.br/",
-      active: true,
-    },
-  ];
+  // Docs = Doc. técnica
+  const { menuItems, badgeText } = buildUrbisNav({
+    isAuthenticated: false,
+    currentApp: "docs",
+  });
 
   return (
     <div className="flex flex-col w-full min-h-screen">
-      <UrbisHeaderWrapper menuItems={menuItems} showMobileMenu />
+      <UrbisHeaderWrapper
+        menuItems={menuItems}
+        badgeText={badgeText}
+        showMobileMenu
+      />
+
       <div className="flex-1">
         <DocsLayout tree={source.pageTree} {...baseOptions()}>
           <SidebarController />

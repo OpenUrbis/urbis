@@ -3,7 +3,7 @@ export const environment = {
 
   appClientId: '0375600b-cd37-4b89-82e1-68fd374b83e8',
 
-  externalOidcClientId: 'h-urbis.sampa.br',
+  externalOidcClientId: 'h-urbis.prefeitura.sp.gov.br',
   externalOidcSecureRoutes: ['https://api.mapa.urbis.sampa.br'],
   externalOidcAuthority: 'https://api.mapa.urbis.sampa.br',
 
@@ -22,6 +22,6 @@ export const environment = {
 
   googleRecaptchaSiteKey: '6LfwDx4sAAAAABrm5sINZvaY9Fq3pFttsX-wikjG',
 
-  s3EndpointPublic: 'https://files.mapa.urbis.sampa.br',
-  docsEndpoint: 'https://docs.mapa.urbis.sampa.br',
+  s3EndpointPublic: 'https://files.mapa.urbis.prefeitura.sp.gov.br',
+  docsEndpoint: 'https://docs.mapa.urbis.prefeitura.sp.gov.br',
 };

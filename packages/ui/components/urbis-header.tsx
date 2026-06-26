@@ -118,11 +118,19 @@ export const UrbisHeader = ({
         <div className="mr-4 flex items-center">
           <a className="mr-6 flex items-center space-x-2" href={logoHref}>
             <UrbisLogo alt={logoAlt} src={logoSrc} />
-            {badgeText && (
-              <span className="hidden font-bold sm:inline-block text-muted-foreground text-sm">
-                {badgeText}
-              </span>
-            )}
+
+{badgeText ? (
+  <span
+    className="hidden sm:inline-flex items-center gap-2 text-muted-foreground text-sm font-semibold"
+    aria-label={`Página atual: ${badgeText}`}
+    title={`Página atual: ${badgeText}`}
+  >
+    <span className="opacity-40" aria-hidden="true">
+      •
+    </span>
+    <span className="whitespace-nowrap">{badgeText}</span>
+  </span>
+) : null}
           </a>
         </div>
 

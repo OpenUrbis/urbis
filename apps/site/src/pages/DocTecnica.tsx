@@ -42,7 +42,7 @@ export default function DocTecnica() {
             rel="noopener noreferrer" 
           >
              <Button size="lg" variant="secondary" className="h-14 px-8 text-lg gap-2">
-               <Github className="h-5 w-5" /> OpenUrbis (GitHub)
+               <Github className="h-5 w-5" /> Github
             </Button>
           </a>
         </div>

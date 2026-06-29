@@ -130,7 +130,7 @@ export function Mosaico() {
                 >
                      <CardContent className="p-4">
                         <div className="flex justify-between items-start">
-                             <h3 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors">Github</h3>
+                             <h3 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors">OpenUrbis</h3>
                              <div className="bg-secondary text-secondary-foreground text-xs px-2 py-0.5 rounded-sm font-bold flex items-center gap-0.5">
                                 <Github className="h-3.5 w-3.5" /> GitHub
                              </div>
@@ -150,10 +150,10 @@ export function Mosaico() {
                  >
                      <CardContent className="p-4">
                         <h3 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
-                            Documentação Técnica 
+                            Docs.Urbis <BookOpen className="h-4 w-4 opacity-50" />
                         </h3>
                         <p className="text-muted-foreground text-sm leading-snug">
-                        O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de  colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
+                        Documentação técnica para devs e usuários.
                         </p>
                     </CardContent>
                 </Card>

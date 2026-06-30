@@ -909,7 +909,7 @@ export function UrbisFooter(_props: any) {
               <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[14px] md:text-[14px] font-medium whitespace-nowrap">
                 {/* AGPL v3 */}
                 <a
-  href="https://www.gnu.org/licenses/agpl-3.0.html"
+  href="https://www.gnu.org/licenses/gpl-3.0.pt-br.html"
   target="_blank"
   rel="noreferrer"
   className="inline-flex items-center gap-1 text-white dark:text-black hover:underline"

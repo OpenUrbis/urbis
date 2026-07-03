@@ -6,6 +6,8 @@
     "search-config",
     "view-template",
     "storage",
-    "error-codes"
+    "error-codes",
+    "exportar-camada",
+    "scripts-sql"
   ]
 }

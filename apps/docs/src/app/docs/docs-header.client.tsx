@@ -1,8 +1,12 @@
 "use client";
 
+import {
+  Button,
+  buildUrbisNav,
+  HelpSidebarContent,
+  useSidebar,
+} from "@open-urbis/map-ui";
 import * as React from "react";
-import { Button, HelpSidebarContent, buildUrbisNav } from "@open-urbis/map-ui";
-import { useSidebar } from "@open-urbis/map-ui";
 import { UrbisHeaderWrapper } from "./urbis-header-wrapper";
 
 export function DocsHeaderClient() {
@@ -32,7 +36,8 @@ export function DocsHeaderClient() {
                   <h3 className="text-base font-semibold">Central de ajuda</h3>
                   <p className="text-sm text-muted-foreground">
                     Encontre respostas rápidas, dúvidas frequentes e um espaço
-                    para enviar sugestões sobre a documentação da plataforma Urbis.
+                    para enviar sugestões sobre a documentação da plataforma
+                    Urbis.
                   </p>
                 </div>
 
@@ -40,7 +45,7 @@ export function DocsHeaderClient() {
                   <HelpSidebarContent />
                 </div>
               </div>,
-              "Ajuda"
+              "Ajuda",
             )
           }
         >

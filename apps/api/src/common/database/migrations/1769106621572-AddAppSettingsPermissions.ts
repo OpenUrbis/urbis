@@ -7,14 +7,16 @@ export class AddAppSettingsPermissions1769106621572 implements MigrationInterfac
       id: 'app-settings:list',
       action: 'list',
       name: 'Listar configurações do sistema',
-      description: 'Permite ao usuário listar as configurações globais do sistema',
+      description:
+        'Permite ao usuário listar as configurações globais do sistema',
       resource: 'app-settings',
     },
     {
       id: 'app-settings:update',
       action: 'update',
       name: 'Atualizar configurações do sistema',
-      description: 'Permite ao usuário atualizar as configurações globais do sistema',
+      description:
+        'Permite ao usuário atualizar as configurações globais do sistema',
       resource: 'app-settings',
     },
   ];

@@ -153,7 +153,7 @@ export function Mosaico() {
                             Documentação Técnica 
                         </h3>
                         <p className="text-muted-foreground text-sm leading-snug">
-                        O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de  colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
+                        O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
                         </p>
                     </CardContent>
                 </Card>

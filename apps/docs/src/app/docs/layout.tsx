@@ -1,12 +1,10 @@
+import { SidebarProvider } from "@open-urbis/map-ui";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/lib/layout.shared";
 import { source } from "@/lib/source";
-import { SidebarController } from "./sidebar-controller";
 import { DocsHeaderClient } from "./docs-header.client";
-
-
-import { SidebarProvider } from "@open-urbis/map-ui";
+import { SidebarController } from "./sidebar-controller";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (

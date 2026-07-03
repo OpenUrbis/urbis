@@ -1,4 +1,3 @@
-import { Button } from "@open-urbis/map-ui/ui/button";
 
 export function UrbisFooter(_props: any) {
   return (
@@ -16,23 +15,23 @@ export function UrbisFooter(_props: any) {
 
         {/* INICIO */}
         <div className="flex justify-start mt-12 mb-6">
-  <div className="text-left max-w-4xl">
-    <p className="text-primary-foreground text-base leading-relaxed">
-      O <strong>Urbis</strong> é o sistema formado pelos componentes descritos nas
-      seções a seguir, e consiste em uma base de dados geoespaciais integrada,
-      com poderosas ferramentas de alimentação, gestão, apresentação,
-      manipulação e extração de dados, com capacidade de geração de documentos. O sistema tem como objetivo melhorar a competitividade empresarial, com
-      foco nas pequenas empresas, por meio sobretudo da redução de assimetrias de
-      acesso à informação e da sua compreensão de maneira fácil, clara e
-      padronizada. Por isso, o Urbis foca em dados urbanísticos úteis ao exercício de
-      atividades econômicas da construção civil e à instalação de atividades,
-      mas serve também para diversos outros propósitos.
-    </p>
+          <div className="text-left max-w-4xl">
+            <p className="text-primary-foreground text-base leading-relaxed">
+              O <strong>Urbis</strong> é o sistema formado pelos componentes descritos nas
+              seções a seguir, e consiste em uma base de dados geoespaciais integrada,
+              com poderosas ferramentas de alimentação, gestão, apresentação,
+              manipulação e extração de dados, com capacidade de geração de documentos. O sistema tem como objetivo melhorar a competitividade empresarial, com
+              foco nas pequenas empresas, por meio sobretudo da redução de assimetrias de
+              acesso à informação e da sua compreensão de maneira fácil, clara e
+              padronizada. Por isso, o Urbis foca em dados urbanísticos úteis ao exercício de
+              atividades econômicas da construção civil e à instalação de atividades,
+              mas serve também para diversos outros propósitos.
+            </p>
 
-  </div>
-</div>
+          </div>
+        </div>
 
-<div className="w-full h-px bg-primary-foreground/20 my-2.5 mx-auto" />
+        <div className="w-full h-px bg-primary-foreground/20 my-2.5 mx-auto" />
 
         {/* MAPA.URBIS */}
         <div className="flex justify-start mt-3 mb-6">
@@ -95,101 +94,101 @@ export function UrbisFooter(_props: any) {
           </p>
         </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-  {/* DADOS ABERTOS — topo esquerdo */}
-  <div>
-    <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
-      <a
-        href="https://dadosabertos.urbis.prefeitura.sp.gov.br/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:opacity-80 transition-opacity"
-        title="Acessar Dados Abertos do Urbis"
-        aria-label="Acessar Dados Abertos do Urbis"
-      >
-        DADOS ABERTOS
-      </a>
-    </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          {/* DADOS ABERTOS — topo esquerdo */}
+          <div>
+            <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
+              <a
+                href="https://dadosabertos.urbis.prefeitura.sp.gov.br/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+                title="Acessar Dados Abertos do Urbis"
+                aria-label="Acessar Dados Abertos do Urbis"
+              >
+                DADOS ABERTOS
+              </a>
+            </h2>
 
-    <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
+            <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
 
-    <p className="text-primary-foreground/90 text-sm leading-relaxed">
-      Repositório de metadados das bases do Urbis, onde os usuários podem buscar,
-      visualizar e encontrar explicações técnicas, de maneira acessível e
-      transparente, assim como baixar dados em formatos abertos de arquivos ou
-      consumir via serviço.
-    </p>
-  </div>
+            <p className="text-primary-foreground/90 text-sm leading-relaxed">
+              Repositório de metadados das bases do Urbis, onde os usuários podem buscar,
+              visualizar e encontrar explicações técnicas, de maneira acessível e
+              transparente, assim como baixar dados em formatos abertos de arquivos ou
+              consumir via serviço.
+            </p>
+          </div>
 
-  {/* LEGIS — topo direito */}
-  <div>
-    <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
-      <a
-        href="https://docs.urbis.prefeitura.sp.gov.br/docs/legis/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:opacity-80 transition-opacity"
-        title="Acessar Legislação Urbanística do Urbis"
-        aria-label="Acessar Legislação Urbanística do Urbis"
-      >
-        LEGIS
-      </a>
-    </h2>
+          {/* LEGIS — topo direito */}
+          <div>
+            <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
+              <a
+                href="https://docs.urbis.prefeitura.sp.gov.br/docs/legis/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+                title="Acessar Legislação Urbanística do Urbis"
+                aria-label="Acessar Legislação Urbanística do Urbis"
+              >
+                LEGIS
+              </a>
+            </h2>
 
-    <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
+            <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
 
-    <p className="text-primary-foreground/90 text-sm leading-relaxed">
-      Repositório de dados com explicações normativas sobre conceitos, exigências
-      ou fontes de informação, com detalhamento e visualização personalizáveis,
-      e vínculos entre seus conteúdos. É utilizado por todo o sistema para
-      transformar o mero dado em informação compreendida pelos cidadãos.
-    </p>
-  </div>
+            <p className="text-primary-foreground/90 text-sm leading-relaxed">
+              Repositório de dados com explicações normativas sobre conceitos, exigências
+              ou fontes de informação, com detalhamento e visualização personalizáveis,
+              e vínculos entre seus conteúdos. É utilizado por todo o sistema para
+              transformar o mero dado em informação compreendida pelos cidadãos.
+            </p>
+          </div>
 
-  {/* DOCS URBIS — baixo esquerdo */}
-  <div>
-    <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
-      <a
-        href="https://docs.urbis.prefeitura.sp.gov.br/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:opacity-80 transition-opacity"
-        title="Acessar a documentação do Urbis"
-        aria-label="Acessar a documentação do Urbis"
-      >
-        Documentação Técnica
-      </a>
-    </h2>
+          {/* DOCS URBIS — baixo esquerdo */}
+          <div>
+            <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
+              <a
+                href="https://docs.urbis.prefeitura.sp.gov.br/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+                title="Acessar a documentação do Urbis"
+                aria-label="Acessar a documentação do Urbis"
+              >
+                Documentação Técnica
+              </a>
+            </h2>
 
-    <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
+            <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
 
-    <p className="text-primary-foreground/90 text-sm leading-relaxed">
-      O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de  colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
-    </p>
-  </div>
+            <p className="text-primary-foreground/90 text-sm leading-relaxed">
+              O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
+            </p>
+          </div>
 
-  {/* OPEN URBIS — baixo direito */}
-  <div>
-    <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
-      <a
-        href="https://github.com/OpenUrbis"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:opacity-80 transition-opacity"
-        title="Acessar o repositório OpenUrbis no GitHub"
-        aria-label="Acessar o repositório OpenUrbis no GitHub"
-      >
-        GitHub
-      </a>
-    </h2>
+          {/* OPEN URBIS — baixo direito */}
+          <div>
+            <h2 className="text-primary-foreground font-black text-2xl tracking-widest mb-2 text-left">
+              <a
+                href="https://github.com/OpenUrbis"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+                title="Acessar o repositório OpenUrbis no GitHub"
+                aria-label="Acessar o repositório OpenUrbis no GitHub"
+              >
+                GitHub
+              </a>
+            </h2>
 
-    <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
+            <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
 
-    <p className="text-primary-foreground/90 text-sm leading-relaxed">
-      Publicação do projeto no GitHub.
-    </p>
-  </div>
-</div>
+            <p className="text-primary-foreground/90 text-sm leading-relaxed">
+              Publicação do projeto no GitHub.
+            </p>
+          </div>
+        </div>
 
 
         {/* Prefeitura Links */}
@@ -799,22 +798,22 @@ export function UrbisFooter(_props: any) {
               <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[14px] md:text-[14px] font-medium whitespace-nowrap">
                 {/* AGPL v3 */}
                 <a
-  href="https://web.archive.org/web/20230716103808/http://licencas.softwarelivre.org/agpl-3.0.pt-br.html"
-  target="_blank"
-  rel="noreferrer"
-  className="inline-flex items-center gap-1 text-white dark:text-black hover:underline"
-  title="Licença Pública Geral Affero GNU v3 (AGPLv3) — software"
-  aria-label="Licença Pública Geral Affero GNU v3 (AGPLv3) — software"
->
-  <img
-    src="/sa.svg"
-    className="w-4 h-4 opacity-80"
-    alt="Ícone Compartilha Igual (SA)"
-    title="Compartilha Igual (SA)"
-  />
-  <span>AGPL v3</span>
-  <span className="font-normal opacity-70 text-[12px]">(software)</span>
-</a>
+                  href="https://web.archive.org/web/20230716103808/http://licencas.softwarelivre.org/agpl-3.0.pt-br.html"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-white dark:text-black hover:underline"
+                  title="Licença Pública Geral Affero GNU v3 (AGPLv3) — software"
+                  aria-label="Licença Pública Geral Affero GNU v3 (AGPLv3) — software"
+                >
+                  <img
+                    src="/sa.svg"
+                    className="w-4 h-4 opacity-80"
+                    alt="Ícone Compartilha Igual (SA)"
+                    title="Compartilha Igual (SA)"
+                  />
+                  <span>AGPL v3</span>
+                  <span className="font-normal opacity-70 text-[12px]">(software)</span>
+                </a>
 
                 {/* CC BY-SA */}
                 <a

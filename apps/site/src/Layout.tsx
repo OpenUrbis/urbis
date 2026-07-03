@@ -23,10 +23,12 @@ function isInternalHref(href: string) {
 function LayoutInner() {
   const [theme, setTheme] = useState<string>("system");
   const [_isDark, setIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { openSidebar } = useSidebar();
   const location = useLocation();
 
   useEffect(() => {
+    setMounted(true);
     const savedTheme = localStorage.getItem("theme") || "system";
     setTheme(savedTheme);
   }, []);
@@ -91,6 +93,16 @@ function LayoutInner() {
 
     return withActive.filter((i) => !i.active);
   }, [baseMenuItems, location.pathname]);
+
+  if (!mounted) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
+        <main className="flex-1">
+          <Outlet />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">

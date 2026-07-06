@@ -29,6 +29,34 @@ import { cn } from "../lib/utils";
 import React from "react";
 import { UrbisSettings, UrbisSettingsProps } from "./urbis-settings";
 import { UrbisLogo } from "./urbis-logo";
+import { User } from "lucide-react";
+
+const SessionTimer = ({ expiresAt }: { expiresAt: number | Date }) => {
+  const [timeLeft, setTimeLeft] = React.useState<string>("");
+
+  React.useEffect(() => {
+    const update = () => {
+      const now = Date.now();
+      const exp = new Date(expiresAt).getTime();
+      const diff = exp - now;
+
+      if (diff <= 0) {
+        setTimeLeft("Expirada");
+        return;
+      }
+
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTimeLeft(`${m}:${s.toString().padStart(2, "0")}`);
+    };
+
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [expiresAt]);
+
+  return <span>Sessão: {timeLeft}</span>;
+};
 
 const UserAvatar = ({
   src,
@@ -78,6 +106,7 @@ interface UrbisHeaderProps extends UrbisSettingsProps {
     name?: string;
     email?: string;
     avatarUrl?: string;
+    sessionExpiresAt?: Date | number;
   };
   isAuthenticated?: boolean;
   onLogin?: () => void;
@@ -201,6 +230,14 @@ export const UrbisHeader = ({
                       Minha conta
                     </a>
                   </DropdownMenuItem>
+                  {user?.sessionExpiresAt && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <div className="px-2 py-1.5 text-xs text-muted-foreground text-center cursor-default">
+                        <SessionTimer expiresAt={user.sessionExpiresAt} />
+                      </div>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onLogout} className="cursor-pointer">
                     Sair
@@ -208,7 +245,13 @@ export const UrbisHeader = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : showLogin ? (
-              <Button variant="outline" size="sm" onClick={onLogin}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onLogin}
+                className="gap-2"
+              >
+                <User className="h-4 w-4" />
                 Entrar
               </Button>
             ) : null}

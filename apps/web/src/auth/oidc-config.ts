@@ -7,8 +7,10 @@ const getRedirectUri = (uri: string | undefined, defaultUri: string) => {
   return uri || defaultUri;
 };
 
+const authority = import.meta.env.VITE_OIDC_AUTHORITY || "http://localhost:3000/auth/oidc";
+
 export const oidcConfig = {
-  authority: import.meta.env.VITE_OIDC_AUTHORITY || "http://localhost:3000/auth/oidc",
+  authority,
   client_id: import.meta.env.VITE_OIDC_CLIENT_ID || "94a86322-269e-44df-803a-534c0382215d",
   redirect_uri: getRedirectUri(
     import.meta.env.VITE_OIDC_REDIRECT_URI,
@@ -18,6 +20,7 @@ export const oidcConfig = {
     import.meta.env.VITE_OIDC_SILENT_REDIRECT_URI,
     "http://localhost:5173/silent-renew.html"
   ),
+  post_logout_redirect_uri: authority.replace('/oidc', '/global-logout'),
   automaticSilentRenew: true,
   scope: "openid profile email",
   loadUserInfo: true,

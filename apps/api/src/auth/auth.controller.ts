@@ -140,4 +140,64 @@ export class AuthController {
     const redirectUrl = `com.application-name.app:/callback?${params}`;
     return res.redirect(redirectUrl);
   }
+
+  @Get('global-logout')
+  public globalLogout(@Res() res) {
+    const html = `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sair</title>
+        <style>
+            body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #f5f5f5; margin: 0; }
+            .loader { border: 4px solid #e1e1e1; border-top: 4px solid #0078d4; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            h2 { color: #333; margin-bottom: 10px; }
+            p { color: #666; }
+        </style>
+    </head>
+    <body>
+        <div class="loader"></div>
+        <h2>Encerrando sessão...</h2>
+        <p>Por favor, aguarde enquanto desconectamos você de todos os sistemas.</p>
+
+        <script>
+            const apps = [
+                { prod: 'https://contas.urbis.prefeitura.sp.gov.br', local: 'http://localhost:4200' },
+                { prod: 'https://mapa.urbis.prefeitura.sp.gov.br', local: 'http://localhost:5173' },
+                { prod: 'https://urbis.prefeitura.sp.gov.br', local: 'http://localhost:5174' },
+                { prod: 'https://docs.urbis.prefeitura.sp.gov.br', local: 'http://localhost:3010' }
+            ];
+
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+            function logoutApps() {
+                apps.forEach(app => {
+                    const url = isLocal ? app.local : app.prod;
+                    if (url) {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = url + '/logout.html';
+                        iframe.style.display = 'none';
+                        document.body.appendChild(iframe);
+                    }
+                });
+            }
+
+            logoutApps();
+
+            setTimeout(() => {
+                if (isLocal) {
+                    window.location.href = 'http://localhost:5174';
+                } else {
+                    window.location.href = 'https://urbis.sampa.br';
+                }
+            }, 5000);
+        </script>
+    </body>
+    </html>
+    `;
+    res.send(html);
+  }
 }

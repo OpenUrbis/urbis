@@ -37,6 +37,14 @@
 
 <body>
   <app-root></app-root>
+  <script>
+    window.addEventListener("storage", (e) => {
+      if (e.key === "logout") {
+        sessionStorage.clear();
+        window.location.href = "/sign-in";
+      }
+    });
+  </script>
 </body>
 
 </html>

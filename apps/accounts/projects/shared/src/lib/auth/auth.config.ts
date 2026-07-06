@@ -9,7 +9,7 @@ const commomAuthConfig: Partial<OpenIdConfiguration> = {
   unauthorizedRoute: '/unauthorized',
   refreshTokenRetryInSeconds: 10,
   logLevel: LogLevel.Error,
-  postLogoutRedirectUri: window.location.origin,
+  postLogoutRedirectUri: environment.api + '/auth/global-logout',
   scope: 'openid profile email',
   responseType: 'code',
   maxIdTokenIatOffsetAllowedInSeconds: 4200,
@@ -38,7 +38,7 @@ export const externalOidcAuthConfig: OpenIdConfiguration = {
   authority: environment.externalOidcAuthority.endsWith('/')
     ? environment.externalOidcAuthority
     : environment.externalOidcAuthority + '/',
-  redirectUrl: 'https://conta.urbis.prefeitura.sp.gov.br/callback',
+  redirectUrl: 'https://conta.urbis.sampa.br/callback',
   authWellknownEndpointUrl:
     environment.api + '/auth/external/oidc/.well-known/openid-configuration',
   clientId: environment.externalOidcClientId,

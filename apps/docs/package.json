@@ -14,6 +14,7 @@
   "dependencies": {
     "@open-urbis/map-ui": "workspace:*",
     "@paper-design/shaders-react": "^0.0.67",
+    "@scalar/openapi-parser": "^0.24.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.25",

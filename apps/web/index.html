@@ -40,6 +40,14 @@
 <body>
   <div id="app"></div>
   <script type="module" src="/src/main.tsx"></script>
+  <script>
+    window.addEventListener("storage", (e) => {
+      if (e.key === "logout") {
+        sessionStorage.clear();
+        window.location.href = "/";
+      }
+    });
+  </script>
 </body>
 
 </html>

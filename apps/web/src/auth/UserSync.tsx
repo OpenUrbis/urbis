@@ -2,15 +2,12 @@ import { useEffect } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { userPermissions, userProfile } from './user-state';
 
-interface UserSyncProps {
-  apiUrl: string;
-}
-
-export const UserSync = ({ apiUrl }: UserSyncProps) => {
+export const UserSync = () => {
   const auth = useAuth();
 
   useEffect(() => {
     if (auth.isAuthenticated && auth.user) {
+      console.log(auth);
       userProfile.value = {
         id: auth.user.profile.sub,
         name: auth.user.profile.name,
@@ -18,7 +15,7 @@ export const UserSync = ({ apiUrl }: UserSyncProps) => {
         ...auth.user.profile,
       };
 
-      fetch(`${apiUrl}/auth/permissions`, {
+      fetch(`${import.meta.env.VITE_API_URL}/auth/permissions`, {
         headers: {
           Authorization: `Bearer ${auth.user.access_token}`,
         },
@@ -32,7 +29,7 @@ export const UserSync = ({ apiUrl }: UserSyncProps) => {
           userPermissions.value = [];
         });
 
-      fetch(`${apiUrl}/auth/roles`, {
+      fetch(`${import.meta.env.VITE_API_URL}/auth/roles`, {
         headers: {
           Authorization: `Bearer ${auth.user.access_token}`,
         },
@@ -54,7 +51,7 @@ export const UserSync = ({ apiUrl }: UserSyncProps) => {
       userProfile.value = null;
       userPermissions.value = [];
     }
-  }, [auth.isAuthenticated, auth.user, apiUrl]);
+  }, [auth.isAuthenticated, auth.user]);
 
   return null;
 };

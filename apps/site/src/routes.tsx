@@ -8,37 +8,20 @@ import InfoUrbis from './pages/InfoUrbis'
 import CartaServicos from './pages/CartaServicos'
 import Licencas from './pages/Licencas'
 import { RouteObject } from 'react-router-dom'
-import { GlobalProvider } from './GlobalProvider'
-import { Loader2 } from 'lucide-react'
-
-const FullscreenLoader = () => (
-  <div className="h-screen w-screen flex items-center justify-center">
-    <Loader2 className="h-10 w-10 animate-spin" />
-  </div>
-);
 
 const routes: RouteObject[] = [
   {
-    element: <GlobalProvider />,
+    path: '/',
+    element: <Layout />,
     children: [
-      {
-        path: '/callback',
-        element: <FullscreenLoader />,
-      },
-      {
-        path: '/',
-        element: <Layout />,
-        children: [
-          { index: true, element: <Home /> },
-          { path: 'ajuda', element: <Ajuda /> },
-          { path: 'sobre', element: <About /> },
-          { path: 'contato', element: <Contact /> },
-          { path: 'doc-tecnica', element: <DocTecnica /> },
-          { path: 'info-urbis', element: <InfoUrbis /> },
-          { path: 'carta-servicos', element: <CartaServicos /> },
-          { path: 'licencas', element: <Licencas /> },
-        ],
-      },
+      { index: true, element: <Home /> },
+      { path: 'ajuda', element: <Ajuda /> },
+      { path: 'sobre', element: <About /> },
+      { path: 'contato', element: <Contact /> },
+      { path: 'doc-tecnica', element: <DocTecnica /> },
+      { path: 'info-urbis', element: <InfoUrbis /> },
+      { path: 'carta-servicos', element: <CartaServicos /> },
+      { path: 'licencas', element: <Licencas /> },
     ],
   },
 ]

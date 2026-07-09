@@ -7,8 +7,6 @@ import { HelpSidebarContent } from "@open-urbis/map-ui";
 import { SidebarProvider, useSidebar } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui/ui/button";
 import { UrbisFooter } from "@open-urbis/map-ui";
-import { useAuth, userProfile } from "@open-urbis/map-auth";
-import { useComputed } from "@preact/signals-react";
 
 type MenuItem = { label: string; href: string; active?: boolean };
 
@@ -28,8 +26,6 @@ function LayoutInner() {
   const [mounted, setMounted] = useState(false);
   const { openSidebar } = useSidebar();
   const location = useLocation();
-  const auth = useAuth();
-  const user = useComputed(() => userProfile.value).value;
 
   useEffect(() => {
     setMounted(true);
@@ -117,11 +113,7 @@ function LayoutInner() {
         logoHref="https://www.prefeitura.sp.gov.br/"
         badgeText={currentPageLabel}
         menuItems={filteredMenuItems} // ✅ agora filtra o item atual
-        isAuthenticated={auth.isAuthenticated}
-        user={user ? { name: user.name, email: user.email } : undefined}
-        onLogin={() => auth.signinRedirect()}
-        onLogout={() => auth.signoutRedirect()}
-        showLogin={true}
+        showLogin={false}
         rightSlot={
           <div className="flex items-center gap-2">
             <Button

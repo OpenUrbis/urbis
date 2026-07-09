@@ -15,13 +15,6 @@ export const oidcProviderFactory = (
     return 60 * 60 * 24;
   };
 
-  const logoutUrls = [
-    `${configService.get('app.accountsUrl') || 'http://localhost:4200'}/logout.html`,
-    `${configService.get('app.webUrl') || 'http://localhost:5173'}/logout.html`,
-    `${configService.get('app.siteUrl') || 'http://localhost:5174'}/logout.html`,
-    `${configService.get('app.docsUrl') || 'http://localhost:3010'}/logout.html`,
-  ];
-
   const configuration = {
     clients: ClientsService.getClients(),
     clientBasedCORS: () => true,
@@ -58,27 +51,7 @@ export const oidcProviderFactory = (
     features: {
       rpInitiatedLogout: {
         logoutSource: logoutSource,
-        postLogoutSuccessSource: (ctx) => {
-          const { xsrf } = ctx.oidc.credentials;
-          ctx.body = `<!DOCTYPE html>
-          <head>
-            <title>Logout</title>
-          </head>
-          <body>
-            <h1>Logout</h1>
-            <form method="post" action="${ctx.oidc.urlFor('end_session_confirm')}">
-              <input type="hidden" name="xsrf" value="${xsrf}"/>
-              <button type="submit">Logout</button>
-            </form>
-            <script>
-              ${logoutUrls.map((url) => `document.body.insertAdjacentHTML('beforeend', '<iframe src="${url}" style="display:none"></iframe>');`).join('\n')}
-              setTimeout(() => {
-                document.querySelector('button').click();
-              }, 1000);
-            </script>
-          </body>
-          </html>`;
-        },
+        postLogoutSuccessSource: () => {},
       },
     },
   };

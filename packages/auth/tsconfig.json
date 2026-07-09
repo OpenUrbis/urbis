@@ -1,8 +1,0 @@
-{
-  "extends": "@open-urbis/map-typescript-config/react-library.json",
-  "include": ["src/**/*"],
-  "compilerOptions": {
-    "outDir": "dist",
-    "types": ["node", "react", "react-dom"]
-  }
-}

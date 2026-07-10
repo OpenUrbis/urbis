@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="flex flex-col md:flex-row items-start md:items-center gap-6 p-6 border-b border-border bg-muted/10">
         <app-profile-avatar [size]="80" class="rounded-full border-4 border-background shadow-sm" />
-        
+
         <div class="flex-1 space-y-1">
           <div class="flex items-center gap-2">
             <h3 class="text-2xl font-semibold tracking-tight">{{ fullName() }}</h3>
@@ -34,7 +34,7 @@
              <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                {{ "pages.profile.fields.email" | translate }}
              </h4>
-             
+
              <!-- Email -->
              <div class="flex items-start gap-3">
                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-foreground">
@@ -56,7 +56,7 @@
                    <span class="text-sm text-muted-foreground">{{ country() || '-' }}</span>
                 </div>
              </div>
-             
+
              <!-- Resend Action -->
              @if (!isEmailConfirmed()) {
                 <div class="pt-2 pl-11">
@@ -72,7 +72,7 @@
              <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                {{ "pages.profile.page.accountInfoStatus" | translate }}
              </h4>
-             
+
              <div class="flex items-start gap-3">
                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                    <hlm-icon name="lucideCalendar" size="16" />
@@ -101,7 +101,7 @@
             <div class="flex items-center gap-2 mb-6">
                  <img src="https://www.gov.br/++theme++padrao_govbr/img/govbr-colorido-b.png" alt="Gov.br" class="h-6" />
                  <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                   Integração Gov.br
+                   {{ 'pages.profile.govBr.integration' | translate }}
                  </h4>
             </div>
 
@@ -112,7 +112,7 @@
                        <hlm-icon name="lucideLogIn" size="16" />
                     </div>
                     <div class="grid gap-0.5">
-                       <span class="text-sm font-medium leading-none">Último Login</span>
+                       <span class="text-sm font-medium leading-none">{{ 'pages.profile.govBr.lastLogin' | translate }}</span>
                        <span class="text-sm text-muted-foreground">{{ lastGovBrLoginAt() | date: "medium" }}</span>
                     </div>
                  </div>
@@ -123,11 +123,11 @@
                        <hlm-icon name="lucideCalendar" size="16" />
                     </div>
                     <div class="grid gap-0.5">
-                       <span class="text-sm font-medium leading-none">Vinculado em</span>
+                       <span class="text-sm font-medium leading-none">{{ 'pages.profile.govBr.linkedAt' | translate }}</span>
                        <span class="text-sm text-muted-foreground">{{ govBrFirstLoginAt() | date: "medium" }}</span>
                     </div>
                  </div>
-                 
+
                  <!-- CPF -->
                  @if (cpf()) {
                      <div class="flex items-start gap-3">
@@ -135,7 +135,7 @@
                            <hlm-icon name="lucideUser" size="16" />
                         </div>
                         <div class="grid gap-0.5">
-                           <span class="text-sm font-medium leading-none">CPF</span>
+                           <span class="text-sm font-medium leading-none">{{ 'pages.profile.govBr.cpf' | translate }}</span>
                            <span class="text-sm text-muted-foreground">{{ cpf() }}</span>
                         </div>
                      </div>
@@ -147,7 +147,7 @@
                 <details class="group">
                     <summary class="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors select-none">
                         <span class="group-open:rotate-90 transition-transform">▶</span>
-                        Ver dados brutos (JSON)
+                        {{ 'pages.profile.govBr.rawData' | translate }}
                     </summary>
                     <div class="mt-2 p-3 bg-muted/50 rounded-lg border overflow-auto max-h-60">
                         <pre class="text-[10px] font-mono leading-relaxed">{{ govBrData() | json }}</pre>

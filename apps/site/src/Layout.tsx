@@ -7,6 +7,8 @@ import { HelpSidebarContent } from "@open-urbis/map-ui";
 import { SidebarProvider, useSidebar } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui/ui/button";
 import { UrbisFooter } from "@open-urbis/map-ui";
+import { useAuth, userProfile } from "@open-urbis/map-auth";
+import { useComputed } from "@preact/signals-react";
 
 type MenuItem = { label: string; href: string; active?: boolean };
 
@@ -26,6 +28,8 @@ function LayoutInner() {
   const [mounted, setMounted] = useState(false);
   const { openSidebar } = useSidebar();
   const location = useLocation();
+  const auth = useAuth();
+  const user = useComputed(() => userProfile.value).value;
 
   useEffect(() => {
     setMounted(true);
@@ -113,36 +117,72 @@ function LayoutInner() {
         logoHref="https://www.prefeitura.sp.gov.br/"
         badgeText={currentPageLabel}
         menuItems={filteredMenuItems} // ✅ agora filtra o item atual
-        showLogin={false}
+        isAuthenticated={auth.isAuthenticated}
+        user={user ? { name: user.name, email: user.email } : undefined}
+        onLogin={() => auth.signinRedirect()}
+        onLogout={() => auth.signoutRedirect()}
+        showLogin={true}
         rightSlot={
-          <div className="flex items-center gap-2">
-            <Button
-  variant="outline"        // 👈 desenha borda
-  size="sm"
-  onClick={() =>
-    openSidebar(
-      <div className="h-full min-h-0 flex flex-col">
-        <div className="shrink-0 space-y-1">
-          <h3 className="text-base font-semibold">Central de ajuda</h3>
-          <p className="text-sm text-muted-foreground">
-            Encontre respostas rápidas, dúvidas frequentes e um espaço para
-            enviar sugestões sobre a plataforma Urbis.
-          </p>
-        </div>
+  <div className="flex items-center gap-2">
+    {/* AJUDA — desktop */}
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() =>
+        openSidebar(
+          <div className="h-full min-h-0 flex flex-col">
+            <div className="shrink-0 space-y-1">
+              <h3 className="text-base font-semibold">Central de ajuda</h3>
+              <p className="text-sm text-muted-foreground">
+                Encontre respostas rápidas, dúvidas frequentes e um espaço para
+                enviar sugestões sobre a plataforma Urbis.
+              </p>
+            </div>
 
-        <div className="flex-1 min-h-0 pt-4">
-          <HelpSidebarContent />
-        </div>
-      </div>,
-      "Ajuda"
-    )
-  }
-  className="hidden md:inline-flex"
->
-  Ajuda
-</Button>
-          </div>
-        }
+            <div className="flex-1 min-h-0 pt-4">
+              <HelpSidebarContent />
+            </div>
+          </div>,
+          "Ajuda"
+        )
+      }
+      className="hidden md:inline-flex"
+      aria-label="Ajuda"
+      title="Ajuda"
+    >
+      Ajuda
+    </Button>
+
+    {/* AJUDA — mobile (ícone ?) */}
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() =>
+        openSidebar(
+          <div className="h-full min-h-0 flex flex-col">
+            <div className="shrink-0 space-y-1">
+              <h3 className="text-base font-semibold">Central de ajuda</h3>
+              <p className="text-sm text-muted-foreground">
+                Encontre respostas rápidas, dúvidas frequentes e um espaço para
+                enviar sugestões sobre a plataforma Urbis.
+              </p>
+            </div>
+
+            <div className="flex-1 min-h-0 pt-4">
+              <HelpSidebarContent />
+            </div>
+          </div>,
+          "Ajuda"
+        )
+      }
+      className="md:hidden inline-flex"
+      aria-label="Ajuda"
+      title="Ajuda"
+    >
+      ?
+    </Button>
+  </div>
+}
         theme={theme}
         setTheme={setTheme}
       />

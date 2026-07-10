@@ -1,27 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  HlmButtonDirective,
-  HlmCardDirective,
-  HlmCardContentDirective,
-  HlmCardFooterDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
-  HlmCardDescriptionDirective,
-  HlmInputDirective,
-  HlmLabelDirective,
-} from '../../../../projects/shared/src/public-api';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { HlmToasterService } from '../../../../projects/shared/src/public-api';
 import {
   RECAPTCHA_V3_SITE_KEY,
   RecaptchaV3Module,
@@ -29,7 +17,18 @@ import {
 } from 'ng-recaptcha-2';
 import { firstValueFrom } from 'rxjs';
 import { EXTERNAL_OIDC_AUTH_CONFIG_ID } from '../../../../projects/shared/src/lib/auth/auth.config';
-import { SignInGovBrBtn } from '../../../../projects/shared/src/public-api';
+import {
+  HlmButtonDirective,
+  HlmCardContentDirective,
+  HlmCardDirective,
+  HlmCardFooterDirective,
+  HlmCardHeaderDirective,
+  HlmCardTitleDirective,
+  HlmInputDirective,
+  HlmLabelDirective,
+  HlmToasterService,
+  SignInGovBrBtn,
+} from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
 import { SignInApi } from './services/sign-in-api';
 
@@ -47,7 +46,6 @@ import { SignInApi } from './services/sign-in-api';
     HlmCardFooterDirective,
     HlmCardHeaderDirective,
     HlmCardTitleDirective,
-    HlmCardDescriptionDirective,
     ReactiveFormsModule,
     TranslateModule,
     RecaptchaV3Module,
@@ -73,6 +71,10 @@ export class SignIn implements OnInit {
     password: new FormControl('Teste@1234', [Validators.required]),
     recaptcha: new FormControl('', []),
   });
+  isEmailNotConfirmed = signal<boolean>(false);
+  disableSubmit = signal<boolean>(false);
+  isLoading = signal<boolean>(false);
+  hasLoginError = signal<boolean>(false);
 
   router = inject(Router);
   activatedRoute = inject(ActivatedRoute);
@@ -129,13 +131,14 @@ export class SignIn implements OnInit {
 
   async signInWithExternalOidc() {
     try {
-      const { idToken, isAuthenticated, accessToken, ...all } = await firstValueFrom(
-        this.oidcSecurityService.authorizeWithPopUp(
-          undefined,
-          undefined,
-          EXTERNAL_OIDC_AUTH_CONFIG_ID,
-        ),
-      );
+      const { idToken, isAuthenticated, accessToken, ...all } =
+        await firstValueFrom(
+          this.oidcSecurityService.authorizeWithPopUp(
+            undefined,
+            undefined,
+            EXTERNAL_OIDC_AUTH_CONFIG_ID,
+          ),
+        );
       console.log('all', all);
       console.log('accessToken', accessToken);
 
@@ -157,6 +160,15 @@ export class SignIn implements OnInit {
 
           this.redirectOnSuccess(response);
         } catch (err: any) {
+          if (err.status === 400 && err.error?.isEmailNotConfirmed) {
+            this.isEmailNotConfirmed.set(true);
+            this.disableSubmit.set(true);
+
+            setTimeout(() => {
+              this.disableSubmit.set(false);
+            }, 5000);
+            return;
+          }
           if (err.status === 401 && err.error?.message === 'USER_NOT_FOUND') {
             localStorage.setItem(
               'govBrTokens',
@@ -167,11 +179,16 @@ export class SignIn implements OnInit {
                 timestamp: Date.now(),
               }),
             );
-            this.toaster.show(this.translate.instant('pages.signIn.errors.userNotFound'), { type: 'info' });
+            this.toaster.show(
+              this.translate.instant('pages.signIn.errors.userNotFound'),
+              { type: 'info' },
+            );
             this.router.navigate(['/sign-up']);
             return;
           }
-          this.toaster.error(this.translate.instant('pages.signIn.errors.submit'));
+          this.toaster.error(
+            this.translate.instant('pages.signIn.errors.submit'),
+          );
           throw err;
         }
       }
@@ -186,6 +203,8 @@ export class SignIn implements OnInit {
   }
 
   async onSubmit() {
+    this.isLoading.set(true);
+    this.hasLoginError.set(false);
     this.formGroup.controls.email.setValue(
       this.formGroup.controls.email.value?.replace(/\s/g, '') ?? '',
       { emitEvent: false },
@@ -198,10 +217,26 @@ export class SignIn implements OnInit {
     console.log('formGroup.value', this.formGroup.value);
 
     this.signInService.authenticate(this.formGroup.value).subscribe({
-      error: ({ error }) => {
-        console.error(error);
+      error: (err) => {
+        this.isLoading.set(false);
+        console.error(err);
+
+        if (err.status === 400 && err.error?.isEmailNotConfirmed) {
+          this.isEmailNotConfirmed.set(true);
+          this.disableSubmit.set(true);
+
+          setTimeout(() => {
+            this.disableSubmit.set(false);
+          }, 5000);
+          return;
+        }
+
+        this.hasLoginError.set(true);
       },
-      next: (res: any) => this.redirectOnSuccess(res),
+      next: (res: any) => {
+        this.isLoading.set(false);
+        this.redirectOnSuccess(res);
+      },
     });
   }
 

@@ -1,0 +1,15 @@
+<hlm-toaster></hlm-toaster>
+<hlm-dialog-container></hlm-dialog-container>
+<app-urbis-header
+  [menuItems]="menuItems"
+  logoSrc="https://cdn.prod.website-files.com/67865f11fa887f4b5ad6611a/67939d8b8a93192ceb8c26d0_LOGOTIPO_PREFEITURA_HORIZONTAL_FUNDO_CLARO-p-1080.png"
+  logoAlt="Prefeitura de São Paulo"
+  logoHref="https://www.prefeitura.sp.gov.br/"
+  [badgeText]="''"
+  [showLogin]="false"
+  [showMobileMenu]="showMenu()"
+></app-urbis-header>
+
+<main>
+  <router-outlet />
+</main>

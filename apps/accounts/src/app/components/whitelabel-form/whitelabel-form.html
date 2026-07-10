@@ -10,10 +10,10 @@
           <div class="text-center mb-1">
             <!-- Form -->
             <form (ngSubmit)="onSubmit()" [formGroup]="formGroup" class="form mx-auto flex flex-col gap-6">
-              
+
               <!-- Brand Color -->
               <div class="flex flex-col gap-1.5 text-left">
-                <label hlmLabel for="brandColor">Cor do sistema</label>
+                <label hlmLabel for="brandColor">{{ 'components.whitelabelForm.fields.brandColor' | translate }}</label>
                 <div class="relative flex items-center">
                   <input hlmInput id="brandColor" formControlName="brandColor" placeholder="#89C540" class="w-full pr-12" />
                   <div class="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 overflow-hidden rounded-full border border-border">
@@ -21,21 +21,21 @@
                   </div>
                 </div>
                 @if (formGroup.controls.brandColor.invalid && formGroup.controls.brandColor.touched) {
-                  <p class="text-destructive text-sm font-medium">Invalid Hex Color</p>
+                  <p class="text-destructive text-sm font-medium">{{ 'components.whitelabelForm.errors.invalidHex' | translate }}</p>
                 }
               </div>
 
               <!-- Organization Info -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                   <div class="flex flex-col gap-1.5">
-                    <label hlmLabel for="organizationName">Nome da Organização Principal</label>
-                    <input hlmInput id="organizationName" formControlName="organizationName" placeholder="Ex. Prefeitura Municipal de ..." />
+                    <label hlmLabel for="organizationName">{{ 'components.whitelabelForm.fields.organizationName' | translate }}</label>
+                    <input hlmInput id="organizationName" formControlName="organizationName" placeholder="{{ 'components.whitelabelForm.placeholders.organizationName' | translate }}" />
                   </div>
                   <div class="flex flex-col gap-1.5">
-                    <label hlmLabel for="organizationType">Tipo da Organização Principal</label>
+                    <label hlmLabel for="organizationType">{{ 'components.whitelabelForm.fields.organizationType' | translate }}</label>
                     <div class="relative">
                         <select hlmInput id="organizationType" formControlName="organizationType" class="w-full appearance-none">
-                            <option value="" disabled selected>Selecione um tipo</option>
+                            <option value="" disabled selected>{{ 'components.whitelabelForm.placeholders.organizationType' | translate }}</option>
                             @for (type of formGroup.get('organizationTypes')?.value; track type) {
                                 <option [value]="type">{{ type }}</option>
                             }
@@ -43,7 +43,7 @@
                         <hlm-icon name="lucideChevronsUpDown" size="16" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                     </div>
                     @if (formGroup.get('tenantType')?.value === 'multi' && !formGroup.get('organizationTypes')?.value?.length) {
-                        <p class="text-xs text-muted-foreground mt-1">Adicione tipos de organização abaixo para selecionar.</p>
+                        <p class="text-xs text-muted-foreground mt-1">{{ 'components.whitelabelForm.errors.addTypes' | translate }}</p>
                     }
                   </div>
               </div>
@@ -51,8 +51,8 @@
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                   <!-- Tenant Management -->
                   <div class="flex flex-col gap-4 text-left">
-                    <label hlmLabel class="block font-bold text-lg">Modo de Organização</label>
-                    
+                    <label hlmLabel class="block font-bold text-lg">{{ 'components.whitelabelForm.sections.mode' | translate }}</label>
+
                     <div class="grid grid-cols-1 gap-4">
                         <!-- Mono Mode Card -->
                         <label class="relative flex cursor-pointer rounded-lg border bg-card p-4 shadow-sm focus:outline-none hover:bg-accent/50 transition-colors"
@@ -60,12 +60,12 @@
                             <input type="radio" name="tenantType" value="mono" formControlName="tenantType" class="sr-only" />
                             <span class="flex flex-1">
                                 <span class="flex flex-col">
-                                    <span class="block text-sm font-medium text-foreground mb-1">Modo Única Organização</span>
+                                    <span class="block text-sm font-medium text-foreground mb-1">{{ 'components.whitelabelForm.mode.mono.title' | translate }}</span>
                                     <span class="block text-sm text-muted-foreground leading-relaxed mb-2">
-                                        Estrutura unificada onde todos os usuários e recursos pertencem a uma única entidade principal.
+                                        {{ 'components.whitelabelForm.mode.mono.description' | translate }}
                                     </span>
                                     <span class="block text-xs text-muted-foreground bg-muted/50 p-2 rounded border border-border/50">
-                                        <strong>Exemplo de uso:</strong> Ideal para prefeituras ou empresas unificadas: Um administrador gerencia todo o sistema e usuários (sejam servidores, munícipes ou funcionários) interagem em um ambiente único.
+                                        <span [innerHTML]="'components.whitelabelForm.mode.mono.example' | translate"></span>
                                     </span>
                                 </span>
                             </span>
@@ -80,14 +80,14 @@
                             <input type="radio" name="tenantType" value="multi" formControlName="tenantType" class="sr-only" />
                             <span class="flex flex-1">
                                 <span class="flex flex-col">
-                                    <span class="block text-sm font-medium text-foreground mb-1">Modo Múltiplas Organizações</span>
+                                    <span class="block text-sm font-medium text-foreground mb-1">{{ 'components.whitelabelForm.mode.multi.title' | translate }}</span>
                                     <span class="block text-sm text-muted-foreground leading-relaxed mb-2">
-                                        Estrutura hierárquica composta por uma organização principal e múltiplas sub-organizações autônomas (filiais, departamentos, secretarias).
+                                        {{ 'components.whitelabelForm.mode.multi.description' | translate }}
                                     </span>
                                     <span class="block text-xs text-muted-foreground bg-muted/50 p-2 rounded border border-border/50 mb-4">
-                                        <strong>Exemplo de uso:</strong> Ideal para estruturas complexas, como uma Prefeitura com Secretarias/Autarquias ou uma Holding com suas Filiais/Subsidiárias. Usuários podem ter papéis distintos em cada unidade (ex: Gerente na Matriz e Visitante na Filial), com dados e acessos segregados.
+                                        <span [innerHTML]="'components.whitelabelForm.mode.multi.example' | translate"></span>
                                     </span>
-                                    
+
                                 </span>
                             </span>
                             <div class="ml-4 shrink-0 self-start" *ngIf="formGroup.get('tenantType')?.value === 'multi'">
@@ -99,12 +99,12 @@
 
                   <!-- Organization Types -->
                   <div class="flex flex-col gap-2 p-4 border border-border rounded-lg bg-background h-full">
-                        <label hlmLabel class="block mb-2 font-semibold">Gerenciar Tipos de Organização</label>
+                        <label hlmLabel class="block mb-2 font-semibold">{{ 'components.whitelabelForm.sections.types' | translate }}</label>
                         <div class="flex gap-2 mb-3">
-                            <input hlmInput [formControl]="formGroup.controls.newOrgType" placeholder="Novo tipo (ex: Secretaria)" class="flex-1 h-9" (keydown.enter)="$event.preventDefault(); addOrgType()" />
-                            <button hlmBtn variant="secondary" type="button" (click)="addOrgType()" class="h-9">Adicionar</button>
+                            <input hlmInput [formControl]="formGroup.controls.newOrgType" placeholder="{{ 'components.whitelabelForm.placeholders.newType' | translate }}" class="flex-1 h-9" (keydown.enter)="$event.preventDefault(); addOrgType()" />
+                            <button hlmBtn variant="secondary" type="button" (click)="addOrgType()" class="h-9">{{ 'components.whitelabelForm.buttons.add' | translate }}</button>
                         </div>
-                        
+
                         <div class="flex flex-col gap-2 overflow-y-auto max-h-[300px]">
                             @for (type of formGroup.get('organizationTypes')?.value; track $index) {
                                 <div class="flex items-center justify-between p-2 rounded bg-muted/50 border border-border/50">
@@ -115,7 +115,7 @@
                                 </div>
                             }
                             @if (!formGroup.get('organizationTypes')?.value?.length) {
-                                <span class="text-sm text-muted-foreground italic text-center py-2">Nenhum tipo adicionado.</span>
+                                <span class="text-sm text-muted-foreground italic text-center py-2">{{ 'components.whitelabelForm.emptyTypes' | translate }}</span>
                             }
                         </div>
                   </div>
@@ -189,7 +189,7 @@
                   [disabled]="!formGroup.valid"
                 >
                   <hlm-icon name="lucideSave" class="mr-2 h-4 w-4" />
-                  Save
+                  {{ 'components.whitelabelForm.buttons.save' | translate }}
                 </button>
               </div>
             </form>

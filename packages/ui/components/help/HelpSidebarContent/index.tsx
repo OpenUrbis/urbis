@@ -25,7 +25,7 @@ const FAQ_ITEMS: FaqItem[] = [
   },
   {
     id: "como-usar-mapa",
-    question: "Como usar o Mapa.Urbis para consultar um endereço ou lote?",
+    question: "Como usar o Mapa para consultar um endereço ou lote?",
     answer: (
       <p className="text-xs text-muted-foreground">
         Utilize a barra de busca para pesquisar por endereço, número de
@@ -93,7 +93,7 @@ export function HelpSidebarContent() {
       <div className="flex-1 min-h-0 overflow-y-auto pr-1">
         <div className="space-y-3">
           <span className="text-xs font-semibold text-foreground">
-            Perguntas frequentes
+            Respostas a perguntas frequentes
           </span>
 
           {FAQ_ITEMS.map((item) => {

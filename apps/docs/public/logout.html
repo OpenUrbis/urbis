@@ -115,7 +115,7 @@
                     const url = isLocal ? app.local : app.prod;
                     if (url && !url.includes(currentHost)) { 
                         const iframe = document.createElement('iframe');
-                        iframe.src = url + '/logout.html';
+                        iframe.src = `${url}/logout.html`;
                         iframe.style.display = 'none';
                         iframe.width = '1';
                         iframe.height = '1';

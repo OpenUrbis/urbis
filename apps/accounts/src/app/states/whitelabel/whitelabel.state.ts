@@ -60,7 +60,7 @@ export class WhitelabelState {
           this._apiData.set(resValue);
         }
       },
-      { allowSignalWrites: true },
+      // { allowSignalWrites: true },
     );
 
     // Apply Theme (based on _localTheme) & Persist to LocalStorage

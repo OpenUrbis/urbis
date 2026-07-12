@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
@@ -69,36 +70,35 @@ export class HandleOrganization {
   translate = inject(TranslateService);
 
   constructor() {
-    effect(() => {
-      this.activatedRoute.params
-        .pipe(
-          tap(() => this.loading.set(true)),
-          switchMap(({ id }) => {
-            if (id) {
-              this.id.set(id);
-              return this.organizationApi.get(id).pipe(
-                catchError((err) => {
-                  console.error(err);
-                  this.toaster.error('Houve um erro ao carregar a organização');
-                  this.router.navigate(['/organizations']);
-                  return of(undefined);
-                }),
-              );
-            } else return of(undefined);
-          }),
-          tap(() => this.loading.set(false)),
-        )
-        .subscribe((organization) => {
-          if (organization) {
-            this.name.set(organization.name);
+    this.activatedRoute.params
+      .pipe(
+        takeUntilDestroyed(),
+        tap(() => this.loading.set(true)),
+        switchMap(({ id }) => {
+          if (id) {
+            this.id.set(id);
+            return this.organizationApi.get(id).pipe(
+              catchError((err) => {
+                console.error(err);
+                this.toaster.error('Houve um erro ao carregar a organização');
+                this.router.navigate(['/organizations']);
+                return of(undefined);
+              }),
+            );
+          } else return of(undefined);
+        }),
+        tap(() => this.loading.set(false)),
+      )
+      .subscribe((organization) => {
+        if (organization) {
+          this.name.set(organization.name);
 
-            this.form.patchValue({
-              name: organization.name,
-              description: organization.description,
-            });
-          }
-        });
-    });
+          this.form.patchValue({
+            name: organization.name,
+            description: organization.description,
+          });
+        }
+      });
   }
 
   async save() {

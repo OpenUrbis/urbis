@@ -5,7 +5,14 @@ import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
 import { PermissionScopePipe } from '../../../../pipes/permission-scope-pipe';
 import { IRoleResponse } from '../../dto/role.dto';
 import { RoleManagerApi } from '../../services/role-manager-api';
-import { LoadingContent, HlmButtonDirective, HlmIconComponent, HlmToasterService, DialogRef, DIALOG_DATA } from '../../../../../../projects/shared/src/public-api';
+import {
+  LoadingContent,
+  HlmButtonDirective,
+  HlmIconComponent,
+  HlmToasterService,
+  DialogRef,
+  DIALOG_DATA,
+} from '../../../../../../projects/shared/src/public-api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucideCheck, lucideChevronDown } from '@ng-icons/lucide';
@@ -36,6 +43,8 @@ export class AddRole {
   readonly dialogRef = inject(DialogRef<AddRole>);
   readonly data = inject<{ userId: string; roles: string[] }>(DIALOG_DATA);
 
+  expandedItems = signal<Set<string>>(new Set());
+
   result$ = this.searchRole.valueChanges.pipe(
     startWith(''),
     debounceTime(300),
@@ -47,6 +56,18 @@ export class AddRole {
     ),
     tap(() => this.loading.set(false)),
   );
+
+  toggle(id: string) {
+    this.expandedItems.update((set) => {
+      const newSet = new Set(set);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  }
 
   addRole(event: Event, role: IRoleResponse) {
     event.stopImmediatePropagation();

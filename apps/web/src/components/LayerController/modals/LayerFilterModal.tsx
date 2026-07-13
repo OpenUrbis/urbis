@@ -7,12 +7,12 @@ import {
   DialogFooter,
 } from "@open-urbis/map-ui";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { IGetConfigLayerSchema } from "../../../types/fetch-map-config-type";
 import { filterNodeToCQL } from "../../../utils/cql-builder-advanced";
 import { getLayerNameFromConfig } from "../../../utils/layer-utils";
 import { useMapContext } from "../../../hooks/useMapContext";
 import { FilterBuilder, FilterField } from "../../FilterBuilder";
+import { fetchAttributes as fetchAttributesFromIntegration } from "../../../integrations/layer-attributes-integration";
 import { FilterGroup } from "../../FilterBuilder/types";
 import { PredefinedSearchSuggestions } from "../../Search/PredefinedSearchSuggestions";
 import { Loader2 } from "lucide-react";
@@ -40,10 +40,34 @@ export const LayerFilterModal = ({
   const [fields, setFields] = useState<FilterField[]>([]);
   const [filterTree, setFilterTree] = useState<FilterGroup>(DEFAULT_TREE);
 
-  const environment =
-    (import.meta.env.VITE_API_URL || "/api") + "/maps";
-
   useEffect(() => {
+    const fetchAttributes = async () => {
+      const fullLayerName = getLayerNameFromConfig(layer);
+
+      if (!fullLayerName) {
+        console.error(
+          "Layer name not found. Config:",
+          layer
+        );
+        return;
+      }
+
+      setLoadingAttributes(true);
+      try {
+        const attributes = await fetchAttributesFromIntegration(layer.origin, fullLayerName);
+        setFields(
+          attributes.map((name) => ({
+            name: name,
+            type: "text", // Fallback to text
+          }))
+        );
+      } catch (error) {
+        console.error("Failed to fetch attributes", error);
+      } finally {
+        setLoadingAttributes(false);
+      }
+    };
+
     if (open && layer) {
       fetchAttributes();
       if (layer.filterTree) {
@@ -52,39 +76,7 @@ export const LayerFilterModal = ({
         setFilterTree(DEFAULT_TREE);
       }
     }
-  }, [open]);
-
-  const fetchAttributes = async () => {
-    const fullLayerName = getLayerNameFromConfig(layer);
-
-    if (!fullLayerName || !fullLayerName.includes(":")) {
-      console.error(
-        "Layer name must be in format workspace:layer. Config:",
-        layer
-      );
-      return;
-    }
-
-    const [workspace, layerName] = fullLayerName.split(":");
-
-    setLoadingAttributes(true);
-    try {
-      const response = await axios.get(
-        `${environment}/geoserver-proxy/layers/${workspace}/${layerName}/attributes`
-      );
-      const attributes = response.data;
-      setFields(
-        attributes.map((a: any) => ({
-          name: a.name,
-          type: "text", // Fallback to text
-        }))
-      );
-    } catch (error) {
-      console.error("Failed to fetch attributes", error);
-    } finally {
-      setLoadingAttributes(false);
-    }
-  };
+  }, [open, layer]);
 
   const handleApply = () => {
     const cql = filterNodeToCQL(filterTree);

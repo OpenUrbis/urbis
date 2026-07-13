@@ -4,13 +4,55 @@ import {
   Drawer,
   DrawerContent,
   DrawerTitle,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  Button
 } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { Search } from "../Search";
+import { ArrowRight, FileJson, Filter, Library } from "lucide-react";
+import { LocationSelectionCard } from "../LocationSelectionCard";
+import { ConcatenatedSearchModal } from "../Search/ConcatenatedSearchModal";
+import { MapLibrary } from "../../pages/Map/MapLibrary";
 
 export const LeftNav = () => {
-  const { drawerOpen, toggleDrawer, currentPage } = useNavigationContext();
+  const { drawerOpen, toggleDrawer, currentPage, navigateTo } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const handleNavigate = (component: React.ReactNode) => {
+      toggleDrawer();
+      // Small timeout to allow drawer animation to start/state to update before navigation content render if needed
+      // But mainly to ensure drawer is open
+      navigateTo(component);
+  };
+
+  const CollapsedMenuItem = ({ icon, label, onClick, trigger }: { icon: React.ReactNode, label: string, onClick?: () => void, trigger?: React.ReactNode }) => {
+      const content = (
+          <Button
+            variant="ghost"
+            size="icon" 
+            className="h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border hover:bg-accent"
+            onClick={onClick}
+          >
+              {icon}
+          </Button>
+      );
+
+      return (
+        <TooltipProvider>
+            <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                    {trigger ? trigger : content}
+                </TooltipTrigger>
+                <TooltipContent side="right" className="ml-2">
+                    <p>{label}</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+      );
+  }
 
   if (isDesktop) {
     return (
@@ -24,7 +66,7 @@ export const LeftNav = () => {
       >
         <div
           className={cn(
-            "flex-1 overflow-y-auto p-3 space-y-4 w-[420px] overflow-x-hidden",
+            "flex-1 overflow-y-auto p-3 space-y-3 w-[420px] overflow-x-hidden",
             drawerOpen.value ? "pointer-events-auto" : "pointer-events-none",
           )}
         >
@@ -41,6 +83,43 @@ export const LeftNav = () => {
           >
             {currentPage.value}
           </div>
+
+          {!drawerOpen.value && (
+              <div className="pointer-events-auto flex flex-col gap-3 items-start animate-in fade-in slide-in-from-left-4 duration-500 pl-1">
+                  <CollapsedMenuItem 
+                    label="Ir para" 
+                    icon={<ArrowRight className="h-5 w-5" />} 
+                    onClick={() => handleNavigate(<LocationSelectionCard key="nav-coords" initialOption="coordenadas" initialInputType="latlon" />)}
+                  />
+                  <CollapsedMenuItem 
+                    label="Endereço Digital" 
+                    icon={<img src="/ed.png" alt="ED" className="h-5 w-5" />} 
+                    onClick={() => handleNavigate(<LocationSelectionCard key="nav-digital" initialOption="coordenadas" initialInputType="digital" />)}
+                  />
+                  
+                  <ConcatenatedSearchModal 
+                    trigger={
+                        <div className="pointer-events-auto">
+                             <CollapsedMenuItem 
+                                label="Busca Concatenada" 
+                                icon={<Filter className="h-5 w-5" />} 
+                            />
+                        </div>
+                    }
+                  />
+
+                  <CollapsedMenuItem 
+                    label="Buscar com perímetro" 
+                    icon={<FileJson className="h-5 w-5" />} 
+                    onClick={() => handleNavigate(<LocationSelectionCard key="nav-geojson" initialOption="geoJson" />)}
+                  />
+                  <CollapsedMenuItem 
+                    label="Biblioteca" 
+                    icon={<Library className="h-5 w-5" />} 
+                    onClick={() => handleNavigate(<MapLibrary key="nav-library" />)}
+                  />
+              </div>
+          )}
         </div>
       </div>
     );
@@ -56,7 +135,7 @@ export const LeftNav = () => {
       <DrawerContent className="h-[80vh]">
         <DrawerTitle className="sr-only">Navegação</DrawerTitle>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 3">
           <Search />
           {currentPage.value}
         </div>

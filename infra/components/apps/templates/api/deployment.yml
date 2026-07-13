@@ -111,6 +111,7 @@ spec:
           value: "***REMOVED***"
         - name: AWS_SECRET_ACCESS_KEY
           value: "***REMOVED***"
+        - name: S3_BUCKET_NAME
           value: "storage"
         - name: AWS_S3_ENDPOINT
           value: "https://api.mapa.urbis.sampa.br"

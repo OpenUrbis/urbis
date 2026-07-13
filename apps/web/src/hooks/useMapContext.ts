@@ -135,13 +135,12 @@ const getMapHandlers = (context: MapContextType) => {
       layerWithRootEditTemplate.value = cLayerWithRootEditTemplate;
     }
 
-    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
     const uiPadding = options?.disablePadding
-      ? { top: 0, bottom: 0, left: 0, right: 0 }
+      ? { top: 0, bottom: 0, left: 400, right: 0 }
       : {
           top: 64,
           bottom: 0,
-          left: isDesktop ? 420 : 0,
+          left: 400,
           right: 0,
         };
 

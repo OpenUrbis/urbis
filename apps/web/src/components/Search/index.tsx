@@ -1,4 +1,8 @@
 import { useDebounce } from "@/hooks/useDebounce";
+import { useToast } from "@/hooks/useToast";
+import { decode, getPolygon } from "@open-urbis/endereco-digital";
+import { useMapContext } from "../../hooks/useMapContext";
+import { DigitalAddressDetails } from "../LocationSelectionCard/DigitalAddressDetails";
 import {
   Button,
   Card,
@@ -23,7 +27,7 @@ import {
   IGetSearchItem,
   IGetSearchItemError,
 } from "../../types/fetch-search-config-type";
-import { ConcatenatedSearchModal } from "./ConcatenatedSearchModal";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
 
 proj4.defs(
   "EPSG:31983",
@@ -66,25 +70,151 @@ const convertFeatureToSirgas = (feature: any) => {
 };
 
 export const Search = () => {
+  const { toastInfo } = useToast();
   const {
     currentTerm,
     searchConfig,
     resetSearch,
     searchQuery,
   } = useSearchContext();
+  const { toggleDrawer, drawerOpen, navigateTo } = useNavigationContext();
+  const { flyTo, digitalAddressFeature, layerSchemas, selectedBaseMap, overlayRef } = useMapContext();
   const { data, error, fetchData, clearResults, loading } = searchQuery;
   const clickActions = CLICK_ACTIONS_CONFIG();
   const { reset: resetPolygonEdit } = usePolygonEditContext();
   const [jsonFeature, setJsonFeature] = useState<any>(null);
+  const [isLocalLoading, setIsLocalLoading] = useState(false);
   const debouncedTerm = useDebounce(currentTerm.value, 500);
   const { isAppReady } = useAppLoading();
 
-  useEffect(() => {
-    if (debouncedTerm) {
-      fetchData(debouncedTerm);
-    } else {
+  const handleSearch = async (term: string) => {
+    if (!term) {
       clearResults();
+      return;
     }
+
+    let isDigital = false;
+    const cleanTerm = term.replace(/\s/g, "");
+
+    // Regex matches 7 chars in base27 (3 chars + optional hyphen + 4 chars)
+    const digitalPartialRegex =
+      /^[23456789BCDFGHJKLMNPQTVWXYZ]{3}-?[23456789BCDFGHJKLMNPQTVWXYZ]{4}$/i;
+
+    // Regex for full address (prefix + suffix)
+    const digitalFullRegex = /^[+-]\d{1,2}[+-]\d{1,3}[23456789BCDFGHJKLMNPQTVWXYZ]{3}-?[23456789BCDFGHJKLMNPQTVWXYZ]{4}$/i;
+
+    if (digitalPartialRegex.test(cleanTerm)) {
+      const cleanSuffix = cleanTerm.toUpperCase().replace("-", "");
+      const formattedSuffix = `${cleanSuffix.substring(0, 3)}-${cleanSuffix.substring(3)}`;
+      term = `-23-46 ${formattedSuffix}`;
+
+      // Update input and show feedback
+      currentTerm.value = term;
+      toastInfo("Assumindo cidade de São Paulo (-23-46)");
+      isDigital = true;
+    } else if (digitalFullRegex.test(cleanTerm)) {
+      isDigital = true;
+      term = cleanTerm; // Use cleaned term for decoding
+    }
+
+    if (isDigital) {
+        setIsLocalLoading(true);
+        try {
+          const decoded = decode(term);
+          const lat = decoded.latitude;
+          const lon = decoded.longitude;
+          const sourceType = "digital";
+
+          const p = getPolygon(term);
+          const lats = p.map(pt => pt.lat);
+          const lons = p.map(pt => pt.lon);
+          const minLat = Math.min(...lats);
+          const maxLat = Math.max(...lats);
+          const minLon = Math.min(...lons);
+          const maxLon = Math.max(...lons);
+          
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const polygonCoords: any[] = [[
+              [minLon, minLat],
+              [maxLon, minLat],
+              [maxLon, maxLat],
+              [minLon, maxLat],
+              [minLon, minLat]
+          ]];
+
+          // Construct FeatureCollection
+          const featureCollection = {
+              type: "FeatureCollection",
+              features: [
+                  {
+                      type: "Feature",
+                      geometry: {
+                          type: "Polygon",
+                          coordinates: polygonCoords
+                      },
+                      properties: { type: "polygon", sourceType }
+                  },
+                  {
+                      type: "Feature",
+                      geometry: {
+                          type: "Point",
+                          coordinates: [lon, lat]
+                      },
+                      properties: { type: "marker" }
+                  }
+              ]
+          };
+
+          // Hide all layers
+          layerSchemas.value = layerSchemas.value.map(l => ({ ...l, isVisible: false }));
+
+          // Set feature and navigate
+          digitalAddressFeature.value = featureCollection;
+
+          const destination = {
+            center: [lon, lat],
+            zoom: 22,
+            pitch: 45,
+            bearing: 0,
+          };
+
+          const attemptFly = () => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (overlayRef.current && (overlayRef.current as any)._map) {
+              flyTo(destination);
+            } else {
+              setTimeout(attemptFly, 200);
+            }
+          };
+          attemptFly();
+
+          navigateTo(
+              <DigitalAddressDetails 
+                  latitude={lat} 
+                  longitude={lon} 
+                  sourceType={sourceType}
+              />
+          );
+
+          if (!drawerOpen.value) {
+            toggleDrawer();
+          }
+          
+          setIsLocalLoading(false);
+          return; // Skip standard fetch
+
+        } catch (e) {
+            console.error("Error decoding digital address", e);
+            setIsLocalLoading(false);
+            // Fallback to standard search if decoding fails
+        }
+    }
+
+    fetchData(term);
+  };
+
+  useEffect(() => {
+    handleSearch(debouncedTerm);
   }, [debouncedTerm]);
 
   const handleCopyJson = () => {
@@ -99,7 +229,13 @@ export const Search = () => {
 
     const query = new URLSearchParams(location.search);
     const search = query.get("search");
-    if (search && currentTerm.value !== search) {
+    const p = query.get("p");
+
+    if (p) {
+        // Handle Digital Address from URL
+        selectedBaseMap.value = "maxar-satellite";
+        handleSearch(p);
+    } else if (search && currentTerm.value !== search) {
       currentTerm.value = search;
       // O debounce cuidará do fetch
     }
@@ -220,17 +356,30 @@ export const Search = () => {
       <Card
         className={cn(
           "rounded-2xl border shadow-sm backdrop-blur-sm overflow-hidden transition-colors duration-300",
-          data ? "bg-background/95" : "bg-background/50",
+          data ? "bg-background/95" : "bg-background/80",
         )}
       >
         <CardContent className="p-3">
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              fetchData(currentTerm.value);
+              handleSearch(currentTerm.value);
             }}
             className="flex items-center gap-2"
           >
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              className="shrink-0 rounded-full h-10 w-10 hover:bg-accent"
+              onClick={toggleDrawer}
+              title={drawerOpen.value ? "Recolher menu" : "Expandir menu"}
+            >
+              <span className="material-symbols-outlined text-base">
+                {drawerOpen.value ? "menu_open" : "menu"}
+              </span>
+            </Button>
+
             <div className="relative flex-1">
               <Input
                 placeholder="Digite para buscar..."
@@ -316,16 +465,14 @@ export const Search = () => {
               </DialogContent>
             </Dialog>
 
-            <ConcatenatedSearchModal />
-
             <Button
               variant="outline"
               size="icon"
               type="submit"
               className="shrink-0 rounded-full h-10 w-10 shadow-sm border-input"
-              disabled={loading}
+              disabled={loading || isLocalLoading}
             >
-              {loading ? (
+              {loading || isLocalLoading ? (
                 <span className="material-symbols-outlined text-base animate-spin">
                   progress_activity
                 </span>

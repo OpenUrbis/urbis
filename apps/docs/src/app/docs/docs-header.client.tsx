@@ -28,7 +28,7 @@ export function DocsHeaderClient() {
         <Button
           variant="outline"
           size="sm"
-          className="hidden md:inline-flex"
+          className="hidden md:inline-flex h-9 rounded-full px-4"
           onClick={() =>
             openSidebar(
               <div className="h-full min-h-0 flex flex-col">

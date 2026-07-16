@@ -1,6 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { ReactNode, useEffect } from 'react';
-import { useAuth } from 'react-oidc-context';
+import { useAuth } from "@open-urbis/map-auth";
 
 export const RequireAuth = ({ children }: { children: ReactNode }) => {
   const auth = useAuth();

@@ -39,6 +39,7 @@ jobs:
         run: pnpm turbo run build --filter=@open-urbis/map-site
         env:
           VITE_API_URL: https://api.mapa.urbis.sampa.br
+          VITE_OIDC_AUTHORITY: https://api.mapa.urbis.sampa.br/auth/oidc
 
       - name: Build And Deploy
         id: builddeploy

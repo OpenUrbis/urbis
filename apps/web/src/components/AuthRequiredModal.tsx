@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@open-urbis/map-ui";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@open-urbis/map-auth";
 
 interface AuthRequiredModalProps {
   isOpen: boolean;

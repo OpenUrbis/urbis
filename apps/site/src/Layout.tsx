@@ -29,15 +29,20 @@ function LayoutInner() {
   const { openSidebar } = useSidebar();
   const location = useLocation();
   const auth = useAuth();
-  const user = userProfile.value;
+  const [user, setUser] = useState(userProfile.peek());
 
   useEffect(() => {
     setMounted(true);
     const savedTheme = localStorage.getItem("theme") || "system";
     setTheme(savedTheme);
+
+    // Subscribe to userProfile changes manually to ensure reactivity without babel transform (SSR safe)
+    return userProfile.subscribe((v) => setUser(v));
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
 
@@ -98,94 +103,88 @@ function LayoutInner() {
     return withActive.filter((i) => !i.active);
   }, [baseMenuItems, location.pathname]);
 
-  if (!mounted) {
-    return (
-      <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
-        <main className="flex-1">
-          <Outlet />
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
       <ScrollToTop />
 
-      <UrbisHeader
-        logoAlt="Logotipo da Prefeitura de São Paulo"
-        logoHref="https://www.prefeitura.sp.gov.br/"
-        badgeText={currentPageLabel}
-        menuItems={filteredMenuItems} // ✅ agora filtra o item atual
-        isAuthenticated={auth.isAuthenticated}
-        user={user ? { name: user.name, email: user.email } : undefined}
-        onLogin={() => auth.signinRedirect()}
-        onLogout={() => auth.signoutRedirect()}
-        showLogin={true}
-        rightSlot={
-  <div className="flex items-center gap-2">
-    {/* AJUDA — desktop */}
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() =>
-        openSidebar(
-          <div className="h-full min-h-0 flex flex-col">
-            <div className="shrink-0 space-y-1">
-              <h3 className="text-base font-semibold">Central de ajuda</h3>
-              <p className="text-sm text-muted-foreground">
-                Encontre respostas rápidas, dúvidas frequentes e um espaço para
-                enviar sugestões sobre a plataforma Urbis.
-              </p>
-            </div>
+      {mounted ? (
+        <UrbisHeader
+          logoAlt="Logotipo da Prefeitura de São Paulo"
+          logoHref="https://www.prefeitura.sp.gov.br/"
+          badgeText={currentPageLabel}
+          menuItems={filteredMenuItems}
+          isAuthenticated={auth.isAuthenticated}
+          user={user ? { 
+            name: user.name, 
+            socialName: user.socialName,
+            email: user.email 
+          } : undefined}
+          onLogin={() => auth.signinRedirect()}
+          onLogout={() => auth.signoutRedirect()}
+          showLogin={true}
+          rightSlot={
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  openSidebar(
+                    <div className="h-full min-h-0 flex flex-col">
+                      <div className="shrink-0 space-y-1">
+                        <h3 className="text-base font-semibold">Central de ajuda</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Encontre respostas rápidas, dúvidas frequentes e um espaço para
+                          enviar sugestões sobre a plataforma Urbis.
+                        </p>
+                      </div>
+                      <div className="flex-1 min-h-0 pt-4">
+                        <HelpSidebarContent />
+                      </div>
+                    </div>,
+                    "Ajuda"
+                  )
+                }
+                className="hidden md:inline-flex h-9 rounded-full px-4"
+                aria-label="Ajuda"
+                title="Ajuda"
+              >
+                Ajuda
+              </Button>
 
-            <div className="flex-1 min-h-0 pt-4">
-              <HelpSidebarContent />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  openSidebar(
+                    <div className="h-full min-h-0 flex flex-col">
+                      <div className="shrink-0 space-y-1">
+                        <h3 className="text-base font-semibold">Central de ajuda</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Encontre respostas rápidas, dúvidas frequentes e um espaço para
+                          enviar sugestões sobre a plataforma Urbis.
+                        </p>
+                      </div>
+                      <div className="flex-1 min-h-0 pt-4">
+                        <HelpSidebarContent />
+                      </div>
+                    </div>,
+                    "Ajuda"
+                  )
+                }
+                className="md:hidden inline-flex h-9 w-9 rounded-full"
+                aria-label="Ajuda"
+                title="Ajuda"
+              >
+                ?
+              </Button>
             </div>
-          </div>,
-          "Ajuda"
-        )
-      }
-      className="hidden md:inline-flex"
-      aria-label="Ajuda"
-      title="Ajuda"
-    >
-      Ajuda
-    </Button>
-
-    {/* AJUDA — mobile (ícone ?) */}
-    <Button
-      variant="outline"
-      size="icon"
-      onClick={() =>
-        openSidebar(
-          <div className="h-full min-h-0 flex flex-col">
-            <div className="shrink-0 space-y-1">
-              <h3 className="text-base font-semibold">Central de ajuda</h3>
-              <p className="text-sm text-muted-foreground">
-                Encontre respostas rápidas, dúvidas frequentes e um espaço para
-                enviar sugestões sobre a plataforma Urbis.
-              </p>
-            </div>
-
-            <div className="flex-1 min-h-0 pt-4">
-              <HelpSidebarContent />
-            </div>
-          </div>,
-          "Ajuda"
-        )
-      }
-      className="md:hidden inline-flex"
-      aria-label="Ajuda"
-      title="Ajuda"
-    >
-      ?
-    </Button>
-  </div>
-}
-        theme={theme}
-        setTheme={setTheme}
-      />
+          }
+          theme={theme}
+          setTheme={setTheme}
+        />
+      ) : (
+        <div className="h-16 border-b bg-background" />
+      )}
 
       <main className="flex-1">
         <Outlet />

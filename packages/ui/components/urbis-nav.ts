@@ -17,55 +17,55 @@ export function buildUrbisNav(opts: {
    */
   currentApp?: UrbisApp;
 }) {
-  var isAuthenticated = opts.isAuthenticated;
+  const isAuthenticated = opts.isAuthenticated;
 
-  var hostname = "";
-  var pathname = "";
+  let hostname = "";
+  let pathname = "";
 
   if (typeof window !== "undefined" && window.location) {
     hostname = normalize(window.location.hostname);
     pathname = normalize(window.location.pathname);
   }
 
-  var isLocal =
+  const isLocal =
     hostname === "localhost" ||
     hostname === "127.0.0.1" ||
     beginsWith(hostname, "localhost:");
 
   // Detecção por host (produção)
-  var byHostMapa = beginsWith(hostname, "mapa.");
-  var byHostDados = beginsWith(hostname, "dadosabertos.");
-  var byHostViabiliza = beginsWith(hostname, "viabiliza.");
-  var byHostDocs = beginsWith(hostname, "docs.");
-  var byHostMosaico = hostname === "urbis.prefeitura.sp.gov.br" || beginsWith(hostname, "urbis.");
+  const byHostMapa = beginsWith(hostname, "mapa.");
+  const byHostDados = beginsWith(hostname, "dadosabertos.");
+  const byHostViabiliza = beginsWith(hostname, "viabiliza.");
+  const byHostDocs = beginsWith(hostname, "docs.");
+  const byHostMosaico = hostname === "urbis.prefeitura.sp.gov.br" || beginsWith(hostname, "urbis.");
 
   // Detecção por path (dev / host único)
   // Ajuste os prefixes se o seu router usar outra estrutura.
-  var byPathMapa = beginsWith(pathname, "/map") || pathname === "/mapa";
-  var byPathDados = beginsWith(pathname, "/dados") || beginsWith(pathname, "/dados-abertos");
-  var byPathViabiliza = beginsWith(pathname, "/viabiliza");
-  var byPathDocs = beginsWith(pathname, "/docs");
-  var byPathLegis = beginsWith(pathname, "/docs/legis");
+  const byPathMapa = beginsWith(pathname, "/map") || pathname === "/mapa";
+  const byPathDados = beginsWith(pathname, "/dados") || beginsWith(pathname, "/dados-abertos");
+  const byPathViabiliza = beginsWith(pathname, "/viabiliza");
+  const byPathDocs = beginsWith(pathname, "/docs");
+  const byPathLegis = beginsWith(pathname, "/docs/legis");
 
   // ✅ Override explícito (tem prioridade)
-  var forced = opts.currentApp;
+  const forced = opts.currentApp;
 
-  var isMapa = forced === "mapa" ? true : byHostMapa || (isLocal && byPathMapa);
-  var isDados = forced === "dados" ? true : byHostDados || (isLocal && byPathDados);
-  var isViabiliza = forced === "viabiliza" ? true : byHostViabiliza || (isLocal && byPathViabiliza);
-  var isDocs = forced === "docs" ? true : byHostDocs || (isLocal && byPathDocs);
-  var isLegis =
+  const isMapa = forced === "mapa" ? true : byHostMapa || (isLocal && byPathMapa);
+  const isDados = forced === "dados" ? true : byHostDados || (isLocal && byPathDados);
+  const isViabiliza = forced === "viabiliza" ? true : byHostViabiliza || (isLocal && byPathViabiliza);
+  const isDocs = forced === "docs" ? true : byHostDocs || (isLocal && byPathDocs);
+  const isLegis =
     forced === "legis"
       ? true
       : (byHostDocs && beginsWith(pathname, "/docs/legis")) || (isLocal && byPathLegis);
 
   // Mosaico só é "fallback" quando nada mais for verdadeiro
-  var isMosaico =
+  const isMosaico =
     forced === "mosaico"
       ? true
       : byHostMosaico || (!isMapa && !isDados && !isViabiliza && !isDocs && !isLegis);
 
-  var badgeText = isMapa
+  const badgeText = isMapa
     ? "Mapa"
     : isDados
       ? "Dados Abertos"
@@ -77,7 +77,7 @@ export function buildUrbisNav(opts: {
             ? "Doc. técnica"
             : "Mosaico";
 
-  var base: MenuItem[] = [
+  const base: MenuItem[] = [
     { label: "Mosaico", href: "https://urbis.prefeitura.sp.gov.br", active: isMosaico },
     { label: "Mapa", href: "https://mapa.urbis.prefeitura.sp.gov.br", active: isMapa },
     { label: "Dados Abertos", href: "https://dadosabertos.urbis.prefeitura.sp.gov.br", active: isDados },
@@ -91,9 +91,7 @@ export function buildUrbisNav(opts: {
   }
 
   // ✅ remove o item ativo do menu
-  var menuItems = base.filter(function (i) {
-    return !i.active;
-  });
+  const menuItems = base.filter((i) => !i.active);
 
-  return { menuItems: menuItems, badgeText: badgeText };
+  return { menuItems, badgeText };
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@open-urbis/map-auth";
 import { shareService, SharedMapItem } from "../../integrations/share-service";
 import { Button, Separator, Card, CardHeader, CardTitle, CardContent } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";

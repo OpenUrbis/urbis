@@ -22,10 +22,5 @@ export const useAuth = () => {
     } as any;
   }
   
-  // Naive check: if we are in browser but AuthProvider is missing (e.g. during some hydration edge cases or tests),
-  // useOidcAuth might throw. But in our GlobalProvider logic, if window exists, AuthProvider should exist.
-  // However, safe to wrap in try/catch? No, hooks can't be in try/catch.
-  // We trust GlobalProvider logic: window !== undefined => userManager !== null => AuthProvider rendered.
-  
   return useOidcAuth();
 };

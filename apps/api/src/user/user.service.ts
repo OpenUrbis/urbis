@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPaginationOptions } from 'common/utils/types/pagination-options';
 import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
+import { IPaginationOptions } from '../common/utils/types/pagination-options';
+import { Organization } from '../organization/entities/organization.entity';
+import { RoleService } from '../role/role.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -11,12 +13,29 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+
+    private readonly roleService: RoleService,
   ) {}
 
-  create(createProfileDto: CreateUserDto | User) {
-    return this.usersRepository.save(
+  async create(
+    createProfileDto: CreateUserDto | User,
+    organization?: Organization,
+  ) {
+    const user = await this.usersRepository.save(
       this.usersRepository.create(createProfileDto),
     );
+
+    if (organization) {
+      let defaultRole = await this.roleService.findDefault(organization.id);
+      if (!defaultRole) defaultRole = await this.roleService.findDefault();
+
+      await this.roleService.assignByOrganization(organization.id, {
+        userId: user.id,
+        roleIds: [defaultRole.id],
+      });
+    }
+
+    return user;
   }
 
   async list(pagination: IPaginationOptions, organizationId?: string) {

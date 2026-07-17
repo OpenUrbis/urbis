@@ -1,10 +1,15 @@
 <div class="flex justify-between items-center">
-  <div class="flex items-center">
+  <div class="flex items-center gap-4">
     <div class="flex items-center">
+      @if (backUrl()) {
+        <a hlmBtn variant="ghost" size="icon" [routerLink]="backUrl()">
+          <hlm-icon name="lucideArrowLeft" size="18" />
+        </a>
+      }
       <ng-content select="[leftActions]"></ng-content>
     </div>
     <div class="flex flex-col">
-      <h1 class="text-2xl mt-0 font-semibold tracking-tight text-primary">{{ title() }}</h1>
+      <h1 class="text-xl mt-0 font-semibold tracking-tight text-primary">{{ title() }}</h1>
       @if (subtitle()) {
         <p class="text-muted-foreground">{{ subtitle() }}</p>
       }

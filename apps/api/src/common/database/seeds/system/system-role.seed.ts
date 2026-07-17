@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 import { Role } from '../../../../role/entities/role.entity';
 import { RoleTypeEnum } from '../../../../role/enums/role-type.enum';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 
 @Injectable()
 export class SystemRoleSeedService {
@@ -12,7 +13,7 @@ export class SystemRoleSeedService {
   ) {}
 
   private async createSystemRole() {
-    const roleId = '5e1ec786-0772-4735-966e-0229388433f1';
+    const roleId = SYSTEM_ROLES.user;
     const role = await this.roleRepository.findOne({
       where: { id: roleId },
     });

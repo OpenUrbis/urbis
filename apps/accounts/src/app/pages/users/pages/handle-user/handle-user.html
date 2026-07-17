@@ -1,8 +1,9 @@
 <app-page-structure
   [title]="id() ? ('pages.users.handle.title.edit' | translate) : ('pages.users.handle.title.create' | translate)"
   [subtitle]="id() ? ('pages.users.handle.subtitle.edit' | translate: { name: name() }) : ('pages.users.handle.subtitle.create' | translate)"
+  backUrl="/users"
 >
-  <div actions class="flex items-center gap-2">
+  <div rightActions class="flex items-center gap-2">
     @if (id()) {
       <button
         hlmBtn
@@ -10,17 +11,17 @@
         size="sm"
         class="gap-2"
         (click)="deleteUser(id()!)"
-        *libHasPermission="'users.delete'"
+        *hasPermission="'user:delete'"
       >
         <hlm-icon name="lucideTrash2" size="16" />
         {{ 'common.actions.delete' | translate }}
       </button>
     }
-    <a hlmBtn variant="ghost" size="sm" routerLink="/users">{{ 'common.actions.back' | translate }}</a>
     <lib-loading-button
       [loading]="loadingSave()"
       (click)="save()"
       [disabled]="form.invalid"
+      type="button"
     >
       {{ 'common.actions.save' | translate }}
     </lib-loading-button>
@@ -31,132 +32,23 @@
       <div class="lg:col-span-2 flex flex-col gap-6">
         <section class="bg-card border rounded-lg p-6">
           <h3 class="text-lg font-semibold mb-4">{{ 'pages.users.handle.sections.personal' | translate }}</h3>
-          <form [formGroup]="form" class="flex flex-col gap-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-1.5">
-                <label hlmLabel for="firstName">{{ 'common.fields.firstName' | translate }}</label>
-                <input hlmInput id="firstName" formControlName="firstName" placeholder="{{ 'common.fields.firstName' | translate }}" />
-              </div>
-              <div class="flex flex-col gap-1.5">
-                <label hlmLabel for="lastName">{{ 'common.fields.lastName' | translate }}</label>
-                <input hlmInput id="lastName" formControlName="lastName" placeholder="{{ 'common.fields.lastName' | translate }}" />
-              </div>
-            </div>
+          <form [formGroup]="form" class="flex flex-col gap-4" (ngSubmit)="save()">
+            <app-user-form
+              [formGroup]="form"
+              [loading]="loadingSave()"
+              [noOfficialAddress]="noOfficialAddress()"
+              (noOfficialAddressChange)="noOfficialAddress.set($event)"
+            />
 
-            <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="socialName">{{ 'common.fields.socialName' | translate }}</label>
-              <input hlmInput id="socialName" formControlName="socialName" placeholder="{{ 'common.placeholders.socialName' | translate }}" />
+            <div class="flex justify-end pt-4">
+              <lib-loading-button
+                [loading]="loadingSave()"
+                [disabled]="form.invalid"
+              >
+                {{ 'common.actions.save' | translate }}
+              </lib-loading-button>
             </div>
-
-            <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="email">{{ 'common.fields.email' | translate }}</label>
-              <input hlmInput id="email" formControlName="email" placeholder="{{ 'common.placeholders.email' | translate }}" />
-            </div>
-
-            <div class="flex flex-col gap-1.5">
-              <label hlmLabel for="phone">
-                {{ 'common.fields.phone' | translate }}
-                <span class="text-muted-foreground font-normal ml-1">({{ 'common.optional' | translate }})</span>
-              </label>
-              <input hlmInput id="phone" formControlName="phone" placeholder="{{ 'common.placeholders.phone' | translate }}" />
-            </div>
-
-            @if (!id()) {
-              <div class="mt-2">
-                <lib-password-form-group [formGroup]="form" />
-              </div>
-            }
           </form>
-        </section>
-
-        <section class="bg-card border rounded-lg p-6">
-          <h3 class="text-lg font-semibold mb-4">{{ 'pages.users.handle.sections.address' | translate }}</h3>
-
-          <div class="flex flex-col gap-4">
-            <div class="flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border">
-              <hlm-switch
-                id="noOfficialAddress"
-                [checked]="noOfficialAddress()"
-                (changed)="noOfficialAddress.set($event)">
-              </hlm-switch>
-              <label (click)="noOfficialAddress.set(!noOfficialAddress())" class="text-sm font-semibold cursor-pointer">
-                {{ 'pages.users.handle.noOfficialAddress' | translate }}
-              </label>
-            </div>
-
-            @if (!noOfficialAddress()) {
-              <div [formGroup]="$any(form.get('address'))" class="flex flex-col gap-4 animate-in fade-in duration-300">
-                <div class="flex flex-col gap-1.5 relative">
-                  <label hlmLabel for="cep">{{ 'common.fields.cep' | translate }}</label>
-                  <div class="relative">
-                    <input hlmInput id="cep" placeholder="{{ 'common.placeholders.cep' | translate }}" formControlName="cep"
-                      class="w-full pr-10" (blur)="checkCep()" />
-                    @if (loadingCep()) {
-                      <span class="absolute right-3 top-2.5 h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
-                    }
-                  </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5">
-                  <label hlmLabel for="street">{{ 'common.fields.street' | translate }}</label>
-                  <input hlmInput id="street" formControlName="street" />
-                </div>
-
-                <div class="grid grid-cols-3 gap-3">
-                  <div class="flex flex-col gap-1.5 col-span-1">
-                    <label hlmLabel for="number">{{ 'common.fields.number' | translate }}</label>
-                    <input hlmInput id="number" placeholder="{{ 'common.placeholders.number' | translate }}" formControlName="number" />
-                  </div>
-                  <div class="flex flex-col gap-1.5 col-span-2">
-                    <label hlmLabel for="complement">{{ 'common.fields.complement' | translate }}</label>
-                    <input hlmInput id="complement" placeholder="{{ 'common.placeholders.complement' | translate }}" formControlName="complement" />
-                  </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5">
-                  <label hlmLabel for="neighborhood">{{ 'common.fields.neighborhood' | translate }}</label>
-                  <input hlmInput id="neighborhood" formControlName="neighborhood" />
-                </div>
-
-                <div class="grid grid-cols-4 gap-3">
-                  <div class="flex flex-col gap-1.5 col-span-3">
-                    <label hlmLabel for="city">{{ 'common.fields.city' | translate }}</label>
-                    <input hlmInput id="city" formControlName="city" />
-                  </div>
-                  <div class="flex flex-col gap-1.5 col-span-1">
-                    <label hlmLabel for="state">{{ 'common.fields.state' | translate }}</label>
-                    <input hlmInput id="state" placeholder="{{ 'common.placeholders.state' | translate }}" formControlName="state" />
-                  </div>
-                </div>
-              </div>
-            } @else {
-              <div class="flex flex-col gap-4 animate-in fade-in duration-300">
-                <div class="flex flex-row items-center gap-3 p-4 bg-primary rounded-lg border border-primary/20 shadow-inner">
-                  <img src="endereco_digital_logo.png" alt="Endereço Digital" class="h-12 w-auto brightness-0 invert" />
-                  <div class="flex flex-col flex-1">
-                    <p class="text-xs text-white font-bold leading-tight drop-shadow-sm">
-                      {{ 'pages.users.handle.digitalAddressDescription' | translate }}
-                    </p>
-                    <a hlmBtn href="https://mapa.urbis.prefeitura.sp.gov.br" target="_blank" variant="secondary" size="sm" class="h-8 mt-2 gap-1.5 text-xs font-bold w-fit bg-white text-primary hover:bg-white/90 border-0 shadow-sm">
-                      <hlm-icon name="lucideMap" size="14" />
-                      {{ 'common.actions.openMap' | translate }}
-                    </a>
-                  </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5" [formGroup]="form">
-                  <label hlmLabel for="digitalAddress">{{ 'common.fields.digitalAddress' | translate }}</label>
-                  <input hlmInput id="digitalAddress" placeholder="{{ 'common.placeholders.digitalAddress' | translate }}"
-                    formControlName="digitalAddress" class="w-full uppercase font-mono" (input)="onDigitalAddressInput($event)" />
-                  @if (digitalAddressError()) {
-                    <div class="text-destructive text-xs font-medium animate-in fade-in mt-1">
-                      {{ digitalAddressError() }}
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
         </section>
 
         @if (id()) {

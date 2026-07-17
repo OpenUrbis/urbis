@@ -1,6 +1,6 @@
 <lib-loading-content [loading]="loading()">
   <h2 class="text-lg font-semibold mb-4">{{ title }}</h2>
-  
+
   <div class="max-h-[80vh] overflow-y-auto p-1">
     <form [formGroup]="form" class="flex flex-col gap-4">
       <div class="flex flex-col gap-1.5">
@@ -15,17 +15,17 @@
 
       <div class="flex items-center space-x-2">
           <hlm-switch id="isDefault" formControlName="isDefault" />
-          <label hlmLabel for="isDefault">{{ "pages.roles.form.fields.isDefault" | translate }}</label>
+          <label hlmLabel for="isDefault">{{ "components.roleManager.default" | translate }}</label>
       </div>
 
       <div class="flex flex-col gap-2">
         <label hlmLabel>{{ "pages.roles.form.fields.permissions" | translate }}</label>
-        
+
         <div class="flex flex-wrap gap-2 mb-2" *ngIf="selectedPermissions().length > 0">
           @for (prm of selectedPermissions(); track prm.id; let i = $index) {
             <div class="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1.5 rounded-md text-sm border border-border">
               <span class="font-medium">{{ prm.name }}</span>
-              <select 
+              <select
                 class="bg-transparent border-0 p-0 pl-2 pr-6 text-xs font-semibold focus:ring-0 cursor-pointer h-auto py-0"
                 [value]="prm.scope"
                 (change)="changeScope(i, $event)"
@@ -43,9 +43,9 @@
 
         <div class="relative">
             <hlm-icon name="lucideSearch" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input 
-                hlmInput 
-                [formControl]="searchPermissions" 
+            <input
+                hlmInput
+                [formControl]="searchPermissions"
                 placeholder="{{ 'pages.roles.form.placeholders.permissions' | translate }}"
                 class="pl-9 w-full"
             />
@@ -53,8 +53,8 @@
 
         <div class="border border-border rounded-md max-h-40 overflow-y-auto mt-1" *ngIf="permissions()?.length">
             @for (prm of permissions(); track prm.id) {
-                <button 
-                    type="button" 
+                <button
+                    type="button"
                     class="w-full text-left px-3 py-2 hover:bg-muted/50 text-sm transition-colors border-b border-border/50 last:border-0"
                     (click)="addPermission(prm)"
                 >

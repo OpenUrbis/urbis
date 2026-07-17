@@ -1,4 +1,3 @@
-import { IPagination } from '../../../shared/dto/pagination.dto';
 
 export interface IPermissionResponse {
   id: string;
@@ -8,4 +7,5 @@ export interface IPermissionResponse {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string;
+  isSystemRole: boolean;
 }

@@ -18,6 +18,7 @@ import { RoleTypeEnum } from '../enums/role-type.enum';
 import { Permission } from './permission.entity';
 import { RolePermission } from './role-permission.entity';
 import { UserRoleAssignment } from './user-role-assignment.entity';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 
 export type InternalPermission = Pick<
   Permission,
@@ -84,6 +85,8 @@ export class Role extends BaseEntity {
   @DeleteDateColumn()
   deletedAt: Date;
 
+  isSystemRole: boolean;
+
   @AfterLoad()
   populatePermissions() {
     if (this.rolePermissions) {
@@ -91,6 +94,13 @@ export class Role extends BaseEntity {
       this.rolePermissions.forEach(({ permission, scope }) =>
         this.permissions.push({ ...permission, scope }),
       );
+    }
+  }
+
+  @AfterLoad()
+  setSystemRoleFlag() {
+    if (Object.values(SYSTEM_ROLES).includes(this.id)) {
+      this.isSystemRole = true;
     }
   }
 }

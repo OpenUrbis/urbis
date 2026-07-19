@@ -10,4 +10,9 @@ export const profileRoutes: Routes = [
     loadComponent: () =>
       import('./pages/profile-edit/profile-edit').then((c) => c.ProfileEdit),
   },
+  {
+    path: 'usage',
+    loadComponent: () =>
+      import('./pages/usage-limit/usage-limit').then((c) => c.UsageLimit),
+  },
 ];

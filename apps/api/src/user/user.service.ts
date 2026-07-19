@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RedisService } from 'common/redis/redis.service';
 import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { IPaginationOptions } from '../common/utils/types/pagination-options';
 import { Organization } from '../organization/entities/organization.entity';
@@ -13,7 +14,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-
+    private readonly redisService: RedisService,
     private readonly roleService: RoleService,
   ) {}
 
@@ -125,5 +126,21 @@ export class UserService {
 
     user.emailHashConfirm = null;
     await this.save(user);
+  }
+
+  async getUsage(user: any) {
+    const userId = user.id || user._id;
+    const tracker = `user:${userId}`;
+
+    const dailyLimit = 1000; // This could be fetched from ConfigService
+    const dailyKey = `throttler:daily:${tracker}`;
+    const usage = await this.redisService.get(dailyKey);
+
+    return {
+      userId: user.id,
+      dailyLimit,
+      currentUsage: usage ? usage.totalHits : 0,
+      remaining: dailyLimit - (usage ? usage.totalHits : 0),
+    };
   }
 }

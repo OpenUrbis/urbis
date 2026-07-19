@@ -4,15 +4,15 @@
   "commit": false,
   "fixed": [],
   "linked": [],
-  "access": "restricted",
+  "access": "public",
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@open-urbis/map-ui",
     "@open-urbis/map-web",
     "@open-urbis/map-docs",
     "@open-urbis/map-site",
-    "@open-urbis/map-accounts"
+    "@open-urbis/map-accounts",
+    "@open-urbis/legis"
   ],
   "privatePackages": false
 }

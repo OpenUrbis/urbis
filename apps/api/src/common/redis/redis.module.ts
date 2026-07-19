@@ -14,10 +14,11 @@ import { RedisService } from './redis.service';
       useFactory: async (configService: ConfigService) => {
         const client = new Redis({
           host: configService.get('database.redis.host', 'localhost'),
-          port: configService.get('database.redis.port', 6379),
+          port: parseInt(configService.get('database.redis.port', '6379'), 10),
           password: configService.get('database.redis.password'),
-          db: configService.get('database.redis.db', 0),
+          db: parseInt(configService.get('database.redis.db', '0'), 10),
           maxRetriesPerRequest: null,
+          enableReadyCheck: false,
         });
 
         client.on('connect', () => console.info('✅ Redis conected!'));

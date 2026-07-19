@@ -5,7 +5,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    dedupe: ["react", "react-dom", "@preact/signals-react", "@preact/signals-core"],
+    dedupe: ["react", "react-dom", "@preact/signals", "@preact/signals-core"],
     alias: {
       '@': path.resolve(__dirname, './src'),
     },

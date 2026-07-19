@@ -1,7 +1,7 @@
 {
   "name": "@open-urbis/map-shared",
   "version": "0.0.0",
-  "private": true,
+  "private": false,
   "exports": {
     ".": "./index.ts"
   },

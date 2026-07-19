@@ -1,0 +1,38 @@
+diff --git a/dist/index.js b/dist/index.js
+index f5429ee0182f2f87e288285e147d7d019e40fea2..f42313ba49286ac0af30e4fc9530c295b0b20bd8 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -430,11 +430,13 @@ var SliderThumb = React.forwardRef(
+   (props, forwardedRef) => {
+     const getItems = useCollection(props.__scopeSlider);
+     const [thumb, setThumb] = React.useState(null);
+-    const composedRefs = (0, import_react_compose_refs.useComposedRefs)(forwardedRef, (node) => setThumb(node));
+-    const index = React.useMemo(
++    const composedRefs = useComposedRefs(forwardedRef, (node) => setThumb(node));
++    const computedIndex = React.useMemo(
+       () => thumb ? getItems().findIndex((item) => item.ref.current === thumb) : -1,
+       [getItems, thumb]
+     );
++    const index = props.index !== undefined ? props.index : computedIndex;
++    console.log("SliderThumb patched! props.index:", props.index, "computedIndex:", computedIndex, "finalIndex:", index, "values:", useSliderContext(THUMB_NAME, props.__scopeSlider).values);
+     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SliderThumbImpl, { ...props, ref: composedRefs, index });
+   }
+ );
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 3968447bff20f19fe31b1fcfd9c77b14a320c16b..9045d295b890ece46dc21a65385a4f513e9e9f7f 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -388,10 +388,12 @@ var SliderThumb = React.forwardRef(
+     const getItems = useCollection(props.__scopeSlider);
+     const [thumb, setThumb] = React.useState(null);
+     const composedRefs = useComposedRefs(forwardedRef, (node) => setThumb(node));
+-    const index = React.useMemo(
++    const computedIndex = React.useMemo(
+       () => thumb ? getItems().findIndex((item) => item.ref.current === thumb) : -1,
+       [getItems, thumb]
+     );
++    const index = props.index !== undefined ? props.index : computedIndex;
++    console.log("SliderThumb patched! props.index:", props.index, "computedIndex:", computedIndex, "finalIndex:", index, "values:", useSliderContext(THUMB_NAME, props.__scopeSlider).values);
+     return /* @__PURE__ */ jsx(SliderThumbImpl, { ...props, ref: composedRefs, index });
+   }
+ );

@@ -18,7 +18,7 @@ import { RoleTypeEnum } from '../enums/role-type.enum';
 import { Permission } from './permission.entity';
 import { RolePermission } from './role-permission.entity';
 import { UserRoleAssignment } from './user-role-assignment.entity';
-import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
+import { SYSTEM_ROLES } from './../../common/constants/system-roles.const';
 
 export type InternalPermission = Pick<
   Permission,

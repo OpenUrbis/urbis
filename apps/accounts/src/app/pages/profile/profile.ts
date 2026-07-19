@@ -22,6 +22,7 @@ import { UsersApi } from '../users/services/users-api';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ProfileAvatarComponent } from '../../components/profile-avatar/profile-avatar';
+import { lucideActivity } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-profile',
@@ -48,6 +49,7 @@ import { ProfileAvatarComponent } from '../../components/profile-avatar/profile-
       lucideCheck,
       lucideCalendar,
       lucideLogIn,
+      lucideActivity,
     })
   ],
   templateUrl: './profile.html',

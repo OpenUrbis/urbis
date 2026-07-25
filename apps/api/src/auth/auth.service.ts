@@ -2,17 +2,20 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
+  forwardRef,
 } from '@nestjs/common';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
+import { UserService } from 'user/user.service';
 import {
   AccessControl,
   IAccessControlPermission,
 } from '../common/guards/access-control/access-control';
-import { UserService } from 'user/user.service';
+import { OrganizationService } from '../organization/organization.service';
 import { RoleService } from '../role/role.service';
 import { User } from '../user/entities/user.entity';
 import { MailService } from './../common/mail/mail.service';
@@ -21,6 +24,7 @@ import { AuthExternalStrategyDto } from './dto/auth-external-strategy.dto';
 import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
 import { AuthUpdateDto } from './dto/auth-update.dto';
 import { ForgotService } from './forgot/forgot.service';
+import { CpfValidationService } from './services/cpf-validation.service';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +35,9 @@ export class AuthService {
     private forgotService: ForgotService,
     private mailService: MailService,
     private configService: ConfigService,
+    private cpfValidationService: CpfValidationService,
+    @Inject(forwardRef(() => OrganizationService))
+    private organizationService: OrganizationService,
   ) {}
 
   async validateLogin(loginDto: AuthEmailLoginDto): Promise<User> {
@@ -42,6 +49,8 @@ export class AuthService {
         message: 'Email is not found or password is wrong',
       });
     }
+
+    await this.createOrUpdatePfOrganization(user);
     return user;
   }
 
@@ -70,6 +79,10 @@ export class AuthService {
       emailHashConfirm = null;
     }
 
+    if (dto.cpf) {
+      await this.cpfValidationService.validate(dto.cpf.replace(/\D/g, ''));
+    }
+
     const user = await this.userService.create({
       ...dto,
       email: dto.email,
@@ -86,6 +99,9 @@ export class AuthService {
         organizationId: defaultOrgId,
       });
     }
+
+    // Ensure PF Organization is created
+    await this.createOrUpdatePfOrganization(user);
 
     if (emailConfirmation) {
       await this.mailService.userSignUp({
@@ -316,7 +332,7 @@ export class AuthService {
             email: payload.email,
             firstName: payload.firstName,
             lastName: payload.lastName,
-            cpf: payload.cpf,
+            cpf: payload.cpf.replace(/\D/g, ''),
             picture: payload.picture,
           },
         },
@@ -336,7 +352,7 @@ export class AuthService {
       }
 
       if (!user.cpf && payload.cpf) {
-        updateData.cpf = payload.cpf;
+        updateData.cpf = payload.cpf.replace(/\D/g, '');
       }
 
       if (payload.firstName && !user.firstName) {
@@ -352,7 +368,59 @@ export class AuthService {
       }
 
       await this.userService.update(user.id, updateData);
-      return await this.userService.findOne({ id: user.id });
+      const updatedUser = await this.userService.findOne({ id: user.id });
+      await this.createOrUpdatePfOrganization(updatedUser);
+      return updatedUser;
+    }
+  }
+
+  async createOrUpdatePfOrganization(user: User) {
+    if (!user.cpf) return;
+
+    const userOrgs = await this.organizationService.my(user.id);
+    const pfOrg = userOrgs.find(
+      (org) =>
+        org.metadata?.documentType === 'CPF' &&
+        org.metadata?.userId === user.id,
+    );
+
+    if (pfOrg) {
+      // Update existing PF Organization if needed
+      if (pfOrg.document !== user.cpf || pfOrg.name !== user.firstName) {
+        await this.organizationService.update(pfOrg.id, {
+          name: user.firstName,
+          // document: user.cpf, // update dto might not have document yet
+          metadata: {
+            ...pfOrg.metadata,
+            userId: user.id,
+            documentType: 'CPF',
+          },
+        } as any);
+
+        // Direct update for document since it might not be in DTO
+        const orgEntity = await this.organizationService.findOne(pfOrg.id);
+        orgEntity.document = user.cpf.replace(/\D/g, '');
+        orgEntity.name = user.firstName; // Ensure name is first name
+        await orgEntity.save();
+      }
+    } else {
+      // Create new PF Organization
+      const newOrg = await this.organizationService.createOwn(
+        {
+          name: user.firstName,
+          description: 'Conta Pessoal',
+          metadata: {
+            documentType: 'CPF',
+            userId: user.id,
+          },
+        },
+        user,
+      );
+
+      // Update document field directly
+      const orgEntity = await this.organizationService.findOne(newOrg.id);
+      orgEntity.document = user.cpf.replace(/\D/g, '');
+      await orgEntity.save();
     }
   }
 }

@@ -1,5 +1,4 @@
 import LayerColorManager from "@/components/LayerColorManager";
-import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormDescription,
@@ -17,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { fetchAttributes as fetchLayerAttributes } from "@/integrations/layer-attributes-integration";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
@@ -73,15 +71,12 @@ export const LayerStyling = ({
                 Utilizar Cores Dinâmicas
               </FormLabel>
               <FormDescription>
-                Habilite para permitir múltiplas configurações de cores
-                baseadas em valores de dados.
+                Habilite para permitir múltiplas configurações de cores baseadas
+                em valores de dados.
               </FormDescription>
             </div>
             <FormControl>
-              <Switch
-                checked={field.value}
-                onCheckedChange={onDynamicChange}
-              />
+              <Switch checked={field.value} onCheckedChange={onDynamicChange} />
             </FormControl>
           </FormItem>
         )}
@@ -137,17 +132,6 @@ export const LayerStyling = ({
           </FormItem>
         )}
       />
-
-      {!hideNavigation && (
-        <div className="flex justify-between pt-4">
-          <Button type="button" variant="outline" onClick={onBack}>
-            <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
-          </Button>
-          <Button type="button" onClick={onNext}>
-            Próximo <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

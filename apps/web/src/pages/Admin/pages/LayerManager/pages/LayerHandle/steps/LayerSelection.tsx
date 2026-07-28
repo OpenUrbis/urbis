@@ -89,11 +89,6 @@ export const LayerSelection = ({
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t">
-          <Button type="button" onClick={onNext}>
-            Configurações <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
       </div>
     );
   }
@@ -184,15 +179,6 @@ export const LayerSelection = ({
         />
       )}
 
-      <div className="flex justify-end pt-4">
-        <Button
-          type="button"
-          onClick={onNext}
-          disabled={!form.getValues("selectedLayer")}
-        >
-          Próximo <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
     </div>
   );
 };

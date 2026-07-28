@@ -33,6 +33,10 @@ import { DynamicSystemProvider } from "@open-urbis/map";
 const MapPage = lazy(() => import("./pages/Map"));
 const PrintPage = lazy(() => import("./pages/Print"));
 const AdminPage = lazy(() => import("./pages/Admin"));
+const ViewTemplateEditorPage = lazy(() => import("./pages/ViewTemplateEditor"));
+const ViewTemplatePreviewPage = lazy(
+  () => import("./pages/ViewTemplatePreview"),
+);
 const MapDataTestPage = lazy(() => import("./pages/MapDataTest"));
 
 const queryClient = new QueryClient({
@@ -78,7 +82,7 @@ const App = () => (
                             <Route path="/print">
                               <PrintPage />
                             </Route>
-                            
+
                             <Route path="/map-data-test">
                               <MapDataTestPage />
                             </Route>
@@ -87,6 +91,14 @@ const App = () => (
                               <RequireAuth>
                                 <AdminPage />
                               </RequireAuth>
+                            </Route>
+
+                            <Route path="/view-template">
+                              <ViewTemplateEditorPage />
+                            </Route>
+
+                            <Route path="/view-template/preview">
+                              <ViewTemplatePreviewPage />
                             </Route>
                           </Suspense>
                         </Router>

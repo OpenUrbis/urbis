@@ -156,7 +156,7 @@ export const layerSchemas: LayerSchema[] = [
             label: 'Subprefeitura',
             value: 'Não disponível',
           },
-          {
+          /* {
             type: 'edit-polygon',
           },
           {
@@ -166,7 +166,7 @@ export const layerSchemas: LayerSchema[] = [
               action:
                 "(data) => window.open(`/print?layerSchema=lotes&CQL_FILTER=cd_setor_fiscal = '${data.properties.cd_setor_fiscal}' AND cd_quadra_fiscal = '${data.properties.cd_quadra_fiscal}' AND cd_lote = '${data.properties.cd_lote}' AND cd_condominio = '${data.properties.cd_condominio}'`,'_blank')",
             },
-          },
+          }, */
         ],
       },
       {
@@ -174,57 +174,52 @@ export const layerSchemas: LayerSchema[] = [
         label: 'Informações prediais',
         templates: [
           {
-            type: 'wrapper-row',
-            templates: [
-              {
-                type: 'label-value',
-                label: 'Área do Terreno',
-                value: "<%- properties?.qt_area_terreno ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Área Construída',
-                value: "<%- properties?.qt_area_construida ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Situação do Lote',
-                value: "<%- properties?.tx_situ_lote ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Condomínio',
-                value: "<%- properties?.cd_condominio ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Tipo de Quadra',
-                value: "<%- properties?.tx_tipo_quadra ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-              {
-                type: 'label-value',
-                label: 'Numeração',
-                value: "<%- properties?.cd_quadra_fiscal ?? '-' %>",
-                properties: {
-                  columnClass: 'col-md-6',
-                },
-              },
-            ],
+            type: 'label-value',
+            label: 'Área do Terreno',
+            value: "<%- properties?.qt_area_terreno ?? '-' %>",
+            properties: {
+              columnClass: 'col-md-6',
+            },
+          },
+          {
+            type: 'label-value',
+            label: 'Área Construída',
+            value: "<%- properties?.qt_area_construida ?? '-' %>",
+            properties: {
+              columnClass: 'col-md-6',
+            },
+          },
+          {
+            type: 'label-value',
+            label: 'Situação do Lote',
+            value: "<%- properties?.tx_situ_lote ?? '-' %>",
+            properties: {
+              columnClass: 'col-md-6',
+            },
+          },
+          {
+            type: 'label-value',
+            label: 'Condomínio',
+            value: "<%- properties?.cd_condominio ?? '-' %>",
+            properties: {
+              columnClass: 'col-md-6',
+            },
+          },
+          {
+            type: 'label-value',
+            label: 'Tipo de Quadra',
+            value: "<%- properties?.tx_tipo_quadra ?? '-' %>",
+            properties: {
+              columnClass: 'col-md-6',
+            },
+          },
+          {
+            type: 'label-value',
+            label: 'Numeração',
+            value: "<%- properties?.cd_quadra_fiscal ?? '-' %>",
+            properties: {
+              columnClass: 'col-md-6',
+            },
           },
         ],
       },
@@ -400,25 +395,25 @@ export const layerSchemas: LayerSchema[] = [
                     type: 'secondary-item',
                     value: `
                           <% if (id.includes("macroareas")) { %>
-                            Macroarea - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            Macroarea
                           <% } else if (id.includes("minianel_viario")) { %>
-                            Minianel Viario - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            Minianel Viario
                           <% } else if (id.includes("subprefeitura")) { %>
-                            Sub-Prefeitura - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            Sub-Prefeitura
                           <% } else if (id.includes("macrozonas")) { %>
-                            Macrozona - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            Macrozona
                           <% } else if (id.includes("tombamentos-areas")) { %>
-                            <%- properties.tx_resolucao_condephaat %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            <%- properties.tx_resolucao_condephaat %>
                           <% } else if (id.includes("zoneamento_geral")) { %>
-                            Zoneamento - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            Zoneamento
                           <% } else if (id.includes("slui:setores_e_subsetores")) { %>
-                            <%- properties.setor %> - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            <%- properties.setor %>
                           <% } else if (properties.layer.includes("slui:distrito_municipal")) { %>
-                            Distrito municipal - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            Distrito municipal
                           <% } else if (properties.layer.includes("slui:tombamentos")) { %>
-                            Imóvel tombado - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            Imóvel tombado
                           <% } else if (properties.layer.includes("slui:zoneamento")) { %>
-                            Zoneamento perimetro - <%- properties.totalAreaPercentage ? properties.totalAreaPercentage.toFixed(2) + '%' : '' %>
+                            Zoneamento perimetro
                           <% } else { %>
                             Não mapeado
                           <% } %>
@@ -616,7 +611,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Subsetores',
     index: 160,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wms?service=WFS&version=1.1.0&request=GetFeature&typeName=slui%3Asubsetores&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.GeoJsonLayer,
     isVisible: false,
@@ -1050,7 +1045,7 @@ export const layerSchemas: LayerSchema[] = [
     name: 'Águas Correntes Estimadas',
     index: 10,
     origin:
-      'https://geoserver.slui.dev/geoserver/slui/wms?request=GetMap&typeName=slui%3Aaguas_correntes_estimadas&format=image%2Fvnd.jpeg-png&TRANSPARENT=true&srsName=EPSG:4326',
+      'https://geoserver.slui.dev/geoserver/slui/wfs?request=GetMap&typeName=slui%3Aaguas_correntes_estimadas&format=image%2Fvnd.jpeg-png&TRANSPARENT=true&srsName=EPSG:4326',
     isActive: true,
     type: LayerSchemaTypeEnum.CustomWMSLayer,
     isVisible: false,
@@ -1058,10 +1053,31 @@ export const layerSchemas: LayerSchema[] = [
     getTextColorPropName: null,
     getFillColorPropName: null,
     getLineColorPropName: null,
-    groupId: 'areas_publicas',
+    groupId: 'aguas',
     colors: [
       {
         color: [65, 120, 216, 190],
+        label: 'default',
+      },
+    ],
+  },
+  {
+    id: 'aguas_correntes',
+    name: 'Águas Correntes',
+    index: 10,
+    origin:
+      'https://geoserver.slui.dev/geoserver/slui/wms?request=GetMap&typeName=slui%3Aaguas_correntes&format=image%2Fvnd.jpeg-png&TRANSPARENT=true&srsName=EPSG:4326',
+    isActive: true,
+    type: LayerSchemaTypeEnum.GeoJsonLayer,
+    isVisible: false,
+    minZoom: null,
+    getTextColorPropName: null,
+    getFillColorPropName: null,
+    getLineColorPropName: null,
+    groupId: 'aguas',
+    colors: [
+      {
+        color: [17, 85, 204, 190],
         label: 'default',
       },
     ],

@@ -91,16 +91,6 @@ export const LayerReview = ({ onBack, originalData, previewSchema, hideNavigatio
         </div>
       </div>
 
-      {!hideNavigation && (
-        <div className="flex justify-between pt-4 flex-shrink-0">
-          <Button type="button" variant="outline" onClick={onBack}>
-            <ChevronLeft className="mr-2 h-4 w-4" /> Voltar
-          </Button>
-          <Button type="submit">
-            <Save className="mr-2 h-4 w-4" /> Confirmar e Salvar
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

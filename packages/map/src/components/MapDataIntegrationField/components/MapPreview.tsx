@@ -106,10 +106,10 @@ export const MapPreview = ({ featureCollection }: MapPreviewProps) => {
           source: 'dwg-source',
           layout: { 'visibility': l.visible ? 'visible' : 'none' },
           paint: {
-            'fill-extrusion-color': l.color,
+            'fill-extrusion-color': ['coalesce', ['get', 'derivedColor'], l.color],
             // Adiciona alternância de opacidade apenas para pavimentos
-            'fill-extrusion-opacity': l.id === 'pavimento'
-              ? 0.38
+            'fill-extrusion-opacity': l.id === 'pavimento' || l.id === 'area_edificada'
+              ? 0.5
               : 0.7,
             'fill-extrusion-height': (l.id === 'area_edificada' || l.id === 'pavimento' || l.id === 'area_individual') ? ['get', 'height'] : 0,
             'fill-extrusion-base': ['get', 'base_height']

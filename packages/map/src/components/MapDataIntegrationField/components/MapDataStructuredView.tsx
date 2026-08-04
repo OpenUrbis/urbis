@@ -82,18 +82,20 @@ function JsonNode({ label, value, path = '', isRoot = false, depth }: JsonNodePr
   const [copied, setCopied] = React.useState(false);
   
   // 1. Lógica de Consolidação de Nome e Valor
-  let effectiveLabel = formatLabel(label);
+  let rawLabel = label;
   let effectiveValue = value;
 
   const hasNome = value && typeof value === 'object' && !Array.isArray(value) && (value.nome || value.name);
   const hasValor = value && typeof value === 'object' && !Array.isArray(value) && (value.valor !== undefined || value.value !== undefined);
 
   if (hasNome && hasValor && Object.keys(value).length <= 3) {
-    effectiveLabel = formatLabel(String(value.nome || value.name));
+    rawLabel = String(value.nome || value.name);
     effectiveValue = value.valor !== undefined ? value.valor : value.value;
   } else if (hasNome && !isRoot) {
-    effectiveLabel = formatLabel(String(value.nome || value.name));
+    rawLabel = String(value.nome || value.name);
   }
+
+  const { formattedLabel: effectiveLabel, unit } = extractUnitAndFormatLabel(rawLabel);
 
   const nodeId = path || label;
 
@@ -139,12 +141,14 @@ function JsonNode({ label, value, path = '', isRoot = false, depth }: JsonNodePr
 
     if (typeof effectiveValue === 'number') {
       displayValue = effectiveValue.toLocaleString('pt-BR', { minimumFractionDigits: effectiveValue % 1 !== 0 ? 2 : 0 });
+      if (unit) displayValue += ` ${unit}`;
       colorClass = 'text-blue-600 dark:text-blue-500 font-mono';
     } else if (typeof effectiveValue === 'boolean') {
       displayValue = effectiveValue ? 'sim' : 'não';
       colorClass = effectiveValue ? 'text-emerald-600 dark:text-emerald-500 font-bold' : 'text-rose-600 dark:text-rose-500 font-bold';
     } else {
       displayValue = effectiveValue || 'n/d';
+      if (effectiveValue && unit) displayValue += ` ${unit}`;
       if (!effectiveValue) colorClass = 'text-gray-400 dark:text-zinc-500 italic';
     }
 
@@ -271,6 +275,22 @@ function ParamInfo({ path }: { path: string }) {
       </TooltipContent>
     </Tooltip>
   );
+}
+
+export function extractUnitAndFormatLabel(label: string): { formattedLabel: string; unit: string | null } {
+  if (!label) return { formattedLabel: '', unit: null };
+
+  let unit: string | null = null;
+  let cleanLabel = label;
+
+  // Check if label ends with [xxx]
+  const match = label.match(/(.*)\s*\[(.*?)\]\s*$/);
+  if (match) {
+    cleanLabel = match[1].trim();
+    unit = match[2].trim();
+  }
+
+  return { formattedLabel: formatLabel(cleanLabel), unit };
 }
 
 function formatLabel(label: string): string {

@@ -95,8 +95,6 @@ export class SolicitationService {
           qb.orWhere('solicitation.organizationId IN (:...organizationIds)', {
             organizationIds,
           });
-        } else {
-          qb.orWhere('solicitation.organizationId IS NULL');
         }
       }),
     );

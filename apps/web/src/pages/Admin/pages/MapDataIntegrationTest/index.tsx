@@ -45,8 +45,8 @@ const MapDataIntegrationTestPage = () => {
       <div className="w-full max-w-[1200px]">
         <div className="flex items-center justify-between pb-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-zinc-100">Validação de Projeto</h2>
-            <p className="text-sm text-gray-600 dark:text-zinc-400">Envie ou arraste um arquivo .dwg padrão prefeitura para validar se seu projeto segue as diretrizes.</p>
+            <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-zinc-100">Leitura inteligente de dados projetuais</h2>
+            <p className="text-sm text-gray-600 dark:text-zinc-400">Envie ou arraste um arquivo .dwg padrão prefeitura para analisar as validações e extrações do projeto.</p>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2 max-w-[600px]">
             <Button onClick={loadExample} variant="outline" size="sm">

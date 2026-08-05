@@ -10,7 +10,9 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserData } from 'common/decorators/user-data/user-data.decorator';
+import { AccessControl } from 'common/guards/access-control/access-control';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
+import { Organization } from 'organization/entities/organization.entity';
 import { OrganizationData } from '../common/decorators/organization-data/organization-data.decorator';
 import { PermissionsData } from '../common/decorators/permissions-data/permissions-data.decorator';
 import { RequirePermission } from '../common/decorators/require-permissions/require-permissions.decorator';
@@ -21,8 +23,6 @@ import { AddCommentDto } from './dto/add-comment.dto';
 import { GetRepresentationOverviewDto } from './dto/get-representation-overview.dto';
 import { RequestRepresentationDto } from './dto/request-representation.dto';
 import { SolicitationService } from './solicitation.service';
-import { AccessControl } from 'common/guards/access-control/access-control';
-import { Organization } from 'organization/entities/organization.entity';
 
 @ApiTags('Solicitations')
 @Controller({
@@ -65,6 +65,16 @@ export class SolicitationController {
     let organizationIds: string[] = [];
 
     if (
+      accessControl.hasPermission({
+        permissions: {
+          resource: 'solicitation',
+          action: 'list',
+          scope: RolePermissionScopeEnum.GLOBAL,
+        } as any,
+      })
+    ) {
+      organizationIds = [];
+    } else if (
       accessControl.hasPermission({
         permissions: {
           resource: 'solicitation',

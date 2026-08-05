@@ -15,7 +15,7 @@ export class LayerSeedService {
     private readonly layerSchemaRepository: Repository<LayerSchema>,
     @InjectRepository(LayerSchemaColors)
     private readonly layerSchemaColorsRepository: Repository<LayerSchemaColors>,
-  ) {}
+  ) { }
 
   async run(): Promise<void> {
     console.info('Starting database seeding...');
@@ -28,19 +28,14 @@ export class LayerSeedService {
         name: 'Limites administrativos',
         ownerGroup: 'geral',
       },
-      { id: 'seguranca', name: 'Segurança', ownerGroup: 'geral' },
-      { id: 'ambiental', name: 'Ambiental', ownerGroup: 'geral' },
-      { id: 'cultural', name: 'Cultural', ownerGroup: 'geral' },
+      { id: 'seguranca', name: 'Segurança' },
+      { id: 'ambiental', name: 'Ambiental' },
+      { id: 'cultural', name: 'Cultural' },
       { id: 'tombamento', name: 'Tombamentos', ownerGroup: 'cultural' },
-      { id: 'infra_urb', name: 'Infraestrutura urbana', ownerGroup: 'geral' },
+      { id: 'infra_urb', name: 'Infraestrutura urbana' },
       {
         id: 'alto_risco_geologico_e_hidrologico',
         name: 'Alto risco geológico e hidrológico',
-        ownerGroup: 'seguranca',
-      },
-      {
-        id: 'restricoes_geotecnicas',
-        name: 'Restrições geotécnicas',
         ownerGroup: 'seguranca',
       },
       {
@@ -51,7 +46,6 @@ export class LayerSeedService {
       {
         id: 'urbanistico',
         name: 'Urbanístico',
-        ownerGroup: 'geral',
       },
       {
         id: 'macrozoneamento',

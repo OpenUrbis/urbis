@@ -207,7 +207,7 @@ function JsonNode({ label, value, path = '', isRoot = false, depth }: JsonNodePr
 
   const children = isArray
     ? effectiveValue.map((item: any, idx: number) => {
-        let itemLabel = item.nome || item.name || item.identificacao?.valor || `item ${idx + 1}`;
+        let itemLabel = item.nome || item.name || item.identificacao?.valor || item.identificacao?.value || item.identificação?.valor || item.identificação?.value || `item ${idx + 1}`;
         
         // Se houver múltiplos itens e eles tiverem nome/name (provavelmente repetido ou genérico), adicionamos o índice para facilitar identificação
         if ((item.nome || item.name) && effectiveValue.length > 1) {

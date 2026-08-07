@@ -30,11 +30,12 @@ export const MapPreview = ({ featureCollection }: MapPreviewProps) => {
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedFloorProps, setSelectedFloorProps] = useState<any | null>(null);
   const [layersState, setLayersState] = useState<LayerConfig[]>([
-    { id: 'imovel', color: '#e8e0d0', label: 'Imóvel', visible: true },  // off-white bege claríssimo
-    { id: 'pavimento', color: '#5f7a6a', label: 'Pavimentos', visible: true },  // verde-cinza escuro (moderno para buildings)
+    { id: 'calcada', color: '#a0a8b5', label: 'Calçadas', visible: true },  // cinza azulado claro (por baixo)
+    { id: 'acesso_veiculo', color: '#f4b95f', label: 'Acessos', visible: true },   // amarelo-alaranjado claro
+    { id: 'imovel', color: '#e8e0d0', label: 'Imóvel', visible: true },  // off-white bege claríssimo (por cima da calçada)
+    { id: 'pavimento', color: '#5f7a6a', label: 'Pavimentos', visible: true },  // verde-cinza escuro
     { id: 'area_individual', color: '#9f8cd1', label: 'Unidades', visible: true },  // roxo-azulado suave
-    { id: 'calcada', color: '#a0a8b5', label: 'Calçadas', visible: true },  // cinza azulado claro
-    { id: 'acesso_veiculo', color: '#f4b95f', label: 'Acessos', visible: true }   // amarelo-alaranjado claro (atenção sem exagerar)
+    { id: 'estacionamento', color: '#60a5fa', label: 'Estacionamento', visible: true } // azul claro
   ]);
 
   const filteredFeatures = useMemo(() => {
@@ -42,7 +43,10 @@ export const MapPreview = ({ featureCollection }: MapPreviewProps) => {
     if (!selectedFloor) {
       return {
         ...featureCollection,
-        features: featureCollection.features.filter((f: any) => f.properties.type !== 'area_individual')
+        features: featureCollection.features.filter((f: any) => 
+          f.properties.type !== 'area_individual' && 
+          !(f.properties.type === 'estacionamento' && f.properties.jsonPath.includes('pavimentos'))
+        )
       };
     }
     return {
@@ -80,8 +84,8 @@ export const MapPreview = ({ featureCollection }: MapPreviewProps) => {
       style: isDark ? 'mapbox://styles/mapbox/dark-v11' : 'mapbox://styles/mapbox/light-v11',
       center: [-46.6333, -23.5505],
       zoom: 12,
-      pitch: selectedFloor ? 0 : 60,
-      bearing: selectedFloor ? 0 : -20,
+      pitch: selectedFloor ? 45 : 60,
+      bearing: selectedFloor ? -15 : -20,
       attributionControl: false
     });
 
@@ -106,12 +110,12 @@ export const MapPreview = ({ featureCollection }: MapPreviewProps) => {
           source: 'dwg-source',
           layout: { 'visibility': l.visible ? 'visible' : 'none' },
           paint: {
-            'fill-extrusion-color': ['coalesce', ['get', 'derivedColor'], l.color],
+            'fill-extrusion-color': l.color,
             // Adiciona alternância de opacidade apenas para pavimentos
             'fill-extrusion-opacity': l.id === 'pavimento' || l.id === 'area_edificada'
               ? 0.5
               : 0.7,
-            'fill-extrusion-height': (l.id === 'area_edificada' || l.id === 'pavimento' || l.id === 'area_individual') ? ['get', 'height'] : 0,
+            'fill-extrusion-height': (l.id === 'area_edificada' || l.id === 'pavimento' || l.id === 'area_individual' || l.id === 'estacionamento') ? ['get', 'height'] : 0,
             'fill-extrusion-base': ['get', 'base_height']
           },
           filter: ['all', ['==', '$type', 'Polygon'], ['==', 'type', l.id]]
@@ -144,7 +148,7 @@ export const MapPreview = ({ featureCollection }: MapPreviewProps) => {
             setTimeout(() => { prevent = false; }, 100);
             return;
           }
-          if (props.type === 'imovel') {
+          if (props.type === 'imovel' || props.type === 'calcada' || props.type === 'acesso_veiculo') {
             return;
           }
 
@@ -210,7 +214,12 @@ export const MapPreview = ({ featureCollection }: MapPreviewProps) => {
     };
     fc.features.forEach((f: any) => walk(f.geometry.coordinates));
     if (hasCoords && !bounds.isEmpty()) {
-      mapInstance.fitBounds(bounds, { padding: 50, duration: 1000 });
+      mapInstance.fitBounds(bounds, { 
+        padding: 50, 
+        duration: 1000,
+        pitch: mapInstance.getPitch(),
+        bearing: mapInstance.getBearing()
+      });
     }
   };
 
@@ -270,7 +279,7 @@ export const MapPreview = ({ featureCollection }: MapPreviewProps) => {
         <h5 className="text-xs font-medium text-gray-500 dark:text-zinc-400 mb-2 border-b border-gray-200 dark:border-zinc-800 pb-1 flex items-center gap-2 transition-colors">
           <Info size={12} /> Legendas
         </h5>
-        {layersState.filter(l => selectedFloor ? l.id === 'area_individual' : l.id !== 'area_individual').map(l => (
+        {layersState.filter(l => selectedFloor ? (l.id === 'area_individual' || l.id === 'estacionamento') : (l.id !== 'area_individual')).map(l => (
           <button
             key={l.id}
             onClick={() => toggleLayer(l.id)}

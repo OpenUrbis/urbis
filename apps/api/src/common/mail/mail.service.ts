@@ -217,6 +217,24 @@ export class MailService {
     });
   }
 
+  async accountApproved(email: string, name: string): Promise<void> {
+    try {
+      const subject = `Sua conta foi aprovada - Urbis`;
+      const html = `<p>Olá ${name},</p><p>Sua conta foi aprovada! Agora você pode acessar o sistema Urbis.</p>`;
+      
+      const emailParams = {
+        to: email,
+        from: this.configService.get('mail.from'),
+        subject,
+        html,
+      };
+
+      await this.sendGridService.send(emailParams);
+    } catch (err) {
+      console.error('Error sending approval email:', err);
+    }
+  }
+
   async sendSupportTicket(ticket: {
     id: string;
     name: string;

@@ -25,6 +25,7 @@ import { MailService } from 'common/mail/mail.service';
 import { Request, Response } from 'express';
 import Provider from 'oidc-provider';
 import { User } from 'user/entities/user.entity';
+import { UserStatus } from 'user/enums/user-status.enum';
 import { LoginGuard } from './../guards/login.guard';
 
 @Controller('auth/oidc')
@@ -213,7 +214,15 @@ export class OidcController {
       isEmailConfirmed,
       firstName,
       emailHashConfirm,
+      status,
     }: User = req.user;
+
+    if (status !== UserStatus.ACTIVE) {
+      throw new BadRequestException({
+        message: 'User is not allowed',
+        inAnalysis: true,
+      });
+    }
 
     if (!isEmailConfirmed) {
       await this.mailService.userSignUp({

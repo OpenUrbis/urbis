@@ -18,6 +18,7 @@ import {
 import { OrganizationService } from '../organization/organization.service';
 import { RoleService } from '../role/role.service';
 import { User } from '../user/entities/user.entity';
+import { UserStatus } from '../user/enums/user-status.enum';
 import { MailService } from './../common/mail/mail.service';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthExternalStrategyDto } from './dto/auth-external-strategy.dto';
@@ -25,6 +26,7 @@ import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
 import { AuthUpdateDto } from './dto/auth-update.dto';
 import { ForgotService } from './forgot/forgot.service';
 import { CpfValidationService } from './services/cpf-validation.service';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 
 @Injectable()
 export class AuthService {
@@ -83,9 +85,20 @@ export class AuthService {
       await this.cpfValidationService.validate(dto.cpf.replace(/\D/g, ''));
     }
 
+    let initialStatus = UserStatus.ACTIVE;
+    const requiresAnalysisTypes = [
+      'fisica_emancipada',
+      'fisica_assistido_parental',
+      'fisica_assistido_tutor',
+    ];
+    if (requiresAnalysisTypes.includes(dto.accountType)) {
+      initialStatus = UserStatus.IN_ANALYSIS;
+    }
+
     const user = await this.userService.create({
       ...dto,
       email: dto.email,
+      status: initialStatus,
       emailHashConfirm,
     } as any);
 
@@ -261,7 +274,7 @@ export class AuthService {
 
     delete userDto.oldPassword;
 
-    await this.userService.findByIdAndUpdate(user.id, userDto);
+    await this.userService.findByIdAndUpdate(user.id, userDto as any);
 
     return this.userService.findOne({ id: user.id });
   }
@@ -377,11 +390,8 @@ export class AuthService {
   async createOrUpdatePfOrganization(user: User) {
     if (!user.cpf) return;
 
-    const userOrgs = await this.organizationService.my(user.id);
-    const pfOrg = userOrgs.find(
-      (org) =>
-        org.metadata?.documentType === 'CPF' &&
-        org.metadata?.userId === user.id,
+    const pfOrg = await this.organizationService.findOneByDocument(
+      user.cpf.replace(/\D/g, ''),
     );
 
     if (pfOrg) {
@@ -394,6 +404,12 @@ export class AuthService {
             ...pfOrg.metadata,
             userId: user.id,
             documentType: 'CPF',
+            accountType: user.accountType,
+            birthDate: user.birthDate,
+            phone: user.phone,
+            socialName: user.socialName,
+            address: user.address,
+            digitalAddress: user.digitalAddress,
           },
         } as any);
 
@@ -401,6 +417,17 @@ export class AuthService {
         const orgEntity = await this.organizationService.findOne(pfOrg.id);
         orgEntity.document = user.cpf.replace(/\D/g, '');
         orgEntity.name = user.firstName; // Ensure name is first name
+
+        if (!(await this.roleService.hasOrganization(user.id, pfOrg.id)))
+          await this.roleService.assign(
+            {
+              organizationId: pfOrg.id,
+              userId: user.id,
+              roleId: SYSTEM_ROLES.admin,
+            },
+            pfOrg,
+          );
+
         await orgEntity.save();
       }
     } else {
@@ -412,6 +439,12 @@ export class AuthService {
           metadata: {
             documentType: 'CPF',
             userId: user.id,
+            accountType: user.accountType,
+            birthDate: user.birthDate,
+            phone: user.phone,
+            socialName: user.socialName,
+            address: user.address,
+            digitalAddress: user.digitalAddress,
           },
         },
         user,

@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component, effect, inject, signal } from '@angular/core';
 import {
   FormControl,
@@ -11,7 +10,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { RecaptchaV3Module } from 'ng-recaptcha-2';
 import { catchError, firstValueFrom, of, switchMap, tap } from 'rxjs';
+import { AttachmentsService } from '../../../../../../projects/shared/src/lib/components/attachments/services/attachments.service';
 import { passwordFormGroup } from '../../../../../../projects/shared/src/lib/components/password-form-group/form-group/password-form-group';
 import {
   HlmButtonDirective,
@@ -45,23 +46,31 @@ import { UsersApi } from '../../services/users-api';
     HlmIconComponent,
     UserFormComponent,
     HasPermissionDirective,
+    RecaptchaV3Module,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideTrash2 })],
+  providers: [
+    provideIcons({ lucideArrowLeft, lucideTrash2 }),
+    AttachmentsService,
+  ],
   templateUrl: './handle-user.html',
 })
 export class HandleUser {
   id = signal<string | undefined>(undefined);
   name = signal<string | undefined>(undefined);
+  userObj = signal<any | undefined>(undefined);
   loading = signal<boolean>(false);
   loadingSave = signal<boolean>(false);
   selectedTab = signal<number>(0);
 
   noOfficialAddress = signal<boolean>(false);
+  documentUrls = signal<{ name: string; url: string }[]>([]);
 
   form = new FormGroup(
     {
+      accountType: new FormControl('common', [Validators.required]),
       firstName: new FormControl('', [Validators.required]),
       lastName: new FormControl('', [Validators.required]),
+      birthDate: new FormControl('', [Validators.required]),
       email: new FormControl('', [Validators.required, Validators.email]),
       password: passwordFormGroup(),
       socialName: new FormControl(''),
@@ -90,10 +99,13 @@ export class HandleUser {
   userApi = inject(UsersApi);
   confirmDialog = useConfirmDialog();
   translate = inject(TranslateService);
-  private http = inject(HttpClient);
+  private attachmentsService = inject(AttachmentsService);
 
   constructor() {
     effect(() => {
+      this.form.valueChanges.subscribe(() => {
+        console.log(this.form);
+      });
       this.activatedRoute.params
         .pipe(
           tap(() => this.loading.set(true)),
@@ -114,7 +126,23 @@ export class HandleUser {
         )
         .subscribe((user) => {
           if (user) {
+            this.userObj.set(user);
             this.name.set(`${user.firstName} ${user.lastName}`);
+
+            if ((user as any).metadata?.documents?.length) {
+              const promises = (user as any).metadata.documents.map(
+                async (key: string) => {
+                  try {
+                    const url =
+                      await this.attachmentsService.getDownloadUrl(key);
+                    return { name: key.split('/').pop() || key, url };
+                  } catch (e) {
+                    return { name: key.split('/').pop() || key, url: '#' };
+                  }
+                },
+              );
+              Promise.all(promises).then((docs) => this.documentUrls.set(docs));
+            }
 
             if (user.digitalAddress) {
               this.noOfficialAddress.set(true);
@@ -168,6 +196,8 @@ export class HandleUser {
               socialName: user.socialName,
               cpf: user.cpf,
               digitalAddress: user.digitalAddress,
+              birthDate: user.birthDate,
+              accountType: user.accountType,
             });
 
             this.getFormControl('cpf').disable();
@@ -196,6 +226,8 @@ export class HandleUser {
     }
 
     const data: any = {
+      accountType: rawValue.accountType,
+      birthDate: rawValue.birthDate,
       firstName: rawValue.firstName,
       lastName: rawValue.lastName,
       email: rawValue.email,
@@ -237,6 +269,48 @@ export class HandleUser {
       );
     } finally {
       this.loadingSave.set(false);
+    }
+  }
+
+  async approveAccount() {
+    try {
+      this.loading.set(true);
+      await firstValueFrom(this.userApi.updateStatus(this.id()!, 'active'));
+      this.toaster.success('Conta aprovada com sucesso!');
+
+      const user = this.userObj();
+      this.userObj.set({ ...user, status: 'active' });
+    } catch (err) {
+      console.error(err);
+      this.toaster.error('Não foi possível aprovar a conta');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async rejectAccount() {
+    try {
+      await this.confirmDialog(
+        {
+          title: 'Deseja rejeitar e inativar esta conta?',
+          description:
+            'A conta ficará com status inativo e não terá acesso ao sistema.',
+        },
+        { resultMode: 'reject' },
+      );
+
+      this.loading.set(true);
+      await firstValueFrom(this.userApi.updateStatus(this.id()!, 'inactive'));
+      this.toaster.success('Conta rejeitada com sucesso!');
+
+      const user = this.userObj();
+      this.userObj.set({ ...user, status: 'inactive' });
+    } catch (err: any) {
+      console.error(err);
+      if (err?.internalMessage) return;
+      this.toaster.error('Não foi possível rejeitar a conta');
+    } finally {
+      this.loading.set(false);
     }
   }
 

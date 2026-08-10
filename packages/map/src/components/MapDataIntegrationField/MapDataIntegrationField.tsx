@@ -71,14 +71,24 @@ export function MapDataIntegrationField({
       const poll = setInterval(async () => {
         try {
           const { data: mapData } = await axios.get(`${environment}/maps/mapdata/file/${encodeURIComponent(key)}`, { headers: { Authorization: auth.user?.access_token ? `Bearer ${auth.user.access_token}` : undefined } });
-          if (mapData.status === 'Concluido' || mapData.data) {
+          if (mapData.status === 'Concluido' || (mapData.status !== 'Erro' && mapData.data)) {
             clearInterval(poll);
             const final = { ...(mapData.data || mapData), s3_metadata: { key } };
             setData(final);
             setIsProcessing(false);
             if (onChange) onChange(final);
+          } else if (mapData.status === 'Erro') {
+            clearInterval(poll);
+            setIsProcessing(false);
+            
+            const errorList = mapData.description?.erros;
+            if (Array.isArray(errorList) && errorList.length > 0) {
+              setError(errorList.join('\n'));
+            } else {
+              setError(mapData.description?.mensagem || 'Erro no processamento do arquivo.');
+            }
           }
-        } catch (e) { clearInterval(poll); setIsProcessing(false); }
+        } catch (e) { clearInterval(poll); setIsProcessing(false); setError('Erro ao verificar o status do processamento.'); }
       }, 5000);
     } catch (err) { setIsProcessing(false); setError('Erro no envio.'); }
   };
@@ -146,7 +156,7 @@ export function MapDataIntegrationField({
   return (
     <div 
       className={cn(
-        "w-full h-[400px] px-4 py-4 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-colors cursor-pointer",
+        "w-full min-h-[400px] px-4 py-4 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-colors cursor-pointer",
         isDragging ? "border-blue-500 dark:border-blue-500 bg-blue-50 dark:bg-blue-500/10" : "border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950 hover:bg-gray-100 dark:hover:bg-zinc-900"
       )}
       onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -165,7 +175,16 @@ export function MapDataIntegrationField({
       </div>
       <h4 className="text-sm font-bold text-gray-900 dark:text-zinc-100 transition-colors">Arraste seu projeto .DWG</h4>
       <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1 transition-colors">ou clique para selecionar</p>
-      {error && <p className="mt-4 text-xs text-rose-600 dark:text-rose-500 font-bold bg-rose-50 dark:bg-rose-500/10 px-3 py-2 rounded-full border border-rose-200 dark:border-rose-500/20 transition-colors">{error}</p>}
+      {error && (
+        <div className="mt-4 text-xs text-rose-600 dark:text-rose-500 bg-rose-50 dark:bg-rose-500/10 px-4 py-3 rounded-lg border border-rose-200 dark:border-rose-500/20 transition-colors w-full max-w-[80%] text-left max-h-[200px] overflow-y-auto">
+          <p className="font-bold mb-2">Foram encontrados erros no seu projeto:</p>
+          <ul className="list-disc pl-4 space-y-2 font-normal leading-relaxed">
+            {error.split('\n').map((err, idx) => (
+              <li key={idx}>{err}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

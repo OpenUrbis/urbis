@@ -88,7 +88,7 @@ export function useProspectiveSearch(moduleData: Record<string, any[]>) {
         });
       });
 
-      options[uiKey] = Array.from(values).sort((a, b) => a - b);
+      options[uiKey] = [-Infinity, ...Array.from(values).sort((a, b) => a - b), Infinity];
     });
 
     return options;
@@ -142,7 +142,7 @@ export function useProspectiveSearch(moduleData: Record<string, any[]>) {
         });
       });
 
-      options[uiKey] = Array.from(values).sort((a, b) => a - b);
+      options[uiKey] = [-Infinity, ...Array.from(values).sort((a, b) => a - b), Infinity];
     });
 
     return options;

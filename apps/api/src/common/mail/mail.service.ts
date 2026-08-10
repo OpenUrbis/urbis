@@ -221,7 +221,7 @@ export class MailService {
     try {
       const subject = `Sua conta foi aprovada - Urbis`;
       const html = `<p>Olá ${name},</p><p>Sua conta foi aprovada! Agora você pode acessar o sistema Urbis.</p>`;
-      
+
       const emailParams = {
         to: email,
         from: this.configService.get('mail.from'),

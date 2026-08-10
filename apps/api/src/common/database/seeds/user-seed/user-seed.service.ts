@@ -51,7 +51,7 @@ export class UserSeedService {
 
     const user = this.userRepository.create({
       email: 'test@test.com',
-      password: 'Teste@Urbis123',
+      password: 'Teste@123',
       firstName: 'John',
       lastName: 'Dom',
       status: UserStatus.ACTIVE,

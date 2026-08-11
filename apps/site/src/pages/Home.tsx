@@ -20,7 +20,7 @@ export default function Home() {
         side="right"
       >
         {/* Conteúdo com seções colapsáveis */}
-        <HelpSidebarContent />
+        <HelpSidebarContent currentTabSlug="docs" />
       </Sidebar>
     </div>
   );

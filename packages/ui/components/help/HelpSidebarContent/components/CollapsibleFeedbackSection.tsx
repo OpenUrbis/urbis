@@ -22,7 +22,7 @@ export type CollapsibleFeedbackSectionProps = {
   folderPath?: string;
 };
 
-export function CollapsibleFeedbackSection(
+export default function CollapsibleFeedbackSection(
   props: CollapsibleFeedbackSectionProps,
 ) {
   const id = props.id;

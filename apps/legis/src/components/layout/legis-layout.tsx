@@ -132,7 +132,7 @@ export function LegisLayout({ children }: LegisLayoutProps) {
                 </button>
                 </div>
                 <div className="p-3">
-                <HelpSidebarContent />
+                <HelpSidebarContent currentTabSlug="docs" />
                 </div>
             </div>
             </div>

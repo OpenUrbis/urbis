@@ -1,6 +1,6 @@
 <div hlmSidebarGroup class="h-full flex flex-col pt-0 px-0">
   <div class="px-2 py-2 mb-2">
-    <button [hlmDropdownMenuTrigger]="organizations" hlmBtn variant="ghost"
+    <button (click)="changeOrganization()" hlmBtn variant="ghost"
       class="w-full justify-start gap-2 h-12 px-2 border border-sidebar-border hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
       <div class="flex h-8 w-8 items-center justify-center rounded-md border bg-background">
         <hlm-icon name="lucideBuilding2" size="16" />
@@ -15,31 +15,6 @@
       </div>
       <hlm-icon name="lucideChevronsUpDown" size="14" class="ml-auto opacity-50" *ngIf="state() === 'expanded'" />
     </button>
-    <ng-template #organizations>
-      <div hlmDropdownMenu class="w-60">
-        <hlm-dropdown-menu-label>Entidades:</hlm-dropdown-menu-label>
-        <hlm-dropdown-menu-group>
-          @for (
-          org of organizationState.value().myOrganizations;
-          track org.id
-          ) {
-          <button hlmDropdownMenuItem (click)="organizationState.selectOrganization(org)" class="relative pl-8 w-full">
-            @if (organizationState.selectedOrganization()?.id === org.id) {
-            <span class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-              <hlm-icon name="lucideCheck" size="16" />
-            </span>
-            }
-            <span class="truncate font-normal">{{ org.name }}</span>
-          </button>
-          }
-        </hlm-dropdown-menu-group>
-        <hlm-dropdown-menu-separator></hlm-dropdown-menu-separator>
-        <button hlmDropdownMenuItem (click)="changeOrganization()">
-          <hlm-icon name="lucidePlus" size="14" class="mr-2" />
-          Alterar Atribuição
-        </button>
-      </div>
-    </ng-template>
   </div>
 
   <div hlmSidebarMenu class="flex-1 px-2 pt-2">
@@ -81,7 +56,7 @@
       }
     </a>
 
-    <a *hasPermission="'solicitation:list'" routerLink="/representations"
+    <a *hasPermission="'representation:list'" routerLink="/representations"
       routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary" hlmSidebarMenuButton
       aria-label="Representações">
       <hlm-icon name="lucideBriefcase" size="18px" />
@@ -100,5 +75,19 @@
         }}</span>
       }
     </a>
+
+    <a
+  *hasPermission="'question-tab:list'"
+  routerLink="/help"
+  routerLinkActive="bg-primary/10 text-primary font-semibold border-r-2 border-primary"
+  hlmSidebarMenuButton
+  class="text-foreground"
+  [attr.aria-label]="'components.profileMenu.help' | translate"
+>
+  <hlm-icon name="lucideHelpCircle" size="18px" />
+  <span *ngIf="state() === 'expanded'" class="text-sm">
+    {{ "components.profileMenu.help" | translate }}
+  </span>
+</a>
   </div>
 </div>

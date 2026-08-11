@@ -6,74 +6,33 @@
       </h3>
     </div>
     <div hlmCardContent>
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <div class="mb-4">
-          <label hlmLabel for="assignTo">
-            {{ "representations.request.form.assignTo" | translate }}
-          </label>
-          <select hlmInput formControlName="assignTo" class="w-full" id="assignTo">
-            <option value="owner">
-              {{ "representations.request.form.owner" | translate }}
-            </option>
-            <option value="city-hall">
-              {{ "representations.request.form.city-hall" | translate }}
-            </option>
-          </select>
-        </div>
-        <div class="mb-4">
-          <label hlmLabel for="document">
-            {{ "representations.request.form.document" | translate }}
-          </label>
-          <input
-            hlmInput
-            id="document"
-            formControlName="document"
-            [placeholder]="
-              'representations.request.form.documentPlaceholder' | translate
-            "
-            (input)="onDocumentInput($event)"
-            (blur)="checkDocument()"
-            maxlength="18"
-          />
-        </div>
+      @if (step() === 1) {
+        <app-step-document
+          [formGroup]="form"
+          [loading]="loading()"
+          (onDocumentInput)="onDocumentInput($event)"
+          (checkDocument)="checkDocument()"
+        ></app-step-document>
+      }
 
-        @if (isDirectAccess()) {
-          <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
-            <p>
-              {{ "representations.request.form.directAccess" | translate }}
-            </p>
-          </div>
-        }
+      @if (step() === 2) {
+        <app-step-details
+          [formGroup]="form"
+          [isCnpj]="isCnpj()"
+          [representationTypes]="representationTypes"
+          (goBack)="goBack()"
+          (goToStep3)="goToStep3()"
+        ></app-step-details>
+      }
 
-        <div class="mb-4">
-          <label hlmLabel for="justification">
-            {{ "representations.request.form.justification" | translate }}
-          </label>
-          <textarea
-            hlmInput
-            id="justification"
-            formControlName="justification"
-            rows="8"
-            class="w-full h-auto"
-          ></textarea>
-          <div class="mt-4">
-            <lib-attachments formControlName="documents" />
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-2">
-          <button hlmBtn variant="outline" routerLink="..">
-            {{ "representations.request.buttons.cancel" | translate }}
-          </button>
-          <button hlmBtn [disabled]="loading() || form.invalid">
-            {{
-              loading()
-                ? ("representations.request.buttons.submitting" | translate)
-                : ("representations.request.buttons.submit" | translate)
-            }}
-          </button>
-        </div>
-      </form>
+      @if (step() === 3) {
+        <app-step-upload
+          [formGroup]="form"
+          [loading]="loading()"
+          (goBack)="goBack()"
+          (submit)="submit()"
+        ></app-step-upload>
+      }
     </div>
   </div>
 </section>

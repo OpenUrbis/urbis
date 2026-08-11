@@ -137,9 +137,10 @@ function LayoutInner() {
                           enviar sugestões sobre a plataforma Urbis.
                         </p>
                       </div>
-                      <div className="flex-1 min-h-0 pt-4">
-                        <HelpSidebarContent />
-                      </div>
+                      <HelpSidebarContent
+  currentTabSlug="mosaico"
+  faqEndpointBase="http://localhost:3000/support/question-answers"
+/>
                     </div>,
                     "Ajuda"
                   )
@@ -165,7 +166,7 @@ function LayoutInner() {
                         </p>
                       </div>
                       <div className="flex-1 min-h-0 pt-4">
-                        <HelpSidebarContent />
+                        <HelpSidebarContent currentTabSlug="mosaico" />
                       </div>
                     </div>,
                     "Ajuda"

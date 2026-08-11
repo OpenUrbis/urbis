@@ -1,17 +1,46 @@
 import axios from "axios";
-import { useCallback, useEffect } from "preact/hooks";
+import { useCallback, useEffect, useState } from "preact/hooks";
 import { useSignal } from "@preact/signals";
 import { QRCodeSVG } from "qrcode.react";
 import { FeaturesView } from "../../components/FeaturesView";
 import { ITemplate } from "../../components/ViewTemplate/types/templates-type";
 import { getLayerSchema } from "../../integrations/layer-schema-integration";
+import { useTheme } from "../../components/ThemeProvider";
+import Header from "../../components/Header";
+import { UrbisFooter } from "@open-urbis/map-ui";
+import { Search } from "../../components/Search";
 
 const PrintPage = () => {
+  const { setTheme } = useTheme();
   const loading = useSignal<boolean>(false);
   const error = useSignal<string>("");
   const template = useSignal<ITemplate[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = useSignal<any[]>([]);
+
+  const isInteractive = useSignal<boolean>(false);
+  const [loadingMessage, setLoadingMessage] = useState("Carregando informações da área...");
+  const [showOkCapybara, setShowOkCapybara] = useState(false);
+
+  const messages = [
+    "Carregando informações da área...",
+    "Servindo um cafézinho...",
+    "Aceita um bolo enquanto espera?",
+    "Cante comigo para alegrar seu dia!",
+    "Buscando as coordenadas certinhas...",
+  ];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading.value && isInteractive.value) {
+      let currentIndex = 0;
+      interval = setInterval(() => {
+        currentIndex = (currentIndex + 1) % messages.length;
+        setLoadingMessage(messages[currentIndex]);
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [loading.value, isInteractive.value]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchPolygonData = async (origin: string, params: any) => {
@@ -55,13 +84,153 @@ const PrintPage = () => {
   }, []);
 
   useEffect(() => {
+    setTheme("light");
     loading.value = true;
 
     const params = new URLSearchParams(location.search);
     const queryObject = Object.fromEntries(params.entries());
 
-    fetchData(queryObject);
-  }, [fetchData]);
+    if (queryObject.interactive === "true") {
+      isInteractive.value = true;
+    }
+
+    const loadData = async () => {
+      await fetchData(queryObject);
+      
+      if (isInteractive.value) {
+        setShowOkCapybara(true);
+        setTimeout(() => {
+          loading.value = false;
+        }, 5000);
+      } else {
+        loading.value = false;
+      }
+    };
+
+    loadData();
+  }, [fetchData, setTheme]);
+
+  if (isInteractive.value) {
+    if (loading.value) {
+      return (
+        <div className="h-screen w-screen flex flex-col items-center justify-center bg-white relative overflow-hidden">
+          <div className="flex flex-col items-center z-10 transition-all duration-500">
+            <h2 className="text-2xl font-bold text-gray-800 mb-8 animate-pulse text-center">
+              {showOkCapybara ? "Prontinho!" : loadingMessage}
+            </h2>
+          </div>
+          
+          <div className="absolute bottom-4 right-4 z-10 transition-all duration-1000 ease-in-out">
+            {!showOkCapybara ? (
+              <img 
+                src="/capybara-sing.png" 
+                alt="Capivara cantando" 
+                className="w-48 md:w-64 origin-bottom animate-[wiggle_2s_ease-in-out_infinite]"
+                style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
+              />
+            ) : (
+              <img 
+                src="/capybara-ok.png" 
+                alt="Capivara Ok" 
+                className="w-48 md:w-64 animate-in fade-in duration-500 zoom-in-95"
+                style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
+              />
+            )}
+          </div>
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes wiggle {
+              0%, 100% { transform: rotate(-3deg); }
+              50% { transform: rotate(3deg); }
+            }
+          `}} />
+        </div>
+      );
+    }
+
+    if (error.value) {
+      return (
+        <div className="h-screen w-screen flex flex-col bg-white">
+          <Header />
+          <div className="flex-1 flex items-center justify-center text-destructive p-8">
+            <div className="bg-destructive/10 p-6 rounded-xl border border-destructive/20 max-w-md text-center">
+              <span className="material-symbols-outlined text-4xl mb-4">error</span>
+              <p className="font-medium">{error.value}</p>
+            </div>
+          </div>
+          <UrbisFooter />
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <Header />
+        <main className="flex-1 flex flex-col w-full px-4 md:px-8 max-w-7xl mx-auto gap-6 mt-6 mb-12">
+          <div className="w-full shrink-0">
+            <Search isInteractiveView={true} />
+          </div>
+          <section className="flex-1 bg-white rounded-2xl shadow-sm border p-6 overflow-auto w-full">
+            <div className="hidden md:flex gap-6 w-full">
+              {(() => {
+                const totalTemplates = template.value.length;
+                if (totalTemplates === 0) return null;
+                
+                // Distribute templates into 3 columns
+                const baseCount = Math.floor(totalTemplates / 3);
+                const remainder = totalTemplates % 3;
+
+                const col1Count = baseCount + (remainder > 0 ? 1 : 0);
+                const col2Count = baseCount + (remainder > 1 ? 1 : 0);
+                
+                const col1 = template.value.slice(0, col1Count);
+                const col2 = template.value.slice(col1Count, col1Count + col2Count);
+                const col3 = template.value.slice(col1Count + col2Count);
+                
+                return (
+                  <>
+                    <div className="flex-1 flex flex-col gap-6">
+                      <FeaturesView
+                        feature={{ feature: data.value, template: col1 }}
+                        key="interactive-view-col-1"
+                        isPrint={true}
+                      />
+                    </div>
+                    {col2.length > 0 && (
+                      <div className="flex-1 flex flex-col gap-6">
+                        <FeaturesView
+                          feature={{ feature: data.value, template: col2 }}
+                          key="interactive-view-col-2"
+                          isPrint={true}
+                        />
+                      </div>
+                    )}
+                    {col3.length > 0 && (
+                      <div className="flex-1 flex flex-col gap-6">
+                        <FeaturesView
+                          feature={{ feature: data.value, template: col3 }}
+                          key="interactive-view-col-3"
+                          isPrint={true}
+                        />
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+            
+            <div className="md:hidden">
+              <FeaturesView
+                feature={{ feature: data.value, template: template.value }}
+                key="interactive-view-mobile"
+                isPrint={true}
+              />
+            </div>
+          </section>
+        </main>
+        <UrbisFooter />
+      </div>
+    );
+  }
 
   return loading.value ? (
     <div className="h-screen w-screen flex items-center justify-center">

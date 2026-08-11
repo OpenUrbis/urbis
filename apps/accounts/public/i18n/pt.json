@@ -1,4 +1,10 @@
 {
+  "errors": {
+    "already_representing": "Você já representa esta organização.",
+    "already_requested": "Você já possui uma representação ativa ou pendente para esta organização.",
+    "invalid_cpf": "O CPF informado é inválido.",
+    "invalid_cnpj": "CNPJ inválido ou inexistente."
+  },
   "common": {
     "loading": "Carregando...",
     "actions": {
@@ -502,7 +508,7 @@
           "date": "Data",
           "actions": "Ações"
         },
-        "empty": "Nenhuma representação ou solicitação encontrada."
+        "empty": "Nenhuma representação ou representação encontrada."
       },
       "request": {
         "title": "Solicitar Representação",
@@ -518,12 +524,12 @@
           "submit": "Enviar"
         },
         "messages": {
-          "success": "Solicitação realizada com sucesso",
+          "success": "Representação realizada com sucesso",
           "error": "Erro ao solicitar representação"
         }
       },
       "detail": {
-        "title": "Detalhes da Solicitação",
+        "title": "Detalhes da Representação",
         "info": {
           "title": "Informações",
           "requester": "Solicitante",
@@ -538,7 +544,7 @@
           "empty": "Nenhum comentário.",
           "add": "Adicionar Comentário / Resposta",
           "placeholder": "Escreva seu comentário aqui...",
-          "infoMessage": "Ao enviar um comentário, o status da solicitação será alterado para <span class=\"font-medium text-primary\">Pendente</span>."
+          "infoMessage": "Ao enviar um comentário, o status da representação será alterado para <span class=\"font-medium text-primary\">Pendente</span>."
         },
         "buttons": {
           "reject": "Reprovar",
@@ -548,7 +554,7 @@
         }
       }
     },
-    "solicitation": {
+    "representation": {
       "status": {
         "PENDING": "Pendente",
         "APPROVED": "Aprovado",
@@ -563,26 +569,26 @@
       },
       "actions": {
         "approve": {
-          "title": "Aprovar Solicitação",
-          "description": "Tem certeza que deseja aprovar esta solicitação?",
+          "title": "Aprovar Representação",
+          "description": "Tem certeza que deseja aprovar esta representação?",
           "confirm": "Aprovar",
-          "success": "Solicitação aprovada com sucesso",
-          "error": "Erro ao aprovar solicitação"
+          "success": "Representação aprovada com sucesso",
+          "error": "Erro ao aprovar representação"
         },
         "reject": {
-          "title": "Reprovar Solicitação",
-          "description": "Tem certeza que deseja reprovar esta solicitação?",
+          "title": "Reprovar Representação",
+          "description": "Tem certeza que deseja reprovar esta representação?",
           "confirm": "Reprovar",
-          "success": "Solicitação reprovada com sucesso",
-          "error": "Erro ao reprovar solicitação"
+          "success": "Representação reprovada com sucesso",
+          "error": "Erro ao reprovar representação"
         },
         "requestInfo": {
           "title": "Solicitar Informações",
           "description": "Deseja solicitar mais informações ao usuário?",
           "confirm": "Solicitar",
-          "success": "Solicitação de informações enviada",
+          "success": "Representação de informações enviada",
           "error": "Erro ao solicitar informações",
-          "validation": "Por favor, adicione um comentário explicando a solicitação de informações."
+          "validation": "Por favor, adicione um comentário explicando a representação de informações."
         },
         "addComment": {
           "error": "Erro ao comentar"
@@ -599,6 +605,7 @@
       "organizations": "Organizações",
       "whitelabel": "Configurações",
       "changeOrganization": "Alterar organização",
+      "help": "Ajuda",
       "logout": "Logout"
     },
     "userOrganizationManager": {
@@ -722,7 +729,7 @@
       }
     },
     "switchOrganizationDialog": {
-      "title": "Selecionar organização"
+      "title": "Alterar entidade"
     },
     "createOrganization": {
       "fields": {
@@ -916,7 +923,7 @@
         "date": "Data",
         "actions": "Ações"
       },
-      "empty": "Nenhuma representação ou solicitação encontrada."
+      "empty": "Nenhuma representação ou representação encontrada."
     },
     "request": {
       "title": "Solicitar Representação",
@@ -935,12 +942,12 @@
         "submit": "Enviar"
       },
       "messages": {
-        "success": "Solicitação realizada com sucesso",
+        "success": "Representação realizada com sucesso",
         "error": "Erro ao solicitar representação"
       }
     },
     "detail": {
-      "title": "Detalhes da Solicitação",
+      "title": "Detalhes da Representação",
       "info": {
         "title": "Informações",
         "requester": "Solicitante",
@@ -959,7 +966,7 @@
         "empty": "Nenhum comentário.",
         "add": "Adicionar Comentário / Resposta",
         "placeholder": "Escreva seu comentário aqui...",
-        "infoMessage": "Ao enviar um comentário, o status da solicitação será alterado para <span class=\"font-medium text-primary\">Pendente</span>."
+        "infoMessage": "Ao enviar um comentário, o status da representação será alterado para <span class=\"font-medium text-primary\">Pendente</span>."
       },
       "buttons": {
         "reject": "Reprovar",
@@ -969,7 +976,7 @@
       }
     }
   },
-  "solicitation": {
+  "representation": {
     "status": {
       "PENDING": "Pendente",
       "APPROVED": "Aprovado",
@@ -983,35 +990,35 @@
       "MANUAL": "Manual"
     },
     "history": {
-      "CREATED": "Solicitação criada",
-      "APPROVED": "Solicitação aprovada",
-      "REJECTED": "Solicitação reprovada",
+      "CREATED": "Representação criada",
+      "APPROVED": "Representação aprovada",
+      "REJECTED": "Representação reprovada",
       "INFO_REQUESTED": "Informações solicitadas",
       "INFO_PROVIDED": "Informações fornecidas",
       "AUTO_APPROVED": "Aprovado automaticamente"
     },
     "actions": {
       "approve": {
-        "title": "Aprovar Solicitação",
-        "description": "Tem certeza que deseja aprovar esta solicitação?",
+        "title": "Aprovar Representação",
+        "description": "Tem certeza que deseja aprovar esta representação?",
         "confirm": "Aprovar",
-        "success": "Solicitação aprovada com sucesso",
-        "error": "Erro ao aprovar solicitação"
+        "success": "Representação aprovada com sucesso",
+        "error": "Erro ao aprovar representação"
       },
       "reject": {
-        "title": "Reprovar Solicitação",
-        "description": "Tem certeza que deseja reprovar esta solicitação?",
+        "title": "Reprovar Representação",
+        "description": "Tem certeza que deseja reprovar esta representação?",
         "confirm": "Reprovar",
-        "success": "Solicitação reprovada com sucesso",
-        "error": "Erro ao reprovar solicitação"
+        "success": "Representação reprovada com sucesso",
+        "error": "Erro ao reprovar representação"
       },
       "requestInfo": {
         "title": "Solicitar Informações",
         "description": "Deseja solicitar mais informações ao usuário?",
         "confirm": "Solicitar",
-        "success": "Solicitação de informações enviada",
+        "success": "Representação de informações enviada",
         "error": "Erro ao solicitar informações",
-        "validation": "Por favor, adicione um comentário explicando a solicitação de informações."
+        "validation": "Por favor, adicione um comentário explicando a representação de informações."
       },
       "addComment": {
         "error": "Erro ao comentar"

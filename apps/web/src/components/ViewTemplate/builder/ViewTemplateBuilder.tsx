@@ -67,6 +67,7 @@ interface ViewTemplateBuilderProps {
   initialGeoLayerFullURL?: string;
   initialGeoLayer?: string;
   initialMockData?: any;
+  propertyMapping?: Record<string, { label: string; description?: string }>;
   title?: string;
   subtitle?: string;
   standalone?: boolean;
@@ -80,6 +81,7 @@ const BuilderHeader = ({
   initialGeoUrl,
   initialGeoLayer,
   initialGeoLayerFullURL,
+  propertyMapping,
   title = "Editor de ViewTemplate",
   subtitle,
   standalone = true,
@@ -89,6 +91,7 @@ const BuilderHeader = ({
   initialGeoUrl?: string;
   initialGeoLayer?: string;
   initialGeoLayerFullURL?: string;
+  propertyMapping?: Record<string, { label: string; description?: string }>;
   title?: string;
   subtitle?: string;
   standalone?: boolean;
@@ -178,7 +181,7 @@ const BuilderHeader = ({
     ) {
       const feature = response.data.features[0];
       setMockData(feature || {});
-      toastSuccess("Propriedades importadas com sucesso!");
+      // Remove toast from here to avoid duplication if called in multiple places
     } else {
       setGeoError("Nenhuma feição encontrada na camada.");
     }
@@ -211,10 +214,12 @@ const BuilderHeader = ({
         },
       });
 
-      updateDataWithResponseGeoServer(response)
+      updateDataWithResponseGeoServer(response);
+      toastSuccess("Propriedades importadas com sucesso!");
     } catch (e) {
       console.error(e);
       setGeoError("Erro ao buscar dados da camada.");
+      toastError("Erro ao buscar dados da camada.");
     } finally {
       setIsImportingGeo(false);
     }
@@ -247,10 +252,12 @@ const BuilderHeader = ({
         },
       });
 
-      updateDataWithResponseGeoServer(response)
+      updateDataWithResponseGeoServer(response);
+      toastSuccess("Propriedades importadas com sucesso!");
     } catch (e) {
       console.error(e);
       setGeoError("Erro ao buscar dados da camada.");
+      toastError("Erro ao buscar dados da camada.");
     } finally {
       setIsImportingGeo(false);
     }
@@ -365,6 +372,9 @@ const BuilderHeader = ({
 
     if (unusedKeys.length > 0) {
       const formatKey = (key: string) => {
+        if (propertyMapping && propertyMapping[key] && propertyMapping[key].label) {
+          return propertyMapping[key].label;
+        }
         return key
           .replace(/[-_.]/g, ' ')
           .replace(/\b\w/g, (l) => l.toUpperCase())
@@ -397,14 +407,47 @@ const BuilderHeader = ({
     if (initialGeoLayerFullURL) handleImportGeoPropertiesFromInitialURL(initialGeoLayerFullURL);
   }, [initialGeoLayerFullURL])
 
+  // Rotate loading messages for standalone = false mode (coupled mode)
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const loadingMessages = [
+    "Carregando informações de propriedades...",
+    "Buscando dados de exemplo no GeoServer...",
+    "Preparando o ambiente do template...",
+    "Dica: Utilize o auto preencher para mapear automaticamente.",
+    "Buscando a primeira feature da camada para testes...",
+  ];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isImportingGeo && !standalone) {
+      interval = setInterval(() => {
+        setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+      }, 3000);
+    } else {
+      setLoadingMessageIndex(0);
+    }
+    return () => clearInterval(interval);
+  }, [isImportingGeo, standalone]);
+
   return (
-    <header className={cn("flex items-center p-4 border-b bg-background shrink-0", standalone ? "justify-between" : "justify-end")}>
-      {standalone && (
-        <div>
-          <h1 className="text-xl font-bold">{title}</h1>
-          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+    <>
+      {/* Overlay Loading Modal (only for coupled mode) */}
+      {!standalone && isImportingGeo && (
+        <div className="absolute inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center flex-col gap-4 animate-in fade-in duration-200">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-lg font-medium text-foreground transition-opacity duration-300">
+            {loadingMessages[loadingMessageIndex]}
+          </p>
         </div>
       )}
+
+      <header className={cn("flex items-center p-4 border-b bg-background shrink-0", standalone ? "justify-between" : "justify-end")}>
+        {standalone && (
+          <div>
+            <h1 className="text-xl font-bold">{title}</h1>
+            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+          </div>
+        )}
       <div className="flex items-center gap-2">
         <Popover.Root>
           <Popover.Trigger asChild>
@@ -602,7 +645,8 @@ const BuilderHeader = ({
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
-    </header>
+      </header>
+    </>
   );
 };
 
@@ -625,6 +669,7 @@ const BuilderContent = ({
   initialGeoLayer,
   initialGeoLayerFullURL,
   initialMockData,
+  propertyMapping,
   title,
   subtitle,
   standalone,
@@ -636,6 +681,7 @@ const BuilderContent = ({
   initialGeoLayer?: string;
   initialGeoLayerFullURL?: string;
   initialMockData?: any;
+  propertyMapping?: Record<string, { label: string; description?: string }>;
   title?: string;
   subtitle?: string;
   standalone?: boolean;
@@ -837,6 +883,7 @@ const BuilderContent = ({
           initialGeoUrl={initialGeoUrl}
           initialGeoLayerFullURL={initialGeoLayerFullURL}
           initialGeoLayer={initialGeoLayer}
+          propertyMapping={propertyMapping}
           title={title}
           subtitle={subtitle}
           standalone={standalone}
@@ -884,6 +931,7 @@ export const ViewTemplateBuilder = ({
   initialGeoLayerFullURL,
   initialGeoLayer,
   initialMockData,
+  propertyMapping,
   title,
   subtitle,
   standalone,
@@ -898,6 +946,7 @@ export const ViewTemplateBuilder = ({
         initialGeoLayer={initialGeoLayer}
         initialGeoLayerFullURL={initialGeoLayerFullURL}
         initialMockData={initialMockData}
+        propertyMapping={propertyMapping}
         title={title}
         subtitle={subtitle}
         standalone={standalone}

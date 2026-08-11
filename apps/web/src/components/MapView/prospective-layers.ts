@@ -479,7 +479,7 @@ const rgbToHex = (r: number, g: number, b: number) => {
  * Permite renderização flexível: contornos tracejados, preenchimentos de uso ou hachuras (interseção).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const generateSLD = (layerName: string, colors: any[], elseFilterStyle: any = null, isOutline: boolean = false, outlineColor: string = "#000000", isIntersectionMaskTarget: boolean = false, isHatch: boolean = false) => {
+const generateSLD = (layerName: string, colors: any[], elseFilterStyle: any = null, _isOutline: boolean = false, outlineColor: string = "#000000", isIntersectionMaskTarget: boolean = false, isHatch: boolean = false) => {
   let rules = "";
 
   // Agrupa cores (baseado no HEX e na opacidade)

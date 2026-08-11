@@ -130,7 +130,11 @@ export const CLICK_ACTIONS_CONFIG = (): {
   ) => void;
 } => {
   const { selectFeature, flyTo, disablePadding } = useMapContext();
-  const { navigateTo, toggleDrawer, drawerOpen } = useNavigationContext();
+  const {
+    navigateTo: _navigateTo,
+    toggleDrawer,
+    drawerOpen,
+  } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return {
@@ -147,7 +151,8 @@ export const CLICK_ACTIONS_CONFIG = (): {
           'clickAction(selectFeature) Error: Property "template" is not defined',
         );
 
-      if (isDesktop && !drawerOpen.value && !disablePadding.value) toggleDrawer();
+      if (isDesktop && !drawerOpen.value && !disablePadding.value)
+        toggleDrawer();
 
       let center = [longitude, latitude];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -174,7 +179,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
         padding.left = 420;
       }
       if (!disablePadding.value) {
-          padding.top = 64;
+        padding.top = 64;
       }
 
       flyTo({
@@ -203,7 +208,10 @@ export const CLICK_ACTIONS_CONFIG = (): {
         });
       });
     },
-    [ClickActionEnum.openFeature]: function ({ template }, { feature }) {
+    [ClickActionEnum.openFeature]: function (
+      { template: _template },
+      { feature: _feature },
+    ) {
       // FeaturesView navigation removed
     },
   };

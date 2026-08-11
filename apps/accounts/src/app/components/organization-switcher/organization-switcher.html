@@ -1,14 +1,19 @@
 <lib-loading-content [loading]="loading()">
-  <div class="flex flex-col border border-border rounded-lg divide-y divide-border overflow-hidden">
-    @for (item of organizations(); track item.id) {
+  <div class="flex flex-col border border-border rounded-lg overflow-hidden max-h-[60vh] overflow-y-auto">
+    @for (item of organizations(); track item.id; let last = $last) {
       <button
         type="button"
-        class="flex flex-col w-full text-left p-4 hover:bg-muted/50 transition-colors focus:outline-none focus:bg-muted/50"
+        class="flex flex-col w-full text-left p-4 transition-colors focus:outline-none"
+        [ngClass]="{
+          'bg-primary/10 hover:bg-primary/20 ring-1 ring-primary z-10 relative': activeSelection() === item.id,
+          'hover:bg-muted/50 border-b border-transparent': activeSelection() !== item.id,
+          'border-b border-border': activeSelection() !== item.id && !last
+        }"
         (click)="select(item)"
       >
-        <span class="font-medium text-sm">{{ item.name }}</span>
+        <span class="font-medium text-sm" [ngClass]="{'text-primary': activeSelection() === item.id}">{{ item.name }}</span>
         @if (item.description) {
-          <span class="text-xs text-muted-foreground mt-1">{{ item.description }}</span>
+          <span class="text-xs mt-1" [ngClass]="{'text-primary/80': activeSelection() === item.id, 'text-muted-foreground': activeSelection() !== item.id}">{{ item.description }}</span>
         }
       </button>
     }

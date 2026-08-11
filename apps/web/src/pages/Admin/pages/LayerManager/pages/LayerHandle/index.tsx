@@ -452,18 +452,18 @@ const LayerHandlePage = () => {
         "clickActionParams",
       ]);
     } else if (step === 3) {
-      isValid = true;
+      isValid = true; // Mapeamento
     } else if (step === 4) {
-      isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]);
+      isValid = true; // Template
     } else if (step === 5) {
-      isValid = true;
+      isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]); // Estilização
     }
 
     if (isValid) {
       let nextStep = step + 1;
-      // Skip Template (3) and Styling (4) for WMS
-      if (isWms && nextStep === 3) {
-        nextStep = 5;
+      // Skip Template (4) and Styling (5) for WMS
+      if (isWms && nextStep === 4) {
+        nextStep = 6;
       }
       setStep(nextStep);
       if (nextStep > maxReachedStep) {
@@ -474,9 +474,9 @@ const LayerHandlePage = () => {
 
   const handleBack = () => {
     let prevStep = step - 1;
-    // Skip Styling (4) and Template (3) for WMS
-    if (isWms && prevStep === 4) {
-      prevStep = 2;
+    // Skip Styling (5) and Template (4) for WMS
+    if (isWms && prevStep === 5) {
+      prevStep = 3;
     }
     setStep(prevStep);
   };
@@ -560,13 +560,13 @@ const LayerHandlePage = () => {
   const steps = [
     { number: 1, label: "Seleção" },
     { number: 2, label: "Configuração" },
+    { number: 3, label: "Mapeamento" },
     ...(isWms
       ? []
       : [
-          { number: 3, label: "Template" },
-          { number: 4, label: "Estilização" },
+          { number: 4, label: "Template" },
+          { number: 5, label: "Estilização" },
         ]),
-    { number: 5, label: "Mapeamento" },
     { number: 6, label: "Revisão" },
   ];
 
@@ -633,19 +633,19 @@ const LayerHandlePage = () => {
             className={cn(
               "flex flex-col items-center px-0 h-full transition-all duration-300 scrollbar-thin scrollbar-thumb-muted-foreground/20",
               shouldShowPreview ? "w-1/2 border-r" : "w-full",
-              step === 3 ? "overflow-hidden" : "overflow-y-auto"
+              step === 4 ? "overflow-hidden" : "overflow-y-auto"
             )}
           >
             <div
               className={cn(
                 "w-full flex flex-col",
-                step === 3 ? "flex-1 h-full max-w-full min-h-0" : "max-w-4xl p-6 h-auto",
+                step === 4 ? "flex-1 h-full max-w-full min-h-0" : "max-w-4xl p-6 h-auto",
               )}
             >
               <div
                 className={cn(
                   "flex flex-col",
-                  step === 3
+                  step === 4
                     ? "flex-1 h-full min-h-0"
                     : "bg-card border md:rounded-lg shadow-sm overflow-hidden p-6 h-auto",
                 )}
@@ -654,7 +654,7 @@ const LayerHandlePage = () => {
                   <form
                     id="layer-handle-form"
                     onSubmit={form.handleSubmit(onSubmit as any)}
-                    className={cn("flex flex-col", step === 3 ? "flex-1 h-full min-h-0" : "")}
+                    className={cn("flex flex-col", step === 4 ? "flex-1 h-full min-h-0" : "")}
                   >
                     <Suspense
                       fallback={
@@ -683,22 +683,22 @@ const LayerHandlePage = () => {
                       )}
 
                       {step === 3 && (
+                        <LayerMapping onBack={handleBack} onNext={handleNext} />
+                      )}
+
+                      {step === 4 && (
                         <LayerTemplate
                           onNext={handleNext}
                           onBack={handleBack}
                         />
                       )}
 
-                      {step === 4 && (
+                      {step === 5 && (
                         <LayerStyling
                           onBack={handleBack}
                           onNext={handleNext}
                           onDynamicChange={handleDynamicChange}
                         />
-                      )}
-
-                      {step === 5 && (
-                        <LayerMapping onBack={handleBack} onNext={handleNext} />
                       )}
 
                       {step === 6 && (

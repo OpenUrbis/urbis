@@ -1,11 +1,12 @@
 import {
   ApplicationConfig,
-  APP_INITIALIZER,
+  inject,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations';
 
 import {
   HTTP_INTERCEPTORS,
@@ -14,9 +15,14 @@ import {
 } from '@angular/common/http';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { provideAuth, OidcSecurityService } from 'angular-auth-oidc-client';
-import { firstValueFrom } from 'rxjs';
+import {
+  AbstractSecurityStorage,
+  DefaultLocalStorageService,
+  OidcSecurityService,
+  provideAuth,
+} from 'angular-auth-oidc-client';
 import { RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-2';
+import { firstValueFrom } from 'rxjs';
 import {
   authConfig,
   externalOidcAuthConfig,
@@ -30,14 +36,15 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideAnimations(),
+    provideAnimationsAsync(),
     provideAuth({ config: [authConfig, externalOidcAuthConfig] }),
+    provideAppInitializer(() => {
+      const oidcSecurityService = inject(OidcSecurityService);
+      return firstValueFrom(oidcSecurityService.checkAuthMultiple());
+    }),
     {
-      provide: APP_INITIALIZER,
-      useFactory: (oidcSecurityService: OidcSecurityService) => () =>
-        firstValueFrom(oidcSecurityService.checkAuthMultiple()),
-      deps: [OidcSecurityService],
-      multi: true,
+      provide: AbstractSecurityStorage,
+      useClass: DefaultLocalStorageService,
     },
     provideHttpClient(withInterceptorsFromDi()),
     {

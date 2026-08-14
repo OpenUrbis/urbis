@@ -63,12 +63,18 @@ function LayoutInner() {
     () => [
       { label: "Mosaico", href: "/" },
       { label: "Mapa", href: "https://mapa.urbis.prefeitura.sp.gov.br" },
-      { label: "Viabiliza", href: "https://viabiliza.urbis.prefeitura.sp.gov.br" },
-      { label: "Dados Abertos", href: "https://dadosabertos.urbis.prefeitura.sp.gov.br" },
+      {
+        label: "Viabiliza",
+        href: "https://viabiliza.urbis.prefeitura.sp.gov.br",
+      },
+      {
+        label: "Dados Abertos",
+        href: "https://dadosabertos.urbis.prefeitura.sp.gov.br",
+      },
       { label: "Doc. técnica", href: "/doc-tecnica" },
-      { label: "Legis", href: "/info-urbis" }
+      { label: "Legis", href: "/info-urbis" },
     ],
-    []
+    [],
   );
 
   const currentPageLabel = useMemo(() => {
@@ -114,11 +120,15 @@ function LayoutInner() {
           badgeText={currentPageLabel}
           menuItems={filteredMenuItems}
           isAuthenticated={auth.isAuthenticated}
-          user={user ? { 
-            name: user.name, 
-            socialName: user.socialName,
-            email: user.email 
-          } : undefined}
+          user={
+            user
+              ? {
+                  name: user.name,
+                  socialName: user.socialName,
+                  email: user.email,
+                }
+              : undefined
+          }
           onLogin={() => auth.signinRedirect()}
           onLogout={() => auth.signoutRedirect()}
           showLogin={true}
@@ -131,18 +141,22 @@ function LayoutInner() {
                   openSidebar(
                     <div className="h-full min-h-0 flex flex-col">
                       <div className="shrink-0 space-y-1">
-                        <h3 className="text-base font-semibold">Central de ajuda</h3>
+                        <h3 className="text-base font-semibold">
+                          Central de ajuda
+                        </h3>
                         <p className="text-sm text-muted-foreground">
-                          Encontre respostas rápidas, dúvidas frequentes e um espaço para
-                          enviar sugestões sobre a plataforma Urbis.
+                          Encontre respostas rápidas, dúvidas frequentes e um
+                          espaço para enviar sugestões sobre a plataforma Urbis.
                         </p>
                       </div>
                       <HelpSidebarContent
-  currentTabSlug="mosaico"
-  faqEndpointBase="http://localhost:3000/support/question-answers"
-/>
+                        currentTabSlug="mosaico"
+                        appFilter="mosaico"
+                        faqEndpointBase={import.meta.env.VITE_API_URL + '/support/question-tabs'}
+                        endpoint={import.meta.env.VITE_API_URL + '/support/create-ticket'}
+                      />
                     </div>,
-                    "Ajuda"
+                    "Ajuda",
                   )
                 }
                 className="hidden md:inline-flex h-9 rounded-full px-4"
@@ -159,17 +173,24 @@ function LayoutInner() {
                   openSidebar(
                     <div className="h-full min-h-0 flex flex-col">
                       <div className="shrink-0 space-y-1">
-                        <h3 className="text-base font-semibold">Central de ajuda</h3>
+                        <h3 className="text-base font-semibold">
+                          Central de ajuda
+                        </h3>
                         <p className="text-sm text-muted-foreground">
-                          Encontre respostas rápidas, dúvidas frequentes e um espaço para
-                          enviar sugestões sobre a plataforma Urbis.
+                          Encontre respostas rápidas, dúvidas frequentes e um
+                          espaço para enviar sugestões sobre a plataforma Urbis.
                         </p>
                       </div>
                       <div className="flex-1 min-h-0 pt-4">
-                        <HelpSidebarContent currentTabSlug="mosaico" />
+                        <HelpSidebarContent
+                          currentTabSlug="mosaico"
+                          appFilter="mosaico"
+                          faqEndpointBase={import.meta.env.VITE_API_URL + '/support/question-tabs'}
+                          endpoint={import.meta.env.VITE_API_URL + '/support/create-ticket'}
+                        />
                       </div>
                     </div>,
-                    "Ajuda"
+                    "Ajuda",
                   )
                 }
                 className="md:hidden inline-flex h-9 w-9 rounded-full"

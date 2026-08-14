@@ -7,9 +7,16 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
 import { OrganizationGuard } from 'common/guards/organization/organization.guard';
@@ -19,11 +26,12 @@ import { UpdateQuestionAnswerDto } from '../dto/update-question-answer.dto';
 import { QuestionAnswerService } from './question-answer.service';
 
 @ApiTags('Support - Question Answers')
-@UseGuards(AccessControlGuard, OrganizationGuard)
 @Controller('support/question-answers')
 export class QuestionAnswerController {
   constructor(private readonly questionAnswerService: QuestionAnswerService) {}
 
+  @UseGuards(AccessControlGuard, OrganizationGuard)
+  @ApiBearerAuth()
   @Post()
   @RequirePermission({
     permissions: {
@@ -50,9 +58,16 @@ export class QuestionAnswerController {
     },
   })
   @ApiOperation({ summary: 'List all question answers' })
+  @ApiQuery({
+    name: 'app',
+    required: false,
+    type: String,
+    description:
+      'Filter questions by application (e.g., "web", "accounts", "site")',
+  })
   @ApiResponse({ status: 200, description: 'Returns all question answers.' })
-  findAll() {
-    return this.questionAnswerService.findAll();
+  findAll(@Query('app') app?: string) {
+    return this.questionAnswerService.findAll(app);
   }
 
   @Get(':id')
@@ -70,6 +85,8 @@ export class QuestionAnswerController {
     return this.questionAnswerService.findOne(id);
   }
 
+  @UseGuards(AccessControlGuard, OrganizationGuard)
+  @ApiBearerAuth()
   @Patch(':id')
   @RequirePermission({
     permissions: {
@@ -91,6 +108,8 @@ export class QuestionAnswerController {
     return this.questionAnswerService.update(id, updateQuestionAnswerDto);
   }
 
+  @UseGuards(AccessControlGuard, OrganizationGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   @RequirePermission({
     permissions: {

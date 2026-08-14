@@ -156,7 +156,9 @@ const Header = () => {
             <div className="min-h-0 flex-1 overflow-y-auto p-3">
               <HelpSidebarContent
                 currentTabSlug="mapa"
-                faqEndpointBase="http://localhost:3000/support/question-answers"
+                appFilter="mapa"
+                faqEndpointBase={import.meta.env.VITE_API_URL + '/support/question-tabs'}
+                endpoint={import.meta.env.VITE_API_URL + '/support/create-ticket'}
               />
             </div>
           </div>

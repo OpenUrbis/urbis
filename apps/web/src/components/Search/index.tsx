@@ -69,7 +69,13 @@ const convertFeatureToSirgas = (feature: any) => {
   return cloned;
 };
 
-export const Search = ({ isInteractiveView = false }: { isInteractiveView?: boolean }) => {
+export const Search = ({ 
+  isInteractiveView = false,
+  onItemClick 
+}: { 
+  isInteractiveView?: boolean;
+  onItemClick?: (config: IGetSearchConfigResponse, item: IGetSearchItem) => void;
+}) => {
   const { toastInfo } = useToast();
   const {
     currentTerm,
@@ -256,6 +262,11 @@ export const Search = ({ isInteractiveView = false }: { isInteractiveView?: bool
     config: IGetSearchConfigResponse,
     item: IGetSearchItem,
   ) => {
+    if (onItemClick) {
+      onItemClick(config, item);
+      return;
+    }
+
     const { clickAction: clickActionsRoot, layerSchema } = config;
     const clickAction = clickActionsRoot?.action
       ? clickActionsRoot
@@ -409,63 +420,65 @@ export const Search = ({ isInteractiveView = false }: { isInteractiveView?: bool
               )}
             </div>
 
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  type="button"
-                  className="shrink-0 rounded-full h-10 w-10 border-input"
-                  title="Configurações de busca"
-                >
-                  <span className="material-symbols-outlined text-base">
-                    tune
-                  </span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md p-4">
-                <DialogHeader className="mb-2">
-                  <DialogTitle className="text-lg font-bold">
-                    Configuração de Pesquisa
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="py-1 overflow-hidden border rounded-xl shadow-sm bg-background">
-                  <table className="w-full text-[13px]">
-                    <thead className="bg-muted/50 backdrop-blur-md text-[10px]">
-                      <tr className="border-b">
-                        <th className="text-left py-2 px-3 font-bold text-muted-foreground uppercase tracking-wider">
-                          Opção
-                        </th>
-                        <th className="text-center py-2 px-3 font-bold text-muted-foreground uppercase tracking-wider">
-                          Status
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {searchConfig.value.map((config) => (
-                        <tr
-                          key={config.id}
-                          className="hover:bg-muted/30 transition-colors"
-                        >
-                          <td className="py-2 px-3 font-medium text-foreground/90">
-                            {config.name}
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            <Switch
-                              checked={config.isActive !== false}
-                              onCheckedChange={() =>
-                                toggleConfig(config.id, config.isActive)
-                              }
-                              className="scale-75 origin-center"
-                            />
-                          </td>
+            {!isInteractiveView && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    type="button"
+                    className="shrink-0 rounded-full h-10 w-10 border-input"
+                    title="Configurações de busca"
+                  >
+                    <span className="material-symbols-outlined text-base">
+                      tune
+                    </span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md p-4">
+                  <DialogHeader className="mb-2">
+                    <DialogTitle className="text-lg font-bold">
+                      Configuração de Pesquisa
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="py-1 overflow-hidden border rounded-xl shadow-sm bg-background">
+                    <table className="w-full text-[13px]">
+                      <thead className="bg-muted/50 backdrop-blur-md text-[10px]">
+                        <tr className="border-b">
+                          <th className="text-left py-2 px-3 font-bold text-muted-foreground uppercase tracking-wider">
+                            Opção
+                          </th>
+                          <th className="text-center py-2 px-3 font-bold text-muted-foreground uppercase tracking-wider">
+                            Status
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </DialogContent>
-            </Dialog>
+                      </thead>
+                      <tbody className="divide-y">
+                        {searchConfig.value.map((config) => (
+                          <tr
+                            key={config.id}
+                            className="hover:bg-muted/30 transition-colors"
+                          >
+                            <td className="py-2 px-3 font-medium text-foreground/90">
+                              {config.name}
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              <Switch
+                                checked={config.isActive !== false}
+                                onCheckedChange={() =>
+                                  toggleConfig(config.id, config.isActive)
+                                }
+                                className="scale-75 origin-center"
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
 
             <Button
               variant="outline"
@@ -504,7 +517,7 @@ export const Search = ({ isInteractiveView = false }: { isInteractiveView?: bool
           {data && (
             <div className="mt-2 max-h-[50vh] overflow-y-auto pr-1">
               {searchConfig.value
-                .filter((config) => config.isActive !== false)
+                .filter((config) => isInteractiveView ? config.id === "lots" : config.isActive !== false)
                 .map((config) => buildList(config, data?.[config.id] ?? []))}
             </div>
           )}

@@ -17,15 +17,15 @@ export function UrbisFooter(_props: any) {
         <div className="flex justify-start mt-12 mb-6">
           <div className="text-left max-w-4xl">
             <p className="text-primary-foreground text-base leading-relaxed">
-              O <strong>Urbis</strong> é o sistema formado pelos componentes descritos nas
-              seções a seguir, e consiste em uma base de dados geoespaciais integrada,
-              com poderosas ferramentas de alimentação, gestão, apresentação,
-              manipulação e extração de dados, com capacidade de geração de documentos. O sistema tem como objetivo melhorar a competitividade empresarial, com
-              foco nas pequenas empresas, por meio sobretudo da redução de assimetrias de
-              acesso à informação e da sua compreensão de maneira fácil, clara e
-              padronizada. Por isso, o Urbis foca em dados urbanísticos úteis ao exercício de
-              atividades econômicas da construção civil e à instalação de atividades,
-              mas serve também para diversos outros propósitos.
+          O <strong>Urbis</strong> é o sistema formado pelos componentes descritos nas
+          seções a seguir, e consiste em uma base de dados geoespaciais integrada,
+          com poderosas ferramentas de alimentação, gestão, apresentação,
+          manipulação e extração de dados, com capacidade de geração de documentos. O sistema tem como objetivo melhorar a competitividade empresarial, com
+          foco nas pequenas empresas, por meio sobretudo da redução de assimetrias de
+          acesso à informação e da sua compreensão de maneira fácil, clara e
+          padronizada. Por isso, o Urbis foca em dados urbanísticos úteis ao exercício de
+          atividades econômicas da construção civil e à instalação de atividades,
+          mas serve também para diversos outros propósitos.
             </p>
 
           </div>

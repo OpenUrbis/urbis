@@ -2040,7 +2040,6 @@ export const layerSchemas: LayerSchema[] = [
       },
     ],
   },
-  ,
   {
     id: 'lei_espercas',
     name: 'Áreas de Intervenção Urbana - AIU',

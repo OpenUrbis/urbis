@@ -295,8 +295,6 @@ function QuickSearchFiltersInner<TData>({
   columns,
   actions,
 }: QuickSearchFiltersProps<TData>) {
-  if (!search || search.trim().length < 2) return null
-
   const cols = useMemo(
     () =>
       columns.filter((c) =>
@@ -304,6 +302,8 @@ function QuickSearchFiltersInner<TData>({
       ),
     [columns],
   )
+
+  if (!search || search.trim().length < 2) return null
 
   return (
     <>

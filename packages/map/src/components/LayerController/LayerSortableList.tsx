@@ -1,25 +1,31 @@
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
   useSortable,
+  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
-import { useMapContext } from "../../hooks/useMapContext";
-import { LayerItem } from "./LayerItem";
-import { cn, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@open-urbis/map-ui";
+import {
+  cn,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@open-urbis/map-ui";
 import { Info, Layers } from "lucide-react";
+import { useMapContext } from "../../hooks/useMapContext";
+import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
+import { LayerItem } from "./LayerItem";
 
 function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
   const { handleVisibleLayer } = useMapContext();
@@ -45,19 +51,25 @@ function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
       style={style}
       className={cn(
         "flex items-center w-full border-b border-border/40 bg-background hover:bg-muted/50 transition-colors",
-        isDragging && "opacity-50 z-50 bg-muted"
+        isDragging && "opacity-50 z-50 bg-muted",
       )}
     >
-      <div {...attributes} {...listeners} className="p-3 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground">
-         <span className="material-symbols-outlined text-xl">drag_indicator</span>
+      <div
+        {...attributes}
+        {...listeners}
+        className="p-3 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+      >
+        <span className="material-symbols-outlined text-xl">
+          drag_indicator
+        </span>
       </div>
       <div className="flex-1 min-w-0">
-         <LayerItem 
-             item={item} 
-             className="border-none py-2 hover:bg-transparent pr-4" 
-             indent={0} 
-             onClick={handleVisibleLayer}
-         />
+        <LayerItem
+          item={item}
+          className="border-none py-2 hover:bg-transparent pr-4"
+          indent={0}
+          onClick={handleVisibleLayer}
+        />
       </div>
     </div>
   );
@@ -65,11 +77,13 @@ function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
 
 export const LayerSortableList = () => {
   const { layerSchemas } = useMapContext();
-  
+
   // GIS standard: top layers in list are rendered on top of the map.
   // mapbox/deck.gl usually renders in the order of the array (last is top).
   // So the list should show the array in reverse order.
-  const visibleLayers = layerSchemas.value.filter(l => l.isActive).reverse();
+  const visibleLayers = layerSchemas.value
+    .filter((l) => l.isSelected)
+    .reverse();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -79,20 +93,24 @@ export const LayerSortableList = () => {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-       // We find indexes in the underlying signal array
-       const oldIndex = layerSchemas.value.findIndex((item) => item.id === active.id);
-       const newIndex = layerSchemas.value.findIndex((item) => item.id === over?.id);
-       
-       if (oldIndex !== -1 && newIndex !== -1) {
-          layerSchemas.value = arrayMove(layerSchemas.value, oldIndex, newIndex);
-       }
+      // We find indexes in the underlying signal array
+      const oldIndex = layerSchemas.value.findIndex(
+        (item) => item.id === active.id,
+      );
+      const newIndex = layerSchemas.value.findIndex(
+        (item) => item.id === over?.id,
+      );
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        layerSchemas.value = arrayMove(layerSchemas.value, oldIndex, newIndex);
+      }
     }
   };
 
@@ -112,27 +130,30 @@ export const LayerSortableList = () => {
                 </div>
               </TooltipTrigger>
               <TooltipContent side="left" className="max-w-[200px]">
-                <p className="text-xs">Camadas no topo da lista são desenhadas sobre as camadas abaixo no mapa.</p>
+                <p className="text-xs">
+                  Camadas no topo da lista são desenhadas sobre as camadas
+                  abaixo no mapa.
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
       )}
-      
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={visibleLayers.map(l => l.id)}
+          items={visibleLayers.map((l) => l.id)}
           strategy={verticalListSortingStrategy}
         >
           <div className="pb-0">
             {visibleLayers.length === 0 && (
               <div className="text-center text-muted-foreground text-sm p-8 flex flex-col items-center gap-2">
                 <Layers className="h-8 w-8 opacity-20" />
-                <p>Nenhuma camada ativa.</p>
+                <p>Nenhuma camada selecionada.</p>
               </div>
             )}
             {visibleLayers.map((item) => (

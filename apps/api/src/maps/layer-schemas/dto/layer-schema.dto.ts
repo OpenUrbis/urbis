@@ -105,11 +105,18 @@ export class LayerSchemaDto {
   origin: string;
 
   @ApiProperty({
+    description: 'Indicates whether the layer is active',
     example: true,
-    description: 'Indicates if the layer schema is active',
   })
   @IsBoolean()
   isActive: boolean;
+
+  @ApiProperty({
+    description: 'Indicates whether the layer is selected by default',
+    example: true,
+  })
+  @IsBoolean()
+  isSelected: boolean;
 
   @ApiProperty({
     enum: LayerSchemaTypeEnum,

@@ -1,19 +1,22 @@
 import { AdminHeader } from "@/components/AdminHeader";
+import { MapView } from "@/components/MapView";
 import { Form } from "@/components/ui/form";
+import { useMapContext } from "@/hooks/useMapContext";
+import { useToast } from "@/hooks/useToast";
 import {
   createLayerSchema,
   getLayerSchema,
   updateLayerSchema,
 } from "@/integrations/layer-schema-integration";
 import { cn } from "@/lib/utils";
+import { StepsNavigation } from "@/pages/Admin/components/StepsNavigation";
+import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { useEffect, useState, useMemo, lazy, Suspense } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { useLocation, useRoute } from "wouter";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/useToast";
-import { StepsNavigation } from "@/pages/Admin/components/StepsNavigation";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useLocation, useRoute } from "wouter";
 import {
   buildLayerSchema,
   LayerSchema,
@@ -21,9 +24,6 @@ import {
   LayerSchemaFormValues,
   parseLayerSchemaToForm,
 } from "./utils";
-import { MapView } from "@/components/MapView";
-import { IGetConfigLayerSchema } from "@/types/fetch-map-config-type";
-import { useMapContext } from "@/hooks/useMapContext";
 
 const LayerConfiguration = lazy(() =>
   import("./steps/LayerConfiguration").then((module) => ({
@@ -94,6 +94,7 @@ const LayerHandlePage = () => {
       maxZoom: "",
       clickAction: "none",
       isActive: true,
+      isSelected: false,
       isVisible: true,
       isDynamic: false,
       colors: [
@@ -157,7 +158,7 @@ const LayerHandlePage = () => {
           const formData = parseLayerSchemaToForm(
             backendData as unknown as LayerSchema,
           );
-          
+
           // Add missing IDs to legacy templates so DND Kit handles it perfectly
           if (formData.viewTemplate) {
             const addMissingIds = (items: any[]): any[] => {
@@ -166,9 +167,9 @@ const LayerHandlePage = () => {
                 if (!newItem.id) {
                   newItem.id = crypto.randomUUID();
                 }
-                ["templates", "polygonTemplate"].forEach(key => {
+                ["templates", "polygonTemplate"].forEach((key) => {
                   if (Array.isArray(newItem[key])) {
-                     newItem[key] = addMissingIds(newItem[key]);
+                    newItem[key] = addMissingIds(newItem[key]);
                   }
                 });
                 return newItem;
@@ -181,15 +182,23 @@ const LayerHandlePage = () => {
                 parsed = JSON.parse(parsed);
               }
               if (Array.isArray(parsed)) {
-                formData.viewTemplate = JSON.stringify(addMissingIds(parsed), null, 2);
+                formData.viewTemplate = JSON.stringify(
+                  addMissingIds(parsed),
+                  null,
+                  2,
+                );
               } else if (parsed && typeof parsed === "object") {
-                formData.viewTemplate = JSON.stringify(addMissingIds([parsed]), null, 2);
+                formData.viewTemplate = JSON.stringify(
+                  addMissingIds([parsed]),
+                  null,
+                  2,
+                );
               }
             } catch (e) {
               // Ignore parsing errors and keep existing string
             }
           }
-          
+
           console.log("Parsed Form Data:", formData);
           form.reset(formData);
 
@@ -609,7 +618,7 @@ const LayerHandlePage = () => {
               />
             </div>
           </div>
-          
+
           <div className="flex justify-end min-w-[200px]">
             {(step === 2 || step === 4 || step === 6) && (
               <button
@@ -633,13 +642,15 @@ const LayerHandlePage = () => {
             className={cn(
               "flex flex-col items-center px-0 h-full transition-all duration-300 scrollbar-thin scrollbar-thumb-muted-foreground/20",
               shouldShowPreview ? "w-1/2 border-r" : "w-full",
-              step === 4 ? "overflow-hidden" : "overflow-y-auto"
+              step === 4 ? "overflow-hidden" : "overflow-y-auto",
             )}
           >
             <div
               className={cn(
                 "w-full flex flex-col",
-                step === 4 ? "flex-1 h-full max-w-full min-h-0" : "max-w-4xl p-6 h-auto",
+                step === 4
+                  ? "flex-1 h-full max-w-full min-h-0"
+                  : "max-w-4xl p-6 h-auto",
               )}
             >
               <div
@@ -654,7 +665,10 @@ const LayerHandlePage = () => {
                   <form
                     id="layer-handle-form"
                     onSubmit={form.handleSubmit(onSubmit as any)}
-                    className={cn("flex flex-col", step === 4 ? "flex-1 h-full min-h-0" : "")}
+                    className={cn(
+                      "flex flex-col",
+                      step === 4 ? "flex-1 h-full min-h-0" : "",
+                    )}
                   >
                     <Suspense
                       fallback={

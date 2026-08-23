@@ -10,7 +10,6 @@ import { dateFilterOperators } from '../core/operators'
 import type { FilterModel } from '../core/types'
 import { intersection } from './array'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function optionFilterFn<TData>(
   inputData: string,
   filterValue: FilterModel<'option'>,
@@ -65,7 +64,6 @@ export function multiOptionFilterFn(
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function dateFilterFn<TData>(
   inputData: Date,
   filterValue: FilterModel<'date'>,
@@ -116,7 +114,6 @@ export function dateFilterFn<TData>(
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function textFilterFn<TData>(
   inputData: string,
   filterValue: FilterModel<'text'>,
@@ -138,7 +135,6 @@ export function textFilterFn<TData>(
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function numberFilterFn<TData>(
   inputData: number,
   filterValue: FilterModel<'number'>,

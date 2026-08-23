@@ -1,6 +1,4 @@
-import { ClickActionConfiguration } from "@/pages/Admin/components/ClickActionConfiguration";
 import { GroupSelect } from "@/components/GroupSelect";
-import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormField,
@@ -17,10 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ClickActionConfiguration } from "@/pages/Admin/components/ClickActionConfiguration";
+import { memo, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { generateOriginUrl, fetchCapabilities } from "../utils";
-import { useEffect, useState, memo } from "react";
+import { fetchCapabilities, generateOriginUrl } from "../utils";
 
 interface LayerConfigurationProps {
   onNext?: () => void;
@@ -29,121 +27,132 @@ interface LayerConfigurationProps {
   simpleMode?: boolean;
 }
 
-const LayerSourceSettings = memo(({ loadingMethod }: { loadingMethod: string }) => {
-  console.log("LayerSourceSettings render", { loadingMethod });
-  const form = useFormContext();
-  const selectedLayer = form.watch("selectedLayer");
-  const srs = form.watch("srs");
-  
-  const [forceCustomSrs, setForceCustomSrs] = useState(false);
+const LayerSourceSettings = memo(
+  ({ loadingMethod }: { loadingMethod: string }) => {
+    console.log("LayerSourceSettings render", { loadingMethod });
+    const form = useFormContext();
+    const selectedLayer = form.watch("selectedLayer");
+    const srs = form.watch("srs");
 
-  useEffect(() => {
-    console.log("LayerSourceSettings effect: reset forceCustomSrs", selectedLayer?.name);
-    setForceCustomSrs(false);
-  }, [selectedLayer?.name]);
+    const [forceCustomSrs, setForceCustomSrs] = useState(false);
 
-  const hasCrsOptions = selectedLayer?.crs && selectedLayer.crs.length > 0;
-  const isKnownSrs = selectedLayer?.crs?.includes(srs);
-  const showCustomSrsInput = forceCustomSrs || !isKnownSrs || !hasCrsOptions;
-  const srsSelectValue = showCustomSrsInput ? "custom" : srs;
+    useEffect(() => {
+      console.log(
+        "LayerSourceSettings effect: reset forceCustomSrs",
+        selectedLayer?.name,
+      );
+      setForceCustomSrs(false);
+    }, [selectedLayer?.name]);
 
-  if (selectedLayer?.crs) {
-    console.log("LayerSourceSettings: CRS count", selectedLayer.crs.length);
-  }
+    const hasCrsOptions = selectedLayer?.crs && selectedLayer.crs.length > 0;
+    const isKnownSrs = selectedLayer?.crs?.includes(srs);
+    const showCustomSrsInput = forceCustomSrs || !isKnownSrs || !hasCrsOptions;
+    const srsSelectValue = showCustomSrsInput ? "custom" : srs;
 
-  return (
-    <>
-      <div className={`grid ${loadingMethod === "CustomWMSLayer" ? "grid-cols-1" : "grid-cols-2"} gap-4`}>
-        <FormField
-          control={form.control}
-          name="version"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Versão (Service Version)</FormLabel>
-              <FormControl>
-                <Input placeholder="1.0.0" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    if (selectedLayer?.crs) {
+      console.log("LayerSourceSettings: CRS count", selectedLayer.crs.length);
+    }
 
-        {loadingMethod !== "CustomWMSLayer" && (
+    return (
+      <>
+        <div
+          className={`grid ${loadingMethod === "CustomWMSLayer" ? "grid-cols-1" : "grid-cols-2"} gap-4`}
+        >
           <FormField
             control={form.control}
-            name="srs"
+            name="version"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>SRS / CRS</FormLabel>
-                <div className="flex flex-col gap-2">
-                  <Select
-                    value={srsSelectValue}
-                    onValueChange={(val) => {
-                      if (val === "custom") {
-                        setForceCustomSrs(true);
-                      } else {
-                        setForceCustomSrs(false);
-                        field.onChange(val);
-                      }
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {selectedLayer?.crs?.slice(0, 100).map((crs: string) => (
-                        <SelectItem key={crs} value={crs}>
-                          {crs}
-                        </SelectItem>
-                      ))}
-                      {selectedLayer?.crs && selectedLayer.crs.length > 100 && (
-                        <div className="px-2 py-1 text-xs text-muted-foreground">
-                          Mais {selectedLayer.crs.length - 100} opções disponíveis...
-                        </div>
-                      )}
-                      <SelectItem value="custom">Personalizada</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {(showCustomSrsInput || !hasCrsOptions) && (
-                    <FormControl>
-                      <Input
-                        placeholder="EPSG:4326"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                        }}
-                      />
-                    </FormControl>
-                  )}
-                </div>
+                <FormLabel>Versão (Service Version)</FormLabel>
+                <FormControl>
+                  <Input placeholder="1.0.0" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        )}
-      </div>
 
-      <FormField
-        control={form.control}
-        name="origin"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>URL Final da Camada (Origin)</FormLabel>
-            <div className="flex gap-2">
-              <FormControl>
-                <Input placeholder="URL completa..." {...field} />
-              </FormControl>
-            </div>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </>
-  );
-});
+          {loadingMethod !== "CustomWMSLayer" && (
+            <FormField
+              control={form.control}
+              name="srs"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>SRS / CRS</FormLabel>
+                  <div className="flex flex-col gap-2">
+                    <Select
+                      value={srsSelectValue}
+                      onValueChange={(val) => {
+                        if (val === "custom") {
+                          setForceCustomSrs(true);
+                        } else {
+                          setForceCustomSrs(false);
+                          field.onChange(val);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {selectedLayer?.crs
+                          ?.slice(0, 100)
+                          .map((crs: string) => (
+                            <SelectItem key={crs} value={crs}>
+                              {crs}
+                            </SelectItem>
+                          ))}
+                        {selectedLayer?.crs &&
+                          selectedLayer.crs.length > 100 && (
+                            <div className="px-2 py-1 text-xs text-muted-foreground">
+                              Mais {selectedLayer.crs.length - 100} opções
+                              disponíveis...
+                            </div>
+                          )}
+                        <SelectItem value="custom">Personalizada</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {(showCustomSrsInput || !hasCrsOptions) && (
+                      <FormControl>
+                        <Input
+                          placeholder="EPSG:4326"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                          }}
+                        />
+                      </FormControl>
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
+
+        <FormField
+          control={form.control}
+          name="origin"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL Final da Camada (Origin)</FormLabel>
+              <div className="flex gap-2">
+                <FormControl>
+                  <Input placeholder="URL completa..." {...field} />
+                </FormControl>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </>
+    );
+  },
+);
 
 LayerSourceSettings.displayName = "LayerSourceSettings";
 
@@ -162,24 +171,35 @@ export const LayerConfiguration = ({
   const version = form.watch("version");
   const srs = form.watch("srs");
 
-  console.log("LayerConfiguration values", { loadingMethod, url, selectedLayerName: selectedLayer?.name });
+  console.log("LayerConfiguration values", {
+    loadingMethod,
+    url,
+    selectedLayerName: selectedLayer?.name,
+  });
 
   useEffect(() => {
     const fetchCrs = async () => {
-      if (url && selectedLayer?.name && (!selectedLayer.crs || selectedLayer.crs.length === 0)) {
+      if (
+        url &&
+        selectedLayer?.name &&
+        (!selectedLayer.crs || selectedLayer.crs.length === 0)
+      ) {
         console.log("LayerConfiguration: Fetching CRS for", selectedLayer.name);
         try {
           console.time("fetchCapabilities");
           const { layers } = await fetchCapabilities(url);
           console.timeEnd("fetchCapabilities");
-          
-          const found = layers.find(l => l.name === selectedLayer.name || l.title === selectedLayer.name);
+
+          const found = layers.find(
+            (l) =>
+              l.name === selectedLayer.name || l.title === selectedLayer.name,
+          );
           if (found && found.crs && found.crs.length > 0) {
             console.log("LayerConfiguration: Found CRS", found.crs.length);
             const updatedLayer = {
-               ...selectedLayer,
-               crs: found.crs,
-               bbox: found.bbox || selectedLayer.bbox
+              ...selectedLayer,
+              crs: found.crs,
+              bbox: found.bbox || selectedLayer.bbox,
             };
             form.setValue("selectedLayer", updatedLayer);
           }
@@ -188,7 +208,7 @@ export const LayerConfiguration = ({
         }
       }
     };
-    
+
     fetchCrs();
   }, [url, selectedLayer?.name]);
 
@@ -199,9 +219,9 @@ export const LayerConfiguration = ({
         selectedLayer,
         loadingMethod,
         version,
-        srs
+        srs,
       );
-      
+
       if (origin !== suggested) {
         form.setValue("origin", suggested);
       }
@@ -218,7 +238,10 @@ export const LayerConfiguration = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Forma de carregar os dados</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione..." />
@@ -279,7 +302,9 @@ export const LayerConfiguration = ({
         )}
       />
 
-      {!simpleMode && loadingMethod !== "CustomWMSLayer" && <ClickActionConfiguration />}
+      {!simpleMode && loadingMethod !== "CustomWMSLayer" && (
+        <ClickActionConfiguration />
+      )}
 
       {loadingMethod !== "CustomWMSLayer" && (
         <div className="grid grid-cols-2 gap-4">
@@ -313,7 +338,7 @@ export const LayerConfiguration = ({
       )}
 
       {!simpleMode && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <FormField
             control={form.control}
             name="isActive"
@@ -336,11 +361,33 @@ export const LayerConfiguration = ({
           />
           <FormField
             control={form.control}
+            name="isSelected"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Selecionada</FormLabel>
+                  <div className="text-[0.8rem] text-muted-foreground">
+                    Se a camada inicia selecionada na lista
+                  </div>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="isVisible"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base">Visível por padrão</FormLabel>
+                  <FormLabel className="text-base">
+                    Visível por padrão
+                  </FormLabel>
                   <div className="text-[0.8rem] text-muted-foreground">
                     Se a camada inicia visível no mapa
                   </div>
@@ -356,7 +403,6 @@ export const LayerConfiguration = ({
           />
         </div>
       )}
-
     </div>
   );
 };

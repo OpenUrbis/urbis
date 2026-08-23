@@ -81,6 +81,7 @@ export interface IGetConfigLayerSchema {
   name: string;
   origin: string;
   isActive: boolean;
+  isSelected: boolean;
   type: IGetConfigLayerSchemaTypeEnum;
   isVisible: boolean;
   index?: number;

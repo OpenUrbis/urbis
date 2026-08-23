@@ -22,8 +22,6 @@ function Calendar({
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
-  className?: string
-  rootRef?: React.Ref<HTMLDivElement>
 }) {
   const defaultClassNames = getDefaultClassNames()
 
@@ -127,7 +125,7 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        Root: ({ className, rootRef, ...props }: any) => {
+        Root: ({ className, rootRef, ...props }) => {
           return (
             <div
               data-slot="calendar"
@@ -137,7 +135,7 @@ function Calendar({
             />
           )
         },
-        Chevron: ({ className, orientation, ...props }: any) => {
+        Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (
               <ChevronLeftIcon className={cn("size-4", className)} {...props} />

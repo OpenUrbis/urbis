@@ -35,7 +35,7 @@ const Slider = React.forwardRef<
         return (
           <SliderPrimitiveRaw.Thumb
             key={i}
-            // Workaround for Preact issue where Radix cannot infer the index automatically
+            // @ts-ignore - Workaround for Preact issue where Radix cannot infer the index automatically
             index={i}
             className="!block h-5 w-5 rounded-full border-2 border-slate-900 bg-white ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-md cursor-grab active:cursor-grabbing hover:scale-110 z-50"
             style={{ left: `calc(${percentage}% - 10px)` }}

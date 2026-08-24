@@ -475,7 +475,18 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
         if (editor && type === 'original_normativo') {
             const handler = () => {
                 const { from, to, $from, $to } = editor.state.selection as any;
-                const selected: any[] = [];
+                const selected: NormativeElement[] = [];
+                const selectedIds = new Set<string>();
+                
+                const pushSelectedById = (id: string | null) => {
+                    if (!id || selectedIds.has(id)) return;
+
+                    const el = structuredElements.find((element) => element.id === id);
+                    if (!el) return;
+
+                    selectedIds.add(id);
+                    selected.push(el);
+                };
                 
                 const findNormativeId = (pos: any) => {
                     for (let i = pos.depth; i >= 0; i--) {
@@ -489,25 +500,17 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                 const startId = findNormativeId($from);
                 const endId = findNormativeId($to);
 
-                if (startId) {
-                    const el = structuredElements.find(e => e.id === startId);
-                    if (el) selected.push(el);
-                }
-                
-                if (endId && endId !== startId) {
-                    const el = structuredElements.find(e => e.id === endId);
-                    if (el && !selected.find(s => s.id === el.id)) selected.push(el);
-                }
+                pushSelectedById(startId);
+                pushSelectedById(endId);
 
-                // 2. Standard nodesBetween check for blocks fully inside selection
-                if (selected.length === 0) {
-                    editor.state.doc.nodesBetween(from, to, (node) => {
-                        if (node.attrs?.normativeId) {
-                            const el = structuredElements.find(e => e.id === node.attrs.normativeId);
-                            if (el && !selected.find(s => s.id === el.id)) selected.push(el);
-                        }
-                    });
-                }
+                // 2. Also collect every normative block touched by the current selection.
+                // This is important for bulk actions, otherwise only the first/last element
+                // in the range receive the update and middle elements are skipped.
+                editor.state.doc.nodesBetween(from, to, (node) => {
+                    if (node.attrs?.normativeId) {
+                        pushSelectedById(node.attrs.normativeId);
+                    }
+                });
                 
                 setSelectedElements(selected);
             };
@@ -653,6 +656,32 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                                 </button>
                             </div>
 
+                            <div className="flex flex-col gap-3 rounded-lg border bg-muted/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                                        {isPublic ? <Globe className="h-4 w-4 text-emerald-600" /> : <Lock className="h-4 w-4 text-amber-600" />}
+                                        <span>{isPublic ? 'Página pública' : 'Página privada'}</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        {isPublic
+                                            ? 'Disponível para visualização pública.'
+                                            : 'Visível apenas para usuários com acesso autorizado.'}
+                                    </p>
+                                </div>
+
+                                <div className="flex items-center gap-3 self-start sm:self-center">
+                                    <Label htmlFor="page-visibility" className="text-xs font-medium text-muted-foreground">
+                                        {isPublic ? 'Pública' : 'Privada'}
+                                    </Label>
+                                    <Switch
+                                        id="page-visibility"
+                                        checked={isPublic}
+                                        onCheckedChange={setIsPublic}
+                                        aria-label="Alternar visibilidade da página"
+                                    />
+                                </div>
+                            </div>
+
                             {type === 'original_normativo' ? (
                                 <NormativeMetadataForm 
                                     data={normativeData} 
@@ -721,7 +750,23 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                                 setStructuredElements(prev => {
                                     const newElements = prev.map(el => {
                                         const update = updates.find(u => u.id === el.id);
-                                        return update ? update : el;
+                                        if (update) {
+                                            // Also update the text in data structure if "Nova redação" special situation is present
+                                            if (update.specialSituations && update.specialSituations.length > 0) {
+                                                const novaRedacao = update.specialSituations.find((s: any) => 
+                                                    s.type === 'Nova redação' && s.newText
+                                                );
+                                                if (novaRedacao && novaRedacao.newText) {
+                                                    // Only apply text replacement if we're adding the situation right now 
+                                                    // OR if it's the first time it's being applied to avoid overwriting later user edits.
+                                                    // A robust way is just replacing since that's the "Nova redação" semantic meaning.
+                                                    const newHtml = novaRedacao.newText.split('\n').filter((p: string) => p.trim() !== '').map((p: string) => `<p>${p}</p>`).join('');
+                                                    return { ...update, text: newHtml || update.text };
+                                                }
+                                            }
+                                            return update;
+                                        }
+                                        return el;
                                     });
 
                                     // Update selected elements to reflect current values in side panel
@@ -745,8 +790,57 @@ export function PageForm({ initialData, onSubmit, onCancel, loading = false, tit
                                                     ...node.attrs,
                                                     type: update.type,
                                                     index: update.index,
-                                                    specialSituations: update.specialSituations
+                                                    specialSituations: update.specialSituations,
+                                                    originalStartValidity: update.originalStartValidity,
+                                                    originalEndValidity: update.originalEndValidity,
                                                 });
+                                                
+                                                // Check for "Nova redação" special situation and update text if present
+                                                if (update.specialSituations && update.specialSituations.length > 0) {
+                                                    const novaRedacao = update.specialSituations.find((s: any) => 
+                                                        s.type === 'Nova redação' && s.newText
+                                                    );
+                                                    
+                                                    if (novaRedacao && novaRedacao.newText) {
+                                                        // Parse the new text into paragraph blocks to support line breaks
+                                                        const paragraphs = novaRedacao.newText.split('\n').filter((p: string) => p.trim() !== '');
+                                                        
+                                                        const contentNodes = paragraphs.length > 0 
+                                                            ? paragraphs.map((text: string) => ({
+                                                                type: 'text',
+                                                                text: text
+                                                              }))
+                                                            : [{ type: 'text', text: novaRedacao.newText }];
+
+                                                        // Note: this replaces the entire text content of the node.
+                                                        const doc = editor.schema.nodeFromJSON({
+                                                            type: 'doc',
+                                                            content: [{
+                                                                type: node.type.name,
+                                                                attrs: {
+                                                                    ...node.attrs,
+                                                                    type: update.type,
+                                                                    index: update.index,
+                                                                    specialSituations: update.specialSituations,
+                                                                    originalStartValidity: update.originalStartValidity,
+                                                                    originalEndValidity: update.originalEndValidity,
+                                                                },
+                                                                content: contentNodes
+                                                            }]
+                                                        });
+                                                        
+                                                        if (doc && doc.firstChild) {
+                                                            const newContent = doc.firstChild.content;
+                                                            if (newContent && newContent.size > 0) {
+                                                                // Extract the original content size (excluding node opening and closing tags)
+                                                                const innerSize = Math.max(0, node.nodeSize - 2);
+                                                                // Replace the inner content with the new text content
+                                                                tr.replaceWith(pos + 1, pos + 1 + innerSize, newContent);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                
                                                 hasChanges = true;
                                             }
                                             return true;

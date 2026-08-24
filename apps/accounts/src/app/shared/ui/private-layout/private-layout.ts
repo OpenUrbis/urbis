@@ -33,7 +33,7 @@ export class PrivateLayout {
     },
     {
       label: 'Legis',
-      href: 'https://legis.urbis.sampa.br/ ',
+      href: 'https://legis.urbis.prefeitura.sp.gov.br/',
     },
     {
       label: 'Viabiliza',

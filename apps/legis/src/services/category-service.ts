@@ -1,10 +1,10 @@
+import { legisCategoryApi } from '@/integrations/legis-category-api';
+
 export interface Category {
     id: string;
     name: string;
     color?: string;
 }
-
-const STORAGE_KEY = 'legis_categories';
 
 const DEFAULT_CATEGORIES: Category[] = [
     { id: '1', name: 'Geral', color: 'gray' },
@@ -13,27 +13,37 @@ const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 class CategoryService {
-    private getCategoriesFromStorage(): Category[] {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : DEFAULT_CATEGORIES;
-    }
-
-    private saveCategoriesToStorage(categories: Category[]) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
+    private shouldUseDevelopmentFallback() {
+        return import.meta.env.DEV;
     }
 
     async getAll(): Promise<Category[]> {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        return this.getCategoriesFromStorage();
+        try {
+            const categories = await legisCategoryApi.list();
+
+            return categories.map((category) => ({
+                id: category.id,
+                name: category.name,
+                color: category.color ?? undefined,
+            }));
+        } catch (error) {
+            if (this.shouldUseDevelopmentFallback()) {
+                console.warn('Falling back to default Legis categories in development.', error);
+                return DEFAULT_CATEGORIES;
+            }
+
+            throw error;
+        }
     }
 
-    async create(name: string): Promise<Category> {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        const categories = this.getCategoriesFromStorage();
-        const newCategory = { id: crypto.randomUUID(), name };
-        categories.push(newCategory);
-        this.saveCategoriesToStorage(categories);
-        return newCategory;
+    async create(name: string, color?: string): Promise<Category> {
+        const category = await legisCategoryApi.create({ name, color });
+
+        return {
+            id: category.id,
+            name: category.name,
+            color: category.color ?? undefined,
+        };
     }
 }
 

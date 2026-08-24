@@ -34,13 +34,22 @@ export default function PageEditor({ mode = 'create' }: PageEditorProps) {
         }
     };
 
+    const getCancelLocation = () => {
+        if (mode === 'edit' && params?.id) {
+            return `/pages/${params.id}`;
+        }
+
+        return '/pages';
+    };
+
     const handleSubmit = async (data: CreatePageDto) => {
         if (mode === 'edit' && params?.id) {
-            await updatePage(params.id, data);
+            const updatedPage = await updatePage(params.id, data);
+            setLocation(`/pages/${updatedPage.id}`);
         } else {
-            await createPage(data);
+            const createdPage = await createPage(data);
+            setLocation(`/pages/${createdPage.id}`);
         }
-        setLocation('/pages');
     };
 
     if (initializing) {
@@ -55,7 +64,7 @@ export default function PageEditor({ mode = 'create' }: PageEditorProps) {
         <PageForm 
             initialData={initialData} 
             onSubmit={handleSubmit} 
-            onCancel={() => setLocation('/pages')} 
+            onCancel={() => setLocation(getCancelLocation())} 
             loading={loading}
             title={mode === 'create' ? 'Nova Página' : 'Editar Página'}
         />

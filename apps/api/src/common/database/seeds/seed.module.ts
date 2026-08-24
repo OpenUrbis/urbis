@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppSettingsModuleEntities } from '../../../app-settings/index.entity';
 import { AuthModuleEntities } from '../../../auth/index.entity';
+import { LegisModuleEntities } from '../../../legis/index.entity';
 import { MapsModuleEntities } from '../../../maps/index.entity';
 import { OrganizationModuleEntities } from '../../../organization/index.entity';
 import { RoleModuleEntities } from '../../../role/index.entity';
@@ -15,6 +16,7 @@ import adminConfig from './../../config/admin.config';
 import appConfig from './../../config/app.config';
 import databaseConfig from './../../config/database.config';
 import { LayerSeedService } from './layer-seed.service';
+import { LegisSeedService } from './legis-seed.service';
 import { MapConfigSeedService } from './map-config-seed.service';
 import { QuestionSeedService } from './question-seed.service';
 import { SearchConfigSeedService } from './search-config-seed.service';
@@ -36,6 +38,7 @@ import { UserSeedService } from './user-seed/user-seed.service';
       ...WhitelabelModuleEntities,
       ...AppSettingsModuleEntities,
       ...MapsModuleEntities,
+      ...LegisModuleEntities,
       QuestionTab,
       QuestionAnswer,
     ]),
@@ -47,6 +50,7 @@ import { UserSeedService } from './user-seed/user-seed.service';
       ...WhitelabelModuleEntities,
       ...AppSettingsModuleEntities,
       ...MapsModuleEntities,
+      ...LegisModuleEntities,
       QuestionTab,
       QuestionAnswer,
     ]),
@@ -54,6 +58,7 @@ import { UserSeedService } from './user-seed/user-seed.service';
   providers: [
     ...systemSeedProviders,
     LayerSeedService,
+    LegisSeedService,
     MapConfigSeedService,
     SearchConfigSeedService,
     UserSeedService,

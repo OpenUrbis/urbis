@@ -236,8 +236,8 @@ interface SliderHorizontalProps extends SliderOrientationProps {
   dir?: Direction;
 }
 
-const SliderHorizontal = React.forwardRef<SliderHorizontalElement, SliderHorizontalProps>(
-  (props: ScopedProps<SliderHorizontalProps>, forwardedRef) => {
+const SliderHorizontal = React.forwardRef<SliderHorizontalElement, SliderHorizontalProps & { className?: string }>(
+  (props: ScopedProps<SliderHorizontalProps & { className?: string }>, forwardedRef) => {
     const {
       min,
       max,
@@ -313,8 +313,8 @@ const SliderHorizontal = React.forwardRef<SliderHorizontalElement, SliderHorizon
 type SliderVerticalElement = SliderImplElement;
 interface SliderVerticalProps extends SliderOrientationProps {}
 
-const SliderVertical = React.forwardRef<SliderVerticalElement, SliderVerticalProps>(
-  (props: ScopedProps<SliderVerticalProps>, forwardedRef) => {
+const SliderVertical = React.forwardRef<SliderVerticalElement, SliderVerticalProps & { className?: string }>(
+  (props: ScopedProps<SliderVerticalProps & { className?: string }>, forwardedRef) => {
     const {
       min,
       max,
@@ -395,8 +395,8 @@ type SliderImplPrivateProps = {
 };
 interface SliderImplProps extends PrimitiveDivProps, SliderImplPrivateProps {}
 
-const SliderImpl = React.forwardRef<SliderImplElement, SliderImplProps>(
-  (props: ScopedProps<SliderImplProps>, forwardedRef) => {
+const SliderImpl = React.forwardRef<SliderImplElement, SliderImplProps & { className?: string }>(
+  (props: ScopedProps<SliderImplProps & { className?: string }>, forwardedRef) => {
     const {
       __scopeSlider,
       onSlideStart,
@@ -467,8 +467,8 @@ type SliderTrackElement = React.ComponentRef<typeof Primitive.span>;
 type PrimitiveSpanProps = React.ComponentPropsWithoutRef<typeof Primitive.span>;
 interface SliderTrackProps extends PrimitiveSpanProps {}
 
-const SliderTrack = React.forwardRef<SliderTrackElement, SliderTrackProps>(
-  (props: ScopedProps<SliderTrackProps>, forwardedRef) => {
+const SliderTrack = React.forwardRef<SliderTrackElement, SliderTrackProps & { className?: string }>(
+  (props: ScopedProps<SliderTrackProps & { className?: string }>, forwardedRef) => {
     const { __scopeSlider, ...trackProps } = props;
     const context = useSliderContext(TRACK_NAME, __scopeSlider);
     return (
@@ -493,8 +493,8 @@ const RANGE_NAME = 'SliderRange';
 type SliderRangeElement = React.ComponentRef<typeof Primitive.span>;
 interface SliderRangeProps extends PrimitiveSpanProps {}
 
-const SliderRange = React.forwardRef<SliderRangeElement, SliderRangeProps>(
-  (props: ScopedProps<SliderRangeProps>, forwardedRef) => {
+const SliderRange = React.forwardRef<SliderRangeElement, SliderRangeProps & { className?: string }>(
+  (props: ScopedProps<SliderRangeProps & { className?: string }>, forwardedRef) => {
     const { __scopeSlider, ...rangeProps } = props;
     const context = useSliderContext(RANGE_NAME, __scopeSlider);
     const orientation = useSliderOrientationContext(RANGE_NAME, __scopeSlider);
@@ -555,8 +555,8 @@ interface SliderThumbImplProps extends PrimitiveSpanProps {
   name?: string;
 }
 
-const SliderThumbImpl = React.forwardRef<SliderThumbImplElement, SliderThumbImplProps>(
-  (props: ScopedProps<SliderThumbImplProps>, forwardedRef) => {
+const SliderThumbImpl = React.forwardRef<SliderThumbImplElement, SliderThumbImplProps & { className?: string }>(
+  (props: ScopedProps<SliderThumbImplProps & { className?: string }>, forwardedRef) => {
     const { __scopeSlider, index, name, ...thumbProps } = props;
     const context = useSliderContext(THUMB_NAME, __scopeSlider);
     const orientation = useSliderOrientationContext(THUMB_NAME, __scopeSlider);
@@ -645,7 +645,7 @@ const BUBBLE_INPUT_NAME = 'RadioBubbleInput';
 type InputProps = React.ComponentPropsWithoutRef<typeof Primitive.input>;
 interface SliderBubbleInputProps extends InputProps {}
 
-const SliderBubbleInput = React.forwardRef<HTMLInputElement, SliderBubbleInputProps & { name?: string; form?: string }>(
+const SliderBubbleInput = React.forwardRef<HTMLInputElement, SliderBubbleInputProps & { name?: string; form?: string; className?: string }>(
   ({ __scopeSlider, value, name, form, ...props }: ScopedProps<SliderBubbleInputProps & { name?: string; form?: string }>, forwardedRef) => {
     const ref = React.useRef<HTMLInputElement>(null);
     const composedRefs = useComposedRefs(ref, forwardedRef);

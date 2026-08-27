@@ -137,6 +137,22 @@ export function stripQuotes(text: string): string {
     return result;
 }
 
+function buildFlexibleNumericIndexPattern(index: string): string {
+    const normalized = index.replace(/[.\s]/g, '');
+    const ordinalSuffix = /[º°oᵒ∘ª]$/.test(normalized) ? '[º°oᵒ∘ª]?' : '';
+    const digitsOnly = normalized.replace(/[º°oᵒ∘ª]/g, '');
+
+    if (/^\d+$/.test(digitsOnly)) {
+        const grouped = digitsOnly.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        const escapedGrouped = grouped.replace(/\./g, '\\.?');
+        return `${escapedGrouped}${ordinalSuffix}`;
+    }
+
+    return index
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/[º°oᵒ∘ª]/g, '[º°oᵒ∘ª]?');
+}
+
 /**
  * Robustly removes normative prefixes (Art. 1, § 2, I -, etc.) from the start of a text.
  */
@@ -154,20 +170,20 @@ export function getCleanDisplayText(rawText: string, type: string, index?: strin
     const SPACE_OPT = '[\\s.-]*';
     const SPACE_PLUS = '[\\s.-]+';
     const TAGS_PREFIX = '(?:<(?:b|i|s|u|strong|em|strike|span|p|div|mark|small|big)[^>]*>)*';
+    const DUPLICATED_ORDINAL = '(?:\\s*[º°oᵒ∘ª](?=\\s+[A-ZÀ-Ý]))?';
     // Optional whitespace including NBSP which is common in editors but not caught by trim()
     const OPT_WS = '[\\s\\u00A0]*';
 
     // Escape index for regex and handle common variations
-    const escapedIndex = index.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-                             .replace(/[º°oᵒ∘ª]/g, '[º°oᵒ∘ª]?');
+    const escapedIndex = buildFlexibleNumericIndexPattern(index);
 
     // Regex patterns for various normative types
     // Note: We add OPT_WS after TAGS_PREFIX to handle cases where text starts with &nbsp; (common in Tiptap)
     const prefixPatterns: Record<string, RegExp> = {
-        'Artigo': new RegExp(`^${TAGS_PREFIX}${OPT_WS}Art(?:igo|\\.)${SPACE_OPT}${escapedIndex}[.º°oᵒ∘ª]?${SPACE_OPT}`, 'i'),
+        'Artigo': new RegExp(`^${TAGS_PREFIX}${OPT_WS}Art(?:igo|\\.)${SPACE_OPT}${escapedIndex}[.º°oᵒ∘ª]?${DUPLICATED_ORDINAL}${SPACE_OPT}`, 'i'),
         'Parágrafo': index === 'único' 
             ? new RegExp(`^${TAGS_PREFIX}${OPT_WS}(?:PAR[ÁA]GRAFO)${SPACE_PLUS}[UÚ]NICO${SPACE_OPT}`, 'i')
-            : new RegExp(`^${TAGS_PREFIX}${OPT_WS}§${SPACE_OPT}${escapedIndex}[.º°oᵒ∘ª]?${SPACE_OPT}`, 'i'),
+            : new RegExp(`^${TAGS_PREFIX}${OPT_WS}§${SPACE_OPT}${escapedIndex}[.º°oᵒ∘ª]?${DUPLICATED_ORDINAL}${SPACE_OPT}`, 'i'),
         // Inciso can be separated by dash, dot, or just space in RulesEngine, so we must match that here to detect prefix
         'Inciso': new RegExp(`^${TAGS_PREFIX}${OPT_WS}${escapedIndex}${SPACE_OPT}[\\-–—.)]?${SPACE_OPT}`, 'i'),
         // Alínea now accepts dot as separator (RulesEngine update), so we must match it here

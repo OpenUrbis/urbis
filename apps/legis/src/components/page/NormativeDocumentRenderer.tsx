@@ -272,7 +272,7 @@ export function ElementContent({
     const isRepristinated = specialSituations?.some(s => s.type === 'Repristinação');
 
     let key = getElementKey(element);
-    if (type === 'Parágrafo') key = (safeIndex === 'único' || text?.toLowerCase().startsWith('único')) ? 'Parágrafo único - ' : (safeIndex ? `§ ${safeIndex} - ` : '');
+    if (type === 'Parágrafo') key = (safeIndex === 'único' || text?.toLowerCase().startsWith('único')) ? 'Parágrafo único - ' : (safeIndex ? `§ ${getElementKey({ ...element, type: 'Parágrafo', text: '' }).replace(/^§\s*/, '').trim()} - ` : '');
     else if (type === 'Inciso' || type === 'Item') key = safeIndex ? `${safeIndex} - ` : '';
     else if (type === 'Alínea') key = safeIndex ? `${safeIndex}) ` : '';
     else if (type === 'Nota') key = safeIndex ? `(${safeIndex}) - ` : '';
@@ -286,24 +286,14 @@ export function ElementContent({
     const notes = noteMap.get(element.id);
     const noteSuperscript = notes ? notes.map(n => <sup key={n} className="ml-0.5 text-[10px] font-bold text-primary">({n})</sup>) : null;
 
-    const cleanDisplayText = getCleanDisplayText(displayText || '', type, index);
-    const rawContentOnly = getCleanDisplayText(displayText || '', type, undefined);
-    
-    // If the cleaning process actually stripped something (meaning clean != raw),
-    // it implies the text ALREADY contains the prefix.
-    // In this case, we prefer to show the RAW text (with prefix) and HIDE the generated Key.
-    // This avoids "remove and reinsert" artifacting and respects varied formats (like "D - d.").
-    const prefixFound = cleanDisplayText !== rawContentOnly;
-    const finalDisplayText = prefixFound ? rawContentOnly : cleanDisplayText;
+    const finalDisplayText = getCleanDisplayText(displayText || '', type, index);
 
-    if (isCentered) return <div className={cn("mb-6 mt-8 font-bold", isCentered && "text-center", isUppercase && "uppercase")}>{!prefixFound && key}<span dangerouslySetInnerHTML={{ __html: finalDisplayText }} />{noteSuperscript}</div>;
+    if (isCentered) return <div className={cn("mb-6 mt-8 font-bold", isCentered && "text-center", isUppercase && "uppercase")}>{key}<span dangerouslySetInnerHTML={{ __html: finalDisplayText }} />{noteSuperscript}</div>;
 
     const indentClass = type === 'Parágrafo' || type === 'Inciso' ? 'pl-8' : type === 'Alínea' ? 'pl-16' : type === 'Item' ? 'pl-24' : '';
     let keyDisplay: React.ReactNode = <span className="font-bold">{key}</span>;
     const renumSit = specialSituations?.find(s => s.type === 'Renumeração');
     if (renumSit && renumSit.newIndex) keyDisplay = <><span className="line-through font-normal text-muted-foreground">{key}</span><span className="text-blue-900 ml-1">{renumSit.newType || type} {renumSit.newIndex} - </span></>;
-
-    if (prefixFound) keyDisplay = null;
 
     if (['Tabela', 'Figura', 'Mapa'].includes(type)) return (
         <div id={`el-${element.id}`} className="my-8 scroll-mt-20">
@@ -313,7 +303,7 @@ export function ElementContent({
                 {noteSuperscript}
             </div>
             {type === 'Tabela' && tableData && <SmartTableRenderer data={tableData} onSelect={onSelect} />}
-            {type === 'Figura' && figureData && <div className="flex justify-center"><img src={figureData.url} alt={text} style={{ width: figureData.resolution?.width, height: figureData.resolution?.height, maxWidth: '100%' }} /></div>}
+            {type === 'Figura' && figureData && <div className="flex justify-center"><img src={figureData.url} alt={text ?? ''} style={{ width: figureData.resolution?.width, height: figureData.resolution?.height, maxWidth: '100%' }} /></div>}
             {type === 'Mapa' && mapData && (
                 <div className="space-y-4">
                     {mapData.files?.map((f, i) => (
@@ -324,7 +314,7 @@ export function ElementContent({
                             </a>
                         </div>
                     ))}
-                    {mapData.screen && <div className="flex justify-center"><img src={mapData.screen.url} alt={text} style={{ width: mapData.screen.resolution?.width, height: mapData.screen.resolution?.height, maxWidth: '100%' }} /></div>}
+                    {mapData.screen && <div className="flex justify-center"><img src={mapData.screen.url} alt={text ?? ''} style={{ width: mapData.screen.resolution?.width, height: mapData.screen.resolution?.height, maxWidth: '100%' }} /></div>}
                 </div>
             )}
         </div>

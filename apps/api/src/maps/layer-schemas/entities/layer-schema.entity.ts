@@ -154,6 +154,25 @@ export class LayerSchema {
   viewTemplate?: Record<string, any>[];
 
   @ApiProperty({
+    example: [
+      {
+        type: 'wrapper-card',
+        templates: [
+          {
+            type: 'label-value',
+            label: 'Identificação',
+            value: `<h3>#<%- properties.id.replace("lote_cidadao.", "") %></h3>`,
+          },
+        ],
+      },
+    ],
+    required: false,
+    description: 'Template configuration for board the layer’s view',
+  })
+  @Column({ nullable: true, type: 'jsonb' })
+  boardTemplate?: Record<string, any>[];
+
+  @ApiProperty({
     example: {
       stroked: false,
       filled: true,

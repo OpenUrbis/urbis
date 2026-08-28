@@ -1,5 +1,6 @@
 import { AdminHeader } from "@/components/AdminHeader";
 import { MapView } from "@/components/MapView";
+import { stringifyNormalizedViewTemplate } from "@/components/ViewTemplate/utils/normalize-template-ids";
 import { Form } from "@/components/ui/form";
 import { useMapContext } from "@/hooks/useMapContext";
 import { useToast } from "@/hooks/useToast";
@@ -63,7 +64,8 @@ const LayerHandlePage = () => {
   const id = isEditing ? editParams?.id : undefined;
 
   const [step, setStep] = useState(1);
-  const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 6 : 1);
+  const isTemplateStep = step === 4 || step === 5;
+  const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 7 : 1);
   const [layers, setLayers] = useState<
     { name: string; title: string; crs?: string[]; bbox?: number[] }[]
   >([]);
@@ -97,6 +99,7 @@ const LayerHandlePage = () => {
       isSelected: false,
       isVisible: true,
       isDynamic: false,
+      lineWidth: 0.5,
       colors: [
         {
           fillColor: [255, 0, 0, 0.5],
@@ -150,7 +153,7 @@ const LayerHandlePage = () => {
   useEffect(() => {
     const loadData = async () => {
       if (isEditing && id) {
-        setMaxReachedStep(6);
+        setMaxReachedStep(7);
         try {
           const backendData = await getLayerSchema(id);
           setOriginalData(backendData as unknown as LayerSchema);
@@ -159,41 +162,21 @@ const LayerHandlePage = () => {
             backendData as unknown as LayerSchema,
           );
 
-          // Add missing IDs to legacy templates so DND Kit handles it perfectly
           if (formData.viewTemplate) {
-            const addMissingIds = (items: any[]): any[] => {
-              return items.map((item) => {
-                const newItem = { ...item };
-                if (!newItem.id) {
-                  newItem.id = crypto.randomUUID();
-                }
-                ["templates", "polygonTemplate"].forEach((key) => {
-                  if (Array.isArray(newItem[key])) {
-                    newItem[key] = addMissingIds(newItem[key]);
-                  }
-                });
-                return newItem;
-              });
-            };
-
             try {
-              let parsed = formData.viewTemplate;
-              if (typeof parsed === "string") {
-                parsed = JSON.parse(parsed);
-              }
-              if (Array.isArray(parsed)) {
-                formData.viewTemplate = JSON.stringify(
-                  addMissingIds(parsed),
-                  null,
-                  2,
-                );
-              } else if (parsed && typeof parsed === "object") {
-                formData.viewTemplate = JSON.stringify(
-                  addMissingIds([parsed]),
-                  null,
-                  2,
-                );
-              }
+              formData.viewTemplate = stringifyNormalizedViewTemplate(
+                formData.viewTemplate,
+              );
+            } catch (e) {
+              // Ignore parsing errors and keep existing string
+            }
+          }
+
+          if (formData.boardTemplate) {
+            try {
+              formData.boardTemplate = stringifyNormalizedViewTemplate(
+                formData.boardTemplate,
+              );
             } catch (e) {
               // Ignore parsing errors and keep existing string
             }
@@ -232,7 +215,7 @@ const LayerHandlePage = () => {
   }, [step]);
 
   const shouldShowPreview =
-    isPreviewVisible && (step === 2 || step === 4 || step === 6);
+    isPreviewVisible && (step === 2 || step === 4 || step === 5 || step === 7);
 
   useEffect(() => {
     if (shouldShowPreview && overlayRef?.current) {
@@ -440,6 +423,24 @@ const LayerHandlePage = () => {
   const loadingMethod = form.watch("loadingMethod");
   const isWms = loadingMethod === "CustomWMSLayer";
 
+  const steps = [
+    { number: 1, label: "Seleção" },
+    { number: 2, label: "Configuração" },
+    { number: 3, label: "Mapeamento" },
+    ...(isWms
+      ? []
+      : [
+          { number: 4, label: "Template" },
+          { number: 5, label: "Prancha" },
+          { number: 6, label: "Estilização" },
+        ]),
+    { number: isWms ? 4 : 7, label: "Revisão" },
+  ];
+
+  const availableStepNumbers = steps.map(({ number }) => number);
+  const currentStepIndex = availableStepNumbers.indexOf(step);
+  const finalStep = availableStepNumbers[availableStepNumbers.length - 1];
+
   const handleNext = async () => {
     let isValid = false;
     if (step === 1) {
@@ -465,15 +466,18 @@ const LayerHandlePage = () => {
     } else if (step === 4) {
       isValid = true; // Template
     } else if (step === 5) {
-      isValid = await form.trigger(["isDynamic", "layerProperty", "colors"]); // Estilização
+      isValid = true; // Prancha
+    } else if (step === 6) {
+      isValid = await form.trigger(["isDynamic", "layerProperty", "lineWidth", "colors"]); // Estilização
     }
 
     if (isValid) {
-      let nextStep = step + 1;
-      // Skip Template (4) and Styling (5) for WMS
-      if (isWms && nextStep === 4) {
-        nextStep = 6;
+      const nextStep = availableStepNumbers[currentStepIndex + 1];
+
+      if (!nextStep) {
+        return;
       }
+
       setStep(nextStep);
       if (nextStep > maxReachedStep) {
         setMaxReachedStep(nextStep);
@@ -482,11 +486,12 @@ const LayerHandlePage = () => {
   };
 
   const handleBack = () => {
-    let prevStep = step - 1;
-    // Skip Styling (5) and Template (4) for WMS
-    if (isWms && prevStep === 5) {
-      prevStep = 3;
+    const prevStep = availableStepNumbers[currentStepIndex - 1];
+
+    if (!prevStep) {
+      return;
     }
+
     setStep(prevStep);
   };
 
@@ -535,6 +540,7 @@ const LayerHandlePage = () => {
           },
           id, // Keep the same ID
         };
+        console.log("Payload for update:", payload);
         await updateLayerSchema(id, payload);
       } else {
         // Create
@@ -565,19 +571,6 @@ const LayerHandlePage = () => {
       setLoading(false);
     }
   };
-
-  const steps = [
-    { number: 1, label: "Seleção" },
-    { number: 2, label: "Configuração" },
-    { number: 3, label: "Mapeamento" },
-    ...(isWms
-      ? []
-      : [
-          { number: 4, label: "Template" },
-          { number: 5, label: "Estilização" },
-        ]),
-    { number: 6, label: "Revisão" },
-  ];
 
   if (isEditing && !isDataLoaded) {
     return (
@@ -620,7 +613,7 @@ const LayerHandlePage = () => {
           </div>
 
           <div className="flex justify-end min-w-[200px]">
-            {(step === 2 || step === 4 || step === 6) && (
+            {(step === 2 || step === 4 || step === 5 || step === 7) && (
               <button
                 type="button"
                 onClick={handleUpdatePreview}
@@ -642,13 +635,13 @@ const LayerHandlePage = () => {
             className={cn(
               "flex flex-col items-center px-0 h-full transition-all duration-300 scrollbar-thin scrollbar-thumb-muted-foreground/20",
               shouldShowPreview ? "w-1/2 border-r" : "w-full",
-              step === 4 ? "overflow-hidden" : "overflow-y-auto",
+              isTemplateStep ? "overflow-hidden" : "overflow-y-auto",
             )}
           >
             <div
               className={cn(
                 "w-full flex flex-col",
-                step === 4
+                isTemplateStep
                   ? "flex-1 h-full max-w-full min-h-0"
                   : "max-w-4xl p-6 h-auto",
               )}
@@ -656,7 +649,7 @@ const LayerHandlePage = () => {
               <div
                 className={cn(
                   "flex flex-col",
-                  step === 4
+                  isTemplateStep
                     ? "flex-1 h-full min-h-0"
                     : "bg-card border md:rounded-lg shadow-sm overflow-hidden p-6 h-auto",
                 )}
@@ -667,7 +660,7 @@ const LayerHandlePage = () => {
                     onSubmit={form.handleSubmit(onSubmit as any)}
                     className={cn(
                       "flex flex-col",
-                      step === 4 ? "flex-1 h-full min-h-0" : "",
+                      isTemplateStep ? "flex-1 h-full min-h-0" : "",
                     )}
                   >
                     <Suspense
@@ -708,6 +701,16 @@ const LayerHandlePage = () => {
                       )}
 
                       {step === 5 && (
+                        <LayerTemplate
+                          onNext={handleNext}
+                          onBack={handleBack}
+                          fieldName="boardTemplate"
+                          title="Template de Prancha"
+                          subtitle="Configure o template que será utilizado para exibir a prancha da feature."
+                        />
+                      )}
+
+                      {step === 6 && (
                         <LayerStyling
                           onBack={handleBack}
                           onNext={handleNext}
@@ -715,7 +718,7 @@ const LayerHandlePage = () => {
                         />
                       )}
 
-                      {step === 6 && (
+                      {step === 7 && (
                         <LayerReview
                           onBack={handleBack}
                           originalData={originalData}
@@ -769,8 +772,9 @@ const LayerHandlePage = () => {
               Voltar
             </button>
 
-            {step === 6 ? (
+            {step === finalStep ? (
               <button
+                key="save-button"
                 type="submit"
                 form="layer-handle-form"
                 disabled={loading}
@@ -784,6 +788,7 @@ const LayerHandlePage = () => {
               </button>
             ) : (
               <button
+                key="next-button"
                 type="button"
                 onClick={handleNext}
                 disabled={

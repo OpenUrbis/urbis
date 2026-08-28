@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -114,6 +115,31 @@ export const LayerStyling = ({
           )}
         />
       )}
+
+      <FormField
+        control={form.control}
+        name="lineWidth"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Espessura da borda</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                min="0"
+                step="0.1"
+                placeholder="Ex: 0.5"
+                {...field}
+                value={field.value ?? 0.5}
+                onChange={(event) => field.onChange(event.target.value)}
+              />
+            </FormControl>
+            <FormDescription>
+              Define a espessura da borda da camada. Padrão: 0,5.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <FormField
         control={form.control}

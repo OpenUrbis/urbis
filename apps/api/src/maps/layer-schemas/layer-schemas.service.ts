@@ -75,6 +75,7 @@ export class LayerSchemasService {
     getLineColorPropName,
     clickAction,
     viewTemplate,
+    boardTemplate,
     properties,
     groupId,
     colors,
@@ -100,6 +101,7 @@ export class LayerSchemasService {
       getLineColorPropName,
       clickAction,
       viewTemplate,
+      boardTemplate,
       properties,
       groupId,
       layerGroup,
@@ -125,6 +127,7 @@ export class LayerSchemasService {
       getLineColorPropName,
       clickAction,
       viewTemplate,
+      boardTemplate,
       properties,
       groupId,
       colors,
@@ -156,6 +159,7 @@ export class LayerSchemasService {
     layerSchema.getLineColorPropName = getLineColorPropName;
     layerSchema.clickAction = clickAction;
     layerSchema.viewTemplate = viewTemplate;
+    layerSchema.boardTemplate = boardTemplate;
     layerSchema.properties = properties;
     layerSchema.groupId = groupId;
     layerSchema.layerGroup = layerGroup;

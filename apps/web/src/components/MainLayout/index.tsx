@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { RolePermissionScopeEnum } from "@/utils/access-control";
-import { Folder, Layers, Search } from "lucide-react";
+import { Folder, Layers, Search, Settings2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import Header from "../Header";
@@ -185,6 +185,42 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                   </TooltipTrigger>
                   {isCollapsed && (
                     <TooltipContent side="right">Pesquisas</TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            </HasPermission>
+
+            <HasPermission
+              permissions={{
+                resource: "map-config",
+                action: "update",
+                scope: RolePermissionScopeEnum.ANY,
+                id: "map-config:update",
+              }}
+            >
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={
+                        location.startsWith("/map-config-manager")
+                          ? "secondary"
+                          : "ghost"
+                      }
+                      className={cn(
+                        "w-full justify-start",
+                        isCollapsed ? "justify-center px-2" : "px-4",
+                      )}
+                      onClick={() => setLocation("/map-config-manager")}
+                    >
+                      <Settings2
+                        className={cn("h-5 w-5", !isCollapsed && "mr-2")}
+                      />
+                      {!isCollapsed && <span>Parâmetros</span>}
+                    </Button>
+                  </TooltipTrigger>
+                  {isCollapsed && (
+                    <TooltipContent side="right">Parâmetros</TooltipContent>
                   )}
                 </Tooltip>
               </TooltipProvider>

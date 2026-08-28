@@ -158,6 +158,7 @@ const step2Schema = z.object({
 const step2_5Schema = z
   .object({
     viewTemplate: z.string().optional(),
+    boardTemplate: z.string().optional(),
   })
   .refine(() => {
     // We can't access clickAction from previous step here easily in z.object().refine
@@ -169,6 +170,7 @@ const step3Schema = z
   .object({
     isDynamic: z.boolean(),
     layerProperty: z.string().optional(),
+    lineWidth: z.coerce.number().min(0, "Informe uma espessura válida"),
     colors: z
       .array(z.any())
       .min(1, "É necessário configurar pelo menos uma cor"),
@@ -262,11 +264,13 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     clickAction,
     clickActionParams,
     viewTemplate,
+    boardTemplate,
     isActive,
     isSelected,
     isVisible,
     isDynamic,
     layerProperty,
+    lineWidth,
     colors,
     propertyMapping,
   } = data;
@@ -392,9 +396,11 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
     groupId,
     clickAction: clickActionObj,
     viewTemplate: viewTemplate ? JSON.parse(viewTemplate) : undefined,
+    boardTemplate: boardTemplate ? JSON.parse(boardTemplate) : undefined,
     colors: transformedColors,
     properties: {
       attributeMapping: propertyMapping,
+      getLineWidth: Number(lineWidth ?? 0.5),
       version,
       srs,
       typeName: selectedLayer?.name,
@@ -450,6 +456,7 @@ export interface LayerSchema {
     params?: any;
   };
   viewTemplate?: any;
+  boardTemplate?: any;
   properties?: Record<string, any>;
 }
 
@@ -468,6 +475,7 @@ export const parseLayerSchemaToForm = (
     colors,
     clickAction,
     viewTemplate,
+    boardTemplate,
     properties,
   } = data;
 
@@ -623,6 +631,7 @@ export const parseLayerSchemaToForm = (
 
   const finalMinZoom = minZoom ?? properties?.minZoom;
   const finalMaxZoom = maxZoom ?? properties?.maxZoom;
+  const finalLineWidth = Number(properties?.getLineWidth ?? 0.5);
 
   return {
     url,
@@ -639,11 +648,13 @@ export const parseLayerSchemaToForm = (
     clickAction: formClickAction as any,
     clickActionParams: formClickActionParams,
     viewTemplate: viewTemplate ? JSON.stringify(viewTemplate, null, 2) : "",
+    boardTemplate: boardTemplate ? JSON.stringify(boardTemplate, null, 2) : "",
     isActive: data.isActive ?? true,
     isSelected: data.isSelected ?? false,
     isVisible: data.isVisible ?? true,
     isDynamic: !!getFillColorPropName,
     layerProperty: getFillColorPropName || "",
+    lineWidth: Number.isNaN(finalLineWidth) ? 0.5 : finalLineWidth,
     colors: formColors,
     propertyMapping: normalizedMapping,
   };

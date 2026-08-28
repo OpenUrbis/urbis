@@ -198,6 +198,15 @@ export class LayerSchemaDto {
   viewTemplate?: Record<string, any>[];
 
   @ApiProperty({
+    example: [{ type: 'wrapper-card', templates: [] }],
+    required: false,
+    description: 'Template for rendering board view',
+  })
+  @IsOptional()
+  @IsArray()
+  boardTemplate?: Record<string, any>[];
+
+  @ApiProperty({
     example: { stroked: false, filled: true, pointType: 'circle+text' },
     required: false,
     description: 'Additional properties for layer rendering',

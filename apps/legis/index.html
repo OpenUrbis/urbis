@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content="https://legis.urbis.prefeitura.sp.gov.br/"
+    />
+    <meta property="og:title" content="Urbis - Legis" />
+    <meta
+      property="og:description"
+      content="Ferramenta de explicação de conceitos do SAADE."
+    />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta
+      property="twitter:url"
+      content="https://legis.urbis.prefeitura.sp.gov.br/"
+    />
+    <meta property="twitter:title" content="Urbis - Legis" />
+    <meta
+      property="twitter:description"
+      content="Ferramenta de explicação de conceitos do SAADE."
+    />
+    <meta property="twitter:image" content="/og-image.png" />
+
+    <!-- Meta tags para informações de licenciamento -->
+    <meta property="dc:title" content="Urbis - Legis" />
+    <meta
+      property="dc:rights"
+      content="Copyright de 202x, Município de São Paulo"
+    />
+    <meta
+      property="dc:license"
+      content="https://creativecommons.org/licenses/by-sa/4.0/"
+    />
+    <meta property="dc:source" content="https://www.prefeitura.sp.gov.br" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+    />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400..700;1,400..700&display=swap"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400..700;1,400..700&display=swap"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400..700;1,400..700&display=swap"
+      />
+    </noscript>
+
+    <title>Urbis - Legis</title>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      window.addEventListener("storage", (e) => {
+        if (e.key === "logout") {
+          sessionStorage.clear();
+          window.location.href = "/";
+        }
+      });
+    </script>
+  </body>
+</html>

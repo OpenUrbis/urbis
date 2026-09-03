@@ -1,0 +1,120 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "base": {
+            "type": "object",
+            "properties": {
+                "domainName": {
+                    "type": "string",
+                    "format": "hostname",
+                    "description": "The domain name for the base configuration."
+                }
+            },
+            "required": [
+                "domainName"
+            ],
+            "additionalProperties": false
+        },
+        "components-api-gateway": {
+            "type": "object",
+            "properties": {
+                "domainName": {
+                    "type": "string",
+                    "format": "hostname",
+                    "description": "The domain name for the API gateway component."
+                }
+            },
+            "required": [
+                "domainName"
+            ],
+            "additionalProperties": false
+        },
+        "components-apps": {
+            "type": "object",
+            "properties": {
+                "domainName": {
+                    "type": "string",
+                    "format": "hostname",
+                    "description": "The domain name for the apps component."
+                },
+                "storage": {
+                    "type": "object",
+                    "properties": {
+                        "identity": {
+                            "type": "string",
+                            "description": "The identity for storage configuration."
+                        },
+                        "credential": {
+                            "type": "string",
+                            "description": "The credential for storage configuration."
+                        },
+                        "jcloudsIdentity": {
+                            "type": "string",
+                            "description": "The jclouds identity for storage."
+                        },
+                        "jcloudsCredential": {
+                            "type": "string",
+                            "description": "The jclouds credential for storage."
+                        },
+                        "jcloudsEndpoint": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "The jclouds endpoint URL for storage."
+                        },
+                        "jcloudsProvider": {
+                            "type": "string",
+                            "enum": [
+                                "azureblob"
+                            ],
+                            "description": "The jclouds provider type."
+                        },
+                        "jcloudsAzureBlobAuth": {
+                            "type": "string",
+                            "enum": [
+                                "azureKey"
+                            ],
+                            "description": "The authentication method for Azure Blob storage."
+                        },
+                        "endpoint": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "The endpoint URL for the storage service."
+                        },
+                        "corsAllowAll": {
+                            "type": "string",
+                            "enum": [
+                                "true",
+                                "false"
+                            ],
+                            "description": "Whether CORS is allowed for all origins."
+                        }
+                    },
+                    "required": [
+                        "identity",
+                        "credential",
+                        "jcloudsIdentity",
+                        "jcloudsCredential",
+                        "jcloudsEndpoint",
+                        "jcloudsProvider",
+                        "jcloudsAzureBlobAuth",
+                        "endpoint",
+                        "corsAllowAll"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "required": [
+                "domainName",
+                "storage"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "base",
+        "components-api-gateway",
+        "components-apps"
+    ],
+    "additionalProperties": false
+}

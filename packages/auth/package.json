@@ -1,0 +1,34 @@
+{
+  "name": "@open-urbis/map-auth",
+  "version": "1.1.0",
+  "private": false,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint \"**/*.ts*\""
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "@open-urbis/map-shared": "workspace:*",
+    "@preact/signals": "2.0.3",
+    "@preact/signals-core": "^1.8.0",
+    "oidc-client-ts": "^3.4.1",
+    "react-oidc-context": "^3.3.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@open-urbis/map-eslint-config": "workspace:*",
+    "@open-urbis/map-typescript-config": "workspace:*",
+    "@types/node": "^25.2.1",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^9.24.0",
+    "typescript": "5.5.4"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "hatch-1x": {
+    "x": 4,
+    "y": 4,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  },
+  "full": {
+    "x": 132,
+    "y": 4,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  },
+  "hatch-cross": {
+    "x": 4,
+    "y": 132,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  },
+  "dots": {
+    "x": 132,
+    "y": 132,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  },
+  "hatch-1x-reverse": {
+    "x": 260,
+    "y": 4,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  },
+  "hatch-2x": {
+    "x": 388,
+    "y": 4,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  },
+  "hatch-2x-reverse": {
+    "x": 260,
+    "y": 132,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  },
+  "hatch-horizontal": {
+    "x": 388,
+    "y": 132,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  },
+  "hatch-vertical": {
+    "x": 4,
+    "y": 260,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  },
+  "hatch-grid": {
+    "x": 132,
+    "y": 260,
+    "width": 120,
+    "height": 120,
+    "mask": true
+  }
+}

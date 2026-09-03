@@ -1,0 +1,36 @@
+<lib-loading-content [loading]="!queryParams()?.accessToken && !this.accessToken()">
+  @if (!onlyContent()) {
+  <div class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-10">
+    <div class="w-full max-w-[512px]">
+      <section hlmCard class="w-full p-4 sm:p-4 shadow-lg border-border">
+        <div hlmCardContent class="pt-2">
+          <ng-container [ngTemplateOutlet]="content2FA" />
+        </div>
+      </section>
+    </div>
+  </div>
+  } @else {
+  <ng-container [ngTemplateOutlet]="content2FA" />
+  }
+</lib-loading-content>
+
+<ng-template #content2FA>
+  @if (step() === 0) {
+  <app-two-factor-setup [accessToken]="queryParams()?.accessToken ?? accessToken()" [useOidcFlow]="!this.accessToken()"
+    (verified)="verified.emit($event)" />
+  } @else {
+  <div class="flex flex-col gap-6">
+    <div class="space-y-1">
+      <h3 class="text-lg font-semibold leading-none tracking-tight">
+        {{ "components.twoFactor.verification.title" | translate }}
+      </h3>
+      <p class="text-sm text-muted-foreground">
+        {{ "components.twoFactor.verification.description" | translate }}
+      </p>
+    </div>
+
+    <app-two-factor-verify [accessToken]="queryParams()?.accessToken ?? accessToken()"
+      [useOidcFlow]="!this.accessToken()" (verified)="verified.emit($event)" />
+  </div>
+  }
+</ng-template>

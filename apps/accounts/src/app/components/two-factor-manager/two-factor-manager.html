@@ -1,0 +1,61 @@
+<lib-loading-content [loading]="loading()">
+  <div class="p-3">
+    @if (step() === 0) {
+      <div class="flex flex-col items-center">
+        <p class="text-center mb-4">
+          {{
+            "components.twoFactorManager.status.label"
+              | translate: {
+                  state:
+                    ("components.twoFactorManager.status." +
+                      (isActive() ? "enabled" : "disabled")) | translate
+                }
+          }}
+        </p>
+        @if (isActive()) {
+          <button
+            hlmBtn
+            variant="outline"
+            class="w-3/4"
+            (click)="step.set(2)"
+            [attr.aria-label]="
+              'components.twoFactorManager.buttons.disable' | translate
+            "
+          >
+            <hlm-icon name="lucideUnlock" size="sm" class="mr-2" />
+            {{ "components.twoFactorManager.buttons.disable" | translate }}
+          </button>
+        } @else {
+          <button
+            hlmBtn
+            variant="outline"
+            class="w-3/4"
+            (click)="step.set(1)"
+            [attr.aria-label]="
+              'components.twoFactorManager.buttons.enable' | translate
+            "
+          >
+            <hlm-icon name="lucideLock" size="sm" class="mr-2" />
+            {{ "components.twoFactorManager.buttons.enable" | translate }}
+          </button>
+        }
+      </div>
+    } @else if (step() === 1 && accessToken()) {
+      <app-two-factor
+        [accessToken]="accessToken()"
+        [onlyContent]="true"
+        (verified)="validated($event)"
+      />
+    } @else if (step() === 2 && accessToken()) {
+      <h3 class="text-lg font-semibold mb-2">{{ "components.twoFactorManager.verification.title" | translate }}</h3>
+      <p class="text-muted-foreground mb-4">
+        {{ "components.twoFactorManager.verification.description" | translate }}
+      </p>
+      <app-two-factor-verify
+        [accessToken]="accessToken()!"
+        [useOidcFlow]="false"
+        (code)="desactive($event)"
+      />
+    }
+  </div>
+</lib-loading-content>

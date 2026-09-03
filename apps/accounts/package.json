@@ -1,0 +1,82 @@
+{
+  "name": "@open-urbis/map-accounts",
+  "version": "0.0.0",
+  "scripts": {
+    "lint": "eslint \"src/**/*.ts\"",
+    "ng": "ng",
+    "start": "ng serve",
+    "dev": "ng serve",
+    "dev:ssl": "concurrently \"ng serve accounts\" \"node scripts/redirect-server.js\"",
+    "build": "ng build",
+    "build:prod": "ng build --configuration=production",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test accounts --watch=false --browsers=ChromeHeadless && ng test shared --watch=false --browsers=ChromeHeadless"
+  },
+  "prettier": {
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^20.0.0",
+    "@angular/cdk": "^20.2.10",
+    "@angular/common": "^20.0.0",
+    "@angular/compiler": "^20.0.0",
+    "@angular/core": "^20.0.0",
+    "@angular/forms": "^20.0.0",
+    "@angular/material": "^20.2.10",
+    "@angular/platform-browser": "^20.0.0",
+    "@angular/router": "^20.0.0",
+    "@ng-icons/core": "25.1.0",
+    "@ng-icons/lucide": "25.1.0",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
+    "@open-urbis/endereco-digital": "workspace:^",
+    "@open-urbis/map-shared": "workspace:*",
+    "@uppy/angular": "^1.1.0",
+    "@uppy/aws-s3": "^5.1.0",
+    "@uppy/compressor": "^3.1.0",
+    "@uppy/core": "^5.2.0",
+    "@uppy/dashboard": "^5.1.0",
+    "@uppy/image-editor": "^4.1.0",
+    "@uppy/status-bar": "^5.1.0",
+    "angular-auth-oidc-client": "20.0.2",
+    "bootstrap": "^5.3.8",
+    "chroma-js": "^3.1.2",
+    "date-fns": "^4.1.0",
+    "jwt-decode": "^4.0.0",
+    "ng-recaptcha-2": "^16.0.1",
+    "ngx-mat-input-tel": "^20.9.3",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.0.4",
+    "@angular/cli": "^20.0.4",
+    "@angular/compiler-cli": "^20.0.0",
+    "@types/chroma-js": "^3.1.2",
+    "@types/jasmine": "~5.1.0",
+    "autoprefixer": "^10.4.17",
+    "concurrently": "^9.2.1",
+    "jasmine-core": "~5.7.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "local-ssl-proxy": "^2.0.5",
+    "lucide-angular": "^0.471.0",
+    "ng-packagr": "^20.3.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "3.4.1",
+    "typescript": "~5.8.2"
+  },
+  "license": "AGPL-3.0-only"
+}

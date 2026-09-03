@@ -1,0 +1,12 @@
+apiVersion: v2
+name: base
+description: Base configurations (certs, configs, volumes).
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+dependencies:
+  - name: cert-manager
+    version: ">=v1.0.0"
+    repository: "https://charts.jetstack.io"
+    values:
+      installCRDs: true

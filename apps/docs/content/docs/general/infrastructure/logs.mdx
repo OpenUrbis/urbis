@@ -1,0 +1,216 @@
+---
+title: Acessar Logs do Sistema (map-api) via CLI
+description: Guia para visualizar, acompanhar e filtrar os logs do serviço map-api utilizando ferramentas de linha de comando (CLI) em ambientes Kubernetes, Docker e desenvolvimento local.
+icon: Terminal
+---
+
+Este documento orienta sobre como utilizar a interface de linha de comando (**CLI**) para visualizar e analisar os logs em tempo real da API de mapas (**`map-api`** / `@open-urbis/map-api`).
+
+Os logs são fundamentais para diagnosticar erros de requisições, acompanhar o desempenho de rotas WMS/WFS, monitorar falhas de integração com o GeoServer e checar a execução de migrações e consultas ao banco de dados.
+
+---
+
+## 1. Visualização de Logs no Kubernetes (`kubectl`)
+
+Em ambientes de **Staging** e **Produção**, o serviço `map-api` é executado como um Deployment em um cluster Kubernetes dentro do namespace `urbis-map`.
+
+### Pré-requisitos
+
+- Utilitário `kubectl` instalado e autenticado no cluster Kubernetes do ambiente.
+- Permissões de leitura no namespace `urbis-map`.
+
+### Comandos CLI Principais
+
+#### A. Listar Pods em Execução
+
+Antes de solicitar os logs, você pode verificar os Pods ativos do serviço `map-api`:
+
+```bash
+kubectl get pods -n urbis-map -l app.kubernetes.io/name=map-api
+```
+
+Ou listar todos os pods do namespace:
+
+```bash
+kubectl get pods -n urbis-map
+```
+
+#### B. Acompanhar Logs em Tempo Real (*Streaming / Follow*)
+
+Para visualizar o fluxo continuo de logs de todos os pods do `map-api` em tempo real:
+
+```bash
+kubectl logs -n urbis-map -l app.kubernetes.io/name=map-api -f --tail=100
+```
+
+- `-f` (ou `--follow`): Mantém a conexão aberta exibindo novas linhas de log à medida que são geradas.
+- `--tail=100`: Exibe as últimas 100 linhas registradas antes de iniciar o streaming.
+
+#### C. Logs de um Pod Específico
+
+Se houver múltiplas réplicas e você quiser isolar os logs de uma instância específica:
+
+```bash
+kubectl logs -n urbis-map <nome-do-pod-map-api> -f --tail=200
+```
+
+*Exemplo:*
+
+```bash
+kubectl logs -n urbis-map map-api-79b8c6f4d5-x8z9q -f --tail=200
+```
+
+#### D. Logs de Containers Reiniciados (*Previous Pod*)
+
+Caso um pod do `map-api` tenha sofrido um *crash* ou reinício inesperado (`CrashLoopBackOff`), você pode inspecionar os logs da instância imediatamente anterior antes do reinício:
+
+```bash
+kubectl logs -n urbis-map <nome-do-pod-map-api> --previous
+```
+
+#### E. Filtrar Logs por Palavras-Chave (Erros, Status HTTP, Rotas)
+
+Você pode combinar o `kubectl logs` com ferramentas de busca da CLI como `grep` ou `rg`:
+
+- **Filtrar por exceções e erros**:
+  ```bash
+  kubectl logs -n urbis-map -l app.kubernetes.io/name=map-api --tail=1000 | grep -i "error"
+  ```
+
+- **Filtrar por código de status HTTP 500 ou 401**:
+  ```bash
+  kubectl logs -n urbis-map -l app.kubernetes.io/name=map-api --tail=1000 | grep " 500 "
+  ```
+
+- **Filtrar chamadas de uma rota específica de mapas (ex: `/maps/` ou `/geoserver/`)**:
+  ```bash
+  kubectl logs -n urbis-map -l app.kubernetes.io/name=map-api --tail=1000 | grep "/maps/"
+  ```
+
+#### F. Exportar Logs para um Arquivo Local
+
+Para salvar os logs em um arquivo local para análise posterior:
+
+```bash
+kubectl logs -n urbis-map -l app.kubernetes.io/name=map-api --tail=5000 > map-api-production.log
+```
+
+---
+
+## 2. Visualização de Logs no Docker / Docker Compose
+
+Em servidores standalone ou ambientes baseados em contêineres Docker, os logs do `map-api` podem ser acessados via CLI do Docker.
+
+### Comandos Docker CLI
+
+#### A. Acompanhar logs pelo ID ou Nome do Container
+
+```bash
+docker logs -f --tail 100 <container_id_ou_nome>
+```
+
+*Exemplo:*
+
+```bash
+docker logs -f --tail 100 openurbis-map-api
+```
+
+#### B. Acompanhar logs via Docker Compose
+
+Se o ambiente for gerenciado pelo Docker Compose:
+
+```bash
+docker compose logs -f --tail=100 map-api
+```
+
+#### C. Filtrar logs por intervalo de tempo
+
+Você pode restringir a busca de logs a um período específico (ex: últimos 30 minutos):
+
+```bash
+docker logs --since 30m map-api
+```
+
+Ou especificar uma data e hora em formato ISO:
+
+```bash
+docker logs --since "2026-08-25T10:00:00" --until "2026-08-25T11:00:00" map-api
+```
+
+---
+
+## 3. Visualização de Logs no Desenvolvimento Local (Monorepo)
+
+Durante o desenvolvimento local no monorepo Urbis, o `map-api` envia seus logs diretamente para o terminal (`stdout` / `stderr`).
+
+### Executando o serviço e acompanhando a saída
+
+A partir da raiz do monorepo:
+
+```bash
+pnpm --filter @open-urbis/map-api dev
+```
+
+Ou entrando na pasta do projeto:
+
+```bash
+cd apps/api
+pnpm dev
+```
+
+### Executando com Depurador NestJS (*Debug Mode*)
+
+Para ativar o inspetor do Node.js e verbosidade adicional no console:
+
+```bash
+pnpm --filter @open-urbis/map-api dev:debug
+```
+
+### Ajustando o Nível de Log (*LOG_LEVEL*)
+
+O `map-api` utiliza a infraestrutura de Logger do NestJS. O nível de detalhes dos logs pode ser configurado via variável de ambiente:
+
+| Nível de Log | Descrição |
+| :--- | :--- |
+| `error` | Exibe apenas falhas críticas e exceções não tratadas. |
+| `warn` | Exibe avisos e alertas além dos erros. |
+| `log` / `info` | Nível padrão. Registra ciclo de vida, inicialização de módulos e rotas HTTP. |
+| `debug` | Registra detalhes de execução interna, queries TypeORM e payloads. |
+| `verbose` | Exibe informações detalhadas de rastreamento do framework. |
+
+Exemplo de execução local com nível `debug` habilitado:
+
+```bash
+LOG_LEVEL=debug pnpm --filter @open-urbis/map-api dev
+```
+
+---
+
+## 4. Estrutura e Leitura das Mensagens de Log do `map-api`
+
+Os logs emitidos pelo `map-api` seguem a estrutura padrão do Logger do NestJS:
+
+```text
+[Nest] 12345  - 25/08/2026, 14:30:15   LOG [RoutesResolver] MapController {/maps/layers}: mapped GET +1ms
+[Nest] 12345  - 25/08/2026, 14:31:02 ERROR [ExceptionsHandler] QueryFailedError: table "public.camada_invalida" does not exist
+```
+
+### Componentes de um log:
+1. **Identificador do Processo (`[Nest] 12345`)**: PID do processo Node.js executando a API.
+2. **Data e Hora**: Carimbo de data/hora em formato legível.
+3. **Nível de Log (`LOG`, `ERROR`, `WARN`, `DEBUG`)**: Severidade da mensagem.
+4. **Contexto (`[RoutesResolver]`, `[ExceptionsHandler]`, `[TypeOrmModule]`)**: Módulo ou classe do NestJS que originou o registro.
+5. **Mensagem**: Descrição do evento, payload da requisição ou *stack trace* do erro.
+
+---
+
+## Resumo dos Comandos Mais Utilizados
+
+| Cenário | Comando CLI |
+| :--- | :--- |
+| **K8s (Streaming em tempo real)** | `kubectl logs -n urbis-map -l app.kubernetes.io/name=map-api -f --tail=100` |
+| **K8s (Logs de pod que crashou)** | `kubectl logs -n urbis-map <nome-do-pod> --previous` |
+| **K8s (Filtrar erros)** | `kubectl logs -n urbis-map -l app.kubernetes.io/name=map-api --tail=500 \| grep -i "error"` |
+| **Docker (Streaming)** | `docker logs -f --tail 100 map-api` |
+| **Docker Compose (Streaming)** | `docker compose logs -f --tail=100 map-api` |
+| **Dev Local (Monorepo)** | `pnpm --filter @open-urbis/map-api dev` |

@@ -1,0 +1,12 @@
+@if (formGroup()) {
+<form [formGroup]="formGroup()" class="flex flex-col gap-1.5">
+  <label hlmLabel for="phone">{{ "components.lib.phoneForm.field" | translate }}</label>
+  <input hlmInput type="tel" id="phone" formControlName="phone" class="w-full"
+    placeholder="{{ 'components.lib.phoneForm.field' | translate }}" />
+  @if (control?.invalid && control?.touched) {
+  <div class="text-destructive text-sm font-medium">
+    {{ "components.lib.phoneForm.errors.required" | translate }}
+  </div>
+  }
+</form>
+}

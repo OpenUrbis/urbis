@@ -1,0 +1,35 @@
+---
+title: Permissões e Cargos
+description: Como o sistema de permissões funciona no Urbis.
+icon: Shield
+---
+
+O Urbis utiliza um sistema de Controle de Acesso Baseado em Função (RBAC) para gerenciar a autorização.
+
+## Conceitos
+
+-   **Usuário**: Uma entidade autenticada.
+-   **Cargo**: Uma coleção de permissões (ex: Admin, Membro, Visualizador).
+-   **Permissão**: Um direito granular para executar uma ação (ex: `user:create`, `post:delete`).
+
+## Implementação
+
+### Guards do Backend
+
+Utilizamos Guards do NestJS para impor permissões nos endpoints.
+
+```typescript
+@UseGuards(PermissionsGuard)
+@Permissions('user:create')
+@Post()
+create(@Body() createUserDto: CreateUserDto) {
+  return this.userService.create(createUserDto);
+}
+```
+
+### Esquema do Banco de Dados
+
+O relacionamento é tipicamente:
+`User` -> `UserRole` -> `Role` -> `RolePermission` -> `Permission`.
+
+(Nota: Verifique `apps/api/src/role/index.entity.ts` para detalhes exatos do esquema, se necessário).

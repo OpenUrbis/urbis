@@ -1,0 +1,230 @@
+---
+title: Configuração de Camadas
+description: Estrutura e possibilidades para configuração de camadas de mapa.
+icon: Map
+---
+
+Este documento descreve a estrutura e as possibilidades para configuração de camadas de mapa, funcionalidade de busca e contexto do mapa na aplicação.
+
+## Estrutura Raiz
+
+A configuração é retornada como um objeto JSON com duas chaves principais: `searchContext` e `mapContext`.
+
+### 1. Contexto de Busca (`searchContext`)
+
+Configura a funcionalidade da barra de busca, incluindo fontes de busca disponíveis e histórico.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `currentTerm` | `string` | O termo de busca digitado atualmente. |
+| `history` | `string[]` | Array de termos de busca anteriores. |
+| `searchQuery` | `Object` | Estado da query de busca atual (dados, carregando, erro). |
+| `searchConfig` | `SearchConfig[]` | Configuração para fontes de busca disponíveis. |
+
+#### Configuração de Busca (`SearchConfig`)
+
+Define uma fonte de dados pesquisável.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `id` | `string` | Identificador único para a config de busca (ex: `"lotes"`). |
+| `name` | `string` | Nome de exibição na UI. |
+| `origin` | `string` | URL base para o serviço WFS/WMS (ex: URL do GeoServer). |
+| `method` | `"GET" \| "POST"` | Método HTTP a ser usado para a requisição. |
+| `index` | `number` | Prioridade de ordem para resultados de busca. |
+| `isActive` | `boolean` | Se esta fonte de busca está habilitada. |
+| `transformParams` | `string (Function)` | String de função JS para transformar o termo de busca em parâmetros de requisição (ex: filtros CQL). |
+| `transformRequest` | `string (Function) \| null` | Função opcional para transformar a requisição antes de enviar. |
+| `transformResponse` | `string (Function)` | String de função JS para transformar a resposta da API em um formato de resultado de busca padronizado. |
+| `clickAction` | `ClickAction \| null` | Ação a ser executada quando um resultado é clicado. |
+| `layerSchemaId` | `string \| null` | ID do `layerSchema` associado a este resultado de busca. |
+| `layerSchema` | `LayerSchema \| null` | Configuração de camada embutida se o resultado deve adicionar uma camada ao mapa. |
+
+---
+
+### 2. Contexto do Mapa (`mapContext`)
+
+Configura o estado do mapa, camadas, grupos e modelos de interação.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `layerSchemas` | `LayerSchema[]` | Lista de todas as camadas de mapa disponíveis. |
+| `layerGroups` | `LayerGroup[]` | Estrutura hierárquica de agrupamento para camadas. |
+| `selectedFeatures` | `any[]` | Array de features do mapa atualmente selecionadas. |
+| `boundingBox` | `[number, number, number, number]` | Limites atuais de visualização do mapa [minLon, minLat, maxLon, maxLat]. |
+| `viewport` | `Viewport` | Estado atual da viewport do mapa (lat, lon, zoom, bearing, pitch). |
+| `zoom` | `number` | Nível de zoom atual. |
+| `is3DActive` | `boolean` | Se o modo terreno/prédios 3D está ativo. |
+| `selectedBaseMap` | `string` | ID do estilo de mapa base ativo (ex: `"standard"`). |
+| `editFeatureTemplate`| `Template[]` | Modelos para a interface de edição/seleção. |
+| `layerWithRootEditTemplate` | `string` | ID da camada que fornece o modelo raiz para edição. |
+
+#### Esquema de Camada (`LayerSchema`)
+
+Define como uma camada é buscada, renderizada e interagida.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `id` | `string` | Identificador único para a camada. |
+| `name` | `string` | Nome de exibição no controlador de camadas. |
+| `origin` | `string` | Fonte URL para os dados da camada (WFS para GeoJSON, WMS para imagens). |
+| `isActive` | `boolean` | Se a camada está disponível/ativa no sistema. |
+| `type` | `LayerType` | Tipo de camada: `"GeoJsonLayer"`, `"Stream"` (tiled), ou `"CustomWMSLayer"`. |
+| `isVisible` | `boolean` | Se a camada está atualmente visível no mapa. |
+| `minZoom` | `number \| null` | Nível mínimo de zoom para renderizar a camada. |
+| `getTextColorPropName` | `string \| null` | Chave de propriedade para lógica de cor do texto. |
+| `getFillColorPropName` | `string \| null` | Chave de propriedade para lógica de cor de preenchimento. |
+| `getLineColorPropName` | `string \| null` | Chave de propriedade para lógica de cor da linha. |
+| `groupId` | `string` | ID do grupo ao qual esta camada pertence. |
+| `colors` | `LayerColor[]` | Array de cores/estilos de legenda associados à camada. |
+| `clickAction` | `ClickAction \| null` | Ação a ser disparada quando uma feature nesta camada é clicada. |
+| `viewTemplate` | `Template[] \| null` | Array de modelos para renderizar na barra lateral quando uma feature é selecionada. |
+| `properties` | `Object` | Propriedades adicionais do DeckGL para renderização (preenchimento, traço, largura da linha, etc.). |
+
+**Propriedades da Camada (`properties`)**
+Configuração passada diretamente para camadas DeckGL ou lógica personalizada.
+- `filled`: `boolean` - Renderizar preenchimento para polígonos.
+- `stroked`: `boolean` - Renderizar traço para polígonos.
+- `getFillColor`: `Function string` ou `Array` - Lógica para cor de preenchimento.
+- `getLineColor`: `Function string` ou `Array` - Lógica para cor da linha.
+- `getLineWidth`: `number` ou `Function` - Largura da linha.
+- `getText`: `Function string` - Lógica para extrair rótulos de texto.
+- `autoHighlight`: `boolean` - Realçar ao passar o mouse.
+- `highlightColor`: `Array` - Cor RGBA para realce.
+- `layerActions`: `Array` - Ações personalizadas (botões) para o item da camada na lista.
+
+#### Grupo de Camadas (`LayerGroup`)
+
+Define a hierarquia no Controlador de Camadas.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `id` | `string` | ID único do grupo. |
+| `name` | `string` | Nome de exibição. |
+| `ownerGroup` | `string \| null` | ID do grupo pai (null para grupos raiz). |
+| `childGroups` | `LayerGroup[]` | Array recursivo de subgrupos. |
+
+#### Modelo de Visualização (`Template`)
+
+Define os componentes de UI renderizados na barra lateral quando uma feature é selecionada.
+
+| Propriedade | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `type` | `string` | Tipo de componente: `wrapper-card`, `label-value`, `wrapper-list-items`, `polygon-map`, `wrapper-request`, `button`, `edit-polygon`, etc. |
+| `label` | `string` | Rótulo ou título para o componente. |
+| `templates` | `Template[]` | Modelos aninhados (para wrappers). |
+| `value` | `string` | Valor a ser exibido (suporta interpolação estilo EJS `<%- %>`). |
+| `properties` | `Object` | Propriedades específicas do componente (ex: `helper`, `action`, `url`, `transformResponse`, `columnClass`). |
+
+**Tipos de Modelo Especiais:**
+- `wrapper-request`: Faz uma requisição HTTP para buscar dados adicionais (ex: interseções) e renderiza modelos aninhados com a resposta.
+- `polygon-map`: Renderiza um mini-mapa focando na feature selecionada.
+- `edit-polygon`: Renderiza as ferramentas de edição de geometria.
+- `wrapper-list-items`: Renderiza uma lista de itens (texto primário/secundário) baseada em dados.
+
+---
+
+### Exemplo: Adicionando uma Camada WMS via Configuração
+
+Para adicionar uma camada WMS, você criaria um `LayerSchema` assim:
+
+```json
+{
+  "id": "pracas_e_canteiros",
+  "name": "Praças e Canteiros",
+  "origin": "https://geoserver.slui.dev/geoserver/slui/wms?LAYERS=slui%3Apracas_e_canteiros&FORMAT=image%2Fjpeg&TRANSPARENT=true",
+  "isActive": true,
+  "type": "CustomWMSLayer",
+  "isVisible": true,
+  "minZoom": null,
+  "getTextColorPropName": null,
+  "getFillColorPropName": null,
+  "getLineColorPropName": null,
+  "clickAction": null,
+  "viewTemplate": null,
+  "properties": {},
+  "groupId": "areas_publicas",
+  "colors": [
+    {
+      "id": 307,
+      "color": [147, 196, 125, 240],
+      "type": "fill",
+      "pattern": "full",
+      "label": "default",
+      "value": null,
+      "layerSchemaId": "pracas_e_canteiros"
+    }
+  ]
+}
+```
+
+### Exemplo: Adicionando uma Camada GeoJSON com Ação de Clique
+
+```json
+{
+  "id": "distrito_municipal",
+  "name": "Distritos",
+  "origin": "https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:distrito_municipal&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326",
+  "isActive": true,
+  "type": "GeoJsonLayer",
+  "isVisible": true,
+  "minZoom": null,
+  "getTextColorPropName": null,
+  "getFillColorPropName": null,
+  "getLineColorPropName": null,
+  "clickAction": {
+    "action": "setZoom",
+    "params": {
+      "zoom": 17.1
+    }
+  },
+  "viewTemplate": null,
+  "properties": {
+    "filled": true,
+    "getText": "(d) => d?.properties?.nm_distrito_municipal",
+    "maxZoom": 17,
+    "stroked": true,
+    "pickable": true,
+    "pointType": "circle+text",
+    "wireframe": true,
+    "getTextSize": 12,
+    "minZoomText": 10,
+    "getElevation": -10,
+    "getLineWidth": 12,
+    "autoHighlight": true,
+    "getTextAnchor": "middle",
+    "getPointRadius": 12,
+    "highlightColor": [153, 203, 255, 140]
+  },
+  "groupId": "geral",
+  "colors": [
+    {
+      "id": 305,
+      "color": [0, 0, 0, 120],
+      "type": "line",
+      "pattern": "full",
+      "label": "default",
+      "value": null,
+      "layerSchemaId": "distrito_municipal"
+    },
+    {
+      "id": 303,
+      "color": [153, 203, 255, 120],
+      "type": "fill",
+      "pattern": "full",
+      "label": "default",
+      "value": null,
+      "layerSchemaId": "distrito_municipal"
+    },
+    {
+      "id": 304,
+      "color": [65, 92, 119, 255],
+      "type": "text",
+      "pattern": "full",
+      "label": "default",
+      "value": null,
+      "layerSchemaId": "distrito_municipal"
+    }
+  ]
+}
+```

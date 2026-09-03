@@ -1,0 +1,56 @@
+---
+title: Especificações do Legis
+description: Especificação técnica, ciclo de vida de atos normativos, regras de consolidação e situações especiais.
+icon: FileText
+---
+
+Este documento consolida as especificações funcionais e técnicas do **Legis**, o módulo do Urbis para edição, estruturação e consolidação de atos normativos e leis territoriais municipais (PDE, LPUOS).
+
+---
+
+## 🎯 Objetivos do Sistema
+
+1. **Estruturação Inteligente**: Detecção automática da hierarquia normativa (Artigos, Parágrafos, Incisos, Alíneas).
+2. **Ciclo de Vida Normativo**: Rastreamento de Situações Especiais (Veto, Derrubada de Veto, Nova Redação, Revogação, Suspensão, etc.).
+3. **Visão Consolidada**: Renderização do texto puro consolidado ou do texto histórico comparativo com marcas visuais.
+4. **Vínculos & Coletâneas**: Conexão entre múltiplos diplomas legais e seleção cirúrgica de trechos (`Smart Segments`).
+
+---
+
+## 🏗️ 1. Cadastro e Edição de Atos Normativos
+
+### 1.1. Metadados do Cabeçalho
+- **Tipo Normativo**: Lei Ordinária, Lei Complementar, Decreto, Portaria, Resolução, Instrução Normativa.
+- **Identificação**: Número da norma e ano de promulgação.
+- **Ementa**: Resumo descritivo da matéria legislativa.
+- **Autoridade Promulgadora**: Prefeito, Secretário Municipal ou Órgão Colegiado.
+- **Vigência**: Data de publicação, início de vigência e regra de vacatio legis.
+
+### 1.2. Elementos Normativos e Hierarquia
+O sistema organiza o texto em nós estruturados:
+- `Parte` -> `Livro` -> `Título` -> `Capítulo` -> `Seção` -> `Subseção`
+- `Artigo` -> `Parágrafo` (ou `Parágrafo Único`) -> `Inciso` -> `Alínea` -> `Item`
+
+---
+
+## ⚖️ 2. Situações Especiais (Modificações Normativas)
+
+As situações especiais representam eventos jurídicos que afetam a eficácia de um elemento normativo:
+
+| Grupo Semântico | Tipos de Situações | Estilo Visual no Editor |
+| :--- | :--- | :--- |
+| **Veto** | Veto, Derrubada de Veto | Tachado (`line-through`) quando vetado / Laranja quando derrubado |
+| **Alteração** | Nova Redação, Renumeração, Alteração de Ementa | Azul (`text-blue-700`) para novo texto em vigor |
+| **Vigor** | Suspensão, Restauração, Perda de Eficácia | Laranja quando restaurado / Tachado quando suspenso |
+| **Existência** | Revogação, Anulação, Cassação, Acréscimo, Repristinação | Tachado para revogado / Azul para acréscimo |
+| **Vigência** | Alterações de prazo e eficácia futura | Vermelho (`text-red-600`) se vigência ainda não iniciada |
+| **Interpretação** | Interpretações Constitucionais / ADIs | Sublinhado (`underline`) |
+
+---
+
+## 🔍 3. Motor de Consolidação (`ConsolidationLogic`)
+
+O motor de consolidação gera a versão final limpa do diploma legal:
+- **Inativação**: Elementos vetados (sem derrubada) ou revogados (sem repristinação) são ocultados ou substituídos por marcadores `[...]`.
+- **Substituição de Redação**: Exibe a redação mais recente em vigor acompanhada de nota de rodapé identificando a norma alteradora.
+- **Preservação Histórica**: Permite alternar instantaneamente entre a "Visão Original (Promulgada)" e a "Visão Consolidada Vigente".

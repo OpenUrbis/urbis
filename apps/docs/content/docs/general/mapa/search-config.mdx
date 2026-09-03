@@ -1,0 +1,228 @@
+---
+title: Configuração de Busca
+description: Documentação da configuração de busca.
+icon: Search
+---
+
+## Índice
+- [Visão Geral](#visão-geral)
+- [Propriedades do Objeto de Busca](#propriedades-do-objeto-de-busca)
+- [Exemplos de Configuração de Busca](#exemplos-de-configuração-de-busca)
+
+## Visão Geral
+
+Este documento descreve a estrutura e funcionalidade do sistema de configuração de busca no mecanismo de construção de layout. A configuração de busca define como as consultas de busca são processadas, incluindo a fonte de dados, parâmetros de requisição, transformação de resposta e interações do usuário. Cada configuração de busca é representada por um registro em uma única linha de um banco de dados, especificando o comportamento de uma funcionalidade de busca e permitindo a recuperação e exibição dinâmica de dados geoespaciais.
+
+**Nota**: Todas as buscas configuradas são executadas em paralelo no frontend quando um usuário realiza uma consulta, permitindo que múltiplos resultados sejam retornados simultaneamente de diferentes configurações de busca.
+
+## Propriedades do Objeto de Busca
+
+O registro do banco de dados que define uma configuração de busca contém várias propriedades que controlam sua funcionalidade, processamento de dados e comportamento de renderização. A tabela abaixo lista todas as propriedades, suas descrições, valores padrão e exemplos.
+
+| Propriedade             | Descrição                                                                   | Valor Padrão  | Exemplo                                                                 |
+|-------------------------|-----------------------------------------------------------------------------|---------------|-------------------------------------------------------------------------|
+| `id`                    | Identificador único para a configuração de busca. Deve ser único em todas as configurações. | Nenhum (obrigatório) | `"lotes"`                                                                |
+| `name`                  | Nome descritivo da busca, usado para renderização na interface do usuário.   | Nenhum (obrigatório) | `"Endereços Fiscais"`                                                       |
+| `layerSchemaId`         | Opcional. Identificador de um esquema de camada (definido em `layer-schema.md`) usado para aplicar uma ação de clique quando um resultado de busca é selecionado. Se não fornecido, a propriedade `clickAction` é usada. | `null`        | `"lotes"`                                                               |
+| `index`                 | Inteiro especificando a ordem de renderização dos resultados de busca na tela. Valores mais altos são renderizados por último (no topo). | Nenhum (obrigatório) | `10`                                                                    |
+| `origin`                | URL ou endpoint para a fonte de dados (ex: um WFS GeoServer). Pode incluir variáveis de ambiente, como `{environment}`. | Nenhum (obrigatório) | `"https://geoserver.slui.dev/geoserver/slui/ows"`                       |
+| `transformParams`       | Opcional. Função JavaScript chamada antes da requisição para processar parâmetros de query da URL. Recebe um objeto com uma propriedade `term` contendo a entrada da busca. Retorna um objeto com parâmetros de query (ex: `CQL_FILTER`). O objeto `utils` está disponível, fornecendo funções como `calculateCenterId`. | `null`        | `({term}) => { ... }` (veja exemplo abaixo)                               |
+| `transformRequest`      | Opcional. Função JavaScript chamada antes da requisição para processar o corpo da requisição (se aplicável). Recebe os dados da requisição e pode modificá-los. O objeto `utils` está disponível. | `null`        | `null`                                                                  |
+| `transformResponse`     | Opcional. Função JavaScript chamada após a resposta da API para transformar os dados. Recebe o parâmetro `data` (resposta da API) e deve retornar um array de objetos no formato esperado pelo frontend: `{ id, latitude, longitude, name, rawData }`. O objeto `utils` está disponível, incluindo `calculateCenterId` para calcular o centro de coordenadas. | `null`        | `(data) => { ... }` (veja exemplo abaixo)                                 |
+| `clickAction`           | Opcional. Define a ação executada quando um resultado de busca é clicado. Segue a mesma estrutura das ações de clique de camada (veja [Ações no Clique do Polígono](#ações-no-clique-do-polígono) na [Documentação do Esquema de Camada](./layer-schema.md)). Usado se `layerSchemaId` não estiver definido. | `null`        | `{ "action": "setZoom", "params": { "zoom": 17.1 } }`                    |
+| `method`                | Opcional. Método de requisição HTTP (ex: GET, POST, PUT).                      | `"GET"`       | `"POST"`                                                                |
+| `isActive`              | Opcional. Booleano indicando se a configuração de busca está ativa (ou seja, se as requisições são executadas). | `true`        | `true`                                                                  |
+
+**Nota sobre Resposta Esperada**: Quando definida, a função `transformResponse` deve retornar um array de objetos no formato `{ id, latitude, longitude, name, rawData }`, que é o padrão esperado pelo frontend para renderizar resultados de busca.
+
+### Notas sobre Funções `utils`
+As funções `transformParams`, `transformRequest` e `transformResponse` têm acesso a um objeto `utils` que fornece funções auxiliares. Atualmente, a seguinte função está disponível:
+- **`calculateCenterId(coordinates)`**: Recebe um array de coordenadas e retorna o ponto central como `[longitude, latitude]`.
+
+### Notas sobre `clickAction`
+A propriedade `clickAction` segue o mesmo esquema que a `clickAction` na configuração da camada (veja [Ações no Clique do Polígono](#ações-no-clique-do-polígono) na [Documentação do Esquema de Camada](./layer-schema.md)). Ela suporta ações como `SelectFeature`, `setZoom` e `openFeature`. Se `layerSchemaId` for fornecido, a ação de clique é derivada do esquema de camada referenciado, e `clickAction` é ignorado.
+
+## Exemplos de Configuração de Busca
+
+### Configuração Complexa (Endereços Fiscais)
+Este exemplo demonstra uma configuração de busca para endereços fiscais, com transformações personalizadas de parâmetros e resposta para lidar com formatos de consulta específicos e padronizar a saída.
+
+```javascript
+{
+  "id": "lots",
+  "name": "Tax Addresses",
+  "layerSchemaId": "lotes",
+  "index": 10,
+  "origin": "https://geoserver.slui.dev/geoserver/slui/ows",
+  "transformParams": `({term}) => {
+    const parseCode = (term) => {
+      term = term.replaceAll(" ", "");
+      if (!/^\\d{10}(\\d{2})?$/.test(term)) return null;
+      const setor = term.substring(0, 3); // first 3 digits
+      const quadra = term.substring(3, 6); // next 3 digits
+      const lote = term.substring(6, 10); // next 4 digits
+      const condominio = term.length === 12 ? term.substring(10, 12) : null; // last 2 digits, if present
+
+      return { quadra, setor, lote, condominio };
+    };
+
+    let CQL_FILTER = '';
+
+    const code = parseCode(term);
+    if (code) {
+      const { condominio, lote, quadra, setor } = code;
+      CQL_FILTER = \`cd_setor_fiscal = '\${setor}' AND cd_quadra_fiscal = '\${quadra}' AND cd_lote = '\${lote}'\`;
+      if (condominio) CQL_FILTER += \` AND cd_condominio = '\${condominio}'\`;
+    } else {
+      term = \`%\${term.split(" ").join("%").split(",").join("")}%\`;
+      CQL_FILTER = \`nm_logradouro_completo ILIKE '\${term}'\`;
+    }
+
+    return {
+      service: "WFS",
+      version: "1.0.0",
+      request: "GetFeature",
+      typeName: "slui:view_lote_cidadao",
+      maxFeatures: "5",
+      outputFormat: "json",
+      srsName: "EPSG:4326",
+      CQL_FILTER
+    };
+  }`,
+  "transformResponse": `(data) => {
+    return JSON.parse(data)?.features?.map((feature) => {
+      const { properties, id } = feature;
+      const { nm_logradouro_completo: name, cd_numero_porta: number } = properties;
+      const [longitude, latitude] = utils.calculateCenterId(feature?.geometry.coordinates[0]);
+
+      return {
+        id,
+        latitude,
+        longitude,
+        name: \`\${name}, \${number}\`,
+        rawData: feature
+      };
+    }) ?? [];
+  }`,
+  "transformRequest": null,
+  "clickAction": null,
+  "method": "GET",
+  "isActive": true
+}
+```
+
+### Configuração Simples (Monumentos)
+Este exemplo mostra uma configuração de busca mínima para monumentos, usando valores padrão onde possível e uma transformação de resposta simples.
+
+```javascript
+{
+  "id": "monuments",
+  "name": "Monuments",
+  "layerSchemaId": "monumentos",
+  "index": 5,
+  "origin": "https://geoserver.slui.dev/geoserver/slui/ows",
+  "transformParams": `({term}) => {
+    const CQL_FILTER = \`nm_monumento ILIKE '%\${term}%'\`;
+    return {
+      service: "WFS",
+      version: "1.0.0",
+      request: "GetFeature",
+      typeName: "slui:monumentos",
+      maxFeatures: "10",
+      outputFormat: "json",
+      srsName: "EPSG:4326",
+      CQL_FILTER
+    };
+  }`,
+  "transformResponse": `(data) => {
+    return JSON.parse(data)?.features?.map((feature) => {
+      const { properties, id } = feature;
+      const { nm_monumento: name } = properties;
+      const [longitude, latitude] = utils.calculateCenterId(feature?.geometry.coordinates[0]);
+
+      return {
+        id,
+        latitude,
+        longitude,
+        name,
+        rawData: feature
+      };
+    }) ?? [];
+  }`,
+  "transformRequest": null,
+  "clickAction": null,
+  "method": "GET",
+  "isActive": true
+}
+```
+
+### Configuração para Distritos
+Este exemplo ilustra uma configuração de busca para distritos municipais, com transformações de parâmetros e resposta para buscar e exibir nomes de distritos.
+
+```javascript
+{
+  "id": "districts",
+  "name": "Districts",
+  "layerSchemaId": "distrito_municipal",
+  "index": 20,
+  "origin": "https://geoserver.slui.dev/geoserver/slui/ows",
+  "transformParams": `({term}) => ({
+    service: "WFS",
+    version: "1.0.0",
+    request: "GetFeature",
+    typeName: "slui:distrito_municipal",
+    maxFeatures: "5",
+    outputFormat: "json",
+    srsName: "EPSG:4326",
+    CQL_FILTER: \`nm_distrito_municipal ILIKE '%\${term}%'\`
+  })`,
+  "transformResponse": `(data) => {
+    return JSON.parse(data)?.features?.map((feature) => {
+      const { properties, id } = feature;
+      const { nm_distrito_municipal: name } = properties;
+      const [longitude, latitude] = utils.calculateCenterId(feature);
+
+      return {
+        id,
+        latitude,
+        longitude,
+        name,
+        rawData: feature
+      };
+    }) ?? [];
+  }`,
+  "transformRequest": null,
+  "clickAction": {
+    "action": "setZoom",
+    "params": {
+      "zoom": 14
+    }
+  },
+  "method": "GET",
+  "isActive": true
+}
+```
+
+### Configuração para Geocodificação de Endereços
+Este exemplo demonstra uma configuração de busca para geocodificação de endereços, usando uma API externa e uma ação de clique personalizada para aplicar zoom.
+
+```javascript
+{
+  "id": "geocoding",
+  "name": "Addresses",
+  "layerSchemaId": null,
+  "index": 30,
+  "origin": "{environment}/geocoding/places",
+  "transformParams": `({term}) => ({search: term, service: "nominatim"})`,
+  "transformResponse": null,
+  "transformRequest": null,
+  "clickAction": {
+    "action": "setZoom",
+    "params": {
+      "zoom": 17.1
+    }
+  },
+  "method": "GET",
+  "isActive": true
+}
+```

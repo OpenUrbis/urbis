@@ -1,0 +1,4 @@
+<div class="flex items-center gap-2 text-sm py-0.5 transition-colors duration-300" [class.text-muted-foreground]="hasError()" [class.text-green-600]="!hasError()">
+  <hlm-icon size="16" [name]="hasError() ? 'lucideXCircle' : 'lucideCheckCircle'" class="shrink-0" />
+  <span class="leading-none"><ng-content /></span>
+</div>

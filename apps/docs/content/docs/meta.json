@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "index",
+    "---Módulos do Sistema---",
+    "general",
+    "datalake",
+    "legis",
+    "---APIs & Especificações---",
+    "openapi"
+  ]
+}

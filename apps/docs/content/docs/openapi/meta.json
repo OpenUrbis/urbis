@@ -1,0 +1,6 @@
+{
+  "title": "Referência OpenAPI",
+  "icon": "FileCode",
+  "root": true,
+  "pages": ["index", "reference"]
+}

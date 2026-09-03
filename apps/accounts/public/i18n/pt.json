@@ -1,0 +1,1057 @@
+{
+  "errors": {
+    "already_representing": "Você já representa esta entidade.",
+    "already_requested": "Você já possui uma representação ativa ou pendente para esta entidade.",
+    "invalid_cpf": "O CPF informado é inválido.",
+    "invalid_cnpj": "CNPJ inválido ou inexistente."
+  },
+  "common": {
+    "loading": "Carregando...",
+    "actions": {
+      "back": "Voltar",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "create": "Criar",
+      "retry": "Tentar novamente",
+      "openMap": "Abrir Mapa",
+      "add": "Adicionar"
+    },
+    "errors": {
+      "loading": "Erro ao carregar dados",
+      "generic": "Houve um problema. Por favor, tente novamente.",
+      "save": "Erro ao salvar configurações"
+    },
+    "success": {
+      "saved": "Configurações salvas com sucesso"
+    },
+    "fields": {
+      "email": "E-mail",
+      "password": "Senha",
+      "name": "Nome",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "phone": "Telefone",
+      "cep": "CEP",
+      "street": "Logradouro",
+      "number": "Número",
+      "complement": "Complemento",
+      "neighborhood": "Bairro",
+      "city": "Cidade",
+      "state": "Estado",
+      "socialName": "Nome Social (Opcional)",
+      "digitalAddress": "Código do Endereço Digital"
+    },
+    "placeholders": {
+      "email": "email@exemplo.com",
+      "phone": "(00) 00000-0000",
+      "cep": "00000-000",
+      "number": "Nº",
+      "complement": "Apt, bloco...",
+      "state": "UF",
+      "socialName": "Como o usuário prefere ser chamado",
+      "digitalAddress": "+00-00 ABC-DEFG"
+    },
+    "pagination": {
+      "of": "de"
+    },
+    "optional": "Opcional"
+  },
+  "pages": {
+    "signIn": {
+      "title": "Identifique-se no sistema",
+      "subtitle": "Insira os dados abaixo para acessar sua conta na Urbis.",
+      "alert": {
+        "emailConfirmation": {
+          "title": "Confirmação de email pendente",
+          "description": "Seu email ainda não foi confirmado. Para acessar sua conta, confirme o email através do link enviado para sua caixa de entrada. Um novo email de confirmação foi reenviado para você."
+        },
+        "inAnalysis": {
+          "title": "Conta em análise",
+          "description": "Sua conta ainda não foi aprovada. Assim que a mesma for aprovada, você será notificado por email."
+        }
+      },
+      "form": {
+        "fields": {
+          "email": "E-mail",
+          "password": "Senha"
+        },
+        "placeholders": {
+          "email": "example@prefeitura.gov.br",
+          "password": "******"
+        },
+        "buttons": {
+          "govbr": "Entrar com GovBR",
+          "submit": "Entrar",
+          "loading": "Carregando..."
+        },
+        "links": {
+          "forgotPassword": "Esqueceu a senha?",
+          "signUp": "Criar conta"
+        },
+        "divider": "OU:"
+      },
+      "errors": {
+        "userNotFound": "Sua conta GovBR ainda não está vinculada a um usuário Urbis. Por favor, realize o cadastro para continuar.",
+        "submit": "Houve um erro ao realizar o login",
+        "invalidCredentials": "Email ou senha incorretos",
+        "userNotFoundSignUp": "Conta GovBR não encontrada no Urbis. Por favor, preencha os dados abaixo para se cadastrar e vincular sua conta."
+      },
+      "notifications": {
+        "finalizeGovBr": "Cadastro realizado com sucesso! Agora, basta clicar no botão 'Entrar com GovBR' abaixo para vincular sua conta e acessar o sistema."
+      }
+    },
+    "signUp": {
+      "title": "Criar conta",
+      "actions": {
+        "back": "Voltar",
+        "next": "Continuar"
+      },
+      "success": {
+        "inAnalysis": "Sua conta foi criada com sucesso e deve passar por um processo de análise. Assim que a mesma for aprovada, você será notificado por email",
+        "default": "Conta criada com sucesso, verifique seu email antes de realizar o acesso",
+        "backToLogin": "Voltar para o login"
+      },
+      "form": {
+        "fields": {
+          "firstName": "Nome",
+          "lastName": "Sobrenome",
+          "birthDate": "Data de Nascimento",
+          "socialName": "Nome Social",
+          "email": "Email",
+          "address": "Endereço",
+          "digitalAddress": "Endereço Digital",
+          "cep": "CEP",
+          "street": "Rua/Logradouro",
+          "number": "Número",
+          "complement": "Complemento",
+          "neighborhood": "Bairro",
+          "city": "Cidade",
+          "state": "Estado",
+          "phoneCountry": "DDI",
+          "phone": "Telefone",
+          "cpf": "CPF"
+        },
+        "digitalAddressDescription": "Acesse o Mapa.Urbis e utilize a ferramenta Endereço Digital para descobrir o seu código, e depois preencha abaixo.",
+        "noOfficialAddress": "Não possuo um endereço oficial",
+        "terms": {
+          "accept": "Eu aceito os"
+        },
+        "buttons": {
+          "submit": "Criar conta",
+          "openMap": "Abrir Mapa"
+        }
+      },
+      "errors": {
+        "submit": "Houve um erro realizar o registro",
+        "termsRequired": "Você precisa aceitar todos os termos para continuar.",
+        "invalidDigitalAddress": "Endereço Digital inválido.",
+        "invalidForm": "Por favor, preencha todos os campos obrigatórios corretamente antes de prosseguir.",
+        "email": {
+          "alreadyExists": "Este e-mail já está em uso. Tente fazer login ou recuperar sua senha."
+        },
+        "accountType": {
+          "invalidForBirthDate": "O tipo de cadastro selecionado não é permitido para a data de nascimento informada."
+        },
+        "cpf": {
+          "invalid": "CPF inválido. Verifique os dados e tente novamente.",
+          "alreadyExists": "Já existe uma conta cadastrada com este CPF.",
+          "invalidExternal": "CPF inválido ou irregular junto à Receita Federal."
+        }
+      }
+    },
+    "forgotPassword": {
+      "title": "Esqueceu a senha",
+      "description": "Digite o endereço de e-mail associado à sua conta e enviaremos as instruções para redefinir sua senha.",
+      "fields": {
+        "email": "Email"
+      },
+      "placeholders": {
+        "email": "example@email.com"
+      },
+      "buttons": {
+        "submit": "Enviar",
+        "sending": "Enviando...",
+        "back": "Voltar"
+      },
+      "sent": {
+        "title": "Email enviado!",
+        "description": "Verifique sua caixa de entrada para instruções de como recuperar sua senha.",
+        "buttons": {
+          "back": "Voltar para login"
+        }
+      },
+      "reset": {
+        "title": "Redefinir senha",
+        "buttons": {
+          "submit": "Enviar"
+        }
+      },
+      "errors": {
+        "sendEmail": "Houve um erro ao prosseguir with a redefinacao de senha",
+        "submitNewPassword": "Houve um erro ao redefinir sua senha"
+      }
+    },
+    "confirmAccount": {
+      "title": "Confirmar e-mail",
+      "loading": "Carregando...",
+      "success": "E-mail confirmado com sucesso.",
+      "errors": {
+        "hashNotFound": "Hash não encontrado",
+        "confirm": "Houve um erro ao confirmar o email"
+      }
+    },
+    "onboarding": {
+      "welcome": "Seja bem vindo",
+      "titles": {
+        "selectOrganization": "Selecione uma entidade para continuar:",
+        "fillInformation": "Preencha as informações abaixo:"
+      },
+      "actions": {
+        "back": "Voltar",
+        "createNew": "Criar uma nova"
+      },
+      "error": {
+        "title": "Erro ao carregar dados",
+        "description": "Houve um problema ao carregar seu perfil ou entidades. Por favor, tente novamente."
+      },
+      "noOrganization": "Você não está em nenhuma entidade."
+    },
+    "profile": {
+      "page": {
+        "title": "Bem vindo,",
+        "subtitle": "Gerencie suas informações",
+        "cardTitle": "Perfil",
+        "accountInfoCreated": "Sua conta foi criada em",
+        "accountInfoUpdated": "a última atualização foi em",
+        "accountInfoStatus": "e está",
+        "actions": {
+          "edit": "Editar perfil"
+        }
+      },
+      "fields": {
+        "name": "Nome",
+        "email": "E-mail",
+        "country": "País"
+      },
+      "email": {
+        "verified": "(Verificado)",
+        "resend": "Reenviar",
+        "resendError": "Houve um problema ao reenviar o código de confirmação"
+      },
+      "govBr": {
+        "integration": "Integração Gov.br",
+        "lastLogin": "Último Login",
+        "linkedAt": "Vinculado em",
+        "cpf": "CPF",
+        "rawData": "Ver dados brutos (JSON)"
+      },
+      "edit": {
+        "pageTitle": "Editar Perfil",
+        "tabs": {
+          "personalData": "Dados pessoais",
+          "changePassword": "Alterar senha",
+          "twoFactor": "Autenticação de Dois Fatores (2FA)"
+        },
+        "personal": {
+          "fields": {
+            "firstName": "Primeiro nome",
+            "lastName": "Último nome",
+            "birthDate": "Data de Nascimento",
+            "phone": "Telefone",
+            "country": "País"
+          },
+          "buttons": {
+            "save": "Salvar"
+          }
+        },
+        "password": {
+          "fields": {
+            "currentPassword": "Senha atual",
+            "password": "Senha",
+            "confirmPassword": "Confirmar Senha"
+          },
+          "buttons": {
+            "save": "Salvar"
+          }
+        },
+        "twoFactor": {
+          "descriptionDisabled": "Autenticação de dois fatores desativada",
+          "enableButton": "Ativar"
+        }
+      }
+    },
+    "roles": {
+      "page": {
+        "title": "Cargos",
+        "subtitle": "Gerencie os cargos",
+        "buttons": {
+          "create": {
+            "title": "Criar",
+            "ariaLabel": "Adicionar cargo"
+          },
+          "edit": {
+            "title": "Editar",
+            "ariaLabel": "Editar cargo"
+          },
+          "delete": {
+            "title": "Excluir",
+            "ariaLabel": "Excluir cargo",
+            "confirm": "Tem certeza que deseja excluir o cargo \"{{name}}\"?"
+          }
+        }
+      },
+      "table": {
+        "columns": {
+          "name": "Nome",
+          "description": "Descrição",
+          "allowedActions": "Ações permitidas",
+          "status": "Status",
+          "actions": "Ações"
+        },
+        "noData": "Nenhum cargo encontrado com os filtros aplicados."
+      },
+      "form": {
+        "fields": {
+          "name": "Nome",
+          "description": "Descrição",
+          "permissions": "Permissões",
+          "scope": "Escopo"
+        },
+        "placeholders": {
+          "permissions": "Selecione as permissões que deseja"
+        },
+        "permissions": {
+          "selectedAria": "Permissões selecionadas"
+        },
+        "scopeOptions": {
+          "global": "Global",
+          "any": "Qualquer",
+          "own": "Proprietário"
+        },
+        "selectedTitle": "Permissões selecionadas",
+        "selectedEmpty": "Adicione permissões pelo campo permissões acima",
+        "buttons": {
+          "cancel": "Cancelar",
+          "save": "Salvar"
+        }
+      }
+    },
+    "users": {
+      "page": {
+        "title": "Usuários",
+        "subtitle": "Gerencie os usuários",
+        "buttons": {
+          "create": {
+            "title": "Criar",
+            "ariaLabel": "Adicionar usuário"
+          },
+          "edit": {
+            "title": "Editar",
+            "ariaLabel": "Editar usuário"
+          },
+          "delete": {
+            "ariaLabel": "Deletar usuário"
+          }
+        }
+      },
+      "table": {
+        "columns": {
+          "name": "Nome",
+          "email": "Email",
+          "status": "Status",
+          "actions": "Ações"
+        },
+        "noData": "Nenhum usuário encontrado com os filtros aplicados."
+      },
+      "edit": {
+        "title": {
+          "create": "Criar usuário"
+        },
+        "fields": {
+          "firstName": "Nome",
+          "lastName": "Sobrenome",
+          "email": "Email"
+        },
+        "placeholders": {
+          "email": "Ex. pat@example.com"
+        },
+        "errors": {
+          "emailInvalid": "Por favor, insira um email válido",
+          "emailRequired": "Email é obrigatório"
+        },
+        "tabs": {
+          "dadosDoUsuarios": "Dados do Usuário",
+          "roles": "Cargos",
+          "organizations": "Entidades"
+        },
+        "buttons": {
+          "save": "Salvar"
+        },
+        "roles": {
+          "buttons": {
+            "add": "Adicionar"
+          },
+          "title": "Cargos do usuário"
+        }
+      },
+      "handle": {
+        "title": {
+          "create": "Novo Usuário",
+          "edit": "Editar Usuário"
+        },
+        "subtitle": {
+          "create": "Preencha as informações para criar um novo usuário",
+          "edit": "Editando informações de {{name}}"
+        },
+        "sections": {
+          "personal": "Informações Pessoais",
+          "address": "Endereço",
+          "organizations": "Entidades",
+          "roles": "Papéis e Permissões"
+        },
+        "noOfficialAddress": "Não possuo um endereço oficial (CEP)",
+        "digitalAddressDescription": "O Endereço Digital Urbis identifica qualquer local no mapa, mesmo onde não há CEP oficial."
+      }
+    },
+    "organizations": {
+      "page": {
+        "title": "Entidades",
+        "subtitle": "Gerencie suas entidades",
+        "buttons": {
+          "create": {
+            "title": "Criar",
+            "ariaLabel": "Adicionar entidade"
+          },
+          "edit": {
+            "title": "Editar",
+            "ariaLabel": "Editar entidade"
+          }
+        }
+      },
+      "filters": {
+        "searchLabel": "Pesquisar",
+        "searchPlaceholder": "Nome ou documento",
+        "type": "Tipo de Cadastro / Representado",
+        "status": "Situação",
+        "all": "Todos"
+      },
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo"
+      },
+      "table": {
+        "columns": {
+          "name": "Nome completo",
+          "document": "Documento",
+          "description": "Descrição / Tipo de Cadastro/Representado",
+          "userCount": "Quantidade de Usuários",
+          "status": "Status",
+          "actions": "Ações"
+        },
+        "noData": "Nenhuma entidade encontrada com os filtros aplicados."
+      },
+      "form": {
+        "title": {
+          "create": "Criar entidade"
+        },
+        "tabs": {
+          "details": "Dados da entidade",
+          "users": "Usuários"
+        },
+        "fields": {
+          "name": "Nome",
+          "description": "Descrição"
+        },
+        "buttons": {
+          "save": "Salvar",
+          "back": "Editar entidade"
+        },
+        "actions": {
+          "back": "Voltar"
+        }
+      }
+    },
+    "auth": {
+      "attention": "ATENÇÃO: O cadastro de usuário possibilita uma experiência personalizada e o protocolo de pedidos.",
+      "unauthorized": {
+        "title": "Parece que você está tendo problemas para fazer login",
+        "description": "Isso pode ocorrer devido a alguns problemas comuns. Tente o seguinte:",
+        "steps": {
+          "checkTime": "Verifique a data e a hora do seu dispositivo — certifique-se de que estejam corretas.",
+          "clearCache": "Limpe o cache do seu navegador e tente novamente."
+        },
+        "support": "Se o problema persistir, entre em contato com nossa equipe de suporte.",
+        "button": "Tentar login"
+      },
+      "forbidden": {
+        "title": "Tivemos um problema inesperado.",
+        "description": "Se você estiver enfrentando esse problema repetidamente, limpar o cache do navegador pode ser uma solução.",
+        "button": "Tentar login",
+        "errorCode": "Código de erro: 403"
+      },
+      "callback": {
+        "title": "Houve um problema para autenticar sua conta:",
+        "description": "Se você estiver enfrentando esse problema repetidamente, limpar o cache do navegador pode ser uma solução.",
+        "button": "Tentar novamente",
+        "errors": {
+          "username": "Não foi possível recuperar seu nome de usuário",
+          "invalidSession": "Sua sessão de callback é inválida"
+        }
+      }
+    },
+    "whitelabel": {
+      "page": {
+        "title": "Configurações",
+        "subtitle": "Gerencie as configurações da organização."
+      }
+    },
+    "representations": {
+      "page": {
+        "title": "Representações",
+        "subtitle": "Gerencie as solicitações de representações e vínculos de empresas.",
+        "buttons": {
+          "request": "Solicitar Representação",
+          "approve": "Aprovar",
+          "reject": "Reprovar",
+          "details": "Visualizar Detalhes"
+        }
+      },
+      "list": {
+        "search": "Buscar por nome ou documento...",
+        "filter": {
+          "all": "Todos os Status"
+        },
+        "columns": {
+          "name": "Nome",
+          "document": "Documento",
+          "author": "Solicitante",
+          "status": "Status",
+          "date": "Data",
+          "actions": "Ações"
+        },
+        "empty": "Nenhuma solicitação de representação encontrada."
+      },
+      "request": {
+        "title": "Solicitar Representação",
+        "form": {
+          "document": "CPF ou CNPJ",
+          "documentPlaceholder": "00.000.000/0000-00",
+          "justification": "Justificativa",
+          "directAccess": "Você possui acesso direto a esta organização. Clique em enviar para confirmar."
+        },
+        "buttons": {
+          "cancel": "Cancelar",
+          "submitting": "Enviando...",
+          "submit": "Enviar"
+        },
+        "messages": {
+          "success": "Representação realizada com sucesso",
+          "error": "Erro ao solicitar representação"
+        }
+      },
+      "detail": {
+        "title": "Detalhes da Representação",
+        "info": {
+          "title": "Informações",
+          "requester": "Solicitante",
+          "organization": "Organização",
+          "type": "Tipo",
+          "status": "Status",
+          "justification": "Justificativa",
+          "documents": "Documentos"
+        },
+        "comments": {
+          "title": "Comentários",
+          "empty": "Nenhum comentário.",
+          "add": "Adicionar Comentário / Resposta",
+          "placeholder": "Escreva seu comentário aqui...",
+          "infoMessage": "Ao enviar um comentário, o status da representação será alterado para <span class=\"font-medium text-primary\">Pendente</span>."
+        },
+        "buttons": {
+          "reject": "Reprovar",
+          "approve": "Aprovar",
+          "requestInfo": "Solicitar Informações",
+          "sendComment": "Enviar Comentário"
+        }
+      }
+    },
+    "representation": {
+      "status": {
+        "PENDING": "Pendente",
+        "APPROVED": "Aprovado",
+        "REJECTED": "Rejeitado",
+        "INFO_REQUESTED": "Informações Solicitadas",
+        "INACTIVE": "Inativo",
+        "REPRESENTING": "Representando",
+        "AVAILABLE": "Disponível"
+      },
+      "type": {
+        "DIRECT": "Direta",
+        "MANUAL": "Manual"
+      },
+      "actions": {
+        "approve": {
+          "title": "Aprovar Representação",
+          "description": "Tem certeza que deseja aprovar esta representação?",
+          "confirm": "Aprovar",
+          "success": "Representação aprovada com sucesso",
+          "error": "Erro ao aprovar representação"
+        },
+        "reject": {
+          "title": "Reprovar Representação",
+          "description": "Tem certeza que deseja reprovar esta representação?",
+          "confirm": "Reprovar",
+          "success": "Representação reprovada com sucesso",
+          "error": "Erro ao reprovar representação"
+        },
+        "requestInfo": {
+          "title": "Solicitar Informações",
+          "description": "Deseja solicitar mais informações ao usuário?",
+          "confirm": "Solicitar",
+          "success": "Representação de informações enviada",
+          "error": "Erro ao solicitar informações",
+          "validation": "Por favor, adicione um comentário explicando a representação de informações."
+        },
+        "addComment": {
+          "error": "Erro ao comentar"
+        }
+      }
+    }
+  },
+  "components": {
+    "profileMenu": {
+      "title": "Minha Conta",
+      "myProfile": "Meu perfil",
+      "personalData": "Dados pessoais",
+      "changePassword": "Alterar senha",
+      "twoFactor": "Autenticação de Dois Fatores (2FA)",
+      "apiKeys": "Chaves de API",
+      "usage": "Uso",
+      "roles": "Cargos",
+      "users": "Usuários",
+      "organizations": "Entidades",
+      "whitelabel": "Configurações",
+      "changeOrganization": "Alterar entidade",
+      "help": "Ajuda",
+      "logout": "Logout"
+    },
+    "userOrganizationManager": {
+      "page": {
+        "title": "Entidades",
+        "buttons": {
+          "add": {
+            "title": "Adicionar",
+            "ariaLabel": "Adicionar entidade"
+          },
+          "edit": {
+            "title": "Editar",
+            "ariaLabel": "Editar entidade"
+          }
+        },
+        "labels": {
+          "rolesSingle": "Cargo:",
+          "rolesMultiple": "Cargos:"
+        }
+      },
+      "dialog": {
+        "createTitle": "Criar atribuição",
+        "editTitle": "Editar atribuição",
+        "organizationLabel": "da entidade {{name}}",
+        "buttons": {
+          "cancel": "Cancelar",
+          "save": "Salvar"
+        },
+        "errors": {
+          "selectRole": "Selecione ao menos um cargo para este usuário",
+          "invalidForm": "O formulário é inválido",
+          "save": "Houve um erro ao salvar a atribuição"
+        }
+      }
+    },
+    "shared": {
+      "table": {
+        "paginator": {
+          "itemsPerPage": "Itens por página",
+          "nextPage": "Próxima página",
+          "previousPage": "Página anterior",
+          "firstPage": "Primeira página",
+          "lastPage": "Última página",
+          "rangeLabelNoItems": "0 de {{length}}",
+          "rangeLabelWithItems": "{{startIndex}} – {{endIndex}} de {{length}}"
+        },
+        "loading": "Carregando..."
+      },
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo",
+        "in_analysis": "Em Análise"
+      }
+    },
+    "lib": {
+      "countrySelectForm": {
+        "field": "País",
+        "errors": {
+          "required": "Selecione um país"
+        }
+      },
+      "phoneForm": {
+        "field": "Telefone",
+        "errors": {
+          "required": "Informe um telefone válido"
+        }
+      },
+      "passwordForm": {
+        "fields": {
+          "password": "Senha",
+          "repeatPassword": "Confirmar Senha"
+        },
+        "actions": {
+          "toggleVisibility": "Alternar visibilidade da senha"
+        },
+        "errors": {
+          "minlength": "Use pelo menos 8 caracteres.",
+          "uppercaseLetter": "Inclua pelo menos uma letra MAIÚSCULA.",
+          "lettersAndNumbers": "Inclua pelo menos um número e uma letra.",
+          "equalPasswords": "As senhas não conferem."
+        }
+      }
+    },
+    "roleSelector": {
+      "labels": {
+        "single": "Cargo",
+        "multiple": "Cargos"
+      },
+      "aria": {
+        "select": "Selecionar cargo",
+        "remove": "Remover cargo {{name}}"
+      },
+      "placeholders": {
+        "search": "Selecionar cargo..."
+      }
+    },
+    "organizationSelector": {
+      "labels": {
+        "single": "Entidade",
+        "multiple": "Entidades"
+      },
+      "aria": {
+        "select": "Selecionar entidade",
+        "remove": "Remover entidade {{name}}"
+      },
+      "placeholders": {
+        "search": "Selecionar entidade..."
+      }
+    },
+    "permissionSelector": {
+      "labels": {
+        "single": "Permissão",
+        "multiple": "Permissões"
+      },
+      "aria": {
+        "select": "Selecionar permissão",
+        "remove": "Remover permissão {{name}}"
+      },
+      "placeholders": {
+        "search": "Selecionar permissão..."
+      }
+    },
+    "switchOrganizationDialog": {
+      "title": "Selecione o que deseja gerenciar:"
+    },
+    "createOrganization": {
+      "fields": {
+        "name": "Nome",
+        "description": "Descrição"
+      },
+      "buttons": {
+        "create": "Criar",
+        "createAndSelect": "Criar e selecionar"
+      },
+      "errors": {
+        "create": "Houve um erro ao tentar criar a entidade"
+      }
+    },
+    "roleManager": {
+      "default": "Padrão",
+      "handleRole": {
+        "selectedTitle": "Permissões selecionadas",
+        "emptyState": "Adicione permissões pelo campo permissões acima",
+        "success": {
+          "updated": "Cargo atualizado com sucesso",
+          "created": "Cargo criado com sucesso",
+          "deleted": "Cargo excluído com sucesso"
+        },
+        "errors": {
+          "invalidForm": "Infome um nome e selecione ao menos uma permissão para salvar o cargo",
+          "save": "Houve um erro ao salvar o cargo",
+          "missingPermission": "Adicione ao menos uma permissão",
+          "delete": "Houve um erro ao excluir o cargo"
+        }
+      },
+      "addRole": {
+        "title": "Adicionar cargo",
+        "permissionsTitle": "Permissões:",
+        "buttons": {
+          "add": "Adicionar cargo"
+        },
+        "errors": {
+          "assign": "Houve um erro ao tentar adicionar o cargo ao usuário"
+        }
+      }
+    },
+    "userRoleManager": {
+      "labels": {
+        "inOrganization": "em {{organization}}"
+      },
+      "buttons": {
+        "add": "Adicionar cargo",
+        "remove": "Remover cargo"
+      }
+    },
+    "drawer": {
+      "buttons": {
+        "toggle": "Alternar menu"
+      }
+    },
+    "demoWhitelabel": {
+      "title": "Demo Whitelabel",
+      "presets": {
+        "purple": "Whitelabel Roxo",
+        "red": "Whitelabel Vermelho",
+        "green": "Whitelabel Verde",
+        "yellow": "Whitelabel Amarelo",
+        "brown": "Whitelabel Marrom"
+      },
+      "actions": {
+        "switchToDark": "Alterar para o modo escuro",
+        "switchToLight": "Alterar para o modo claro"
+      },
+      "iconAlt": "Ícone da identidade visual"
+    },
+    "twoFactorManager": {
+      "status": {
+        "label": "A autenticação de dois fatores está {{state}}",
+        "enabled": "ativada",
+        "disabled": "desativada"
+      },
+      "buttons": {
+        "disable": "Desativar autenticação",
+        "enable": "Ativar autenticação de 2 fatores (MFA)"
+      },
+      "verification": {
+        "title": "Confirmação de Segurança",
+        "description": "Insira o código gerado pelo seu aplicativo autenticador para confirmar a desativação."
+      },
+      "errors": {
+        "disable": "Erro ao desativar a autenticação de dois fatores"
+      }
+    },
+    "twoFactor": {
+      "verification": {
+        "title": "Verificação de Segurança",
+        "description": "Abra seu aplicativo autenticador e digite o código de 6 dígitos gerado."
+      }
+    },
+    "twoFactorSetup": {
+      "initialValidationTitle": "1. Verificação por e-mail",
+      "initialValidationDescription": "Para iniciar a ativação, enviamos um código temporário para o seu e-mail. Por favor, digite o código abaixo para continuar.",
+      "emailCodeLabel": "Código recebido no e-mail",
+      "buttons": {
+        "resend": "Reenviar código por e-mail",
+        "validate": "Confirmar e prosseguir"
+      },
+      "qrcodeTitle": "2. Vincular aplicativo de autenticação",
+      "qrcodeDescription": "Abra seu aplicativo de segurança (como Google Authenticator, Microsoft Authenticator ou Authy), escaneie o código QR abaixo e digite o código de 6 dígitos gerado pelo aplicativo.",
+      "errors": {
+        "resend": "Houve um erro ao reenviar o código por e-mail",
+        "invalidCode": "O código informado é inválido ou expirou",
+        "validate": "Houve um erro ao validar o código",
+        "emailOtpInvalid": "Por favor, digite um código válido de 6 dígitos"
+      }
+    },
+    "twoFactorVerify": {
+      "label": "Código do aplicativo autenticador",
+      "placeholder": "Digite o código de 6 dígitos",
+      "buttons": {
+        "validate": "Confirmar"
+      },
+      "errors": {
+        "invalid": "O código digitado não é válido",
+        "invalidProvided": "O código informado está incorreto",
+        "validate": "Erro ao validar o código"
+      }
+    },
+    "whitelabelForm": {
+      "fields": {
+        "brandColor": "Cor do sistema",
+        "organizationName": "Nome da Organização Principal",
+        "organizationType": "Tipo da Organização Principal"
+      },
+      "placeholders": {
+        "organizationName": "Ex. Prefeitura Municipal de ...",
+        "organizationType": "Selecione um tipo",
+        "newType": "Novo tipo (ex: Secretaria)"
+      },
+      "errors": {
+        "invalidHex": "Cor Hex inválida",
+        "addTypes": "Adicione tipos de organização abaixo para selecionar."
+      },
+      "sections": {
+        "mode": "Modo de Organização",
+        "types": "Gerenciar Tipos de Organização"
+      },
+      "mode": {
+        "mono": {
+          "title": "Modo Única Organização",
+          "description": "Estrutura unificada onde todos os usuários e recursos pertencem a uma única entidade principal.",
+          "example": "<strong>Exemplo de uso:</strong> Ideal para prefeituras ou empresas unificadas: Um administrador gerencia todo o sistema e usuários (sejam servidores, munícipes ou funcionários) interagem em um ambiente único."
+        },
+        "multi": {
+          "title": "Modo Múltiplas Organizações",
+          "description": "Estrutura hierárquica composta por uma organização principal e múltiplas sub-organizações autônomas (filiais, departamentos, secretarias).",
+          "example": "<strong>Exemplo de uso:</strong> Ideal para estruturas complexas, como uma Prefeitura com Secretarias/Autarquias ou uma Holding com suas Filiais/Subsidiárias. Usuários podem ter papéis distintos em cada unidade (ex: Gerente na Matriz e Visitante na Filial), com dados e acessos segregados."
+        }
+      },
+      "buttons": {
+        "add": "Adicionar",
+        "save": "Salvar"
+      },
+      "emptyTypes": "Nenhum tipo adicionado."
+    },
+    "signInGovBr": {
+      "button": "Entrar com GovBR"
+    },
+    "rails": {
+      "items": {
+        "docs": "Documentação",
+        "accounts": "Contas"
+      }
+    }
+  },
+  "representations": {
+    "page": {
+      "title": "Representações",
+      "subtitle": "Gerencie as solicitações de representações e vínculos de empresas.",
+      "buttons": {
+        "request": "Solicitar Representação",
+        "approve": "Aprovar",
+        "reject": "Reprovar",
+        "details": "Visualizar Detalhes"
+      }
+    },
+    "list": {
+      "search": "Buscar por nome ou documento...",
+      "filter": {
+        "all": "Todos os Status"
+      },
+      "columns": {
+        "name": "Nome",
+        "document": "Documento",
+        "author": "Solicitante",
+        "status": "Status",
+        "date": "Data",
+        "actions": "Ações"
+      },
+      "empty": "Nenhuma solicitação de representação encontrada."
+    },
+    "request": {
+      "title": "Solicitar Representação",
+      "form": {
+        "document": "CPF ou CNPJ",
+        "documentPlaceholder": "00.000.000/0000-00",
+        "justification": "Justificativa",
+        "directAccess": "Você possui acesso direto a esta organização. Clique em enviar para confirmar."
+      },
+      "buttons": {
+        "cancel": "Cancelar",
+        "submitting": "Enviando...",
+        "submit": "Enviar"
+      },
+      "messages": {
+        "success": "Representação realizada com sucesso",
+        "error": "Erro ao solicitar representação"
+      }
+    },
+    "detail": {
+      "title": "Detalhes da Representação",
+      "info": {
+        "title": "Informações",
+        "requester": "Solicitante",
+        "organization": "Organização",
+        "type": "Tipo",
+        "status": "Status",
+        "justification": "Justificativa",
+        "documents": "Documentos"
+      },
+      "history": {
+        "title": "Histórico",
+        "empty": "Nenhum histórico disponível."
+      },
+      "comments": {
+        "title": "Comentários",
+        "empty": "Nenhum comentário.",
+        "add": "Adicionar Comentário / Resposta",
+        "placeholder": "Escreva seu comentário aqui...",
+        "infoMessage": "Ao enviar um comentário, o status da representação será alterado para <span class=\"font-medium text-primary\">Pendente</span>."
+      },
+      "buttons": {
+        "reject": "Reprovar",
+        "approve": "Aprovar",
+        "requestInfo": "Solicitar Informações",
+        "sendComment": "Enviar Comentário"
+      }
+    }
+  },
+  "representation": {
+    "status": {
+      "PENDING": "Pendente",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado",
+      "INFO_REQUESTED": "Informações Solicitadas",
+      "INACTIVE": "Inativo",
+      "REPRESENTING": "Representando",
+      "AVAILABLE": "Disponível"
+    },
+    "type": {
+      "DIRECT": "Direta",
+      "MANUAL": "Manual"
+    },
+    "history": {
+      "CREATED": "Representação criada",
+      "APPROVED": "Representação aprovada",
+      "REJECTED": "Representação reprovada",
+      "INFO_REQUESTED": "Informações solicitadas",
+      "INFO_PROVIDED": "Informações fornecidas",
+      "AUTO_APPROVED": "Aprovado automaticamente"
+    },
+    "actions": {
+      "approve": {
+        "title": "Aprovar Representação",
+        "description": "Tem certeza que deseja aprovar esta representação?",
+        "confirm": "Aprovar",
+        "success": "Representação aprovada com sucesso",
+        "error": "Erro ao aprovar representação"
+      },
+      "reject": {
+        "title": "Reprovar Representação",
+        "description": "Tem certeza que deseja reprovar esta representação?",
+        "confirm": "Reprovar",
+        "success": "Representação reprovada com sucesso",
+        "error": "Erro ao reprovar representação"
+      },
+      "requestInfo": {
+        "title": "Solicitar Informações",
+        "description": "Deseja solicitar mais informações ao usuário?",
+        "confirm": "Solicitar",
+        "success": "Representação de informações enviada",
+        "error": "Erro ao solicitar informações",
+        "validation": "Por favor, adicione um comentário explicando a representação de informações."
+      },
+      "addComment": {
+        "error": "Erro ao comentar"
+      }
+    }
+  }
+}

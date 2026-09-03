@@ -1,0 +1,109 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Organization } from '../../../../organization/entities/organization.entity';
+import { UserRoleAssignment } from '../../../../role/entities/user-role-assignment.entity';
+import { User } from '../../../../user/entities/user.entity';
+import { UserStatus } from '../../../../user/enums/user-status.enum';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
+
+@Injectable()
+export class UserSeedService {
+  constructor(
+    @InjectRepository(Organization)
+    private organizationRepository: Repository<Organization>,
+
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+
+    @InjectRepository(UserRoleAssignment)
+    private userRoleAssignmentRepository: Repository<UserRoleAssignment>,
+
+    private configService: ConfigService,
+  ) {}
+
+  async createOrg() {
+    const existingOrg = await this.organizationRepository.findOne({
+      where: { name: 'Codata' },
+    });
+
+    if (existingOrg) {
+      return existingOrg;
+    }
+
+    const org = this.organizationRepository.create({
+      name: 'Codata',
+      metadata: {
+        tenantType: 'mono',
+        organizationType: 'Secretaria',
+        organizationTypes: ['Secretaria', 'Empresa', 'Autarquia'],
+      },
+    });
+
+    return await this.organizationRepository.save(org);
+  }
+
+  async createUser() {
+    const email = this.configService.get<string>(
+      'admin.account.email',
+      'admin@urbis.prefeitura.sp.gov.br',
+    );
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    const configuredPassword = this.configService.get<string>(
+      'admin.account.password',
+    );
+    if (!configuredPassword) {
+      throw new Error(
+        'ADMIN_ACCOUNT_PASSWORD must be configured to run the user seed',
+      );
+    }
+
+    const user = this.userRepository.create({
+      email,
+      password: await bcrypt.hash(configuredPassword, await bcrypt.genSalt()),
+      firstName: 'John',
+      lastName: 'Dom',
+      status: UserStatus.ACTIVE,
+    });
+
+    return await this.userRepository.save(user);
+  }
+
+  async createUserAssignment() {
+    const org = await this.createOrg();
+    const user = await this.createUser();
+
+    const existingAssign = await this.userRoleAssignmentRepository.findOne({
+      where: {
+        organizationId: org.id,
+        userId: user.id,
+        roleId: SYSTEM_ROLES.admin,
+      },
+    });
+
+    if (existingAssign) {
+      return existingAssign;
+    }
+
+    const assign = this.userRoleAssignmentRepository.create({
+      organizationId: org.id,
+      userId: user.id,
+      roleId: SYSTEM_ROLES.admin,
+    });
+
+    return await this.userRoleAssignmentRepository.save(assign);
+  }
+
+  async run() {
+    return await this.createUserAssignment();
+  }
+}

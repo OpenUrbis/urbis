@@ -1,0 +1,5 @@
+{
+  "title": "Arquitetura & Engenharia",
+  "icon": "Layers",
+  "pages": ["index", "stack", "monorepo", "frontend", "backend", "auth"]
+}

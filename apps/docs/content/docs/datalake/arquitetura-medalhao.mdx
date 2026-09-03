@@ -1,0 +1,64 @@
+---
+title: Arquitetura de Medalhão
+description: Estrutura em camadas (Raw, Bronze, Silver, Gold) para ingestão, tratamento e publicação de dados geográficos no Urbis.
+icon: Layers
+---
+
+A **Arquitetura de Medalhão (Medallion Architecture)** organiza os pipelines de engenharia de dados do Urbis em quatro camadas progressivas de qualidade e maturidade: **Raw**, **Bronze**, **Silver** e **Gold**.
+
+Cada camada resolve um desafio específico de integridade, transformando dados brutos e heterogêneos de múltiplos provedores em dados limpos, tipados e prontos para consumo por aplicações territoriais.
+
+---
+
+## 1. 📥 Camada Raw (Dados Brutos)
+
+A camada **Raw** é responsável pela ingestão direta e fiel dos dados vindos de fontes externas (como GeoSampa via WFS, GeoCATI via ArcGIS REST APIs, raspadores de dados históricos do CEDI, etc.).
+
+- **Armazenamento**: MinIO / Azure Blob no bucket correspondente (ex: `geojson`, prefixo `/raw/`), mantendo o formato original da fonte (GeoJSON, JSON, XML).
+- **Processamento**: Sem modificação nos atributos ou geometrias. O objetivo é garantir a imutabilidade do dado bruto e resiliência na coleta.
+- **Validações Iniciais (`AssetCheckSpec`)**:
+  - `features_not_empty`: Garante que a coleta retornou um conjunto de dados válido e não vazio.
+- **Metadados Extraídos**: Quantidade total de feições, nomes de propriedades, tipos primitivos e tipos de geometria detectados.
+
+---
+
+## 2. 🥉 Camada Bronze (Consolidação Estrutural)
+
+A camada **Bronze** carrega os arquivos da camada Raw e executa validações estruturais e cartográficas preliminares.
+
+- **Armazenamento**: MinIO / Azure Blob sob o prefixo `/bronze/`.
+- **Processamento**:
+  - Validação do sistema de referência de coordenadas (SRID). O padrão municipal GeoSampa utiliza `EPSG:31983` (SIRGAS 2000 / UTM zone 23S) ou `EPSG:4326` (WGS 84).
+  - Verificação de parsing JSON/GeoJSON sem corrupção.
+- **Objetivo**: Garantir integridade de formato antes de aplicar regras de negócio pesadas.
+
+---
+
+## 3. 🥈 Camada Silver (Limpeza, Padronização e Tipagem)
+
+A camada **Silver** é a camada de higienização, enriquecimento e conformação com o modelo de dados Urbis. É onde os dados brutos se tornam estruturados, consistentes e analíticos.
+
+- **Processamento**:
+  - **Eliminação de Colunas Desnecessárias**: Remoção de campos técnicos irrelevantes para o negócio municipal.
+  - **Conversão de Tipos**: Normalização de strings numéricas para inteiros/floats, padronização de datas para ISO-8601 e correção de codificação (UTF-8).
+  - **Chaves Primárias de Negócio (`unique_id`)**: Geração ou preservação de identificadores únicos (como `sql`, `setor`, ou hash MD5 `cd_identificador` para registros históricos).
+  - **Remapeamento de Nomes de Colunas (DE-PARA)**: Tradução de termos crípticos de sistemas legados para identificadores claros em português.
+  - **Homogeneização Geométrica**: Garantia de geometrias válidas (`ST_IsValid` / `shapely.make_valid`), forçando conversão para `MultiPolygon` ou `MultiLineString` quando necessário.
+- **Armazenamento**: Salvo no MinIO / Azure Blob em formato colunar otimizado **Apache Parquet**.
+
+---
+
+## 4. 🥇 Camada Gold (Consumo e Entrega)
+
+A camada **Gold** é a camada final destinada ao consumo direto por aplicações de mapas, formulários inteligentes e analistas urbanos. Ela é dividida em duas entregas complementares:
+
+### A. Gold PostGIS
+- **Processamento**: Lê os arquivos Parquet estruturados da camada Silver e executa operações de upsert transacional no banco PostgreSQL / PostGIS da aplicação.
+- **Idempotência**: Utiliza rotinas de upsert (`upsert_geodataframe` ou `upsert_dataframe`) com chave primária definida, permitindo reprocessamentos sem duplicar registros.
+- **Índices Espaciais**: Criação automática de índices espaciais `GIST(geometry)` e índices B-Tree nas chaves de busca mais frequentes (ex: `sql`, `logradouro`).
+
+### B. Gold GeoServer
+- **Processamento**: Publica a tabela criada no PostGIS diretamente no catálogo do **GeoServer** via REST API, vinculando-a ao workspace correspondente.
+- **Protocolos Suportados**:
+  - **WMS (Web Map Service)**: Renderização de tiles cartográficos otimizados para mapas web.
+  - **WFS (Web Feature Service)**: Consulta e download de geometrias e feições em GeoJSON/GML.

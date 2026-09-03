@@ -1,0 +1,132 @@
+<div
+  class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background text-foreground p-4 overflow-y-auto"
+>
+  <div class="w-full max-w-[380px] border border-border rounded-xl p-5 sm:p-6 bg-card text-card-foreground">
+    <form (ngSubmit)="onSubmit()" [formGroup]="formGroup" class="w-full">
+      <section class="w-full bg-transparent flex flex-col gap-4">
+        <header class="pb-1">
+          <h1 class="text-xl m-0 p-0 font-bold text-primary">
+            {{ "pages.signIn.title" | translate }}
+          </h1>
+
+          <p class="text-xs italic text-muted-foreground mt-1.5">
+            {{ "pages.auth.attention" | translate }}
+          </p>
+        </header>
+
+        @if (isEmailNotConfirmed()) {
+          <div
+            class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md relative"
+            role="alert"
+          >
+            <span class="block sm:inline text-xs">{{
+              "pages.signIn.alert.emailConfirmation.description" | translate
+            }}</span>
+          </div>
+        }
+
+        @if (isInAnalysis()) {
+          <div
+            class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-md relative"
+            role="alert"
+          >
+            <span class="block sm:inline text-xs">{{
+              "pages.signIn.alert.inAnalysis.description" | translate
+            }}</span>
+          </div>
+        }
+
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="email" class="text-xs text-foreground">{{
+              "pages.signIn.form.fields.email" | translate
+            }}</label>
+            <input
+              hlmInput
+              id="email"
+              type="email"
+              placeholder="{{
+                'pages.signIn.form.placeholders.email' | translate
+              }}"
+              formControlName="email"
+              class="w-full h-9 text-sm bg-background text-foreground"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label hlmLabel for="password" class="text-xs text-foreground">{{
+              "pages.signIn.form.fields.password" | translate
+            }}</label>
+            <input
+              hlmInput
+              id="password"
+              type="password"
+              placeholder="{{
+                'pages.signIn.form.placeholders.password' | translate
+              }}"
+              formControlName="password"
+              class="w-full h-9 text-sm bg-background text-foreground"
+            />
+          </div>
+
+          <div class="flex items-center min-h-[20px]">
+            @if (hasLoginError()) {
+              <span class="text-xs font-medium text-destructive mr-auto">
+                {{ "pages.signIn.errors.invalidCredentials" | translate }}
+              </span>
+            }
+
+            <a
+              hlmBtn
+              variant="outline"
+              size="sm"
+              href="/forgot-password"
+              class="ml-auto text-xs font-medium no-underline"
+            >
+              {{ "pages.signIn.form.links.forgotPassword" | translate }}
+            </a>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2.5 pt-1">
+          <button
+            hlmBtn
+            class="w-full font-semibold h-9 text-sm"
+            [disabled]="formGroup.invalid || disableSubmit() || isLoading()"
+          >
+            @if (isLoading()) {
+              {{ "pages.signIn.form.buttons.loading" | translate }}
+            } @else {
+              {{ "pages.signIn.form.buttons.submit" | translate }}
+            }
+          </button>
+
+          <a
+            hlmBtn
+            variant="outline"
+            href="/sign-up"
+            class="w-full font-semibold h-9 text-sm no-underline"
+          >
+            {{ "pages.signIn.form.links.signUp" | translate }}
+          </a>
+
+          <div class="relative py-1">
+            <div class="absolute inset-0 flex items-center">
+              <span class="w-full border-t border-border"></span>
+            </div>
+            <div class="relative flex justify-center text-[10px] uppercase">
+              <span class="bg-card border border-border px-2.5 py-0.5 rounded-full text-muted-foreground font-semibold">
+                {{ "pages.signIn.form.divider" | translate }}
+              </span>
+            </div>
+          </div>
+
+          <lib-sign-in-gov-br-btn
+            (click)="signInWithExternalOidc()"
+            class="w-full"
+          />
+        </div>
+      </section>
+    </form>
+  </div>
+</div>

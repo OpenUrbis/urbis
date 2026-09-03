@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "master",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "@open-urbis/map-web",
+    "@open-urbis/map-docs",
+    "@open-urbis/map-site",
+    "@open-urbis/map-accounts",
+    "@open-urbis/legis"
+  ],
+  "privatePackages": false
+}

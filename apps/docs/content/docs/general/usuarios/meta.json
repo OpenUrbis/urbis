@@ -1,0 +1,5 @@
+{
+  "title": "Contas & Permissões",
+  "icon": "Users",
+  "pages": ["index", "cargos", "organizacoes"]
+}

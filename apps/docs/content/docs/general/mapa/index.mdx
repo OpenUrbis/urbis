@@ -1,0 +1,53 @@
+---
+title: Módulo de Mapas (GIS)
+description: Arquitetura, configuração de camadas e recursos geoespaciais da plataforma Urbis.
+icon: Map
+---
+
+O módulo de mapas do **Urbis** é responsável pela renderização geoespacial de alta performance, cruzamento de dados territoriais, ferramentas de medição e análise urbanística.
+
+---
+
+## 🗺️ Tecnologias Principais
+
+- **MapLibre GL**: Motor cartográfico vetorial para renderização de mapas base, estilos e navegação suave.
+- **Deck.gl 9**: Renderização de camadas WebGL com alta taxa de quadros (FPS) para dezenas de milhares de geometrias, polígonos e visualização 3D.
+- **Endereço Digital / Plus Code**: Localização métrica (1m²) de lotes e pontos de interesse sem dependência de CEP.
+- **GeoServer WMS/WFS**: Integração nativa com servidores padrão OGC para consumo de geometrias vetoriais e tiles raster.
+
+---
+
+## 📑 Guias de Configuração do Mapa
+
+<Cards>
+  <Card
+    title="Configuração de Camadas"
+    href="/docs/general/mapa/layer-configuration"
+    description="Esquema e propriedades para registrar camadas, grupos e ações de clique."
+  />
+  <Card
+    title="Esquema de Dados (Layer Schema)"
+    href="/docs/general/mapa/layer-schema"
+    description="Tipos de camadas, definições de estilo de preenchimento, contorno e texto."
+  />
+  <Card
+    title="Mapas Base"
+    href="/docs/general/mapa/base-maps"
+    description="Configuração de estilos de mapa de fundo (satélite, ruas, relevo)."
+  />
+  <Card
+    title="Modelos de Visualização (View Templates)"
+    href="/docs/general/mapa/view-template"
+    description="Templates de cards laterais, listas de atributos e mini-mapas de detalhes."
+  />
+  <Card
+    title="Configuração de Busca"
+    href="/docs/general/mapa/search-config"
+    description="Integração de busca territorial de lotes, zoneamento e distritos."
+  />
+  <Card
+    title="Scripts SQL e Consultas"
+    href="/docs/general/mapa/scripts-sql"
+    description="Exemplos de queries PostGIS para preparação de camadas espaciais."
+  />
+</Cards>

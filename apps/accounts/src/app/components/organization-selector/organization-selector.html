@@ -1,0 +1,50 @@
+<div class="flex flex-col gap-2">
+  @if (!multi() && selectedOrganizations().length > 0) {
+    <div class="flex items-center justify-between p-2 border border-border rounded-md bg-secondary/10">
+        <span class="font-medium text-sm">{{ selectedOrganizations()[0].name }}</span>
+        <button type="button" (click)="remove(0)" class="hover:text-destructive flex items-center">
+            <hlm-icon name="lucideX" size="16" />
+        </button>
+    </div>
+  } @else {
+    <div class="relative">
+        <hlm-icon name="lucideSearch" size="sm" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <input 
+            hlmInput 
+            [formControl]="search" 
+            placeholder="{{ 'components.organizationSelector.placeholders.search' | translate }}"
+            class="pl-9 w-full"
+        />
+    </div>
+  }
+
+  @if (multi() && selectedOrganizations().length > 0) {
+    <div class="flex flex-wrap gap-2 mb-2">
+      @for (org of selectedOrganizations(); track org.id; let i = $index) {
+        <div class="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm border border-border">
+          <span class="font-medium">{{ org.name }}</span>
+          <button type="button" (click)="remove(i)" class="ml-1 hover:text-destructive flex items-center justify-center">
+            <hlm-icon name="lucideX" size="14" />
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  @if (organizations()?.length && (!(!multi() && selectedOrganizations().length > 0))) {
+    <div class="border border-border rounded-md max-h-40 overflow-y-auto mt-1">
+        @for (org of organizations(); track org.id) {
+        <button 
+            type="button" 
+            class="w-full text-left px-3 py-2 hover:bg-muted/50 text-sm transition-colors border-b border-border/50 last:border-0"
+            (click)="select(org)"
+        >
+            <div class="font-medium">{{ org.name }}</div>
+            @if (org.description) {
+                <div class="text-xs text-muted-foreground">{{ org.description }}</div>
+            }
+        </button>
+        }
+    </div>
+  }
+</div>

@@ -1,0 +1,86 @@
+---
+title: Workers e Monólito Modular
+description: Entendendo a arquitetura de Monólito Modular usando Workers e AWS App Runner.
+icon: Cpu
+---
+
+O Urbis adota uma arquitetura de **Monólito Modular**. Isso significa que, embora o código-fonte resida em um único repositório (monorepo) e compartilhe utilitários comuns, a aplicação é dividida em "Workers" independentes que podem ser implantados e escalados individualmente.
+
+## O Decorator `@Worker`
+
+O núcleo dessa arquitetura é o decorator `@Worker`. Ele permite definir uma classe como ponto de entrada para um módulo específico da sua aplicação.
+
+### Como funciona
+
+Quando você aplica o decorator `@Worker` a uma classe, você fornece metadados que dizem à infraestrutura como implantar e rotear o tráfego para esse worker.
+
+```typescript
+// apps/api/src/workers/auth/worker.ts
+
+import { Worker } from '../../common/decorators/worker.decorator';
+
+@Worker({ 
+  name: 'auth', 
+  description: 'Worker de autenticação para lidar com operações relacionadas a auth',
+  path: 'auth'
+})
+class AuthWorkerServer {
+  constructor() {
+    void bootstrapAuthWorker();
+  }
+}
+```
+
+### Opções de Metadados
+
+| Opção | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `name` | `string` | O nome único do worker. Usado para nomeação de recursos (ex: `worker-auth`). |
+| `description` | `string` | Uma breve descrição da responsabilidade do worker. |
+| `path` | `string` | O prefixo do caminho da URL que este worker irá manipular (ex: `auth` significa que ele manipula `/auth/*`). |
+| `isRoot` | `boolean` | (Opcional) Se `true`, este worker manipula o caminho raiz `/` e quaisquer rotas não correspondidas. Padrão é `false`. |
+| `excludedPaths` | `string[]` | (Opcional) Caminhos a serem excluídos do worker raiz se este worker estiver assumindo-os. Geralmente tratado automaticamente. |
+
+## Infraestrutura e Descoberta
+
+O código de infraestrutura (localizado em `infra/aws`) escaneia automaticamente o diretório `apps/api/src` por arquivos contendo o decorator `@Worker` durante o processo de deploy.
+
+1.  **Descoberta**: O utilitário `WorkerDiscovery` analisa os arquivos TypeScript para encontrar todas as definições `@Worker`.
+2.  **Criação de Recursos**: Para cada worker encontrado, o construto `WorkerService` do CDK cria um serviço dedicado **AWS App Runner**.
+3.  **Roteamento**:
+    *   **API Gateway**: Atua como o único ponto de entrada para a internet pública.
+    *   **VPC Link & NLB**: Conecta o API Gateway de forma segura aos serviços privados do App Runner dentro da VPC.
+    *   **Rotas**: O CDK configura automaticamente rotas no API Gateway para encaminhar tráfego correspondente ao `path` do worker (ex: `/auth/*`) para o serviço App Runner correspondente.
+
+## Criando um Novo Worker
+
+Para criar um novo módulo (ex: `billing`):
+
+1.  **Crie o diretório**: `apps/api/src/workers/billing`.
+2.  **Crie o módulo**: `billing-worker.module.ts` (importa controllers e providers necessários).
+3.  **Crie o ponto de entrada**: `worker.ts`.
+
+```typescript
+// apps/api/src/workers/billing/worker.ts
+import { Worker } from '../../common/decorators/worker.decorator';
+// ... imports
+
+async function bootstrapBillingWorker() {
+  const app = await NestFactory.create(BillingWorkerModule, new FastifyAdapter());
+  // ... setup
+  await app.listen(process.env.PORT || 3000);
+}
+
+@Worker({ 
+  name: 'billing', 
+  path: 'billing'
+})
+class BillingWorkerServer {
+  constructor() {
+    void bootstrapBillingWorker();
+  }
+}
+new BillingWorkerServer();
+```
+
+Isso permite que você desenvolva funcionalidades isoladamente e as implante como serviços independentes, combinando a simplicidade de um monólito com a escalabilidade de microsserviços.

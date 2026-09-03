@@ -1,0 +1,153 @@
+---
+title: Instalação e Configuração do Ambiente
+description: Guia completo para instalar, configurar e executar a plataforma Urbis localmente.
+icon: Settings
+---
+
+Este guia cobre todos os passos necessários para configurar o ambiente de desenvolvimento, iniciar os serviços de infraestrutura (PostgreSQL, Redis, MinIO), executar migrações e inicializar as aplicações do Urbis.
+
+---
+
+## 💻 Requisitos do Sistema
+
+- **Sistema Operacional**: macOS, Linux ou Windows (via WSL2).
+- **Node.js**: `v20.x` ou `v22.x` (LTS recomendado).
+- **Gerenciador de Pacotes**: `pnpm` `v9.15.0+`.
+- **Docker & Docker Compose**: Para banco de dados, cache e armazenamento de arquivos.
+- **mkcert** *(recomendado)*: Para geração de certificados SSL locais (OIDC em Accounts).
+
+---
+
+## 1. Instalar Node.js e pnpm
+
+Recomendamos utilizar o [nvm](https://github.com/nvm-sh/nvm) ou [fnm](https://github.com/Schniz/fnm):
+
+```bash
+nvm install 20
+nvm use 20
+corepack enable
+corepack prepare pnpm@9.15.0 --activate
+```
+
+---
+
+## 2. Clonar o Repositório e Instalar Dependências
+
+```bash
+git clone https://github.com/OpenUrbis/urbis-map.git urbis
+cd urbis
+pnpm install
+```
+
+---
+
+## 3. Configurar Variáveis de Ambiente
+
+Crie os arquivos `.env` necessários a partir dos modelos:
+
+### Backend API (`apps/api`)
+```bash
+cp apps/api/.env.example apps/api/.env
+```
+
+### Frontend Web GIS (`apps/web`)
+```bash
+cp apps/web/.env.example apps/web/.env
+```
+
+> 🗺️ **Nota sobre Mapas:** O frontend web utiliza **MapLibre GL** nativamente por padrão, portanto não é necessária chave paga do Mapbox para desenvolvimento local.
+
+---
+
+## 4. Iniciar Infraestrutura Docker
+
+O Urbis utiliza **PostgreSQL 16**, **Redis 7** e **MinIO S3** gerenciados via Docker Compose:
+
+```bash
+pnpm composer:up
+```
+
+Para verificar o status dos containers:
+```bash
+docker ps
+```
+
+---
+
+## 5. Banco de Dados: Migrations e Seeds
+
+Com os containers Docker ativos, aplique o esquema do banco de dados e insira os dados iniciais (camadas cartográficas, configurações e usuário administrador padrão):
+
+```bash
+# Executar migrations
+pnpm --filter @open-urbis/map-api migration:run
+
+# Executar seeds iniciais
+pnpm --filter @open-urbis/map-api seed:run
+```
+
+---
+
+## 6. Certificados SSL Locais (Accounts & OIDC)
+
+A aplicação `apps/accounts` opera como provedor OIDC e necessita de HTTPS e do domínio `conta.urbis.prefeitura.sp.gov.br`.
+
+1. **Hosts:** Adicione a linha abaixo ao seu `/etc/hosts` ou `C:\Windows\System32\drivers\etc\hosts`:
+   ```plaintext
+   127.0.0.1 conta.urbis.prefeitura.sp.gov.br
+   ```
+
+2. **Certificados com mkcert:**
+   ```bash
+   mkcert -install
+   mkcert -key-file apps/accounts/conta.urbis.prefeitura.sp.gov.br-key.pem \
+          -cert-file apps/accounts/conta.urbis.prefeitura.sp.gov.br.pem \
+          conta.urbis.prefeitura.sp.gov.br localhost 127.0.0.1
+   ```
+
+---
+
+## 7. Executando as Aplicações
+
+### Iniciar todos os serviços com proxy SSL no Accounts (Recomendado):
+```bash
+pnpm dev:ssl
+```
+
+### Iniciar em modo padrão de desenvolvimento:
+```bash
+pnpm dev
+```
+
+### Iniciar aplicações individualmente:
+```bash
+# Backend API
+pnpm --filter @open-urbis/map-api dev
+
+# Web GIS Map
+pnpm --filter @open-urbis/map-web dev
+
+# Portal de Contas (Accounts)
+pnpm --filter @open-urbis/map-accounts dev
+
+# Legis (Editor Legislativo)
+pnpm --filter @open-urbis/legis dev
+
+# Portal de Documentação
+pnpm --filter @open-urbis/map-docs dev
+```
+
+---
+
+## 8. Tabela de Portas e Endpoints
+
+| Aplicação | URL / Porta | Descrição |
+| :--- | :--- | :--- |
+| **API Backend** | `http://localhost:3000` | REST API NestJS |
+| **Swagger Docs** | `http://localhost:3000/swagger/docs` | Documentação OpenAPI interativa |
+| **Web GIS** | `http://localhost:5173` | Interface cartográfica do mapa |
+| **Accounts** | `https://conta.urbis.prefeitura.sp.gov.br` | Portal de contas e autenticação OIDC |
+| **Legis** | `http://localhost:5175` | Gestão e edição de legislação territorial |
+| **Site Institucional** | `http://localhost:5174` | Portal institucional |
+| **Documentação** | `http://localhost:3010` | Portal de documentação técnica |
+| **MinIO Console** | `http://localhost:9001` | Painel S3 local (`minioadmin` / `minioadmin123`) |

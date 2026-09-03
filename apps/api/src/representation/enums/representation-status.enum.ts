@@ -1,0 +1,7 @@
+export enum RepresentationStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  INFO_REQUESTED = 'INFO_REQUESTED',
+  INACTIVE = 'INACTIVE',
+}

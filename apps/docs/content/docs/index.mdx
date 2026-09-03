@@ -1,0 +1,120 @@
+---
+title: Central de Documentação Urbis
+description: Plataforma territorial integrada, engenharia de dados geoespaciais, módulo legislativo e APIs da Prefeitura de São Paulo.
+icon: Home
+---
+
+import {
+  Map,
+  Database,
+  Users,
+  Scale,
+  FileCode,
+  Server,
+  Cloud,
+  Code2,
+  FileText,
+  Boxes,
+  Terminal,
+  Sparkles,
+  Layers,
+} from 'lucide-react';
+
+Bem-vindo à central oficial de documentação técnica do ecossistema **Urbis** (Prefeitura de São Paulo). Aqui você encontra a visão arquitetural integrada, manuais de configuração de camadas no Mapa, orquestração no Datalake, controle de acesso e guias operacionais.
+
+---
+
+## 🗺️ Módulos da Aplicação
+
+Navegue diretamente pelos módulos funcionais e interfaces de usuário do ecossistema:
+
+<Cards>
+  <Card
+    key="mapa"
+    href="/docs/general/mapa/layer-configuration"
+    title="Mapa Urbis (Web GIS)"
+    description="Renderização Deck.gl e MapLibre, configuração de camadas vetoriais por BBOX, mapas base e visualização de lotes."
+    icon={<Map />}
+  />
+  <Card
+    key="usuarios"
+    href="/docs/general/usuarios"
+    title="Contas & Permissões"
+    description="Autenticação OIDC, Single Sign-On, gestão hierárquica de organizações, matriz de cargos e papéis territoriais."
+    icon={<Users />}
+  />
+  <Card
+    key="legis"
+    href="/docs/legis"
+    title="Legis (Editor Territorial)"
+    description="Editor e consolidador de atos normativos, inspetor unificado de situações e vinculação de artigos às feições."
+    icon={<Scale />}
+  />
+  <Card
+    key="forms"
+    href="/docs/general/forms/docs"
+    title="Viabiliza & Formulários"
+    description="Esteira de processos territoriais, formulários dinâmicos e validação automatizada de regras urbanísticas."
+    icon={<FileText />}
+  />
+</Cards>
+
+---
+
+## ⚡ Engenharia de Dados & Infraestrutura
+
+Pipelines de dados, orquestração reativa e topologia em nuvem:
+
+<Cards>
+  <Card
+    key="datalake"
+    href="/docs/datalake"
+    title="Datalake & Pipelines Dagster"
+    description="Arquitetura de medalhão (Raw, Bronze, Silver, Gold), PostGIS 3.4, GeoServer e catálogo de +7.500 arquivos."
+    icon={<Database />}
+  />
+  <Card
+    key="arch"
+    href="/docs/general/architecture/stack"
+    title="Arquitetura Mestre & Backend"
+    description="Monorepo Turborepo, microsserviços NestJS, mensageria Bull/Redis e resiliência assíncrona."
+    icon={<Server />}
+  />
+  <Card
+    key="infra"
+    href="/docs/general/infrastructure/azure-resources"
+    title="Infraestrutura em Nuvem (Azure AKS)"
+    description="Topologia dos 3 clusters gerenciados no Azure AKS, estratégias de deploy via kubectl e monitoramento."
+    icon={<Cloud />}
+  />
+  <Card
+    key="openapi"
+    href="/docs/openapi"
+    title="Referência OpenAPI (Swagger)"
+    description="Documentação interativa de rotas REST, esquemas de payload DTO e autenticação JWT."
+    icon={<FileCode />}
+  />
+</Cards>
+
+---
+
+## 🛠️ Contribuição e Desenvolvimento
+
+Recursos essenciais para o fluxo de desenvolvimento do time de engenharia:
+
+<Cards>
+  <Card
+    key="setup"
+    href="/docs/general/development/setup"
+    title="Setup do Ambiente Local"
+    description="Passo a passo com pnpm, Docker compose, variáveis de ambiente .env e migrações do banco."
+    icon={<Terminal />}
+  />
+  <Card
+    key="commits"
+    href="/docs/general/development/commit-guidelines"
+    title="Diretrizes de Commits & PRs"
+    description="Padrão Conventional Commits, ciclo de vida de Pull Requests atômicos e fechamento automático de issues."
+    icon={<Code2 />}
+  />
+</Cards>

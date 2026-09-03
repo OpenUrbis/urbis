@@ -1,0 +1,5 @@
+{
+  "title": "Infraestrutura em Nuvem",
+  "icon": "Cloud",
+  "pages": ["index", "azure-resources", "deploy", "docker", "logs", "costs"]
+}

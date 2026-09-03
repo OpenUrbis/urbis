@@ -1,0 +1,1 @@
+{"version":3,"file":"NotesModal.d.ts","sourceRoot":"","sources":["NotesModal.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,MAAM,OAAO,CAAC;AAK1B,UAAU,eAAe;IACvB,MAAM,EAAE,MAAM,CAAC;IACf,MAAM,EAAE,OAAO,CAAC;IAChB,OAAO,EAAE,MAAM,IAAI,CAAC;CACrB;AAED,wBAAgB,UAAU,CAAC,EAAE,MAAM,EAAE,MAAM,EAAE,OAAO,EAAE,EAAE,eAAe,4BAkDtE"}

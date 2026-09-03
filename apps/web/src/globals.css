@@ -1,0 +1,845 @@
+@import "../../../packages/ui/globals.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sidebar-width: 420px;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-family);
+  }
+}
+
+/* Map Legend Patterns
+ * Recorta um tile de /pattern.png, que é um atlas de 512x512 formado por uma grade
+ * 4x4 de tiles de 120x120 (com 4px de padding transparente entre eles).
+ * Com mask-size: 400%, cada "janela" do elemento equivale a uma célula da grade;
+ * as posições 0 / 33.3333% / 66.6667% / 100% selecionam a coluna ou a linha.
+ *
+ * O `?v=` é cache-busting e precisa acompanhar PATTERN_ATLAS_VERSION.
+ *
+ * Mantenha em sincronia com src/lib/layer-patterns.ts e public/pattern.json
+ * (gerados por apps/web/scripts/generate-pattern-atlas.mjs).
+ */
+.pattern {
+  mask-image: url("/pattern.png?v=2");
+  -webkit-mask-image: url("/pattern.png?v=2");
+}
+
+.hatch-1x,
+.full,
+.hatch-1x-reverse,
+.hatch-2x,
+.hatch-cross,
+.dots,
+.hatch-2x-reverse,
+.hatch-horizontal,
+.hatch-vertical,
+.hatch-grid {
+  mask-size: 400% 400%;
+  mask-repeat: repeat;
+  -webkit-mask-size: 400% 400%;
+  -webkit-mask-repeat: repeat;
+}
+
+/* linha 0 do atlas */
+.hatch-1x {
+  mask-position: 0 0;
+  -webkit-mask-position: 0 0;
+}
+
+.full {
+  mask-position: 33.3333% 0;
+  -webkit-mask-position: 33.3333% 0;
+}
+
+.hatch-1x-reverse {
+  mask-position: 66.6667% 0;
+  -webkit-mask-position: 66.6667% 0;
+}
+
+.hatch-2x {
+  mask-position: 100% 0;
+  -webkit-mask-position: 100% 0;
+}
+
+/* linha 1 do atlas */
+.hatch-cross {
+  mask-position: 0 33.3333%;
+  -webkit-mask-position: 0 33.3333%;
+}
+
+.dots {
+  mask-position: 33.3333% 33.3333%;
+  -webkit-mask-position: 33.3333% 33.3333%;
+}
+
+.hatch-2x-reverse {
+  mask-position: 66.6667% 33.3333%;
+  -webkit-mask-position: 66.6667% 33.3333%;
+}
+
+.hatch-horizontal {
+  mask-position: 100% 33.3333%;
+  -webkit-mask-position: 100% 33.3333%;
+}
+
+/* linha 2 do atlas */
+.hatch-vertical {
+  mask-position: 0 66.6667%;
+  -webkit-mask-position: 0 66.6667%;
+}
+
+.hatch-grid {
+  mask-position: 33.3333% 66.6667%;
+  -webkit-mask-position: 33.3333% 66.6667%;
+}
+
+/* Map Control Overrides */
+:root {
+  --urbis-z-map-canvas: 0;
+  --urbis-z-map-deck: 10;
+  --urbis-z-map-controls: 10040;
+  --urbis-z-map-tooltip: 10050;
+  --urbis-z-map-angle: 10060;
+  --urbis-z-map-popup: 10070;
+  --urbis-z-app-panel: 10080;
+  --urbis-z-app-menu: 10130;
+  --urbis-z-app-header: 10140;
+  --urbis-z-app-modal: 10160;
+  /* Menus/popovers/selects ancorados: vão para o body via portal e precisam ficar
+     acima do header fixo e de modais (dialogs). */
+  --urbis-z-app-popover: 10170;
+  --urbis-z-app-tooltip: 10180;
+  --urbis-z-app-toast: 10190;
+  --urbis-z-draw-max: 999999;
+}
+
+/* Mapbox GL Draw / MapLibre Draw Editing Controls & Toolbar - Highest Z-Index in the World */
+.mapboxgl-ctrl-top-right:has(.mapbox-gl-draw_ctrl-draw-btn),
+.maplibregl-ctrl-top-right:has(.mapbox-gl-draw_ctrl-draw-btn),
+.mapboxgl-ctrl-top-left:has(.mapbox-gl-draw_ctrl-draw-btn),
+.maplibregl-ctrl-top-left:has(.mapbox-gl-draw_ctrl-draw-btn),
+.mapboxgl-ctrl-top-right:has(.mapbox-gl-draw-toolbar),
+.maplibregl-ctrl-top-right:has(.mapbox-gl-draw-toolbar),
+.mapboxgl-ctrl-group:has(.mapbox-gl-draw_ctrl-draw-btn),
+.maplibregl-ctrl-group:has(.mapbox-gl-draw_ctrl-draw-btn),
+.mapbox-gl-draw_ctrl-draw-btn,
+.mapboxgl-draw-actions,
+.maplibregl-draw-actions,
+.mapbox-gl-draw-toolbar,
+.urbis-drawing-toolbar,
+.urbis-draw-layer,
+.mapboxgl-draw-point,
+.maplibregl-draw-point,
+.mapbox-gl-draw_point,
+.mapbox-gl-draw_polygon {
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+}
+
+.maplibregl-canvas-container,
+.mapboxgl-canvas-container,
+.maplibregl-canvas,
+.mapboxgl-canvas {
+  z-index: var(--urbis-z-map-canvas) !important;
+}
+
+#deckgl-wrapper,
+#deckgl-overlay,
+.deck-widget-container {
+  z-index: var(--urbis-z-map-deck) !important;
+}
+
+.mapboxgl-ctrl-top-left,
+.mapboxgl-ctrl-top-right,
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right,
+.maplibregl-ctrl-top-left,
+.maplibregl-ctrl-top-right,
+.maplibregl-ctrl-bottom-left,
+.maplibregl-ctrl-bottom-right {
+  z-index: var(--urbis-z-map-controls) !important;
+  pointer-events: none;
+}
+
+.mapboxgl-ctrl-top-left > .mapboxgl-ctrl,
+.mapboxgl-ctrl-top-left > .mapboxgl-ctrl-group,
+.mapboxgl-ctrl-top-right > .mapboxgl-ctrl,
+.mapboxgl-ctrl-top-right > .mapboxgl-ctrl-group,
+.mapboxgl-ctrl-bottom-left > .mapboxgl-ctrl,
+.mapboxgl-ctrl-bottom-left > .mapboxgl-ctrl-group,
+.mapboxgl-ctrl-bottom-right > .mapboxgl-ctrl,
+.mapboxgl-ctrl-bottom-right > .mapboxgl-ctrl-group,
+.maplibregl-ctrl-top-left > .maplibregl-ctrl,
+.maplibregl-ctrl-top-left > .maplibregl-ctrl-group,
+.maplibregl-ctrl-top-left > .mapboxgl-ctrl,
+.maplibregl-ctrl-top-left > .mapboxgl-ctrl-group,
+.maplibregl-ctrl-top-right > .maplibregl-ctrl,
+.maplibregl-ctrl-top-right > .maplibregl-ctrl-group,
+.maplibregl-ctrl-top-right > .mapboxgl-ctrl,
+.maplibregl-ctrl-top-right > .mapboxgl-ctrl-group,
+.maplibregl-ctrl-bottom-left > .maplibregl-ctrl,
+.maplibregl-ctrl-bottom-left > .maplibregl-ctrl-group,
+.maplibregl-ctrl-bottom-left > .mapboxgl-ctrl,
+.maplibregl-ctrl-bottom-left > .mapboxgl-ctrl-group,
+.maplibregl-ctrl-bottom-right > .maplibregl-ctrl,
+.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-group,
+.maplibregl-ctrl-bottom-right > .mapboxgl-ctrl,
+.maplibregl-ctrl-bottom-right > .mapboxgl-ctrl-group {
+  pointer-events: auto;
+}
+
+.maplibregl-ctrl-top-left > .mapboxgl-ctrl,
+.maplibregl-ctrl-top-left > .mapboxgl-ctrl-group,
+.maplibregl-ctrl-bottom-left > .mapboxgl-ctrl,
+.maplibregl-ctrl-bottom-left > .mapboxgl-ctrl-group {
+  float: left;
+  clear: both;
+  margin: 10px 0 0 10px;
+}
+
+.maplibregl-ctrl-top-right > .mapboxgl-ctrl,
+.maplibregl-ctrl-top-right > .mapboxgl-ctrl-group,
+.maplibregl-ctrl-bottom-right > .mapboxgl-ctrl,
+.maplibregl-ctrl-bottom-right > .mapboxgl-ctrl-group {
+  float: right;
+  clear: both;
+  margin: 10px 10px 0 0;
+}
+
+.maplibregl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-left {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  left: 12px !important;
+  bottom: 18px !important;
+  z-index: var(--urbis-z-map-controls) !important;
+}
+
+.maplibregl-ctrl-bottom-left > .mapboxgl-ctrl,
+.maplibregl-ctrl-bottom-left > .mapboxgl-ctrl-group,
+.maplibregl-ctrl-bottom-left > .maplibregl-ctrl,
+.maplibregl-ctrl-bottom-left > .maplibregl-ctrl-group,
+.mapboxgl-ctrl-bottom-left > .mapboxgl-ctrl,
+.mapboxgl-ctrl-bottom-left > .mapboxgl-ctrl-group,
+.mapboxgl-ctrl-bottom-left > .maplibregl-ctrl,
+.mapboxgl-ctrl-bottom-left > .maplibregl-ctrl-group {
+  float: none !important;
+  clear: none !important;
+  margin: 0 !important;
+}
+
+.maplibregl-ctrl-bottom-right,
+.mapboxgl-ctrl-bottom-right {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end !important;
+  gap: 10px !important;
+  right: 12px !important;
+  bottom: 18px !important;
+  z-index: var(--urbis-z-map-controls) !important;
+}
+
+.maplibregl-ctrl-bottom-right > .mapboxgl-ctrl,
+.maplibregl-ctrl-bottom-right > .mapboxgl-ctrl-group,
+.maplibregl-ctrl-bottom-right > .maplibregl-ctrl,
+.maplibregl-ctrl-bottom-right > .maplibregl-ctrl-group,
+.mapboxgl-ctrl-bottom-right > .mapboxgl-ctrl,
+.mapboxgl-ctrl-bottom-right > .mapboxgl-ctrl-group,
+.mapboxgl-ctrl-bottom-right > .maplibregl-ctrl,
+.mapboxgl-ctrl-bottom-right > .maplibregl-ctrl-group {
+  float: none !important;
+  clear: none !important;
+  margin: 0 !important;
+}
+
+
+.maplibregl-ctrl-attrib,
+.mapboxgl-ctrl-attrib {
+  order: 2 !important;
+  pointer-events: auto !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: calc(var(--radius) - 2px) !important;
+  background: hsl(var(--background) / 0.94) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: blur(8px) !important;
+  overflow: hidden !important;
+}
+
+.maplibregl-ctrl-attrib a,
+.mapboxgl-ctrl-attrib a {
+  color: hsl(var(--primary)) !important;
+}
+
+.maplibregl-ctrl-attrib.maplibregl-compact,
+.mapboxgl-ctrl-attrib.mapboxgl-compact {
+  min-height: 32px !important;
+  min-width: 32px !important;
+  padding: 0 !important;
+}
+
+.maplibregl-ctrl-attrib-button,
+.mapboxgl-ctrl-attrib-button {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+  opacity: 0.9 !important;
+  cursor: pointer !important;
+  transition:
+    background-color 150ms ease,
+    opacity 150ms ease !important;
+}
+
+.dark .maplibregl-ctrl-attrib,
+.dark .mapboxgl-ctrl-attrib {
+  background: hsl(var(--background) / 0.96) !important;
+}
+
+.dark .maplibregl-ctrl-attrib-button,
+.dark .mapboxgl-ctrl-attrib-button {
+  opacity: 1 !important;
+}
+
+.maplibregl-ctrl-attrib-button:hover,
+.mapboxgl-ctrl-attrib-button:hover {
+  background-color: hsl(var(--muted)) !important;
+  opacity: 1 !important;
+}
+
+.maplibregl-ctrl-attrib.maplibregl-compact-show,
+.mapboxgl-ctrl-attrib.mapboxgl-compact-show,
+.maplibregl-ctrl-attrib:not(.maplibregl-compact),
+.mapboxgl-ctrl-attrib:not(.mapboxgl-compact) {
+  max-width: min(560px, calc(100vw - 24px)) !important;
+  padding: 6px 10px !important;
+  border-radius: calc(var(--radius) - 2px) !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+}
+
+.maplibregl-ctrl-attrib.maplibregl-compact-show,
+.mapboxgl-ctrl-attrib.mapboxgl-compact-show {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 0 8px 0 0 !important;
+}
+
+.maplibregl-ctrl-attrib.maplibregl-compact-show .maplibregl-ctrl-attrib-button,
+.mapboxgl-ctrl-attrib.mapboxgl-compact-show .mapboxgl-ctrl-attrib-button {
+  flex: 0 0 32px !important;
+}
+
+.mapboxgl-ctrl-group,
+.maplibregl-ctrl-group {
+  @apply bg-background/80 backdrop-blur-md border border-border shadow-sm rounded-xl overflow-hidden !important;
+}
+
+.mapboxgl-ctrl-group button,
+.maplibregl-ctrl-group button {
+  @apply w-[30px] h-[30px] flex items-center justify-center transition-colors hover:bg-accent hover:text-accent-foreground bg-transparent !important;
+}
+
+.mapboxgl-ctrl-group button + button,
+.maplibregl-ctrl-group button + button {
+  @apply border-t border-border/50 !important;
+}
+
+.maplibregl-ctrl-bottom-left .mapboxgl-ctrl-group,
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl-group,
+.mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-group,
+.mapboxgl-ctrl-bottom-left .maplibregl-ctrl-group {
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+.maplibregl-ctrl-bottom-left .mapboxgl-ctrl-group button + button,
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl-group button + button,
+.mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-group button + button,
+.mapboxgl-ctrl-bottom-left .maplibregl-ctrl-group button + button {
+  @apply border-t-0 border-l border-border/50 !important;
+}
+
+.map-general-controls {
+  @apply relative flex h-9 items-center overflow-visible rounded-md border border-border bg-background/95 text-foreground shadow-sm backdrop-blur-md !important;
+  z-index: var(--urbis-z-map-controls) !important;
+}
+
+.map-general-control-button {
+  @apply relative flex h-9 w-9 items-center justify-center border-0 border-r border-border bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background !important;
+}
+
+.map-general-control-button .map-general-control-icon {
+  display: inline-flex !important;
+  line-height: 1 !important;
+}
+
+.map-general-control-button.is-active {
+  @apply bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground !important;
+}
+
+.map-general-control-button.is-active::after {
+  @apply absolute bottom-1 h-1 w-1 rounded-full bg-primary-foreground content-[''] !important;
+}
+
+.map-general-control-button.is-loading .map-general-control-icon {
+  animation: map-control-spin 1s linear infinite !important;
+}
+
+@keyframes map-control-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.map-general-zoom-display,
+.map-general-scale-display {
+  @apply relative flex h-9 min-w-[82px] items-center justify-center gap-1.5 border-r border-border bg-muted px-3 text-[11px] font-semibold text-muted-foreground select-none !important;
+}
+
+.map-general-scale-display {
+  @apply rounded-none border-0 bg-transparent px-0 pb-1 text-foreground tabular-nums !important;
+  box-sizing: content-box !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  overflow: visible !important;
+  font-size: var(--map-scale-label-size, 11px) !important;
+  white-space: nowrap !important;
+  background-image:
+    linear-gradient(hsl(var(--foreground)), hsl(var(--foreground))),
+    linear-gradient(hsl(var(--foreground)), hsl(var(--foreground))),
+    linear-gradient(hsl(var(--foreground)), hsl(var(--foreground))) !important;
+  background-position:
+    left bottom,
+    left bottom,
+    right bottom !important;
+  background-repeat: no-repeat !important;
+  background-size:
+    100% 2px,
+    2px 7px,
+    2px 7px !important;
+  text-shadow:
+    0 1px 0 hsl(var(--background)),
+    1px 0 0 hsl(var(--background)),
+    -1px 0 0 hsl(var(--background)) !important;
+  text-indent: 0 !important;
+  transition: none !important;
+}
+
+.map-general-scale-display[style*="--map-scale-label-size: 0px"] {
+  color: transparent !important;
+  text-shadow: none !important;
+}
+
+.map-general-zoom-display span {
+  @apply tabular-nums text-foreground !important;
+}
+
+.maplibregl-popup,
+.mapboxgl-popup {
+  z-index: var(--urbis-z-map-popup) !important;
+}
+
+.maplibregl-popup-content,
+.mapboxgl-popup-content {
+  @apply rounded-lg border border-border bg-popover text-popover-foreground shadow-lg p-0 !important;
+}
+
+.maplibregl-popup-anchor-top .maplibregl-popup-tip,
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+.maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+.mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+.maplibregl-popup-anchor-top-right .maplibregl-popup-tip,
+.mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+  border-bottom-color: hsl(var(--popover)) !important;
+}
+
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+.mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip,
+.mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+  border-top-color: hsl(var(--popover)) !important;
+}
+
+.maplibregl-popup-anchor-left .maplibregl-popup-tip,
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: hsl(var(--popover)) !important;
+}
+
+.maplibregl-popup-anchor-right .maplibregl-popup-tip,
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: hsl(var(--popover)) !important;
+}
+
+.maplibregl-popup.map-angle-popup-shell,
+.mapboxgl-popup.map-angle-popup-shell,
+.map-angle-popup-shell {
+  z-index: var(--urbis-z-map-popup) !important;
+}
+
+.map-angle-popup-shell .maplibregl-popup-content,
+.map-angle-popup-shell .mapboxgl-popup-content {
+  @apply border border-border bg-popover text-popover-foreground shadow-lg !important;
+}
+
+.map-angle-overlay {
+  position: fixed !important;
+  z-index: var(--urbis-z-map-angle) !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+}
+
+.map-user-location-marker {
+  position: relative !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.map-user-location-dot {
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 50% !important;
+  background-color: hsl(var(--primary)) !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4) !important;
+  z-index: 2 !important;
+}
+
+.map-user-location-pulse {
+  position: absolute !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background-color: hsl(var(--primary) / 0.35) !important;
+  animation: map-user-location-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite !important;
+  z-index: 1 !important;
+}
+
+@keyframes map-user-location-ping {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  70%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.map-angle-overlay svg {
+  @apply block h-full w-full overflow-visible !important;
+}
+
+.map-angle-line {
+  fill: none;
+  stroke: hsl(var(--primary));
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 8 5;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.45));
+}
+
+.map-angle-point-outer {
+  fill: hsl(var(--background));
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.55));
+}
+
+.map-angle-point-inner {
+  fill: hsl(var(--primary));
+  stroke: hsl(var(--background));
+  stroke-width: 2;
+}
+
+.map-angle-point-label {
+  fill: hsl(var(--primary-foreground));
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.map-angle-popup {
+  @apply flex flex-col gap-0.5 rounded-md text-xs leading-tight text-popover-foreground !important;
+}
+
+.map-angle-popup strong {
+  @apply text-sm font-bold text-foreground !important;
+}
+
+.map-angle-popup span {
+  @apply text-[11px] text-muted-foreground !important;
+}
+
+@keyframes layerWarningShrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.urbis-map-license-control {
+  z-index: var(--urbis-z-map-controls) !important;
+}
+
+.urbis-app-panel-layer {
+  z-index: var(--urbis-z-app-panel) !important;
+}
+
+@media (max-width: 767px) {
+  .urbis-app-panel-layer {
+    z-index: calc(var(--urbis-z-app-menu) + 5) !important;
+  }
+}
+
+.urbis-app-menu-layer {
+  z-index: var(--urbis-z-app-menu) !important;
+}
+
+.urbis-app-header-layer {
+  position: relative;
+  z-index: var(--urbis-z-app-header) !important;
+}
+
+.urbis-app-toast-layer {
+  z-index: var(--urbis-z-app-toast) !important;
+}
+
+.map-control-tooltip,
+.map-general-zoom-display::after,
+.map-general-scale-display::after {
+  @apply pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border bg-popover px-2 py-1 text-[11px] font-medium text-popover-foreground opacity-0 shadow-md transition-opacity content-[attr(data-tooltip)] !important;
+  z-index: var(--urbis-z-map-tooltip) !important;
+}
+
+.map-control-tooltip::before,
+.map-general-zoom-display::before,
+.map-general-scale-display::before {
+  @apply absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-border content-[''] !important;
+}
+
+.map-general-control-button:hover .map-control-tooltip,
+.map-general-control-button:focus-visible .map-control-tooltip,
+.map-general-zoom-display:hover::after,
+.map-general-zoom-display:hover::before,
+.map-general-scale-display:hover::after,
+.map-general-scale-display:hover::before {
+  @apply opacity-100 !important;
+}
+
+.urbis-app-modal-layer {
+  z-index: var(--urbis-z-app-modal) !important;
+}
+
+/* Adjust icons inside controls */
+.mapboxgl-ctrl-group button .mapboxgl-ctrl-icon,
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon,
+.maplibregl-ctrl-group button .mapboxgl-ctrl-icon,
+.mapboxgl-ctrl-group button.mapbox-gl-draw_ctrl-draw-btn {
+  @apply opacity-80 filter-none !important;
+}
+
+/* Force white icons in dark mode */
+.dark .mapboxgl-ctrl-group button .mapboxgl-ctrl-icon,
+.dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon,
+.dark .maplibregl-ctrl-group button .mapboxgl-ctrl-icon,
+.dark .mapboxgl-ctrl-group button svg,
+.dark .maplibregl-ctrl-group button svg,
+.dark .mapboxgl-ctrl-group button.mapbox-gl-draw_ctrl-draw-btn {
+  filter: invert(1) brightness(2) !important;
+}
+
+/* Specific styling for mapbox-ctrl-image which uses raw SVGs */
+.mapbox-ctrl-image button svg {
+  @apply w-[20px] h-[20px] !important;
+  fill: currentColor !important;
+}
+
+.dark .mapbox-ctrl-image button svg {
+  filter: none !important;
+  /* Reset filter because we set fill color directly via text-color */
+  fill: #ffffff !important;
+}
+
+/* Style Switcher List */
+.mapboxgl-style-list,
+.maplibregl-style-list {
+  @apply bg-background border border-border shadow-md rounded-xl p-1 !important;
+}
+
+.mapboxgl-style-list button,
+.maplibregl-style-list button {
+  @apply w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors border-none bg-transparent !important;
+  height: auto !important;
+}
+
+.mapboxgl-style-list button.active,
+.maplibregl-style-list button.active {
+  @apply bg-primary/10 text-primary font-medium !important;
+}
+
+.mapboxgl-style-switcher,
+.maplibregl-style-switcher {
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTQuODQ5cHgiIGhlaWdodD0iNTQuODQ5cHgiIHZpZXdCb3g9IjAgMCA1NC44NDkgNTQuODQ5IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1NC44NDkgNTQuODQ5OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PGc+PGc+PGc+PHBhdGggZD0iTTU0LjQ5NywzOS42MTRsLTEwLjM2My00LjQ5bC0xNC45MTcsNS45NjhjLTAuNTM3LDAuMjE0LTEuMTY1LDAuMzE5LTEuNzkzLDAuMzE5Yy0wLjYyNywwLTEuMjU0LTAuMTA0LTEuNzktMC4zMThsLTE0LjkyMS01Ljk2OEwwLjM1MSwzOS42MTRjLTAuNDcyLDAuMjAzLTAuNDY3LDAuNTI0LDAuMDEsMC43MTZMMjYuNTYsNTAuODFjMC40NzcsMC4xOTEsMS4yNTEsMC4xOTEsMS43MjksMEw1NC40ODgsNDAuMzNDNTQuOTY0LDQwLjEzOSw1NC45NjksMzkuODE3LDU0LjQ5NywzOS42MTR6Ii8+PHBhdGggZD0iTTU0LjQ5NywyNy41MTJsLTEwLjM2NC00LjQ5MWwtMTQuOTE2LDUuOTY2Yy0wLjUzNiwwLjIxNS0xLjE2NSwwLjMyMS0xLjc5MiwwLjMyMWMtMC42MjgsMC0xLjI1Ni0wLjEwNi0xLjc5My0wLjMyMWwtMTQuOTE4LTUuOTY2TDAuMzUxLDI3LjUxMmMtMC40NzIsMC4yMDMtMC40NjcsMC41MjMsMC4wMSwwLjcxNkwyNi41NiwzOC43MDZjMC40NzcsMC4xOTEsMS4yNTEsMC4xOTEsMS43MjksLDBsMjYuMTk5LTEwLjQ3OUM1NC45NjQsMjguMDM2LDU0Ljk2OSwyNy43MTYsNTQuNDk3LDI3LjUxMnoiLz48cGF0aCBkPSJNMC4zNjEsMTYuMTI1bDEzLjY2Miw1LjQ2NWwxMi41MzcsNS4wMTVjMC40NzcsMC4xOTEsMS4yNTEsMC4xOTEsMS43MjksMGwxMi41NDEtNS4wMTZsMTMuNjU4LTUuNDYzYzAuNDc3LTAuMTkxLDAuNDgtMC41MTEsMC4wMS0wLjcxNkwyOC4yNzcsNC4wNDhjLTAuNDcxLTAuMjA0LTEuMjM2LTAuMjA0LTEuNzA4LDBMMC4zNTEsMTUuNDFDLTAuMTIxLDE1LjYxNC0wLjExNiwxNS45MzUsMC4zNjEsMTYuMTI1eiIvPjwvZz48L2c+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjwvc3ZnPg==) !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 70% !important;
+}
+
+.dark .mapboxgl-style-switcher,
+.dark .maplibregl-style-switcher {
+  filter: invert(1) brightness(2) !important;
+}
+
+/* Scale Control */
+.mapboxgl-ctrl-scale,
+.maplibregl-ctrl-scale {
+  height: auto !important;
+  min-width: 72px !important;
+  background: hsl(var(--background) / 0.82) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--foreground)) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-shadow:
+    0 1px 0 hsl(var(--background)),
+    0 -1px 0 hsl(var(--background)),
+    1px 0 0 hsl(var(--background)),
+    -1px 0 0 hsl(var(--background)) !important;
+  border-width: 0 0 2px 2px !important;
+  border-style: solid !important;
+  padding: 0 6px 4px 6px !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.mapboxgl-ctrl-scale::before,
+.maplibregl-ctrl-scale::before {
+  content: none !important;
+}
+
+/* Compass Specific */
+.mapbox-control-compass .mapboxgl-ctrl-icon,
+.mapbox-control-compass .maplibregl-ctrl-icon {
+  @apply transform-none !important;
+  /* Let the plugin handle rotation, but ensure styles */
+}
+
+/* Sidebar Open Adjustments */
+.mapboxgl-ctrl-top-left .mapboxgl-ctrl,
+.mapboxgl-ctrl-bottom-left .mapboxgl-ctrl,
+.maplibregl-ctrl-top-left .maplibregl-ctrl,
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl,
+.maplibregl-ctrl-top-left .mapboxgl-ctrl,
+.maplibregl-ctrl-bottom-left .mapboxgl-ctrl {
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.sidebar-open .mapboxgl-ctrl-top-left .mapboxgl-ctrl,
+.sidebar-open .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl,
+.sidebar-open .maplibregl-ctrl-top-left .maplibregl-ctrl,
+.sidebar-open .maplibregl-ctrl-bottom-left .maplibregl-ctrl,
+.sidebar-open .maplibregl-ctrl-top-left .mapboxgl-ctrl,
+.sidebar-open .maplibregl-ctrl-bottom-left .mapboxgl-ctrl {
+  margin-left: calc(var(--sidebar-width) + 12px) !important;
+}
+
+.disable-map-padding .mapboxgl-ctrl-top-left .mapboxgl-ctrl,
+.disable-map-padding .mapboxgl-ctrl-top-right .mapboxgl-ctrl,
+.disable-map-padding .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl,
+.disable-map-padding .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl,
+.disable-map-padding .maplibregl-ctrl-top-left .maplibregl-ctrl,
+.disable-map-padding .maplibregl-ctrl-top-right .maplibregl-ctrl,
+.disable-map-padding .maplibregl-ctrl-bottom-left .maplibregl-ctrl,
+.disable-map-padding .maplibregl-ctrl-bottom-right .maplibregl-ctrl,
+.disable-map-padding .maplibregl-ctrl-top-left .mapboxgl-ctrl,
+.disable-map-padding .maplibregl-ctrl-top-right .mapboxgl-ctrl,
+.disable-map-padding .maplibregl-ctrl-bottom-left .mapboxgl-ctrl,
+.disable-map-padding .maplibregl-ctrl-bottom-right .mapboxgl-ctrl {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+.disable-map-padding .mapboxgl-ctrl-top-left,
+.disable-map-padding .mapboxgl-ctrl-bottom-left,
+.disable-map-padding .maplibregl-ctrl-top-left,
+.disable-map-padding .maplibregl-ctrl-bottom-left {
+  left: 0 !important;
+}
+
+.disable-map-padding .mapboxgl-ctrl-top-right,
+.disable-map-padding .mapboxgl-ctrl-bottom-right,
+.disable-map-padding .maplibregl-ctrl-top-right,
+.disable-map-padding .maplibregl-ctrl-bottom-right {
+  right: 0 !important;
+}
+
+.z-1000000 {
+  z-index: 1000000 !important;
+}
+
+.border-black {
+  border-color: black !important;
+}
+
+.fiu-pdf-capture {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.fiu-pdf-capture .text-\[11px\] {
+  font-size: 12px !important;
+}
+
+.fiu-pdf-capture .text-xs {
+  font-size: 13px !important;
+}
+
+.fiu-pdf-capture .text-sm {
+  font-size: 14px !important;
+}
+
+.fiu-pdf-capture h3,
+.fiu-pdf-capture h4 {
+  font-size: 13px !important;
+  line-height: 1.3;
+}

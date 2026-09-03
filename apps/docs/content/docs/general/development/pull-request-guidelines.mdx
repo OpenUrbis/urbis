@@ -1,0 +1,57 @@
+---
+title: Diretrizes de Pull Request
+description: Como enviar um Pull Request.
+icon: GitPullRequest
+---
+
+Estamos animados em ter você contribuindo para o [urbis-map](https://github.com/OpenUrbis/urbis-map)! Aqui está um guia direto para enviar um _pull request_ (PR):
+
+## Passos Rápidos
+
+1. **Fork e Clone**
+
+   - Faça um fork do repositório no GitHub e clone-o para sua máquina local:
+     ```bash
+     git clone https://github.com/OpenUrbis/urbis-map.git
+     ```
+
+2. **Crie um Branch**
+
+   - Crie um novo branch para suas alterações:
+     ```bash
+     git checkout -b minhas-alteracoes
+     ```
+
+3. **Faça Suas Alterações**
+
+   - Adicione seu código, corrija bugs ou atualize a documentação. Mantenha-o limpo e teste seu trabalho.
+
+4. **Commit Seu Trabalho**
+
+   - Siga nossas [Diretrizes de Commit](./commit-guidelines) para o formato da mensagem. Exemplo:
+     ```bash
+     git commit -m "feat(client): add new button"
+     ```
+
+5. **Push para Seu Fork**
+
+   - Envie seu branch para o seu fork no GitHub:
+     ```bash
+     git push origin minhas-alteracoes
+     ```
+
+6. **Abra um Pull Request**
+
+   - Vá para a [página do urbis-map no GitHub](https://github.com/OpenUrbis/urbis-map), mude para seu branch e clique em "New Pull Request".
+   - Escreva uma breve descrição do que você fez e por quê.
+
+7. **Responda ao Feedback**
+   - Revisaremos seu PR. Se sugerirmos alterações, atualize seu branch e faça push novamente.
+
+## Dicas
+
+- Teste suas alterações antes de enviar (`pnpm test` é seu amigo).
+- Mantenha os PRs pequenos e focados—isso os torna mais fáceis de revisar.
+- Confira o [Guia de Contribuição](./contributing) para mais detalhes, se necessário.
+
+É isso! Obrigado por ajudar a tornar o urbis-map melhor.

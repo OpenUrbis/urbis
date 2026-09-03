@@ -1,0 +1,39 @@
+<div class="flex flex-col gap-2">
+  <div class="relative">
+    <hlm-icon name="lucideSearch" size="sm" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+    <input 
+      hlmInput 
+      [formControl]="search" 
+      placeholder="{{ 'components.roleSelector.placeholders.search' | translate }}"
+      class="pl-9 w-full"
+    />
+  </div>
+
+  @if (multi()) {
+    <div class="flex flex-wrap gap-2 mb-2" *ngIf="selectedRoles().length > 0">
+      @for (role of selectedRoles(); track role.id; let i = $index) {
+        <div class="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm border border-border">
+          <span class="font-medium">{{ role.name }}</span>
+          <button type="button" (click)="remove(i)" class="ml-1 hover:text-destructive flex items-center justify-center">
+            <hlm-icon name="lucideX" size="14" />
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="border border-border rounded-md max-h-40 overflow-y-auto mt-1" *ngIf="roles()?.length">
+    @for (role of roles(); track role.id) {
+      <button 
+        type="button" 
+        class="w-full text-left px-3 py-2 hover:bg-muted/50 text-sm transition-colors border-b border-border/50 last:border-0"
+        (click)="select(role)"
+      >
+        <div class="font-medium">{{ role.name }}</div>
+        @if (role.description) {
+            <div class="text-xs text-muted-foreground">{{ role.description }}</div>
+        }
+      </button>
+    }
+  </div>
+</div>

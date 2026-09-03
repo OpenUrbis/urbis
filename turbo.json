@@ -1,0 +1,52 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "DEV",
+    "VITE_API_URL",
+    "VITE_OIDC_CLIENT_ID",
+    "VITE_WEB_FEATURE_FLAGS",
+    "VITE_WEB_FEATURES_ENABLED",
+    "VITE_WEB_FEATURE_MANAGE_LAYERS",
+    "VITE_WEB_FEATURE_BASE_MAPS",
+    "VITE_WEB_FEATURE_MAP_FEATURES",
+    "VITE_WEB_FEATURE_DIGITAL_ADDRESS",
+    "VITE_WEB_FEATURE_GO_TO",
+    "VITE_WEB_FEATURE_CONCATENATED_SEARCH",
+    "VITE_WEB_FEATURE_GEOJSON_SEARCH",
+    "VITE_WEB_FEATURE_PROSPECTIVE_SEARCH",
+    "VITE_WEB_FEATURE_LIBRARY",
+    "VITE_WEB_FEATURE_THREE_D",
+    "VITE_WEB_FEATURE_FIU"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**", ".next/**", "out/**"]
+    },
+    "build:prod": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**", ".next/**", "out/**"]
+    },
+    "lint": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:ssl": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:reset": {
+      "cache": false
+    }
+  }
+}

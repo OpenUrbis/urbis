@@ -1,0 +1,115 @@
+api:
+  image:
+    repository: openurbis/urbis-map
+    tag: latest
+    pullPolicy: Always
+  replicaCount: 4
+  hpa:
+    enabled: true
+    minReplicas: 4
+    maxReplicas: 8
+    targetCpuUtilization: 70
+    targetMemoryUtilization: 80
+  pdb:
+    enabled: true
+    minAvailable: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1500m
+      memory: 1024Mi
+  probes:
+    startup:
+      initialDelaySeconds: 5
+      periodSeconds: 3
+      timeoutSeconds: 2
+      failureThreshold: 20
+    readiness:
+      path: /health/ready
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    liveness:
+      initialDelaySeconds: 20
+      periodSeconds: 15
+      timeoutSeconds: 3
+      failureThreshold: 4
+  nodeOptions: "--max-old-space-size=896"
+  config:
+    nodeEnv: "production"
+    appPort: "3000"
+    appName: "Urbis Map OPENAPI"
+    apiPrefix: "api"
+    appFallbackLanguage: "en"
+    appHeaderLanguage: "x-custom-lang"
+    frontendDomain: "https://conta.urbis.example.com"
+    backendDomain: "https://api.mapa.urbis.example.com"
+    swaggerEnabled: "true"
+    i18nDirectory: "dist/app/i18n"
+    databaseType: "postgres"
+    databaseHost: "urbis-map-postgres"
+    databasePort: "5432"
+    databaseName: "postgres"
+    databaseSynchronize: "false"
+    databaseMaxConnections: "30"
+    databaseSslEnabled: "true"
+    databaseRejectUnauthorized: "false"
+    redisHost: "redis"
+    redisPort: "10000"
+    redisDb: "0"
+    authSessionTable: "session"
+    twoFactorAppName: "URbis"
+    externalOidcJwksUri: "https://sso.acesso.gov.br/jwk"
+    externalOidcAuthority: "https://sso.acesso.gov.br"
+    externalOidcClientId: "p-urbis.prefeitura.sp.gov.br"
+    geoserverUrl: "https://geoserver.example.com/geoserver"
+    geoserverBaseUrl: "https://geoserver.example.com/geoserver/ows"
+    geoserverUser: "dagster"
+    mailProvider: "azure"
+    mailTemplatesPath: "src/common/mail/templates"
+    mailFrom: "naoresponda@urbis.example.com"
+    awsS3Region: "us-east-1"
+    awsRegion: "us-east-1"
+    s3BucketName: "storage"
+    awsS3Endpoint: "https://api.mapa.urbis.example.com"
+  secrets:
+    databaseUsername: "postgres"
+    databasePassword: "CHANGE_ME"
+    redisPassword: ""
+    authSecret: "secret"
+    authApiKey: "secret"
+    twoFactorSecret: "CHANGE_ME"
+    externalOidcClientSecret: "CHANGE_ME"
+    geoserverBearerToken: ""
+    geoserverPassword: ""
+    maxarApiKey: ""
+    googleRecaptchaSecretKey: ""
+    googleGenerativeAiApiKey: ""
+    azureCommunicationServicesConnectionString: ""
+    mailSendgridApiKey: ""
+    awsAccessKey: ""
+    awsSecretAccessKey: ""
+
+storage:
+  enabled: true
+  image:
+    repository: andrewgaul/s3proxy
+    tag: latest
+    pullPolicy: Always
+  replicaCount: 1
+  port: 8080
+  config:
+    authorization: "aws-v2-or-v4"
+    endpoint: "http://0.0.0.0:8080"
+    corsAllowAll: "true"
+    jcloudsProvider: "azureblob"
+    jcloudsAzureBlobAuth: "azureKey"
+    jcloudsEndpoint: "https://YOUR_STORAGE_ACCOUNT.blob.core.windows.net"
+  secrets:
+    identity: "CHANGE_ME"
+    credential: "CHANGE_ME"
+    jcloudsIdentity: "slui"
+    jcloudsCredential: "CHANGE_ME"

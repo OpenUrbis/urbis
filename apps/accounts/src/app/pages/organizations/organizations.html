@@ -1,0 +1,230 @@
+<app-page-structure
+  [title]="'pages.organizations.page.title' | translate"
+  [subtitle]="'pages.organizations.page.subtitle' | translate"
+>
+  <section rightActions>
+    <a
+      *hasPermission="'organization:create'"
+      hlmBtn
+      [attr.aria-label]="
+        'pages.organizations.page.buttons.create.ariaLabel' | translate
+      "
+      routerLink="create"
+    >
+      <hlm-icon name="lucidePlus" size="16" class="mr-2" />
+      {{ "pages.organizations.page.buttons.create.title" | translate }}
+    </a>
+  </section>
+
+  <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-end">
+    <div class="flex flex-1 flex-col gap-1">
+      <label class="text-xs font-semibold text-muted-foreground">
+        {{ "pages.organizations.filters.searchLabel" | translate }}
+      </label>
+      <input
+        hlmInput
+        class="w-full"
+        [formControl]="searchControl"
+        [placeholder]="
+          'pages.organizations.filters.searchPlaceholder' | translate
+        "
+      />
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-semibold text-muted-foreground">
+        {{ "pages.organizations.filters.type" | translate }}
+      </label>
+      <select hlmInput class="w-full md:w-[240px]" [formControl]="typeControl">
+        <option value="">
+          {{ "pages.organizations.filters.all" | translate }}
+        </option>
+        @for (option of typeOptions; track option[0]) {
+          <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select>
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-semibold text-muted-foreground">
+        {{ "pages.organizations.filters.status" | translate }}
+      </label>
+      <select
+        hlmInput
+        class="w-full md:w-[160px]"
+        [formControl]="statusControl"
+      >
+        <option value="">
+          {{ "pages.organizations.filters.all" | translate }}
+        </option>
+        <option value="active">
+          {{ "pages.organizations.status.active" | translate }}
+        </option>
+        <option value="inactive">
+          {{ "pages.organizations.status.inactive" | translate }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div
+    class="rounded-md border border-border overflow-hidden bg-card text-card-foreground shadow-sm"
+  >
+    @if (dataSource.loading()) {
+      <div class="w-full flex justify-center p-4">
+        <hlm-icon
+          name="lucideLoader2"
+          class="animate-spin h-6 w-6 text-primary"
+        />
+      </div>
+    }
+
+    <div class="relative w-full overflow-auto">
+      <table class="w-full caption-bottom text-sm text-left">
+        <thead class="[&_tr]:border-b">
+          <tr
+            class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+          >
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              {{ "pages.organizations.table.columns.name" | translate }}
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              {{ "pages.organizations.table.columns.document" | translate }}
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              {{ "pages.organizations.table.columns.description" | translate }}
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              {{ "pages.organizations.table.columns.userCount" | translate }}
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              {{ "pages.organizations.table.columns.status" | translate }}
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground text-right"
+            >
+              {{ "pages.organizations.table.columns.actions" | translate }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="[&_tr:last-child]:border-0">
+          @for (organization of dataSource.data(); track organization.id) {
+            <tr
+              class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+            >
+              <td class="p-4 align-middle font-medium">
+                {{ organization.name }}
+              </td>
+              <td class="p-4 align-middle text-muted-foreground">
+                {{ organization.document || "—" }}
+              </td>
+              <td class="p-4 align-middle text-muted-foreground">
+                {{ description(organization) }}
+              </td>
+              <td class="p-4 align-middle text-muted-foreground">
+                {{ organization.userCount ?? 0 }}
+              </td>
+              <td class="p-4 align-middle">
+                <span
+                  [class]="
+                    organization.status === 'inactive'
+                      ? 'inline-flex rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground'
+                      : 'inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800'
+                  "
+                >
+                  {{
+                    "pages.organizations.status." +
+                      (organization.status || "active") | translate
+                  }}
+                </span>
+              </td>
+              <td
+                class="p-4 align-middle text-right"
+                *hasPermission="'organization:update'"
+              >
+                <a
+                  hlmBtn
+                  variant="ghost"
+                  size="icon"
+                  [attr.aria-label]="
+                    'pages.organizations.page.buttons.edit.ariaLabel'
+                      | translate
+                  "
+                  [routerLink]="['/organizations/edit', organization.id]"
+                >
+                  <hlm-icon name="lucidePencil" size="16" />
+                </a>
+              </td>
+            </tr>
+          } @empty {
+            @if (!dataSource.loading()) {
+              <tr>
+                <td
+                  colspan="6"
+                  class="p-4 align-middle text-center text-muted-foreground"
+                >
+                  {{ "pages.organizations.table.noData" | translate }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div
+      class="flex items-center justify-end space-x-2 py-4 px-4 border-t border-border"
+    >
+      <div class="flex-1 text-sm text-muted-foreground">
+        {{
+          (dataSource.currentParams().page - 1) *
+            dataSource.currentParams().limit +
+            1
+        }}
+        -
+        {{
+          dataSource.currentParams().page * dataSource.currentParams().limit >
+          dataSource.totalCount()
+            ? dataSource.totalCount()
+            : dataSource.currentParams().page * dataSource.currentParams().limit
+        }}
+        {{ "common.pagination.of" | translate }} {{ dataSource.totalCount() }}
+      </div>
+      <div class="space-x-2">
+        <button
+          hlmBtn
+          variant="outline"
+          size="sm"
+          (click)="prevPage()"
+          [disabled]="
+            dataSource.currentParams().page <= 1 || dataSource.loading()
+          "
+        >
+          <hlm-icon name="lucideChevronLeft" size="16" />
+        </button>
+        <button
+          hlmBtn
+          variant="outline"
+          size="sm"
+          (click)="nextPage()"
+          [disabled]="
+            dataSource.currentParams().page *
+              dataSource.currentParams().limit >=
+              dataSource.totalCount() || dataSource.loading()
+          "
+        >
+          <hlm-icon name="lucideChevronRight" size="16" />
+        </button>
+      </div>
+    </div>
+  </div>
+</app-page-structure>

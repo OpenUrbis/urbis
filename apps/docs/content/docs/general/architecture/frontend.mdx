@@ -1,0 +1,36 @@
+---
+title: Arquitetura Frontend
+description: Estratégia para aplicações Angular e React no monorepo.
+icon: Box
+---
+
+O Urbis é agnóstico em relação a frameworks no frontend. Embora o monorepo suporte múltiplos frameworks, nossa implementação atual aproveita os pontos fortes tanto do Angular quanto do React.
+
+## Estratégia
+
+Escolhemos a melhor ferramenta para o trabalho:
+
+-   **Angular (`apps/accounts`)**: Utilizado para a aplicação de Contas (Gerenciamento de Usuários). A estrutura opinativa do Angular, o tratamento robusto de formulários e a injeção de dependência o tornam excelente para portais de gerenciamento complexos e de nível empresarial.
+-   **Next.js (`apps/docs`)**: Utilizado para o site de documentação. O ecossistema do Next.js é excelente para geração de sites estáticos e sites com muito conteúdo.
+-   **React (`apps/web`)**: Utilizado para a aplicação principal de Mapa e Datalake. Utiliza tecnologias como Deck.gl e Mapbox para visualização de dados geoespaciais de alta performance.
+-   **React (`apps/site`)**: Utilizado para o site institucional.
+
+## Biblioteca de UI Compartilhada
+
+Para manter a consistência entre diferentes frameworks, utilizamos o `packages/ui`. Atualmente, este pacote hospeda componentes React.
+
+*Nota: Para aplicações Angular, normalmente implementamos um conjunto paralelo de componentes ou usamos web components se a reutilização entre frameworks for um requisito estrito. Nesta configuração específica, o `apps/accounts` gerencia seus próprios estilos ou consome variáveis SCSS compartilhadas do `packages/ui` se aplicável.*
+
+## Consumo da API
+
+Todas as aplicações frontend consomem a API Backend. Para garantir a segurança de tipos:
+
+1.  DTOs (Objetos de Transferência de Dados) são definidos em `apps/api` mas exportados ou movidos para `packages/shared`.
+2.  As aplicações frontend importam esses tipos de `@urbis/shared` (ou `@open-urbis/map-shared`).
+3.  Isso garante que, se o formato da resposta da API mudar, o build do frontend falhará, alertando o desenvolvedor imediatamente.
+
+## Estilização
+
+Utilizamos **Tailwind CSS** para estilização utility-first.
+-   A configuração é compartilhada onde possível.
+-   Isso garante espaçamento, cores e tipografia consistentes em toda a plataforma.

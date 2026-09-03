@@ -1,0 +1,114 @@
+---
+title: Cadastrar Camada no Mapa
+description: Guia para cadastrar e configurar uma nova camada na área administrativa do mapa.
+icon: Map
+---
+
+Este documento orienta o processo de cadastro de uma nova camada no sistema de mapas, desde a importação do GeoServer até a configuração de visualização e interatividade.
+
+<video
+  src="https://public.slingui.com/urbis/create_layer_map.mp4"
+  controls="controls"
+  style={{maxWidth: "100%"}}
+></video>
+
+## Pré-requisitos
+
+O usuário deve estar logado com um acesso que possua permissão para acessar a área administrativa do mapa.
+
+## Acesso à Área Administrativa
+
+Após realizar o login, acesse a área administrativa clicando no botão **Administração**, localizado no canto superior direito do mapa.
+
+![Acessar área adm](/create-layer-schema/acessar-area-adm.png)
+
+## Iniciando o Cadastro
+
+Na área administrativa, acesse o menu **Camadas** na barra lateral e clique no botão **Criar Camada**.
+
+![Cadastrar uma nova camada](/create-layer-schema/cadastrar-uma-nova-camada.png)
+
+## Etapa 1: Seleção da Camada
+
+No formulário de cadastro:
+
+1. Insira a **URL do GeoServer** (caso seja diferente da preenchida por padrão).
+2. Clique em **Buscar**.
+3. Selecione a camada desejada na lista apresentada.
+4. Clique em **Próximo**.
+
+![Insira URL e selecione a camada](/create-layer-schema/insira-url-e-selecione-a-camada.png)
+
+## Etapa 2: Configurações Gerais
+
+Nesta etapa, você define como a camada será carregada e exibida.
+
+- **Tipo de Carregamento**: Escolha entre Imagem (WMS) ou Vetorial (WFS).
+- **Versão e SRC/CRS**: Configure caso o tipo seja vetorial.
+- **URL Final da Camada (Origin)**: Exibida automaticamente. Pode ser alterada, mas recomenda-se manter o padrão gerado pelo sistema.
+- **Grupo**: Selecione o grupo ao qual a camada pertencerá.
+- **Nome de Exibição**: O nome que aparecerá para o usuário na lista de camadas.
+- **Index de Ordenação**: Define a ordem da camada na lista.
+- **Ação ao Clicar**: Define o que acontece ao interagir com a camada.
+- **Zoom Mínimo e Máximo**: Define a faixa de zoom em que a camada será visível.
+- **Ativa**: Se a camada estará disponível para os usuários.
+- **Visível por Padrão**: Se a camada já inicia ativada no mapa.
+
+<div className="grid grid-cols-2 gap-4">
+  <img src="/create-layer-schema/configurar.png" alt="Configurar" />
+  <img src="/create-layer-schema/configurar-wfs.png" alt="Configurar WFS" />
+</div>
+
+> **Nota**: O botão "Visualizar Camada" no canto superior direito permite pré-visualizar a camada no mapa durante esta etapa.
+
+## Etapa 3: Template de Visualização (Apenas Vetorial)
+
+Disponível apenas para camadas vetoriais (WFS). Aqui você configura o template de visualização dos dados, utilizado principalmente quando a ação ao clicar for "Selecionar polígono/Feature".
+
+O template deve ser um array de objetos, configurado conforme a documentação de [Modelo de Visualização](/docs/general/mapa/view-template).
+
+![Configurar template](/create-layer-schema/configurar-template.png)
+
+## Etapa 4: Cores e Estilos (Apenas Vetorial)
+
+Disponível apenas para camadas vetoriais. Permite configurar a representação visual dos polígonos no mapa.
+
+Você pode configurar:
+
+- **Cor Simples**: Uma cor única para todos os elementos.
+- **Cores Dinâmicas**: Cores baseadas nos valores das propriedades dos polígonos.
+  - **Valor exato**: O valor presente na propriedade do polígono.
+  - **Texto da legenda**: O texto que aparecerá na legenda do mapa para esta cor.
+
+<div className="grid grid-cols-2 gap-4">
+  <img
+    src="/create-layer-schema/configurar-cores.png"
+    alt="Configurar cores"
+  />
+  <img
+    src="/create-layer-schema/configurar-cor-avancado.png"
+    alt="Configurar cor avançado"
+  />
+</div>
+
+> O botão "Visualizar Camada" também está disponível nesta etapa para conferir as cores aplicadas.
+
+## Etapa 5: Mapeamento de Propriedades
+
+Nesta etapa, configure o nome visual e a descrição das propriedades dos polígonos. Isso é útil para funcionalidades como a busca concatenada, facilitando a identificação dos dados pelo usuário final.
+
+![Mapear props](/create-layer-schema/mapear-props.png)
+
+## Etapa 6: Revisão e Confirmação
+
+Revise todas as informações configuradas para a camada.
+
+![Revisar configs](/create-layer-schema/revisar-configs.png)
+
+Se tudo estiver correto, clique em **Confirmar e Salvar** para registrar a camada no banco de dados. A camada estará imediatamente disponível para visualização no mapa conforme as configurações de ativação e visibilidade.
+
+> Utilize o botão "Visualizar Camada" para uma última verificação antes de salvar.
+
+## Exclusão de Camadas
+
+Caso precise remover uma camada cadastrada, consulte o guia completo de [Excluir Camada (Mapa, GeoServer e Banco de Dados)](/docs/general/mapa/excluir-camada).

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: urbis-docker-hub
+  namespace: urbis-map
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: {{ .Values.dockerConfig | default "{}" | b64enc }}

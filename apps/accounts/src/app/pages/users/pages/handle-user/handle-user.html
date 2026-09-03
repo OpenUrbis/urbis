@@ -1,0 +1,152 @@
+<app-page-structure
+  [title]="id() ? ('pages.users.handle.title.edit' | translate) : ('pages.users.handle.title.create' | translate)"
+  [subtitle]="id() ? ('pages.users.handle.subtitle.edit' | translate: { name: name() }) : ('pages.users.handle.subtitle.create' | translate)"
+  backUrl="/users"
+>
+  <div rightActions class="flex items-center gap-2">
+    @if (id()) {
+      <button
+        hlmBtn
+        variant="destructive"
+        size="sm"
+        class="gap-2"
+        (click)="deleteUser(id()!)"
+        *hasPermission="'user:delete'"
+      >
+        <hlm-icon name="lucideTrash2" size="16" />
+        {{ 'common.actions.delete' | translate }}
+      </button>
+    }
+    <lib-loading-button
+      [loading]="loadingSave()"
+      (click)="save()"
+      [disabled]="form.invalid"
+      type="button"
+    >
+      {{ 'common.actions.save' | translate }}
+    </lib-loading-button>
+  </div>
+
+  <lib-loading-content [loading]="loading()">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 flex flex-col gap-6">
+        <section class="bg-card border rounded-lg p-6">
+          <h3 class="text-lg font-semibold mb-4">{{ 'pages.users.handle.sections.personal' | translate }}</h3>
+          <form [formGroup]="form" class="flex flex-col gap-4" (ngSubmit)="save()">
+            <app-user-form
+              [formGroup]="form"
+              [loading]="loadingSave()"
+              [allowAllAccountTypes]="!!id() && canEditSensitiveFields"
+              [noOfficialAddress]="noOfficialAddress()"
+              (noOfficialAddressChange)="noOfficialAddress.set($event)"
+            />
+
+            @if (id() && canEditSensitiveFields) {
+              <div class="mt-2 rounded-md border border-border bg-muted/20 p-4 flex flex-col gap-3">
+                <div>
+                  <label class="text-sm font-semibold" for="sensitiveChangeJustification">
+                    Justificativa da alteração
+                  </label>
+                  <p class="text-xs text-muted-foreground mt-1">
+                    A justificativa é obrigatória quando o Tipo de cadastro ou a Data de nascimento forem alterados.
+                  </p>
+                </div>
+                <textarea
+                  id="sensitiveChangeJustification"
+                  formControlName="sensitiveChangeJustification"
+                  rows="3"
+                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  placeholder="Descreva o motivo da alteração"
+                ></textarea>
+                @if (form.get('sensitiveChangeJustification')?.touched && form.get('sensitiveChangeJustification')?.hasError('required')) {
+                  <p class="text-xs text-destructive">Informe a justificativa para salvar alterações nesses campos.</p>
+                }
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-semibold" for="sensitiveChangeAttachments">
+                    Anexos comprobatórios (opcional)
+                  </label>
+                  <input
+                    id="sensitiveChangeAttachments"
+                    type="file"
+                    multiple
+                    (change)="onSensitiveAttachmentChange($event)"
+                    [disabled]="uploadingAttachments() || loadingSave()"
+                    class="text-sm file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-primary-foreground"
+                  />
+                  @if (uploadingAttachments()) {
+                    <p class="text-xs text-muted-foreground">Enviando anexos...</p>
+                  }
+                  @if (form.get('sensitiveChangeAttachments')?.value?.length) {
+                    <p class="text-xs text-muted-foreground">
+                      {{ form.get('sensitiveChangeAttachments')?.value?.length }} anexo(s) selecionado(s).
+                    </p>
+                  }
+                </div>
+              </div>
+            }
+          </form>
+        </section>
+
+        @if (id()) {
+          <section class="bg-card border rounded-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">{{ 'pages.users.handle.sections.organizations' | translate }}</h3>
+            <app-user-organization-manager [userId]="id()!" />
+          </section>
+        }
+      </div>
+
+      <div class="flex flex-col gap-6">
+        @if (id()) {
+          @if (userObj()?.status === 'in_analysis') {
+            <section class="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900 rounded-lg p-6 flex flex-col gap-4">
+              <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200">Conta em Análise</h3>
+              <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                Esta conta aguarda aprovação para acessar o sistema. O usuário enviou documentos que requerem validação.
+              </p>
+              @if (documentUrls() && documentUrls().length > 0) {
+                <div class="bg-white dark:bg-black/20 p-3 rounded border flex flex-col gap-2">
+                  <span class="text-xs font-semibold block mb-1">Documento(s) Enviado(s):</span>
+                  @for (doc of documentUrls(); track doc.url) {
+                    <a [href]="doc.url" target="_blank" class="text-sm text-primary hover:underline flex items-center gap-2 border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                      Visualizar {{ doc.name }}
+                    </a>
+                  }
+                </div>
+              } @else {
+                <p class="text-xs text-muted-foreground italic">Nenhum documento anexado.</p>
+              }
+
+              <div class="flex flex-col sm:flex-row gap-3 mt-2">
+                <button
+                  hlmBtn
+                  variant="default"
+                  class="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  (click)="approveAccount()"
+                  [disabled]="loading()"
+                  *hasPermission="'user:update'"
+                >
+                  Aprovar Conta
+                </button>
+                <button
+                  hlmBtn
+                  variant="destructive"
+                  class="flex-1"
+                  (click)="rejectAccount()"
+                  [disabled]="loading()"
+                  *hasPermission="'user:update'"
+                >
+                  Rejeitar Conta
+                </button>
+              </div>
+            </section>
+          }
+
+          <section class="bg-card border rounded-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">{{ 'pages.users.handle.sections.roles' | translate }}</h3>
+            <app-user-role-manager [userId]="id()!" />
+          </section>
+        }
+      </div>
+    </div>
+  </lib-loading-content>
+</app-page-structure>

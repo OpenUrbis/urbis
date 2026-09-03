@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Values.certManager.issuerName | default "urbis-issuer" }}
+  namespace: {{ .Release.Namespace | default "urbis-map" }}
+spec:
+  acme:
+    server: {{ .Values.certManager.server | default "https://acme-v02.api.letsencrypt.org/directory" }}
+    email: {{ .Values.certManager.email | default "admin@urbis.example.com" }}
+    privateKeySecretRef:
+      name: {{ .Values.certManager.issuerName | default "urbis-issuer" }}-key
+    solvers:
+    - http01:
+        ingress:
+          name: urbis-map-api

@@ -1,0 +1,45 @@
+---
+title: Catálogo de Dados Geoespaciais
+description: Indexação de mais de 7.500 arquivos no Azure Storage, convenções de nomenclatura e resolução de SAS Tokens.
+icon: Database
+---
+
+O repositório de dados do Urbis Datalake na nuvem Azure (`openurbisdatalake`) conta com mais de **7.500 arquivos e camadas territoriais catalogadas**, incluindo dados vetoriais GeoSampa, históricos de IPTU, quadras fiscais, perímetros urbanísticos e ortofotocartografia Maxar.
+
+---
+
+## 🗄️ Estrutura de Containers no Azure Storage Account
+
+| Container | Formato | Finalidade |
+| :--- | :--- | :--- |
+| **`geojson`** | `.geojson` / `.json` | Camadas vetoriais municipais e estaduais brutas e processadas. |
+| **`parquet`** | `.parquet` | Tabelas colunares de alta performance processadas pela camada Silver. |
+| **`raw-maxar`** | `.tif` / `.jp2` | Mosaicos de ortofotos aéreas de alta resolução espacial. |
+| **`dagster-storage`** | `.pkl` / `.json` | Armazenamento de checkpoints, intermediate assets e histórico de runs do Dagster. |
+
+---
+
+## 🔍 Resolução e Geração de SAS URLs
+
+Para consultar ou realizar download seguro de arquivos do Datalake sem expor credenciais permanentes, utilize o utilitário central `scripts/generate_datalake_url.py`:
+
+```bash
+python3 scripts/generate_datalake_url.py <nome_da_camada_ou_termo>
+```
+
+### Exemplo:
+```bash
+python3 scripts/generate_datalake_url.py zoneamento
+```
+
+O script busca no catálogo indexado e retorna uma URL com Shared Access Signature (SAS Token) temporário pronto para uso.
+
+---
+
+## 🔄 Sincronização do Catálogo Local
+
+Para reindexar a lista completa de arquivos do Azure Storage no arquivo de catálogo local (`docs/datalake_layers.json` e `docs/DATALAKE_CATALOG.md`), execute:
+
+```bash
+python3 scripts/datalake_catalog.py
+```

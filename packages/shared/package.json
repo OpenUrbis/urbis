@@ -1,0 +1,29 @@
+{
+  "name": "@open-urbis/map-shared",
+  "version": "1.0.1",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./feature-flags": "./feature-flags/index.ts",
+    "./posthog": "./posthog/index.ts",
+    "./enums/*": "./enums/*.ts"
+  },
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "lint": "eslint \"**/*.ts*\""
+  },
+  "dependencies": {
+    "posthog-js": "^1.418.5"
+  },
+  "devDependencies": {
+    "@open-urbis/map-eslint-config": "workspace:*",
+    "@open-urbis/map-typescript-config": "workspace:*",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^9.24.0",
+    "typescript": "5.5.4"
+  }
+}

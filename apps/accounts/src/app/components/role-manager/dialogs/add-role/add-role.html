@@ -1,0 +1,79 @@
+<lib-loading-content [loading]="loading()">
+  <h2 class="text-lg font-semibold mb-4">
+    {{ "components.roleManager.addRole.title" | translate }}
+  </h2>
+
+  <div class="space-y-2 max-h-[60vh] overflow-y-auto pr-2">
+    @for (item of result$ | async; track item.id) {
+      <div
+        class="group border border-border rounded-md"
+        [ngClass]="{ 'bg-muted/30': expandedItems().has(item.id) }"
+      >
+        <div
+          class="relative z-10 flex items-center justify-between p-4 cursor-pointer list-none select-none hover:bg-muted/50 rounded-md transition-colors"
+          (click)="toggle(item.id)"
+        >
+          <span class="font-medium">{{ item.name }}</span>
+          <div class="flex items-center gap-2">
+            <button
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              [attr.aria-label]="
+                'components.roleManager.addRole.buttons.add' | translate
+              "
+              (click)="addRole($event, item)"
+              class="relative z-20 h-8 w-8"
+              [disabled]="data.roles.includes(item.id)"
+            >
+              <hlm-icon name="lucidePlus" size="16" />
+            </button>
+            <hlm-icon
+              name="lucideChevronDown"
+              size="16"
+              class="transition-transform"
+              [class.rotate-180]="expandedItems().has(item.id)"
+            />
+          </div>
+        </div>
+
+        @if (expandedItems().has(item.id)) {
+          <div class="px-4 pb-4 pt-0 border-t border-border/50">
+            <p class="text-sm text-muted-foreground mt-2 mb-4">
+              {{ item.description }}
+            </p>
+
+            <h6
+              class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
+            >
+              {{
+                "components.roleManager.addRole.permissionsTitle" | translate
+              }}
+            </h6>
+
+            <ul class="space-y-1">
+              @for (
+                rolePermission of item.rolePermissions;
+                track rolePermission.id
+              ) {
+                <li class="text-sm flex flex-col p-2 rounded hover:bg-muted/50">
+                  <span class="font-medium">{{
+                    rolePermission.permission.name
+                  }}</span>
+                  @if (item.description) {
+                    <span class="text-xs text-muted-foreground">{{
+                      rolePermission.permission.description
+                    }}</span>
+                  }
+                  <span class="text-xs text-muted-foreground mt-1">
+                    {{ rolePermission.scope | permissionScope }}
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</lib-loading-content>

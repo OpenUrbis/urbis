@@ -1,0 +1,22 @@
+{
+  "title": "Mapa Urbis (Web GIS)",
+  "icon": "Map",
+  "pages": [
+    "index",
+    "---Configuração & Estilos---",
+    "layer-configuration",
+    "layer-schema",
+    "base-maps",
+    "view-template",
+    "search-config",
+    "---Operações de Camadas---",
+    "cadastrar-camada",
+    "excluir-camada",
+    "exportar-camada",
+    "storage",
+    "---Integração & Banco---",
+    "integracao-api",
+    "scripts-sql",
+    "error-codes"
+  ]
+}

@@ -1,0 +1,38 @@
+<lib-loading-content [loading]="loading()">
+  <h2 class="text-lg font-semibold mb-4">
+    {{
+      (data.organization
+        ? "components.userOrganizationManager.dialog.editTitle"
+        : "components.userOrganizationManager.dialog.createTitle") | translate
+    }}
+    <span *ngIf="data.organization" class="font-normal text-muted-foreground ml-1">
+      {{
+        "components.userOrganizationManager.dialog.organizationLabel"
+          | translate: { name: data.organization.name }
+      }}
+    </span>
+  </h2>
+
+  <div class="max-h-[80vh] overflow-y-auto p-1">
+    <form [formGroup]="form" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1.5" *ngIf="!data.organization">
+        <label hlmLabel>{{ "components.organizationSelector.labels.single" | translate }}</label>
+        <app-organization-selector [control]="orgControl" />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label hlmLabel>{{ "components.roleSelector.labels.multiple" | translate }}</label>
+        <app-role-selector [control]="rolesControl" [multi]="true" />
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4">
+        <button hlmBtn variant="outline" type="button" (click)="dialogRef.close()">
+            {{ "components.userOrganizationManager.dialog.buttons.cancel" | translate }}
+        </button>
+        <lib-loading-button [loading]="loading()" (click)="save()">
+            {{ "components.userOrganizationManager.dialog.buttons.save" | translate }}
+        </lib-loading-button>
+      </div>
+    </form>
+  </div>
+</lib-loading-content>

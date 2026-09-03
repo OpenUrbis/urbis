@@ -1,0 +1,58 @@
+---
+title: Diretrizes de Commit
+description: Convenção para mensagens de commit.
+---
+
+Seguimos um formato específico de mensagem de commit, inspirado no Angular, para manter o histórico claro e permitir a geração automatizada de changelog. Cada mensagem de commit deve seguir esta estrutura:
+
+### Formato do Cabeçalho
+
+```text
+<tipo>(<escopo>): <resumo curto>
+```
+
+- **Tipo**: Deve ser um dos seguintes:
+
+  - `build`: Alterações no sistema de build ou dependências.
+  - `ci`: Alterações na configuração de CI.
+  - `docs`: Alterações apenas na documentação.
+  - `feat`: Uma nova funcionalidade.
+  - `fix`: Uma correção de bug.
+  - `perf`: Uma melhoria de performance.
+  - `refactor`: Uma alteração de código que não corrige um bug nem adiciona uma funcionalidade.
+  - `test`: Adição ou correção de testes.
+
+- **Escopo**: Opcional. Indica a parte do projeto afetada (ex: `client`, `docs`, `tests`).
+
+- **Resumo**: Uma breve descrição no modo imperativo (ex: "add feature" e não "added feature").
+
+### Corpo (Opcional)
+
+- Explica **por que** a alteração foi feita.
+- Use o modo imperativo.
+- Obrigatório para todos os commits exceto os do tipo `docs`.
+
+### Rodapé (Opcional)
+
+- Usado para notar _breaking changes_ ou referenciar _issues_/PRs.
+- Para _breaking changes_, comece com `BREAKING CHANGE: ` seguido por uma descrição.
+
+### Exemplo Completo
+
+```text
+feat(client): add new workflow component
+
+This commit introduces a component for managing workflows, enhancing the user experience.
+
+BREAKING CHANGE: The old workflow API is discontinued. Update to the new component.
+```
+
+### Revertendo Commits
+
+Se estiver revertendo um commit anterior, comece a mensagem com `revert: ` seguido pelo cabeçalho do commit revertido. Exemplo:
+
+```text
+revert: feat(client): add new workflow component
+
+This reverts commit abc123.
+```

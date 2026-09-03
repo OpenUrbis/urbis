@@ -1,0 +1,28 @@
+---
+title: Visão Geral do Backend
+description: Visão geral da arquitetura backend NestJS.
+icon: Server
+---
+
+O backend é construído com **NestJS**, fornecendo uma arquitetura modular, testável e escalável.
+
+## Estrutura
+
+O diretório `apps/api/src` é organizado em módulos lógicos:
+
+-   **`app.module.ts`**: O módulo raiz que importa todos os outros módulos.
+-   **`common/`**: Utilitários compartilhados, guards, decorators e configurações usados em toda a aplicação.
+-   **`auth/`**: Lógica de autenticação (OIDC, Strategies, Guards).
+-   **`user/`**: Gerenciamento de usuários (perfis, atualizações).
+-   **`role/`**: Gerenciamento de cargos e permissões.
+-   **`organization/`**: Suporte a multi-tenancy (organizações/times).
+-   **`files/`**: Upload e gerenciamento de arquivos (integração S3).
+-   **`whitelabel/`**: Configuração de temas e whitelabel.
+
+## Injeção de Dependência
+
+Utilizamos intensamente o sistema de injeção de dependência do NestJS. Serviços são injetados em controllers e outros serviços, facilitando o teste e a manutenção do código.
+
+## Configuração
+
+A configuração é gerenciada usando `@nestjs/config`. Variáveis de ambiente são carregadas de arquivos `.env` e validadas usando `Joi` ou `class-validator` para garantir que a aplicação inicie com uma configuração válida.

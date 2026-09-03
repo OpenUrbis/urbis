@@ -1,0 +1,9 @@
+{
+  "name": "@open-urbis/map-typescript-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "publishConfig": {
+    "access": "public"
+  }
+}

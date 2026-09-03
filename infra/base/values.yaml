@@ -1,0 +1,10 @@
+domainName: api.mapa.urbis.example.com
+domains:
+  - api.mapa.urbis.example.com
+  - api.mapa.urbis.prefeitura.sp.gov.br
+certManager:
+  issuerName: "urbis-issuer"
+  email: "admin@urbis.example.com"
+  server: "https://acme-v02.api.letsencrypt.org/directory"
+tlsSecretName: "urbis-map-certificate-tls"
+dockerConfig: "{}"

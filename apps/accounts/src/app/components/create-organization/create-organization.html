@@ -1,0 +1,57 @@
+<form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4 pt-3">
+  <div class="flex flex-col gap-1.5">
+    <label hlmLabel for="name">{{
+      "components.createOrganization.fields.name" | translate
+    }}</label>
+    <input
+      hlmInput
+      id="name"
+      [placeholder]="
+        'components.createOrganization.fields.name' | translate
+      "
+      [attr.aria-label]="
+        'components.createOrganization.fields.name' | translate
+      "
+      formControlName="name"
+      class="w-full"
+    />
+  </div>
+  <div class="flex flex-col gap-1.5">
+    <label hlmLabel for="description">{{
+      "components.createOrganization.fields.description" | translate
+    }}</label>
+    <input
+      hlmInput
+      id="description"
+      [placeholder]="
+        'components.createOrganization.fields.description' | translate
+      "
+      [attr.aria-label]="
+        'components.createOrganization.fields.description' | translate
+      "
+      formControlName="description"
+      class="w-full"
+    />
+  </div>
+
+  <div class="flex justify-end">
+    <button
+      hlmBtn
+      type="submit"
+      [disabled]="loading() || form.invalid"
+      [attr.aria-label]="
+        autoAssign()
+          ? ('components.createOrganization.buttons.createAndSelect' | translate)
+          : ((saveButtonText() || ('components.createOrganization.buttons.create' | translate)))
+      "
+    >
+      <hlm-icon name="lucideLoader2" class="mr-2 animate-spin" *ngIf="loading()" />
+      {{
+        autoAssign()
+          ? ("components.createOrganization.buttons.createAndSelect" | translate)
+          : (saveButtonText() ||
+              ("components.createOrganization.buttons.create" | translate))
+      }}
+    </button>
+  </div>
+</form>

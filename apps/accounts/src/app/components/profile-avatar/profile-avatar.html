@@ -1,0 +1,15 @@
+<div class="relative w-fit">
+  <app-user-avatar
+    [src]="avatarSrc()"
+    [firstName]="firstName()"
+    [lastName]="lastName()"
+    [width]="size()"
+    [height]="size()"
+    class="z-0"
+  />
+  @if (canEdit()) {
+    <div class="absolute bottom-0 right-0 z-10">
+      <app-edit-profile-avatar />
+    </div>
+  }
+</div>

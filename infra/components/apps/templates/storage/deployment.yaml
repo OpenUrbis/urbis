@@ -1,0 +1,66 @@
+{{- $storage := .Values.storage | default dict -}}
+{{- $cfg := $storage.config | default dict -}}
+{{- $sec := $storage.secrets | default dict -}}
+{{- $img := $storage.image | default dict -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urbis-map-storage
+  namespace: {{ .Release.Namespace | default "urbis-map" }}
+  labels:
+    app: urbis-map-storage
+    app.kubernetes.io/name: urbis-map-storage
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ $storage.replicaCount | default 1 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: urbis-map-storage
+  template:
+    metadata:
+      labels:
+        app: urbis-map-storage
+    spec:
+      containers:
+      - name: urbis-map-storage
+        image: "{{ $img.repository | default "andrewgaul/s3proxy" }}:{{ $img.tag | default "latest" }}"
+        imagePullPolicy: {{ $img.pullPolicy | default "Always" }}
+        ports:
+        - containerPort: {{ $storage.port | default 8080 }}
+          protocol: TCP
+        env:
+        - name: S3PROXY_AUTHORIZATION
+          value: {{ $cfg.authorization | default "aws-v2-or-v4" | quote }}
+        - name: S3PROXY_IDENTITY
+          value: {{ $sec.identity | default "CHANGE_ME" | quote }}
+        - name: S3PROXY_CREDENTIAL
+          value: {{ $sec.credential | default "CHANGE_ME" | quote }}
+        - name: JCLOUDS_IDENTITY
+          value: {{ $sec.jcloudsIdentity | default "slui" | quote }}
+        - name: JCLOUDS_CREDENTIAL
+          value: {{ $sec.jcloudsCredential | default "CHANGE_ME" | quote }}
+        - name: JCLOUDS_ENDPOINT
+          value: {{ $cfg.jcloudsEndpoint | default "https://YOUR_STORAGE_ACCOUNT.blob.core.windows.net" | quote }}
+        - name: JCLOUDS_PROVIDER
+          value: {{ $cfg.jcloudsProvider | default "azureblob" | quote }}
+        - name: JCLOUDS_AZUREBLOB_AUTH
+          value: {{ $cfg.jcloudsAzureBlobAuth | default "azureKey" | quote }}
+        - name: S3PROXY_ENDPOINT
+          value: {{ $cfg.endpoint | default "http://0.0.0.0:8080" | quote }}
+        - name: S3PROXY_CORS_ALLOW_ALL
+          value: {{ $cfg.corsAllowAll | default "true" | quote }}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

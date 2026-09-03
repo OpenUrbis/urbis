@@ -1,0 +1,62 @@
+<app-page-structure
+  [title]="'pages.users.edit.roles.title' | translate"
+  [containerClasses]="[]"
+>
+  <section rightActions>
+    <button
+      *hasPermission="'role:assign'"
+      hlmBtn
+      [attr.aria-label]="'components.userRoleManager.buttons.add' | translate"
+      (click)="openAddRole()"
+    >
+      <hlm-icon name="lucidePlus" size="sm" class="mr-2" />
+      {{ "pages.users.edit.roles.buttons.add" | translate }}</button
+    >
+  </section>
+
+  <lib-loading-content [loading]="loading()">
+    <div class="rounded-md border border-border divide-y divide-border">
+      @for (item of userRoles(); track item.id) {
+        <div class="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+          <div class="flex flex-col gap-1">
+            <span class="font-medium text-sm flex items-center gap-2">
+              <b>{{ item.role.name }}</b>
+              @if (item?.organization) {
+                <span class="text-xs text-muted-foreground">
+                  {{
+                    "components.userRoleManager.labels.inOrganization"
+                      | translate: { organization: item?.organization?.name }
+                  }}
+                </span>
+              }
+            </span>
+            <span class="text-xs text-muted-foreground">{{ formatPermissions(item.role) }}</span>
+          </div>
+
+          @if (!isSystemUserRole(item)) {
+            <button
+              *hasPermission="'role:unassign'"
+              hlmBtn
+              variant="ghost"
+              style="min-width: 40px;"
+              size="icon"
+              [attr.aria-label]="
+                'components.userRoleManager.buttons.remove' | translate
+              "
+              (click)="rmRole(item)"
+            >
+              <hlm-icon name="lucideTrash2" size="sm" />
+            </button>
+          } @else {
+            <span
+              class="text-xs text-muted-foreground flex items-center px-2 py-1"
+              title="Cargo padrão do sistema não pode ser removido"
+            >
+              <hlm-icon name="lucideLock" size="sm" class="text-muted-foreground" />
+            </span>
+          }
+        </div>
+      }
+    </div>
+  </lib-loading-content>
+</app-page-structure>

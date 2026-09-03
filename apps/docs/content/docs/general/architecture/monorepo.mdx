@@ -1,0 +1,43 @@
+---
+title: Estrutura do Monorepo
+description: Entendendo a organização, aplicações e pacotes compartilhados no Turborepo.
+icon: Package
+---
+
+O **Urbis** adota uma arquitetura de **Monorepo** gerenciada por [Turborepo](https://turbo.build/) e [pnpm](https://pnpm.io/). Essa estrutura unificada viabiliza o compartilhamento imediato de código tipado entre backend e múltiplos frontends, builds otimizados com cache e versionamento coeso.
+
+---
+
+## 📁 Estrutura de Diretórios
+
+```plaintext
+urbis/
+├── apps/
+│   ├── accounts/          # Portal Angular de identidade, perfis e autenticação OIDC
+│   ├── api/               # Backend NestJS (REST API, TypeORM, OIDC Provider, Redis, Bull)
+│   ├── docs/              # Portal de documentação técnica (Next.js + Fumadocs MDX)
+│   ├── legis/             # Editor e gestão territorial legislativa (React + Vite + Tiptap)
+│   ├── site/              # Portal institucional público (React + Vite SSG)
+│   └── web/               # Aplicação principal de mapas GIS (React + Deck.gl + MapLibre)
+├── packages/
+│   ├── auth/              # Cliente unificado de autenticação OIDC e telemetria (@open-urbis/map-auth)
+│   ├── endereco-digital/  # Algoritmo de geocodificação territorial (@open-urbis/endereco-digital)
+│   ├── eslint-config/     # Configurações compartilhadas de ESLint
+│   ├── map/               # Componente e engine de mapa reutilizável (@open-urbis/map)
+│   ├── shared/            # Tipos TypeScript, DTOs e Feature Flags (@open-urbis/map-shared)
+│   ├── typescript-config/ # Presets de configuração TypeScript
+│   └── ui/                # Componentes visuais UI compartilhados (@open-urbis/map-ui)
+├── docs/                  # Guias em Markdown e relatórios de homologação
+├── infra/                 # Helm charts, Dockerfiles e scripts de deploy Kubernetes
+├── package.json           # Scripts globais do monorepo
+├── pnpm-workspace.yaml    # Configuração dos workspaces pnpm
+└── turbo.json             # Pipeline de tarefas e cache do Turborepo
+```
+
+---
+
+## 🎯 Benefícios da Arquitetura
+
+1. **Segurança de Tipos Ponta a Ponta**: Interfaces, DTOs e regras de Feature Flags são definidas em `packages/shared` e consumidas pela API e pelos frontends. Qualquer quebra de contrato na API causa falha de tipagem no frontend em tempo de desenvolvimento.
+2. **Workspaces Nativos do pnpm**: Permite o consumo local instantâneo dos pacotes sem necessidade de build intermediário ou publicação em registros NPM durante o desenvolvimento.
+3. **Pipeline Otimizado com Turborepo**: O Turborepo calcula grafos de dependência e executa tarefas (lint, build, test) em paralelo, armazenando os resultados em cache para evitar retrabalho em arquivos inalterados.

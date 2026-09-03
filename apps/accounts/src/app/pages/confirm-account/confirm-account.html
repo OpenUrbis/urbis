@@ -1,0 +1,21 @@
+<div class="flex items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-10">
+  <div class="w-full max-w-[448px]">
+    <section hlmCard class="w-full p-4 sm:p-6 shadow-lg border-border text-center">
+      <header hlmCardHeader class="pb-6">
+        <h1 hlmCardTitle class="text-2xl font-bold tracking-tight text-primary">
+          {{ "pages.confirmAccount.title" | translate }}
+        </h1>
+      </header>
+
+      <div hlmCardContent class="pb-0">
+        @if (error()) {
+        <p class="text-sm text-destructive font-medium">{{ error() }}</p>
+        } @else if (loading()) {
+        <p class="text-sm text-muted-foreground animate-pulse">{{ "pages.confirmAccount.loading" | translate }}</p>
+        } @else {
+        <p class="text-sm text-muted-foreground">{{ "pages.confirmAccount.success" | translate }}</p>
+        }
+      </div>
+    </section>
+  </div>
+</div>

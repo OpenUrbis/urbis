@@ -1,0 +1,20 @@
+<form [formGroup]="form" class="flex flex-col gap-6" (ngSubmit)="submit()">
+
+  <app-user-form
+    [formGroup]="form"
+    [loading]="state.loading()"
+    [noOfficialAddress]="noOfficialAddress()"
+    (noOfficialAddressChange)="noOfficialAddress.set($event)"
+  />
+
+  <lib-country-select [formGroup]="form" />
+
+  <div class="flex justify-end pt-4">
+    <button
+      hlmBtn
+      [attr.aria-label]="'pages.profile.edit.personal.buttons.save' | translate"
+    >
+      {{ "pages.profile.edit.personal.buttons.save" | translate }}
+    </button>
+  </div>
+</form>

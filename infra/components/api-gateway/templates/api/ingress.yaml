@@ -1,0 +1,52 @@
+{{- $ingress := .Values.ingress | default dict -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: urbis-map-api
+  namespace: {{ .Release.Namespace | default "urbis-map" }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ join "," (.Values.domains | default (list .Values.domainName)) }}
+    nginx.ingress.kubernetes.io/ssl-redirect: {{ $ingress.sslRedirect | default "false" | quote }}
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ $ingress.proxyBodySize | default "2g" | quote }}
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/session-cookie-name: route
+    nginx.ingress.kubernetes.io/session-cookie-hash: sha1
+    nginx.ingress.kubernetes.io/session-cookie-path: /
+    cert-manager.io/issue-temporary-certificate: "true"
+    acme.cert-manager.io/http01-edit-in-place: "true"
+spec:
+  ingressClassName: {{ $ingress.className | default "nginx-map" }}
+  tls:
+    - hosts:
+{{- range (.Values.domains | default (list .Values.domainName)) }}
+        - {{ . }}
+{{- end }}
+      secretName: {{ $ingress.tlsSecretName | default "urbis-map-certificate-tls" }}
+  rules:
+{{- range (.Values.domains | default (list .Values.domainName)) }}
+    - host: {{ . }}
+      http:
+        paths:
+        - path: /storage/(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: urbis-map-storage-service
+              port:
+                number: 8080
+        - path: /storage
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: urbis-map-storage-service
+              port:
+                number: 8080
+        - path: /(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: urbis-map-api-service
+              port:
+                number: 3000
+{{- end }}

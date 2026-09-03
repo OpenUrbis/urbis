@@ -1,0 +1,93 @@
+---
+title: Consumo Externo de Mapas (WMS / WFS)
+description: Como gerar Chaves de API Pessoais no painel do Urbis e integrar camadas geográficas em softwares SIG externos como QGIS, ArcGIS ou via requisições HTTP directas.
+icon: Key
+---
+
+O Urbis permite que desenvolvedores e analistas de SIG acessem suas camadas de dados geográficos diretamente de ferramentas de terceiros (como QGIS, ArcGIS, scripts em Python ou integradores corporativos). 
+
+Para isso, o sistema disponibiliza endpoints compatíveis com os padrões abertos do OGC (Open Geospatial Consortium): **WMS (Web Map Service)** para renderização de imagens e **WFS (Web Feature Service)** para consulta a dados vetoriais puros.
+
+---
+
+## 1. Geração de Chaves de API Pessoais (Personal API Keys)
+
+Toda integração ou consulta externa à API necessita de autenticação para garantir a segurança dos dados e rastrear o limite de uso diário (cotas) de cada conta.
+
+Para gerar e gerenciar suas chaves:
+
+1. Faça login no portal de **Contas do Urbis** (`accounts`).
+2. Acesse a página do seu **Perfil** (ícone do usuário).
+3. Clique na aba/botão **Chaves de API**.
+4. No painel "Gerar Nova Chave de API", insira um nome amigável (ex: *Integração QGIS Local*) e clique em **Gerar Chave**.
+5. **Atenção:** Copie a chave em texto puro exibida no painel. Por motivos de segurança, ela é armazenada apenas em formato de Hash criptográfico (SHA-256) no servidor e não será exibida novamente.
+
+---
+
+## 2. Cabeçalhos HTTP de Autenticação
+
+Para se autenticar com sucesso na API de mapas do Urbis, todas as requisições HTTP dirigidas aos endpoints geográficos devem incluir os seguintes cabeçalhos adicionais:
+
+| Nome do Cabeçalho | Tipo | Descrição | Exemplo |
+| :--- | :---: | :--- | :--- |
+| `x-api-key` | `string` | A Chave de API Pessoal que você gerou no painel de Contas. | `urb_live_73a9b9a6...f491` |
+| `x-organization-id` | `UUID` | O ID da sua organização ativa sob a qual as permissões serão checadas. | `a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11` |
+
+---
+
+## 3. Limites de Uso e Monitoramento de Cotas (Redis)
+
+As requisições externas para renderização ou consulta de mapas consomem a sua **cota diária de consumo**. O limite de requisições padrão é de **1.000 requisições diárias** por conta de usuário, reiniciado automaticamente à meia-noite (horário de Brasília).
+
+O limite é controlado de forma centralizada e em tempo real em servidores cache Redis. Você pode acompanhar o seu limite diário e consumo atual em tempo real:
+* Acessando o seu painel de **Perfil** no portal de Contas.
+* Clicando no botão **Uso** (ou acessando `/profile/usage`), onde um gráfico de progresso mostrará o percentual de requisições restantes.
+
+Se as requisições excederem a cota estabelecida, o servidor responderá com o status HTTP **`429 Too Many Requests`**.
+
+---
+
+## 4. Integração Prática com o QGIS
+
+O QGIS é uma das ferramentas mais comuns para consumir serviços WMS/WFS. Siga o passo a passo para conectar as camadas do Urbis com autenticação ativa:
+
+### Configurando Conexão WMS ou WFS
+
+1. No painel **Navegador** do QGIS, clique com o botão direito sobre **WMS/WMTS** ou **WFS / OGC API Features** e selecione **Nova Conexão...**.
+2. Preencha os detalhes básicos utilizando os serviços de proxy unificados (que expõem todas as camadas permitidas para sua entidade de forma dinâmica):
+   * **Nome:** *Urbis WMS* ou *Urbis WFS*
+   * **URL de Conexão Unificada:**
+     * Para WMS (Serviço de Mapas): `https://api.mapa.urbis.prefeitura.sp.gov.br/maps/proxy/wms`
+     * Para WFS (Serviço de Feições Vetoriais): `https://api.mapa.urbis.prefeitura.sp.gov.br/maps/proxy/wfs`
+3. Na seção de **Autenticação**, você precisa injetar os cabeçalhos de rede HTTP. O QGIS permite adicionar cabeçalhos adicionais de rede:
+   * Acesse a guia **Parâmetros Adicionais / HTTP Headers** (nas versões recentes do QGIS).
+   * Adicione o cabeçalho `x-api-key` com o valor da sua Chave de API pessoal.
+   * Adicione o cabeçalho `x-organization-id` com o ID da sua organização.
+4. Clique em **OK**. Ao expandir a nova conexão criada no Navegador, o QGIS solicitará a lista de camadas ativas sob as permissões da sua organização. Arraste a camada desejada para a sua Área de Trabalho para carregá-la.
+
+---
+
+## 5. Exemplos de Requisição de Linha de Comando (cURL)
+
+Se estiver construindo scripts automatizados de consulta a feições, utilize os exemplos de cURL abaixo:
+
+### Exemplo cURL para WMS (Obter imagem de mapa renderizada)
+
+Este comando solicita o enquadramento de uma região de lote no formato PNG utilizando a rota de proxy unificada da API:
+
+```bash
+curl -X GET "https://api.urbis.com.br/v1/maps/proxy/wms?service=WMS&version=1.3.0&request=GetMap&layers=urbis:lotes&styles=&bbox=-23.56,-46.64,-23.55,-46.63&width=512&height=512&srs=EPSG:4326&format=image/png" \
+  -H "x-api-key: urb_live_SUA_CHAVE_DE_API_GERADA" \
+  -H "x-organization-id: SEU_ID_DE_ORGANIZACAO" \
+  --output lote_renderizado.png
+```
+
+### Exemplo cURL para WFS (Obter feições geoespaciais em GeoJSON)
+
+Este comando retorna a geometria e os atributos brutos de lote em formato JSON para manipulação direta de dados utilizando a rota de proxy unificada da API:
+
+```bash
+curl -X GET "https://api.urbis.com.br/v1/maps/proxy/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=urbis:lotes&outputFormat=application/json" \
+  -H "x-api-key: urb_live_SUA_CHAVE_DE_API_GERADA" \
+  -H "x-organization-id: SEU_ID_DE_ORGANIZACAO"
+```

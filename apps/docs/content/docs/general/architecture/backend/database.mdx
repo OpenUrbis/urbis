@@ -1,0 +1,57 @@
+---
+title: Banco de Dados e Migrações
+description: Gerenciando esquemas de banco de dados, migrações e seeds.
+icon: Database
+---
+
+O Urbis utiliza PostgreSQL como seu banco de dados primário e TypeORM para mapeamento objeto-relacional.
+
+## Conexão
+
+A conexão com o banco de dados é configurada em `apps/api/src/common/database/database.module.ts`. Ela lê as credenciais de variáveis de ambiente (`DB_HOST`, `DB_PORT`, `DB_USERNAME`, etc.).
+
+## Migrações
+
+Utilizamos migrações de banco de dados para gerenciar alterações de esquema ao longo do tempo. Isso garante que o esquema do banco de dados seja controlado por versão e possa ser replicado em diferentes ambientes (dev, staging, prod).
+
+### Executando Migrações
+
+Para aplicar migrações pendentes:
+
+```bash
+pnpm migration:run
+```
+
+### Criando Migrações
+
+Para gerar uma nova migração baseada em alterações nas suas entidades:
+
+```bash
+pnpm migration:generate --name=NomeDaMigracao
+```
+
+Para criar um arquivo de migração vazio:
+
+```bash
+pnpm migration:create --name=NomeDaMigracao
+```
+
+### Revertendo Migrações
+
+Para desfazer a última migração:
+
+```bash
+pnpm migration:revert
+```
+
+## Seeding
+
+Seeding nos permite popular o banco de dados com dados iniciais ou de teste.
+
+Para executar os seeds:
+
+```bash
+pnpm db:seed
+```
+
+O script de seed está localizado em `apps/api/src/common/database/seeds/run-seed.ts`.

@@ -1,0 +1,28 @@
+@if (formGroup()) {
+  <form [formGroup]="formGroup()" class="flex flex-col gap-1.5">
+    <label hlmLabel for="country">{{
+      "components.lib.countrySelectForm.field" | translate
+    }}</label>
+    <div class="relative w-full">
+      <select
+        hlmInput
+        id="country"
+        formControlName="country"
+        class="w-full appearance-none bg-transparent"
+        [attr.aria-label]="'components.lib.countrySelectForm.field' | translate"
+      >
+        @for (country of countryList; track country) {
+          <option [value]="country.code">{{ country.name }}</option>
+        }
+      </select>
+    </div>
+    @if (
+      formGroup().controls["country"].invalid &&
+      formGroup().controls["country"].touched
+    ) {
+      <div class="text-destructive text-sm font-medium">
+        {{ "components.lib.countrySelectForm.errors.required" | translate }}
+      </div>
+    }
+  </form>
+}

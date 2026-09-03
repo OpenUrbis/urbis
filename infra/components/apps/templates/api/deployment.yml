@@ -1,0 +1,206 @@
+{{- $api := .Values.api | default dict -}}
+{{- $cfg := $api.config | default dict -}}
+{{- $sec := $api.secrets | default dict -}}
+{{- $img := $api.image | default dict -}}
+{{- $res := $api.resources | default dict -}}
+{{- $req := $res.requests | default dict -}}
+{{- $lim := $res.limits | default dict -}}
+{{- $probes := $api.probes | default dict -}}
+{{- $startup := $probes.startup | default dict -}}
+{{- $readiness := $probes.readiness | default dict -}}
+{{- $liveness := $probes.liveness | default dict -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urbis-map-api
+  namespace: {{ .Release.Namespace | default "urbis-map" }}
+  labels:
+    app: urbis-map-api
+    app.kubernetes.io/name: urbis-map-api
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ $api.replicaCount | default 4 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: urbis-map-api
+  template:
+    metadata:
+      labels:
+        app: urbis-map-api
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: urbis-map-api
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - urbis-map-api
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: urbis-map-api
+        image: "{{ $img.repository | default "openurbis/urbis-map" }}:{{ $img.tag | default "latest" }}"
+        imagePullPolicy: {{ $img.pullPolicy | default "Always" }}
+        ports:
+        - containerPort: {{ $cfg.appPort | default 3000 }}
+          protocol: TCP
+        resources:
+          requests:
+            cpu: {{ $req.cpu | default "200m" | quote }}
+            memory: {{ $req.memory | default "256Mi" | quote }}
+          limits:
+            cpu: {{ $lim.cpu | default "1500m" | quote }}
+            memory: {{ $lim.memory | default "1024Mi" | quote }}
+        startupProbe:
+          tcpSocket:
+            port: {{ $cfg.appPort | default 3000 }}
+          initialDelaySeconds: {{ $startup.initialDelaySeconds | default 5 }}
+          periodSeconds: {{ $startup.periodSeconds | default 3 }}
+          timeoutSeconds: {{ $startup.timeoutSeconds | default 2 }}
+          failureThreshold: {{ $startup.failureThreshold | default 20 }}
+        readinessProbe:
+          httpGet:
+            path: {{ $readiness.path | default "/health/ready" }}
+            port: {{ $cfg.appPort | default 3000 }}
+          initialDelaySeconds: {{ $readiness.initialDelaySeconds | default 10 }}
+          periodSeconds: {{ $readiness.periodSeconds | default 10 }}
+          timeoutSeconds: {{ $readiness.timeoutSeconds | default 5 }}
+          failureThreshold: {{ $readiness.failureThreshold | default 3 }}
+        livenessProbe:
+          tcpSocket:
+            port: {{ $cfg.appPort | default 3000 }}
+          initialDelaySeconds: {{ $liveness.initialDelaySeconds | default 20 }}
+          periodSeconds: {{ $liveness.periodSeconds | default 15 }}
+          timeoutSeconds: {{ $liveness.timeoutSeconds | default 3 }}
+          failureThreshold: {{ $liveness.failureThreshold | default 4 }}
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 5"]
+        env:
+        - name: NODE_ENV
+          value: {{ $cfg.nodeEnv | default "production" | quote }}
+        - name: NODE_OPTIONS
+          value: {{ $api.nodeOptions | default "--max-old-space-size=896" | quote }}
+        - name: APP_PORT
+          value: {{ $cfg.appPort | default "3000" | quote }}
+        - name: APP_NAME
+          value: {{ $cfg.appName | default "Urbis Map OPENAPI" | quote }}
+        - name: API_PREFIX
+          value: {{ $cfg.apiPrefix | default "api" | quote }}
+        - name: APP_FALLBACK_LANGUAGE
+          value: {{ $cfg.appFallbackLanguage | default "en" | quote }}
+        - name: APP_HEADER_LANGUAGE
+          value: {{ $cfg.appHeaderLanguage | default "x-custom-lang" | quote }}
+        - name: FRONTEND_DOMAIN
+          value: {{ $cfg.frontendDomain | default "https://conta.urbis.prefeitura.sp.gov.br" | quote }}
+        - name: BACKEND_DOMAIN
+          value: {{ $cfg.backendDomain | default "https://api.mapa.urbis.prefeitura.sp.gov.br" | quote }}
+        - name: SWAGGER_ENABLED
+          value: {{ $cfg.swaggerEnabled | default "true" | quote }}
+        - name: I18N_DIRECTORY
+          value: {{ $cfg.i18nDirectory | default "dist/app/i18n" | quote }}
+        - name: DATABASE_TYPE
+          value: {{ $cfg.databaseType | default "postgres" | quote }}
+        - name: DATABASE_HOST
+          value: {{ $cfg.databaseHost | default "urbis-map-postgres" | quote }}
+        - name: DATABASE_PORT
+          value: {{ $cfg.databasePort | default "5432" | quote }}
+        - name: DATABASE_USERNAME
+          value: {{ $sec.databaseUsername | default "postgres" | quote }}
+        - name: DATABASE_PASSWORD
+          value: {{ $sec.databasePassword | default "CHANGE_ME" | quote }}
+        - name: DATABASE_NAME
+          value: {{ $cfg.databaseName | default "postgres" | quote }}
+        - name: DATABASE_SYNCHRONIZE
+          value: {{ $cfg.databaseSynchronize | default "false" | quote }}
+        - name: DATABASE_MAX_CONNECTIONS
+          value: {{ $cfg.databaseMaxConnections | default "30" | quote }}
+        - name: DATABASE_SSL_ENABLED
+          value: {{ $cfg.databaseSslEnabled | default "true" | quote }}
+        - name: DATABASE_REJECT_UNAUTHORIZED
+          value: {{ $cfg.databaseRejectUnauthorized | default "false" | quote }}
+        - name: REDIS_HOST
+          value: {{ $cfg.redisHost | default "redis" | quote }}
+        - name: REDIS_PORT
+          value: {{ $cfg.redisPort | default "10000" | quote }}
+        - name: REDIS_PASSWORD
+          value: {{ $sec.redisPassword | default "" | quote }}
+        - name: REDIS_DB
+          value: {{ $cfg.redisDb | default "0" | quote }}
+        - name: AUTH_SECRET
+          value: {{ $sec.authSecret | default "secret" | quote }}
+        - name: AUTH_API_KEY
+          value: {{ $sec.authApiKey | default "secret" | quote }}
+        - name: AUTH_SESSION_TABLE
+          value: {{ $cfg.authSessionTable | default "session" | quote }}
+        - name: TWO_FACTORY_APP_NAME
+          value: {{ $cfg.twoFactorAppName | default "URbis" | quote }}
+        - name: TWO_FACTORY_SECRET
+          value: {{ $sec.twoFactorSecret | default "CHANGE_ME" | quote }}
+        - name: EXTERNAL_OIDC_JWKS_URI
+          value: {{ $cfg.externalOidcJwksUri | default "https://sso.acesso.gov.br/jwk" | quote }}
+        - name: EXTERNAL_OIDC_AUTHORITY
+          value: {{ $cfg.externalOidcAuthority | default "https://sso.acesso.gov.br" | quote }}
+        - name: EXTERNAL_OIDC_CLIENT_ID
+          value: {{ $cfg.externalOidcClientId | default "p-urbis.prefeitura.sp.gov.br" | quote }}
+        - name: EXTERNAL_OIDC_CLIENT_SECRET
+          value: {{ $sec.externalOidcClientSecret | default "CHANGE_ME" | quote }}
+        - name: GEOSERVER_URL
+          value: {{ $cfg.geoserverUrl | default "https://geoserver.example.com/geoserver" | quote }}
+        - name: GEOSERVER_BASE_URL
+          value: {{ $cfg.geoserverBaseUrl | default "https://geoserver.example.com/geoserver/ows" | quote }}
+        - name: GEOSERVER_BEARER_TOKEN
+          value: {{ $sec.geoserverBearerToken | default "" | quote }}
+        - name: GEOSERVER_USER
+          value: {{ $cfg.geoserverUser | default "dagster" | quote }}
+        - name: GEOSERVER_PASSWORD
+          value: {{ $sec.geoserverPassword | default "" | quote }}
+        - name: MAXAR_API_KEY
+          value: {{ $sec.maxarApiKey | default "" | quote }}
+        - name: GOOGLE_RECAPTCHA_SECRET_KEY
+          value: {{ $sec.googleRecaptchaSecretKey | default "" | quote }}
+        - name: GOOGLE_GENERATIVE_AI_API_KEY
+          value: {{ $sec.googleGenerativeAiApiKey | default "" | quote }}
+        - name: MAIL_PROVIDER
+          value: {{ $cfg.mailProvider | default "azure" | quote }}
+        - name: MAIL_SENDGRID_API_KEY
+          value: {{ $sec.mailSendgridApiKey | default "" | quote }}
+        - name: AZURE_COMMUNICATION_SERVICES_CONNECTION_STRING
+          value: {{ $sec.azureCommunicationServicesConnectionString | default "" | quote }}
+        - name: MAIL_TEMPLATES_PATH
+          value: {{ $cfg.mailTemplatesPath | default "src/common/mail/templates" | quote }}
+        - name: MAIL_FROM
+          value: {{ $cfg.mailFrom | default "naoresponda@urbis.prefeitura.sp.gov.br" | quote }}
+        - name: AWS_S3_REGION
+          value: {{ $cfg.awsS3Region | default "us-east-1" | quote }}
+        - name: AWS_REGION
+          value: {{ $cfg.awsRegion | default "us-east-1" | quote }}
+        - name: AWS_ACCESS_KEY
+          value: {{ $sec.awsAccessKey | default "" | quote }}
+        - name: AWS_SECRET_ACCESS_KEY
+          value: {{ $sec.awsSecretAccessKey | default "" | quote }}
+        - name: S3_BUCKET_NAME
+          value: {{ $cfg.s3BucketName | default "storage" | quote }}
+        - name: AWS_S3_ENDPOINT
+          value: {{ $cfg.awsS3Endpoint | default "https://api.mapa.urbis.prefeitura.sp.gov.br" | quote }}
+      imagePullSecrets:
+      {{- range $api.imagePullSecrets | default (list (dict "name" "urbis-docker-hub")) }}
+      - name: {{ .name }}
+      {{- end }}

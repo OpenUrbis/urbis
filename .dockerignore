@@ -1,0 +1,15 @@
+# Keep local and CI build contexts small and free of generated files/secrets.
+.git
+.github
+.agents
+.cursor
+docs
+node_modules
+**/node_modules
+.turbo
+**/.turbo
+dist
+**/dist
+*.log
+.env
+.env.*

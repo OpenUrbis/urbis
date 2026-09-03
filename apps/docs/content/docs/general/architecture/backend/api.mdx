@@ -1,0 +1,59 @@
+---
+title: API e Swagger
+description: Documentação da API e como acessar a interface Swagger.
+icon: FileText
+---
+
+Fornecemos uma especificação OpenAPI gerada automaticamente via Swagger para documentar nossos endpoints REST.
+
+## Acessando o Swagger
+
+Quando a API está rodando localmente, a documentação está disponível em:
+
+```
+http://localhost:3000/swagger/docs
+```
+
+Esta interface permite explorar os endpoints disponíveis, parâmetros de requisição, esquemas de resposta e até testar requisições diretamente do seu navegador.
+
+## Autenticação
+
+A API utiliza API Keys ou Bearer Tokens (JWT) para autenticação.
+
+-   **API Key**: Usado para comunicação máquina-a-máquina ou endpoints específicos. Header: `X-API-Key` (configurável via variáveis de ambiente).
+-   **Bearer Token**: Usado para sessões de usuário. Header: `Authorization: Bearer <token>`.
+
+## Versionamento
+
+Atualmente, a API é versionada via caminho da URL (ex: `/v1/...`) se aplicável, ou gerenciada através de políticas de breaking changes. (Nota: Verifique a estratégia de versionamento específica em `main.ts`).
+
+## Limitador de Requisições (Rate Limiting)
+
+A API possui um mecanismo integrado de limitador de requisições (*Rate Limiting* / *Throttling*) baseado em Redis e no `@nestjs/throttler`.
+
+### Configuração de Ativação
+
+Por padrão, o limitador de requisições está **desativado** para evitar bloqueios indesejados em ambientes de desenvolvimento ou homologação. Ele pode ser habilitado definindo a variável de ambiente correspondente:
+
+| Variável | Tipo | Descrição | Padrão |
+| :--- | :--- | :--- | :--- |
+| `THROTTLER_ENABLED` | `boolean` | Ativa/desativa o limitador para as rotas do módulo de mapas | `false` |
+
+### Escopo e Janelas de Tempo
+
+Quando ativo, o limitador aplica-se **exclusivamente às rotas do módulo de mapas** (qualquer rota que inicie com ou contenha `/maps/`). As janelas de limite configuradas são:
+
+1. **Janela Curta (Short):** Máximo de 5 requisições por segundo (TTL de 1000ms).
+2. **Janela Média (Medium):** Máximo de 60 requisições por minuto (TTL de 60000ms).
+3. **Janela Diária (Daily):** Máximo de 1000 requisições por dia (TTL de 86400000ms).
+
+### Como o consumo é rastreado
+
+O limitador identifica e agrupa as requisições no Redis (`ThrottlerBehindProxyGuard`) da seguinte forma:
+
+- **Usuários autenticados (JWT):** O consumo é vinculado ao ID único do usuário (`user:<userId>`), contando tanto o uso via interface quanto qualquer chamada autenticada a endpoints de mapa.
+- **Requisições anônimas ou chaves de acesso estáticas:** O consumo é rastreado e limitado com base no endereço de IP do cliente (`ip:<ip>`).
+
+### Consulta de Consumo (Painel de Limites)
+
+Os usuários podem acompanhar o consumo diário restante do seu limite de requisições acessando a tela de **Uso** (`/profile/usage`) na interface web de contas. Essa tela consulta o endpoint `GET /user/me/usage`, que busca o consumo em tempo real no Redis na chave correspondente ao ID do usuário (`throttler:daily:user:<userId>`).

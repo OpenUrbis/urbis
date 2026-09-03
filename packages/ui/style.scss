@@ -1,0 +1,113 @@
+html {
+    background-color: #F7F9FF;
+}
+
+* {
+    font-family: "Noto Sans", "Helvetica Neue", sans-serif;
+}
+
+.map-container {
+    display: flex;
+}
+
+.map-view {
+    position: relative;
+    flex: 1;
+}
+
+button {
+    font-size: 14px;
+    letter-spacing: 0px !important;
+    text-transform: none;
+}
+
+.rmwc-icon-button-sm {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 48px !important;
+    margin-top: -4px !important;
+    margin-bottom: 2px;
+    padding: 0px !important;
+}
+
+.rmwc-icon-button-sm .mdc-icon-button__icon {
+    font-size: 18px !important;
+    /* Reduz o ícone proporcionalmente (padrão é ~24px) */
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+}
+
+.material-icons {
+    font-family: 'Material Symbols Outlined', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+}
+
+.mdc-icon-button {
+    --mdc-ripple-top: 12px !important;
+}
+
+
+/* Botões arredondados e Material 3-like */
+.mdc-button,
+.rmwcb-button,
+.mdc-button--raised,
+.mdc-button--unelevated {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px !important;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: none;
+    min-height: 38px !important;
+    padding: 0px 24px !important;
+    box-shadow: none;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.mdc-dialog.mdc-dialog--open {
+    z-index: 10000;
+}
+
+.map-container {
+    position: relative;
+}
+
+
+#app {
+    display: flex; // Habilita o Flexbox
+    flex-direction: column; // Organiza os filhos em coluna (verticalmente)
+    height: 100vh; // Faz com que o #app ocupe 100% da altura da viewport
+    width: 100%; // Faz com que o #app ocupe 100% da largura
+}
+
+// Estilo para o seu Header (assumindo que ele renderiza um <header> ou um div.app-header)
+// Ajuste o seletor conforme o HTML gerado pelo seu componente Header
+.app-header {
+    width: 100%; // Ocupa toda a largura
+    flex-shrink: 0; // Impede que o header encolha
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); // Sombra sutil
+    z-index: 10; // Garante que fique acima do mapa se houver elementos flutuantes
+}
+
+.map-container {
+    position: relative; // **Requisito principal: div relativa**
+    flex-grow: 1; // Faz com que este div ocupe todo o espaço vertical restante
+    width: 100%; // Ocupa toda a largura disponível
+    overflow: hidden; // Importante! Esconde o conteúdo que transborda e permite que elementos internos (como o mapa) gerenciem seu próprio overflow/scroll
+    // Quaisquer elementos internos (LeftNav, MapLegend, MapView, etc.)
+    // serão posicionados em relação a este div.
+    // Geralmente, o MapView ocuparia 100% do espaço aqui (position: absolute; top:0; ...),
+    // e os outros elementos seriam posicionados absolutamente sobre ele.
+}

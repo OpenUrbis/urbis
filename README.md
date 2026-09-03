@@ -1,0 +1,157 @@
+# Urbis
+
+![Capa do Repositório](apps/docs/public/cover.png)
+
+[![CI Pipeline](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Version](https://img.shields.io/github/v/release/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/releases)
+[![Contribute](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](docs/CONTRIBUTING.md)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/pulls)
+
+**Urbis** is an open-source territorial and municipal management platform designed to empower city governments with high-performance geospatial mapping (GIS), urban data management, legislation tracking, and citizen service workflows.
+
+*O **Urbis** é uma plataforma de código aberto para gestão pública municipal e mapeamento territorial (GIS), permitindo a visualização de dados urbanos, gestão legislativa e processos administrativos voltados à transparência e tomada de decisão orientada a dados.*
+
+- 🌐 **Portal Público**: [mapa.urbis.prefeitura.sp.gov.br](https://mapa.urbis.prefeitura.sp.gov.br/)
+- 📖 **Documentação Completa**: [docs/](docs/) ou via aplicativo de documentação local (`apps/docs`).
+- 🛠️ **Guia de Instalação**: [docs/INSTALACAO.md](docs/INSTALACAO.md) (PT-BR) | [docs/INSTALLATION.md](docs/INSTALLATION.md) (EN).
+
+---
+
+## 🏛️ Estrutura do Monorepo
+
+Gerenciado com **Turborepo** e **pnpm**:
+
+### 📱 Aplicações (`apps/`)
+
+| Aplicação | Diretório | Tecnologia | Descrição |
+| :--- | :--- | :--- | :--- |
+| **API Backend** | [`apps/api`](apps/api) | NestJS, PostgreSQL, Redis, MinIO | API REST principal, provedor OIDC, filas Bull e serviços. |
+| **Web GIS** | [`apps/web`](apps/web) | React 18, Deck.gl 9, MapLibre GL | Painel e visualizador cartográfico interativo de alta performance. |
+| **Accounts** | [`apps/accounts`](apps/accounts) | Angular 20, Angular Material | Portal de identidade, autenticação OIDC e gestão de perfis. |
+| **Legis** | [`apps/legis`](apps/legis) | React 18, Tiptap, Tailwind | Editor e gestor de legislação territorial com controle normativo. |
+| **Site** | [`apps/site`](apps/site) | React 18, Vite SSG | Portal institucional e público. |
+| **Docs** | [`apps/docs`](apps/docs) | Next.js 16, Fumadocs MDX | Portal de documentação técnica e referência interativa de APIs. |
+
+### 🧱 Pacotes Compartilhados (`packages/`)
+
+| Pacote | Diretório | Descrição |
+| :--- | :--- | :--- |
+| **`@open-urbis/map`** | [`packages/map`](packages/map) | Componentes e engine de mapa reutilizável para integração externa. |
+| **`@open-urbis/endereco-digital`** | [`packages/endereco-digital`](packages/endereco-digital) | Algoritmo de geocodificação métrica (Plus Code / Endereço Digital). |
+| **`@open-urbis/map-auth`** | [`packages/auth`](packages/auth) | Biblioteca cliente de autenticação OIDC e sincronização PostHog. |
+| **`@open-urbis/map-shared`** | [`packages/shared`](packages/shared) | Tipos TypeScript, DTOs, Feature Flags e telemetria compartilhada. |
+| **`@open-urbis/map-ui`** | [`packages/ui`](packages/ui) | Biblioteca de componentes visuais baseada em Radix UI e Tailwind. |
+| **`@open-urbis/map-eslint-config`** | [`packages/eslint-config`](packages/eslint-config) | Configurações compartilhadas de ESLint. |
+| **`@open-urbis/map-typescript-config`** | [`packages/typescript-config`](packages/typescript-config) | Configurações base de TypeScript (`tsconfig`). |
+
+---
+
+## ⚡ Início Rápido (Quickstart)
+
+### 1. Pré-requisitos
+- **Node.js** v20.x ou v22.x
+- **pnpm** v9.15.0+
+- **Docker & Docker Compose**
+
+### 2. Instalação e Execução Básica
+
+```bash
+# 1. Clonar repositório
+git clone https://github.com/OpenUrbis/urbis-map.git
+cd urbis-map
+
+# 2. Instalar dependências
+pnpm install
+
+# 3. Configurar variáveis de ambiente
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+
+# 4. Iniciar infraestrutura (Postgres 16, Redis 7, MinIO S3)
+pnpm composer:up
+
+# 5. Executar migrations e seeds no banco de dados
+pnpm --filter @open-urbis/map-api migration:run
+pnpm --filter @open-urbis/map-api seed:run
+
+# 6. Iniciar todas as aplicações em modo desenvolvimento
+pnpm dev
+```
+
+> 🔐 **Autenticação OIDC & SSL Local no Accounts:**
+> Para executar o portal de contas com HTTPS local e suporte OIDC completo, consulte o [Guia de Instalação Detalhado](docs/INSTALACAO.md#7-certificados-ssl-e-domínio-local).
+
+---
+
+## 🌐 Portas e Acessos Locais
+
+| Aplicação / Serviço | URL / Porta | Descrição |
+| :--- | :--- | :--- |
+| **Web GIS (Mapa)** | `http://localhost:5173` | Interface principal de mapas GIS |
+| **API Backend** | `http://localhost:3000` | REST API |
+| **Swagger OpenAPI** | `http://localhost:3000/swagger/docs` | Documentação interativa de endpoints |
+| **Portal Accounts** | `https://conta.urbis.prefeitura.sp.gov.br` | Portal de contas e OIDC (Porta 443 SSL) |
+| **Legis** | `http://localhost:5175` | Editor e inspetor legislativo |
+| **Site Institucional** | `http://localhost:5174` | Site público institucional |
+| **Portal de Docs** | `http://localhost:3010` | Portal de documentação técnica |
+| **MinIO Console** | `http://localhost:9001` | Object storage local (`minioadmin` / `minioadmin123`) |
+
+---
+
+## 📚 Documentação Adicional
+
+- 📖 [Guia de Instalação Completo (PT-BR)](docs/INSTALACAO.md)
+- 📖 [Installation & Setup Guide (EN)](docs/INSTALLATION.md)
+- 🏛️ [Arquitetura do Sistema](docs/ARCHITECTURE.md)
+- 🤝 [Como Contribuir](docs/CONTRIBUTING.md)
+- 📋 [Relatório de Homologação de Representações](docs/relatorio-testes-representacoes-cadastros.md)
+
+---
+
+## 🤝 Contribuições
+
+Contribuições são muito bem-vindas! Consulte o guia [CONTRIBUTING.md](docs/CONTRIBUTING.md) para detalhes sobre fluxo de branches, convenções de código e abertura de Pull Requests.
+
+---
+
+## 📜 Licença
+
+O Urbis é distribuído sob a licença [AGPL-3.0](LICENSE.md).
+
+---
+
+## 👥 Contribuidores
+
+Agradecemos imensamente a todos que contribuem para tornar o Urbis uma ferramenta de transformação urbana:
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/douglasgc"><img src="https://avatars.githubusercontent.com/u/32394842?v=4?s=100" width="100px;" alt="Douglas Gabriel Cardoso"/><br /><sub><b>Douglas Gabriel Cardoso</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=douglasgc" title="Code">💻</a> <a href="https://github.com/OpenUrbis/urbis-map/commits?author=douglasgc" title="Documentation">📖</a> <a href="#maintenance-douglasgc" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/RenanTashiro"><img src="https://avatars.githubusercontent.com/u/13706026?v=4?s=100" width="100px;" alt="Renan Tashiro"/><br /><sub><b>Renan Tashiro</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=RenanTashiro" title="Code">💻</a> <a href="#projectManagement-RenanTashiro" title="Project Management">📆</a> <a href="https://github.com/OpenUrbis/urbis-map/commits?author=RenanTashiro" title="Documentation">📖</a> <a href="#maintenance-RenanTashiro" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/FernandoDorstSilva"><img src="https://avatars.githubusercontent.com/u/112201931?v=4?s=100" width="100px;" alt="Fernando Dorst"/><br /><sub><b>Fernando Dorst</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=FernandoDorstSilva" title="Code">💻</a> <a href="https://github.com/OpenUrbis/urbis-map/commits?author=FernandoDorstSilva" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/laysmorimoto"><img src="https://avatars.githubusercontent.com/u/171581826?v=4?s=100" width="100px;" alt="laysmorimoto"/><br /><sub><b>laysmorimoto</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=laysmorimoto" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/junior-anzolin"><img src="https://avatars.githubusercontent.com/u/32394862?v=4?s=100" width="100px;" alt="Junior Anzolin"/><br /><sub><b>Junior Anzolin</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=junior-anzolin" title="Code">💻</a> <a href="https://github.com/OpenUrbis/urbis-map/commits?author=junior-anzolin" title="Documentation">📖</a> <a href="#maintenance-junior-anzolin" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/h-pgy"><img src="https://avatars.githubusercontent.com/u/41967884?v=4?s=100" width="100px;" alt="Henrique Pougy"/><br /><sub><b>Henrique Pougy</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=h-pgy" title="Documentation">📖</a> <a href="#maintenance-h-pgy" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mauryascm"><img src="https://avatars.githubusercontent.com/u/166533566?v=4?s=100" width="100px;" alt="mauryascm"/><br /><sub><b>mauryascm</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=mauryascm" title="Documentation">📖</a> <a href="#maintenance-mauryascm" title="Maintenance">🚧</a> <a href="https://github.com/OpenUrbis/urbis-map/commits?author=mauryascm" title="Tests">⚠️</a> <a href="#projectManagement-mauryascm" title="Project Management">📆</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/gvrDev"><img src="https://avatars.githubusercontent.com/u/107437001?v=4?s=100" width="100px;" alt="gvrDev"/><br /><sub><b>gvrDev</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=gvrDev" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/luskizera"><img src="https://avatars.githubusercontent.com/u/112437099?v=4?s=100" width="100px;" alt="Luka Zinkoski"/><br /><sub><b>Luka Zinkoski</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=luskizera" title="Code">💻</a> <a href="#design-luskizera" title="Design">🎨</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Kadjow"><img src="https://avatars.githubusercontent.com/u/132962594?v=4?s=100" width="100px;" alt="Diogo Arthur Gulhak"/><br /><sub><b>Diogo Arthur Gulhak</b></sub></a><br /><a href="https://github.com/OpenUrbis/urbis-map/commits?author=Kadjow" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+---
+
+## 📬 Contato e Comunidade
+
+Dúvidas ou sugestões? Entre em contato pelo e-mail [contas@urbis.prefeitura.sp.gov.br](mailto:contas@urbis.prefeitura.sp.gov.br) ou participe das discussões no repositório.

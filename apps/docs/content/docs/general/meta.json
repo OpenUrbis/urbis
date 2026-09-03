@@ -1,0 +1,19 @@
+{
+  "title": "Plataforma & Módulos",
+  "icon": "Layers",
+  "root": true,
+  "pages": [
+    "index",
+    "---Módulos da Aplicação---",
+    "mapa",
+    "usuarios",
+    "forms",
+    "---Engenharia & Arquitetura---",
+    "architecture",
+    "feature-flags",
+    "design-system",
+    "---Operações & Contribuição---",
+    "infrastructure",
+    "development"
+  ]
+}

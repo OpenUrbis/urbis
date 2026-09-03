@@ -1,0 +1,48 @@
+---
+title: Imagens Docker
+description: Gerenciamento de imagens Docker.
+icon: Box
+---
+
+As imagens Docker utilizadas no projeto Urbis são armazenadas no repositório `openurbis` no Docker Hub. O deploy dessas imagens é realizado de forma automatizada utilizando GitHub Actions.
+
+## Repositório de Imagens
+
+Todas as imagens Docker do projeto estão disponíveis no Docker Hub sob o namespace `openurbis`. Isso garante que as imagens estão sempre acessíveis para o processo de deploy e para os desenvolvedores.
+
+### Estrutura das Imagens
+
+As imagens são construídas e organizadas de acordo com as aplicações e serviços que elas suportam. Abaixo está um exemplo da estrutura das imagens:
+
+- **openurbis/app1**: Imagem Docker para o serviço `app1`.
+- **openurbis/app2**: Imagem Docker para o serviço `app2`.
+- **openurbis/nginx**: Imagem Docker customizada do Nginx utilizada como proxy reverso.
+
+## Construção e Push de Imagens
+
+As imagens Docker são construídas e enviadas (push) para o Docker Hub como parte do processo de CI/CD. Aqui está um exemplo de como isso pode ser feito utilizando um Dockerfile:
+
+### Dockerfile Exemplo
+
+```dockerfile
+# Use a imagem base oficial do Node.js
+FROM node:14
+
+# Crie e defina o diretório de trabalho da aplicação
+WORKDIR /usr/src/app
+
+# Copie os arquivos package.json e package-lock.json
+COPY package*.json ./
+
+# Instale as dependências
+RUN npm install
+
+# Copie o restante dos arquivos da aplicação
+COPY . .
+
+# Exponha a porta que a aplicação irá rodar
+EXPOSE 8080
+
+# Comando para rodar a aplicação
+CMD [ "node", "app.js" ]
+```

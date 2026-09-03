@@ -1,0 +1,2452 @@
+/* ==========================================================================
+   URBIS / CKAN — tema único, compacto e responsivo
+   Compatível com CKAN 2.10/2.11 + Bootstrap 5
+
+   IMPORTANTE: use este arquivo no lugar dos hotfixes anteriores.
+   Ele não deve ser concatenado com CSS que contenha regras globais para
+   .card, body * ou .homepage br.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --urbis-font: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Tokens do Design System Urbis */
+  --urbis-background: #f6fafe;
+  --urbis-foreground: #181c20;
+  --urbis-primary: #273ff0;
+  --urbis-primary-hover: #1f33c8;
+  --urbis-primary-soft: #eef1ff;
+  --urbis-primary-foreground: #ffffff;
+  --urbis-secondary: #a8f0b8;
+  --urbis-secondary-foreground: #0a1f0e;
+  --urbis-card: #ffffff;
+  --urbis-muted: #f0f4f8;
+  --urbis-muted-foreground: #41474d;
+  --urbis-border: #dfe5ec;
+  --urbis-input: #c1c7ce;
+  --urbis-danger: #ba1a1a;
+  --urbis-focus: rgba(39, 63, 240, 0.22);
+
+  --urbis-radius-sm: 6px;
+  --urbis-radius-md: 9px;
+  --urbis-radius-lg: 12px;
+  --urbis-pill: 999px;
+  --urbis-shadow: 0 1px 2px rgba(24, 28, 32, 0.04), 0 4px 12px rgba(24, 28, 32, 0.04);
+  --urbis-content-width: 1180px;
+}
+
+/* ==========================================================================
+   1. BASE
+   ========================================================================== */
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--urbis-background);
+  color: var(--urbis-foreground);
+  font-family: var(--urbis-font);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Não usar body *: fontes de ícones precisam continuar funcionando. */
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--urbis-font);
+}
+
+img {
+  max-width: 100%;
+}
+
+.container {
+  width: min(100% - 32px, var(--urbis-content-width));
+  max-width: var(--urbis-content-width);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+a {
+  color: var(--urbis-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--urbis-primary-hover);
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 3px solid var(--urbis-focus);
+  outline-offset: 2px;
+}
+
+/*
+   Não redefinir a família dos ícones do CKAN.
+   O CKAN carrega Font Awesome 6 e define a família/peso corretos em .fa,
+   .fas, .far e .fab. Forçar "FontAwesome" aqui faz ícones sólidos serem
+   resolvidos pela fonte regular errada.
+*/
+
+/* A seta do FAQ é desenhada em CSS e não depende de uma fonte externa. */
+.txt-ico.accordion-arrow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  color: var(--urbis-primary);
+  font-size: 0;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.txt-ico.accordion-arrow::before {
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  content: "";
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.homepage .accordion-container.open .txt-ico.accordion-arrow {
+  transform: rotate(180deg);
+}
+
+/* ==========================================================================
+   2. TOPO E NAVEGAÇÃO
+   ========================================================================== */
+
+.account-masthead {
+  padding: 4px 0;
+  background: #101417;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.account-masthead .account.avatar ul {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.account-masthead a,
+.account-masthead .btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  padding: 3px 7px;
+  border: 0;
+  border-radius: var(--urbis-radius-sm);
+  background: transparent;
+  color: #dfe3e7;
+  font-size: 0.76rem;
+  text-decoration: none;
+}
+
+.account-masthead a:hover,
+.account-masthead .btn-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-decoration: none;
+}
+
+.account-masthead form {
+  margin: 0;
+}
+
+.account-masthead .user-image {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+header.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 7px 0;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--urbis-border);
+  box-shadow: 0 1px 3px rgba(24, 28, 32, 0.04);
+  backdrop-filter: blur(8px);
+}
+
+header.masthead .navbar {
+  min-height: 54px;
+  padding: 0;
+}
+
+header.masthead .logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+header.masthead .logo img {
+  display: block;
+  width: auto;
+  max-height: 52px;
+}
+
+header.masthead .navbar-nav {
+  align-items: center;
+  gap: 2px;
+}
+
+header.masthead .navbar-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 5px 10px;
+  border-radius: var(--urbis-radius-sm);
+  color: var(--urbis-foreground);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+header.masthead .navbar-nav a:hover,
+header.masthead .navbar-nav .active > a,
+header.masthead .navbar-nav a[aria-current="page"] {
+  background: var(--urbis-primary-soft);
+  color: var(--urbis-primary);
+  text-decoration: none;
+}
+
+header.masthead .navbar-toggler {
+  padding: 5px 8px;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-sm);
+}
+
+header.masthead .navbar-toggler .fa {
+  color: var(--urbis-foreground) !important;
+}
+
+header.masthead .site-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+header.masthead .site-search .form-control {
+  width: 180px;
+  height: 34px;
+  padding: 5px 36px 5px 10px;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-sm);
+  background: var(--urbis-muted);
+  color: var(--urbis-foreground);
+  font-size: 0.82rem;
+}
+
+header.masthead .site-search .form-control:focus {
+  border-color: var(--urbis-primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--urbis-focus);
+}
+
+header.masthead .site-search .btn {
+  position: absolute;
+  right: 3px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: var(--urbis-primary);
+  color: #fff;
+}
+
+/* ==========================================================================
+   3. ESTRUTURA COMPARTILHADA DAS PÁGINAS
+   ========================================================================== */
+
+#content,
+[role="main"] > .container,
+.main > .container {
+  width: min(100% - 32px, var(--urbis-content-width));
+}
+
+[role="main"] {
+  padding-bottom: 28px;
+}
+
+.toolbar,
+.breadcrumb {
+  margin: 0 0 10px;
+  padding: 8px 0;
+  background: transparent;
+  border: 0;
+  font-size: 0.78rem;
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  list-style: none;
+}
+
+.breadcrumb > li + li::before {
+  padding: 0 5px;
+  color: var(--urbis-input);
+  content: "/";
+}
+
+.page-header {
+  margin: 0 0 16px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--urbis-border);
+}
+
+.page-header h1,
+.page-header h2,
+.primary h1,
+.primary h2 {
+  margin-top: 0;
+  color: var(--urbis-foreground);
+  letter-spacing: -0.02em;
+}
+
+.page-header h1 {
+  margin-bottom: 0;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  font-weight: 800;
+}
+
+.module,
+.module-narrow,
+.primary > .module,
+.secondary > .module {
+  margin-bottom: 12px;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-md);
+  background: var(--urbis-card);
+  box-shadow: none;
+}
+
+/* O contexto é conteúdo interno do módulo, não um segundo card. */
+.module .module.context-info {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.module-heading,
+.module-content,
+.module-footer {
+  padding: 12px 14px;
+}
+
+.module-heading {
+  border-bottom: 1px solid var(--urbis-border);
+  background: var(--urbis-card);
+  color: var(--urbis-foreground);
+  font-size: 0.94rem;
+  font-weight: 700;
+}
+
+.module-heading a {
+  color: inherit;
+}
+
+/* Somente elementos com papel claro de card; não afeta qualquer .card do CKAN. */
+.dataset-item,
+.media-item,
+.resource-item,
+.additional-info,
+.organization-about {
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-md);
+  background: var(--urbis-card);
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   4. HOMEPAGE — escopo isolado para não quebrar páginas internas
+   ========================================================================== */
+
+.homepage {
+  padding: 14px 0 0;
+}
+
+.homepage #content {
+  min-height: 0;
+  padding: 0;
+}
+
+.homepage .main.hero {
+  padding: 0 0 18px;
+}
+
+.homepage .main.hero > .container > .row {
+  display: flex;
+  align-items: flex-start;
+  margin: 0 -6px;
+}
+
+.homepage .main.hero > .container > .row > [class*="col-"] {
+  flex: 0 0 50% !important;
+  width: 50% !important;
+  max-width: 50% !important;
+  padding: 0 6px;
+}
+
+.homepage .module-promotion.card.box,
+.homepage .module-search.card.box {
+  height: auto;
+  margin: 0 0 12px;
+  overflow: hidden;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-lg);
+  background: var(--urbis-card);
+  box-shadow: var(--urbis-shadow);
+}
+
+/* Card de apresentação */
+.homepage .module-promotion {
+  display: block;
+}
+
+.homepage .module-promotion .card-cover,
+.homepage .module-promotion .card-cover-img {
+  width: 100%;
+}
+
+.homepage .module-promotion .card-cover-img {
+  display: block;
+  max-height: 210px;
+  object-fit: cover;
+  border-bottom: 1px solid var(--urbis-border);
+}
+
+.homepage .module-promotion .padding-2 {
+  padding: 12px 16px 4px;
+}
+
+.homepage .module-promotion h1.h1 {
+  margin: 0;
+  color: var(--urbis-foreground);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.homepage .module-promotion .card-body.scroll {
+  max-height: none;
+  padding: 0 16px 14px;
+  overflow: visible;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.homepage .module-promotion .card-body p {
+  margin: 8px 0 0;
+}
+
+/* Busca principal */
+.homepage .module-search.card.box {
+  padding: 14px;
+}
+
+.homepage .module-search .module-content {
+  padding: 0;
+}
+
+.homepage .search-giant {
+  display: flex;
+  align-items: stretch;
+  margin: 0;
+}
+
+.homepage .search-giant .form-control,
+.homepage #field-main-search {
+  min-width: 0;
+  height: 40px;
+  flex: 1 1 auto;
+  padding: 7px 11px;
+  border: 1px solid var(--urbis-input);
+  border-right: 0;
+  border-radius: var(--urbis-radius-sm) 0 0 var(--urbis-radius-sm);
+  color: var(--urbis-foreground);
+  font-size: 0.86rem;
+  box-shadow: none;
+}
+
+.homepage .search-giant .form-control:focus,
+.homepage #field-main-search:focus {
+  z-index: 1;
+  border-color: var(--urbis-primary);
+  box-shadow: 0 0 0 3px var(--urbis-focus);
+  outline: 0;
+}
+
+.homepage .search-giant .btn {
+  width: 44px;
+  height: 40px;
+  flex: 0 0 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0 var(--urbis-radius-sm) var(--urbis-radius-sm) 0;
+  background: var(--urbis-primary);
+  color: #fff;
+}
+
+.homepage .search-giant .btn:hover {
+  background: var(--urbis-primary-hover);
+}
+
+.homepage .search-separator hr {
+  margin: 10px 0 7px;
+  border: 0;
+  border-top: 1px solid var(--urbis-border);
+}
+
+.homepage .search-instruction {
+  margin: 0;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.76rem;
+  text-align: center;
+}
+
+/* Estatísticas: corrige o .card.padding customizado sem alterar outros cards. */
+.homepage .card.padding:has(.grid._3c) {
+  height: auto !important;
+  min-height: 0;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-lg);
+  background: var(--urbis-card);
+  box-shadow: var(--urbis-shadow);
+}
+
+.homepage .card.padding:has(.grid._3c) > .padding:first-child {
+  padding: 13px 14px 7px !important;
+}
+
+.homepage .card.padding:has(.grid._3c) .side-tab---h4 {
+  margin: 0;
+  color: var(--urbis-foreground);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.homepage .card.padding:has(.grid._3c) .grid._3c {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+  padding: 0 14px 14px !important;
+}
+
+.homepage .card.padding:has(.grid._3c) .grid._3c > .flex.vert.center {
+  min-width: 0;
+  min-height: 58px;
+  padding: 8px 6px !important;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-sm);
+  background: var(--urbis-muted);
+  text-align: center;
+}
+
+.homepage .big-number {
+  margin: 0 0 3px;
+  color: var(--urbis-primary);
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.homepage .btn-label,
+.homepage .input-label {
+  display: block;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.67rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* FAQ: substitui a altura fixa que vinha do CSS inline do conteúdo. */
+.homepage .card.padding:has(.accordion-container) {
+  height: auto !important;
+  max-height: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-lg);
+  background: var(--urbis-card);
+  box-shadow: var(--urbis-shadow);
+}
+
+.homepage .card.padding:has(.accordion-container) > .block.scroll {
+  width: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  padding: 13px 14px 8px !important;
+  overflow: visible !important;
+}
+
+.homepage .card.padding:has(.accordion-container) .block.scroll > .padding:first-child {
+  padding: 0 0 8px !important;
+}
+
+.homepage .card.padding:has(.accordion-container) .side-tab---h4 {
+  margin: 0;
+  color: var(--urbis-foreground);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.homepage .accordion-container.faq {
+  margin: 0 0 6px;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-sm);
+  background: var(--urbis-card);
+  overflow: hidden;
+}
+
+.homepage .accordion-container.faq.last {
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--urbis-border) !important;
+}
+
+.homepage .accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 10px;
+  background: var(--urbis-muted);
+  cursor: pointer;
+}
+
+.homepage .accordion-header:hover {
+  background: var(--urbis-primary-soft);
+}
+
+.homepage .accordion-h.faq {
+  min-width: 0;
+  margin: 0;
+  color: var(--urbis-foreground);
+  font-size: 0.81rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.homepage .accordion-content {
+  height: 0;
+  padding: 0 10px;
+  overflow: hidden;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  transition: padding 0.15s ease;
+}
+
+.homepage .accordion-container.open .accordion-content {
+  height: auto !important;
+  padding: 8px 10px 10px;
+  overflow: visible;
+}
+
+
+.homepage .accordion-content p {
+  margin: 0 0 7px;
+}
+
+.homepage .accordion-content p:last-child {
+  margin-bottom: 0;
+}
+
+.homepage .accordion-content ul {
+  margin: 4px 0 8px;
+  padding-left: 18px;
+}
+
+.homepage .accordion-content li {
+  margin-bottom: 3px;
+}
+
+/* ==========================================================================
+   5. ORGANIZAÇÕES E GRUPOS
+   ========================================================================== */
+
+.organization-index .media-grid,
+.group-index .media-grid,
+.organization-list,
+.group-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.organization-index .media-item,
+.group-index .media-item,
+.organization-list .media-item,
+.group-list .media-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  list-style: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.organization-index .media-item:hover,
+.group-index .media-item:hover,
+.organization-list .media-item:hover,
+.group-list .media-item:hover {
+  border-color: var(--urbis-primary);
+  background: #fcfdff;
+}
+
+.organization-index .media-image,
+.group-index .media-image,
+.organization-list .media-image,
+.group-list .media-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  margin: 0;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-sm);
+  background: var(--urbis-muted);
+  overflow: hidden;
+}
+
+.organization-index .media-image img,
+.group-index .media-image img,
+.organization-list .media-image img,
+.group-list .media-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.organization-index .media-body,
+.group-index .media-body,
+.organization-list .media-body,
+.group-list .media-body {
+  min-width: 0;
+}
+
+.media-heading,
+.organization-heading,
+.group-heading {
+  margin: 0 0 4px;
+  color: var(--urbis-foreground);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.media-heading a,
+.organization-heading a,
+.group-heading a {
+  color: inherit;
+}
+
+.organization-index .media-item p,
+.group-index .media-item p {
+  margin: 3px 0;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.78rem;
+}
+
+.organization-index .count,
+.group-index .count,
+.organization-index .label,
+.group-index .label {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: var(--urbis-pill);
+  background: var(--urbis-muted);
+  color: var(--urbis-muted-foreground);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+/* Página de uma organização */
+.organization-about {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.84rem;
+}
+
+/* ==========================================================================
+   6. DETALHE DO DATASET — /dataset/<slug>
+   ========================================================================== */
+
+/* Colunas compactas e alinhadas, sem margem vertical excessiva do Bootstrap. */
+.main #content > .row.wrapper {
+  align-items: flex-start;
+  margin-right: -7px;
+  margin-left: -7px;
+}
+
+.main #content > .row.wrapper > .secondary,
+.main #content > .row.wrapper > .primary {
+  padding-right: 7px;
+  padding-left: 7px;
+}
+
+.main #content > .row.wrapper > .secondary {
+  width: 25%;
+}
+
+.main #content > .row.wrapper > .primary {
+  width: 75%;
+}
+
+.main #content > .row.wrapper > .secondary .module {
+  margin-bottom: 10px;
+}
+
+.main #content > .row.wrapper > .secondary .module-content {
+  padding: 12px;
+}
+
+.main #content > .row.wrapper > .secondary .module-heading {
+  padding: 10px 12px;
+  font-size: 0.84rem;
+}
+
+#package-info .heading,
+#organization-info .heading {
+  margin: 0 0 8px;
+  color: var(--urbis-foreground);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+#package-info .nums {
+  margin: 0 0 9px;
+  padding: 7px 9px;
+  border-radius: var(--urbis-radius-sm);
+  background: var(--urbis-muted);
+}
+
+#package-info .nums dl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+}
+
+#package-info .nums dt,
+#package-info .nums dd {
+  margin: 0;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.76rem;
+}
+
+#package-info .nums dd {
+  color: var(--urbis-primary);
+  font-weight: 800;
+}
+
+#package-info .btn-success {
+  width: 100%;
+}
+
+#organization-info .image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-sm);
+  background: var(--urbis-muted);
+}
+
+#organization-info .image img {
+  display: block;
+  width: 160px;
+  max-width: 100%;
+  height: auto;
+  max-height: 88px;
+  object-fit: contain;
+}
+
+#organization-info .empty {
+  margin: 0;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.78rem;
+}
+
+.main #content > .row.wrapper > .secondary .social .nav,
+.main #content > .row.wrapper > .secondary .nav-simple {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.main #content > .row.wrapper > .secondary .social .nav-item + .nav-item {
+  margin-top: 3px;
+}
+
+.main #content > .row.wrapper > .secondary .social a {
+  display: block;
+  padding: 5px 7px;
+  border-radius: var(--urbis-radius-sm);
+  color: var(--urbis-muted-foreground);
+  font-size: 0.8rem;
+}
+
+.main #content > .row.wrapper > .secondary .social a:hover {
+  background: var(--urbis-primary-soft);
+  color: var(--urbis-primary);
+  text-decoration: none;
+}
+
+.main #content > .row.wrapper > .secondary .license p.module-content {
+  margin: 0;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.8rem;
+}
+
+/* Cabeçalho do dataset e abas. */
+.main #content > .row.wrapper > .primary > article.module {
+  overflow: hidden;
+}
+
+.main #content > .row.wrapper > .primary > article.module > header.module-content.page-header {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px 0;
+  border-bottom: 1px solid var(--urbis-border);
+  background: var(--urbis-card);
+}
+
+.main #content > .row.wrapper > .primary .content_action {
+  align-self: flex-end;
+  margin: 0 0 2px;
+}
+
+.main #content > .row.wrapper > .primary .nav-tabs {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  border-bottom: 0;
+  list-style: none;
+}
+
+.main #content > .row.wrapper > .primary .nav-tabs > li > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.main #content > .row.wrapper > .primary .nav-tabs > li > a:hover,
+.main #content > .row.wrapper > .primary .nav-tabs > li.active > a {
+  border-bottom-color: var(--urbis-primary);
+  background: transparent;
+  color: var(--urbis-primary);
+  text-decoration: none;
+}
+
+.main #content > .row.wrapper > .primary > article.module > .module-content:not(.page-header) {
+  padding: 16px;
+}
+
+.main #content > .row.wrapper > .primary > article.module > .module-content:not(.page-header) > h1 {
+  margin: 0 0 12px;
+  color: var(--urbis-foreground);
+  font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* Recursos sem espaços artificiais e sem botão saindo do card. */
+#dataset-resources {
+  margin-top: 18px;
+}
+
+#dataset-resources > h2 {
+  margin: 0 0 8px;
+  color: var(--urbis-foreground);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+#dataset-resources .resource-list {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+#dataset-resources .resource-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 10px;
+  align-items: center;
+  margin: 0 0 7px;
+  padding: 10px 11px;
+}
+
+#dataset-resources .resource-item > a.heading {
+  display: flex !important;
+  grid-column: 1 / -1;
+  align-items: center !important;
+  align-self: center !important;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 7px;
+  margin: 0;
+  color: var(--urbis-foreground);
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.3;
+  vertical-align: middle;
+}
+
+#dataset-resources .resource-item .heading:hover {
+  color: var(--urbis-primary);
+  text-decoration: none;
+}
+
+#dataset-resources .resource-item .format-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  align-self: center !important;
+  margin: 0 !important;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+#dataset-resources .resource-item .description {
+  min-width: 0;
+  margin: 0;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+#dataset-resources .resource-item .dropdown {
+  justify-self: end;
+  white-space: nowrap;
+}
+
+#dataset-resources .resource-item .dropdown-menu {
+  min-width: 180px;
+  padding: 4px;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-sm);
+  box-shadow: var(--urbis-shadow);
+}
+
+#dataset-resources .resource-item .dropdown-item {
+  padding: 6px 8px;
+  border-radius: 4px;
+  color: var(--urbis-foreground);
+  font-size: 0.78rem;
+}
+
+#dataset-resources .resource-item .dropdown-item:hover {
+  background: var(--urbis-primary-soft);
+  color: var(--urbis-primary);
+}
+
+/* Tags */
+.tags {
+  margin-top: 12px;
+}
+
+.tags .tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags .tag {
+  display: inline-flex;
+  padding: 3px 8px;
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-pill);
+  background: var(--urbis-primary-soft);
+  color: var(--urbis-primary);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.tags .tag:hover {
+  border-color: var(--urbis-primary);
+  text-decoration: none;
+}
+
+/* Tabela de informações sem uma borda dupla dentro do módulo. */
+.main #content > .row.wrapper > .primary .additional-info {
+  margin-top: 16px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.main #content > .row.wrapper > .primary .additional-info > h3 {
+  margin: 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--urbis-border);
+  color: var(--urbis-foreground);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.main #content > .row.wrapper > .primary .additional-info > table {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+/* ==========================================================================
+   7. LISTAGEM E DETALHE DE DATASETS
+   ========================================================================== */
+
+.dataset-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dataset-list .dataset-item {
+  margin: 0 0 8px;
+  padding: 12px 14px;
+}
+
+.dataset-list .dataset-item:last-child {
+  margin-bottom: 0;
+}
+
+.dataset-heading {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.dataset-heading a {
+  color: var(--urbis-foreground);
+}
+
+.dataset-heading a:hover {
+  color: var(--urbis-primary);
+}
+
+.dataset-item .dataset-notes,
+.dataset-item .notes {
+  margin: 4px 0 8px;
+  color: var(--urbis-muted-foreground);
+  font-size: 0.82rem;
+}
+
+.dataset-resources,
+.resource-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 7px;
+  padding: 9px 11px;
+}
+
+.resource-item .heading {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.resource-item .description,
+.resource-item .format {
+  color: var(--urbis-muted-foreground);
+  font-size: 0.76rem;
+}
+
+.label,
+.badge,
+.format-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 7px;
+  border-radius: var(--urbis-pill);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.label[data-format],
+.format-label {
+  background: var(--urbis-primary-soft);
+  color: var(--urbis-primary);
+}
+
+.dataset h1,
+.dataset-heading {
+  letter-spacing: -0.015em;
+}
+
+.dataset .notes,
+.dataset .dataset-notes,
+.dataset-description,
+.notes.embedded-content {
+  color: var(--urbis-muted-foreground);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.dataset .notes h2,
+.dataset .notes h3,
+.dataset-description h2,
+.dataset-description h3 {
+  color: var(--urbis-foreground);
+  font-weight: 700;
+}
+
+.dataset .notes p,
+.dataset-description p {
+  margin: 0 0 10px;
+}
+
+.dataset .notes ul,
+.dataset-description ul {
+  padding-left: 20px;
+}
+
+/* Informações Adicionais */
+.additional-info {
+  width: 100%;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.additional-info caption,
+.additional-info thead th {
+  padding: 9px 11px;
+  background: var(--urbis-muted);
+  color: var(--urbis-foreground);
+  font-weight: 700;
+  text-align: left;
+}
+
+.additional-info th,
+.additional-info td {
+  padding: 8px 11px;
+  border-bottom: 1px solid var(--urbis-border);
+  text-align: left;
+  vertical-align: top;
+  font-size: 0.8rem;
+}
+
+.additional-info tr:last-child th,
+.additional-info tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ==========================================================================
+   7. FORMULÁRIOS, TABELAS E AÇÕES
+   ========================================================================== */
+
+.form-control,
+.form-select,
+select,
+textarea,
+input[type="text"],
+input[type="email"],
+input[type="search"],
+input[type="url"],
+input[type="number"] {
+  border-color: var(--urbis-input);
+  border-radius: var(--urbis-radius-sm);
+  color: var(--urbis-foreground);
+  font-size: 0.86rem;
+}
+
+.form-control:focus,
+.form-select:focus,
+select:focus,
+textarea:focus,
+input:focus {
+  border-color: var(--urbis-primary);
+  box-shadow: 0 0 0 3px var(--urbis-focus);
+  outline: 0;
+}
+
+.btn {
+  min-height: 32px;
+  padding: 5px 11px;
+  border: 1px solid transparent;
+  border-radius: var(--urbis-radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.btn-primary,
+.btn-success {
+  border-color: var(--urbis-primary);
+  background: var(--urbis-primary);
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-success:hover {
+  border-color: var(--urbis-primary-hover);
+  background: var(--urbis-primary-hover);
+  color: #fff;
+}
+
+.btn-default,
+.btn-secondary,
+.btn-outline-secondary {
+  border-color: var(--urbis-border);
+  background: #fff;
+  color: var(--urbis-foreground);
+}
+
+.btn-default:hover,
+.btn-secondary:hover,
+.btn-outline-secondary:hover {
+  border-color: var(--urbis-primary);
+  background: var(--urbis-primary-soft);
+  color: var(--urbis-primary);
+}
+
+.table {
+  width: 100%;
+  margin: 10px 0;
+  border: 1px solid var(--urbis-border);
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--urbis-radius-md);
+  background: var(--urbis-card);
+  overflow: hidden;
+  font-size: 0.82rem;
+}
+
+.table th,
+.table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--urbis-border);
+  vertical-align: top;
+}
+
+.table th {
+  background: var(--urbis-muted);
+  color: var(--urbis-foreground);
+  font-weight: 700;
+}
+
+.table tr:last-child th,
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Facetas e filtros */
+.filters,
+.nav-filters,
+.nav-stacked {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.filters li,
+.nav-stacked li {
+  margin: 0;
+}
+
+.filters a,
+.nav-stacked > li > a,
+.facet a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--urbis-radius-sm);
+  color: var(--urbis-muted-foreground);
+  font-size: 0.8rem;
+}
+
+.filters a:hover,
+.nav-stacked > li > a:hover,
+.nav-stacked > li.active > a,
+.facet a:hover {
+  background: var(--urbis-primary-soft);
+  color: var(--urbis-primary);
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   8. SOBRE E CONTEÚDO RICO
+   ========================================================================== */
+
+/* O CKAN entrega /about como um módulo de conteúdo; esta regra é segura para
+   texto editorial e não transforma cards da homepage em caixas aninhadas. */
+.primary .module-content.rich-text,
+.primary .module-content .rich-text,
+.primary .module-content .about,
+.about-page {
+  color: var(--urbis-muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.primary .module-content.rich-text h1,
+.primary .module-content.rich-text h2,
+.primary .module-content.rich-text h3,
+.primary .module-content .rich-text h1,
+.primary .module-content .rich-text h2,
+.primary .module-content .rich-text h3,
+.about-page h1,
+.about-page h2,
+.about-page h3 {
+  color: var(--urbis-foreground);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.primary .module-content.rich-text p,
+.primary .module-content .rich-text p,
+.about-page p {
+  margin: 0 0 12px;
+}
+
+.primary .module-content.rich-text ul,
+.primary .module-content .rich-text ul,
+.about-page ul {
+  padding-left: 20px;
+}
+
+/* ==========================================================================
+   9. RODAPÉ E SELECT2
+   ========================================================================== */
+
+.site-footer {
+  margin-top: 18px;
+  padding: 24px 0 22px;
+  background: var(--urbis-primary);
+  border-top: 3px solid var(--urbis-secondary);
+  color: #fff;
+}
+
+.site-footer a {
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+.site-footer a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.site-footer .footer-links ul {
+  margin: 0 0 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer .footer-links li {
+  margin: 0 0 4px;
+}
+
+.site-footer .attribution p,
+.site-footer .lang-select label {
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.78rem;
+}
+
+.site-footer .lang-select {
+  margin-top: 8px;
+}
+
+.site-footer .select2-container.lang-container {
+  width: 100% !important;
+  max-width: 280px;
+}
+
+.site-footer .select2-container .select2-choice {
+  height: 30px;
+  padding: 4px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--urbis-radius-sm);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  box-shadow: none;
+  line-height: 20px;
+}
+
+.site-footer .select2-container .select2-choice:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.select2-drop {
+  border: 1px solid var(--urbis-border);
+  border-radius: var(--urbis-radius-sm);
+  background: #fff;
+  box-shadow: var(--urbis-shadow);
+}
+
+.select2-results .select2-highlighted {
+  background: var(--urbis-primary);
+  color: #fff;
+}
+
+/* ==========================================================================
+   10. RESPONSIVIDADE
+   ========================================================================== */
+
+@media (max-width: 991.98px) {
+  header.masthead .navbar-collapse {
+    padding-top: 8px;
+  }
+
+  header.masthead .navbar-nav {
+    align-items: stretch;
+  }
+
+  header.masthead .navbar-nav a {
+    width: 100%;
+  }
+
+  header.masthead .site-search {
+    width: 100%;
+    margin: 8px 0 0;
+  }
+
+  header.masthead .site-search .form-control {
+    width: 100%;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .container,
+  #content,
+  [role="main"] > .container,
+  .main > .container {
+    width: min(100% - 24px, var(--urbis-content-width));
+  }
+
+  header.masthead .navbar {
+    min-height: 44px;
+  }
+
+  header.masthead .logo img {
+    max-height: 44px;
+  }
+
+  .main #content > .row.wrapper {
+    display: block;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .main #content > .row.wrapper > .secondary,
+  .main #content > .row.wrapper > .primary {
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .main #content > .row.wrapper > .secondary {
+    margin-bottom: 10px;
+  }
+
+  .account-masthead .account.avatar ul {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .account-masthead .account.avatar .text,
+  .account-masthead .account.avatar .username {
+    display: none;
+  }
+
+  .homepage .main.hero > .container > .row {
+    display: block;
+    margin: 0;
+  }
+
+  .homepage .main.hero > .container > .row > [class*="col-"] {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0;
+  }
+
+  .homepage .module-promotion .card-cover-img {
+    max-height: 170px;
+  }
+
+  .organization-index .media-grid,
+  .group-index .media-grid,
+  .organization-list,
+  .group-list {
+    grid-template-columns: 1fr;
+  }
+
+  .primary .row > [class*="col-"],
+  .secondary .row > [class*="col-"] {
+    margin-bottom: 10px;
+  }
+
+  #dataset-resources .resource-item {
+    grid-template-columns: 1fr;
+  }
+
+  #dataset-resources .resource-item .dropdown {
+    justify-self: start;
+  }
+
+  .dataset .notes,
+  .dataset-description {
+    font-size: 0.84rem;
+  }
+
+  .additional-info,
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .site-footer .row > [class*="col-"] {
+    margin-bottom: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .homepage .card.padding:has(.grid._3c) .grid._3c {
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+  }
+
+  .homepage .card.padding:has(.grid._3c) > .padding:first-child,
+  .homepage .card.padding:has(.accordion-container) > .block.scroll {
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+  }
+}
+
+/* ==========================================================================
+   11. RESET FINAL DA HOMEPAGE
+   Espaçadores e estilos de conteúdo externo ficam limitados à homepage.
+   ========================================================================== */
+
+.homepage .main.hero,
+.homepage .main.hero > .container,
+.homepage .main.hero > .container > .row,
+.homepage .main.hero > .container > .row > [class*="col-"] {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Os <br> entre busca, estatísticas e FAQ eram usados como espaçadores. */
+.homepage .main.hero > .container > .row > [class*="col-"] > br {
+  display: none !important;
+}
+
+.homepage .main.hero > .container > .row > [class*="col-"] {
+  margin-bottom: 0 !important;
+}
+
+.homepage .module-promotion.card.box,
+.homepage .module-search.card.box,
+.homepage .card.padding:has(.grid._3c),
+.homepage .card.padding:has(.accordion-container) {
+  width: 100% !important;
+  margin-top: 0 !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  margin-bottom: 10px !important;
+  box-sizing: border-box !important;
+}
+
+.homepage .module-promotion.card.box {
+  display: block !important;
+  padding: 0 !important;
+}
+
+.homepage .module-promotion .card-cover,
+.homepage .module-promotion .card-cover-img,
+.homepage .module-promotion .padding-2,
+.homepage .module-promotion .card-body.scroll {
+  margin: 0 !important;
+}
+
+.homepage .module-promotion .card-cover {
+  padding: 0 !important;
+  line-height: 0 !important;
+}
+
+.homepage .module-promotion .card-cover-img {
+  width: 100% !important;
+  height: 180px !important;
+  max-height: 180px !important;
+  object-fit: cover !important;
+}
+
+.homepage .module-promotion .padding-2 {
+  padding: 11px 14px 3px !important;
+  line-height: 1.4 !important;
+}
+
+.homepage .module-promotion h1.h1 {
+  margin: 0 !important;
+  font-size: 1.25rem !important;
+  line-height: 1.2 !important;
+}
+
+.homepage .module-promotion .card-body.scroll {
+  width: auto !important;
+  max-height: none !important;
+  padding: 0 14px 13px !important;
+  overflow: visible !important;
+  line-height: 1.5 !important;
+}
+
+.homepage .module-promotion .card-body.scroll .about-rich-text,
+.homepage .module-promotion .card-body.scroll p {
+  margin: 0 !important;
+}
+
+.homepage .module-search.card.box {
+  padding: 12px !important;
+}
+
+.homepage .module-search .search-form,
+.homepage .module-search .search-input,
+.homepage .module-search .search-separator,
+.homepage .module-search .search-instruction {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.homepage .module-search .search-separator {
+  padding-top: 8px !important;
+}
+
+.homepage .module-search .search-separator hr {
+  margin: 0 0 6px !important;
+}
+
+.homepage .card.padding:has(.grid._3c),
+.homepage .card.padding:has(.accordion-container) {
+  padding-top: 0 !important;
+}
+
+.homepage .card.padding:has(.grid._3c) > .padding:first-child {
+  padding-top: 11px !important;
+  padding-bottom: 6px !important;
+}
+
+.homepage .card.padding:has(.grid._3c) .grid._3c {
+  padding-bottom: 11px !important;
+}
+
+.homepage .card.padding:has(.accordion-container) > .block.scroll {
+  padding-top: 11px !important;
+  padding-bottom: 6px !important;
+}
+
+.homepage .card.padding:has(.accordion-container) .accordion-container.faq {
+  margin-bottom: 5px !important;
+}
+
+.homepage .card.padding:has(.accordion-container) .spacer,
+.homepage .module-promotion .spacer {
+  display: none !important;
+}
+
+@media (max-width: 767.98px) {
+  .homepage .module-promotion .card-cover-img {
+    height: 145px !important;
+    max-height: 145px !important;
+  }
+
+  .homepage .module-promotion .padding-2 {
+    padding-right: 12px !important;
+    padding-left: 12px !important;
+  }
+
+  .homepage .module-promotion .card-body.scroll {
+    padding-right: 12px !important;
+    padding-left: 12px !important;
+  }
+}
+
+/* ==========================================================================
+   12. ACABAMENTO FINAL — FAQ, HEADER, TÍTULOS, FOOTER E FORMULÁRIOS
+   ========================================================================== */
+
+/* Grid final da homepage: duas colunas reais no desktop. */
+.homepage .main.hero > .container > .row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+  margin-right: -6px !important;
+  margin-left: -6px !important;
+}
+
+.homepage .main.hero > .container > .row > .col-md-6 {
+  box-sizing: border-box !important;
+  flex: 0 0 50% !important;
+  width: 50% !important;
+  max-width: 50% !important;
+  min-width: 0 !important;
+  padding-right: 6px !important;
+  padding-left: 6px !important;
+}
+
+.homepage .main.hero > .container > .row > .col-md-6 > .card,
+.homepage .main.hero > .container > .row > .col-md-6 > .module-promotion,
+.homepage .main.hero > .container > .row > .col-md-6 > .module-search {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* FAQ fechado: sem altura residual, padding ou faixa branca. */
+.homepage .accordion-container:not(.open) .accordion-content {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+}
+
+.homepage .accordion-container.open .accordion-content {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* Uma única linha no header: remove a sombra que parecia uma segunda borda. */
+header.masthead,
+header.masthead .navbar,
+header.masthead .container {
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+}
+
+header.masthead {
+  border-bottom: 1px solid var(--urbis-border) !important;
+  box-shadow: none !important;
+}
+
+/* Título principal da apresentação do URBIS. */
+.homepage .module-promotion h1.h1 {
+  position: relative;
+  padding-bottom: 9px !important;
+  color: var(--urbis-foreground) !important;
+  font-size: clamp(1.45rem, 3vw, 2rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.035em;
+  line-height: 1.08 !important;
+}
+
+.homepage .module-promotion h1.h1::after {
+  display: block;
+  width: 46px;
+  height: 3px;
+  margin-top: 9px;
+  border-radius: 2px;
+  background: var(--urbis-primary);
+  content: "";
+}
+
+/* Footer com hierarquia institucional e marca evidente. */
+.site-footer {
+  margin-top: 18px !important;
+  padding: 28px 0 24px !important;
+  border-top: 3px solid var(--urbis-secondary) !important;
+  background: var(--urbis-primary) !important;
+  color: #fff !important;
+}
+
+.site-footer .container::before {
+  display: block;
+  margin: 0 0 22px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  content: "URBIS";
+  font-size: clamp(2.5rem, 8vw, 5.75rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.85;
+}
+
+.site-footer .row {
+  row-gap: 14px;
+  margin-right: -8px;
+  margin-left: -8px;
+}
+
+.site-footer .row > [class*="col-"] {
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.site-footer .footer-links ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 16px;
+  margin: 0 0 8px !important;
+  padding: 0 !important;
+  list-style: none;
+}
+
+.site-footer .footer-links li {
+  margin: 0 !important;
+}
+
+.site-footer .footer-links a,
+.site-footer .attribution a {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.site-footer .footer-links a:hover,
+.site-footer .attribution a:hover {
+  color: #fff !important;
+  text-decoration: underline;
+}
+
+.site-footer .attribution {
+  text-align: right;
+}
+
+.site-footer .attribution p {
+  margin: 0 0 6px;
+}
+
+.site-footer .ckan-footer-logo {
+  display: inline-block;
+  min-height: 20px;
+  min-width: 48px;
+}
+
+/* Botões consistentes no CKAN inteiro, sem efeito de sombra duplicada. */
+.homepage .btn,
+.main .btn,
+.site-footer .btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 11px !important;
+  border-width: 1px !important;
+  border-radius: var(--urbis-radius-sm) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+
+.homepage .btn-primary,
+.main .btn-primary {
+  border-color: var(--urbis-primary) !important;
+  background: var(--urbis-primary) !important;
+  color: #fff !important;
+}
+
+.homepage .btn-primary:hover,
+.main .btn-primary:hover {
+  border-color: var(--urbis-primary-hover) !important;
+  background: var(--urbis-primary-hover) !important;
+}
+
+.main .btn-success {
+  border-color: var(--urbis-secondary-foreground) !important;
+  background: var(--urbis-secondary) !important;
+  color: var(--urbis-secondary-foreground) !important;
+}
+
+.main .btn-success:hover {
+  background: #8de3a0 !important;
+  color: var(--urbis-secondary-foreground) !important;
+}
+
+.homepage .btn .fa,
+.main .btn .fa,
+.homepage .btn .fa-solid,
+.main .btn .fa-solid {
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+}
+
+/* Busca da homepage: input e botão precisam compartilhar a mesma linha. */
+body .homepage .search-giant {
+  position: relative !important;
+  display: flex !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  height: 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  float: none !important;
+  clear: both !important;
+}
+
+body .homepage .search-giant > input,
+body .homepage .search-giant > .form-control,
+body .homepage .search-giant > #field-main-search {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  float: none !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  flex: 1 1 auto !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+body .homepage .search-giant > button,
+body .homepage .search-giant > .btn {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  float: none !important;
+  flex: 0 0 44px !important;
+  align-self: stretch !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+/* Botões de pesquisa: estado normal visível, não apenas no hover. */
+header.masthead .site-search > .btn,
+header.masthead .site-search button.btn,
+.homepage .search-giant > .btn,
+.homepage .search-giant button.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #fff !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+}
+
+header.masthead .site-search button.btn {
+  z-index: 2;
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  background: var(--urbis-primary) !important;
+}
+
+header.masthead .site-search button.btn:hover,
+header.masthead .site-search button.btn:focus {
+  background: var(--urbis-primary-hover) !important;
+  color: #fff !important;
+}
+
+.homepage .search-giant button.btn {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 var(--urbis-radius-sm) var(--urbis-radius-sm) 0 !important;
+  background: var(--urbis-primary) !important;
+}
+
+.homepage .search-giant button.btn:hover,
+.homepage .search-giant button.btn:focus {
+  background: var(--urbis-primary-hover) !important;
+  color: #fff !important;
+}
+
+/* Font Awesome 6: o tema define apenas o ícone, sem trocar a fonte da página. */
+header.masthead .site-search button.btn > .fa,
+.homepage .search-giant button.btn > .fa,
+.homepage .search-giant button.btn > .fa-solid {
+  display: inline-block !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 0.9rem !important;
+  font-style: normal !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+}
+
+/* Campos sem altura variável entre Bootstrap, CKAN e customizações antigas. */
+.homepage .form-control,
+.main .form-control,
+.homepage select,
+.main select,
+.homepage textarea,
+.main textarea {
+  min-height: 36px;
+  border: 1px solid var(--urbis-input) !important;
+  border-radius: var(--urbis-radius-sm) !important;
+  background: #fff !important;
+  color: var(--urbis-foreground) !important;
+  font-size: 0.84rem !important;
+  box-shadow: none !important;
+}
+
+.homepage .form-control:focus,
+.main .form-control:focus,
+.homepage select:focus,
+.main select:focus,
+.homepage textarea:focus,
+.main textarea:focus {
+  border-color: var(--urbis-primary) !important;
+  box-shadow: 0 0 0 3px var(--urbis-focus) !important;
+  outline: 0;
+}
+
+.homepage .search-giant .form-control,
+.homepage #field-main-search {
+  min-height: 40px;
+}
+
+.homepage .search-giant .btn {
+  min-height: 40px;
+}
+
+.site-footer .select2-container .select2-choice {
+  min-height: 30px;
+  border-radius: var(--urbis-radius-sm) !important;
+}
+
+@media (max-width: 767.98px) {
+  .homepage .main.hero > .container > .row {
+    display: block !important;
+    width: 100% !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  .homepage .main.hero > .container > .row > .col-md-6 {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  .site-footer .attribution {
+    text-align: left;
+  }
+
+  .site-footer .container::before {
+    margin-bottom: 16px;
+    font-size: 3.5rem;
+  }
+}
+
+/* Remove a linha cinza adicionada pelo tema externo na homepage. */
+body .homepage [role="main"] {
+  border-top: 0 !important;
+}
+
+/* FAQ fechado — override final contra estilos e atributos inline do Webflow. */
+body .homepage .card.padding:has(.accordion-container) {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) > .block.scroll {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq:not(.open) {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin-bottom: 5px !important;
+  overflow: hidden !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq:not(.open) > .accordion-content {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq:not(.open) > .accordion-content > * {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq.open > .accordion-content {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 8px 10px 10px !important;
+  overflow: visible !important;
+  visibility: visible !important;
+}
+
+/* Último reset do FAQ: nenhum wrapper vazio pode reservar espaço. */
+body .homepage .card.padding:has(.accordion-container) > .block.scroll > .padding,
+body .homepage .card.padding:has(.accordion-container) > .block.scroll > .spacer,
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq:not(.open)::before,
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq:not(.open)::after {
+  box-sizing: border-box !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) > .block.scroll > .padding {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 0 8px !important;
+  overflow: visible !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) > .block.scroll > .spacer,
+body .homepage .card.padding:has(.accordion-container) .spacer.small {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq:not(.open) {
+  display: block !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq:not(.open) > .accordion-header {
+  display: flex !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  margin: 0 !important;
+  padding: 8px 10px !important;
+  overflow: hidden !important;
+}
+
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq:not(.open) > .accordion-content::before,
+body .homepage .card.padding:has(.accordion-container) .accordion-container.faq:not(.open) > .accordion-content::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* ========================================================================== 
+   13. BODY ONLY — estrutura de conteúdo do CKAN
+   Não altera header, masthead ou footer.
+   ========================================================================== */
+
+body {
+  background: var(--urbis-background) !important;
+}
+
+/* Remove o cinza e a moldura aplicados pelo tema padrão do CKAN. */
+body > .main,
+body > .homepage,
+body .homepage .main,
+body .main.hero,
+body .main > #content,
+body .main > #content.container,
+body .main > #content > .row,
+body .main > #content > .row.wrapper {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* O box model precisa ser previsível em toda a árvore do conteúdo. */
+body > .main,
+body > .main *,
+body > .homepage,
+body > .homepage * {
+  box-sizing: border-box;
+}
+
+body .main > #content.container {
+  width: min(100% - 32px, var(--urbis-content-width)) !important;
+  max-width: var(--urbis-content-width) !important;
+  margin-right: auto !important;
+  margin-left: auto !important;
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Cards e módulos sempre respeitam o pai. */
+body .main .card,
+body .main .module,
+body .main .module-promotion,
+body .main .module-search,
+body .main .resource-item,
+body .main .additional-info {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Colunas da homepage: o filho ocupa 100% da própria coluna, não da viewport. */
+body .homepage .main.hero > .container > .row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  margin-right: -6px !important;
+  margin-left: -6px !important;
+}
+
+body .homepage .main.hero > .container > .row > .col-md-6 {
+  box-sizing: border-box !important;
+  flex: 0 0 50% !important;
+  width: 50% !important;
+  max-width: 50% !important;
+  min-width: 0 !important;
+  padding-right: 6px !important;
+  padding-left: 6px !important;
+}
+
+body .homepage .main.hero > .container > .row > .col-md-6 > *,
+body .homepage .main.hero > .container > .row > .col-md-6 .card,
+body .homepage .main.hero > .container > .row > .col-md-6 .module-promotion,
+body .homepage .main.hero > .container > .row > .col-md-6 .module-search {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+@media (max-width: 767.98px) {
+  body .homepage .main.hero > .container > .row {
+    display: block !important;
+    width: 100% !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  body .homepage .main.hero > .container > .row > .col-md-6 {
+    display: block !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

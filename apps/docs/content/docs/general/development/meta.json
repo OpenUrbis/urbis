@@ -1,0 +1,13 @@
+{
+  "title": "Guia de Desenvolvimento",
+  "icon": "Code2",
+  "pages": [
+    "index",
+    "setup",
+    "commit-guidelines",
+    "pull-request-guidelines",
+    "contributing",
+    "swagger-guidelines",
+    "troubleshooting"
+  ]
+}

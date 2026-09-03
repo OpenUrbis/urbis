@@ -1,0 +1,59 @@
+---
+title: Configurações de Fluxo de Trabalho
+description: Configurações avançadas de fluxo de trabalho.
+icon: Workflow
+---
+
+## Aceite
+
+Para associar um usuário com o pedido através do aceite deve ser feito as seguintes configurações:
+
+- Editando o assunto, na aba lateral `Aceite` configurar um formulário para o aceite
+- Dentro do formulário criar o campo do tipo `Vínculo`, nele configurar sua expressão modelo para possuir a seguinte estrutura:
+  - `{ from: CPF_DO_USUARIO, by: NOME_DO_TITULO_DO_FORMULARIO_DO_ACEITE }` (lembre que tanto o CPF quanto o titulo devem serem exatamente iguais aos suas contrapartes, senão a associação do aceite não irá funcionar)
+  - Dica: o CPF_DO_USARIO e NOME_DO_TITULO_DO_FORMULARIO_DO_ACEITE podem serem definidos de forma dinâmica utilizando uma expressão javascript.
+
+Feito essas configurações, uma vez o pedido protocolado serão:
+
+- Adicionado uma entrada na tabela `Meus Aceites`
+- Na aba aceite do pedido será exigido o aceite do usuário associado no campo `from`
+
+## Apostilamento Automático (Com alteração do cadastro do usuário)
+
+- Para configurar o apostilamento automático que é ativado a verificação sempre que um usuário tem algum dado cadastral atualizado, deverá utilizar o campo de integração habilitando `Edição no Apostilamento` com `Sim`.
+- O usuário em questão deverá estar envolvido pelo aceite com o pedido
+- O pedido deverá ter pago a taxa
+- Deverá ter um campo de integração com utilizando o seguinte endpoint da API do sistema:
+
+```
+context.cpf.length == 14
+  ? {
+      method: "GET",
+      url: `https://api.urbis.prefeitura.sp.gov.br/users/api/user/${context.cpf}/unmasked`,
+    }
+  : {};
+```
+
+Com isso, quando existir alguma alteração no cadastro, o sistema irá verificar quais pedidos o usuário está envolvido pelo aceite, rodará novamente o formulário, verificando se teve alguma alteração. Caso sim e o formulário sendo válido, ele irá realizar o apostilamento.
+
+## Integração com o SEI
+
+Na aba lateral `Código do Assunto` é opcional a adição do seguinte objeto, que contém algumas informações de como o processo SEI será criado após o pagamento da taxa.
+
+- Qual únidade será aberto
+- Tipo do procedimento que será aberto
+- Nível de acesso
+- Tipo de documento que será criado
+
+```json
+{
+  "integrations": {
+    "sei": {
+      "IdUnidade": "ID_UNIDADE",
+      "IdTipoProcedimento": "ID_TIPO_PROCEDIMENTO",
+      "NivelAcesso": "NIVEL_ACESSO",
+      "IdSerie": "ID_SERIE"
+    }
+  }
+}
+```

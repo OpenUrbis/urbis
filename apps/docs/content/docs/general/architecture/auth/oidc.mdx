@@ -1,0 +1,33 @@
+---
+title: Autenticação (OIDC)
+description: Como a autenticação funciona usando o provedor OIDC.
+icon: Key
+---
+
+O Urbis implementa um sistema de autenticação centralizado usando o protocolo [OpenID Connect (OIDC)](https://openid.net/connect/). Utilizamos o `node-oidc-provider` integrado diretamente no NestJS.
+
+## Por que OIDC?
+
+-   **Identidade Centralizada**: Os usuários fazem login uma vez e podem acessar múltiplas aplicações (Contas, Docs, futuras aplicações).
+-   **Protocolo Padrão**: É um padrão da indústria, tornando-o compatível com bibliotecas para todas as linguagens e frameworks.
+-   **Segurança**: Suporta fluxos de segurança modernos, como o Fluxo de Código de Autorização com PKCE.
+
+## Fluxos
+
+### Fluxo de Código de Autorização com PKCE
+
+Este é o fluxo principal utilizado por nossas aplicações frontend (SPAs).
+
+1.  **Usuário clica em Login**: O frontend redireciona o usuário para o endpoint de autorização da API.
+2.  **Página de Login**: A API serve uma página de login (renderizada no servidor ou estática).
+3.  **Autenticação**: O usuário insere as credenciais. A API as valida no banco de dados.
+4.  **Consentimento**: (Opcional) O usuário consente com os escopos.
+5.  **Redirecionamento**: A API redireciona de volta para o frontend com um código de autorização.
+6.  **Troca de Token**: O frontend troca o código por um Token de Acesso e um Token de ID.
+
+## Endpoints
+
+-   **Descoberta**: `/auth/oidc/.well-known/openid-configuration`
+-   **Autorização**: `/auth/oidc/auth`
+-   **Token**: `/auth/oidc/token`
+-   **Informações do Usuário**: `/auth/oidc/me`

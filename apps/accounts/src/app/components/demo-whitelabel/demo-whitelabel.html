@@ -1,0 +1,80 @@
+<h3 class="text-lg font-semibold mb-4">{{ "components.demoWhitelabel.title" | translate }}</h3>
+
+<div class="flex gap-2 flex-wrap">
+  <button
+    hlmBtn
+    style="background-color: #c3b1e1; color: black"
+    (click)="setPrimaryColor('#C3B1E1')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.purple' | translate
+    "
+  >
+    {{ "components.demoWhitelabel.presets.purple" | translate }}
+  </button>
+
+  <button
+    hlmBtn
+    style="background-color: #ff6961; color: white"
+    (click)="setPrimaryColor('#FF6961')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.red' | translate
+    "
+  >
+    {{ "components.demoWhitelabel.presets.red" | translate }}
+  </button>
+
+  <button
+    hlmBtn
+    style="background-color: #77dd77; color: black"
+    (click)="setPrimaryColor('#77DD77')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.green' | translate
+    "
+  >
+    {{ "components.demoWhitelabel.presets.green" | translate }}
+  </button>
+
+  <button
+    hlmBtn
+    style="background-color: #fdfd96; color: black"
+    (click)="setPrimaryColor('#FDFD96')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.yellow' | translate
+    "
+  >
+    {{ "components.demoWhitelabel.presets.yellow" | translate }}
+  </button>
+
+  <button
+    hlmBtn
+    style="background-color: #836952; color: white"
+    (click)="setPrimaryColor('#836952')"
+    [attr.aria-label]="
+      'components.demoWhitelabel.presets.brown' | translate
+    "
+  >
+    {{ "components.demoWhitelabel.presets.brown" | translate }}
+  </button>
+
+  <button
+    hlmBtn
+    (click)="toggleTheme()"
+    [attr.aria-label]="
+      whitelabelState.value().theme === 'light'
+        ? ('components.demoWhitelabel.actions.switchToDark' | translate)
+        : ('components.demoWhitelabel.actions.switchToLight' | translate)
+    "
+  >
+    {{
+      whitelabelState.value().theme === "light"
+        ? ("components.demoWhitelabel.actions.switchToDark" | translate)
+        : ("components.demoWhitelabel.actions.switchToLight" | translate)
+    }}
+  </button>
+</div>
+
+<img
+  [src]="whitelabelState.value().icon"
+  class="icon mt-4 max-h-12"
+  [attr.alt]="'components.demoWhitelabel.iconAlt' | translate"
+/>

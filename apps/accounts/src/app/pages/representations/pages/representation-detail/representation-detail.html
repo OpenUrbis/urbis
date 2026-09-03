@@ -1,0 +1,130 @@
+<lib-loading-content [loading]="loading()">
+  @if (representation()) {
+    <section class="max-w-3xl mx-auto py-8">
+      <div class="flex items-center gap-4 mb-6">
+        <button hlmBtn variant="outline" size="icon" routerLink="../..">
+          <hlm-icon name="lucideArrowLeft" class="w-4 h-4" />
+        </button>
+        <h1 class="text-2xl font-bold">Detalhes da Representação</h1>
+      </div>
+
+      <div hlmCard class="mb-6">
+        <div hlmCardHeader><h3 hlmCardTitle>Informações</h3></div>
+        <div hlmCardContent class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label hlmLabel>Solicitante</label><p class="text-sm">{{ representation().requester?.firstName }} {{ representation().requester?.lastName }}</p></div>
+            <div><label hlmLabel>Tipo de cadastro do solicitante</label><p class="text-sm">{{ representation().requesterAccountTypeLabel || 'Não informado' }}</p></div>
+            <div><label hlmLabel>Tipo de representante</label><p class="text-sm">{{ representation().representativeRoleLabel || 'Não informado' }}</p></div>
+            <div><label hlmLabel>Tipo de representado</label><p class="text-sm">{{ representation().representedType || 'Não informado' }}</p></div>
+            <div><label hlmLabel>CPF/CNPJ</label><p class="text-sm">{{ representation().organization?.document || 'Não informado' }}</p></div>
+            <div><label hlmLabel>Procedimento de validação</label><p class="text-sm">{{ representation().validationProcedureLabel || 'Não informado' }}</p></div>
+            <div><label hlmLabel>Status</label><p class="text-sm">{{ representation().status }}</p></div>
+          </div>
+
+          @if (representation().coRepresentatives?.length) {
+            <div><label hlmLabel>Co-representantes adicionais (CPFs)</label><p class="text-sm bg-muted p-3 rounded-md">{{ representation().coRepresentatives.join(', ') }}</p></div>
+          }
+          @if (representation().requiresJointAgreement) {
+            <div><label hlmLabel>Regra de aceite</label><p class="text-sm bg-muted p-3 rounded-md">Concordância Conjunta Obrigatória: Para a representação por pais/mães, a concordância e assinatura de ambos os responsáveis é obrigatória por lei em pedidos que envolvam o/a filho/a.</p></div>
+          }
+          @if (representation().documentGroups?.length) {
+            <div>
+              <label hlmLabel>Documentos</label>
+              @for (group of representation().documentGroups; track group.category) {
+                <h4 class="mt-3 text-sm font-medium">{{ representation().documentCategoryLabels?.[group.category] || group.category }}</h4>
+                <ul class="mt-1 list-disc pl-5 text-sm">
+                  @for (file of group.files; track file.key) {
+                    <li><a class="text-primary underline" [href]="file.url" target="_blank">{{ file.name }}</a></li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (representation().status === 'PENDING' && canApprove(representation())) {
+        <div class="flex justify-end gap-2 mb-6">
+          <button
+            hlmBtn
+            variant="destructive"
+            (click)="reject()"
+            *hasPermission="'representation:reject'"
+          >
+            <hlm-icon name="lucideX" class="mr-2 w-4 h-4" />
+            Rejeitar
+          </button>
+          <button
+            hlmBtn
+            (click)="approve()"
+            *hasPermission="'representation:approve'"
+          >
+            <hlm-icon name="lucideCheck" class="mr-2 w-4 h-4" />
+            Aprovar
+          </button>
+        </div>
+      }
+
+      @if (representation().status !== 'PENDING' && canApprove(representation())) {
+      <div hlmCard class="mb-6" *hasPermission="'representation:approve'">
+        <div hlmCardHeader>
+          <h3 hlmCardTitle>Editar representação</h3>
+        </div>
+        <div hlmCardContent class="space-y-4">
+          <label hlmLabel for="representation-status">Status</label>
+          <select id="representation-status" hlmInput [formControl]="statusControl" class="w-full">
+            <option value="PENDING">Pendente</option>
+            <option value="APPROVED">Aprovado</option>
+            <option value="REJECTED">Reprovado</option>
+          </select>
+          <textarea hlmInput [formControl]="actionReasonControl" rows="3" class="w-full" placeholder="Informe o motivo da alteração ou inativação"></textarea>
+          <lib-attachments [formControl]="actionAttachmentsControl" (isLoading)="attachmentLoading.set($event)" />
+          <div class="flex justify-end gap-2">
+            <button hlmBtn variant="destructive" (click)="inactivate()" [disabled]="actionReasonControl.invalid || attachmentLoading()">Excluir</button>
+            <button hlmBtn (click)="saveStatus()" [disabled]="actionReasonControl.invalid || attachmentLoading()">Salvar</button>
+          </div>
+        </div>
+      </div>
+      }
+
+      <div hlmCard>
+        <div hlmCardHeader class="border-b pb-0 mb-4 pt-4 px-6">
+          <div class="flex items-center gap-6">
+            <button type="button" class="relative pb-3 text-sm font-medium" (click)="selectedTabIndex.set(0)">Comentários</button>
+            <button type="button" class="relative pb-3 text-sm font-medium" (click)="selectedTabIndex.set(1)">Histórico</button>
+          </div>
+        </div>
+        <div hlmCardContent class="pt-0">
+          @if (selectedTabIndex() === 0) {
+            <div class="space-y-4 mb-6 pt-2">
+              @for (comment of representation().comments; track comment.id) {
+                <div class="bg-muted p-3 rounded-md">
+                  <div class="flex justify-between text-xs text-muted-foreground mb-1"><span class="font-medium">{{ comment.author?.firstName }} {{ comment.author?.lastName }}</span><span>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span></div>
+                  <p class="text-sm whitespace-pre-wrap">{{ comment.text }}</p>
+                  @if (comment.attachments?.length) {
+                    <ul class="mt-2 list-disc pl-5 text-sm">
+                      @for (file of comment.attachments; track file.key) { <li><a class="text-primary underline" [href]="file.url" target="_blank">{{ file.name }}</a></li> }
+                    </ul>
+                  }
+                </div>
+              } @empty { <p class="text-sm text-muted-foreground">Não há comentários.</p> }
+            </div>
+            @if (representation().status !== 'INACTIVE') {
+              <div class="space-y-4 border-t pt-4" *hasPermission="'representation:comment'">
+                <textarea hlmInput [formControl]="commentControl" class="w-full" rows="3" placeholder="Escreva um comentário"></textarea>
+                <lib-attachments [formControl]="attachmentsControl" (isLoading)="attachmentLoading.set($event)" />
+                <div class="flex justify-end"><button hlmBtn (click)="addComment()" [disabled]="commentControl.invalid || attachmentLoading()">Enviar comentário</button></div>
+              </div>
+            }
+          } @else {
+            <div class="space-y-4 pt-2">
+              @for (item of representation().history; track item.id) {
+                <div class="border-b pb-3"><div class="flex justify-between"><span class="font-medium">{{ item.action }}</span><span class="text-xs text-muted-foreground">{{ item.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span></div><p class="text-sm text-muted-foreground">{{ item.actor?.firstName }} {{ item.actor?.lastName }}</p></div>
+              } @empty { <p class="text-sm text-muted-foreground">Não há histórico.</p> }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+</lib-loading-content>

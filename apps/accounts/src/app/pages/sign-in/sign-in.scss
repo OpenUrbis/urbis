@@ -1,0 +1,35 @@
+
+.divider {
+  padding: 0px 16px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex-grow: 1;
+  height: 1px;
+  width: 100%;
+  background-color: var(--border);
+}
+
+.divider span {
+  margin: 0 10px;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--border);
+  line-height: 21px;
+}
+
+/* Autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--background) inset !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}

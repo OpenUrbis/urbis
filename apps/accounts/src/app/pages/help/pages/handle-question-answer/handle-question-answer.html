@@ -1,0 +1,240 @@
+<app-page-structure
+  [title]="id() ? 'Editar Pergunta' : 'Nova Pergunta'"
+  [subtitle]="id() ? 'Edite a pergunta, resposta e suas abas' : 'Cadastre a pergunta e selecione em quais abas ela deve aparecer'"
+  backUrl="/help"
+>
+  <div rightActions class="flex items-center gap-2">
+    @if (id()) {
+      <button
+        hlmBtn
+        variant="destructive"
+        size="sm"
+        class="gap-2"
+        (click)="deleteQuestion(id()!)"
+        *hasPermission="'question-answer:delete'"
+      >
+        <hlm-icon name="lucideTrash2" size="16" />
+        {{ 'common.actions.delete' | translate }}
+      </button>
+
+      <lib-loading-button
+        [loading]="saving()"
+        (click)="save()"
+        [disabled]="form.invalid || loading()"
+        type="button"
+        icon="lucideSave"
+        *hasPermission="'question-answer:update'"
+      >
+        {{ 'common.actions.save' | translate }}
+      </lib-loading-button>
+    }
+  </div>
+
+  <lib-loading-content [loading]="loading()">
+    @if (id()) {
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="flex flex-col gap-6 w-full items-start lg:col-span-2">
+          <section class="bg-card border rounded-lg p-6 w-full">
+            <h3 class="text-lg font-semibold mb-4">Detalhes da Pergunta</h3>
+            <form [formGroup]="form" class="space-y-4 w-full" (ngSubmit)="save()">
+              <div class="space-y-1">
+                <label class="text-sm font-medium">Pergunta</label>
+                <input
+                  type="text"
+                  formControlName="question"
+                  class="w-full rounded-md border border-input bg-background px-3 py-2"
+                  placeholder="Ex.: O que é o Urbis?"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-sm font-medium">Resposta</label>
+                <textarea
+                  rows="5"
+                  formControlName="answer"
+                  class="w-full rounded-md border border-input bg-background px-3 py-2"
+                  placeholder="Digite a resposta"
+                ></textarea>
+              </div>
+
+              <div class="flex justify-end pt-4">
+                <lib-loading-button
+                  [loading]="saving()"
+                  [disabled]="form.invalid"
+                  icon="lucideSave"
+                  *hasPermission="'question-answer:update'"
+                >
+                  {{ 'common.actions.save' | translate }}
+                </lib-loading-button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <div class="flex flex-col gap-6">
+          <section class="bg-card border rounded-lg p-6 w-full self-start">
+            <h3 class="text-lg font-semibold mb-4">Aplicações Vinculadas</h3>
+            <p class="text-sm text-muted-foreground mb-4">
+              Selecione as aplicações onde esta pergunta deve aparecer.
+            </p>
+
+            <form [formGroup]="form" (ngSubmit)="save()">
+              <div class="flex justify-start gap-2 mb-2">
+                <button type="button" class="text-xs text-primary hover:underline font-medium" (click)="selectAllApps()">Marcar Todas</button>
+                <span class="text-xs text-muted-foreground">|</span>
+                <button type="button" class="text-xs text-primary hover:underline font-medium" (click)="deselectAllApps()">Desmarcar Todas</button>
+              </div>
+              <div formArrayName="appsSelections" class="space-y-2 max-h-96 overflow-y-auto pr-2 mb-6">
+                @for (app of appsOptions; track app.value; let i = $index) {
+                  <label class="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                    <input type="checkbox" [formControlName]="i" class="w-4 h-4 text-primary" />
+                    <span class="text-sm font-medium">{{ app.label }}</span>
+                  </label>
+                }
+              </div>
+
+            <h3 class="text-lg font-semibold mb-4">Abas Vinculadas</h3>
+            <p class="text-sm text-muted-foreground mb-4">
+              Selecione as abas onde esta pergunta deve aparecer.
+            </p>
+
+              @if (!tabs().length) {
+                <div class="text-sm text-muted-foreground p-4 border rounded-md bg-muted/20">
+                  Nenhuma aba encontrada no sistema.
+                </div>
+              } @else {
+                <div class="flex justify-start gap-2 mb-2">
+                  <button type="button" class="text-xs text-primary hover:underline font-medium" (click)="selectAllTabs()">Marcar Todas</button>
+                  <span class="text-xs text-muted-foreground">|</span>
+                  <button type="button" class="text-xs text-primary hover:underline font-medium" (click)="deselectAllTabs()">Desmarcar Todas</button>
+                </div>
+                <div formArrayName="tabSelections" class="space-y-2 max-h-96 overflow-y-auto pr-2">
+                  @for (tab of tabs(); track tab.id; let i = $index) {
+                    <label class="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                      <input type="checkbox" [formControlName]="i" class="w-4 h-4 text-primary" />
+                      <span class="text-sm font-medium">{{ tab.name }}</span>
+                    </label>
+                  }
+                </div>
+              }
+
+              <div class="flex justify-end mt-4">
+                <lib-loading-button
+                  [loading]="saving()"
+                  [disabled]="form.invalid || loading()"
+                  type="submit"
+                  variant="outline"
+                  icon="lucideSave"
+                  *hasPermission="'question-answer:update'"
+                >
+                  Atualizar Abas
+                </lib-loading-button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+    } @else {
+      <!-- Creation mode -->
+      <div class="flex flex-col items-center">
+        <div class="flex flex-col gap-6 w-full max-w-3xl">
+          <section class="bg-card border rounded-lg p-6 w-full">
+            <h3 class="text-lg font-semibold mb-4">Detalhes da Pergunta</h3>
+
+            <form [formGroup]="form" class="w-full" (ngSubmit)="save()">
+              <div class="space-y-4">
+                <div class="space-y-1">
+                  <label class="text-sm font-medium">Pergunta</label>
+                  <input
+                    type="text"
+                    formControlName="question"
+                    class="w-full rounded-md border border-input bg-background px-3 py-2"
+                    placeholder="Ex.: O que é o Urbis?"
+                  />
+                </div>
+
+                <div class="space-y-1">
+                  <label class="text-sm font-medium">Resposta</label>
+                  <textarea
+                    rows="5"
+                    formControlName="answer"
+                    class="w-full rounded-md border border-input bg-background px-3 py-2"
+                    placeholder="Digite a resposta"
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="h-[1px] bg-border w-full my-8"></div>
+
+              <div>
+                <h3 class="text-lg font-semibold mb-4">Aplicações Vinculadas</h3>
+                <p class="text-sm text-muted-foreground mb-4">
+                  Selecione as aplicações onde esta pergunta deve aparecer.
+                </p>
+                <div class="flex justify-start gap-2 mb-2">
+                  <button type="button" class="text-xs text-primary hover:underline font-medium" (click)="selectAllApps()">Marcar Todas</button>
+                  <span class="text-xs text-muted-foreground">|</span>
+                  <button type="button" class="text-xs text-primary hover:underline font-medium" (click)="deselectAllApps()">Desmarcar Todas</button>
+                </div>
+                <div formArrayName="appsSelections" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                  @for (app of appsOptions; track app.value; let i = $index) {
+                    <label class="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                      <input type="checkbox" [formControlName]="i" class="w-4 h-4 text-primary" />
+                      <span class="text-sm font-medium">{{ app.label }}</span>
+                    </label>
+                  }
+                </div>
+
+                <div class="h-[1px] bg-border w-full my-8"></div>
+
+                <h3 class="text-lg font-semibold mb-4">Abas Vinculadas</h3>
+                <p class="text-sm text-muted-foreground mb-4">
+                  Selecione as abas onde esta pergunta deve aparecer.
+                </p>
+
+                @if (!tabs().length) {
+                  <div class="text-sm text-muted-foreground p-4 border rounded-md bg-muted/20">
+                    Nenhuma aba encontrada no sistema.
+                  </div>
+                } @else {
+                  <div class="flex justify-start gap-2 mb-2">
+                    <button type="button" class="text-xs text-primary hover:underline font-medium" (click)="selectAllTabs()">Marcar Todas</button>
+                    <span class="text-xs text-muted-foreground">|</span>
+                    <button type="button" class="text-xs text-primary hover:underline font-medium" (click)="deselectAllTabs()">Desmarcar Todas</button>
+                  </div>
+                  <div formArrayName="tabSelections" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    @for (tab of tabs(); track tab.id; let i = $index) {
+                      <label class="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                        <input type="checkbox" [formControlName]="i" class="w-4 h-4 text-primary" />
+                        <span class="text-sm font-medium">{{ tab.name }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="flex justify-end gap-3 pt-8">
+                <button
+                  type="button"
+                  (click)="goBack()"
+                  hlmBtn
+                  variant="outline"
+                >
+                  {{ 'common.actions.cancel' | translate }}
+                </button>
+                <lib-loading-button
+                  [loading]="saving()"
+                  [disabled]="form.invalid"
+                  icon="lucideSave"
+                  *hasPermission="'question-answer:create'"
+                >
+                  {{ 'common.actions.save' | translate }}
+                </lib-loading-button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+    }
+  </lib-loading-content>
+</app-page-structure>

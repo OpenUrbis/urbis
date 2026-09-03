@@ -1,0 +1,704 @@
+---
+title: Modelo de Visualização
+description: Documentação do modelo de visualização.
+icon: LayoutTemplate
+---
+
+## Índice
+
+- [Introdução](#introdução)
+- [Usando EJS para Renderização](#usando-ejs-para-renderização)
+- [Visualização Semântica em Colunas](#visualização-semântica-em-colunas)
+- [Wrappers](#wrappers)
+  - [Lista de Wrappers Disponíveis](#lista-de-wrappers-disponíveis)
+  - [Linha](#linha)
+  - [Cartão](#cartão)
+  - [Requisição](#requisição)
+  - [Itens de Lista](#itens-de-lista)
+- [Templates](#templates)
+  - [Lista de Templates Disponíveis](#lista-de-templates-disponíveis)
+  - [Rótulo e Valor](#rótulo-e-valor)
+  - [Ação de Editar Polígono](#ação-de-editar-polígono)
+  - [Ação de Botão](#ação-de-botão)
+  - [Mapa do Polígono](#mapa-do-polígono)
+  - [Item Primário](#item-primário)
+  - [Item Secundário](#item-secundário)
+
+## Introdução
+
+O `viewTemplate` é um componente central do sistema de visualização do mapa, usado para definir como as informações de polígonos ou outros elementos são renderizadas no frontend. Ele permite a criação de layouts personalizados para exibir dados de maneira estruturada e interativa, combinando wrappers (estruturas de container) e templates (componentes de conteúdo). Esta documentação detalha os tipos de wrapper e template disponíveis, explicando suas funcionalidades e casos de uso com exemplos práticos.
+
+## Usando EJS para Renderização
+
+O sistema utiliza a linguagem de template **[EJS (Embedded JavaScript)](https://ejs.co/)** para renderizar dinamicamente informações no `viewTemplate`. O EJS permite embutir lógica JavaScript diretamente nos templates, acessando propriedades de dados (como `properties` ou `data`) e gerando conteúdo condicional ou formatado. Por exemplo, expressões como `<%- properties?.qt_area_terreno ?? '-' %>` extraem valores de propriedades e fornecem um valor padrão (`-`) se os dados estiverem ausentes. O uso de EJS garante flexibilidade para criar visualizações ricas e adaptáveis ao usuário.
+
+## Visualização Semântica em Colunas
+
+Na visualização em formato de **prancha** ou na tela de impressão interativa, o sistema pode distribuir o conteúdo do `viewTemplate` em **3 colunas semânticas**. Nessa estratégia, a unidade de distribuição **não é mais o item raiz do array principal**, e sim cada `wrapper-card`, que passa a ser tratado como um bloco indivisível.
+
+Isso resolve um problema comum em templates com `wrapper-request`: anteriormente, todo o conteúdo interno da requisição precisava permanecer na mesma coluna porque a divisão acontecia apenas no nível do array principal. Agora, os cartões internos podem ser redistribuídos entre colunas, preservando a integridade visual de cada card.
+
+### Regras da divisão semântica
+
+- O `wrapper-card` é a menor unidade movida entre colunas.
+- Um card **nunca é quebrado no meio**.
+- Quando um `wrapper-request` contém múltiplos `wrapper-card`, cada card pode ser alocado em uma coluna diferente.
+- A requisição continua sendo executada **uma única vez**, e seus cartões derivados reutilizam o mesmo contexto de `response`.
+- Em visualização mobile ou em renderizações que não usam o modo de prancha, o template continua sendo exibido na ordem original.
+
+### Como funciona com `wrapper-request`
+
+Quando o sistema encontra um `wrapper-request`, ele pode “explodir” semanticamente seus filhos para fins de layout, mas **sem perder o encapsulamento da requisição**. Na prática, cada card filho é renderizado como uma unidade visual própria, herdando a mesma configuração de `url`, `method`, `data` e `transformResponse` do wrapper original.
+
+Isso permite, por exemplo, que um único bloco de requisição gere os seguintes cards em colunas distintas:
+
+- Coluna 2: `Restrições`
+- Coluna 2: `IPTU`
+- Coluna 3: `Polígonos de Interseção`
+
+...sem duplicar chamadas HTTP desnecessárias.
+
+### Cache e reaproveitamento de resposta
+
+Como múltiplos cards podem nascer do mesmo `wrapper-request`, a renderização deve considerar **cache/reaproveitamento da resposta** para evitar requisições repetidas. Em outras palavras, a separação visual dos cards não implica em novas buscas; ela apenas reorganiza a apresentação do resultado.
+
+### Ordenação e balanceamento
+
+O balanceamento entre colunas leva em conta o peso semântico de cada unidade. Por padrão:
+
+- cards simples têm peso base menor;
+- cards com estruturas mais complexas, como `wrapper-tabs`, podem receber peso maior;
+- opcionalmente, um template pode informar preferências de coluna e peso por meio de propriedades específicas.
+
+Isso permite distribuir melhor o conteúdo entre as colunas, evitando uma composição excessivamente desequilibrada.
+
+### Propriedades semânticas de coluna e peso
+
+Os cards podem informar duas propriedades específicas dentro de `properties` para controlar a distribuição semântica:
+
+| Propriedade | Tipo | Papel prático | Exemplo |
+| --- | --- | --- | --- |
+| `printColumn` | `1 \| 2 \| 3` | **Fixa** o card em uma coluna específica. | `"printColumn": 2` |
+| `semanticCardWeight` | `number` | **Influência o balanceamento** entre colunas quando o card não está travado por coluna. | `"semanticCardWeight": 3` |
+
+#### Diferença prática entre `printColumn` e `semanticCardWeight`
+
+- `printColumn` é uma regra **determinística**: o card vai para a coluna indicada.
+- `semanticCardWeight` é uma regra **de balanceamento**: o card continua elegível para distribuição automática, mas o algoritmo o considera mais leve ou mais pesado.
+
+Em outras palavras:
+
+- use `printColumn` quando você quiser dizer **"este card deve ficar exatamente na coluna 2"**;
+- use `semanticCardWeight` quando você quiser dizer **"este card é pesado, então distribua os demais ao redor dele com cuidado"**.
+
+#### Exemplo objetivo
+
+```json
+{
+  "type": "wrapper-card",
+  "label": "Restrições",
+  "properties": {
+    "printColumn": 2
+  },
+  "templates": []
+}
+```
+
+Nesse caso, o card **sempre** será renderizado na coluna 2.
+
+```json
+{
+  "type": "wrapper-card",
+  "label": "Polígonos de Interseção",
+  "properties": {
+    "semanticCardWeight": 3
+  },
+  "templates": []
+}
+```
+
+Nesse caso, o card continua sem coluna fixa, mas o algoritmo entende que ele ocupa mais espaço lógico e tende a evitar agrupar muitos outros cards pesados na mesma coluna.
+
+Também é possível combinar as duas propriedades:
+
+```json
+{
+  "type": "wrapper-card",
+  "label": "Polígonos de Interseção",
+  "properties": {
+    "printColumn": 3,
+    "semanticCardWeight": 3
+  },
+  "templates": []
+}
+```
+
+Neste cenário:
+
+- `printColumn: 3` garante que o card vá para a **coluna 3**;
+- `semanticCardWeight: 3` registra que ele é um card semanticamente pesado, o que ajuda em cenários híbridos com outros cards ainda distribuídos automaticamente.
+
+### Exemplo prático
+
+Considere este cenário:
+
+- `Identificador`
+- `Localização`
+- `Informações prediais`
+- `wrapper-request` com os cards `Restrições`, `IPTU` e `Polígonos de Interseção`
+
+O layout semântico esperado pode ser:
+
+- **Coluna 1**: `Identificador`, `Localização`, `Informações prediais`
+- **Coluna 2**: `Restrições`, `IPTU`
+- **Coluna 3**: `Polígonos de Interseção`
+
+Esse padrão é especialmente útil para telas amplas, relatórios, impressão rica e preview editorial de templates.
+
+## Wrappers
+
+Wrappers são containers que organizam templates em estruturas visuais, como linhas, cartões ou listas. Eles definem o layout geral e podem conter outros wrappers ou templates como filhos.
+
+### Lista de Wrappers Disponíveis
+
+- [Linha](#linha)
+- [Cartão](#cartão)
+- [Itens de Lista](#itens-de-lista)
+- [Abas (Tabs)](#abas-tabs)
+
+### Linha
+
+O `wrapper-row` organiza templates em uma linha, aproveitando o sistema de grid do **[Bootstrap](https://getbootstrap.com/docs/5.3/layout/grid/)**. Cada item no array `templates` corresponde a uma coluna no grid, permitindo layouts responsivos. Usuários podem especificar a largura de cada coluna usando a propriedade `columnClass`, que aceita qualquer classe de coluna do Bootstrap, como `col-md-6` para meia largura em telas médias ou maiores.
+
+- **Propósito**: Agrupar templates horizontalmente, como pares de rótulo-valor em colunas.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                                            | Exemplo                            |
+| ----------- | -------------------------------------------------------------------- | ---------------------------------- |
+| `type`      | Identificador do wrapper, deve ser `"wrapper-row"`.                  | `"wrapper-row"`                    |
+| `templates` | Array de templates filhos ou wrappers a serem renderizados na linha. | `[{ "type": "label-value", ... }]` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade   | Descrição                                                                    | Exemplo      |
+| ------------- | ---------------------------------------------------------------------------- | ------------ |
+| `columnClass` | Classe CSS do Bootstrap para definir a largura da coluna para cada template. | `"col-md-6"` |
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "wrapper-row",
+    "templates": [
+      {
+        "type": "label-value",
+        "label": "Área do Terreno",
+        "value": "<%- properties?.qt_area_terreno ?? '-' %>",
+        "properties": {
+          "columnClass": "col-md-6"
+        }
+      },
+      {
+        "type": "label-value",
+        "label": "Área Construída",
+        "value": "<%- properties?.qt_area_construida ?? '-' %>",
+        "properties": {
+          "columnClass": "col-md-6"
+        }
+      }
+    ]
+  }
+  ```
+
+  Este exemplo cria uma linha com dois pares de rótulo-valor, cada um ocupando metade da largura disponível em telas médias ou maiores, usando o grid do Bootstrap.
+
+### Cartão
+
+O `wrapper-card` exibe conteúdo em um cartão visual, tipicamente com um título (`label`) e um corpo contendo outros templates ou wrappers. É usado para agrupar informações relacionadas de maneira visualmente distinta.
+
+- **Propósito**: Apresentar informações agrupadas, como detalhes de polígonos ou uma lista de interseções.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                                            | Exemplo                            |
+| ----------- | -------------------------------------------------------------------- | ---------------------------------- |
+| `type`      | Identificador do wrapper, deve ser `"wrapper-card"`.                 | `"wrapper-card"`                   |
+| `label`     | Título do cartão exibido no topo.                                    | `"Informações"`                    |
+| `templates` | Array de templates filhos ou wrappers a serem renderizados no corpo. | `[{ "type": "wrapper-row", ... }]` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade | Descrição | Exemplo |
+| ----------- | --------- | ------- |
+| `helper` | Texto de ajuda exibido para contextualizar o conteúdo do card. | `{ "helper": "Informações sobre o conteúdo no cartão" }` |
+| `printColumn` | Coluna fixa no layout semântico de 3 colunas. Aceita `1`, `2` ou `3`. | `{ "printColumn": 2 }` |
+| `semanticCardWeight` | Peso usado pelo algoritmo de balanceamento automático entre colunas. | `{ "semanticCardWeight": 3 }` |
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "wrapper-card",
+    "label": "Informações",
+    "templates": [
+      {
+        "type": "wrapper-row",
+        "templates": [
+          {
+            "type": "label-value",
+            "label": "Área do Terreno",
+            "value": "<%- properties?.qt_area_terreno ?? '-' %>",
+            "properties": {
+              "columnClass": "col-md-6"
+            }
+          },
+          {
+            "type": "label-value",
+            "label": "Área Construída",
+            "value": "<%- properties?.qt_area_construida ?? '-' %>",
+            "properties": {
+              "columnClass": "col-md-6"
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  Este cartão exibe um título "Informações" e uma linha com dois pares de rótulo-valor.
+
+  Quando usado em tela de impressão/prancha, você pode travar a posição do card ou influenciar o balanceamento semântico:
+
+  ```json
+  {
+    "type": "wrapper-card",
+    "label": "Polígonos de Interseção",
+    "properties": {
+      "printColumn": 3,
+      "semanticCardWeight": 3
+    },
+    "templates": []
+  }
+  ```
+
+  Nesse exemplo, o card será renderizado na **coluna 3** e ainda será tratado como um card semanticamente pesado.
+
+### Requisição
+
+O `wrapper-request` realiza requisições HTTP para buscar dados a serem exibidos na interface, usando a configuração do Axios para definir os parâmetros da requisição. O resultado da requisição é armazenado na variável `response` no objeto principal, permitindo que templates filhos acessem esses dados para renderização.
+
+- **Propósito**: Buscar dinamicamente dados de uma API e exibi-los em templates filhos ou wrappers, como cartões ou listas.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                                                              | Exemplo                             |
+| ----------- | -------------------------------------------------------------------------------------- | ----------------------------------- |
+| `type`      | Identificador do wrapper, deve ser `"wrapper-request"`.                                | `"wrapper-request"`                 |
+| `templates` | Array de templates filhos ou wrappers a serem renderizados com os dados da requisição. | `[{ "type": "wrapper-card", ... }]` |
+
+- **Propriedades do Objeto `properties`**:
+
+O objeto `properties` segue a tipagem da configuração de requisição do Axios ([Axios](https://axios-http.com/docs/req_config)), com a particularidade de que funções como `transformRequest`, `transformResponse`, `paramsSerializer`, e outras devem ser fornecidas como _string functions_ (funções em formato de string), pois os dados são armazenados em JSON no banco de dados. As propriedades mais comuns incluem:
+
+| Propriedade         | Descrição                                                                                                                                                                                                                 | Exemplo                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `url`               | URL do servidor para a requisição (obrigatório).                                                                                                                                                                          | `"https://api.mapa.urbis.prefeitura.sp.gov.br/geospatial-intersections"`            |
+| `method`            | Método HTTP da requisição (padrão: `"get"`).                                                                                                                                                                              | `"post"`                                                                |
+| `data`              | Dados enviados no corpo da requisição, pode ser uma _string function_. O objeto passado para esta função é o objeto de configuração completo do formulário, contendo o polígono selecionado dentro da propriedade `data`. | `"(data) => data"`                                                      |
+| `transformResponse` | String function que transforma os dados da resposta antes de serem usados.                                                                                                                                                | `"(response) => { response = JSON.parse(response); return response; }"` |
+
+- **Notas**:
+  - O resultado da requisição é armazenado na variável `response` no objeto principal, acessível via EJS em templates filhos, como `<%- response?.properties?.key %>`.
+  - Funções devem ser serializáveis em JSON, então use _string functions_ para configurações como `transformResponse` ou `data`.
+  - A função `data` recebe o objeto de configuração completo do formulário, que inclui o polígono selecionado na propriedade `data`, permitindo acesso a informações como `data.geometry` para uso na requisição.
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "wrapper-request",
+    "properties": {
+      "url": "https://api.mapa.urbis.prefeitura.sp.gov.br/geospatial-intersections",
+      "method": "post",
+      "data": "({data}) => data",
+      "transformResponse": "(response) => { response = JSON.parse(response); const { features } = response; const fieldToLayerMap = { geom_zoneamento_2016: ['slui:zoneamento'], geom_subprefeitura: ['slui:subprefeitura'], geom_distrito: ['slui:distrito_municipal'], geom_tombado: ['slui:tombamentos-areas', 'slui:tombamentos-envoltorias-de-imoveis', 'slui:tombamentos-imoveis'], geom_uc: ['slui:parques_unidades_de_conservacao_e_apa'], geom_apa: ['slui:parques_unidades_de_conservacao_e_apa'], geom_area_contaminada: ['slui:areas_contaminadas'], geom_melhoramento_viario: ['slui:minianel_viario'], geom_area_manancial: ['slui:manancial_billings'], geom_area_manancial_guarapiranga: ['slui:manancial_guarapiranga'], geom_area_manancial_juquery: ['slui:manancial_juquery'], geom_area_envoltoria_iphan: ['slui:tombamentos_envoltorias_de_imoveis_IPHAN'], geom_area_envoltoria_conpresp: ['slui:tombamentos_envoltorias_de_imoveis_CONPRESP'], geom_area_envoltoria_condephaat: ['slui:tombamentos_envoltorias_de_imoveis_CONDEPHAAT'] }; const camadasTombamento = ['geom_tombado', 'geom_area_envoltoria_condephaat', 'geom_area_envoltoria_conpresp', 'geom_area_envoltoria_iphan']; const camadasPreservada = ['geom_apa', 'geom_area_manancial_juquery', 'geom_area_manancial_guarapiranga', 'geom_area_manancial_billings']; response.properties.cit_data = []; response.properties.restricoes = []; features.forEach((feat) => { const { properties } = feat; const { layer } = properties; if (properties?.cit_data?.situacao_do_imovel) response.properties.cit_data.push(properties.cit_data); Object.keys(fieldToLayerMap).forEach((key) => { if (fieldToLayerMap[key].includes(layer)) { response.properties.restricoes.push(key); } }); camadasTombamento.forEach((camada) => { if (response.properties.restricoes.includes(camada)) { response.properties.tombamento_restrito = true; } }); camadasPreservada.forEach((camada) => { if (response.properties.restricoes.includes(camada)) { response.properties.area_preservada = true; } }); }); return response; }"
+    },
+    "templates": [
+      {
+        "type": "wrapper-card",
+        "label": "Restrições",
+        "templates": [
+          {
+            "type": "label-value",
+            "label": "ITBI",
+            "value": "<%= 'Indisponível' %>"
+          },
+          {
+            "type": "label-value",
+            "label": "Tombamento",
+            "value": "<%- response?.properties?.tombamento_restrito ? 'Tombado' : 'Sem restrição' %>"
+          },
+          {
+            "type": "label-value",
+            "label": "Área de Preservação Ambiental",
+            "value": "<%- response?.properties?.area_preservada ? 'Preservada' : 'Sem restrição' %>"
+          },
+          {
+            "type": "label-value",
+            "label": "Árvores no Imóvel",
+            "value": "<%= 'Indisponível' %>"
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  Este exemplo realiza uma requisição POST para a API de interseções geoespaciais, usando o objeto de configuração do formulário (contendo o polígono selecionado em `data`) para enviar os dados, transforma a resposta para mapear restrições e exibe os resultados em um cartão com quatro pares de rótulo-valor.
+
+### Itens de Lista
+
+O `wrapper-list-items` renderiza uma lista de itens, frequentemente usado para exibir dados filtrados ou relacionados, como lotes ou interseções. Ele suporta interações, como cliques em itens, e pode exibir informações em formato de uma ou duas linhas (`twoLine`).
+
+- **Propósito**: Exibir listas dinâmicas, como lotes em um perímetro ou interseções geográficas, com suporte a ações de clique.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                                                                              | Exemplo                             |
+| ----------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| `type`      | Identificador do wrapper, deve ser `"wrapper-list-items"`.                                             | `"wrapper-list-items"`              |
+| `templates` | Array de templates, tipicamente [Item Primário](#item-primário) e [Item Secundário](#item-secundário). | `[{ "type": "primary-item", ... }]` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade   | Descrição                                                                                                                                                                                                                                                            | Exemplo                                                                              |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `data`        | Função JavaScript executada quando o componente inicializa, retornando dados da lista obtidos da **[API de interseções geoespaciais](https://api.mapa.urbis.prefeitura.sp.gov.br/swagger/docs#/Geospatial%20intersections/GeospatialIntersectionController_findIntersections)**. | `"(data) => data.response.features.filter(({ id }) => id.includes('lote_cidadao'))"` |
+| `twoLine`     | Booleano que habilita o modo de duas linhas para itens primários e secundários.                                                                                                                                                                                      | `true`                                                                               |
+| `onItemClick` | Configuração para a ação disparada quando um item é clicado.                                                                                                                                                                                                         | `{ "action": "openFeature", "params": { "template": "root" } }`                      |
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "wrapper-list-items",
+    "properties": {
+      "twoLine": true,
+      "data": "(data) => data.response.features.filter(({ id }) => id.includes('lote_cidadao'))",
+      "onItemClick": {
+        "action": "openFeature",
+        "params": { "template": "root" }
+      }
+    },
+    "templates": [
+      {
+        "type": "primary-item",
+        "value": "Identificador #<%- properties.id.replace('lote_cidadao.', '') %>"
+      },
+      {
+        "type": "secondary-item",
+        "value": "SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>"
+      }
+    ]
+  }
+  ```
+
+  Este exemplo renderiza uma lista de lotes com duas linhas por item, onde clicar em um item abre detalhes usando o `viewTemplate` da camada.
+
+### Abas (Tabs)
+
+O `wrapper-tabs` organiza e exibe conteúdo em múltiplas guias (abas) de forma compacta e dinâmica, suportando tanto abas estáticas quanto a geração dinâmica de abas com base em uma fonte de dados iterável (como um array de objetos de resposta). É útil para visualizar subelementos ou interseções geográficas, oferecendo rolagem horizontal automática.
+
+- **Propósito**: Navegar entre visões independentes no mesmo cartão, otimizando o espaço da interface quando há muitos resultados de requisições.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                                                            | Exemplo                             |
+| ----------- | ------------------------------------------------------------------------------------ | ----------------------------------- |
+| `type`      | Identificador do wrapper, deve ser `"wrapper-tabs"`.                                 | `"wrapper-tabs"`                    |
+| `templates` | Array de templates a serem renderizados dentro de **cada aba gerada dinamicamente**. | `[{ "type": "wrapper-card", ... }]` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade | Descrição                                                                                                                                | Exemplo                                              |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `data`      | Função (string) que retorna um array de objetos para gerar as abas individuais. Cada objeto servirá como o `data` principal da sua aba.  | `"(data) => data.response.features"`                 |
+| `tabTitle`  | Função (string) que extrai e retorna o título que será exibido no botão da aba gerada. O objeto de cada aba é acessível por `data.data`. | `"(data) => 'Lote ' + data.data.properties.cd_lote"` |
+| `tabColor`  | (Opcional) Função que retorna uma cor hexadecimal, exibindo uma pequena marcação visual ao lado do título da aba.                        | `"(data) => data.data.properties.ui_color_hex"`      |
+| `indexTab`  | Objeto que define uma Aba Estática Inicial. Costuma exibir uma visão global. Possui `title` e um array `templates` exclusivos.           | `{ "title": "Geral", "templates": [...] }`           |
+
+- **Notas e Comportamentos**:
+  - Quando as abas individuais (dinâmicas) são geradas a partir do array em `data`, o componente Wrapper automaticamente injeta o contexto principal (a variável `data` pai inteira) dentro do objeto da aba sob a propriedade oculta `__parentData`. Isso significa que se a sua aba filha precisar saber qual era a _feature_ principal raiz do mapa original, ela pode usar algo como `data.__parentData.geometry`.
+  - A interface fornece setas automáticas para scroll das abas quando elas excedem a largura disponível.
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "wrapper-tabs",
+    "properties": {
+      "data": "(data) => data.response.features.filter(f => f.id.includes('lote'))",
+      "tabTitle": "(data) => 'Lote ' + data.data.properties.cd_lote",
+      "tabColor": "(data) => '#FF0000'",
+      "indexTab": {
+        "title": "Visão Geral",
+        "templates": [
+          { "type": "label-value", "label": "Total Interseções", "value": "10" }
+        ]
+      }
+    },
+    "templates": [
+      {
+        "type": "wrapper-card",
+        "label": "Informações do Lote",
+        "templates": [
+          {
+            "type": "label-value",
+            "label": "Identificação",
+            "value": "<%- properties.cd_lote %>"
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+## Templates
+
+Templates são componentes que definem conteúdo específico a ser renderizado, como texto, mapas ou ações. Eles são frequentemente usados dentro de wrappers para exibir informações detalhadas.
+
+### Lista de Templates Disponíveis
+
+- [Rótulo e Valor](#rótulo-e-valor)
+- [Ação de Editar Polígono](#ação-de-editar-polígono)
+- [Ação de Botão](#ação-de-botão)
+- [Mapa do Polígono](#mapa-do-polígono)
+- [Item Primário](#item-primário)
+- [Item Secundário](#item-secundário)
+
+### Rótulo e Valor
+
+O template `label-value` exibe um par de rótulo-valor, ideal para mostrar propriedades específicas do polígono, como área ou tipo.
+
+- **Propósito**: Apresentar informações concisas em um formato de rótulo e valor dinâmico.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                            | Exemplo                                       |
+| ----------- | ---------------------------------------------------- | --------------------------------------------- |
+| `type`      | Identificador do template, deve ser `"label-value"`. | `"label-value"`                               |
+| `label`     | Texto do rótulo exibido ao lado do valor.            | `"Área do Terreno"`                           |
+| `value`     | Expressão EJS que define o valor a ser exibido.      | `"<%- properties?.qt_area_terreno ?? '-' %>"` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade   | Descrição                                                                | Exemplo                                     |
+| ------------- | ------------------------------------------------------------------------ | ------------------------------------------- |
+| `columnClass` | Classe CSS do Bootstrap para grid layout, usado dentro de `wrapper-row`. | `"col-md-6"`                                |
+| `helper`      | Texto de ajuda                                                           | `{ "helper": "Informações sobre o valor" }` |
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "label-value",
+    "label": "Área do Terreno",
+    "value": "<%- properties?.qt_area_terreno ?? '-' %>",
+    "properties": {
+      "columnClass": "col-md-6"
+    }
+  }
+  ```
+
+  Este template exibe o rótulo "Área do Terreno" e o valor correspondente da propriedade `qt_area_terreno`.
+
+### Ação de Editar Polígono
+
+O template `edit-polygon` é a ação para editar e iniciar um novo protocolo baseado no polígono.
+
+- **Propósito**: Editar o polígono e criar um protocolo com suas informações.
+- **Propriedades Raiz**:
+
+| Propriedade       | Descrição                                                                                                                                                    | Padrão              | Exemplo                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- | ----------------------------------- |
+| `type`            | Identificador do template, deve ser `"edit-polygon"`.                                                                                                        | -                   | `"edit-polygon"`                    |
+| `label`           | O texto que será exibido no botão na tela.                                                                                                                   | "Ajustar Perímetro" | `"edit-polygon"`                    |
+| `polygonTemplate` | Array de wrappers ou templates a serem renderizados. Se não informado, o sistema buscará a configuração editFeatureTemplate que está na tabela `map_config`. | -                   | `[{ "type": "wrapper-card", ... }]` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade | Descrição                                                           | Exemplo |
+| ----------- | ------------------------------------------------------------------- | ------- |
+| (Nenhuma)   | Atualmente, não há propriedades específicas no objeto `properties`. | -       |
+
+> Este template não será renderizado quando a visualização for para impressão
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "edit-polygon",
+    "polygonTemplate": [
+      {
+        "type": "wrapper-card",
+        "label": "Área Selecionada",
+        "templates": [
+          {
+            "type": "polygon-map",
+            "properties": {
+              "initialViewState": "(data) => { const centroid = utils.calculateCenterId(data.geometry.coordinates[0]); return { longitude: centroid[0], latitude: centroid[1], zoom: 16.5, pitch: 0, bearing: 0 }; }",
+              "polygonProps": "(data) => ({ id: 'polygon-layer', data: [{ coordinates: data.geometry.coordinates }], pickable: false, stroked: true, filled: true, lineWidthMinPixels: 2, getPolygon: (d) => d.coordinates, getFillColor: [255, 165, 0, 100], getLineColor: [255, 140, 0] })"
+            }
+          }
+        ]
+      },
+      {
+        "type": "wrapper-card",
+        "label": "Lotes no Perímetro",
+        "templates": [
+          {
+            "type": "wrapper-list-items",
+            "properties": {
+              "twoLine": true,
+              "data": "(data) => data.response.features.filter(({ id }) => id.includes('lote_cidadao'))",
+              "onItemClick": {
+                "action": "openFeature",
+                "params": { "template": "root" }
+              }
+            },
+            "templates": [
+              {
+                "type": "primary-item",
+                "value": "Identificador #<%- properties.id.replace('lote_cidadao.', '') %>"
+              },
+              {
+                "type": "secondary-item",
+                "value": "SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+  Este exemplo combina um mapa com uma lista de lotes, cada um com uma ação de clique para abrir detalhes.
+
+### Ação de Botão
+
+O template `button` é um botão simples com qualquer ação.
+
+- **Propósito**: Renderizar um botão simples com rótulo e ação.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                       | Padrão | Exemplo          |
+| ----------- | ----------------------------------------------- | ------ | ---------------- |
+| `type`      | Identificador do template, deve ser `"button"`. | -      | `"edit-polygon"` |
+| `label`     | O texto que será exibido no botão na tela.      | "Ação" | `"edit-polygon"` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade | Descrição                                                        | Exemplo                                |
+| ----------- | ---------------------------------------------------------------- | -------------------------------------- |
+| `action`    | Uma função string que será disparada quando o botão for clicado. | `(data) => console.log("Do nothing");` |
+
+> Este template não será renderizado quando a visualização for para impressão
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "button",
+    "label": "Imprimir",
+    "properties": { "action": "(data) => console.log('DO NOTHING');" },
+  },
+  ```
+
+  Este exemplo renderiza um botão "Imprimir" que executa uma ação de log.
+
+### Mapa do Polígono
+
+O template `polygon-map` renderiza um mapa não interativo com um polígono destacado, configurado com uma visualização inicial e propriedades visuais.
+
+- **Propósito**: Exibir a geometria de um polígono em um mapa.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                            | Exemplo         |
+| ----------- | ---------------------------------------------------- | --------------- |
+| `type`      | Identificador do template, deve ser `"polygon-map"`. | `"polygon-map"` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade        | Descrição                                                                                | Exemplo                                                                                                                                                                                                                                                           |
+| ------------------ | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `initialViewState` | Função JavaScript que define a visualização inicial do mapa (longitude, latitude, zoom). | `"(data) => { const centroid = utils.calculateCenterId(data.geometry.coordinates[0]); return { longitude: centroid[0], latitude: centroid[1], zoom: 16.5, pitch: 0, bearing: 0 }; }"`                                                                             |
+| `polygonProps`     | Função JavaScript que configura as propriedades visuais do polígono (cor, contorno).     | `"(data) => ({ id: 'polygon-layer', data: [{ coordinates: data.geometry.coordinates }], pickable: false, stroked: true, filled: true, lineWidthMinPixels: 2, getPolygon: (d) => d.coordinates, getFillColor: [255, 165, 0, 100], getLineColor: [255, 140, 0] })"` |
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "polygon-map",
+    "properties": {
+      "initialViewState": "(data) => { const centroid = utils.calculateCenterId(data.geometry.coordinates[0]); return { longitude: centroid[0], latitude: centroid[1], zoom: 16.5, pitch: 0, bearing: 0 }; }",
+      "polygonProps": "(data) => ({ id: 'polygon-layer', data: [{ coordinates: data.geometry.coordinates }], pickable: false, stroked: true, filled: true, lineWidthMinPixels: 2, getPolygon: (d) => d.coordinates, getFillColor: [255, 165, 0, 100], getLineColor: [255, 140, 0] })"
+    }
+  }
+  ```
+
+  Este template exibe um polígono centralizado com um preenchimento laranja e um contorno mais escuro.
+
+### Item Primário
+
+O template `primary-item` define o conteúdo primário de um item em uma lista ([Itens de Lista](#itens-de-lista)), tipicamente usado para o título ou informação principal.
+
+- **Propósito**: Exibir o texto principal de um item de lista, como um identificador ou nome.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                             | Exemplo                                                              |
+| ----------- | ----------------------------------------------------- | -------------------------------------------------------------------- |
+| `type`      | Identificador do template, deve ser `"primary-item"`. | `"primary-item"`                                                     |
+| `value`     | Expressão EJS que define o conteúdo primário do item. | `"Identificador #<%- properties.id.replace('lote_cidadao.', '') %>"` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade | Descrição                                                           | Exemplo |
+| ----------- | ------------------------------------------------------------------- | ------- |
+| (Nenhuma)   | Atualmente, não há propriedades específicas no objeto `properties`. | -       |
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "primary-item",
+    "value": "Identificador #<%- properties.id.replace('lote_cidadao.', '') %>"
+  }
+  ```
+
+  Este template exibe o identificador de um lote sem o prefixo "lote_cidadao.".
+
+### Item Secundário
+
+O template `secondary-item` define o conteúdo secundário de um item em uma lista ([Itens de Lista](#itens-de-lista)), tipicamente usado para detalhes suplementares.
+
+- **Propósito**: Exibir informações adicionais, como códigos ou descrições, em uma segunda linha.
+- **Propriedades Raiz**:
+
+| Propriedade | Descrição                                               | Exemplo                                                                                                                                                                                 |
+| ----------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`      | Identificador do template, deve ser `"secondary-item"`. | `"secondary-item"`                                                                                                                                                                      |
+| `value`     | Expressão EJS que define o conteúdo secundário do item. | `"SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>"` |
+
+- **Propriedades do Objeto `properties`**:
+
+| Propriedade | Descrição                                                           | Exemplo |
+| ----------- | ------------------------------------------------------------------- | ------- |
+| (Nenhuma)   | Atualmente, não há propriedades específicas no objeto `properties`. | -       |
+
+- **Exemplo**:
+
+  ```json
+  {
+    "type": "secondary-item",
+    "value": "SQL: <%- properties.cd_setor_fiscal %>-<%- properties.cd_quadra_fiscal %>-<%- properties.cd_lote %> <%- properties.cd_condominio %> <%- properties.nm_logradouro_completo ?? '-' %>"
+  }
+  ```
+
+  Este template exibe códigos fiscais e o endereço de um lote.

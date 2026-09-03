@@ -1,0 +1,56 @@
+---
+title: Visão Geral de Arquitetura
+description: Arquitetura técnica, padrões de engenharia e organização do ecossistema Urbis.
+icon: Layers
+---
+
+A arquitetura do **Urbis** foi projetada para garantir alta performance cartográfica, desacoplamento de responsabilidades, extensibilidade municipal e segurança rigorosa de dados.
+
+---
+
+## 🧭 Pilares Arquiteturais
+
+```mermaid
+graph TD
+    A[Monorepo Turborepo] --> B[Backend Modular NestJS]
+    A --> C[Frontend Especializado por Domínio]
+    A --> D[Pacotes Compartilhados Tipados]
+
+    B --> E[(PostgreSQL + Redis + S3)]
+    C --> F[Web GIS - React + Deck.gl]
+    C --> G[Accounts - Angular 20 OIDC]
+    C --> H[Legis - React + Tiptap]
+    C --> I[Docs - Next.js Fumadocs]
+```
+
+---
+
+## 📚 Tópicos de Arquitetura
+
+<Cards>
+  <Card
+    title="Estrutura do Monorepo"
+    href="/docs/general/architecture/monorepo"
+    description="Organização das aplicações em apps/ e dos pacotes compartilhados em packages/."
+  />
+  <Card
+    title="Stack Tecnológica"
+    href="/docs/general/architecture/stack"
+    description="Detalhamento dos frameworks e bibliotecas utilizados no backend e frontend."
+  />
+  <Card
+    title="Arquitetura Frontend"
+    href="/docs/general/architecture/frontend"
+    description="Estratégia para aplicações React, Angular e biblioteca de UI compartilhada."
+  />
+  <Card
+    title="Arquitetura Backend"
+    href="/docs/general/architecture/backend/overview"
+    description="Módulos NestJS, injeção de dependências, banco de dados TypeORM e filas."
+  />
+  <Card
+    title="Autenticação e OIDC"
+    href="/docs/general/architecture/auth/oidc"
+    description="Fluxo de identidade federada, tokens JWT e controle de acesso RBAC."
+  />
+</Cards>

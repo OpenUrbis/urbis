@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Silent Renew</title>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/oidc-client-ts@3.4.1/dist/browser/oidc-client-ts.min.js"></script>
+    <script>
+        // Use standard UserManager with the same store
+        const userStore = new oidc.WebStorageStateStore({ store: window.localStorage });
+        const userManager = new oidc.UserManager({
+            userStore: userStore,
+        });
+
+        if (window.oidc) {
+            userManager.signinSilentCallback()
+                .catch(function (e) {
+                    // Silent renew failed or login_required (expected for anonymous visitors)
+                });
+        }
+    </script>
+</body>
+</html>

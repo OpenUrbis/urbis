@@ -1,0 +1,40 @@
+---
+title: CLI e Scripts
+description: Ferramentas de CLI e scripts disponíveis para desenvolvimento.
+icon: Terminal
+---
+
+Fornecemos um conjunto de scripts para automatizar tarefas comuns de desenvolvimento. Estes são definidos no `package.json` raiz e em `apps/api/package.json`.
+
+## Comandos Raiz
+
+Execute-os a partir da raiz do monorepo:
+
+-   `pnpm dev`: Inicia todas as aplicações em modo de desenvolvimento.
+-   `pnpm build`: Constrói todas as aplicações e pacotes.
+-   `pnpm lint`: Executa o ESLint em todo o codebase.
+-   `pnpm test`: Executa testes unitários para todos os workspaces.
+-   `pnpm composer:up`: Inicia os containers Docker (Postgres, Redis).
+-   `pnpm migration:run`: Executa migrações de banco de dados.
+-   `pnpm db:seed`: Popula o banco de dados (seed).
+
+## Comandos Específicos da API
+
+Você também pode executar comandos especificamente para o workspace da API (`apps/api`):
+
+-   `migration:generate`: Gera um novo arquivo de migração baseado nas entidades TypeORM.
+-   `migration:create`: Cria um arquivo de migração em branco.
+-   `migration:revert`: Reverte a última migração aplicada.
+-   `schema:drop`: Remove todo o esquema do banco de dados (CUIDADO: Perda de dados).
+-   `documentation`: Gera documentação Compodoc.
+-   `documentation:serve`: Serve a documentação Compodoc.
+
+## Logs da API (map-api)
+
+Para acompanhar e depurar a execução da API (`map-api`), utilize os comandos de CLI dependendo do ambiente:
+
+- **Desenvolvimento local**: `pnpm --filter @open-urbis/map-api dev` (ou `dev:debug`)
+- **Kubernetes (Staging/Produção)**: `kubectl logs -n urbis-map -l app.kubernetes.io/name=map-api -f --tail=100`
+- **Docker**: `docker logs -f --tail 100 openurbis-map-api`
+
+Para um guia completo sobre filtragem, nível de log e inspeção de pod/container, consulte a página [Acessar Logs do Sistema (map-api) via CLI](/docs/general/infrastructure/logs).

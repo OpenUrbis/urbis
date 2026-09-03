@@ -67,7 +67,8 @@ export function Mermaid({
         mermaid.initialize({
           startOnLoad: false,
           securityLevel: "loose",
-          fontFamily: "var(--font-sans, Inter, system-ui, -apple-system, sans-serif)",
+          fontFamily:
+            "var(--font-sans, Inter, system-ui, -apple-system, sans-serif)",
           theme: "base",
           themeVariables: isDark
             ? {

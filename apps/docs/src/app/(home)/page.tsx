@@ -75,13 +75,16 @@ export default function HomePage() {
             <span>Legis</span>
           </Link>
 
-          <Link
-            href="/docs/openapi"
+          <a
+            href="https://api.mapa.urbis.prefeitura.sp.gov.br/swagger/docs"
+            target="_blank"
+            rel="noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-foreground font-medium text-sm hover:bg-muted transition-colors"
           >
             <FileCode className="size-4 text-muted-foreground" />
-            <span>OpenAPI</span>
-          </Link>
+            <span>Swagger</span>
+            <ExternalLink className="size-3 opacity-60" />
+          </a>
 
           <Link
             href="/docs/general/architecture/stack"

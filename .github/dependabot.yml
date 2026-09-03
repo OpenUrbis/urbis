@@ -17,6 +17,10 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
 
   # Monitoramento de imagens Docker no Dockerfile
   - package-ecosystem: "docker"
@@ -24,3 +28,7 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      docker:
+        patterns:
+          - "*"

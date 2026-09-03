@@ -52,7 +52,14 @@ export default function Layout({ children }: LayoutProps<"/">) {
       <head></head>
       <body className="flex flex-col min-h-screen">
         <ConfigInitializer />
-        <RootProvider>
+        <RootProvider
+          search={{
+            options: {
+              type: "static",
+              api: "/search.json",
+            },
+          }}
+        >
           <main className="flex-1">{children}</main>
 
           {/* Footer global */}

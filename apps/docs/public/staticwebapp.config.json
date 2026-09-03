@@ -1,7 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/staticwebapp.config.json",
   "navigationFallback": {
-    "rewrite": "/index.html"
+    "rewrite": "/index.html",
+    "exclude": [
+      "/search.json",
+      "/api/*",
+      "/llms-full.txt",
+      "/*.{png,jpg,jpeg,gif,svg,ico,webp,css,js,json,txt,woff,woff2}"
+    ]
   },
   "routes": [
     {
@@ -19,6 +25,7 @@
     "Cache-Control": "public, max-age=3600"
   },
   "mimeTypes": {
-    ".json": "application/json"
+    ".json": "application/json",
+    ".txt": "text/plain"
   }
 }

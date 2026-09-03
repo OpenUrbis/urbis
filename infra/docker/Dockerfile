@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:26-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 RUN apk add --no-cache \
     python3 \
     make \
@@ -23,7 +23,7 @@ RUN pnpm install
 RUN pnpm exec turbo run build --filter=@open-urbis/map-api
 
 # Production stage
-FROM --platform=$TARGETPLATFORM node:26-alpine AS runner
+FROM --platform=$TARGETPLATFORM node:20-alpine AS runner
 RUN corepack enable
 WORKDIR /app
 

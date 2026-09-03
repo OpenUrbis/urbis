@@ -1,0 +1,85 @@
+---
+title: Gerador de Assets
+description: Scripts centralizados para geração automatizada de boilerplate de novas camadas no Dagster.
+icon: Cpu
+---
+
+Como o Urbis consome dezenas de camadas espaciais de fontes distintas, a criação manual de arquivos para cada camada em todas as 4 etapas da arquitetura de medalhão geraria código repetitivo e suscetível a inconsistências.
+
+Para solucionar isso, o repositório central `urbis-agent` disponibiliza scripts geradores automatizados que criam toda a árvore de assets do Dagster.
+
+---
+
+## 🚀 Scripts Disponíveis
+
+Os scripts geradores estão localizados na pasta `scripts/` do repositório `urbis-agent`:
+
+| Script | Finalidade |
+| :--- | :--- |
+| `scripts/generate_wfs_assets.py` | Gera assets para camadas OGC WFS (ex: GeoSampa). |
+| `scripts/generate_arcgis_assets.py` | Gera assets para serviços de mapa ArcGIS FeatureServer. |
+| `scripts/inspect_wfs_layers.py` | Inspeciona schemas, atributos e geometrias diretamente da fonte WFS. |
+
+---
+
+## 📝 Passo a Passo: Gerando uma Nova Camada WFS
+
+### 1. Inspecionar as Propriedades da Fonte
+Antes de gerar o asset, inspecione a camada externa para descobrir o nome da chave única (`unique_id`) e seus atributos:
+
+```bash
+python3 scripts/inspect_wfs_layers.py geoportal:zoneamento_lei_18177_24
+```
+
+### 2. Configurar o Gerador
+Abra o script `scripts/generate_wfs_assets.py` e adicione a configuração da nova camada na lista `LAYERS_TO_GENERATE`:
+
+```python
+LAYERS_TO_GENERATE: List[LayerGenConfig] = [
+    LayerGenConfig(
+        asset_name="zoneamento_lei_18177_24",     # Nome amigável no Dagster
+        origin_layer="geoportal:zoneamento_lei_18177_24", # Nome exato na fonte WFS
+        unique_id="id_zoneamento",               # Chave primária de negócio
+        dest_layer="zoneamento_lei_18177_24",    # Nome da tabela no PostGIS
+        wfs_resource="wfs_geosampa_2"            # Recurso configurado no Dagster
+    ),
+]
+```
+
+### 3. Executar o Script
+Execute o gerador:
+
+```bash
+python3 scripts/generate_wfs_assets.py
+```
+
+O script criará os arquivos com templates prontos:
+```plaintext
+generated_assets/
+├── raw/
+│   └── geojson_zoneamento_lei_18177_24.py
+├── bronze/
+│   └── geojson_zoneamento_lei_18177_24.py
+├── silver/
+│   └── geojson_zoneamento_lei_18177_24.py
+└── gold/
+    ├── urbis_postgis/
+    │   └── layer_zoneamento_lei_18177_24.py
+    └── urbis_geoserver/
+        └── urbis_geoserver_zoneamento_lei_18177_24.py
+```
+
+### 4. Mover para o Submódulo do Datalake
+Mova os arquivos gerados para os diretórios correspondentes em `repos/urbis-datalake/projects/urbis/assets/`:
+- `raw/` -> `projects/urbis/assets/raw/geosampa/`
+- `bronze/` -> `projects/urbis/assets/bronze/geosampa/`
+- `silver/` -> `projects/urbis/assets/silver/geosampa/`
+- `gold/urbis_postgis/` -> `projects/urbis/assets/gold/urbis_postgis/`
+- `gold/urbis_geoserver/` -> `projects/urbis/assets/gold/urbis_geoserver/`
+
+### 5. Registrar nas Definições Centrais
+Registre os novos assets nas listas centrais:
+- `projects/urbis/assets/definitions/raw_definitions.py`
+- `projects/urbis/assets/definitions/bronze_definitions.py`
+- `projects/urbis/assets/definitions/silver_definitions.py`
+- `projects/urbis/assets/definitions/gold_definitions.py`

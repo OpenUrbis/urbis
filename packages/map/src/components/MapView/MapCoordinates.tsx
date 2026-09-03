@@ -16,7 +16,7 @@ import { useMediaQuery } from "../../hooks/useMediaQuery";
 // Define SIRGAS 2000 UTM Zone 23S
 proj4.defs(
   "EPSG:31983",
-  "+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+  "+proj=utm +zone=23 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
 );
 
 export const MapCoordinates = () => {
@@ -51,8 +51,8 @@ export const MapCoordinates = () => {
   return (
     <div
       className={cn(
-        "absolute bottom-1 left-[100px] z-30 flex items-center gap-2 bg-background/80 px-2 py-1 text-xs text-foreground rounded border shadow-sm backdrop-blur-sm select-none",
-        sidebarOpen && "left-[524px]"
+        "absolute bottom-12 left-[100px] z-30 flex items-center gap-2 bg-background/80 px-2 py-1 text-xs text-foreground rounded border shadow-sm backdrop-blur-sm select-none",
+        sidebarOpen && "left-[524px]",
       )}
     >
       <span className="font-mono">Zoom: {zoomLevel.value}</span>
@@ -75,7 +75,7 @@ export const MapCoordinates = () => {
                   copyToClipboard(
                     `${cursorPosition.value!.latitude}, ${
                       cursorPosition.value!.longitude
-                    }`
+                    }`,
                   )
                 }
               >
@@ -86,8 +86,8 @@ export const MapCoordinates = () => {
                   onClick={() =>
                     copyToClipboard(
                       `${coordinates.value!.easting.toFixed(2)}, ${coordinates.value!.northing.toFixed(
-                        2
-                      )}`
+                        2,
+                      )}`,
                     )
                   }
                 >

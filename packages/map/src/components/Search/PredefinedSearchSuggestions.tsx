@@ -1,7 +1,13 @@
 import { useEffect } from "preact/hooks";
 import { useSignal } from "@preact/signals";
 import { shareService, SharedMapItem } from "../../integrations/share-service";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn } from "@open-urbis/map-ui";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  cn,
+} from "@open-urbis/map-ui";
 import { Loader2, Library } from "lucide-react";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { batch } from "@preact/signals";
@@ -30,11 +36,15 @@ export const PredefinedSearchSuggestions = ({
     loading.value = true;
     try {
       const result = await shareService.findAllPublic(1, 30, "search");
-      
+
       if (currentLayerId) {
-        publicSearches.value = result.items.filter(item => 
-          item.state?.root?.searchContext?.concatenatedSearch?.selectedLayerId === currentLayerId
-        ).slice(0, limit);
+        publicSearches.value = result.items
+          .filter(
+            (item) =>
+              item.state?.root?.searchContext?.concatenatedSearch
+                ?.selectedLayerId === currentLayerId,
+          )
+          .slice(0, limit);
       } else {
         publicSearches.value = result.items.slice(0, limit);
       }
@@ -67,7 +77,9 @@ export const PredefinedSearchSuggestions = ({
     return (
       <div className="flex items-center gap-2 px-1 py-2">
         <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Sugestões...</span>
+        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+          Sugestões...
+        </span>
       </div>
     );
   }
@@ -90,7 +102,7 @@ export const PredefinedSearchSuggestions = ({
                 <div
                   className={cn(
                     "cursor-pointer transition-all h-8 px-4 flex items-center justify-center rounded-full border border-input bg-background/50 hover:bg-accent hover:text-accent-foreground text-sm font-medium whitespace-nowrap shadow-sm backdrop-blur-sm",
-                    "hover:scale-105 active:scale-95"
+                    "hover:scale-105 active:scale-95",
                   )}
                   onClick={() => handleApplySearch(item)}
                 >

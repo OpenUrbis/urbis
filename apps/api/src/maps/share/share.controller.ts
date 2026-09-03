@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -52,19 +53,9 @@ export class ShareController {
     @Req() req: any,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Query('type') type: string = 'map',
   ) {
-    return this.shareService.findAllByUser(req.user.id, page, limit);
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Get shared map state' })
-  @ApiResponse({
-    status: 200,
-    description: 'The shared map state.',
-    type: SharedMap,
-  })
-  findOne(@Param('id') id: string) {
-    return this.shareService.findOne(id);
+    return this.shareService.findAllByUser(req.user.id, page, limit, type);
   }
 
   @Get('public/list')
@@ -82,6 +73,17 @@ export class ShareController {
     return this.shareService.findAllPublic(page, limit, type);
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Get shared map state' })
+  @ApiResponse({
+    status: 200,
+    description: 'The shared map state.',
+    type: SharedMap,
+  })
+  findOne(@Param('id') id: string) {
+    return this.shareService.findOne(id);
+  }
+
   @Patch(':id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
@@ -97,5 +99,14 @@ export class ShareController {
     @Req() req: any,
   ) {
     return this.shareService.update(id, updateSharedMapDto, req.user.id);
+  }
+
+  @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Delete shared map state' })
+  @ApiResponse({ status: 200, description: 'The shared map has been deleted.' })
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.shareService.remove(id, req.user.id);
   }
 }

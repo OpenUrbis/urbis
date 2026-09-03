@@ -1,7 +1,7 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "../../lib/utils"
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "../../lib/utils";
 
 const itemVariants = cva(
   "group relative flex w-full items-center justify-between gap-4 rounded-xl border p-4 transition-all hover:bg-muted/50 data-[state=open]:bg-muted/50",
@@ -15,28 +15,29 @@ const itemVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
-)
+  },
+);
 
 interface ItemProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof itemVariants> {
-  asChild?: boolean
+  asChild?: boolean;
 }
 
 const Item = React.forwardRef<HTMLDivElement, ItemProps>(
   ({ className, variant, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "div"
+    const Comp = asChild ? Slot : "div";
     return (
       <Comp
         ref={ref}
         className={cn(itemVariants({ variant, className }))}
         {...props}
       />
-    )
-  }
-)
-Item.displayName = "Item"
+    );
+  },
+);
+Item.displayName = "Item";
 
 const ItemContent = React.forwardRef<
   HTMLDivElement,
@@ -47,8 +48,8 @@ const ItemContent = React.forwardRef<
     className={cn("flex flex-1 flex-col gap-1", className)}
     {...props}
   />
-))
-ItemContent.displayName = "ItemContent"
+));
+ItemContent.displayName = "ItemContent";
 
 const ItemTitle = React.forwardRef<
   HTMLHeadingElement,
@@ -59,8 +60,8 @@ const ItemTitle = React.forwardRef<
     className={cn("text-lg font-medium leading-none tracking-tight", className)}
     {...props}
   />
-))
-ItemTitle.displayName = "ItemTitle"
+));
+ItemTitle.displayName = "ItemTitle";
 
 const ItemDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -71,8 +72,8 @@ const ItemDescription = React.forwardRef<
     className={cn("text-base text-muted-foreground", className)}
     {...props}
   />
-))
-ItemDescription.displayName = "ItemDescription"
+));
+ItemDescription.displayName = "ItemDescription";
 
 const ItemActions = React.forwardRef<
   HTMLDivElement,
@@ -83,7 +84,7 @@ const ItemActions = React.forwardRef<
     className={cn("flex items-center gap-2", className)}
     {...props}
   />
-))
-ItemActions.displayName = "ItemActions"
+));
+ItemActions.displayName = "ItemActions";
 
-export { Item, ItemContent, ItemTitle, ItemDescription, ItemActions }
+export { Item, ItemContent, ItemTitle, ItemDescription, ItemActions };

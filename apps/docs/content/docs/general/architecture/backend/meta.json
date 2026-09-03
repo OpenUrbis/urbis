@@ -1,5 +1,13 @@
 {
   "title": "Backend",
   "icon": "Server",
-  "pages": ["overview", "database", "api", "modules", "workers", "cli"]
+  "pages": [
+    "overview",
+    "database",
+    "api",
+    "modules",
+    "workers",
+    "queues",
+    "cli"
+  ]
 }

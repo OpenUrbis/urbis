@@ -11,7 +11,12 @@ interface LayerReviewProps {
   hideNavigation?: boolean;
 }
 
-export const LayerReview = ({ onBack, originalData, previewSchema, hideNavigation = false }: LayerReviewProps) => {
+export const LayerReview = ({
+  onBack,
+  originalData,
+  previewSchema,
+  hideNavigation = false,
+}: LayerReviewProps) => {
   const { watch } = useFormContext();
   const values = watch();
 
@@ -82,7 +87,9 @@ export const LayerReview = ({ onBack, originalData, previewSchema, hideNavigatio
 
         {/* Right Column: JSON */}
         <div className="flex flex-col min-h-0">
-          <h4 className="text-sm font-medium mb-2 flex-shrink-0">Objeto Final (JSON)</h4>
+          <h4 className="text-sm font-medium mb-2 flex-shrink-0">
+            Objeto Final (JSON)
+          </h4>
           <div className="relative flex-1 min-h-0 border rounded-lg bg-muted overflow-hidden">
             <pre className="absolute inset-0 p-4 overflow-auto text-xs font-mono">
               {JSON.stringify(finalJson, null, 2)}
@@ -90,7 +97,6 @@ export const LayerReview = ({ onBack, originalData, previewSchema, hideNavigatio
           </div>
         </div>
       </div>
-
     </div>
   );
 };

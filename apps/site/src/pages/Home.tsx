@@ -1,7 +1,7 @@
 // src/pages/Home.tsx
 import { useState } from "react";
 import { Mosaico } from "../components/home/Mosaico";
-import { Sidebar } from "@open-urbis/map-ui"; 
+import { Sidebar } from "@open-urbis/map-ui";
 import { HelpSidebarContent } from "@open-urbis/map-ui"; // 👈 AQUI!
 
 export default function Home() {
@@ -13,7 +13,7 @@ export default function Home() {
       <Mosaico />
 
       {/* Sidebar lateral GLOBAL */}
-      <Sidebar 
+      <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         title="Ajuda"

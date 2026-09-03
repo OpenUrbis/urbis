@@ -1,15 +1,17 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as SliderPrimitiveRaw from "./slider-primitive"
+import * as React from "react";
+import * as SliderPrimitiveRaw from "./slider-primitive";
 
-import { cn } from "../../lib/utils"
+import { cn } from "../../lib/utils";
 
 export const SliderPrimitive = SliderPrimitiveRaw;
 
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitiveRaw.Root>,
-  React.ComponentPropsWithoutRef<typeof SliderPrimitiveRaw.Root> & { className?: string }
+  React.ComponentPropsWithoutRef<typeof SliderPrimitiveRaw.Root> & {
+    className?: string;
+  }
 >(({ className, ...props }, ref) => {
   const value = props.value || props.defaultValue;
   const numberOfThumbs = Array.isArray(value) ? value.length : 1;
@@ -19,7 +21,7 @@ const Slider = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex w-full touch-none select-none items-center",
-        className
+        className,
       )}
       {...props}
     >
@@ -30,8 +32,11 @@ const Slider = React.forwardRef<
         const val = (Array.isArray(value) ? value[i] : value) ?? 0;
         const sMin = props.min ?? 0;
         const sMax = props.max ?? 100;
-        const percentage = Math.max(0, Math.min(100, ((val as number - sMin) / (sMax - sMin)) * 100));
-        
+        const percentage = Math.max(
+          0,
+          Math.min(100, (((val as number) - sMin) / (sMax - sMin)) * 100),
+        );
+
         return (
           <SliderPrimitiveRaw.Thumb
             key={i}
@@ -43,8 +48,8 @@ const Slider = React.forwardRef<
         );
       })}
     </SliderPrimitiveRaw.Root>
-  )
-})
-Slider.displayName = SliderPrimitiveRaw.Root.displayName
+  );
+});
+Slider.displayName = SliderPrimitiveRaw.Root.displayName;
 
-export { Slider }
+export { Slider };

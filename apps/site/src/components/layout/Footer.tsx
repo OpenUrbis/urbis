@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { Button } from '@open-urbis/map-ui/ui/button'
+import { Link } from "react-router-dom";
+import { Button } from "@open-urbis/map-ui/ui/button";
 
 export function Footer() {
   return (
@@ -8,11 +8,11 @@ export function Footer() {
         <h1
           className="text-transparent text-[9vw] font-black leading-none m-0 px-3 h-auto"
           style={{
-            WebkitTextStroke: '2px hsl(var(--primary-foreground))',
+            WebkitTextStroke: "2px hsl(var(--primary-foreground))",
             fontVariationSettings: '"wght" 1000, "wdth" 125',
           }}
         >
-          URBIS'SP
+          URBIS&apos;SP
         </h1>
 
         {/* INICIO */}
@@ -97,12 +97,14 @@ export function Footer() {
         </div>
         <div className="px-1 mb-6">
           <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
-            Mapa online que suporta pesquisas complexas com concatenação de critérios, desenho,
-            edição ou arquivos de geometria, em bases totalmente personalizáveis, alimentadas por
-            orquestradores de dados, bases próprias QGis, ou subida de arquivos ou serviços online
-            georreferenciados. Tanto as pesquisas quanto as configurações de exibição podem ser
-            salvas e compartilhadas. Os resultados das pesquisas podem ser baixados ou exportados em
-            formatos compatíveis com projetos georreferenciados.
+            Mapa online que suporta pesquisas complexas com concatenação de
+            critérios, desenho, edição ou arquivos de geometria, em bases
+            totalmente personalizáveis, alimentadas por orquestradores de dados,
+            bases próprias QGis, ou subida de arquivos ou serviços online
+            georreferenciados. Tanto as pesquisas quanto as configurações de
+            exibição podem ser salvas e compartilhadas. Os resultados das
+            pesquisas podem ser baixados ou exportados em formatos compatíveis
+            com projetos georreferenciados.
           </p>
         </div>
 
@@ -126,8 +128,9 @@ export function Footer() {
         </div>
         <div className="px-1 mb-8">
           <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
-            Ferramenta de formulário do Urbis, totalmente integrada às bases georreferenciadas e ao
-            SEI, que permite formulários complexos e geração de documentos.
+            Ferramenta de formulário do Urbis, totalmente integrada às bases
+            georreferenciadas e ao SEI, que permite formulários complexos e
+            geração de documentos.
           </p>
         </div>
 
@@ -165,12 +168,12 @@ export function Footer() {
             <ul className="list-none pl-0">
               <li className="mb-2.5">
                 <a
-                  href="https://urbis.prefeitura.sp.gov.br/info.urbis"
+                  href="https://urbis.prefeitura.sp.gov.br/guia-legislacao-urbanistica"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary-foreground/90 px-3 py-1.5 rounded-md hover:bg-primary-foreground hover:text-primary transition-all font-medium inline-block"
                 >
-                  +informações sobre legislação urbanística
+                  Guia para a legislação urbanística
                 </a>
               </li>
             </ul>
@@ -187,10 +190,10 @@ export function Footer() {
               </li>
               <li className="mb-2.5">
                 <Link
-                  to="/licencas"
+                  to="/guia-fiscalizacao-urbanistica"
                   className="text-primary-foreground/90 px-3 py-1.5 rounded-md hover:bg-primary-foreground hover:text-primary transition-all font-medium inline-block"
                 >
-                  Informações sobre licenças emitidas e denúncias
+                  Guia para a fiscalização urbanística
                 </Link>
               </li>
             </ul>
@@ -214,9 +217,10 @@ export function Footer() {
             </h2>
             <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
             <p className="text-primary-foreground/90 text-sm leading-relaxed">
-              Repositório de metadados das bases do Urbis, onde os usuários podem buscar, visualizar
-              e encontrar explicações técnicas, de maneira acessível e transparente, assim como
-              baixar dados em formatos abertos de arquivos ou consumir via serviço.
+              Repositório de metadados das bases do Urbis, onde os usuários
+              podem buscar, visualizar e encontrar explicações técnicas, de
+              maneira acessível e transparente, assim como baixar dados em
+              formatos abertos de arquivos ou consumir via serviço.
             </p>
           </div>
 
@@ -234,10 +238,11 @@ export function Footer() {
             </h2>
             <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
             <p className="text-primary-foreground/90 text-sm leading-relaxed">
-              O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código
-              aberto e cláusula copyleft, contribuindo para um ambiente de colaboração e melhoria
-              contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o
-              código-fonte está publicado no GitHub.
+              O Urbis se baseia e desenvolve todos os seus componentes em
+              software livre, com código aberto e cláusula copyleft,
+              contribuindo para um ambiente de colaboração e melhoria contínua.
+              Sua documentação técnica detalhada está disponível no Docs.Urbis,
+              e o código-fonte está publicado no GitHub.
             </p>
           </div>
 
@@ -268,12 +273,18 @@ export function Footer() {
             </h2>
             <ul className="space-y-1.5">
               <li>
-                <a href="https://capital.sp.gov.br/agenda-do-prefeito" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/agenda-do-prefeito"
+                  className="hover:underline"
+                >
                   Agenda do prefeito
                 </a>
               </li>
               <li>
-                <a href="https://capital.sp.gov.br/dia-do-prefeito" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/dia-do-prefeito"
+                  className="hover:underline"
+                >
                   Dia do Prefeito
                 </a>
               </li>
@@ -286,12 +297,18 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="https://capital.sp.gov.br/subprefeitura" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/subprefeitura"
+                  className="hover:underline"
+                >
                   Subprefeituras
                 </a>
               </li>
               <li>
-                <a href="https://capital.sp.gov.br/secretarias" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/secretarias"
+                  className="hover:underline"
+                >
                   Secretarias
                 </a>
               </li>
@@ -304,7 +321,10 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="https://sp156.prefeitura.sp.gov.br/portal" className="hover:underline">
+                <a
+                  href="https://sp156.prefeitura.sp.gov.br/portal"
+                  className="hover:underline"
+                >
                   156
                 </a>
               </li>
@@ -597,7 +617,10 @@ export function Footer() {
             </h2>
             <ul className="space-y-1.5">
               <li>
-                <a href="https://capital.sp.gov.br/noticias" className="hover:underline">
+                <a
+                  href="https://capital.sp.gov.br/noticias"
+                  className="hover:underline"
+                >
                   Notícias
                 </a>
               </li>
@@ -610,7 +633,10 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="https://legislacao.prefeitura.sp.gov.br/" className="hover:underline">
+                <a
+                  href="https://legislacao.prefeitura.sp.gov.br/"
+                  className="hover:underline"
+                >
                   Portal da Legislação
                 </a>
               </li>
@@ -670,7 +696,19 @@ export function Footer() {
                 />
               </a>
 
-              <a href="https://www.primata.design/" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-opacity" > <img src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/5087ba000a96aba045e6adcc4a73275cd81d682c/PMT-Logo.svg" alt="Primata Design" className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-0" /> </a>
+              <a
+                href="https://www.primata.design/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-70 hover:opacity-100 transition-opacity"
+              >
+                {" "}
+                <img
+                  src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/5087ba000a96aba045e6adcc4a73275cd81d682c/PMT-Logo.svg"
+                  alt="Primata Design"
+                  className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-0"
+                />{" "}
+              </a>
 
               <a
                 href="https://basedosdados.org/"
@@ -727,16 +765,16 @@ export function Footer() {
 
           {/* Right: Info & Action */}
           <div className="flex flex-col items-center justify-center text-center gap-1">
-
             <div className="inline-flex flex-col items-center justify-center text-center gap-1">
-
               {/* Título */}
-              <p className="
+              <p
+                className="
       text-[22px] md:text-[26px]
       font-bold leading-tight tracking-tight
       text-white dark:text-black
       whitespace-nowrap
-    ">
+    "
+              >
                 Município de São Paulo © 2024
               </p>
 
@@ -750,10 +788,9 @@ export function Footer() {
         whitespace-nowrap
       "
               >
-
                 {/* AGPL v3 */}
                 <a
-                  href="https://www.gnu.org/licenses/gpl-3.0.pt-br.html"
+                  href="/license/agpl-v3.html"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-white dark:text-black hover:underline"
@@ -764,14 +801,18 @@ export function Footer() {
                     className="w-4 h-4 opacity-80 text-white dark:text-black"
                   />
                   <span>AGPL v3</span>
-                  <span className="font-normal opacity-90 text-[12px]">(software)</span>
+                  <span className="font-normal opacity-90 text-[12px]">
+                    (software)
+                  </span>
                 </a>
 
-                <span className="opacity-40 dark:opacity-50 text-white dark:text-black">•</span>
+                <span className="opacity-40 dark:opacity-50 text-white dark:text-black">
+                  •
+                </span>
 
                 {/* CC BY-SA */}
                 <a
-                  href="https://creativecommons.org/licenses/by-sa/4.0/"
+                  href="/license/cc-by-sa-4.0.html"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-white dark:text-black hover:underline"
@@ -793,16 +834,12 @@ export function Footer() {
                   />
 
                   <span>CC BY-SA 4.0</span>
-                  <span className="font-normal opacity-90 text-[12px]">(outros)</span>
+                  <span className="font-normal opacity-90 text-[12px]">
+                    (outros)
+                  </span>
                 </a>
-
               </div>
-
             </div>
-
-
-
-
 
             {/* Botão "Encontrou um erro?" */}
             <a
@@ -822,5 +859,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

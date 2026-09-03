@@ -1,5 +1,5 @@
 <div
-  class="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background p-4 sm:p-6 overflow-y-auto relative"
+  class="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] w-full bg-background text-foreground p-4 sm:p-6 overflow-y-auto relative"
 >
   <div class="w-full max-w-[600px] mb-4 flex justify-start">
     <a
@@ -17,10 +17,9 @@
   <div class="w-full max-w-[600px]">
     @if (successMessage()) {
       <section
-        hlmCard
-        class="w-full border-border bg-white dark:bg-card relative overflow-hidden shadow-md animate-in fade-in zoom-in duration-500"
+        class="w-full border border-border rounded-xl p-5 sm:p-8 bg-card text-card-foreground relative overflow-hidden animate-in fade-in zoom-in duration-500"
       >
-        <div hlmCardContent class="p-8 flex flex-col items-center text-center">
+        <div class="py-6 flex flex-col items-center text-center">
           <div
             class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6"
           >
@@ -39,7 +38,7 @@
       </section>
     } @else {
       <div
-        class="flex flex-col mb-8 animate-in fade-in slide-in-from-top-4 duration-500"
+        class="flex flex-col mb-6 animate-in fade-in slide-in-from-top-4 duration-500"
       >
         <div class="flex items-center justify-between">
           @for (step of [1, 2, 3, 4, 5, 6]; track step) {
@@ -69,17 +68,10 @@
             }
           }
         </div>
-        <div class="text-center mt-4">
-          <span
-            class="text-xs uppercase tracking-widest font-bold text-muted-foreground"
-            >Etapa {{ currentStep() }} de 6</span
-          >
-        </div>
       </div>
 
       <section
-        hlmCard
-        class="w-full border-border bg-white dark:bg-card relative overflow-hidden shadow-md"
+        class="w-full border border-border rounded-xl p-5 sm:p-8 bg-card text-card-foreground relative overflow-hidden"
       >
         @if (loading()) {
           <div
@@ -94,7 +86,7 @@
           </div>
         }
 
-        <div hlmCardContent class="p-6">
+        <div class="py-2">
           @if (currentStep() === 1) {
             <app-terms (accept)="acceptCurrentTerm()" />
           }

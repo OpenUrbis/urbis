@@ -12,12 +12,14 @@ export class GeocodingService {
     service?: string,
   ): Promise<SearchResult[]> {
     const config = this.configService.get('geocoding');
-    const defaultService = service || config.defaultService;
+    const requestedService = (service || config.defaultService).toLowerCase();
+    const defaultService =
+      requestedService === 'mapbox' ? 'provider' : requestedService;
 
     const serviceOptions: {
       [key: string]: (search: string) => Promise<SearchResult[]>;
     } = {
-      mapbox: this.searchWithMapbox.bind(this),
+      provider: this.searchWithProvider.bind(this),
       nominatim: this.searchWithNominatim.bind(this),
     };
 
@@ -28,16 +30,20 @@ export class GeocodingService {
     return serviceOptions[defaultService](search);
   }
 
-  private async searchWithMapbox(search: string): Promise<SearchResult[]> {
+  private async searchWithProvider(search: string): Promise<SearchResult[]> {
     if (!search) return [];
 
     const config = this.configService.get('geocoding');
 
+    if (!config.providerUrl) {
+      throw new BadRequestException('Geocoding provider is not configured');
+    }
+
     const { data } = await axios.get(
-      `${config.mapboxUrl}${encodeURIComponent(search)}.json`,
+      `${config.providerUrl}${encodeURIComponent(search)}.json`,
       {
         params: {
-          access_token: config.mapboxAccessToken,
+          access_token: config.providerAccessToken,
           limit: 5,
           country: 'BR',
           bbox: config.bboxSearch,

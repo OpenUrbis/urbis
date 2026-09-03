@@ -180,7 +180,7 @@ Este exemplo ilustra uma configuração de busca para distritos municipais, com 
     return JSON.parse(data)?.features?.map((feature) => {
       const { properties, id } = feature;
       const { nm_distrito_municipal: name } = properties;
-      const [longitude, latitude] = utils.calculateCenterId(feature?.geometry.coordinates[0]);
+      const [longitude, latitude] = utils.calculateCenterId(feature);
 
       return {
         id,
@@ -192,7 +192,12 @@ Este exemplo ilustra uma configuração de busca para distritos municipais, com 
     }) ?? [];
   }`,
   "transformRequest": null,
-  "clickAction": null,
+  "clickAction": {
+    "action": "setZoom",
+    "params": {
+      "zoom": 14
+    }
+  },
   "method": "GET",
   "isActive": true
 }

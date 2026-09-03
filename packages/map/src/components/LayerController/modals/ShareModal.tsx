@@ -100,6 +100,9 @@ export const ShareModal = ({
           zoom: mapContext.zoom.value,
           is3DActive: mapContext.is3DActive.value,
           selectedBaseMap: mapContext.selectedBaseMap.value,
+          selectedBaseMaps: mapContext.selectedBaseMaps?.value,
+          baseMapOpacity: mapContext.baseMapOpacity?.value,
+          baseMapSaturation: mapContext.baseMapSaturation?.value,
           editFeatureTemplate: mapContext.editFeatureTemplate.value,
           layerWithRootEditTemplate: mapContext.layerWithRootEditTemplate.value,
         },
@@ -128,7 +131,7 @@ export const ShareModal = ({
         name.value,
         description.value,
         type,
-        isPublic.value
+        isPublic.value,
       );
       shortUrl.value = result.shortUrl;
       directUrl.value = result.directUrl;
@@ -155,7 +158,7 @@ export const ShareModal = ({
         name.value,
         description.value,
         type,
-        isPublic.value
+        isPublic.value,
       );
       currentShare.value = result;
       success.value = "Compartilhamento atualizado com sucesso!";
@@ -205,8 +208,7 @@ export const ShareModal = ({
         <div className="space-y-4">
           <div className="bg-muted/50 border border-border p-4 rounded-lg space-y-2 text-sm">
             <div className="flex items-center gap-2 font-semibold text-foreground">
-              <Info className="h-4 w-4 text-blue-500" />
-              O que será salvo?
+              <Info className="h-4 w-4 text-blue-500" />O que será salvo?
             </div>
             <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-1">
               {type === "map" ? (
@@ -217,13 +219,21 @@ export const ShareModal = ({
                 </>
               ) : (
                 <>
-                  <li>Termos da busca concatenada</li>
-                  <li>Configurações de histórico de pesquisa</li>
+                  <li>Critérios dos filtros por atributos de camadas</li>
+                  <li>Configurações dos filtros salvos</li>
+                  <div className="border-t pt-2.5 mt-2.5 text-xs text-muted-foreground space-y-1.5 font-normal list-none">
+                    <p className="font-semibold text-foreground">Maiores informações:</p>
+                    <p>Ao salvar, é possível reutilizar e compartilhar os filtros.</p>
+                    <p>Após salvar um filtro, não é possível alterar suas condições.</p>
+                    <p>Somente o criador de um filtro pode renomeá-lo.</p>
+                    <p>Se quiser utilizar um filtro público ou compartilhado como base para um filtro seu, basta aplicá-lo, clicar no ícone de filtro da respectiva camada na caixa Camadas, alterar suas condições (se desejar) e, por fim, salvar nos seus filtros.</p>
+                  </div>
                 </>
               )}
             </ul>
             <p className="text-[11px] text-orange-600 dark:text-orange-400 font-medium pt-1">
-              * Dados temporários como uploads locais, medições ou anotações de tela não são persistidos.
+              * Dados temporários como uploads locais, medições ou anotações de
+              tela não são persistidos.
             </p>
           </div>
         </div>
@@ -278,13 +288,18 @@ export const ShareModal = ({
               </div>
               {userProfile.value?.position === "Administrador" && (
                 <div className="flex items-center justify-between space-x-2 py-3 bg-primary/5 border border-primary/10 rounded-lg px-3">
-                  <Label htmlFor="is-public" className="flex flex-col space-y-1 cursor-pointer">
+                  <Label
+                    htmlFor="is-public"
+                    className="flex flex-col space-y-1 cursor-pointer"
+                  >
                     <div className="flex items-center gap-2 text-primary">
                       <ShieldCheck className="h-4 w-4" />
                       <span className="font-bold">Tornar Público</span>
                     </div>
                     <span className="font-normal text-[11px] text-muted-foreground leading-tight">
-                      Esta é uma permissão administrativa. Ao ativar, qualquer pessoa com o link poderá acessar os dados sem necessidade de login.
+                      Esta é uma permissão administrativa. Ao ativar, qualquer
+                      pessoa com o link poderá acessar os dados sem necessidade
+                      de login.
                     </span>
                   </Label>
                   <Switch

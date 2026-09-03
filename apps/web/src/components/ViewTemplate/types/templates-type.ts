@@ -22,10 +22,7 @@ export interface ITemplate {
   label?: string;
   value?: string;
   polygonTemplate?: ITemplate[];
-  properties?:
-    | IPolygonMapProperties
-    | IListItemsProperties
-    | unknown;
+  properties?: IPolygonMapProperties | IListItemsProperties | unknown;
 }
 
 export interface ITemplateProps {

@@ -5,9 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LayerGroupsService } from 'maps/layer-groups/layer-groups.service';
-import { ILike, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { LayerSchemaDto } from './dto/layer-schema.dto';
 import { LayerSchema } from './entities/layer-schema.entity';
+import { AccessControl } from 'common/guards/access-control/access-control';
 
 @Injectable()
 export class LayerSchemasService {
@@ -19,45 +20,98 @@ export class LayerSchemasService {
   ) {}
 
   async findAll(
+    accessControl?: AccessControl,
     page?: number,
     pageSize?: number,
     search?: string,
     orderBy?: string,
     orderType?: 'ASC' | 'DESC',
+    bypassAccessControl: boolean = false,
   ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
-    const where = search ? { name: ILike(`%${search}%`) } : {};
+    const queryBuilder = this.repository
+      .createQueryBuilder('layerSchema')
+      .leftJoinAndSelect('layerSchema.colors', 'colors')
+      .leftJoinAndSelect('layerSchema.layerGroup', 'layerGroup');
 
-    const order: any = orderBy
-      ? { [orderBy]: orderType ?? 'ASC' }
-      : { index: 'ASC', isActive: 'DESC' };
+    // Filtro de busca por nome
+    if (search) {
+      queryBuilder.andWhere('layerSchema.name ILIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    if (!bypassAccessControl && !accessControl?.isAdminMaster()) {
+      const userRoleIds = accessControl?.roles.map((role) => role.id) ?? [];
+      queryBuilder.andWhere(
+        '(layerSchema.isPublic = :isPublicTrue OR (layerSchema.isPublic = :isPublicFalse AND EXISTS (SELECT 1 FROM jsonb_array_elements_text(COALESCE(layerSchema.allowedRoles, $$[]$$::jsonb)) AS role_id WHERE role_id IN (:...roles))))',
+        {
+          isPublicTrue: true,
+          isPublicFalse: false,
+          roles: userRoleIds.length > 0 ? userRoleIds : ['__no_role__'],
+        },
+      );
+    }
+
+    // Ordenação
+    const effectiveOrderBy = orderBy
+      ? `layerSchema.${orderBy}`
+      : 'layerSchema.index';
+    const effectiveOrderType = orderType ?? 'ASC';
+    queryBuilder.orderBy(effectiveOrderBy, effectiveOrderType);
+
+    // Se não houver orderBy específico, ordenar também por isActive secundário
+    if (!orderBy) {
+      queryBuilder.addOrderBy('layerSchema.isActive', 'DESC');
+    }
 
     if (page && pageSize) {
       const take = pageSize;
       const skip = (page - 1) * pageSize;
-      const [data, total] = await this.repository.findAndCount({
-        where,
-        relations: ['colors', 'layerGroup'],
-        order,
-        take,
-        skip,
-      });
+      queryBuilder.take(take).skip(skip);
+      const [data, total] = await queryBuilder.getManyAndCount();
       return { data, total };
     }
-    return this.repository.find({
-      where,
-      relations: ['colors', 'layerGroup'],
-      order,
-    });
+
+    const data = await queryBuilder.getMany();
+    return data;
   }
 
-  async findOne(id: string): Promise<LayerSchema> {
-    const schema = await this.repository.findOne({
+  async findOne(
+    id: string,
+    accessControl?: AccessControl,
+  ): Promise<LayerSchema> {
+    let schema = await this.repository.findOne({
       where: { id },
       relations: ['colors'],
     });
+
+    if (!schema) {
+      const aliases: Record<string, string[]> = {
+        lotes_fiscais: ['lotes', 'slui:lote_cidadao', 'lote_cidadao', 'lots'],
+        lotes: ['lotes_fiscais', 'slui:lote_cidadao', 'lote_cidadao', 'lots'],
+        'slui:lote_cidadao': ['lotes_fiscais', 'lotes', 'lote_cidadao', 'lots'],
+      };
+      const candidateIds = aliases[id] || [];
+      for (const candidate of candidateIds) {
+        schema = await this.repository.findOne({
+          where: { id: candidate },
+          relations: ['colors'],
+        });
+        if (schema) break;
+      }
+    }
+
     if (!schema) {
       throw new NotFoundException(`Layer schema with ID "${id}" not found`);
     }
+
+    if (
+      !accessControl?.isAdminMaster() &&
+      !this.canViewLayer(schema, accessControl)
+    ) {
+      throw new NotFoundException(`Layer schema with ID "${id}" not found`);
+    }
+
     return schema;
   }
 
@@ -67,6 +121,8 @@ export class LayerSchemasService {
     origin,
     isActive,
     isSelected,
+    includeInAnalysis,
+    includeInFiu,
     type,
     isVisible,
     minZoom,
@@ -80,6 +136,8 @@ export class LayerSchemasService {
     groupId,
     colors,
     index,
+    isPublic,
+    allowedRoles,
   }: LayerSchemaDto): Promise<LayerSchema> {
     const another = await this.repository.findOneBy({ id: id });
     if (another)
@@ -93,6 +151,8 @@ export class LayerSchemasService {
       origin,
       isActive,
       isSelected,
+      includeInAnalysis: includeInAnalysis ?? true,
+      includeInFiu: includeInFiu ?? true,
       type,
       isVisible,
       minZoom,
@@ -107,6 +167,8 @@ export class LayerSchemasService {
       layerGroup,
       colors,
       index,
+      isPublic: isPublic ?? true,
+      allowedRoles: allowedRoles ?? [],
     });
 
     return this.repository.save(entity);
@@ -119,6 +181,8 @@ export class LayerSchemasService {
       origin,
       isActive,
       isSelected,
+      includeInAnalysis,
+      includeInFiu,
       type,
       isVisible,
       minZoom,
@@ -132,11 +196,19 @@ export class LayerSchemasService {
       groupId,
       colors,
       index,
+      isPublic,
+      allowedRoles,
 
       ...dto
     }: LayerSchemaDto,
   ): Promise<LayerSchema> {
-    const layerSchema = await this.findOne(id);
+    const layerSchema = await this.repository.findOne({
+      where: { id },
+      relations: ['colors'],
+    });
+    if (!layerSchema) {
+      throw new NotFoundException(`Layer schema with ID "${id}" not found`);
+    }
     if (id !== dto.id) {
       const another = await this.repository.findOneBy({ id: dto.id });
       if (another)
@@ -151,6 +223,9 @@ export class LayerSchemasService {
     layerSchema.origin = origin;
     layerSchema.isActive = isActive;
     layerSchema.isSelected = isSelected;
+    layerSchema.includeInAnalysis =
+      includeInAnalysis ?? layerSchema.includeInAnalysis ?? true;
+    layerSchema.includeInFiu = includeInFiu ?? layerSchema.includeInFiu ?? true;
     layerSchema.type = type;
     layerSchema.isVisible = isVisible;
     layerSchema.minZoom = minZoom;
@@ -165,8 +240,22 @@ export class LayerSchemasService {
     layerSchema.layerGroup = layerGroup;
     layerSchema.colors = colors;
     layerSchema.index = index;
+    layerSchema.isPublic = isPublic ?? true;
+    layerSchema.allowedRoles = allowedRoles ?? [];
 
     return await this.repository.save(layerSchema);
+  }
+
+  private canViewLayer(
+    layer: LayerSchema,
+    accessControl?: AccessControl,
+  ): boolean {
+    if (layer.isPublic === true) return true;
+
+    const userRoleIds = new Set(
+      accessControl?.roles.map((role) => role.id) ?? [],
+    );
+    return (layer.allowedRoles ?? []).some((roleId) => userRoleIds.has(roleId));
   }
 
   async delete(id: string): Promise<void> {

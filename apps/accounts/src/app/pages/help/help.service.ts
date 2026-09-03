@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   CreateQuestionAnswerDto,
   CreateQuestionTabDto,
@@ -15,10 +16,8 @@ import {
 export class HelpService {
   private readonly http = inject(HttpClient);
 
-  private readonly questionTabBaseUrl =
-    'http://localhost:3000/support/question-tabs';
-  private readonly questionAnswerBaseUrl =
-    'http://localhost:3000/support/question-answers';
+  private readonly questionTabBaseUrl = `${environment.api}/support/question-tabs`;
+  private readonly questionAnswerBaseUrl = `${environment.api}/support/question-answers`;
 
   listTabs(): Observable<QuestionTab[]> {
     return this.http.get<QuestionTab[]>(this.questionTabBaseUrl);
@@ -32,7 +31,10 @@ export class HelpService {
     return this.http.post<QuestionTab>(this.questionTabBaseUrl, payload);
   }
 
-  updateTab(id: string, payload: UpdateQuestionTabDto): Observable<QuestionTab> {
+  updateTab(
+    id: string,
+    payload: UpdateQuestionTabDto,
+  ): Observable<QuestionTab> {
     return this.http.patch<QuestionTab>(
       `${this.questionTabBaseUrl}/${id}`,
       payload,

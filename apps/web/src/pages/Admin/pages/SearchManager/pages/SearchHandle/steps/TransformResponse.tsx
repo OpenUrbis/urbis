@@ -14,19 +14,24 @@ interface TransformResponseProps {
   onNext: () => void;
 }
 
-export const TransformResponse = ({ onBack, onNext }: TransformResponseProps) => {
+export const TransformResponse = ({
+  onBack,
+  onNext,
+}: TransformResponseProps) => {
   const form = useFormContext<SearchSchemaFormValues>();
 
   return (
     <div className="space-y-6 flex flex-col h-[500px]">
       <div className="flex flex-col flex-1 gap-2">
-         <div className="space-y-1">
-            <h3 className="text-lg font-medium">Transformar Resposta (transformResponse)</h3>
-            <p className="text-sm text-muted-foreground">
-              Função Javascript para transformar a resposta da requisição.
-            </p>
-         </div>
-        
+        <div className="space-y-1">
+          <h3 className="text-lg font-medium">
+            Transformar Resposta (transformResponse)
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Função Javascript para transformar a resposta da requisição.
+          </p>
+        </div>
+
         <FormField
           control={form.control}
           name="transformResponse"

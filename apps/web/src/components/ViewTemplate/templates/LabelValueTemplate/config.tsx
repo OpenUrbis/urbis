@@ -34,7 +34,7 @@ const ConfigForm = ({
         helper: values.helper,
       },
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values.label, values.value, values.helper]);
 
   return (

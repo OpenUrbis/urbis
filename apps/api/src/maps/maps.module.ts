@@ -11,6 +11,7 @@ import { ShareModule } from './share/share.module';
 import { ProxyModule } from './proxy/proxy.module';
 import { GeoserverProxyModule } from './geoserver-proxy/geoserver-proxy.module';
 import { OpenCnpjModule } from './open-cnpj/open-cnpj.module';
+import { DiagnosticsModule } from './diagnostics/diagnostics.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { OpenCnpjModule } from './open-cnpj/open-cnpj.module';
     ProxyModule,
     GeoserverProxyModule,
     MapDataModule,
+    DiagnosticsModule,
   ],
 })
 export class MapsModule {}

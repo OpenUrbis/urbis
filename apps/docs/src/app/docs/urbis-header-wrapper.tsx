@@ -15,7 +15,7 @@ export function UrbisHeaderWrapper(props: ComponentProps<typeof UrbisHeader>) {
   const { openSidebar } = useSidebar();
 
   const onLogin = () => {
-    location.href = "https://conta.urbis.sampa.br/";
+    location.href = "https://conta.urbis.prefeitura.sp.gov.br/";
   };
 
   const openHelp = () => {

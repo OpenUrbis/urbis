@@ -22,6 +22,7 @@ import { AuthService } from 'auth/auth.service';
 import { TwoFactorService } from 'auth/two-factor/two-factor.service';
 import { TwoFactorGuard } from 'common/guards/two-factor/two-factor.guard';
 import { MailService } from 'common/mail/mail.service';
+import * as crypto from 'crypto';
 import { Request, Response } from 'express';
 import Provider from 'oidc-provider';
 import { User } from 'user/entities/user.entity';
@@ -39,6 +40,63 @@ export class OidcController {
     private readonly jwtService: JwtService,
     private mailService: MailService,
   ) {}
+
+  private signCookie(data: string, secret: string): string {
+    return crypto
+      .createHmac('sha1', secret)
+      .update(data)
+      .digest('base64')
+      .replace(/=+$/, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+  }
+
+  private setInteractionCookies(req: any, uuid: string) {
+    try {
+      const cookieSecret =
+        this.configService.get('auth.secret') ||
+        'urbis-oidc-secret-default-signing-key';
+      const interactionSig = this.signCookie(
+        '_interaction=' + uuid,
+        cookieSecret,
+      );
+      const resumeSig = this.signCookie(
+        '_interaction_resume=' + uuid,
+        cookieSecret,
+      );
+
+      const newCookies = [
+        `_interaction=${uuid}`,
+        `_interaction.sig=${interactionSig}`,
+        `_interaction_resume=${uuid}`,
+        `_interaction_resume.sig=${resumeSig}`,
+      ];
+
+      const existingCookies = (req.headers?.cookie || '')
+        .split(';')
+        .map((c: string) => c.trim())
+        .filter(
+          (c: string) =>
+            c &&
+            !c.startsWith('_interaction=') &&
+            !c.startsWith('_interaction.sig=') &&
+            !c.startsWith('_interaction_resume=') &&
+            !c.startsWith('_interaction_resume.sig='),
+        );
+
+      req.headers = req.headers || {};
+      req.headers.cookie = [...newCookies, ...existingCookies].join('; ');
+    } catch (e) {
+      console.error('Failed to sign interaction cookies:', e);
+      req.headers = req.headers || {};
+      req.headers.cookie = '_interaction=' + uuid;
+    }
+  }
+
+  @Get('session/end/confirm')
+  public redirectEndSessionConfirm(@Res() res: Response) {
+    res.redirect('/auth/oidc/session/end');
+  }
 
   @ApiBearerAuth()
   @SerializeOptions({
@@ -67,23 +125,46 @@ export class OidcController {
     @Res() res: Response,
     @Param('uuid') uuid: string,
   ) {
-    req.url = req.originalUrl
-      .toString()
-      .replace('interaction/api', 'interaction')
-      .replace('/auth/oidc', '');
-    const { params, prompt, uid } = await this.oidcProvider.interactionDetails(
-      req,
-      res,
-    );
-    const response = {
-      params: params,
-      uid: uid,
-      uuid,
-    };
-    if (prompt.name === 'consent') {
-      // this.oidcProvider.callback()(req, res);
-      const apiUrl = this.configService.get('app.backendDomain');
-      res.send(`
+    const clientUrl = this.configService.get('app.accountsUrl');
+    try {
+      req.url = req.originalUrl
+        .toString()
+        .replace('interaction/api', 'interaction')
+        .replace('/auth/oidc', '');
+
+      this.setInteractionCookies(req, uuid);
+
+      let interactionDetailsResult: any;
+      try {
+        interactionDetailsResult = await this.oidcProvider.interactionDetails(
+          req,
+          res,
+        );
+      } catch (err) {
+        const interaction = await (this.oidcProvider as any).Interaction?.find(
+          uuid,
+        );
+        if (interaction) {
+          interactionDetailsResult = {
+            uid: interaction.uid || uuid,
+            prompt: interaction.prompt,
+            params: interaction.params,
+          };
+        } else {
+          throw err;
+        }
+      }
+
+      const { params, prompt, uid } = interactionDetailsResult;
+      const response = {
+        params: params,
+        uid: uid,
+        uuid,
+      };
+      if (prompt?.name === 'consent') {
+        // this.oidcProvider.callback()(req, res);
+        const apiUrl = this.configService.get('app.backendDomain');
+        res.send(`
         <html>
           <head>
             <title>Carregando...</title>
@@ -97,15 +178,18 @@ export class OidcController {
           </body>
         </html>
       `);
-      return;
+        return;
+      }
+      res.redirect(
+        [
+          clientUrl,
+          `sign-in?session=${uuid}&clientId=${(response as any).params?.client_id || ''}&prompt=${prompt?.name || ''}`,
+        ].join('/'),
+      );
+    } catch (error) {
+      console.error('Error in interactionView:', error);
+      res.redirect(`${clientUrl}/sign-in?session=${uuid}`);
     }
-    const clientUrl = this.configService.get('app.accountsUrl');
-    res.redirect(
-      [
-        clientUrl,
-        `sign-in?session=${uuid}&clientId=${(response as any).params.client_id}&prompt=${prompt.name}`,
-      ].join('/'),
-    );
   }
 
   @Get('/interaction/validate/:uuid')
@@ -119,16 +203,28 @@ export class OidcController {
       .replace('interaction/api', 'interaction')
       .replace('/auth/oidc', '')
       .replace('interaction/validate', 'interaction');
-    req.headers.cookie = '_interaction=' + uuid;
+    this.setInteractionCookies(req, uuid);
     try {
-      const { uid, prompt } = await this.oidcProvider.interactionDetails(
-        req,
-
-        res,
-      );
-      res.send({ uid, prompt });
+      const { uid, prompt, params } =
+        await this.oidcProvider.interactionDetails(req, res);
+      res.send({ uid, prompt, params });
     } catch (error) {
-      console.error(error);
+      try {
+        const interaction = await (this.oidcProvider as any).Interaction.find(
+          uuid,
+        );
+        if (interaction) {
+          res.send({
+            uid: interaction.uid || uuid,
+            prompt: interaction.prompt,
+            params: interaction.params,
+          });
+          return;
+        }
+      } catch (innerError) {
+        console.error('Interaction lookup fallback error:', innerError);
+      }
+      console.error('Error in interactionDetails:', error);
       res.status(500).json({ message: 'invalid interaction' });
     }
   }
@@ -148,7 +244,7 @@ export class OidcController {
     };
     req.headers.authorization = '';
     req.headers.Authorization = '';
-    req.headers.cookie = '_interaction=' + uuid;
+    this.setInteractionCookies(req, uuid);
     req.url = req.originalUrl
       .replace('/validate2fa', '')
       .replace('interaction/api', 'interaction')
@@ -200,7 +296,7 @@ export class OidcController {
       idToken: '',
       accessToken: '',
     };
-    req.headers.cookie = '_interaction=' + uuid;
+    this.setInteractionCookies(req, uuid);
     req.url = req.originalUrl
       .replace('/login', '')
       .replace('interaction/api', 'interaction')

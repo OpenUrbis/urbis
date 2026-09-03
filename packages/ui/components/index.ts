@@ -2,6 +2,8 @@ export * from "./urbis-header";
 export * from "./urbis-logo";
 export * from "./urbis-settings";
 export * from "./urbis-footer";
+export * from "./urbis-license";
+export * from "./urbis-icon";
 export * from "./ui";
 export * from "./data-table-filter";
 export * from "./ui/sidebar";

@@ -19,6 +19,7 @@ export interface ConcatenatedSearchState {
   filterTree: FilterGroup;
   results: any[];
   totalCount?: number;
+  layerTotalCount?: number;
   isOpen: boolean;
 }
 

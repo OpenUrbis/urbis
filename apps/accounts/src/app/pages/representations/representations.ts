@@ -9,11 +9,12 @@ import {
   lucideChevronRight,
   lucideEye,
   lucideFilter,
+  lucidePencil,
   lucidePlus,
   lucideSearch,
   lucideX,
 } from '@ng-icons/lucide';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
@@ -22,15 +23,17 @@ import {
   HlmCardDirective,
   HlmIconComponent,
   HlmInputDirective,
-  HlmToasterService,
   LoadingContent,
-  useConfirmDialog,
 } from '../../../../projects/shared/src/public-api';
 import { PageStructure } from '../../components/page-structure/page-structure';
 import { CpfCnpjPipe } from '../../pipes/cpf-cnpj.pipe';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import { PermissionState } from '../../states/permission/permission.state';
-import { RepresentationApi } from './services/representation-api';
+import { ProfileState } from '../../states/profile/profile.state';
+import {
+  RepresentationApi,
+  type RepresentationStatus,
+} from './services/representation-api';
 
 @Component({
   selector: 'app-representations',
@@ -54,6 +57,7 @@ import { RepresentationApi } from './services/representation-api';
     provideIcons({
       lucidePlus,
       lucideEye,
+      lucidePencil,
       lucideSearch,
       lucideFilter,
       lucideCheck,
@@ -66,29 +70,20 @@ import { RepresentationApi } from './services/representation-api';
 })
 export class Representations implements OnInit {
   representationApi = inject(RepresentationApi);
-  toaster = inject(HlmToasterService);
   permissionState = inject(PermissionState);
-  translate = inject(TranslateService);
-  confirm = useConfirmDialog();
+  profileState = inject(ProfileState);
 
   items = signal<any[]>([]);
   loading = signal(true);
   total = signal(0);
 
   searchControl = new FormControl('');
-  statusFilter = new FormControl<string | null>(null);
+  statusFilter = new FormControl<RepresentationStatus | null>(null);
 
   page = signal(1);
   limit = signal(10);
 
-  statusOptions = [
-    'REPRESENTING',
-    'AVAILABLE',
-    'PENDING',
-    'APPROVED',
-    'REJECTED',
-    'INFO_REQUESTED',
-  ];
+  statusOptions = ['PENDING', 'APPROVED', 'REJECTED', 'INFO_REQUESTED', 'INACTIVE'];
 
   async ngOnInit() {
     this.loadData();
@@ -114,9 +109,7 @@ export class Representations implements OnInit {
           page: this.page(),
           limit: this.limit(),
           search: this.searchControl.value || undefined,
-          status: this.statusFilter.value
-            ? [this.statusFilter.value]
-            : undefined,
+          status: this.statusFilter.value || undefined,
         }),
       );
       this.items.set(res.data);
@@ -142,79 +135,31 @@ export class Representations implements OnInit {
         return 'bg-red-100 text-red-800';
       case 'INFO_REQUESTED':
         return 'bg-orange-100 text-orange-800';
+      case 'INACTIVE':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   }
 
-  async approve(id: string) {
-    if (
-      !(await this.confirm({
-        title: this.translate.instant('representations.detail.buttons.approve'),
-        description: this.translate.instant(
-          'representation.actions.approve.description',
-        ),
-        confirmText: this.translate.instant(
-          'representations.detail.buttons.approve',
-        ),
-      }))
-    )
-      return;
-
-    try {
-      await firstValueFrom(this.representationApi.approve(id));
-      await this.loadData();
-      this.toaster.success(
-        this.translate.instant('representation.actions.approve.success'),
-      );
-    } catch (_e) {
-      this.toaster.error(
-        this.translate.instant('representation.actions.approve.error'),
-      );
-    }
-  }
-
-  async reject(id: string) {
-    if (
-      !(await this.confirm({
-        title: this.translate.instant('representations.detail.buttons.reject'),
-        description: this.translate.instant(
-          'representation.actions.reject.description',
-        ),
-        confirmText: this.translate.instant(
-          'representations.detail.buttons.reject',
-        ),
-        confirmColor: 'warn',
-      }))
-    )
-      return;
-
-    try {
-      await firstValueFrom(this.representationApi.reject(id));
-      await this.loadData();
-      this.toaster.success(
-        this.translate.instant('representation.actions.reject.success'),
-      );
-    } catch (_e) {
-      this.toaster.error(
-        this.translate.instant('representation.actions.reject.error'),
-      );
-    }
-  }
 
   canApprove(item: any) {
-    if (!item.organizationId) return false;
+    if (item.requesterId === this.profileState.value()?.id) return false;
+    const orgId = item.organizationId || item.organization?.id;
+    if (!orgId) return false;
     return this.permissionState.hasPermission({
       id: 'representation:approve',
-      organizationId: item.organizationId,
+      organizationId: orgId,
     });
   }
 
   canReject(item: any) {
-    if (!item.organizationId) return false;
+    if (item.requesterId === this.profileState.value()?.id) return false;
+    const orgId = item.organizationId || item.organization?.id;
+    if (!orgId) return false;
     return this.permissionState.hasPermission({
       id: 'representation:reject',
-      organizationId: item.organizationId,
+      organizationId: orgId,
     });
   }
 

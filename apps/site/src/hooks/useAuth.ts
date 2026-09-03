@@ -1,7 +1,7 @@
 import { useAuth as useOidcAuth } from "@open-urbis/map-auth";
 
 export const useAuth = () => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return {
       isAuthenticated: false,
       signinRedirect: () => Promise.resolve(),
@@ -21,7 +21,7 @@ export const useAuth = () => {
       settings: {},
     } as any;
   }
-  
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   return useOidcAuth();
 };

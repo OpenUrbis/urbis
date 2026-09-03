@@ -10,7 +10,7 @@ export interface ISearchFetchQuery {
   loading: boolean;
   error: string | null;
   clearResults: () => void;
-  fetchData: (term: string) => Promise<void>;
+  fetchData: (term: string, initialResults?: ISearchResponse) => Promise<void>;
   setResults: (results: ISearchResponse) => void;
 }
 
@@ -19,6 +19,7 @@ export interface ConcatenatedSearchState {
   filterTree: FilterGroup;
   results: any[];
   totalCount?: number;
+  layerTotalCount?: number;
   isOpen: boolean;
 }
 

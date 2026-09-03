@@ -28,6 +28,7 @@ import { UserFormComponent } from '../../../../components/user-form/user-form';
 import { UserOrganizationManager } from '../../../../components/user-organization-manager/user-organization-manager';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { ICreateUserRequest } from '../../dto/user.dto';
+import { PermissionState } from '../../../../states/permission/permission.state';
 import { UsersApi } from '../../services/users-api';
 
 @Component({
@@ -64,6 +65,8 @@ export class HandleUser {
 
   noOfficialAddress = signal<boolean>(false);
   documentUrls = signal<{ name: string; url: string }[]>([]);
+  uploadingAttachments = signal(false);
+  private originalSensitiveValues = { accountType: '', birthDate: '' };
 
   form = new FormGroup(
     {
@@ -87,6 +90,8 @@ export class HandleUser {
         state: new FormControl(''),
       }),
       digitalAddress: new FormControl(''),
+      sensitiveChangeJustification: new FormControl(''),
+      sensitiveChangeAttachments: new FormControl<string[]>([]),
     },
     {
       validators: [], // Ensure no cross-field validation on the group itself causes issues if any
@@ -100,11 +105,35 @@ export class HandleUser {
   confirmDialog = useConfirmDialog();
   translate = inject(TranslateService);
   private attachmentsService = inject(AttachmentsService);
+  private permissionState = inject(PermissionState);
+
+  get canEditSensitiveFields() {
+    return this.permissionState.hasPermission('user:update');
+  }
+
+  get sensitiveFieldsChanged() {
+    const accountType = this.form.get('accountType')?.value;
+    const birthDate = this.form.get('birthDate')?.value;
+    return !!this.id() &&
+      (accountType !== this.originalSensitiveValues.accountType ||
+        birthDate !== this.originalSensitiveValues.birthDate);
+  }
 
   constructor() {
     effect(() => {
+      if (this.id()) {
+        const canEdit = this.canEditSensitiveFields;
+        for (const field of ['accountType', 'birthDate']) {
+          const control = this.form.get(field);
+          if (canEdit) control?.enable({ emitEvent: false });
+          else control?.disable({ emitEvent: false });
+        }
+      }
+    });
+
+    effect(() => {
       this.form.valueChanges.subscribe(() => {
-        console.log(this.form);
+        this.updateSensitiveJustificationValidator();
       });
       this.activatedRoute.params
         .pipe(
@@ -200,6 +229,12 @@ export class HandleUser {
               accountType: user.accountType,
             });
 
+            this.originalSensitiveValues = {
+              accountType: user.accountType || '',
+              birthDate: user.birthDate || '',
+            };
+            this.updateSensitiveJustificationValidator();
+
             this.getFormControl('cpf').disable();
 
             (this.form as FormGroup<any>).removeControl('password');
@@ -212,8 +247,38 @@ export class HandleUser {
     return this.form.get(name) as FormControl;
   }
 
+  private updateSensitiveJustificationValidator() {
+    const control = this.form.get('sensitiveChangeJustification');
+    if (!control) return;
+    if (this.sensitiveFieldsChanged) control.setValidators([Validators.required]);
+    else control.clearValidators();
+    control.updateValueAndValidity({ emitEvent: false });
+  }
+
+  async onSensitiveAttachmentChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+
+    this.uploadingAttachments.set(true);
+    try {
+      const uploaded = await Promise.all(
+        files.map((file) => this.attachmentsService.uploadFile(file)),
+      );
+      const control = this.form.get('sensitiveChangeAttachments');
+      control?.setValue([...(control.value || []), ...uploaded.map((file) => file.key)]);
+    } catch (error) {
+      console.error(error);
+      this.toaster.error('Não foi possível anexar os arquivos');
+    } finally {
+      this.uploadingAttachments.set(false);
+      input.value = '';
+    }
+  }
+
   async save() {
-    if (this.form.invalid) return;
+    this.updateSensitiveJustificationValidator();
+    if (this.form.invalid || this.uploadingAttachments()) return;
 
     const rawValue = this.form.getRawValue();
     const id = this.id();
@@ -234,11 +299,19 @@ export class HandleUser {
       socialName: rawValue.socialName,
       cpf: rawValue.cpf,
       phone: phone,
-      address: !this.noOfficialAddress()
-        ? JSON.stringify(rawValue.address)
-        : null,
+      address: JSON.stringify({
+        ...rawValue.address,
+        ...(this.noOfficialAddress()
+          ? { cep: null, street: null, number: null }
+          : {}),
+      }),
       digitalAddress: this.noOfficialAddress() ? rawValue.digitalAddress : null,
     };
+
+    if (id && this.sensitiveFieldsChanged) {
+      data.sensitiveChangeJustification = rawValue.sensitiveChangeJustification;
+      data.sensitiveChangeAttachments = rawValue.sensitiveChangeAttachments || [];
+    }
 
     if (!id) {
       data.password = rawValue.password.password;

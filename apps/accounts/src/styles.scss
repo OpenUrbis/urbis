@@ -11,7 +11,9 @@
         --font-family: 'Noto Sans', sans-serif;
         font-family: var(--font-family);
         font-weight: 500;
-}
+        background-color: var(--background);
+        color: var(--foreground);
+    }
     :root {
         --font-family: 'Noto Sans', sans-serif;
         --radius: 16px;
@@ -122,6 +124,11 @@
 
     * {
         @apply border-border;
+    }
+
+    select option {
+        background-color: var(--card, #ffffff);
+        color: var(--foreground, #000000);
     }
 
     body {

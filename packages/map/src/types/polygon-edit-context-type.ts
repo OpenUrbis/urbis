@@ -1,10 +1,6 @@
 import { ReadonlySignal, Signal } from "@preact/signals";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
-
-interface Polygon {
-  type: string;
-  coordinates: number[][][];
-}
+import { Polygon } from "./fetch-map-intersections-type";
 
 export interface PolygonEditContextType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,17 +12,27 @@ export interface PolygonEditContextType {
   loading: Signal<boolean>;
   error: Signal<string | null>;
   reset: () => void;
-  fetchData: (polygon: Polygon) => Promise<void>;
+  fetchData: (
+    polygon: Polygon,
+    activeLayers?: string[],
+    options?: { isFiu?: boolean; context?: string },
+  ) => Promise<void>;
   editFeatureTemplate: ReadonlySignal<ITemplate[] | null>;
   layerWithRootEditTemplate: ReadonlySignal<string | null>;
 }
 
-export interface IPolygonEditContextActions
-  extends Omit<PolygonEditContextType, "feature" | "isEditing"> {
+export interface IPolygonEditContextActions extends Omit<
+  PolygonEditContextType,
+  "feature" | "isEditing"
+> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   feature: ReadonlySignal<any>;
   isEditing: ReadonlySignal<boolean>;
-  fetchData: (polygon: Polygon) => Promise<void>;
+  fetchData: (
+    polygon: Polygon,
+    activeLayers?: string[],
+    options?: { isFiu?: boolean; context?: string },
+  ) => Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setFeature: (newFeature: any) => void;
   setIsEditing: (newIsEditing: boolean) => void;

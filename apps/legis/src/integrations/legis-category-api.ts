@@ -1,4 +1,4 @@
-import { apiClient } from './api-client';
+import { apiClient } from "./api-client";
 
 export type LegisCategoryApiModel = {
   id: string;
@@ -10,14 +10,14 @@ export type LegisCategoryApiModel = {
 
 export const legisCategoryApi = {
   list() {
-    return apiClient.get<LegisCategoryApiModel[]>('/legis/categories', {
-      auth: 'optional',
+    return apiClient.get<LegisCategoryApiModel[]>("/legis/categories", {
+      auth: "optional",
     });
   },
 
   create(payload: { name: string; color?: string }) {
-    return apiClient.post<LegisCategoryApiModel>('/legis/categories', payload, {
-      auth: 'required',
+    return apiClient.post<LegisCategoryApiModel>("/legis/categories", payload, {
+      auth: "required",
     });
   },
 };

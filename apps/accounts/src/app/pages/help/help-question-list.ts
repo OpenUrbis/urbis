@@ -158,12 +158,12 @@ export class HelpQuestionList implements OnInit {
 
     const app = this.selectedApp();
     if (app) {
-      result = result.filter(q => q.apps?.includes(app));
+      result = result.filter((q) => q.apps?.includes(app));
     }
 
     const tab = this.selectedTab();
     if (tab) {
-      result = result.filter(q => q.tabs?.some(t => t.name === tab));
+      result = result.filter((q) => q.tabs?.some((t) => t.name === tab));
     }
 
     return result;

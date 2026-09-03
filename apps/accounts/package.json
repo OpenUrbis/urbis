@@ -38,6 +38,7 @@
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@open-urbis/endereco-digital": "workspace:^",
+    "@open-urbis/map-shared": "workspace:*",
     "@uppy/angular": "^1.1.0",
     "@uppy/aws-s3": "^5.1.0",
     "@uppy/compressor": "^3.1.0",
@@ -76,5 +77,6 @@
     "postcss": "^8.4.35",
     "tailwindcss": "3.4.1",
     "typescript": "~5.8.2"
-  }
+  },
+  "license": "AGPL-3.0-only"
 }

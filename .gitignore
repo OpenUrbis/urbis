@@ -6,7 +6,20 @@ dist
 dist-ssr
 *.local
 .env
+.env.*
+!.env.example
+!.env.development
+!.env.production
 .cache
 server/dist
 public/dist
 .vite-react-ssg-temp
+
+# Secrets and Keys
+secrets.yaml
+*.secret.yaml
+*.pem
+*.key
+*.pfx
+*.p12
+kubeconfig*

@@ -1,5 +1,6 @@
 "use client";
 
+import { initPostHog } from "@open-urbis/map-shared";
 import { setUrbisConfig } from "@open-urbis/map-ui";
 import { useEffect } from "react";
 
@@ -8,6 +9,8 @@ export function ConfigInitializer() {
     setUrbisConfig({
       apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
     });
+
+    initPostHog({ appName: "Urbis Docs" });
   }, []);
 
   useEffect(() => {

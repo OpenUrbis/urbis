@@ -1,4 +1,5 @@
 import { ClickActionEnum } from "@open-urbis/map-shared";
+import { ILayerPattern } from "../lib/layer-patterns";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import { MapBoundingBox } from "./map-context-type";
 
@@ -32,11 +33,11 @@ export interface IGetConfigLayerGroup {
   childGroups: IGetConfigLayerGroup[];
 }
 
-export type IGetConfigFillPattern =
-  | "dots"
-  | "hatch-1x"
-  | "full"
-  | "hatch-cross";
+/**
+ * Padrões de preenchimento disponíveis no atlas `/pattern.png`.
+ * A lista de referência (com rótulos e coordenadas) fica em `src/lib/layer-patterns.ts`.
+ */
+export type IGetConfigFillPattern = ILayerPattern;
 
 export interface IGetConfigFillPatternConfig {
   fillPatternMask?: boolean;
@@ -55,6 +56,7 @@ export interface IGetConfigColor {
   type?: "text" | "fill" | "line";
   value: string;
   layerSchemaId: string;
+  legisUrl?: string;
 }
 
 export enum IGetConfigLayerSchemaTypeEnum {
@@ -78,6 +80,7 @@ export interface IGetConfigLayerSchemaGroup {
 
 export interface IGetConfigLayerSchema {
   id: string;
+  proxyLayerId?: string;
   name: string;
   origin: string;
   isActive: boolean;

@@ -48,8 +48,6 @@ export class AccessTokenInterceptor implements HttpInterceptor {
             if (org?.id) header['x-organization-id'] = org?.id;
           }
 
-          header['Access-Control-Allow-Origin'] = '*';
-
           requestToForward = req.clone({
             setHeaders: header,
           });

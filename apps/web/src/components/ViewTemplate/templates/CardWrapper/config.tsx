@@ -30,7 +30,7 @@ const ConfigForm = ({
   onChange: (newTemplate: ITemplate) => void;
 }) => {
   const properties = (template.properties || {}) as any;
-  
+
   const { register, watch, setValue } = useForm({
     defaultValues: {
       label: template.label || "",
@@ -43,6 +43,10 @@ const ConfigForm = ({
         typeof properties.semanticCardWeight === "number"
           ? String(properties.semanticCardWeight)
           : "",
+      printSpan:
+        typeof properties.printSpan === "number"
+          ? String(properties.printSpan)
+          : "",
     },
   });
 
@@ -51,6 +55,10 @@ const ConfigForm = ({
   useEffect(() => {
     const printColumn = toPositiveInteger(values.printColumn);
     const semanticCardWeight = toPositiveInteger(values.semanticCardWeight);
+    const rawPrintSpan = toPositiveInteger(values.printSpan);
+    const printSpan = rawPrintSpan
+      ? Math.min(12, Math.max(1, rawPrintSpan))
+      : undefined;
 
     onChange({
       ...template,
@@ -64,14 +72,18 @@ const ConfigForm = ({
         ...(semanticCardWeight
           ? { semanticCardWeight }
           : { semanticCardWeight: undefined, printColumnWeight: undefined }),
+        ...(printSpan
+          ? { printSpan }
+          : { printSpan: undefined, semanticSpan: undefined }),
       },
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     values.label,
     values.helper,
     values.printColumn,
     values.semanticCardWeight,
+    values.printSpan,
   ]);
 
   return (
@@ -109,8 +121,32 @@ const ConfigForm = ({
         </Select>
         <p className="text-xs text-muted-foreground">
           Define exatamente em qual coluna este card deve aparecer no layout de
-          3 colunas. Use esta opção quando você quiser travar a posição do
-          card, sem depender do balanceamento automático.
+          3 colunas. Use esta opção quando você quiser travar a posição do card,
+          sem depender do balanceamento automático.
+        </p>
+      </div>
+      <div className="space-y-2">
+        <Label>Largura na FIU / grade semântica</Label>
+        <Select
+          value={values.printSpan || "auto"}
+          onValueChange={(value) => setValue("printSpan", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecionar largura" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="auto">Automática</SelectItem>
+            <SelectItem value="3">3/12 · 1/4</SelectItem>
+            <SelectItem value="4">4/12 · 1/3</SelectItem>
+            <SelectItem value="6">6/12 · 1/2</SelectItem>
+            <SelectItem value="8">8/12 · 2/3</SelectItem>
+            <SelectItem value="12">12/12 · largura total</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          Controla quanto espaço o card ocupa na FIU e nos painéis em grade. Use
+          12 para cards grandes como “Polígonos de Interseção”, 6 para meia
+          largura e 4 para um terço da linha.
         </p>
       </div>
       <div className="space-y-2">

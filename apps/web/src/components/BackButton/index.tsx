@@ -1,5 +1,5 @@
-import { Button } from "@open-urbis/map-ui";
-import { useNavigationContext } from '../../hooks/useNavigationContext';
+import { Button, UrbisIcon } from "@open-urbis/map-ui";
+import { useNavigationContext } from "../../hooks/useNavigationContext";
 
 export const BackButton = () => {
   const { navigatePop } = useNavigationContext();
@@ -10,7 +10,11 @@ export const BackButton = () => {
       onClick={() => navigatePop()}
       className="font-medium rounded"
     >
-      <span className="material-symbols-outlined mr-2 text-base">arrow_back</span>
+      <UrbisIcon
+        name="arrow_back"
+        className="mr-2 text-base"
+        aria-hidden="true"
+      />
       Voltar
     </Button>
   );

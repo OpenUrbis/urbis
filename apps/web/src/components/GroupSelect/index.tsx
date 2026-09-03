@@ -71,7 +71,7 @@ export const GroupSelect = ({
                 key={group.id}
                 className={cn(
                   "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                  value === group.id ? "bg-accent" : ""
+                  value === group.id ? "bg-accent" : "",
                 )}
                 onClick={() => {
                   onChange(group.id === value ? "" : group.id);
@@ -81,7 +81,7 @@ export const GroupSelect = ({
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === group.id ? "opacity-100" : "opacity-0"
+                    value === group.id ? "opacity-100" : "opacity-0",
                   )}
                 />
                 {group.name}

@@ -27,13 +27,13 @@ O primeiro passo é realizar o download da camada que se deseja exportar. O QGIS
 - GeoPackage (.gpkg)
 - DXF
 
-![Baixar a camada](/export-layer-from-postgiz/Baixar%20a%20camada.png)
+![Baixar a camada](/export-layer-from-postgiz/baixar-a-camada.png)
 
 ### Criar Novo Projeto
 
 Abra o QGIS e inicie um novo projeto.
 
-![Crie um novo projeto](/export-layer-from-postgiz/Crie%20um%20novo%20projeto.png)
+![Crie um novo projeto](/export-layer-from-postgiz/crie-um-novo-projeto.png)
 
 ### Importar e Ajustar SRC
 
@@ -41,11 +41,11 @@ Importe a camada para o QGIS arrastando o arquivo para a área de trabalho ou ut
 
 É fundamental verificar e ajustar o Sistema de Referência de Coordenadas (SRC) da camada. **O padrão do projeto é utilizar sempre a projeção SIRGAS 2000 / UTM (Zona correspondente)**. Você pode conferir o SRC atual no canto inferior direito da janela do QGIS.
 
-![Ajustar SRC](/export-layer-from-postgiz/Ajustar%20SRC.png)
+![Ajustar SRC](/export-layer-from-postgiz/ajustar-src.png)
 
 Ao clicar no código do SRC, uma janela se abrirá onde você pode selecionar o SRC correto ou apenas confirmar o existente. Certifique-se de clicar em **Aplicar** e **OK** para efetivar a configuração.
 
-![Ajustar SRC1](/export-layer-from-postgiz/Ajustar%20SRC1.png)
+![Ajustar SRC1](/export-layer-from-postgiz/ajustar-src1.png)
 
 ## 2. Conexão com PostgreSQL
 
@@ -58,11 +58,11 @@ Uma vez configurada a conexão, além de exportar novas camadas, você também p
 
 No painel "Navegador" (menu lateral esquerdo), localize o item **PostgreSQL**, clique com o botão direito e selecione **Nova Conexão...**.
 
-![Menu Postgres](/export-layer-from-postgiz/Menu%20Postgres.png)
+![Menu Postgres](/export-layer-from-postgiz/menu-postgres.png)
 
 O menu para criar a conexão será exibido:
 
-![Criar conexão postgres](/export-layer-from-postgiz/Criar%20conexão%20postgres.png)
+![Criar conexão postgres](/export-layer-from-postgiz/criar-conexao-postgres.png)
 
 Preencha os dados de conexão na janela que se abre.
 
@@ -70,7 +70,7 @@ Preencha os dados de conexão na janela que se abre.
 
 Na aba de autenticação, insira as credenciais. Recomenda-se converter as credenciais para uma configuração de autenticação segura clicando em "Converter para configuração...". Teste a conexão antes de prosseguir.
 
-![Converter auth e testar](/export-layer-from-postgiz/Converter%20auth%20e%20testar.png)
+![Converter auth e testar](/export-layer-from-postgiz/converter-auth-e-testar.png)
 
 ## 3. Exportar para PostgreSQL
 
@@ -78,11 +78,11 @@ Com a camada carregada e a conexão configurada, o próximo passo é exportar os
 
 Acesse a **Caixa de Ferramentas de Processamento** através do menu **Processamento > Caixa de ferramentas**.
 
-![Abrir caixa de ferramentas](/export-layer-from-postgiz/Abrir%20caixa%20de%20ferramentas.png)
+![Abrir caixa de ferramentas](/export-layer-from-postgiz/abrir-caixa-de-ferramentas.png)
 
 Na caixa de ferramentas, pesquise por "Export to PostgreSQL".
 
-![Exportar para postgres](/export-layer-from-postgiz/Exportar%20para%20postgres.png)
+![Exportar para postgres](/export-layer-from-postgiz/exportar-para-postgres.png)
 
 Ao abrir a ferramenta, preencha os campos conforme a orientação abaixo:
 
@@ -106,7 +106,7 @@ Após exportar a tabela para o PostgreSQL, acesse o GeoServer através da URL `h
 
 No menu lateral esquerdo, clique em **Camadas** e depois em **Adicionar nova camada**.
 
-![Acessar tela de nova camada](/export-layer-from-postgiz/Acessar%20tela%20de%20nova%20camada.png)
+![Acessar tela de nova camada](/export-layer-from-postgiz/acessar-tela-de-nova-camada.png)
 
 ### Selecionar Origem
 
@@ -114,7 +114,7 @@ No menu dropdown "Agregar capa de", selecione a opção que corresponde ao seu b
 
 Localize na lista a camada que você acabou de exportar do QGIS e clique em **Publicar**.
 
-![Iniciar publicação da camada](/export-layer-from-postgiz/Iniciar%20publicação%20da%20camada.png)
+![Iniciar publicação da camada](/export-layer-from-postgiz/iniciar-publicacao-da-camada.png)
 
 ### Configurações da Camada
 
@@ -122,13 +122,13 @@ Na tela de edição da camada:
 
 1. Verifique e ajuste o **Nome** e o **Título** da camada conforme necessário.
 
-![Ajustar nome](/export-layer-from-postgiz/Ajustar%20nome.png)
+![Ajustar nome](/export-layer-from-postgiz/ajustar-nome.png)
 
 1. Role até a seção de Enquadramento.
 2. Verifique o SRC declarado.
 3. Clique em **Calcular a partir dos dados** para o "Enquadramento Nativo".
 4. Clique em **Calcular a partir dos limites nativos** para o "Enquadramento no formato Lat/Lon".
 
-![Conferencia dos dados](/export-layer-from-postgiz/Conferencia%20dos%20dados.png)
+![Conferencia dos dados](/export-layer-from-postgiz/conferencia-dos-dados.png)
 
 Salve a camada para finalizar a publicação.

@@ -1,5 +1,0 @@
-- [x] Explore file structure and locate `apps/legis/src/pages/PageView.tsx`
-- [x] Read `apps/legis/src/pages/PageView.tsx` to confirm current state
-- [x] Verify existence of `lib/content` or `src/lib/content`
-- [x] Fix syntax error (missing parenthesis) in `PageView.tsx`
-- [x] Remove unused imports and variables in `PageView.tsx`

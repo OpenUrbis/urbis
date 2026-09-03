@@ -7,7 +7,7 @@ export const GridColumn: ITemplatesDeclaration = {
     const { templates = [] } = template;
 
     return (
-      <div className="h-full">
+      <div className={isPrint ? "grid h-full min-w-0 gap-2" : "h-full min-w-0"}>
         {templates.map((childTemplate, i) => (
           <ViewTemplateEngine
             key={`${key}-col-child-${i}`}

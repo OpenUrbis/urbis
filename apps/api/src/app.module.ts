@@ -1,7 +1,7 @@
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Reflector } from '@nestjs/core';
+import { APP_GUARD, Reflector } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModuleEntities } from 'auth/index.entity';
 import { OidcModule } from 'auth/oidc/oidc.module';
@@ -10,7 +10,10 @@ import { SupportModuleEntities } from 'support/index.entity';
 import { AppSettingsModule } from './app-settings/app-settings.module';
 import { AppSettingsModuleEntities } from './app-settings/index.entity';
 import { AuthModule } from './auth/auth.module';
+import { HealthModule } from './health/health.module';
 import { RedisModule } from './common/redis/redis.module';
+import { MapUsageModule } from './common/map-usage/map-usage.module';
+import { PostHogModule } from './common/posthog/posthog.module';
 import { DynamicSystemDataModule } from './dynamic-system-data/dynamic-system-data.module';
 import { DynamicSystemDataEntities } from './dynamic-system-data/index.entity';
 import { FilesModule } from './files/files.module';
@@ -32,6 +35,7 @@ import { UserModuleEntities, UserModuleSubscribers } from './user/index.entity';
 import { UserModule } from './user/user.module';
 import { WhitelabelModuleEntities } from './whitelabel/index.entity';
 import { WhitelabelModule } from './whitelabel/whitelabel.module';
+import { ThrottlerBehindProxyGuard } from './common/guards/throttler-behind-proxy.guard';
 @Module({
   imports: [
     SharedModule,
@@ -97,6 +101,8 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     OrganizationModule,
     RoleModule,
     RedisModule,
+    MapUsageModule,
+    PostHogModule,
     WhitelabelModule,
     AppSettingsModule,
     SupportModule,
@@ -105,8 +111,15 @@ import { WhitelabelModule } from './whitelabel/whitelabel.module';
     LegisModule,
     QuestionAnswerModule,
     QuestionTabModule,
+    HealthModule,
   ],
   controllers: [],
-  providers: [Reflector],
+  providers: [
+    Reflector,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerBehindProxyGuard,
+    },
+  ],
 })
 export class AppModule {}

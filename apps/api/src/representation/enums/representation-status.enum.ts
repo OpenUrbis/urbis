@@ -3,4 +3,5 @@ export enum RepresentationStatus {
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
   INFO_REQUESTED = 'INFO_REQUESTED',
+  INACTIVE = 'INACTIVE',
 }

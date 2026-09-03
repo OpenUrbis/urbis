@@ -1,6 +1,6 @@
 import { createOpenAPI } from "fumadocs-openapi/server";
 
-const apiUrl = "https://api.mapa.urbis.sampa.br";
+const apiUrl = "https://localhost:3000";
 
 export const fallbackSchema: any = {
   openapi: "3.0.0",

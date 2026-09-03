@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Patch,
   Post,
+  Query,
   Req,
   Request,
   Res,
@@ -92,8 +93,11 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  public async me(@Request() request) {
-    return this.service.me(request.user as User);
+  public async me(
+    @Request() request,
+    @Query('includeSystem') includeSystem?: string,
+  ) {
+    return this.service.me(request.user as User, includeSystem === 'true');
   }
 
   @ApiBearerAuth()
@@ -101,7 +105,8 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   public async permissions(@Request() request) {
-    return this.service.getPermissions(request.user as User);
+    const organizationId = request.headers['x-organization-id'] as string;
+    return this.service.getPermissions(request.user as User, organizationId);
   }
 
   @ApiBearerAuth()
@@ -109,7 +114,8 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   public async roles(@Request() request) {
-    return this.service.getRoles(request.user as User);
+    const organizationId = request.headers['x-organization-id'] as string;
+    return this.service.getRoles(request.user as User, organizationId);
   }
 
   @ApiBearerAuth()
@@ -191,7 +197,7 @@ export class AuthController {
                 if (isLocal) {
                     window.location.href = 'http://localhost:5174';
                 } else {
-                    window.location.href = 'https://urbis.sampa.br';
+                    window.location.href = 'https://urbis.prefeitura.sp.gov.br';
                 }
             }, 5000);
         </script>

@@ -67,5 +67,6 @@
     "clsx": "^2.1.1",
     "proj4": "^2.20.2",
     "tailwind-merge": "^3.4.0"
-  }
+  },
+  "license": "AGPL-3.0-only"
 }

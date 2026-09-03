@@ -1,3 +1,11 @@
 {
-  "pages": ["general", "legis", "openapi"]
+  "pages": [
+    "index",
+    "---Módulos do Sistema---",
+    "general",
+    "datalake",
+    "legis",
+    "---APIs & Especificações---",
+    "openapi"
+  ]
 }

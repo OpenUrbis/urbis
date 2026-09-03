@@ -255,8 +255,44 @@ export class ExportService {
         outputFormat: 'application/json',
       };
 
+      const headers: Record<string, string> = {};
+      let isAuthorizedGeoServer = wfsUrl.includes('geoserver.slui.dev');
+      try {
+        if (process.env.GEOSERVER_BASE_URL) {
+          isAuthorizedGeoServer =
+            isAuthorizedGeoServer ||
+            new URL(wfsUrl).host ===
+              new URL(process.env.GEOSERVER_BASE_URL).host;
+        }
+        if (process.env.GEOSERVER_URL) {
+          isAuthorizedGeoServer =
+            isAuthorizedGeoServer ||
+            new URL(wfsUrl).host === new URL(process.env.GEOSERVER_URL).host;
+        }
+      } catch {
+        // ignore URL parsing errors
+      }
+
+      if (isAuthorizedGeoServer) {
+        if (process.env.GEOSERVER_BEARER_TOKEN) {
+          const token = process.env.GEOSERVER_BEARER_TOKEN.trim();
+          headers['Authorization'] =
+            token.startsWith('Bearer ') || token.startsWith('Basic ')
+              ? token
+              : `Bearer ${token}`;
+        } else if (
+          process.env.GEOSERVER_USER &&
+          process.env.GEOSERVER_PASSWORD
+        ) {
+          const credentials = Buffer.from(
+            `${process.env.GEOSERVER_USER}:${process.env.GEOSERVER_PASSWORD}`,
+          ).toString('base64');
+          headers['Authorization'] = `Basic ${credentials}`;
+        }
+      }
+
       const response = await firstValueFrom(
-        this.httpService.get(wfsUrl, { params }),
+        this.httpService.get(wfsUrl, { params, headers }),
       );
 
       if (
@@ -330,11 +366,47 @@ export class ExportService {
     }
 
     try {
+      const headers: Record<string, string> = {};
+      let isAuthorizedGeoServer = wfsUrl.includes('geoserver.slui.dev');
+      try {
+        if (process.env.GEOSERVER_BASE_URL) {
+          isAuthorizedGeoServer =
+            isAuthorizedGeoServer ||
+            new URL(wfsUrl).host ===
+              new URL(process.env.GEOSERVER_BASE_URL).host;
+        }
+        if (process.env.GEOSERVER_URL) {
+          isAuthorizedGeoServer =
+            isAuthorizedGeoServer ||
+            new URL(wfsUrl).host === new URL(process.env.GEOSERVER_URL).host;
+        }
+      } catch {
+        // ignore URL parsing errors
+      }
+
+      if (isAuthorizedGeoServer) {
+        if (process.env.GEOSERVER_BEARER_TOKEN) {
+          const token = process.env.GEOSERVER_BEARER_TOKEN.trim();
+          headers['Authorization'] =
+            token.startsWith('Bearer ') || token.startsWith('Basic ')
+              ? token
+              : `Bearer ${token}`;
+        } else if (
+          process.env.GEOSERVER_USER &&
+          process.env.GEOSERVER_PASSWORD
+        ) {
+          const credentials = Buffer.from(
+            `${process.env.GEOSERVER_USER}:${process.env.GEOSERVER_PASSWORD}`,
+          ).toString('base64');
+          headers['Authorization'] = `Basic ${credentials}`;
+        }
+      }
+
       this.logger.log(
         `WFS Request: ${wfsUrl} params: ${JSON.stringify(params)}`,
       );
       const response = await firstValueFrom(
-        this.httpService.get(wfsUrl, { params }),
+        this.httpService.get(wfsUrl, { params, headers }),
       );
 
       if (response.data && response.data.type === 'FeatureCollection') {

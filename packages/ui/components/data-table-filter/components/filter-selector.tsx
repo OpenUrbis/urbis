@@ -1,5 +1,5 @@
-import { Button } from '../../ui/button'
-import { Checkbox } from '../../ui/checkbox'
+import { Button } from "../../ui/button";
+import { Checkbox } from "../../ui/checkbox";
 import {
   Command,
   CommandEmpty,
@@ -7,20 +7,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '../../ui/command'
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from '../../ui/dialog'
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from '../../ui/drawer'
-import { useIsMobile } from '../../../hooks/use-mobile'
-import { cn } from '../../../lib/utils'
-import { ArrowRightIcon, ChevronRightIcon, FilterIcon } from 'lucide-react'
+} from "../../ui/command";
+import { Dialog, DialogContent, DialogTrigger } from "../../ui/dialog";
+import { Drawer, DrawerContent, DrawerTrigger } from "../../ui/drawer";
+import { useIsMobile } from "../../../hooks/use-mobile";
+import { cn } from "../../../lib/utils";
+import { ArrowRightIcon, ChevronRightIcon, FilterIcon } from "lucide-react";
 import {
   isValidElement,
   memo,
@@ -29,62 +21,64 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react'
-import React from 'react'
+} from "react";
+import React from "react";
 import type {
   Column,
   ColumnDataType,
   DataTableFilterActions,
   FilterStrategy,
   FiltersState,
-} from '../core/types'
-import { isAnyOf } from '../lib/array'
-import { getColumn } from '../lib/helpers'
-import { type Locale, t } from '../lib/i18n'
-import { FilterValueController } from './filter-value'
+} from "../core/types";
+import { isAnyOf } from "../lib/array";
+import { getColumn } from "../lib/helpers";
+import { type Locale, t } from "../lib/i18n";
+import { FilterValueController } from "./filter-value";
 
 interface FilterSelectorProps<TData> {
-  filters: FiltersState
-  columns: Column<TData>[]
-  actions: DataTableFilterActions
-  strategy: FilterStrategy
-  locale?: Locale
-  inline?: boolean
+  filters: FiltersState;
+  columns: Column<TData>[];
+  actions: DataTableFilterActions;
+  strategy: FilterStrategy;
+  locale?: Locale;
+  inline?: boolean;
 }
 
-export const FilterSelector = memo(FilterSelectorInner) as typeof FilterSelectorInner
+export const FilterSelector = memo(
+  FilterSelectorInner,
+) as typeof FilterSelectorInner;
 
 function FilterSelectorInner<TData>({
   filters,
   columns,
   actions,
   strategy,
-  locale = 'en',
+  locale = "en",
   inline,
 }: FilterSelectorProps<TData>) {
-  const isMobile = useIsMobile()
-  const [open, setOpen] = useState(false)
-  const [value, setValue] = useState('')
-  const [property, setProperty] = useState<string | undefined>(undefined)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const isMobile = useIsMobile();
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const [property, setProperty] = useState<string | undefined>(undefined);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const column = property ? getColumn(columns, property) : undefined
+  const column = property ? getColumn(columns, property) : undefined;
   const filter = property
     ? filters.find((f) => f.columnId === property)
-    : undefined
+    : undefined;
 
-  const hasFilters = filters.length > 0
+  const hasFilters = filters.length > 0;
 
   useEffect(() => {
     if (property && inputRef) {
-      inputRef.current?.focus()
-      setValue('')
+      inputRef.current?.focus();
+      setValue("");
     }
-  }, [property])
+  }, [property]);
 
   useEffect(() => {
-    if (!open) setTimeout(() => setValue(''), 150)
-  }, [open])
+    if (!open) setTimeout(() => setValue(""), 150);
+  }, [open]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: need filters to be updated
   const content = useMemo(
@@ -102,19 +96,19 @@ function FilterSelectorInner<TData>({
         <Command
           loop
           filter={(value, search, keywords) => {
-            const extendValue = `${value} ${keywords?.join(' ')}`
+            const extendValue = `${value} ${keywords?.join(" ")}`;
             return extendValue.toLowerCase().includes(search.toLowerCase())
               ? 1
-              : 0
+              : 0;
           }}
         >
           <CommandInput
             value={value}
             onValueChange={setValue}
             ref={inputRef}
-            placeholder={t('search', locale)}
+            placeholder={t("search", locale)}
           />
-          <CommandEmpty>{t('noresults', locale)}</CommandEmpty>
+          <CommandEmpty>{t("noresults", locale)}</CommandEmpty>
           <CommandList className="max-h-fit">
             <CommandGroup>
               {columns.map((column) => (
@@ -136,22 +130,32 @@ function FilterSelectorInner<TData>({
           </CommandList>
         </Command>
       ),
-    [property, column, filter, filters, columns, actions, value, locale, strategy],
-  )
+    [
+      property,
+      column,
+      filter,
+      filters,
+      columns,
+      actions,
+      value,
+      locale,
+      strategy,
+    ],
+  );
 
   if (inline) {
     return (
       <div className="flex flex-col gap-2 w-full">
         <Button
           variant="outline"
-          className={cn('h-7 w-fit', hasFilters && '!px-2')}
+          className={cn("h-7 w-fit", hasFilters && "!px-2")}
           onClick={() => {
-            if (open) setTimeout(() => setProperty(undefined), 100)
-            setOpen(!open)
+            if (open) setTimeout(() => setProperty(undefined), 100);
+            setOpen(!open);
           }}
         >
           <FilterIcon className="size-4" />
-          {!hasFilters && <span>{t('filter', locale)}</span>}
+          {!hasFilters && <span>{t("filter", locale)}</span>}
         </Button>
         {open && (
           <div className="border rounded-md bg-background overflow-hidden animate-in fade-in-0 zoom-in-95">
@@ -159,7 +163,7 @@ function FilterSelectorInner<TData>({
           </div>
         )}
       </div>
-    )
+    );
   }
 
   if (isMobile) {
@@ -167,90 +171,90 @@ function FilterSelectorInner<TData>({
       <Drawer
         open={open}
         onOpenChange={async (value) => {
-          setOpen(value)
-          if (!value) setTimeout(() => setProperty(undefined), 100)
+          setOpen(value);
+          if (!value) setTimeout(() => setProperty(undefined), 100);
         }}
       >
         <DrawerTrigger asChild>
           <Button
             variant="outline"
-            className={cn('h-7', hasFilters && 'w-fit !px-2')}
+            className={cn("h-7", hasFilters && "w-fit !px-2")}
           >
             <FilterIcon className="size-4" />
-            {!hasFilters && <span>{t('filter', locale)}</span>}
+            {!hasFilters && <span>{t("filter", locale)}</span>}
           </Button>
         </DrawerTrigger>
         <DrawerContent className="max-h-[80vh]">
           <div className="p-4 pt-0 mt-4">{content}</div>
         </DrawerContent>
       </Drawer>
-    )
+    );
   }
 
   return (
     <Dialog
       open={open}
       onOpenChange={async (value) => {
-        setOpen(value)
-        if (!value) setTimeout(() => setProperty(undefined), 100)
+        setOpen(value);
+        if (!value) setTimeout(() => setProperty(undefined), 100);
       }}
     >
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className={cn('h-7', hasFilters && 'w-fit !px-2')}
+          className={cn("h-7", hasFilters && "w-fit !px-2")}
         >
           <FilterIcon className="size-4" />
-          {!hasFilters && <span>{t('filter', locale)}</span>}
+          {!hasFilters && <span>{t("filter", locale)}</span>}
         </Button>
       </DialogTrigger>
       <DialogContent className="p-0 gap-0 sm:max-w-[425px]">
         {content}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 export function FilterableColumn<TData, TType extends ColumnDataType, TVal>({
   column,
   setProperty,
 }: {
-  column: Column<TData, TType, TVal>
-  setProperty: (value: string) => void
+  column: Column<TData, TType, TVal>;
+  setProperty: (value: string) => void;
 }) {
-  const itemRef = useRef<HTMLDivElement>(null)
+  const itemRef = useRef<HTMLDivElement>(null);
 
   const prefetch = useCallback(() => {
-    column.prefetchOptions()
-    column.prefetchValues()
-    column.prefetchFacetedUniqueValues()
-    column.prefetchFacetedMinMaxValues()
-  }, [column])
+    column.prefetchOptions();
+    column.prefetchValues();
+    column.prefetchFacetedUniqueValues();
+    column.prefetchFacetedMinMaxValues();
+  }, [column]);
 
   useEffect(() => {
-    const target = itemRef.current
+    const target = itemRef.current;
 
-    if (!target) return
+    if (!target) return;
 
     // Set up MutationObserver
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
-        if (mutation.type === 'attributes') {
-          const isSelected = target.getAttribute('data-selected') === 'true'
-          if (isSelected) prefetch()
+        if (mutation.type === "attributes") {
+          const isSelected = target.getAttribute("data-selected") === "true";
+          if (isSelected) prefetch();
         }
       }
-    })
+    });
 
     // Set up observer
     observer.observe(target, {
       attributes: true,
-      attributeFilter: ['data-selected'],
-    })
+      attributeFilter: ["data-selected"],
+    });
 
     // Cleanup on unmount
-    return () => observer.disconnect()
-  }, [prefetch])
+    return () => observer.disconnect();
+  }, [prefetch]);
 
   return (
     <CommandItem
@@ -261,8 +265,8 @@ export function FilterableColumn<TData, TType extends ColumnDataType, TVal>({
       className="group"
       onMouseEnter={prefetch}
       onMouseDown={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
+        e.preventDefault();
+        e.stopPropagation();
       }}
     >
       <div className="flex w-full items-center justify-between">
@@ -273,21 +277,21 @@ export function FilterableColumn<TData, TType extends ColumnDataType, TVal>({
         <ArrowRightIcon className="size-4 opacity-0 group-aria-selected:opacity-100" />
       </div>
     </CommandItem>
-  )
+  );
 }
 
 interface QuickSearchFiltersProps<TData> {
-  search?: string
-  filters: FiltersState
-  columns: Column<TData>[]
-  actions: DataTableFilterActions
-  strategy: FilterStrategy
-  locale?: Locale
+  search?: string;
+  filters: FiltersState;
+  columns: Column<TData>[];
+  actions: DataTableFilterActions;
+  strategy: FilterStrategy;
+  locale?: Locale;
 }
 
 export const QuickSearchFilters = memo(
   QuickSearchFiltersInner,
-) as typeof QuickSearchFiltersInner
+) as typeof QuickSearchFiltersInner;
 
 function QuickSearchFiltersInner<TData>({
   search,
@@ -298,30 +302,30 @@ function QuickSearchFiltersInner<TData>({
   const cols = useMemo(
     () =>
       columns.filter((c) =>
-        isAnyOf<ColumnDataType>(c.type, ['option', 'multiOption']),
+        isAnyOf<ColumnDataType>(c.type, ["option", "multiOption"]),
       ),
     [columns],
-  )
+  );
 
-  if (!search || search.trim().length < 2) return null
+  if (!search || search.trim().length < 2) return null;
 
   return (
     <>
       {cols.map((column) => {
-        const filter = filters.find((f) => f.columnId === column.id)
-        const options = column.getOptions()
-        const optionsCount = column.getFacetedUniqueValues()
+        const filter = filters.find((f) => f.columnId === column.id);
+        const options = column.getOptions();
+        const optionsCount = column.getFacetedUniqueValues();
 
         function handleOptionSelect(value: string, check: boolean) {
-          if (check) actions.addFilterValue(column, [value])
-          else actions.removeFilterValue(column, [value])
+          if (check) actions.addFilterValue(column, [value]);
+          else actions.removeFilterValue(column, [value]);
         }
 
         return (
           <React.Fragment key={column.id}>
             {options.map((v) => {
-              const checked = Boolean(filter?.values.includes(v.value))
-              const count = optionsCount?.get(v.value) ?? 0
+              const checked = Boolean(filter?.values.includes(v.value));
+              const count = optionsCount?.get(v.value) ?? 0;
 
               return (
                 <CommandItem
@@ -329,12 +333,12 @@ function QuickSearchFiltersInner<TData>({
                   value={v.value}
                   keywords={[v.label, v.value]}
                   onSelect={() => {
-                    handleOptionSelect(v.value, !checked)
+                    handleOptionSelect(v.value, !checked);
                   }}
                   className="group"
                   onMouseDown={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
+                    e.preventDefault();
+                    e.stopPropagation();
                   }}
                 >
                   <div className="flex items-center gap-1.5 group">
@@ -344,14 +348,12 @@ function QuickSearchFiltersInner<TData>({
                     />
                     <div className="flex items-center w-4 justify-center">
                       {v.icon &&
-                        (isValidElement(v.icon) ? (
-                          v.icon
-                        ) : (
-                          (() => {
-                            const Icon = v.icon as React.ElementType
-                            return <Icon className="size-4 text-primary" />
-                          })()
-                        ))}
+                        (isValidElement(v.icon)
+                          ? v.icon
+                          : (() => {
+                              const Icon = v.icon as React.ElementType;
+                              return <Icon className="size-4 text-primary" />;
+                            })())}
                     </div>
                     <div className="flex items-center gap-0.5">
                       <span className="text-muted-foreground">
@@ -362,22 +364,22 @@ function QuickSearchFiltersInner<TData>({
                         {v.label}
                         <sup
                           className={cn(
-                            !optionsCount && 'hidden',
-                            'ml-0.5 tabular-nums tracking-tight text-muted-foreground',
-                            count === 0 && 'slashed-zero',
+                            !optionsCount && "hidden",
+                            "ml-0.5 tabular-nums tracking-tight text-muted-foreground",
+                            count === 0 && "slashed-zero",
                           )}
                         >
-                          {count < 100 ? count : '100+'}
+                          {count < 100 ? count : "100+"}
                         </sup>
                       </span>
                     </div>
                   </div>
                 </CommandItem>
-              )
+              );
             })}
           </React.Fragment>
-        )
+        );
       })}
     </>
-  )
+  );
 }

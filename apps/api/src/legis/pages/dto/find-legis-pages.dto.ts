@@ -6,6 +6,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   Min,
 } from 'class-validator';
@@ -56,6 +57,12 @@ export class FindLegisPagesDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toBoolean)
+  @IsBoolean()
+  withDeleted?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   search?: string;
 
@@ -74,10 +81,18 @@ export class FindLegisPagesDto {
   @Max(100)
   limit?: number = 20;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Partial match on the author label.' })
   @IsOptional()
   @IsString()
   author?: string;
+
+  @ApiPropertyOptional({
+    description: 'Exact match on the system user credited as author.',
+    format: 'uuid',
+  })
+  @IsOptional()
+  @IsUUID()
+  authorId?: string;
 
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()

@@ -6,7 +6,7 @@ Este documento descreve o padrão **`AbstractDataSource`**, uma solução de ger
 
 ## 🚀 1. Visão Geral do Padrão
 
-O `AbstractDataSource` combina o que há de mais moderno no Angular para criar uma fonte de dados *declarativa* e *reativa*.
+O `AbstractDataSource` combina o que há de mais moderno no Angular para criar uma fonte de dados _declarativa_ e _reativa_.
 
 1. **Estado Único (Signals):** O estado de paginação (`page`, `pageSize`) e o estado de filtros (`FormGroup` opcional) são unidos em um único Signal (`_allParams`).
 2. **Gatilho Reativo (`rxResource`):** O `rxResource` observa o `_allParams`. Qualquer mudança (mudança de página, ordenação, ou valor de filtro) dispara uma nova requisição.
@@ -27,20 +27,20 @@ Crie um serviço que estenda `AbstractDataSource` e defina sua URL base, a tipag
 
 ```typescript
 // products-data-source.service.ts
-import { Injectable, inject } from '@angular/core';
-import { FormBuilder, FormControl } from '@angular/forms';
-import { AbstractDataSource, DataSourceOptions, TItem } from './abstract-data-source'; 
+import { Injectable, inject } from "@angular/core";
+import { FormBuilder, FormControl } from "@angular/forms";
+import { AbstractDataSource, DataSourceOptions, TItem } from "./abstract-data-source";
 
 // Tipagem dos Filtros
 interface ProductFilters {
   name: string | null;
-  category: 'eletronics' | 'books' | 'all' | null;
+  category: "eletronics" | "books" | "all" | null;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class ProductDataSource extends AbstractDataSource<TProduct, ProductFilters> {
-  protected baseUrl: string = '/api/products'; 
-  
+  protected baseUrl: string = "/api/products";
+
   private fb = inject(FormBuilder);
   public readonly filterForm;
 
@@ -48,16 +48,17 @@ export class ProductDataSource extends AbstractDataSource<TProduct, ProductFilte
     // 1. Cria o FormGroup
     const form = this.fb.group({
       name: new FormControl<string | null>(null),
-      category: new FormControl<'eletronics' | 'books' | 'all' | null>('all'),
+      category: new FormControl<"eletronics" | "books" | "all" | null>("all"),
     });
     this.filterForm = form;
 
     // 2. Define as opções
     const options: DataSourceOptions<ProductFilters> = {
-      filterFormGroup: this.filterForm, 
-      initialParams: { pageSize: 20 }
+      filterFormGroup: this.filterForm,
+      initialParams: { pageSize: 20 },
     };
-    
+
     super(options);
   }
 }
+```

@@ -49,7 +49,12 @@ export const CodeEditor = ({
   };
 
   return (
-    <div className={cn("relative font-mono text-sm border rounded-md overflow-hidden h-full", className)}>
+    <div
+      className={cn(
+        "relative font-mono text-sm border rounded-md overflow-hidden h-full",
+        className,
+      )}
+    >
       <Editor
         height="100%"
         defaultLanguage={language}

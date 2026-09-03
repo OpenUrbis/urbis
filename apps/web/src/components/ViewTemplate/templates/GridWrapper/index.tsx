@@ -37,8 +37,10 @@ export const GridWrapper: ITemplatesDeclaration = {
     // Force mobile layout if viewMode is mobile, otherwise use responsive classes
     const isMobileView = viewMode === "mobile";
     const gridClass = isMobileView
-      ? "flex flex-col gap-4 w-full"
-      : "grid grid-cols-1 md:grid-cols-12 gap-4 w-full";
+      ? "flex flex-col gap-4 w-full min-w-0"
+      : isPrint
+        ? "grid grid-cols-1 gap-2 w-full min-w-0"
+        : "grid grid-cols-1 md:grid-cols-12 gap-4 w-full min-w-0";
 
     return (
       <div className="relative w-full group/grid">
@@ -47,16 +49,15 @@ export const GridWrapper: ITemplatesDeclaration = {
             const colIndex = i % cols.length;
             const span = cols[colIndex];
             // If mobile view, force full width, otherwise use span class
-            const spanClass = isMobileView
-              ? "w-full"
-              : getSpanClass(span);
+            const spanClass =
+              isMobileView || isPrint ? "w-full" : getSpanClass(span);
 
             return (
               <div
                 key={`${key}-grid-cell-${i}`}
-                className={`${spanClass} min-h-[50px]`}
+                className={`${spanClass} min-h-[50px] min-w-0`}
               >
-                <div className="h-full w-full">
+                <div className="h-full w-full min-w-0">
                   <ViewTemplateEngine
                     template={childTemplate}
                     data={data}

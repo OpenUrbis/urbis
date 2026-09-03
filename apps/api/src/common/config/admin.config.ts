@@ -8,6 +8,8 @@ export default registerAs('admin', () => ({
     name: process.env.ADMIN_ORGANIZATION_NAME || 'admin',
   },
   account: {
-    email: process.env.ADMIN_ACCOUNT_EMAIL || 'test@test.com',
+    email:
+      process.env.ADMIN_ACCOUNT_EMAIL || 'admin@urbis.prefeitura.sp.gov.br',
+    password: process.env.ADMIN_ACCOUNT_PASSWORD,
   },
 }));

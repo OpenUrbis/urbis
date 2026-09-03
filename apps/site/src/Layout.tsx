@@ -81,13 +81,14 @@ function LayoutInner() {
     const map: Record<string, string> = {
       "/": "Mosaico",
       "/doc-tecnica": "Documentação técnica",
-      "/info-urbis": "Legis",
-      "/licencas": "Licenças",
-      "/carta-servicos": "Carta de Serviços",
+      // Páginas que fazem parte do Mosaico
+      "/carta-servicos": "Mosaico",
+      "/guia-legislacao-urbanistica": "Mosaico",
+      "/guia-fiscalizacao-urbanistica": "Mosaico",
       "/sobre": "Sobre",
     };
 
-    return map[location.pathname] ?? "Urbis";
+    return map[normalizePath(location.pathname)] ?? "Urbis";
   }, [location.pathname]);
 
   // ✅ marca ativo (somente internos) e remove do menu
@@ -111,8 +112,8 @@ function LayoutInner() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
-      <a 
-        href="#main-content" 
+      <a
+        href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
       >
         Saltar para o conteúdo principal
@@ -158,8 +159,14 @@ function LayoutInner() {
                       <HelpSidebarContent
                         currentTabSlug="mosaico"
                         appFilter="mosaico"
-                        faqEndpointBase={import.meta.env.VITE_API_URL + '/support/question-tabs'}
-                        endpoint={import.meta.env.VITE_API_URL + '/support/create-ticket'}
+                        faqEndpointBase={
+                          import.meta.env.VITE_API_URL +
+                          "/support/question-tabs"
+                        }
+                        endpoint={
+                          import.meta.env.VITE_API_URL +
+                          "/support/create-ticket"
+                        }
                       />
                     </div>,
                     "Ajuda",
@@ -191,8 +198,14 @@ function LayoutInner() {
                         <HelpSidebarContent
                           currentTabSlug="mosaico"
                           appFilter="mosaico"
-                          faqEndpointBase={import.meta.env.VITE_API_URL + '/support/question-tabs'}
-                          endpoint={import.meta.env.VITE_API_URL + '/support/create-ticket'}
+                          faqEndpointBase={
+                            import.meta.env.VITE_API_URL +
+                            "/support/question-tabs"
+                          }
+                          endpoint={
+                            import.meta.env.VITE_API_URL +
+                            "/support/create-ticket"
+                          }
                         />
                       </div>
                     </div>,

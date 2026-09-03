@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Injectable,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { OrganizationService } from 'organization/organization.service';
 
@@ -27,6 +28,13 @@ export class OrganizationGuard implements CanActivate {
     if (!organization) {
       throw new NotFoundException(
         `Organization with ID ${organizationId} not found`,
+      );
+    }
+
+    // Verifica se a organização está desativada
+    if (organization.metadata?.isActive === false) {
+      throw new ForbiddenException(
+        'This organization/entity is currently inactive.',
       );
     }
 

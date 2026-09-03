@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { RolePermissionScopeEnum } from "@/utils/access-control";
-import { Folder, Layers, Search, Settings2 } from "lucide-react";
+import { Folder, Layers, Search, Settings2, Activity } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import Header from "../Header";
@@ -25,15 +25,20 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <div className="flex flex-col min-h-screen w-full bg-background">
       <Header />
-      <div className="flex flex-1 min-h-0">
+      <div className="flex h-[calc(100vh-64px)] min-h-0 overflow-hidden">
         {/* Sidebar */}
         <aside
           className={cn(
-            "sticky top-0 h-[calc(100vh-64px)] flex flex-col border-r bg-card transition-all duration-300 ease-in-out z-20",
+            "sticky top-0 h-full shrink-0 flex flex-col border-r bg-card transition-all duration-300 ease-in-out z-20",
             isCollapsed ? "w-[60px]" : "w-[240px]",
           )}
         >
           <nav className="flex-1 p-2 space-y-2 overflow-y-auto">
+            {!isCollapsed && (
+              <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Administração
+              </div>
+            )}
             {/* Camadas */}
             <HasPermission
               permissions={[
@@ -225,12 +230,50 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                 </Tooltip>
               </TooltipProvider>
             </HasPermission>
+
+            <HasPermission
+              permissions={{
+                resource: "layer-schema",
+                action: "update",
+                scope: RolePermissionScopeEnum.ANY,
+                id: "layer-schema:update",
+              }}
+            >
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={
+                        location.startsWith("/diagnostics")
+                          ? "secondary"
+                          : "ghost"
+                      }
+                      className={cn(
+                        "w-full justify-start",
+                        isCollapsed ? "justify-center px-2" : "px-4",
+                      )}
+                      onClick={() => setLocation("/diagnostics")}
+                    >
+                      <Activity
+                        className={cn("h-5 w-5", !isCollapsed && "mr-2")}
+                      />
+                      {!isCollapsed && <span>Diagnóstico</span>}
+                    </Button>
+                  </TooltipTrigger>
+                  {isCollapsed && (
+                    <TooltipContent side="right">
+                      Diagnóstico de Links
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            </HasPermission>
           </nav>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 relative flex flex-col min-w-0">
-          <div className="flex-1 overflow-auto">{children}</div>
+        <main className="flex-1 relative flex min-h-0 min-w-0 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-auto">{children}</div>
         </main>
       </div>
     </div>

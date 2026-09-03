@@ -4,20 +4,37 @@ import {
   type LegisAdvancedSearchQuery,
   type LegisPageApiModel,
   type NormativeSearchApiResult,
-} from '@/integrations/legis-page-api';
-import type { ColetaneaTematica, OriginalNormativo } from '../domain/entities';
-import type { CreatePageDto, Page, PageType, UpdatePageDto } from '../types/page';
+} from "@/integrations/legis-page-api";
+import type { ColetaneaTematica, OriginalNormativo } from "../domain/entities";
+import { mapUserSummary } from "../domain/user-summary";
+import type {
+  CreatePageDto,
+  Page,
+  PageType,
+  UpdatePageDto,
+} from "../types/page";
 
 export interface SearchCondition {
   id: string;
-  field: 'term' | 'normativeType' | 'actDate' | 'authorityId' | 'scope';
-  operator: 'contains' | 'equals' | 'not_contains' | 'greater' | 'less';
+  field:
+    | "term"
+    | "normativeType"
+    | "actDate"
+    | "date"
+    | "authorityId"
+    | "authority"
+    | "scope"
+    | "number"
+    | "pageId"
+    | "id";
+  operator: "contains" | "equals" | "not_contains" | "greater" | "less";
   value: string;
-  connector: 'AND' | 'OR';
+  connector: "AND" | "OR";
 }
 
 export interface AdvancedSearchQuery {
   conditions: SearchCondition[];
+  withDeleted?: boolean;
 }
 
 export interface NormativeSearchResult {
@@ -40,32 +57,73 @@ export interface GlobalSearchResult {
 }
 
 class PageService {
+  private resolvePageTitle(
+    page: LegisPageApiModel,
+    entityType?: string | null,
+  ): string {
+    if (page.title?.trim()) {
+      return page.title;
+    }
+
+    if (entityType === "original_normativo") {
+      const entityData = (page.entityData ?? {}) as Partial<OriginalNormativo>;
+
+      if (entityData.name?.trim()) {
+        return entityData.name;
+      }
+
+      if (entityData.ementa?.trim()) {
+        return entityData.ementa;
+      }
+    }
+
+    if (entityType === "coletanea_tematica") {
+      const entityData = (page.entityData ?? {}) as Partial<ColetaneaTematica>;
+
+      if (entityData.title?.trim()) {
+        return entityData.title;
+      }
+    }
+
+    return "Sem título";
+  }
+
   private normalizePageType(type?: string | null): PageType {
     switch (type) {
-      case 'page':
-      case 'normative':
-      case 'original_normativo':
-      case 'coletanea_tematica':
+      case "page":
+      case "normative":
+      case "original_normativo":
+      case "coletanea_tematica":
         return type;
       default:
-        return 'page';
+        return "page";
     }
   }
 
-  private normalizeOriginalNormativo(page: LegisPageApiModel): OriginalNormativo {
+  private normalizeOriginalNormativo(
+    page: LegisPageApiModel,
+  ): OriginalNormativo {
     const entityData = (page.entityData ?? {}) as Partial<OriginalNormativo>;
+    const resolvedTitle = this.resolvePageTitle(page, "original_normativo");
+    /*
+     * Legado: antes de `authorId` existir, paginas importadas guardavam o id da
+     * autoridade no rotulo `author`. Isso so vale como fallback quando nao ha
+     * usuario vinculado - senao o nome de uma pessoa viraria a autoridade do
+     * documento normativo.
+     */
+    const legacyAuthorityId = page.authorId ? undefined : page.author;
 
     return {
       ...entityData,
       id: page.id,
-      type: 'original_normativo',
-      normativeType: entityData.normativeType ?? 'L',
-      authorityId: entityData.authorityId ?? page.author,
-      ementa: entityData.ementa ?? page.title,
+      type: "original_normativo",
+      normativeType: entityData.normativeType ?? "L",
+      authorityId: entityData.authorityId ?? legacyAuthorityId ?? "",
+      ementa: entityData.ementa ?? resolvedTitle,
       elements: entityData.elements ?? [],
       sources: entityData.sources ?? [],
       editorContent:
-        typeof entityData.editorContent === 'string'
+        typeof entityData.editorContent === "string"
           ? entityData.editorContent
           : page.content,
       createdAt: entityData.createdAt ?? page.createdAt,
@@ -73,16 +131,18 @@ class PageService {
     };
   }
 
-  private normalizeColetaneaTematica(page: LegisPageApiModel): ColetaneaTematica {
+  private normalizeColetaneaTematica(
+    page: LegisPageApiModel,
+  ): ColetaneaTematica {
     const entityData = (page.entityData ?? {}) as Partial<ColetaneaTematica>;
 
     return {
       ...entityData,
       id: page.id,
-      type: 'coletanea_tematica',
+      type: "coletanea_tematica",
       title: entityData.title ?? page.title,
-      collectionType: entityData.collectionType ?? 'Definições',
-      category: entityData.category ?? page.tags.at(0) ?? 'Geral',
+      collectionType: entityData.collectionType ?? "Definições",
+      category: entityData.category ?? page.tags.at(0) ?? "Geral",
       theme: entityData.theme ?? page.tags.at(1) ?? page.title,
       fullDescription: entityData.fullDescription ?? page.content,
       links: entityData.links ?? [],
@@ -94,26 +154,34 @@ class PageService {
   private mapApiPageToPage(page: LegisPageApiModel): Page {
     const pageType = this.normalizePageType(page.type);
     const entityType = page.entityType ?? page.type;
+    const entity =
+      entityType === "original_normativo"
+        ? this.normalizeOriginalNormativo(page)
+        : entityType === "coletanea_tematica"
+          ? this.normalizeColetaneaTematica(page)
+          : undefined;
 
     return {
       id: page.id,
-      title: page.title,
+      title: this.resolvePageTitle(page, entityType),
       content: page.content,
       slug: page.slug,
       type: pageType,
       author: page.author,
+      authorId: page.authorId ?? undefined,
+      authorUser: mapUserSummary(page.authorUser),
+      createdBy: page.createdBy ?? undefined,
+      updatedBy: page.updatedBy ?? undefined,
+      createdByUser: mapUserSummary(page.createdByUser),
+      updatedByUser: mapUserSummary(page.updatedByUser),
       tags: page.tags ?? [],
       categoryId: page.categoryId ?? undefined,
       isPublic: page.isPublic,
       source: page.source ?? undefined,
       createdAt: page.createdAt,
       updatedAt: page.updatedAt,
-      entity:
-        entityType === 'original_normativo'
-          ? this.normalizeOriginalNormativo(page)
-          : entityType === 'coletanea_tematica'
-            ? this.normalizeColetaneaTematica(page)
-            : undefined,
+      deletedAt: page.deletedAt ?? undefined,
+      entity,
     };
   }
 
@@ -123,6 +191,7 @@ class PageService {
       content: data.content,
       type: data.type,
       author: data.author,
+      authorId: data.authorId,
       tags: data.tags,
       categoryId: data.categoryId,
       isPublic: data.isPublic,
@@ -138,6 +207,7 @@ class PageService {
       content: data.content,
       type: data.type,
       author: data.author,
+      authorId: data.authorId,
       tags: data.tags,
       categoryId: data.categoryId,
       isPublic: data.isPublic,
@@ -147,8 +217,12 @@ class PageService {
     };
   }
 
-  async getAll(): Promise<Page[]> {
-    const response = await legisPageApi.list({ page: 1, limit: 100 });
+  async getAll(params?: { withDeleted?: boolean }): Promise<Page[]> {
+    const response = await legisPageApi.list({
+      page: 1,
+      limit: 100,
+      ...params,
+    });
 
     return response.items.map((page) => this.mapApiPageToPage(page));
   }
@@ -173,6 +247,20 @@ class PageService {
 
   async delete(id: string): Promise<void> {
     await legisPageApi.remove(id);
+  }
+
+  async restorePage(id: string): Promise<Page> {
+    const page = await legisPageApi.restore(id);
+    return this.mapApiPageToPage(page);
+  }
+
+  async permanentDeletePage(id: string): Promise<void> {
+    await legisPageApi.permanentDelete(id);
+  }
+
+  async getByIdWithDeleted(id: string): Promise<Page | undefined> {
+    const page = await legisPageApi.getByIdWithDeleted(id);
+    return this.mapApiPageToPage(page);
   }
 
   async importFromUrl(url: string): Promise<string> {
@@ -203,7 +291,9 @@ class PageService {
   }
 
   async searchPages(query: AdvancedSearchQuery): Promise<GlobalSearchResult[]> {
-    const results = await legisPageApi.searchPages(query as LegisAdvancedSearchQuery);
+    const results = await legisPageApi.searchPages(
+      query as LegisAdvancedSearchQuery,
+    );
 
     return results.map((result: GlobalSearchApiResult) => ({
       page: this.mapApiPageToPage(result.page),
@@ -216,7 +306,7 @@ class PageService {
     query: string | AdvancedSearchQuery,
   ): Promise<NormativeSearchResult[]> {
     const results = await legisPageApi.searchNormativeElements(
-      typeof query === 'string' ? query : (query as LegisAdvancedSearchQuery),
+      typeof query === "string" ? query : (query as LegisAdvancedSearchQuery),
     );
 
     return results.map((result: NormativeSearchApiResult) => ({

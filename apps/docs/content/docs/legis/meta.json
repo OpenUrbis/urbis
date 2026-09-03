@@ -1,4 +1,6 @@
 {
-  "title": "Legis Architecture",
-  "pages": ["architecture"]
+  "title": "Legis Urbanístico",
+  "icon": "Scale",
+  "root": true,
+  "pages": ["architecture", "specs", "inspetor-situacoes"]
 }

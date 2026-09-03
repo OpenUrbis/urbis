@@ -9,11 +9,11 @@
   </div>
 
   <div
-    class="flex-1 w-full overflow-y-auto border border-border rounded-md p-4 bg-muted/20 min-h-[300px] max-h-[500px]"
+    class="flex-1 w-full overflow-y-auto border border-border rounded-md p-4 bg-muted/20 min-h-[260px] max-h-[460px]"
     (scroll)="onScroll($event)"
   >
     <!-- Dummy content for scroll stream -->
-    <div class="space-y-4 h-[800px] pb-10">
+    <div class="space-y-4 pb-10">
       <p><strong>Termo de Responsabilidade no Uso do Sistema Urbis</strong></p>
 
       <p>
@@ -26,8 +26,26 @@
       <p>
         <strong>1. LICENÇA DE USO</strong><br />
         O Sistema Urbis é de titularidade do Município de São Paulo e licenciado
-        pelas licenças <strong>AGPL v3</strong> e <strong>CC BY-SA 4.0</strong>,
-        que permitem o uso, modificação e novas partes, desde que informada a
+        pelas licenças
+        <strong
+          ><a
+            href="https://mapa.urbis.prefeitura.sp.gov.br/license/agpl-v3.html"
+            target="_blank"
+            rel="noreferrer"
+            class="underline hover:text-primary"
+            >AGPL v3</a
+          ></strong
+        >
+        e
+        <strong
+          ><a
+            href="https://mapa.urbis.prefeitura.sp.gov.br/license/cc-by-sa-4.0.html"
+            target="_blank"
+            rel="noreferrer"
+            class="underline hover:text-primary"
+            >CC BY-SA 4.0</a
+          ></strong
+        >, que permitem o uso, modificação e novas partes, desde que informada a
         titularidade original e licenciado pelas mesmas licenças.
       </p>
 
@@ -50,15 +68,14 @@
         pessoais são o acesso controlado e a exibição parcial dos nomes.
       </p>
 
-      <p><strong>4. PRINCIPAIS DEVERES</strong></p>
-
       <p>
+        <strong>4. PRINCIPAIS DEVERES</strong><br />
         O usuário deve
         <strong
           >prestar informações conforme a verdade e com a devida atenção</strong
         >, e está ciente de que o descumprimento destes deveres o sujeita a
         várias formas de responsabilização, como multa, apreensão, interdição,
-        embargo e processos judiciais pela Prefeitura, assim como investigação
+        embargo e processos judicial pela Prefeitura, assim como investigação
         pela Polícia Civil e pelos conselhos de regulamentação profissional.
       </p>
 
@@ -67,8 +84,27 @@
       <p>
         <strong>1. LICENÇA DE USO</strong><br />
         O Sistema Urbis é de titularidade do Município de São Paulo, que
-        licencia sua utilização pelas <strong>licenças AGPL v3</strong> para
-        <em>software</em>, e <strong>CC BY-SA 4.0</strong> para conteúdos não
+        licencia sua utilização pelas licenças
+        <strong
+          ><a
+            href="https://mapa.urbis.prefeitura.sp.gov.br/license/agpl-v3.html"
+            target="_blank"
+            rel="noreferrer"
+            class="underline hover:text-primary"
+            >AGPL v3</a
+          ></strong
+        >
+        para <em>software</em>, e
+        <strong
+          ><a
+            href="https://mapa.urbis.prefeitura.sp.gov.br/license/cc-by-sa-4.0.html"
+            target="_blank"
+            rel="noreferrer"
+            class="underline hover:text-primary"
+            >CC BY-SA 4.0</a
+          ></strong
+        >
+        para conteúdos não
         <em>software</em> (como textos, manuais, imagens e vídeos), anexas a
         este termo. Estas licenças são de software livre, em código aberto e com
         cláusula copyleft, o que significa que é permitido usar, modificar e
@@ -130,7 +166,7 @@
         sistema Urbis e suas respectivas proteções:
       </p>
 
-      <ol>
+      <ol class="list-decimal pl-5 space-y-2 my-3 text-xs leading-relaxed text-foreground/80">
         <li>
           <strong>auxílio no preenchimento de informações</strong>, nas
           hipóteses em que com base no CPF ou CNPJ cadastrados o sistema exibe o
@@ -189,9 +225,8 @@
         </li>
       </ol>
 
-      <p><strong>4. PRINCIPAIS DEVERES</strong></p>
-
       <p>
+        <strong>4. PRINCIPAIS DEVERES</strong><br />
         O usuário deve
         <strong
           >prestar informações conforme a verdade e com a devida atenção</strong
@@ -199,9 +234,7 @@
         dados sobre os pedidos efetuados no sistema
         <strong>estão sujeitos a auditorias</strong> e
         <strong>fiscalizações por denúncia</strong>.
-      </p>
-
-      <p>
+      <      <p>
         Em casos de comprovada omissão em prestar informação necessária (deixar
         de informar) ou prestar informação falsa, propositalmente, o usuário
         está ciente de que se sujeita aos
@@ -211,7 +244,7 @@
         >:
       </p>
 
-      <ol>
+      <ol class="list-decimal pl-5 space-y-2 my-3 text-xs leading-relaxed text-foreground/80">
         <li>
           <strong>queixa à Polícia Civil</strong> para investigação criminal,
           para investigação do crime de falsidade ideológica (art. 299 do Código

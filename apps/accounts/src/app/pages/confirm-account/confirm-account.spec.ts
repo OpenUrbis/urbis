@@ -11,9 +11,13 @@ describe('ConfirmAccount', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ConfirmAccount, HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()]
-    })
-    .compileComponents();
+      imports: [
+        ConfirmAccount,
+        HttpClientTestingModule,
+        RouterTestingModule,
+        TranslateModule.forRoot(),
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ConfirmAccount);
     component = fixture.componentInstance;

@@ -11,7 +11,11 @@ const SecondaryItemComponent: ITemplateRender = (props: ITemplateProps) => {
 
   return (
     <span
-      className="block text-xs text-muted-foreground w-full"
+      className={
+        props.isPrint
+          ? "mt-0.5 block w-full text-[11px] leading-snug text-muted-foreground print:text-slate-500"
+          : "block text-xs text-muted-foreground w-full"
+      }
       dangerouslySetInnerHTML={{ __html: renderedValue }}
     />
   );

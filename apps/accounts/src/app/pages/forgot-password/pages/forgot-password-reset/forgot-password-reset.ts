@@ -2,11 +2,6 @@ import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import {
   HlmButtonDirective,
-  HlmCardDirective,
-  HlmCardContentDirective,
-  HlmCardFooterDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
   passwordFormGroup,
   PasswordFormGroup,
   LogoComponent,
@@ -24,17 +19,11 @@ import { CommonModule } from '@angular/common';
   imports: [
     CommonModule,
     RouterModule,
-    HlmCardDirective,
-    HlmCardContentDirective,
-    HlmCardFooterDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
     HlmButtonDirective,
     ReactiveFormsModule,
     PasswordFormGroup,
     TranslateModule,
     LogoComponent,
-
   ],
   templateUrl: './forgot-password-reset.html',
 })
@@ -57,8 +46,8 @@ export class ForgotPasswordReset {
           console.error(error);
           this.toaster.error(
             this.translate.instant(
-              'pages.forgotPassword.errors.submitNewPassword'
-            )
+              'pages.forgotPassword.errors.submitNewPassword',
+            ),
           );
           return EMPTY;
         }),

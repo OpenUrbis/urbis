@@ -4,11 +4,11 @@ import {
   IUpdateMapConfigPayload,
 } from "@/types/map-config-admin-type";
 
-const environment =
-  (import.meta.env.VITE_API_URL || "/api") + "/maps/config";
+const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps/config";
 
 export const getAdminMapConfigs = async (): Promise<IMapConfigAdminItem[]> => {
-  const response = await fetch(environment);
+  const headers = await getAuthHeaders();
+  const response = await fetch(environment, { headers });
 
   if (!response.ok) {
     throw new Error("Failed to fetch map configs");

@@ -1,307 +1,418 @@
 ---
-title: Esquema de Camada
-description: Detalhes das propriedades da camada do mapa.
+title: Esquema de Camada (Layer Schema)
+description: Guia técnico e especificação completa de configuração de camadas (Stream, GeoJsonLayer, CustomWMSLayer), cores dinâmicas, hachuras e compatibilidade com Datalake e Admin.
 icon: FileCode
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+Este documento é a referência canônica para a estruturação dos esquemas JSON de camadas no Urbis Map. Seguir rigorosamente as especificações abaixo garante máxima compatibilidade entre o **Datalake (ingestão automatizada)**, o **Painel Administrativo do Mapa (`LayerHandle`)** e o **mecanismo de renderização visual (Deck.gl / MapView)**, eliminando bugs como polígonos invisíveis/transparentes ou perda de configurações ao editar no Admin.
+
 ---
 
 ## Índice
 
-- [Estrutura de Camadas na Tela](#estrutura-de-camadas-na-tela)
-- [Visualização de Detalhes do Polígono](#visualização-de-detalhes-do-polígono)
-- [Ações no Clique do Polígono](#ações-no-clique-do-polígono)
-- [Configurações de Cores](#configurações-de-cores)
-- [Parâmetros do Objeto da Camada](#parâmetros-do-objeto-da-camada)
-- [Exemplos de Configuração de Camada](#exemplos-de-configuração-de-camada)
+1. [Tipos de Camadas (`type`)](#1-tipos-de-camadas-type)
+   - [Modo `Stream` (WFS Dinâmico em Grade)](#modo-stream-wfs-dinâmico-em-grade)
+   - [Modo `GeoJsonLayer` (Vetorial Estático)](#modo-geojsonlayer-vetorial-estático)
+   - [Modo `CustomWMSLayer` (Raster / Imagem)](#modo-customwmslayer-raster--imagem)
+2. [Configuração Universal de Cores (`colors`)](#2-configuração-universal-de-cores-colors)
+   - [Formato Obrigatório de Cor RGBA](#formato-obrigatório-de-cor-rgba)
+   - [Declaração Dupla: `value` e `label` para Máxima Compatibilidade](#declaração-dupla-value-e-label-para-máxima-compatibilidade)
+   - [Tipos de Cor no Admin (`fill`, `line`, `text`)](#tipos-de-cor-no-admin-fill-line-text)
+   - [Fallback de Cor Padrão (`default`)](#fallback-de-cor-padrão-default)
+3. [Padrões de Preenchimento e Hachuras (`pattern` e `patternConfig`)](#3-padrões-de-preenchimento-e-hachuras-pattern-e-patternconfig)
+4. [Especificação Completa de Propriedades (`properties`)](#4-especificação-completa-de-propriedades-properties)
+5. [Ações no Clique (`clickAction`)](#5-ações-no-clique-clickaction)
+6. [Exemplos Canônicos Prontos para Datalake e Seeds](#6-exemplos-canônicos-prontos-para-datalake-e-seeds)
+   - [Exemplo 1: Lotes Fiscais (`Stream` com cor visível e contorno)](#exemplo-1-lotes-fiscais-stream-com-cor-visível-e-contorno)
+   - [Exemplo 2: Zoneamento (`Stream` com Cores Dinâmicas e Hachuras)](#exemplo-2-zoneamento-stream-com-cores-dinâmicas-e-hachuras)
+   - [Exemplo 3: Equipamentos e Áreas Públicas (`GeoJsonLayer`)](#exemplo-3-equipamentos-e-áreas-públicas-geojsonlayer)
+   - [Exemplo 4: Camada Raster / Imagem (`CustomWMSLayer`)](#exemplo-4-camada-raster--imagem-customwmslayer)
 
-Este documento descreve a estrutura e funcionalidade do sistema de camadas de mapa no mecanismo de construção de layout. As camadas de mapa são organizadas para exibir dados geoespaciais, suportar interações do usuário e fornecer visualizações personalizáveis.
+---
 
-## Estrutura de Camadas na Tela
+## 1. Tipos de Camadas (`type`)
 
-A interface do mapa organiza camadas em **grupos**, que contêm **camadas individuais** e uma **legenda** exibindo cores associadas. Cada grupo serve como um container para camadas relacionadas, permitindo que usuários alternem a visibilidade ou interajam com conjuntos de dados específicos. Camadas dentro de um grupo podem ser configuradas independentemente para visibilidade, níveis de zoom e estilo.
+O Urbis suporta 3 tipos fundamentais de camada:
 
-- **Grupos**: Coleções lógicas de camadas, ex: "Áreas Públicas" ou "Macrozoneamento".
-- **Camadas**: Conjuntos de dados geoespaciais individuais, como "Águas Correntes ou Dormentes" ou "Lotes".
-- **Legenda**: Exibe mapeamentos de cores para camadas, refletindo cores estáticas ou baseadas em propriedades dinâmicas.
+```mermaid
+graph TD
+    A[Tipo de Camada] --> B[Stream]
+    A --> C[GeoJsonLayer]
+    A --> D[CustomWMSLayer]
+    B --> B1["WFS Fracionado por BBOX / Células Grid<br/>Ideal para milhões de feições (ex: Lotes, Zoneamento)"]
+    C --> C1["GeoJSON Completo em Requisição Única<br/>Ideal para camadas leves (< 10.000 feições)"]
+    D --> D1["Tiles Raster via WMS GetMap<br/>Ideal para ortofotos, relevo e mapas base pesados"]
+```
 
-## Visualização de Detalhes do Polígono
+### Modo `Stream` (WFS Dinâmico em Grade)
+- **Quando usar:** Camadas com alto volume de feições poligonais ou lineares (ex.: Lotes Fiscais, Zoneamento, Calçadas, Vias, Vegetação).
+- **Como funciona:** O frontend fatia a janela visível (*viewport*) em células de grid dinâmicas (`calculateGridCells`). Cada célula dispara uma requisição WFS com `bbox=minLon,minLat,maxLon,maxLat,CRS:84`.
+- **Exigências:**
+  - `origin` deve apontar para o endpoint WFS do GeoServer.
+  - `minZoom` recomendado `>= 13` (para lotes detalhados, `>= 17`).
+  - O GeoServer **deve** possuir coluna de geometria válida no schema da camada (evitando erro de *Illegal property name*).
 
-O sistema permite exibir detalhes de um ou mais polígonos selecionados no mapa quando necessário. Para habilitar essa funcionalidade, a camada deve ser configurada com a ação de clique `SelectFeature`, sem requerer parâmetros adicionais em `clickAction`:
+### Modo `GeoJsonLayer` (Vetorial Estático)
+- **Quando usar:** Camadas de abrangência municipal fixa ou com número reduzido de polígonos (ex.: Limites de Município, Distritos, Subprefeituras, Macroáreas).
+- **Como funciona:** O Deck.gl faz o download integral do GeoJSON uma única vez ao ativar a camada.
+
+### Modo `CustomWMSLayer` (Raster / Imagem)
+- **Quando usar:** Camadas geradas como imagem matricial pelo GeoServer (ex.: Ortofotos, Águas Correntes Estimadas, Relevo).
+- **Exigências:**
+  - `origin` deve ser a URL do endpoint WMS (`request=GetMap`).
+  - `properties.wms` deve conter os parâmetros `layers`, `version` e `format`.
+
+---
+
+## 2. Configuração Universal de Cores (`colors`)
+
+Para garantir que a cor **nunca fique transparente ou desapareça** e que seja **100% editável pelo Painel Administrativo (`LayerHandle`)**, siga as regras a seguir:
+
+### Formato Obrigatório de Cor RGBA
+
+O motor visual Deck.gl interpreta cores como um array de 4 números inteiros de **0 a 255**:
+
+`[R, G, B, A]` onde cada canal deve ser um número inteiro entre `0` e `255`.
+
+<Callout type="error">
+  **Erros Comuns que Causam Polígonos Transparentes ou Invisíveis:**
+  1. **Alfa Decimal (0.0 a 1.0):** O Deck.gl interpreta `[255, 0, 0, 0.8]` como alfa `0` (completamente transparente), pois espera valores inteiros de 0 a 255. Use sempre `[255, 0, 0, 204]`.
+  2. **Alfa Zerado:** `[200, 200, 200, 0]` faz o preenchimento ser desenhado invisível. Para preenchimento sólido semitransparente, utilize alfas entre `150` e `240`.
+  3. **String Hexadecimal no Array:** `["#FF0000"]` quebra a GPU do Deck.gl. O campo `color` deve ser sempre um array numérico: `[255, 0, 0, 255]`.
+</Callout>
+
+### Declaração Dupla: `value` e `label` para Máxima Compatibilidade
+
+O sistema do Urbis utiliza o array `colors` em três subsistemas diferentes:
+1. **Renderizador Deck.gl (`generateGetColorFns`):** Procura a cor pela chave `color.value ?? color.label ?? "default"`.
+2. **Legenda do Mapa (`MapLegend`):** Exibe o texto configurado em `color.label`.
+3. **Painel Administrativo (`parseLayerSchemaToForm`):** Agrupa os elementos de formulário por `color.value || color.label`.
+
+<Callout type="info">
+  **Regra de Ouro:** Sempre declare **ambos** os campos `value` e `label` em todos os itens do array `colors`. Em camadas de cor única (estáticas), use `"default"` ou o nome da camada.
+</Callout>
+
+### Tipos de Cor no Admin (`fill`, `line`, `text`)
+
+Para que o formulário administrativo reconheça separadamente a **cor de preenchimento**, a **cor da borda/linha** e a **cor do texto** do mesmo elemento, declare entradas associadas através do campo `type`:
+
+| `type` | Aplicação | Descrição |
+| :--- | :--- | :--- |
+| `undefined` ou `"fill"` | Preenchimento do Polígono | Cor principal da área |
+| `"line"` | Contorno / Linha / Borda | Cor das arestas do polígono |
+| `"text"` | Rótulo de Texto | Cor do texto renderizado dentro da feição |
+
+### Fallback de Cor Padrão (`default`)
+
+Quando uma feição possui uma propriedade que não consta no mapeamento `colors`, ou quando `getFillColorPropName` não é especificado, o sistema busca a chave `"default"`. **Sempre inclua uma entrada com `value: "default"` ou `label: "default"` no array de cores.**
+
+---
+
+## 3. Padrões de Preenchimento e Hachuras (`pattern` e `patternConfig`)
+
+O campo `pattern` permite aplicar texturas e hachuras gráficas sobre o preenchimento do polígono:
+
+| Padrão (`pattern`) | Descrição Visual |
+| :--- | :--- |
+| `full` | Preenchimento sólido tradicional (padrão se omitido). |
+| `dots` | Matriz de pontos dispersos. |
+| `hatch-1x` | Linhas diagonais paralelas simples inclinadas para a direita (`/`). |
+| `hatch-1x-reverse` | Linhas diagonais paralelas simples inclinadas para a esquerda (`\`). |
+| `hatch-2x` | Linhas diagonais com o dobro de densidade (`//`). |
+| `hatch-2x-reverse` | Linhas diagonais inversas de alta densidade (`\\`). |
+| `hatch-cross` | Linhas diagonais cruzadas em "X" (*cross-hatch*). |
+| `hatch-horizontal` | Linhas retas horizontais paralelas. |
+| `hatch-vertical` | Linhas retas verticais paralelas. |
+| `hatch-grid` | Grade xadrez com linhas ortogonais horizontais e verticais. |
+
+### Configuração de Escala e Deslocamento (`patternConfig`)
 
 ```json
 {
-  "clickAction": {
-    "action": "SelectFeature"
+  "pattern": "hatch-1x",
+  "patternConfig": {
+    "getFillPatternScale": 0.5,
+    "getFillPatternOffset": [0, 0]
   }
 }
 ```
+- `getFillPatternScale`: Número entre `0.1` e `5.0`. Valores menores geram traços mais finos e espaçamento mais denso (recomendado: `0.3` a `1.0`).
+- `getFillPatternOffset`: Deslocamento `[x, y]` em fração do tile para alinhamento.
 
-Essa configuração indica que a camada é selecionável, permitindo que o sistema processe a seleção e exiba informações detalhadas do polígono conforme definido no `viewTemplate`. Para mais detalhes sobre ações de clique, veja a seção [Ações no Clique do Polígono](#ações-no-clique-do-polígono). O mecanismo de renderização para essas informações é detalhado na [Documentação do viewTemplate](./view-template).
+---
 
-## Ações no Clique do Polígono
+## 4. Especificação Completa de Propriedades (`properties`)
 
-A ação de clique em um polígono é configurável via propriedade `clickAction` no esquema JSON da camada. O sistema suporta três ações principais, descritas na tabela abaixo, permitindo desde seleção de polígono até navegação para visualizações específicas.
+O objeto `properties` configura o comportamento e estilização gráfica no Deck.gl e no portal:
 
-| Ação              | Descrição                                                                                                  | Contexto de Uso                                       | Parâmetros Necessários                                                                                                                                                            |
-| ----------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **SelectFeature** | Seleciona o polígono na tela, realçando-o para exibição de detalhes ou outras interações.                  | Usado exclusivamente na raiz da camada.               | Nenhum parâmetro adicional necessário. Exemplo: `{ action: "SelectFeature" }`                                                                                                     |
-| **setZoom**       | Aplica zoom na localização clicada, tipicamente em um polígono específico.                                 | Usado exclusivamente na raiz da camada, em polígonos. | Requer o parâmetro `zoom` para definir o nível de zoom. Exemplo: `{ action: "setZoom", zoom: 15 }`                                                                                |
-| **openFeature**   | Abre os detalhes de um item da lista, renderizando informações baseadas em um modelo.                      | Usado exclusivamente no wrapper `wrapper-list-items`. | Requer um parâmetro `template` com um modelo específico ou a string `"root"` para usar o `viewTemplate` da camada. Exemplo: `{ action: "openFeature", template: "root" }`         |
+| Propriedade | Tipo | Valor Recomendado | Descrição |
+| :--- | :--- | :--- | :--- |
+| `filled` | `boolean` | `true` | Habilita a renderização do preenchimento dos polígonos. |
+| `stroked` | `boolean` | `true` | Habilita a renderização das linhas de contorno. |
+| `pointType` | `string` | `"circle"` | Tipo de geometria para pontos (`"circle"` ou `"circle+text"`). |
+| `getLineWidth` | `number` | `1` ou `2` | Espessura das linhas de contorno em pixels. |
+| `lineWidthMinPixels` | `number` | `1` | Garante que a borda continue visível mesmo com zoom distante. |
+| `pickable` | `boolean` | `true` | Torna o polígono clicável e interativo. |
+| `autoHighlight` | `boolean` | `true` | Ativa realce luminoso ao passar o cursor do mouse. |
+| `visualState.hoverColor` | `number[]` | `[255, 255, 255, 90]` | Cor RGBA de realce no hover do mouse. |
+| `visualState.selectedColor`| `number[]` | `[255, 220, 0, 220]` | Cor RGBA ao selecionar o polígono. |
+| `includeInAnalysis` | `boolean` | `true` | Habilita a camada no motor de análise territorial. |
+| `includeInFiu` | `boolean` | `true` | Habilita a camada na Ficha de Informação Urbanística. |
+| `attributeMapping` | `object` | `{ "campo": { "label": "Nome Amigável" } }` | Dicionário de títulos amigáveis para a tabela de atributos. |
+| `extruded` | `boolean` | `false` | Se `true`, eleva os polígonos em 3D. |
+| `getElevation` | `string` | `"15"` ou função JS | Altura de extrusão 3D (número fixo ou função `(d) => ...`). |
 
-Para mais informações sobre renderização de detalhes com `openFeature`, veja a [Documentação do viewTemplate](./view-template).
+---
 
-## Configurações de Cores
+## 5. Ações no Clique (`clickAction`)
 
-Camadas suportam customização de cores para polígonos baseada em suas propriedades, permitindo que cores sejam aplicadas ao **preenchimento**, **linha** ou **texto** de um polígono. Configurações podem ser estáticas ou dinâmicas, e o preenchimento pode incluir padrões visuais para diferenciar áreas no mapa.
+Define o comportamento ao clicar em um polígono da camada:
 
-### Padrões de Preenchimento
-
-Usuários podem definir padrões de preenchimento para polígonos, especificados no campo `pattern` do array `colors`. As opções disponíveis são:
-
-- **full**: Preenchimento sólido, sem padrão.
-- **dots**: Padrão de pontos dispersos.
-- **hatch-1x**: Padrão de linhas paralelas.
-- **hatch-cross**: Padrão de linhas cruzadas.
-
-### Tipos de Cores
-
-Cores podem ser aplicadas a diferentes elementos do polígono, especificados pelas propriedades `getFillColorPropName`, `getLineColorPropName` e `getTextColorPropName`. O tipo de cor é implicitamente definido por essas propriedades, correspondendo a:
-
-- **fill**: Cor de preenchimento do polígono.
-- **line**: Cor de contorno do polígono.
-- **text**: Cor do texto exibido no polígono.
-
-Na ausência de `getLineColorPropName` ou `getTextColorPropName`, o sistema padroniza para a cor definida por `getFillColorPropName` tanto para linha quanto para texto. O tipo padrão para qualquer cor é sempre `fill`, garantindo que o preenchimento seja colorido mesmo sem configurações específicas para linha ou texto.
-
-### Uso das Propriedades `label` e `value`
-
-A propriedade `label` é usada principalmente para exibir descrições na legenda quando uma camada tem múltiplas cores. O sistema usa o campo `value` para mapear uma propriedade do polígono para a cor correspondente, enquanto `label` define o texto mostrado na legenda. Se o valor de comparação (usado para mapeamento de cor) for o mesmo que o valor de exibição da legenda, o usuário pode definir apenas a propriedade `label`, omitindo `value`. A propriedade `value` é necessária apenas quando há uma divergência entre o valor de comparação e o texto da legenda.
-
-Por exemplo:
-
-- Uma propriedade de polígono pode ter valores como `AI-16` ou `AI`, mas a legenda pode exibir `Area of Influence` ou `Area of Influence (2016)`.
-- Se o valor de comparação e o texto da legenda forem os mesmos (ex: `AI`), apenas `label` é necessário.
-- Exemplo com valores distintos:
-  ```json
-  {
-    "colors": [
-      {
-        "color": [136, 144, 173, 240],
-        "pattern": "full",
-        "label": "Area of Influence",
-        "value": "AI"
-      },
-      {
-        "color": [201, 186, 119, 240],
-        "pattern": "hatch-1x",
-        "label": "Area of Influence (2016)",
-        "value": "AI-16"
-      }
-    ]
-  }
-  ```
-- Exemplo com valores idênticos:
-
-  ```json
-  {
-    "colors": [
-      {
-        "color": [136, 144, 173, 240],
-        "pattern": "full",
-        "label": "Area of Influence"
-      }
-    ]
-  }
-  ```
-
-- **Cores Estáticas**: Uma única cor aplicada uniformemente, ex: a camada "Running or Dormant Waters" usa:
-  ```json
-  {
-    "colors": [
-      {
-        "color": [56, 85, 204, 240],
-        "label": "default",
-        "pattern": "full"
-      }
-    ]
-  }
-  ```
-- **Cores Dinâmicas**: Cores atribuídas com base em propriedades do polígono, ex: a camada "Axes" mapeia cores para a propriedade `nm_perimetro_divisao_pde`:
-  ```json
-  {
-    "getFillColorPropName": "nm_perimetro_divisao_pde",
-    "getLineColorPropName": "nm_perimetro_divisao_pde",
-    "colors": [
-      {
-        "color": [136, 144, 173, 240],
-        "pattern": "full",
-        "label": "Area of Influence",
-        "value": "AI"
-      },
-      {
-        "color": [201, 186, 119, 240],
-        "pattern": "hatch-1x",
-        "label": "Area of Influence (2016)",
-        "value": "AI-16"
-      }
-    ]
-  }
-  ```
-
-## Parâmetros do Objeto da Camada
-
-O objeto JSON que define uma camada contém vários parâmetros que controlam sua funcionalidade, aparência e comportamento. A tabela abaixo lista todos os parâmetros observados nos exemplos de camada, juntamente com suas descrições e exemplos.
-
-| Parâmetro              | Descrição                                                                                                                                                                                                                                                                                                                                                                                      | Exemplo                                                                    |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `id`                   | Identificador único para a camada.                                                                                                                                                                                                                                                                                                                                                             | `"lotes"`                                                                  |
-| `name`                 | Nome descritivo da camada, exibido na interface.                                                                                                                                                                                                                                                                                                                                               | `"Lotes"`                                                                  |
-| `origin`               | URL ou endpoint da fonte de dados geoespaciais (ex: WFS GeoServer).                                                                                                                                                                                                                                                                                                                            | `"https://geoserver.slui.dev/geoserver/slui/ows?...&outputFormat=json"`    |
-| `isActive`             | Booleano indicando se a camada está ativa (carregada no mapa).                                                                                                                                                                                                                                                                                                                                 | `true`                                                                     |
-| `type`                 | Tipo da camada, definindo o formato de dados e método de carregamento. Opções disponíveis: <ul><li>**GeoJsonLayer**: Carrega um GeoJSON inteiro, o tipo mais comum.</li><li>**Stream**: Carrega a camada em partes usando o bounding box do mapa, com sessões para reutilizar as mesmas áreas da fonte.</li><li>**CustomWMSLayer**: Usado para camadas que não usam GeoJSON, como imagens.</li></ul> | `"GeoJsonLayer"`                                                           |
-| `isVisible`            | Booleano controlando a visibilidade inicial da camada no mapa.                                                                                                                                                                                                                                                                                                                                 | `true`                                                                     |
-| `minZoom`              | Nível mínimo de zoom para a camada ser exibida (ou `null` para sem limite).                                                                                                                                                                                                                                                                                                                    | `17`                                                                       |
-| `getTextColorPropName` | Nome da propriedade do polígono usada para mapear a cor do texto (ou `null`).                                                                                                                                                                                                                                                                                                                  | `"nm_perimetro_divisao_pde"`                                               |
-| `getFillColorPropName` | Nome da propriedade do polígono usada para mapear a cor de preenchimento (ou `null`).                                                                                                                                                                                                                                                                                                          | `"nm_perimetro_divisao_pde"`                                               |
-| `getLineColorPropName` | Nome da propriedade do polígono usada para mapear a cor de contorno (ou `null`).                                                                                                                                                                                                                                                                                                               | `"nm_perimetro_divisao_pde"`                                               |
-| `groupId`              | Identificador do grupo ao qual a camada pertence.                                                                                                                                                                                                                                                                                                                                              | `"geral"`                                                                  |
-| `clickAction`          | Configuração da ação executada quando a camada é clicada (veja [Ações no Clique do Polígono](#ações-no-clique-do-polígono)).                                                                                                                                                                                                                                                                   | `{ "action": "SelectFeature" }`                                            |
-| `properties`           | Objeto com propriedades adicionais para estilo e comportamento.                                                                                                                                                                                                                                                                                                                                | `{ "stroked": false, "filled": true, "pickable": true, ... }`              |
-| `colors`               | Array de configurações de cor para preenchimento, contorno e texto.                                                                                                                                                                                                                                                                                                                            | `[{ "color": [57, 118, 29, 175], "label": "default", "pattern": "full" }]` |
-
-### Detalhes das Propriedades em `properties`
-
-O objeto `properties` pode conter várias configurações adicionais, dependendo da camada. Exemplos comuns incluem:
-
-| Propriedade      | Descrição                                                                                                  | Exemplo                                                                                                                                                                                                                |
-| ---------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `stroked`        | Booleano indicando se o polígono tem contorno.                                                             | `false`                                                                                                                                                                                                                |
-| `filled`         | Booleano indicando se o polígono tem preenchimento.                                                        | `true`                                                                                                                                                                                                                 |
-| `pointType`      | Tipo de representação para pontos (ex: "circle", "circle+text").                                           | `"circle+text"`                                                                                                                                                                                                        |
-| `pickable`       | Booleano indicando se o polígono é interativo (selecionável).                                              | `true`                                                                                                                                                                                                                 |
-| `extruded`       | Booleano que habilita extrusão 3D do polígono.                                                             | `true`                                                                                                                                                                                                                 |
-| `wireframe`      | Booleano que habilita modo wireframe para o polígono.                                                      | `true`                                                                                                                                                                                                                 |
-| `getLineWidth`   | Largura do contorno do polígono (em pixels).                                                               | `20`                                                                                                                                                                                                                   |
-| `getPointRadius` | Raio dos pontos (em pixels).                                                                               | `5`                                                                                                                                                                                                                    |
-| `getTextSize`    | Tamanho do texto exibido no polígono (em pixels).                                                          | `12`                                                                                                                                                                                                                   |
-| `autoHighlight`  | Booleano que habilita realce automático ao passar o mouse.                                                 | `true`                                                                                                                                                                                                                 |
-| `highlightColor` | Cor de realce ao interagir com o polígono (array RGBA).                                                    | `[252, 252, 255, 150]`                                                                                                                                                                                                 |
-| `getElevation`   | Função JavaScript que calcula a elevação 3D do polígono baseada em propriedades.                           | ` "(allotment) => { const { qt_area_construida, qt_area_terreno } = allotment?.properties \|\| {}; if (!qt_area_construida \|\| !qt_area_terreno) return 0; return (qt_area_construida / qt_area_terreno) _ 2 _ 3; }"` |
-| `layerActions`   | Array de ações, essas ações serão renderizadas à direita da opção da camada                                | `[ { icon: 'info', action: "() => window.open('https://dadosabertos.urbis.prefeitura.sp.gov.br/','_blank')" } ]`                                                                                                                   |
-| `maxZoom`        | Nível máximo de zoom para a Camada ser exibida (ou `null` para sem limite).                                | `18`                                                                                                                                                                                                                   |
-| `getText`        | Função Javascript que recebe o objeto polígono e deve retornar uma string que será exibida dentro dele.    | `(d) => d.proprierties.name`                                                                                                                                                                                           |
-| `minZoomText`    | Nível mínimo de zoom para o Texto ser exibido (ou `null` para sem limite).                                 | `17`                                                                                                                                                                                                                   |
-| `maxZoomText`    | Nível máximo de zoom para o Texto ser exibido (ou `null` para sem limite).                                 | `10`                                                                                                                                                                                                                   |
-
-Para mais informações sobre essas propriedades, [veja a documentação do Deck.gl](https://deck.gl/docs/api-reference/layers/geojson-layer).
-
-### Detalhes do Array `colors`
-
-O array `colors` define as configurações de cor e padrão, com os seguintes campos:
-
-| Campo     | Descrição                                                                 | Exemplo              |
-| --------- | ------------------------------------------------------------------------- | -------------------- |
-| `color`   | Cor no formato RGBA (array de 4 valores).                                 | `[57, 118, 29, 175]` |
-| `label`   | Texto exibido na legenda.                                                 | `"default"`          |
-| `pattern` | Padrão de preenchimento (full, dots, hatch-1x, hatch-cross). (Padrão: **"full"**) | `"full"`             |
-| `value`   | Valor da propriedade do polígono para mapeamento de cor (opcional).       | `"AI"`               |
-
-## Exemplos de Configuração de Camada
-
-### Camada Simples (Cor Estática)
-
-```json
-{
-  "id": "aguas_correntes_ou_dormentes",
-  "name": "Running or Dormant Waters",
-  "origin": "https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:aguas_correntes_ou_dormentes&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326",
-  "isActive": true,
-  "type": "GeoJsonLayer",
-  "isVisible": false,
-  "minZoom": null,
-  "getTextColorPropName": null,
-  "getFillColorPropName": null,
-  "getLineColorPropName": null,
-  "groupId": "areas_publicas",
-  "colors": [
+<Tabs items={['SelectFeature (Padrão)', 'setZoom', 'OpenAttributesTable']}>
+  <Tab value="SelectFeature (Padrão)">
+    Abre o painel lateral com as informações detalhadas e o `viewTemplate`:
+    ```json
     {
-      "color": [56, 85, 204, 240],
-      "label": "default",
-      "pattern": "full"
+      "clickAction": {
+        "action": "SelectFeature",
+        "params": { "zoom": 18 }
+      }
     }
-  ]
-}
-```
-
-### Camada com Cores Dinâmicas
-
-```json
-{
-  "id": "eixos",
-  "name": "Axes",
-  "origin": "https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:eixos&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326",
-  "isActive": true,
-  "type": "GeoJsonLayer",
-  "isVisible": false,
-  "minZoom": null,
-  "getTextColorPropName": "nm_perimetro_divisao_pde",
-  "getFillColorPropName": "nm_perimetro_divisao_pde",
-  "getLineColorPropName": "nm_perimetro_divisao_pde",
-  "groupId": "macrozoneamento",
-  "clickAction": { "action": "setZoom", "zoom": 15 },
-  "colors": [
+    ```
+  </Tab>
+  <Tab value="setZoom">
+    Apenas aproxima a câmera no ponto clicado:
+    ```json
     {
-      "color": [136, 144, 173, 240],
-      "pattern": "full",
-      "label": "Area of Influence",
-      "value": "AI"
-    },
-    {
-      "color": [201, 186, 119, 240],
-      "pattern": "hatch-1x",
-      "label": "Area of Influence (2016)",
-      "value": "AI-16"
+      "clickAction": {
+        "action": "setZoom",
+        "params": { "zoom": 17 }
+      }
     }
-  ]
-}
-```
+    ```
+  </Tab>
+  <Tab value="OpenAttributesTable">
+    Abre a gaveta inferior com a tabela completa de atributos da camada:
+    ```json
+    {
+      "clickAction": {
+        "action": "OpenAttributesTable"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
 
-### Camada com Carregamento Dinâmico e Seleção
+---
+
+## 6. Exemplos Canônicos Prontos para Datalake e Seeds
+
+Copie e use estes modelos como referência direta para inserções no banco ou ingestões no Datalake:
+
+### Exemplo 1: Lotes Fiscais (`Stream` com cor visível e contorno)
 
 ```json
 {
-  "id": "lotes",
-  "name": "Lots",
-  "origin": "https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=slui:view_lote_cidadao&maxFeatures=10000&outputFormat=json&srsName=EPSG:4326",
+  "id": "lotes_fiscais",
+  "name": "Lotes fiscais",
+  "index": 24,
+  "origin": "https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=slui:lote_cidadao&count=10000&outputFormat=application/json&srsName=CRS:84",
   "isActive": true,
-  "type": "Stream",
+  "isSelected": true,
   "isVisible": true,
+  "isPublic": true,
+  "type": "Stream",
   "minZoom": 17,
+  "groupId": "cadastral",
   "getTextColorPropName": null,
   "getFillColorPropName": null,
   "getLineColorPropName": null,
-  "clickAction": { "action": "SelectFeature" },
-  "groupId": "geral",
-  "properties": {
-    "stroked": false,
-    "filled": true,
-    "pointType": "circle+text",
-    "pickable": true,
-    "extruded": true,
-    "wireframe": true,
-    "getLineWidth": 20,
-    "getPointRadius": 0,
-    "getTextSize": 12,
-    "autoHighlight": true,
-    "highlightColor": [252, 252, 255, 150],
-    "getElevation": "(allotment) => { const { qt_area_construida, qt_area_terreno } = allotment?.properties || {}; if (!qt_area_construida || !qt_area_terreno) return 0; return (qt_area_construida / qt_area_terreno) * 2 * 3; }"
+  "clickAction": {
+    "action": "SelectFeature",
+    "params": { "zoom": 19 }
   },
   "colors": [
     {
-      "color": [57, 118, 29, 175],
-      "label": "default",
+      "type": "fill",
+      "color": [180, 200, 220, 140],
+      "label": "Lote Fiscal",
+      "value": "default",
+      "pattern": "full"
+    },
+    {
+      "type": "line",
+      "color": [30, 60, 90, 255],
+      "label": "Lote Fiscal",
+      "value": "default"
+    }
+  ],
+  "properties": {
+    "filled": true,
+    "stroked": true,
+    "getLineWidth": 1.5,
+    "lineWidthMinPixels": 1,
+    "pickable": true,
+    "includeInAnalysis": true,
+    "includeInFiu": true,
+    "visualState": {
+      "hoverColor": [255, 255, 255, 120],
+      "selectedColor": [255, 200, 0, 200]
+    }
+  }
+}
+```
+
+### Exemplo 2: Zoneamento (`Stream` com Cores Dinâmicas e Hachuras)
+
+```json
+{
+  "id": "zoneamento_lei_16402_18177",
+  "name": "Zoneamento",
+  "index": 50,
+  "origin": "https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=slui:zoneamento&count=10000&outputFormat=application/json&srsName=CRS:84",
+  "isActive": true,
+  "isSelected": false,
+  "isVisible": true,
+  "isPublic": true,
+  "type": "Stream",
+  "minZoom": 13,
+  "groupId": "urbanistico",
+  "getFillColorPropName": "cd_zoneamento_perimetro",
+  "getLineColorPropName": "cd_zoneamento_perimetro",
+  "getTextColorPropName": "cd_zoneamento_perimetro",
+  "clickAction": {
+    "action": "SelectFeature",
+    "params": { "zoom": 17.5 }
+  },
+  "colors": [
+    {
+      "type": "fill",
+      "color": [223, 253, 178, 190],
+      "label": "AC-1 (Área de Centralidade)",
+      "value": "AC-1",
+      "pattern": "full"
+    },
+    {
+      "type": "line",
+      "color": [150, 200, 100, 255],
+      "label": "AC-1 (Área de Centralidade)",
+      "value": "AC-1"
+    },
+    {
+      "type": "fill",
+      "color": [223, 253, 178, 190],
+      "label": "AC-2 (Hachurado)",
+      "value": "AC-2",
+      "pattern": "dots",
+      "patternConfig": { "getFillPatternScale": 0.5 }
+    },
+    {
+      "type": "fill",
+      "color": [173, 160, 152, 190],
+      "label": "ZC (Zona Centralidade)",
+      "value": "ZC",
+      "pattern": "full"
+    },
+    {
+      "type": "fill",
+      "color": [173, 160, 152, 190],
+      "label": "ZCa (Centralidade com Hachura)",
+      "value": "ZCa",
+      "pattern": "hatch-1x",
+      "patternConfig": { "getFillPatternScale": 0.4 }
+    },
+    {
+      "type": "fill",
+      "color": [200, 200, 200, 160],
+      "label": "Outros / Padrão",
+      "value": "default",
       "pattern": "full"
     }
-  ]
+  ],
+  "properties": {
+    "filled": true,
+    "stroked": true,
+    "getLineWidth": 1,
+    "lineWidthMinPixels": 1,
+    "pickable": true,
+    "includeInAnalysis": true,
+    "includeInFiu": true
+  }
+}
+```
+
+### Exemplo 3: Equipamentos e Áreas Públicas (`GeoJsonLayer`)
+
+```json
+{
+  "id": "limites_municipio",
+  "name": "Limites do município",
+  "index": 20,
+  "origin": "https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=slui:limites_municipio&outputFormat=application/json&srsName=CRS:84",
+  "isActive": true,
+  "isVisible": true,
+  "isPublic": true,
+  "type": "GeoJsonLayer",
+  "minZoom": null,
+  "groupId": "limites",
+  "colors": [
+    {
+      "type": "fill",
+      "color": [0, 0, 0, 0],
+      "label": "Limite Municipal",
+      "value": "default"
+    },
+    {
+      "type": "line",
+      "color": [10, 10, 10, 255],
+      "label": "Limite Municipal",
+      "value": "default"
+    }
+  ],
+  "properties": {
+    "filled": false,
+    "stroked": true,
+    "getLineWidth": 3,
+    "lineWidthMinPixels": 2,
+    "pickable": false
+  }
+}
+```
+
+### Exemplo 4: Camada Raster / Imagem (`CustomWMSLayer`)
+
+```json
+{
+  "id": "aguas_correntes_estimadas",
+  "name": "Águas Correntes Estimadas",
+  "index": 70,
+  "origin": "https://geoserver.slui.dev/geoserver/slui/wms?request=GetMap&typeName=slui%3Aaguas_correntes_estimadas&format=image%2Fpng&TRANSPARENT=true&srsName=CRS:84",
+  "isActive": true,
+  "isVisible": true,
+  "isPublic": true,
+  "type": "CustomWMSLayer",
+  "minZoom": null,
+  "groupId": "ambiental",
+  "colors": [
+    {
+      "color": [0, 120, 255, 255],
+      "label": "Águas Estimadas (Raster)",
+      "value": "default"
+    }
+  ],
+  "properties": {
+    "wms": {
+      "url": "https://geoserver.slui.dev/geoserver/slui/wms",
+      "layers": "slui:aguas_correntes_estimadas",
+      "version": "1.3.0",
+      "srs": "CRS:84",
+      "transparent": true,
+      "format": "image/png"
+    }
+  }
 }
 ```
 

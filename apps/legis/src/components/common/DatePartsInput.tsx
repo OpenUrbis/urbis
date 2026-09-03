@@ -1,101 +1,100 @@
-import React, { useState, useEffect } from 'react';
-import { Input } from '@open-urbis/map-ui';
-import { parse, isValid } from 'date-fns';
+import React, { useState, useEffect } from "react";
+import { Input } from "@open-urbis/map-ui";
+import { isAfter, isValid, parse, startOfDay } from "date-fns";
 
 interface DatePartsInputProps {
-    value?: string;
-    onChange: (value: string | undefined) => void;
-    disabled?: boolean;
-    maxYear?: number;
-    allowFuture?: boolean;
-    className?: string;
+  value?: string;
+  onChange: (value: string | undefined) => void;
+  disabled?: boolean;
+  maxYear?: number;
+  allowFuture?: boolean;
+  className?: string;
 }
 
-export function DatePartsInput({ value, onChange, disabled, maxYear, allowFuture, className }: DatePartsInputProps) {
-    // Parse value (DD.MM.YYYY) into parts
-    const [day, setDay] = useState('');
-    const [month, setMonth] = useState('');
-    const [year, setYear] = useState('');
+function normalizeStoredDateToDisplay(storedValue?: string) {
+  if (!storedValue || storedValue === "vigência condicionada") return "";
 
-    useEffect(() => {
-        if (value && value !== 'vigência condicionada') {
-            const parts = value.split('.');
-            if (parts.length === 3) {
-                setDay(parts[0]);
-                setMonth(parts[1]);
-                setYear(parts[2]);
-            }
-        } else {
-            setDay('');
-            setMonth('');
-            setYear('');
-        }
-    }, [value]);
+  const parts = storedValue.split(".");
+  if (parts.length !== 3) return storedValue;
 
-    const handleChange = (d: string, m: string, y: string) => {
-        setDay(d);
-        setMonth(m);
-        setYear(y);
+  return `${parts[0]}/${parts[1]}/${parts[2]}`;
+}
 
-        if (d && m && y && d.length > 0 && m.length > 0 && y.length === 4) {
-            // Pad day and month
-            const paddedDay = d.padStart(2, '0');
-            const paddedMonth = m.padStart(2, '0');
-            const dateStr = `${paddedDay}.${paddedMonth}.${y}`;
-            
-            // Validate date
-            const date = parse(dateStr, 'dd.MM.yyyy', new Date());
-            if (isValid(date)) {
-                // Additional validations
-                const yearNum = parseInt(y);
-                if (maxYear && yearNum > maxYear) return; // Invalid year
-                
-                onChange(dateStr);
-            } else {
-                 // Invalid date format
-            }
-        } else if (!d && !m && !y) {
-            onChange(undefined);
-        }
-    };
+export function DatePartsInput({
+  value,
+  onChange,
+  disabled,
+  maxYear,
+  allowFuture,
+  className,
+}: DatePartsInputProps) {
+  const [displayValue, setDisplayValue] = useState(() =>
+    normalizeStoredDateToDisplay(value),
+  );
 
-    return (
-        <div className={`flex gap-2 items-center ${className || ''}`}>
-            <div className="flex flex-col">
-                <span className="text-[10px] text-muted-foreground ml-1 mb-0.5">DIA</span>
-                <Input 
-                    placeholder="DD" 
-                    value={day} 
-                    onChange={e => handleChange(e.target.value.slice(0, 2).replace(/\D/g, ''), month, year)}
-                    className="w-12 text-center px-1" 
-                    maxLength={2}
-                    disabled={disabled}
-                />
-            </div>
-            <span className="mt-5 text-muted-foreground">/</span>
-            <div className="flex flex-col">
-                <span className="text-[10px] text-muted-foreground ml-1 mb-0.5">MÊS</span>
-                <Input 
-                    placeholder="MM" 
-                    value={month} 
-                    onChange={e => handleChange(day, e.target.value.slice(0, 2).replace(/\D/g, ''), year)}
-                    className="w-12 text-center px-1" 
-                    maxLength={2}
-                    disabled={disabled}
-                />
-            </div>
-            <span className="mt-5 text-muted-foreground">/</span>
-            <div className="flex flex-col">
-                <span className="text-[10px] text-muted-foreground ml-1 mb-0.5">ANO</span>
-                <Input 
-                    placeholder="AAAA" 
-                    value={year} 
-                    onChange={e => handleChange(day, month, e.target.value.slice(0, 4).replace(/\D/g, ''))}
-                    className="w-16 text-center px-1" 
-                    maxLength={4}
-                    disabled={disabled}
-                />
-            </div>
-        </div>
-    );
+  const formatDigitsAsDate = (digits: string) => {
+    const trimmedDigits = digits.slice(0, 8);
+
+    if (trimmedDigits.length <= 2) return trimmedDigits;
+    if (trimmedDigits.length <= 4) {
+      return `${trimmedDigits.slice(0, 2)}/${trimmedDigits.slice(2)}`;
+    }
+
+    return `${trimmedDigits.slice(0, 2)}/${trimmedDigits.slice(2, 4)}/${trimmedDigits.slice(4)}`;
+  };
+
+  const emitParsedValue = (maskedValue: string) => {
+    const digits = maskedValue.replace(/\D/g, "");
+
+    if (!digits) {
+      onChange(undefined);
+      return;
+    }
+
+    if (digits.length !== 8) return;
+
+    const day = digits.slice(0, 2);
+    const month = digits.slice(2, 4);
+    const year = digits.slice(4, 8);
+    const dateStr = `${day}.${month}.${year}`;
+    const parsedDate = parse(dateStr, "dd.MM.yyyy", new Date());
+
+    if (!isValid(parsedDate)) return;
+
+    const yearNum = Number.parseInt(year, 10);
+    if (maxYear && yearNum > maxYear) return;
+
+    if (
+      allowFuture === false &&
+      isAfter(startOfDay(parsedDate), startOfDay(new Date()))
+    ) {
+      return;
+    }
+
+    onChange(dateStr);
+  };
+
+  useEffect(() => {
+    setDisplayValue(normalizeStoredDateToDisplay(value));
+  }, [value]);
+
+  const handleChange = (rawValue: string) => {
+    const digits = rawValue.replace(/\D/g, "").slice(0, 8);
+    const maskedValue = formatDigitsAsDate(digits);
+
+    setDisplayValue(maskedValue);
+    emitParsedValue(maskedValue);
+  };
+
+  return (
+    <Input
+      placeholder="dd/mm/aaaa"
+      value={displayValue}
+      onChange={(e) => handleChange(e.target.value)}
+      inputMode="numeric"
+      maxLength={10}
+      disabled={disabled}
+      className={className}
+    />
+  );
 }

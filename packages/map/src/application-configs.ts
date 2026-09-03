@@ -4,6 +4,9 @@ import polylabel from "polylabel";
 import { useMapContext } from "./hooks/useMapContext";
 import { useMediaQuery } from "./hooks/useMediaQuery";
 import { useNavigationContext } from "./hooks/useNavigationContext";
+import { calculateCenterId } from "./utils/calculateCenterId";
+import { getGeoJsonBounds } from "./components/MapView/utils";
+import { PATTERN_ATLAS_URL, PATTERN_MAPPING_URL } from "./lib/layer-patterns";
 import {
   IMapActionProps,
   MapContextLayerSchemaTypeMapProps,
@@ -24,11 +27,17 @@ interface DefaultPropertiesDestination {
 }
 
 interface DefaultLayerProperties {
+  pointType?: string;
   filled: boolean;
   stroked?: boolean;
+  lineWidthUnits?: string;
   lineWidthMinPixels?: number;
+  pointRadiusUnits?: string;
+  pointRadiusMinPixels?: number;
   getText: () => string;
   getTextSize: number;
+  transitions?: Record<string, any>;
+  onError?: (error: any) => void;
 }
 
 type PreProcessingLayerProperties = (properties: {
@@ -63,8 +72,8 @@ export const MAP_CONFIGS: MapConfigs = {
   PATTERN_PROPERTIES: {
     // props added by FillStyleExtension
     fillPatternMask: true,
-    fillPatternAtlas: "/pattern.png",
-    fillPatternMapping: "/pattern.json",
+    fillPatternAtlas: PATTERN_ATLAS_URL,
+    fillPatternMapping: PATTERN_MAPPING_URL,
     getFillPatternScale: 0.25,
     getFillPatternOffset: [0, 0],
 
@@ -78,11 +87,25 @@ export const MAP_CONFIGS: MapConfigs = {
     // bearing: 0,
   },
   DEFAULT_LAYER_PROPERTIES: {
+    pointType: "circle",
     filled: true,
     stroked: true,
+    lineWidthUnits: "pixels",
     lineWidthMinPixels: 1,
+    pointRadiusUnits: "pixels",
+    pointRadiusMinPixels: 4,
     getText: () => "",
     getTextSize: 12,
+    transitions: {
+      getFillColor: 150,
+      getLineColor: 150,
+      getElevation: 200,
+      getRadius: 150,
+      getTextColor: 150,
+    },
+    onError: (error: any) => {
+      console.warn("[deck.gl Layer Error]", error?.message || error);
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PRE_PROCESSING_LAYER_PROPERTIES: (properties: any) => {
@@ -191,28 +214,93 @@ export const CLICK_ACTIONS_CONFIG = (): {
       // FeaturesView navigation removed - consumer app should handle selection state
       // or implement custom action
     },
+    [ClickActionEnum.OpenAttributesTable]: function (
+      { zoom = 17.1 },
+      { latitude, longitude, template, feature },
+    ): void {
+      if (!feature)
+        return console.error(
+          'clickAction(OpenAttributesTable) Error: Property "feature" is not defined',
+        );
+
+      let center = [longitude, latitude];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const geom = (feature as any)?.geometry;
+      if (geom && (geom.type === "Polygon" || geom.type === "MultiPolygon")) {
+        try {
+          const coords =
+            geom.type === "Polygon" ? geom.coordinates : geom.coordinates[0];
+          const centroid = polylabel(coords, 0.000001);
+          if (centroid && !isNaN(centroid[0]) && !isNaN(centroid[1])) {
+            center = centroid;
+          }
+        } catch (e) {
+          console.warn("Failed to calculate centroid", e);
+        }
+      }
+
+      selectFeature({
+        feature: {
+          ...feature,
+          _initialTab: "table",
+        },
+        template: template || [],
+      });
+
+      const padding = { top: 72, bottom: 40, left: 40, right: 40 };
+
+      const bounds = getGeoJsonBounds(feature);
+
+      flyTo({
+        ...(bounds ? { bounds } : { center, zoom }),
+        padding,
+        ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
+      });
+    },
     [ClickActionEnum.SetZoom]: function (
       { zoom },
-      { latitude, longitude },
+      { latitude, longitude, feature },
     ): void {
+      let center = [longitude, latitude];
+      if (
+        (isNaN(longitude) ||
+          isNaN(latitude) ||
+          longitude === undefined ||
+          latitude === undefined) &&
+        feature
+      ) {
+        center = calculateCenterId(feature);
+      }
+
       if (!zoom)
         return console.error(
           'clickAction(setZoom) Error: Property "zoom" is not defined',
         );
 
+      if (isNaN(center[0]) || isNaN(center[1])) {
+        return console.error(
+          'clickAction(setZoom) Error: Invalid center coordinates',
+          center,
+        );
+      }
+
       setTimeout(() => {
         flyTo({
-          center: [longitude, latitude],
+          center,
           zoom,
           ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
         });
       });
     },
     [ClickActionEnum.openFeature]: function (
-      { template: _template },
-      { feature: _feature },
+      { template },
+      { feature },
     ) {
-      // FeaturesView navigation removed
+      if (!feature) return;
+      selectFeature({
+        feature,
+        template: template ?? [],
+      });
     },
   };
 };

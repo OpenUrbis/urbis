@@ -1,19 +1,47 @@
+{{- $api := .Values.api | default dict -}}
+{{- $hpa := $api.hpa | default dict -}}
+{{- if $hpa.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: urbis-map-api-hpa
-  namespace: urbis-map
+  namespace: {{ .Release.Namespace | default "urbis-map" }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: urbis-map-api
-  minReplicas: 1
-  maxReplicas: 1
+  minReplicas: {{ $hpa.minReplicas | default 4 }}
+  maxReplicas: {{ $hpa.maxReplicas | default 8 }}
   metrics:
   - type: Resource
     resource:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 30
+        averageUtilization: {{ $hpa.targetCpuUtilization | default 70 }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ $hpa.targetMemoryUtilization | default 80 }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 2
+        periodSeconds: 15
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      selectPolicy: Min
+{{- end }}

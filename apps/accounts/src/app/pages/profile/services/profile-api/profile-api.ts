@@ -6,6 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './profile-api.html',
   styleUrl: './profile-api.scss',
 })
-export class ProfileApi {
-
-}
+export class ProfileApi {}

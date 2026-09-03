@@ -8,4 +8,5 @@ export interface IListItemsProperties {
     params: { template: string | ITemplate };
   };
   twoLine?: boolean;
+  printColumns?: 1 | 2 | 3 | 4;
 }

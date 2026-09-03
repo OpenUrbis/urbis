@@ -85,7 +85,10 @@ export const BasicInfo = ({ onNext }: BasicInfoProps) => {
             <FormItem className="col-span-1 md:col-span-2">
               <FormLabel>Origem (URL)</FormLabel>
               <FormControl>
-                <Input placeholder="https://api.exemplo.com/search" {...field} />
+                <Input
+                  placeholder="https://api.exemplo.com/search"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -99,7 +102,10 @@ export const BasicInfo = ({ onNext }: BasicInfoProps) => {
             <FormItem>
               <FormLabel>Camada Vinculada (Opcional)</FormLabel>
               <FormControl>
-                <LayerSelect value={field.value || ""} onChange={field.onChange} />
+                <LayerSelect
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -127,7 +133,9 @@ export const BasicInfo = ({ onNext }: BasicInfoProps) => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Define a ordem de exibição dos resultados na listagem.</p>
+                      <p>
+                        Define a ordem de exibição dos resultados na listagem.
+                      </p>
                       <p>Valores menores aparecem primeiro.</p>
                     </TooltipContent>
                   </Tooltip>

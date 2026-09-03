@@ -1,16 +1,17 @@
-import { getAuthHeaders } from "../utils/auth-headers";
+import { getAuthHeaders, getOptionalAuthHeaders } from "../utils/auth-headers";
 import { IGetConfigLayerGroup } from "../types/fetch-map-config-type";
 
-const environment =
-  (import.meta.env.VITE_API_URL || "/api") + "/maps";
+const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
 export const getLayerGroups = async (
   page?: number,
   pageSize?: number,
   search?: string,
   orderBy?: string,
-  orderType?: 'ASC' | 'DESC',
-): Promise<IGetConfigLayerGroup[] | { data: IGetConfigLayerGroup[]; total: number }> => {
+  orderType?: "ASC" | "DESC",
+): Promise<
+  IGetConfigLayerGroup[] | { data: IGetConfigLayerGroup[]; total: number }
+> => {
   const url = new URL(`${environment}/layer-groups`);
   if (page) url.searchParams.append("page", page.toString());
   if (pageSize) url.searchParams.append("pageSize", pageSize.toString());
@@ -18,7 +19,11 @@ export const getLayerGroups = async (
   if (orderBy) url.searchParams.append("orderBy", orderBy);
   if (orderType) url.searchParams.append("orderType", orderType);
 
-  const response = await fetch(url.toString());
+  const headers = await getOptionalAuthHeaders().catch(() => ({}));
+  let response = await fetch(url.toString(), { headers });
+  if (!response.ok && Object.keys(headers).length > 0) {
+    response = await fetch(url.toString());
+  }
   if (!response.ok) {
     throw new Error("Failed to fetch layer groups");
   }
@@ -26,8 +31,14 @@ export const getLayerGroups = async (
   return await response.json();
 };
 
-export const getLayerGroup = async (id: string): Promise<IGetConfigLayerGroup> => {
-  const response = await fetch(`${environment}/layer-groups/${id}`);
+export const getLayerGroup = async (
+  id: string,
+): Promise<IGetConfigLayerGroup> => {
+  const headers = await getOptionalAuthHeaders().catch(() => ({}));
+  let response = await fetch(`${environment}/layer-groups/${id}`, { headers });
+  if (!response.ok && Object.keys(headers).length > 0) {
+    response = await fetch(`${environment}/layer-groups/${id}`);
+  }
   if (!response.ok) {
     throw new Error("Failed to fetch layer group");
   }
@@ -35,7 +46,9 @@ export const getLayerGroup = async (id: string): Promise<IGetConfigLayerGroup> =
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const createLayerGroup = async (data: any): Promise<IGetConfigLayerGroup> => {
+export const createLayerGroup = async (
+  data: any,
+): Promise<IGetConfigLayerGroup> => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${environment}/layer-groups`, {
     method: "POST",
@@ -49,7 +62,10 @@ export const createLayerGroup = async (data: any): Promise<IGetConfigLayerGroup>
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const updateLayerGroup = async (id: string, data: any): Promise<IGetConfigLayerGroup> => {
+export const updateLayerGroup = async (
+  id: string,
+  data: any,
+): Promise<IGetConfigLayerGroup> => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${environment}/layer-groups/${id}`, {
     method: "PUT",

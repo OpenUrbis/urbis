@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { debounceTime, startWith, switchMap } from 'rxjs';
+import { debounceTime, startWith, switchMap, map } from 'rxjs';
 import {
   LoadingButton,
   LoadingContent,
@@ -30,6 +30,7 @@ import {
 import { RoleManagerApi } from '../../services/role-manager-api';
 import { provideIcons } from '@ng-icons/core';
 import { lucidePlus, lucideX, lucideSearch } from '@ng-icons/lucide';
+import { getFriendlyPermission } from '../../../../shared/utils/permission-formatter';
 
 @Component({
   selector: 'app-handle-role',
@@ -81,10 +82,11 @@ export class HandleRole {
       startWith(''),
       debounceTime(300),
       switchMap((search) =>
-        this.roleManagerApi.listPermissions({
-          search: search || '',
-          exclude: this.selectedToString(),
-        }),
+        this.roleManagerApi
+          .listPermissions({
+            search: search || '',
+          })
+          .pipe(map((list) => list.map((prm) => getFriendlyPermission(prm)))),
       ),
     ),
   );
@@ -95,10 +97,10 @@ export class HandleRole {
 
       let initPermissions: IInternalPermission[] = [];
       if (permissions) {
-        initPermissions = permissions;
+        initPermissions = permissions.map((p) => getFriendlyPermission(p));
       } else if (rolePermissions) {
         initPermissions = rolePermissions.map((rp) => ({
-          ...rp.permission,
+          ...getFriendlyPermission(rp.permission),
           scope: rp.scope,
         }));
       }
@@ -137,6 +139,47 @@ export class HandleRole {
     this.selectedPermissions.update((selected) =>
       selected.filter((prm) => prm.action !== permission.action),
     );
+    this.updatePermissionsInForm();
+  }
+
+  isPermissionSelected(permissionId: string): boolean {
+    return this.selectedPermissions().some((prm) => prm.id === permissionId);
+  }
+
+  togglePermission(permission: IPermissionResponse) {
+    const isSelected = this.isPermissionSelected(permission.id);
+    if (isSelected) {
+      this.selectedPermissions.update((selected) =>
+        selected.filter((prm) => prm.id !== permission.id),
+      );
+    } else {
+      const newPermission: IInternalPermission = {
+        ...permission,
+        scope: 'own',
+      };
+      this.selectedPermissions.update((selected) => [
+        ...selected,
+        newPermission,
+      ]);
+    }
+    this.updatePermissionsInForm();
+  }
+
+  getSelectedPermissionScope(permissionId: string): ScopeType {
+    const prm = this.selectedPermissions().find((p) => p.id === permissionId);
+    return prm ? prm.scope : 'own';
+  }
+
+  changePermissionScope(permissionId: string, event: Event) {
+    const value = (event.target as HTMLSelectElement).value as ScopeType;
+    this.selectedPermissions.update((permissions) => {
+      return permissions.map((p) => {
+        if (p.id === permissionId) {
+          return { ...p, scope: value };
+        }
+        return p;
+      });
+    });
     this.updatePermissionsInForm();
   }
 
@@ -185,6 +228,7 @@ export class HandleRole {
   }
 
   processError(err: any) {
+    console.error(err);
     this.loading.set(false);
     this.toaster.error(
       this.translate.instant('components.roleManager.handleRole.errors.save'),

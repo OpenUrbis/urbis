@@ -20,9 +20,10 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  UrbisIcon,
 } from "@open-urbis/map-ui";
 import axios from "axios";
-import { Info, Loader2 } from "lucide-react";
+import { Info, Loader2, Save, Share2, Table, Library } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { List } from "react-window";
 import { useMapContext } from "../../hooks/useMapContext";
@@ -44,6 +45,18 @@ const DEFAULT_TREE: FilterGroup = {
   operator: "AND",
   children: [],
 };
+
+const GEOMETRY_ATTRIBUTE_NAMES = new Set([
+  "geom",
+  "geometry",
+  "the_geom",
+  "wkb_geometry",
+  "shape",
+  "geometria",
+]);
+
+const isGeometryAttributeName = (name: string) =>
+  GEOMETRY_ATTRIBUTE_NAMES.has(name.trim().toLowerCase());
 
 const getSearchParamKey = (
   searchParams: URLSearchParams,
@@ -82,6 +95,9 @@ const ensureSearchParam = (
   }
 };
 
+import { getOptionalAuthHeaders } from "../../utils/auth-headers";
+import { normalizeEnvironmentUrl } from "../MapView/map-layer-transform";
+
 interface ConcatenatedSearchModalProps {
   trigger?: React.ReactNode;
 }
@@ -98,6 +114,7 @@ export const ConcatenatedSearchModal = ({
     filterTree,
     results: searchResults,
     totalCount,
+    layerTotalCount,
     isOpen: open,
   } = concatenatedSearch.value;
 
@@ -124,8 +141,37 @@ export const ConcatenatedSearchModal = ({
 
   const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
-  const buildSearchRequestConfig = (origin: string, typeName: string, cql?: string) => {
-    const resolvedUrl = origin.replace("{environment}", environment);
+  const calcPercentage = (filtered: number, total: number) => {
+    if (total <= 0) return 0;
+    const pct = (filtered / total) * 100;
+    if (filtered > 0 && pct < 1) {
+      return "<1";
+    }
+    return Math.round(pct);
+  };
+
+  const buildSearchRequestConfig = (
+    origin: string,
+    typeName: string,
+    cql?: string,
+    maxFeatures: number = 1000,
+  ) => {
+    let resolvedUrl = normalizeEnvironmentUrl(origin);
+    if (
+      resolvedUrl.includes("geoserver.slui.dev/geoserver/slui/ows") ||
+      resolvedUrl.includes("geoserver.slui.dev/geoserver/slui/wms")
+    ) {
+      resolvedUrl = `${environment}/proxy/wfs`;
+    } else if (
+      resolvedUrl.startsWith("http") &&
+      !resolvedUrl.includes(window.location.host) &&
+      !resolvedUrl.includes("/maps/proxy")
+    ) {
+      resolvedUrl = `${environment}/proxy?url=${encodeURIComponent(resolvedUrl)}`;
+    } else {
+      resolvedUrl = resolvedUrl.replace("{environment}", environment);
+    }
+
     const [baseUrl, queryString = ""] = resolvedUrl.split("?");
     const searchParams = new URLSearchParams(queryString);
 
@@ -137,12 +183,66 @@ export const ConcatenatedSearchModal = ({
 
     setSearchParam(searchParams, "typeName", typeName);
     setSearchParam(searchParams, "CQL_FILTER", cql);
-    setSearchParam(searchParams, "maxFeatures", 1000);
+    setSearchParam(searchParams, "maxFeatures", maxFeatures);
 
     return {
       url: baseUrl,
       params: searchParams,
     };
+  };
+
+  const fetchLayerTotalCount = async (layerId: string) => {
+    if (!layerId) return;
+
+    const layerConfig = layerSchemas.value.find((c) => c.id === layerId);
+    if (!layerConfig) return;
+
+    const fullLayerName = getLayerNameFromConfig(layerConfig);
+    if (!fullLayerName) return;
+
+    const layerOrigin =
+      layerConfig.origin ||
+      (layerConfig.properties as any)?.source?.url ||
+      (layerConfig.properties as any)?.wms?.url ||
+      "";
+
+    try {
+      const { url, params } = buildSearchRequestConfig(
+        layerOrigin,
+        fullLayerName,
+        undefined,
+        1,
+      );
+
+      const headers = await getOptionalAuthHeaders();
+
+      const response = await axios.get(url, {
+        params,
+        headers,
+        transformResponse: (data) => data,
+      });
+
+      const responseText = response.data;
+      let responseJson: any = {};
+      try {
+        responseJson = JSON.parse(responseText);
+      } catch (_error) {
+        responseJson = {};
+      }
+
+      const total =
+        responseJson.totalFeatures ??
+        responseJson.numberMatched ??
+        (responseJson.features ? responseJson.features.length : undefined);
+
+      if (total !== undefined) {
+        setConcatenatedSearch({
+          layerTotalCount: total,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch layer total count", error);
+    }
   };
 
   const fetchAttributes = async (layerId: string) => {
@@ -152,42 +252,57 @@ export const ConcatenatedSearchModal = ({
     if (attemptsRef.current >= maxAttempts) return;
 
     const layerConfig = layerSchemas.value.find((c) => c.id === layerId);
-    if (!layerConfig) return;
+    if (!layerConfig) {
+      setErrorAttributes("Camada selecionada não foi encontrada.");
+      return;
+    }
 
     const fullLayerName = getLayerNameFromConfig(layerConfig);
-    if (!fullLayerName) return;
+    if (!fullLayerName) {
+      setErrorAttributes(
+        "Não foi possível identificar o nome técnico (typeName) desta camada para carregar os atributos de filtro.",
+      );
+      return;
+    }
+
+    const layerOrigin =
+      layerConfig.origin ||
+      (layerConfig.properties as any)?.source?.url ||
+      (layerConfig.properties as any)?.wms?.url ||
+      "";
 
     setLoadingAttributes(true);
+    setErrorAttributes(null);
 
-    // O loop aqui tenta até maxAttempts vezes dentro desta chamada
-    // Mas o attemptsRef garante que se falhar 3x, próximas chamadas (do useEffect) não tentam de novo
     while (attemptsRef.current < maxAttempts) {
       try {
         const attributes = await fetchAttributesFromIntegration(
-          layerConfig.origin,
+          layerOrigin,
           fullLayerName,
         );
 
         if (attributes.length === 0) {
-          throw new Error("No attributes found");
+          throw new Error("Nenhum atributo retornado pelo serviço WFS DescribeFeatureType.");
         }
 
         const mapping =
           (layerConfig?.properties as any)?.attributeMapping || {};
 
         setFields(
-          attributes.map((attrName) => ({
-            name: attrName,
-            type: "text", // Integration helper returns only names, defaulting to text
-            label:
-              mapping[attrName]?.label || mapping[attrName]?.name || attrName,
-          })),
+          attributes
+            .filter((attr) => !isGeometryAttributeName(attr.name))
+            .map((attr) => ({
+              name: attr.name,
+              type: attr.type,
+              label:
+                mapping[attr.name]?.label || mapping[attr.name]?.name || attr.name,
+            })),
         );
 
         lastFetchedLayerId.current = layerId;
         attemptsRef.current = 0; // Reset attempts on success
         break;
-      } catch (error) {
+      } catch (error: any) {
         attemptsRef.current++;
         console.error(
           `Failed to fetch attributes (Attempt ${attemptsRef.current})`,
@@ -195,8 +310,9 @@ export const ConcatenatedSearchModal = ({
         );
         if (attemptsRef.current >= maxAttempts) {
           setLoadingAttributes(false);
+          const detail = error?.message ? `: ${error.message}` : ".";
           setErrorAttributes(
-            "Não foi possível carregar os atributos desta camada para realizar a busca.",
+            `Não foi possível carregar os atributos desta camada para realizar a busca${detail}`,
           );
           break;
         } else {
@@ -211,7 +327,7 @@ export const ConcatenatedSearchModal = ({
     console.log(selectedLayerId);
     if (!selectedLayerId) return;
 
-    const cql = filterNodeToCQL(filterTree);
+    const cql = filterNodeToCQL(filterTree, fields);
     console.log("cql", cql);
 
     setIsSearching(true);
@@ -226,21 +342,33 @@ export const ConcatenatedSearchModal = ({
       );
       if (layerConfig) {
         const fullLayerName = getLayerNameFromConfig(layerConfig);
-        if (!fullLayerName) return;
+        if (!fullLayerName) {
+          toastError("Não foi possível identificar o nome técnico (typeName) da camada para busca.");
+          return;
+        }
+
+        const layerOrigin =
+          layerConfig.origin ||
+          (layerConfig.properties as any)?.source?.url ||
+          (layerConfig.properties as any)?.wms?.url ||
+          "";
 
         const { url, params } = buildSearchRequestConfig(
-          layerConfig.origin,
+          layerOrigin,
           fullLayerName,
           cql || undefined,
         );
 
+        const headers = await getOptionalAuthHeaders();
+
         const response = await axios.get(url, {
           params,
+          headers,
           transformResponse: (data) => data,
         });
 
         const responseText = response.data;
-        let responseJson;
+        let responseJson: any = {};
         try {
           responseJson = JSON.parse(responseText);
         } catch (_error) {
@@ -254,15 +382,39 @@ export const ConcatenatedSearchModal = ({
         }));
 
         const totalFeatures =
-          responseJson.totalFeatures ?? responseJson.numberMatched ?? items.length;
+          responseJson.totalFeatures ??
+          responseJson.numberMatched ??
+          items.length;
 
-        setConcatenatedSearch({
-          results: items,
-          totalCount: totalFeatures,
-        });
+        if (!cql) {
+          setConcatenatedSearch({
+            results: items,
+            totalCount: totalFeatures,
+            layerTotalCount: totalFeatures,
+          });
+        } else {
+          setConcatenatedSearch({
+            results: items,
+            totalCount: totalFeatures,
+          });
+          if (layerTotalCount === undefined) {
+            fetchLayerTotalCount(selectedLayerId);
+          }
+        }
+
+        if (items.length === 0) {
+          toastError("Nenhum resultado encontrado na busca.");
+        } else {
+          toastSuccess(`${items.length} registro(s) encontrado(s).`);
+        }
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Search failed:", error);
+      toastError(
+        error?.message
+          ? `Falha ao realizar a busca: ${error.message}`
+          : "Falha ao realizar a busca na camada.",
+      );
     } finally {
       setIsSearching(false);
     }
@@ -273,7 +425,10 @@ export const ConcatenatedSearchModal = ({
     if (open && selectedLayerId && fields.length === 0 && !loadingAttributes) {
       fetchAttributes(selectedLayerId);
     }
-  }, [open, selectedLayerId, fields.length, loadingAttributes]);
+    if (open && selectedLayerId && layerTotalCount === undefined) {
+      fetchLayerTotalCount(selectedLayerId);
+    }
+  }, [open, selectedLayerId, fields.length, loadingAttributes, layerTotalCount]);
 
   const handleLayerChange = async (layerId: string) => {
     setFields([]);
@@ -286,9 +441,11 @@ export const ConcatenatedSearchModal = ({
       filterTree: DEFAULT_TREE,
       results: [],
       totalCount: undefined,
+      layerTotalCount: undefined,
     });
 
     if (layerId) {
+      fetchLayerTotalCount(layerId);
       await fetchAttributes(layerId);
     }
   };
@@ -348,7 +505,7 @@ export const ConcatenatedSearchModal = ({
       return;
     }
 
-    const cql = filterNodeToCQL(filterTree);
+    const cql = filterNodeToCQL(filterTree, fields);
     const targetLayerId = layerConfig.id;
 
     layerSchemas.value = layerSchemas.value.map((s) => {
@@ -357,6 +514,8 @@ export const ConcatenatedSearchModal = ({
           ...s,
           cqlFilter: cql || undefined,
           filterTree: filterTree,
+          isActive: true,
+          isSelected: true,
           isVisible: true,
         };
       }
@@ -379,19 +538,26 @@ export const ConcatenatedSearchModal = ({
             variant="outline"
             size="icon"
             className="shrink-0 rounded-full h-9 w-9 shadow-sm border-input"
-            title="Busca Concatenada"
+            title="Filtros por atributos de camadas"
           >
-            <span className="material-symbols-outlined text-base">
-              filter_list
-            </span>
+            <UrbisIcon
+              name="filter_list"
+              className="text-base"
+              aria-hidden="true"
+            />
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-6">
-        <DialogHeader className="mb-4">
+        <DialogHeader className="mb-4 space-y-2">
           <DialogTitle className="text-xl font-bold">
-            Busca Concatenada
+            Filtros por atributos de camadas
           </DialogTitle>
+          <p className="flex items-start gap-2 rounded-lg bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            Escolha uma camada e combine critérios dos seus atributos para
+            exibir no mapa apenas as feições correspondentes.
+          </p>
         </DialogHeader>
 
         <div className="space-y-6 flex-1 overflow-y-auto">
@@ -425,7 +591,11 @@ export const ConcatenatedSearchModal = ({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="h-10 w-10">
-                    <span className="material-symbols-outlined">more_vert</span>
+                    <UrbisIcon
+                      name="more_vert"
+                      className=""
+                      aria-hidden="true"
+                    />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -434,20 +604,24 @@ export const ConcatenatedSearchModal = ({
                       handleActionWithAuth(() => setIsShareOpen(true))
                     }
                   >
-                    <span className="material-symbols-outlined mr-2">
-                      share
-                    </span>
-                    Compartilhar Busca
+                    <Save className="mr-2 h-4 w-4" />
+                    Salvar filtro
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleActionWithAuth(() => setIsShareOpen(true))
+                    }
+                  >
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Compartilhar filtro salvo
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() =>
                       handleActionWithAuth(() => setIsShareHistoryOpen(true))
                     }
                   >
-                    <span className="material-symbols-outlined mr-2">
-                      history
-                    </span>
-                    Histórico de Buscas
+                    <Library className="mr-2 h-4 w-4 text-muted-foreground" />
+                    Salvos
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -463,7 +637,11 @@ export const ConcatenatedSearchModal = ({
 
           {errorAttributes && (
             <div className="text-sm text-red-500 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg p-4 flex items-center gap-2 justify-center">
-              <span className="material-symbols-outlined text-base">error</span>
+              <UrbisIcon
+                name="error"
+                className="text-base"
+                aria-hidden="true"
+              />
               {errorAttributes}
             </div>
           )}
@@ -471,7 +649,7 @@ export const ConcatenatedSearchModal = ({
           {errorAttributes && (
             <div className="text-xs text-muted-foreground text-center px-4">
               <p>
-                Algumas camadas podem não estar aptas para a busca concatenada
+                Algumas camadas podem não estar aptas para filtros por atributos
                 devido a restrições de serviço ou configurações do servidor.
               </p>
             </div>
@@ -495,7 +673,7 @@ export const ConcatenatedSearchModal = ({
           )}
 
           <div className="flex justify-end pt-2">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <Button
                 variant="secondary"
                 onClick={handleApplyToLayer}
@@ -504,25 +682,44 @@ export const ConcatenatedSearchModal = ({
               >
                 Aplicar na Camada
               </Button>
-              <Button
-                onClick={handleSearch}
-                disabled={isSearching || !selectedLayerId}
-                className="h-10 px-8 rounded-full shadow-md"
-              >
-                {isSearching ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Buscando...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined mr-2">
-                      search
-                    </span>
-                    Buscar agora
-                  </>
-                )}
-              </Button>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  onClick={handleSearch}
+                  disabled={isSearching || !selectedLayerId}
+                  className="h-10 px-8 rounded-full shadow-md gap-2"
+                >
+                  {isSearching ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Buscando...
+                    </>
+                  ) : (
+                    <>
+                      <Table className="h-4 w-4" />
+                      Prévia dos resultados
+                    </>
+                  )}
+                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full hover:bg-muted shrink-0">
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs" side="top" align="end">
+                      <div className="text-xs leading-relaxed space-y-1.5 p-1">
+                        <p>Clique no botão para visualizar rapidamente uma tabela com os registros que atendem aos filtros aplicados.</p>
+                        <div className="border-t pt-1.5 mt-1.5 text-[11px] text-muted-foreground space-y-1">
+                          <p className="font-semibold text-foreground">Maiores informações:</p>
+                          <p>A tabela é limitada aos primeiros 1000 registros, ordenados pelo ID, e sem o atributo de geometria.</p>
+                          <p>Para uma visualização maior, com possibilidade de ordenar e filtrar os resultados, utilize a opção Baixar CSV e abra o arquivo em uma aplicação de planilhas (ex.: Excel, Numbers ou Sheets).</p>
+                        </div>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           </div>
 
@@ -531,26 +728,58 @@ export const ConcatenatedSearchModal = ({
               <div className="flex justify-between items-center px-1">
                 <div className="flex flex-col">
                   <h3 className="font-bold text-sm uppercase tracking-wider">
-                    Resultados da busca
+                    Resultados dos filtros
                   </h3>
                   <p className="text-xs text-muted-foreground">
                     Exibindo {searchResults.length} de{" "}
                     {totalCount !== undefined ? totalCount : "?"} registros
                     encontrados
                   </p>
+                  {totalCount !== undefined &&
+                    layerTotalCount !== undefined &&
+                    layerTotalCount > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        ({calcPercentage(totalCount, layerTotalCount)}% dos{" "}
+                        {layerTotalCount} totais da camada).
+                      </p>
+                    )}
                 </div>
                 {searchResults.length > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleExportCSV}
-                    className="h-8 text-[11px] rounded-full px-4"
-                  >
-                    <span className="material-symbols-outlined text-sm mr-2">
-                      download
-                    </span>
-                    Exportar CSV
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleExportCSV}
+                      className="h-8 text-[11px] rounded-full px-4"
+                    >
+                      <UrbisIcon
+                        name="download"
+                        className="text-sm mr-2"
+                        aria-hidden="true"
+                      />
+                      Exportar CSV
+                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted shrink-0">
+                            <Info className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs" side="top" align="end">
+                          <div className="text-xs leading-relaxed space-y-1.5 p-1">
+                            <p>Clique para exportar essa tabela em um arquivo .csv pelo botão Exportar CSV.</p>
+                            <div className="border-t pt-1.5 mt-1.5 text-[11px] text-muted-foreground space-y-1">
+                              <p className="font-semibold text-foreground">Maiores informações:</p>
+                              <p>O arquivo possui os mesmos conteúdos da tabela, portanto, o mesmo limite de 1000 registros e sem o atributo de geometria.</p>
+                              <p>Para exportar geometrias visíveis sobre uma área, utilize a ferramenta Exportar geometrias da tela, disponível no lado direito da tela.</p>
+                              <p>Para fazer o download de um dado completo, é possível clicar no botão Baixar tudo, dentro da caixa Mais informações de uma camada, ou nos Metadados da camada - também acessível pela caixa Mais informações ou pela pesquisa nos Dados Abertos).</p>
+                            </div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 )}
               </div>
               {searchResults.length > 0 ? (
@@ -559,40 +788,38 @@ export const ConcatenatedSearchModal = ({
                     <div style={{ width: resultsTableWidth }}>
                       <div className="sticky top-0 z-20 flex border-b bg-muted/50 backdrop-blur-md">
                         {searchResultColumns.map((key) => {
-                              const layer = layerSchemas.value.find(
-                                (c) => c.id === selectedLayerId,
-                              );
-                              const mapping = (layer?.properties as any)
-                                ?.attributeMapping?.[key];
-                              const displayName =
-                                mapping?.label || mapping?.name || key;
-                              const description = mapping?.description;
+                          const layer = layerSchemas.value.find(
+                            (c) => c.id === selectedLayerId,
+                          );
+                          const mapping = (layer?.properties as any)
+                            ?.attributeMapping?.[key];
+                          const displayName =
+                            mapping?.label || mapping?.name || key;
+                          const description = mapping?.description;
 
-                              return (
-                                <div
-                                  key={key}
-                                  className="flex h-10 min-w-[200px] items-center px-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
-                                >
-                                  {description ? (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger className="flex items-center gap-1 cursor-help">
-                                          {displayName}
-                                          <Info className="h-3 w-3" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p className="max-w-xs">
-                                            {description}
-                                          </p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  ) : (
-                                    displayName
-                                  )}
-                                </div>
-                              );
-                            })}
+                          return (
+                            <div
+                              key={key}
+                              className="flex h-10 min-w-[200px] items-center px-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+                            >
+                              {description ? (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger className="flex items-center gap-1 cursor-help">
+                                      {displayName}
+                                      <Info className="h-3 w-3" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="max-w-xs">{description}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ) : (
+                                displayName
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                       <List
                         style={{
@@ -612,16 +839,16 @@ export const ConcatenatedSearchModal = ({
                               className="flex border-b hover:bg-muted/30 transition-colors items-center"
                             >
                               {searchResultColumns.map((key) => {
-                                const val = row[key] ?? '-';
+                                const val = row[key] ?? "-";
 
                                 return (
-                                <div
-                                  key={key}
-                                  className="whitespace-nowrap w-[200px] min-w-[200px] truncate text-[11px] py-2 px-4 shrink-0"
-                                  title={String(val)}
-                                >
-                                  {String(val)}
-                                </div>
+                                  <div
+                                    key={key}
+                                    className="whitespace-nowrap w-[200px] min-w-[200px] truncate text-[11px] py-2 px-4 shrink-0"
+                                    title={String(val)}
+                                  >
+                                    {String(val)}
+                                  </div>
                                 );
                               })}
                             </div>
@@ -634,11 +861,14 @@ export const ConcatenatedSearchModal = ({
               ) : (
                 <div className="border rounded-xl shadow-sm bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 p-6">
                   <div className="flex items-center justify-center gap-3 text-amber-900 dark:text-amber-100">
-                    <span className="material-symbols-outlined">info</span>
+                    <UrbisIcon name="info" className="" aria-hidden="true" />
                     <div className="text-center">
-                      <p className="font-medium">Nenhum resultado encontrado para os filtros informados.</p>
+                      <p className="font-medium">
+                        Nenhum resultado encontrado para os filtros informados.
+                      </p>
                       <p className="text-sm text-amber-800/80 dark:text-amber-200/80 mt-1">
-                        Revise os critérios da busca ou tente uma combinação diferente.
+                        Revise os critérios da busca ou tente uma combinação
+                        diferente.
                       </p>
                     </div>
                   </div>

@@ -3,6 +3,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  UrbisIcon,
 } from "@open-urbis/map-ui";
 
 export const Helper = ({
@@ -23,7 +24,11 @@ export const Helper = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="material-symbols-outlined text-sm text-muted-foreground cursor-help">info</span>
+              <UrbisIcon
+                name="info"
+                className="text-sm text-muted-foreground cursor-help"
+                aria-hidden="true"
+              />
             </TooltipTrigger>
             <TooltipContent align="end" className="max-w-[300px]">
               <p className="font-semibold">Ajuda</p>

@@ -2,7 +2,8 @@ import DeckGL, { PolygonLayer } from "deck.gl";
 import { memo } from "preact/compat";
 import { useMemo, useRef } from "react";
 import { useSignal } from "@preact/signals";
-import { Map } from "react-map-gl/mapbox";
+import { Map } from "react-map-gl/maplibre";
+import { getMapStyle } from "../../../MapView/base-map-styles";
 import { createFn } from "../../../../utils/createFn";
 import { IPolygonMapProperties } from "../../types/polygon-map-type";
 import {
@@ -16,16 +17,13 @@ const PolygonMapComponent: ITemplateRender = ({
   data,
 }: ITemplateProps) => {
   const loadingMap = useSignal(true);
+  const mapRef = useRef(null);
   const properties: IPolygonMapProperties =
     template.properties as IPolygonMapProperties;
-  const accessToken =
-    import.meta.env.VITE_PUBLIC_MAPBOX_ACCESS_TOKEN ||
-    "your-mapbox-access-token";
-  const mapRef = useRef(null);
 
   if (!properties?.initialViewState) {
     console.error(
-      "initialViewState is not defined is 'polygon-map' properties"
+      "initialViewState is not defined is 'polygon-map' properties",
     );
     return null;
   }
@@ -34,6 +32,11 @@ const PolygonMapComponent: ITemplateRender = ({
     console.error("polygonProps is not defined is 'polygon-map' properties");
     return null;
   }
+
+  const mapId = useMemo(
+    () => `polygon-details-${Math.random().toString(36).slice(2)}`,
+    [],
+  );
 
   const initialViewState = useMemo(() => {
     const strFn = createFn(properties!.initialViewState!);
@@ -78,9 +81,13 @@ const PolygonMapComponent: ITemplateRender = ({
         {
           (
             <Map
-              id="polygon-details"
-              mapboxAccessToken={accessToken}
-              mapStyle="mapbox://styles/mapbox/standard-satellite"
+              id={mapId}
+              attributionControl={false}
+              mapStyle={getMapStyle(
+                "satellite-streets",
+                "light",
+                import.meta.env.VITE_API_URL || "/api",
+              )}
             /> // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ) as any
         }

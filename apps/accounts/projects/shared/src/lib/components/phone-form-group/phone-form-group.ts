@@ -14,7 +14,7 @@ import { HlmLabelDirective } from '../../ui/label/hlm-label.directive';
     ReactiveFormsModule,
     TranslateModule,
     HlmInputDirective,
-    HlmLabelDirective
+    HlmLabelDirective,
   ],
   templateUrl: './phone-form-group.html',
 })

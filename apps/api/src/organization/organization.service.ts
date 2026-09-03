@@ -8,19 +8,16 @@ import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { SYSTEM_ROLES } from './../common/constants/system-roles.const';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
 import { RoleService } from 'role/role.service';
-import {
-  EntityManager,
-  FindOptionsWhere,
-  ILike,
-  In,
-  Not,
-  Or,
-  Repository,
-} from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import { User } from 'user/entities/user.entity';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { Organization } from './entities/organization.entity';
+import { Representation } from '../representation/entities/representation.entity';
+import {
+  REPRESENTATION_ROLE_LABELS,
+  REPRESENTATION_RULES,
+} from '../representation/representation-rules';
 import {
   OrganizationHistory,
   OrganizationHistoryAction,
@@ -40,6 +37,8 @@ export class OrganizationService {
 
     @Inject(forwardRef(() => RoleService))
     private readonly roleService: RoleService,
+    @InjectRepository(Representation)
+    private representationRepository: Repository<Representation>,
   ) {}
 
   async findOne(id: string) {
@@ -63,19 +62,90 @@ export class OrganizationService {
     pagination: IPaginationOptions,
     search?: string,
     exclude?: string[],
-  ): Promise<{ data: Organization[]; total: number }> {
+    type?: string,
+    status?: 'active' | 'inactive',
+  ): Promise<{ data: any[]; total: number }> {
     if (pagination.page > 0) pagination.page--;
     const { limit, page } = pagination;
-    const where: FindOptionsWhere<Organization> = {};
 
-    if (search) where.name = Or(ILike(`%${search}%`));
+    const query = this.organizationRepository
+      .createQueryBuilder('organization')
+      .withDeleted()
+      .leftJoin(
+        User,
+        'personalUser',
+        '"personalUser"."id"::text = organization.metadata ->> \'userId\'',
+      )
+      .loadRelationCountAndMap(
+        'organization.userCount',
+        'organization.userRoleAssignments',
+      )
+      .orderBy('organization.name', 'ASC')
+      .take(limit)
+      .skip(page * limit);
 
-    if (exclude && exclude?.length > 0) where.id = Not(In(exclude));
+    if (search?.trim()) {
+      const normalizedSearch = search.trim();
+      const digitsSearch = normalizedSearch.replace(/\D/g, '');
+      query.andWhere(
+        `(
+          organization.name ILIKE :search
+          OR "personalUser"."firstName" ILIKE :search
+          OR "personalUser"."lastName" ILIKE :search
+          OR CONCAT("personalUser"."firstName", ' ', "personalUser"."lastName") ILIKE :search
+          OR organization.document ILIKE :search
+          ${digitsSearch ? "OR regexp_replace(COALESCE(organization.document, ''), '[^0-9]', '', 'g') ILIKE :documentSearch" : ''}
+        )`,
+        {
+          search: `%${normalizedSearch}%`,
+          ...(digitsSearch ? { documentSearch: `%${digitsSearch}%` } : {}),
+        },
+      );
+    }
 
-    const [data, total] = await this.organizationRepository.findAndCount({
-      where: where,
-      take: limit,
-      skip: page * limit,
+    if (exclude?.length) {
+      query.andWhere('organization.id NOT IN (:...exclude)', { exclude });
+    }
+
+    if (status === 'active') {
+      query.andWhere('organization."deletedAt" IS NULL');
+    } else if (status === 'inactive') {
+      query.andWhere('organization."deletedAt" IS NOT NULL');
+    }
+
+    if (type) {
+      query.andWhere(
+        "(organization.metadata ->> 'accountType' = :type OR organization.metadata ->> 'representedType' = :type)",
+        { type },
+      );
+    }
+
+    const [organizations, total] = await query.getManyAndCount();
+    const personalUserIds = organizations
+      .map((organization) => organization.metadata?.userId)
+      .filter((id): id is string => Boolean(id));
+    const personalUsers = personalUserIds.length
+      ? await this.entityManager.getRepository(User).find({
+          where: { id: In(personalUserIds) },
+        })
+      : [];
+    const personalUsersById = new Map(
+      personalUsers.map((personalUser) => [personalUser.id, personalUser]),
+    );
+    const data = organizations.map((organization) => {
+      const personalUser = personalUsersById.get(organization.metadata?.userId);
+      const organizationData = organization as any;
+      const fullName = [personalUser?.firstName, personalUser?.lastName]
+        .filter(Boolean)
+        .join(' ');
+
+      return {
+        ...organizationData,
+        ...(fullName ? { name: fullName } : {}),
+        status: organization.deletedAt ? 'inactive' : 'active',
+        registrationType: organization.metadata?.accountType,
+        representedType: organization.metadata?.representedType,
+      };
     });
 
     return { data, total };
@@ -204,22 +274,98 @@ export class OrganizationService {
     return savedOrganization;
   }
 
-  async my(userId: string) {
-    const organization = await this.organizationRepository.find({
+  private isHiddenSystemOrganization(organization: Organization): boolean {
+    const metadata = organization.metadata || {};
+    return (
+      metadata.isSystem === true ||
+      metadata.hidden === true ||
+      metadata.isHidden === true ||
+      ['codata', 'urbis'].includes(organization.name?.trim().toLowerCase())
+    );
+  }
+
+  async my(userId: string, includeHidden = false) {
+    const isGlobalAdmin = await this.roleService.hasSystemRole(
+      userId,
+      SYSTEM_ROLES.admin,
+    );
+
+    const organizations = await this.organizationRepository.find({
       where: { userRoleAssignments: { userId } },
     });
 
-    return organization;
+    if (isGlobalAdmin || includeHidden) {
+      return organizations;
+    }
+
+    return organizations.filter((org) => !this.isHiddenSystemOrganization(org));
   }
 
-  getByUser(userId: string) {
-    return this.organizationRepository.find({
+  async myAdmin(userId: string, includeHidden = false) {
+    const isGlobalAdmin = await this.roleService.hasSystemRole(
+      userId,
+      SYSTEM_ROLES.admin,
+    );
+
+    const organizations = await this.organizationRepository.find({
+      where: {
+        userRoleAssignments: {
+          userId,
+          roleId: In([SYSTEM_ROLES.admin, SYSTEM_ROLES.organizationAdmin]),
+        },
+      },
+    });
+
+    if (isGlobalAdmin || includeHidden) {
+      return organizations;
+    }
+
+    return organizations.filter((org) => !this.isHiddenSystemOrganization(org));
+  }
+
+  async getByUser(userId: string) {
+    const organizations = await this.organizationRepository.find({
       where: { userRoleAssignments: { userId } },
       relations: [
         'userRoleAssignments',
         'userRoleAssignments.user',
         'userRoleAssignments.role',
       ],
+    });
+
+    if (!organizations.length) return organizations;
+
+    const representations = await this.representationRepository.find({
+      where: { organizationId: In(organizations.map(({ id }) => id)) },
+      order: { createdAt: 'DESC' },
+    });
+    const representationByOrganization = new Map(
+      representations.map((representation) => [
+        representation.organizationId,
+        representation,
+      ]),
+    );
+
+    return organizations.map((organization) => {
+      const representation = representationByOrganization.get(organization.id);
+      if (!representation) return organization;
+
+      return {
+        ...organization,
+        representationType: representation.representationType,
+        representedType:
+          REPRESENTATION_RULES[representation.representationType || '']
+            ?.representedType || representation.representationType,
+        representativeType:
+          REPRESENTATION_ROLE_LABELS[representation.representationType || ''],
+        representative: representation.requester
+          ? {
+              id: representation.requester.id,
+              firstName: representation.requester.firstName,
+              lastName: representation.requester.lastName,
+            }
+          : undefined,
+      };
     });
   }
 
@@ -231,7 +377,7 @@ export class OrganizationService {
         {
           organizationId: organization.id,
           userId: user.id,
-          roleId: SYSTEM_ROLES.admin,
+          roleId: SYSTEM_ROLES.organizationAdmin,
         },
         organization,
         manager,

@@ -10,9 +10,8 @@ describe('Unauthorized', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Unauthorized, TranslateModule.forRoot(), RouterTestingModule]
-    })
-    .compileComponents();
+      imports: [Unauthorized, TranslateModule.forRoot(), RouterTestingModule],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Unauthorized);
     component = fixture.componentInstance;

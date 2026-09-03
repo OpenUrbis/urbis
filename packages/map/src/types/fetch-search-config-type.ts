@@ -30,7 +30,10 @@ export interface IGetSearchItem {
   rawData?: any;
 }
 
-export interface IGetSearchItemError { type: string, message: string; }
+export interface IGetSearchItemError {
+  type: string;
+  message: string;
+}
 
 export interface ISearchResponse {
   [key: string]: IGetSearchItem[] | IGetSearchItemError[];

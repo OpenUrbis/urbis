@@ -1,44 +1,49 @@
-import { Moon, Sun } from "lucide-react"
-import { Button } from "@open-urbis/map-ui/ui/button"
+import { Moon, Sun } from "lucide-react";
+import { Button } from "@open-urbis/map-ui/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@open-urbis/map-ui/ui/dropdown-menu"
-import { useEffect, useState } from "react"
+} from "@open-urbis/map-ui/ui/dropdown-menu";
+import { useEffect, useState } from "react";
 
 export function ModeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("system")
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | "system" | null
+    const savedTheme = localStorage.getItem("theme") as
+      | "light"
+      | "dark"
+      | "system"
+      | null;
     if (savedTheme) {
-      setTheme(savedTheme)
+      setTheme(savedTheme);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    const root = window.document.documentElement
+    const root = window.document.documentElement;
 
-    root.classList.remove("light", "dark")
+    root.classList.remove("light", "dark");
 
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
         ? "dark"
-        : "light"
+        : "light";
 
-      root.classList.add(systemTheme)
-      return
+      root.classList.add(systemTheme);
+      return;
     }
 
-    root.classList.add(theme)
-  }, [theme])
+    root.classList.add(theme);
+  }, [theme]);
 
   const setThemeAndSave = (newTheme: "light" | "dark" | "system") => {
-    setTheme(newTheme)
-    localStorage.setItem("theme", newTheme)
-  }
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+  };
 
   return (
     <DropdownMenu>
@@ -61,5 +66,5 @@ export function ModeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

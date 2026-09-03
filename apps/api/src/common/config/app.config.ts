@@ -9,6 +9,16 @@ export default registerAs('app', () => ({
   backendDomain: process.env.BACKEND_DOMAIN,
   port: parseInt(process.env.APP_PORT || process.env.PORT, 10) || 3000,
   apiPrefix: process.env.API_PREFIX || 'api',
+  trustProxy:
+    process.env.TRUST_PROXY === undefined
+      ? process.env.NODE_ENV === 'production'
+        ? 1
+        : false
+      : process.env.TRUST_PROXY === 'true'
+        ? true
+        : process.env.TRUST_PROXY === 'false'
+          ? false
+          : parseInt(process.env.TRUST_PROXY, 10) || 0,
   swaggerEnabled: process.env.SWAGGER_ENABLED || 'true',
   fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE || 'en',
   headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',

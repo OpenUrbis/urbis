@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { IRegisterDto } from '../dto/register.dto';
 
+
 @Injectable({ providedIn: 'root' })
 export class SignUpApi {
   private readonly httpClient = inject(HttpClient);

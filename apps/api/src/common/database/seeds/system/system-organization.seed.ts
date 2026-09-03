@@ -26,6 +26,7 @@ export class SystemOrganizationSeedService {
       id: organizationId,
       name: 'Codata',
       metadata: {
+        isSystem: true,
         tenantType: 'mono',
         organizationType: 'Secretaria',
         organizationTypes: ['Secretaria', 'Empresa', 'Autarquia'],

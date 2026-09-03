@@ -49,16 +49,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={notoSans.className} suppressHydrationWarning>
-      <head>
-        <link
-          href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/icon?family=Material+Icons"
-          rel="stylesheet"
-        />
-      </head>
+      <head></head>
       <body className="flex flex-col min-h-screen">
         <ConfigInitializer />
         <RootProvider>

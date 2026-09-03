@@ -10,7 +10,7 @@ type SidebarContextValue = {
 };
 
 const SidebarContext = React.createContext<SidebarContextValue | undefined>(
-  undefined
+  undefined,
 );
 
 export function SidebarProvider({ children }: { children: ReactNode }) {

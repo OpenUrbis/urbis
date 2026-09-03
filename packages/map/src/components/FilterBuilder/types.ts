@@ -18,6 +18,7 @@ export interface FilterCondition {
   field: string;
   operator: FilterConditionOperator;
   value: any;
+  fieldType?: "text" | "number" | "date" | "boolean";
 }
 
 export interface FilterGroup {

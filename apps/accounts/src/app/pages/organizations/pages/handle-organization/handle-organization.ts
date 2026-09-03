@@ -55,6 +55,8 @@ export class HandleOrganization {
   form = new FormGroup({
     name: new FormControl('', Validators.required),
     description: new FormControl(''),
+    isActive: new FormControl(true),
+    dailyLimit: new FormControl(1000, [Validators.required, Validators.min(0)]),
   });
 
   id = signal<string | undefined>(undefined);
@@ -62,6 +64,7 @@ export class HandleOrganization {
   loading = signal<boolean>(false);
   loadingSave = signal<boolean>(false);
   selectedTab = signal<number>(0);
+  loadedMetadata: any = {};
 
   toaster = inject(HlmToasterService);
   activatedRoute = inject(ActivatedRoute);
@@ -92,10 +95,13 @@ export class HandleOrganization {
       .subscribe((organization) => {
         if (organization) {
           this.name.set(organization.name);
+          this.loadedMetadata = organization.metadata || {};
 
           this.form.patchValue({
             name: organization.name,
             description: organization.description,
+            isActive: organization.metadata?.isActive !== false,
+            dailyLimit: organization.metadata?.dailyLimit ?? 1000,
           });
         }
       });
@@ -104,8 +110,16 @@ export class HandleOrganization {
   async save() {
     if (this.form.invalid) return;
 
-    const data: IRequestCreateOrganization | IRequestUpdateOrganization = this
-      .form.value as IRequestCreateOrganization | IRequestUpdateOrganization;
+    const val = this.form.value;
+    const data: any = {
+      name: val.name,
+      description: val.description,
+      metadata: {
+        ...(this.loadedMetadata || {}),
+        isActive: val.isActive,
+        dailyLimit: val.dailyLimit,
+      },
+    };
     const id = this.id();
 
     try {

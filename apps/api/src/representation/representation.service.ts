@@ -5,9 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MailService } from 'common/mail/mail.service';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
 import { isValidCpfValue } from 'common/utils/validators/is-cpf.validator';
-import { Brackets, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { SYSTEM_ROLES } from '../common/constants/system-roles.const';
 import { OpenCnpjService } from '../maps/open-cnpj/open-cnpj.service';
 import { Organization } from '../organization/entities/organization.entity';
@@ -20,283 +21,433 @@ import { RepresentationHistory } from './entities/representation-history.entity'
 import { Representation } from './entities/representation.entity';
 import { RepresentationStatus } from './enums/representation-status.enum';
 import { RepresentationType } from './enums/representation-type.enum';
+import {
+  normalizeRepresentationDocuments,
+  REPRESENTATION_ROLE_LABELS,
+  REPRESENTATION_RULES,
+} from './representation-rules';
+
+const ACTIVE_STATUSES = [
+  RepresentationStatus.PENDING,
+  RepresentationStatus.APPROVED,
+  RepresentationStatus.INFO_REQUESTED,
+];
 
 @Injectable()
 export class RepresentationService {
   constructor(
     @InjectRepository(Representation)
-    private representationRepository: Repository<Representation>,
+    private readonly representationRepository: Repository<Representation>,
     @InjectRepository(RepresentationComment)
-    private commentRepository: Repository<RepresentationComment>,
+    private readonly commentRepository: Repository<RepresentationComment>,
     @InjectRepository(RepresentationHistory)
-    private historyRepository: Repository<RepresentationHistory>,
-    private organizationService: OrganizationService,
-    private roleService: RoleService,
-    private openCnpjService: OpenCnpjService,
+    private readonly historyRepository: Repository<RepresentationHistory>,
+    private readonly organizationService: OrganizationService,
+    private readonly roleService: RoleService,
+    private readonly mailService: MailService,
+    private readonly openCnpjService: OpenCnpjService,
   ) {}
 
-  async checkOrganizationDocument(document: string, user: User) {
+  private ruleFor(representationType: string) {
+    const rule = REPRESENTATION_RULES[representationType];
+    if (!rule)
+      throw new BadRequestException('errors.invalid_representation_type');
+    return rule;
+  }
+
+  private normalizeAndValidateDocuments(
+    rule: ReturnType<RepresentationService['ruleFor']>,
+    documents: unknown,
+  ) {
+    if (!Array.isArray(documents) || documents.length === 0) {
+      throw new BadRequestException('errors.required_representation_documents');
+    }
+
+    // The old string[] shape remains readable for migrated records, but a new
+    // request must identify every file by its required document category.
+    if (documents.some((document) => typeof document === 'string')) {
+      throw new BadRequestException('errors.required_representation_documents');
+    }
+
+    for (const document of documents) {
+      if (
+        !document ||
+        typeof document !== 'object' ||
+        typeof document.category !== 'string' ||
+        !document.category.trim() ||
+        !Array.isArray(document.files) ||
+        document.files.some(
+          (file: unknown) => typeof file !== 'string' || !file.trim(),
+        )
+      ) {
+        throw new BadRequestException(
+          'errors.required_representation_documents',
+        );
+      }
+    }
+
+    const normalized = normalizeRepresentationDocuments(documents);
+    const expectedCategories = new Set(
+      rule.documents.map((document) => document.category),
+    );
+    if (
+      normalized.some((document) => !expectedCategories.has(document.category))
+    ) {
+      throw new BadRequestException('errors.invalid_representation_documents');
+    }
+
+    const providedCategories = new Set(
+      normalized
+        .filter((document) => document.files.length > 0)
+        .map((document) => document.category),
+    );
+    const missing = rule.documents.filter(
+      (document) => !providedCategories.has(document.category),
+    );
+    if (missing.length) {
+      throw new BadRequestException('errors.required_representation_documents');
+    }
+
+    return normalized;
+  }
+
+  private normalizeCoRepresentatives(value: unknown): string[] {
+    if (value === undefined || value === null) return [];
+    if (!Array.isArray(value)) {
+      throw new BadRequestException('errors.invalid_co_representatives');
+    }
+
+    const normalized: string[] = [];
+    for (const representative of value) {
+      if (typeof representative !== 'string') {
+        throw new BadRequestException('errors.invalid_co_representatives');
+      }
+
+      const cpf = representative.replace(/\D/g, '');
+      if (cpf.length !== 11 || !isValidCpfValue(cpf)) {
+        throw new BadRequestException('errors.invalid_cpf');
+      }
+      if (!normalized.includes(cpf)) normalized.push(cpf);
+    }
+
+    return normalized;
+  }
+
+  private validateRepresentedData(
+    rule: ReturnType<RepresentationService['ruleFor']>,
+    data: any,
+  ) {
+    const value = rule.documentType === 'CPF' ? data.name : data.companyName;
+    if (typeof value !== 'string' || !value.trim()) {
+      throw new BadRequestException('errors.represented_name_required');
+    }
+  }
+
+  private accountTypeLabel(accountType?: string) {
+    return (
+      {
+        fisica_capaz: 'Pessoa física capaz',
+        fisica_emancipada: 'Pessoa física capaz (emancipada)',
+        fisica_assistido_parental:
+          'Relativamente incapaz (assistido por autoridade parental)',
+        fisica_assistido_tutor: 'Relativamente incapaz (assistido por tutor)',
+      }[accountType || ''] ||
+      accountType ||
+      'Não informado'
+    );
+  }
+
+  private async validateDocumentConflict(
+    document: string,
+    representationType: string,
+  ) {
     const cleanDocument = document.replace(/\D/g, '');
+    const organization =
+      await this.organizationService.findOneByDocument(cleanDocument);
+    if (!organization) return;
 
-    if (cleanDocument.length === 11 && !isValidCpfValue(cleanDocument)) {
-      throw new BadRequestException('errors.invalid_cpf');
-    }
+    const approved = await this.representationRepository.find({
+      where: {
+        organizationId: organization.id,
+        status: RepresentationStatus.APPROVED,
+      },
+    });
+    const active = approved.filter((item) => !item.deletedAt);
+    if (!active.length) return;
 
-    const org = await this.organizationService.findOneByDocument(cleanDocument);
+    const requestedRule = this.ruleFor(representationType);
+    const existing = active.find(
+      (item) =>
+        this.ruleFor(item.representationType || '').representedType !==
+        requestedRule.representedType,
+    );
+    if (!existing) return;
 
-    // Check if there is already a pending or active request for this user and org (if org exists)
-    if (org) {
-      const existingRequest = await this.representationRepository.findOne({
-        where: [
-          {
-            requesterId: user.id,
-            organizationId: org.id,
-            status: RepresentationStatus.PENDING,
-          },
-          {
-            requesterId: user.id,
-            organizationId: org.id,
-            status: RepresentationStatus.INFO_REQUESTED,
-          },
-          {
-            requesterId: user.id,
-            organizationId: org.id,
-            status: RepresentationStatus.APPROVED,
-          },
-        ],
-      });
-
-      if (existingRequest) {
-        throw new BadRequestException('errors.already_requested');
-      }
-
-      // Check if user is already representing it directly
-      const userOrgs = await this.organizationService.my(user.id);
-      if (userOrgs.find((o) => o.id === org.id)) {
-        throw new BadRequestException('errors.already_representing');
-      }
-    }
-
-    if (org) {
-      return {
-        id: org.id,
-        name: org.name,
-        document: org.document,
-        metadata: org.metadata,
-        isCnpj: cleanDocument.length === 14,
-        source: 'internal',
-      };
-    }
-
-    // Fallback to CNPJ API if length matches CNPJ and org not found locally
+    const existingType = this.ruleFor(
+      existing.representationType || '',
+    ).representedType;
     if (cleanDocument.length === 14) {
-      try {
-        const cnpjData = await this.openCnpjService.getCnpjData(cleanDocument);
-        if (cnpjData) {
-          return {
-            document: cleanDocument,
-            name: cnpjData.razao_social,
-            metadata: {
-              socialName: cnpjData.nome_fantasia,
-            },
-            isCnpj: true,
-            source: 'external',
-          };
-        }
-      } catch (_e) {
-        throw new BadRequestException('errors.invalid_cnpj');
-      }
+      throw new BadRequestException(
+        `O CNPJ já se encontra cadastrado como ${existingType}. Caso este cadastro esteja incorreto ou a situação tenha se alterado, contatar o suporte.`,
+      );
     }
 
-    return null;
+    const specialTypes = [
+      'Espólio',
+      'Herança jacente ou vacante',
+      'Incapaz (representado por autoridade parental)',
+      'Incapaz (representado por tutor)',
+      'Incapaz (representado por curador)',
+    ];
+    if (specialTypes.includes(existingType)) {
+      throw new BadRequestException(
+        `O CPF já se encontra cadastrado como ${existingType}. Caso este cadastro esteja incorreto ou a situação tenha se alterado, contatar o suporte.`,
+      );
+    }
+
+    const allowedPfTypes = [
+      'Pessoa física capaz',
+      'Pessoa física capaz (emancipada)',
+      'Relativamente incapaz (assistido por autoridade parental)',
+      'Relativamente incapaz (assistido por tutor)',
+      'Pessoa Física Capaz (emancipada ou não) ou Assistida (Relativamente Incapaz)',
+      'Pessoa Física Assistida (Relativamente Incapaz)',
+    ];
+    if (!allowedPfTypes.includes(existingType)) {
+      throw new BadRequestException(
+        `O CPF já se encontra cadastrado como ${existingType}. Caso este cadastro esteja incorreto ou a situação tenha se alterado, contatar o suporte.`,
+      );
+    }
+  }
+
+  async checkOrganizationDocument(
+    document: string,
+    user: User,
+    representationType?: string,
+  ) {
+    const cleanDocument = document.replace(/\D/g, '');
+    if (cleanDocument.length !== 14) {
+      throw new BadRequestException('errors.cnpj_required');
+    }
+    if (representationType) {
+      const rule = this.ruleFor(representationType);
+      if (rule.documentType !== 'CNPJ') {
+        throw new BadRequestException('errors.invalid_document');
+      }
+      await this.validateDocumentConflict(cleanDocument, representationType);
+    }
+
+    let externalData: any = null;
+    try {
+      externalData = await this.openCnpjService.getCnpjData(cleanDocument);
+    } catch (_error) {
+      throw new BadRequestException('errors.invalid_cnpj');
+    }
+
+    const organization =
+      await this.organizationService.findOneByDocument(cleanDocument);
+    if (organization) {
+      const existing = await this.representationRepository.findOne({
+        where: {
+          requesterId: user.id,
+          organizationId: organization.id,
+          status: In(ACTIVE_STATUSES),
+        },
+      });
+      if (existing) throw new BadRequestException('errors.already_requested');
+    }
+    return {
+      document: cleanDocument,
+      name: externalData?.razao_social,
+      metadata: { socialName: externalData?.nome_fantasia },
+      source: 'OpenCNPJ',
+    };
   }
 
   async getOverview(
     user: User,
     filters: GetRepresentationOverviewDto,
     organizationIds: string[] = [],
+    isGlobal = false,
   ) {
     const { page, limit, status, search } = filters;
-    const skip = (page - 1) * limit;
-
     const qb = this.representationRepository
       .createQueryBuilder('representation')
       .leftJoinAndSelect('representation.organization', 'organization')
-      .leftJoinAndSelect('representation.assignedTo', 'assignedTo')
       .leftJoinAndSelect('representation.requester', 'requester')
-      .leftJoin('assignedTo.userRoleAssignments', 'userRoleAssignments')
-      .leftJoin('userRoleAssignments.organization', 'assignedOrg');
-
-    // Let's implement the specific rule:
-    qb.andWhere(
-      new Brackets((qb) => {
-        // Author (requester)
-        qb.where('representation.requesterId = :userId', { userId: user.id });
-
-        // Assigned to user
-        qb.orWhere('representation.assignedToId = :userId', {
-          userId: user.id,
-        });
-
-        // Assigned to an organization the user is part of (if applicable)
-        if (organizationIds && organizationIds.length > 0) {
-          qb.orWhere('representation.representedId IN (:...organizationIds)', {
-            organizationIds,
-          });
-          qb.orWhere('representation.organizationId IN (:...organizationIds)', {
-            organizationIds,
-          });
-        }
-
-        // Global Admin for "Prefeitura" views unassigned (assignedToId IS NULL)
-        if (organizationIds && organizationIds.length === 0) {
-          qb.orWhere('representation.assignedToId IS NULL');
-        }
-      }),
-    );
-
-    if (
-      status &&
-      Object.values(RepresentationStatus).includes(
-        status as RepresentationStatus,
+      .andWhere(
+        new Brackets((subQb) => {
+          subQb.where('representation.requesterId = :userId');
+          if (organizationIds.length)
+            subQb.orWhere(
+              'representation.organizationId IN (:...organizationIds)',
+            );
+          if (isGlobal) subQb.orWhere('1 = 1');
+        }),
       )
-    ) {
-      qb.andWhere('representation.status = :status', {
-        status,
-      });
+      .setParameter('userId', user.id);
+    if (organizationIds.length)
+      qb.setParameter('organizationIds', organizationIds);
+    if (status) {
+      if (!Object.values(RepresentationStatus).includes(status)) {
+        throw new BadRequestException('Invalid representation status');
+      }
+      qb.andWhere('representation.status = :status', { status });
     }
+    if (search?.trim()) {
+      const textSearch = `%${search.trim()}%`;
+      const normalizedDocument = search.replace(/\D/g, '');
+      const textConditions = [
+        'organization.name ILIKE :textSearch',
+        'requester."firstName" ILIKE :textSearch',
+        'requester."lastName" ILIKE :textSearch',
+        `CONCAT(requester."firstName", ' ', requester."lastName") ILIKE :textSearch`,
+      ];
+      const parameters: Record<string, string> = { textSearch };
 
-    if (search) {
-      qb.andWhere(
-        '(organization.name ILIKE :search OR organization.document ILIKE :search)',
-        { search: `%${search}%` },
-      );
+      if (normalizedDocument) {
+        textConditions.push(
+          "(organization.document IS NOT NULL AND regexp_replace(organization.document, '[^0-9]', '', 'g') ILIKE :documentSearch)",
+          "(requester.cpf IS NOT NULL AND regexp_replace(requester.cpf, '[^0-9]', '', 'g') ILIKE :documentSearch)",
+        );
+        parameters.documentSearch = `%${normalizedDocument}%`;
+      }
+
+      qb.andWhere(`(${textConditions.join(' OR ')})`, parameters);
     }
-
     const [representations, total] = await qb
-      .skip(skip)
+      .skip((page - 1) * limit)
       .take(limit)
       .orderBy('representation.createdAt', 'DESC')
       .getManyAndCount();
-
-    const mappedRepresentations = representations.map((sol) => ({
-      id: sol.id,
-      name: sol.organization?.name,
-      document: sol.organization?.document,
-      status: sol.status,
-      type: sol.type,
-      createdAt: sol.createdAt,
-      author: sol?.requester?.firstName,
-      organizationId: sol.organizationId,
-    }));
-
     return {
-      data: mappedRepresentations,
+      data: representations.map((item) => ({
+        id: item.id,
+        name: item.organization?.name,
+        document: item.organization?.document,
+        status: item.status,
+        createdAt: item.createdAt,
+        author: [item.requester?.firstName, item.requester?.lastName]
+          .filter(Boolean)
+          .join(' '),
+        organizationId: item.organizationId,
+        requesterId: item.requesterId,
+        representativeRoleLabel: this.representationRoleLabel(
+          item.representationType || '',
+        ),
+        // Migrated records may contain a legacy or empty representation type.
+        // Do not make the whole overview fail because one old row cannot be
+        // mapped to a current rule.
+        representedType:
+          REPRESENTATION_RULES[item.representationType || '']
+            ?.representedType ||
+          item.representationType ||
+          'Não informado',
+        requesterAccountTypeLabel: this.requesterAccountTypeLabel(
+          item.requester?.accountType,
+        ),
+        validationProcedureLabel:
+          item.validationProcedure === 'DECLARATORY'
+            ? 'Declaratório'
+            : 'Conferência',
+      })),
       total,
       page,
       limit,
     };
   }
 
-  async findOrCreateOrganization(
+  private async findOrCreateOrganization(
     document: string,
     data: any,
   ): Promise<Organization> {
     const cleanDocument = document.replace(/\D/g, '');
-    let org = await this.organizationService.findOneByDocument(cleanDocument);
-
-    if (!org) {
-      const isCpf = cleanDocument.length === 11;
-      const docType = isCpf ? 'CPF' : 'CNPJ';
-      let name = isCpf ? data.name : data.companyName || data.name;
-
-      if (!name) {
-        name = isCpf
-          ? `Pessoa Física ${cleanDocument}`
-          : `Organização ${cleanDocument}`;
+    const isCpf = cleanDocument.length === 11;
+    let organization =
+      await this.organizationService.findOneByDocument(cleanDocument);
+    const metadata = {
+      ...(organization?.metadata || {}),
+      documentType: isCpf ? 'CPF' : 'CNPJ',
+      representedType: this.ruleFor(data.representationType).representedType,
+      ...(data.socialName ? { socialName: data.socialName } : {}),
+      ...(data.tradeName ? { tradeName: data.tradeName } : {}),
+    };
+    if (organization) {
+      if (!isCpf && (data.companyName || data.tradeName)) {
+        organization = await this.organizationService.update(
+          organization.id,
+          {
+            name: data.companyName || organization.name,
+            metadata,
+          } as any,
+          undefined,
+        );
       }
-
-      const metadata: any = { documentType: docType };
-      if (data.tradeName) metadata.tradeName = data.tradeName;
-      if (data.socialName) metadata.socialName = data.socialName;
-
-      org = await this.organizationService.create({
-        name,
-        document: cleanDocument,
-        metadata,
-      } as any);
+      return organization;
     }
-    return org;
+    organization = await this.organizationService.create({
+      name: isCpf ? data.name : data.companyName,
+      document: cleanDocument,
+      metadata,
+    } as any);
+    return organization;
   }
 
-  async requestRepresentation(
-    user: User,
-    data: {
-      assignTo: string;
-      document: string;
-      representationType?: string;
-      companyName?: string;
-      tradeName?: string;
-      name?: string;
-      socialName?: string;
-      justification?: string;
-      documents?: any[];
-    },
-  ) {
-    data.document = data.document.replace(/\D/g, '');
-    const org = await this.findOrCreateOrganization(data.document, data);
-
-    // Check if already representing
-    const userOrgs = await this.organizationService.my(user.id);
-    if (userOrgs.find((o) => o.id === org.id)) {
-      throw new BadRequestException('errors.already_representing');
+  async requestRepresentation(user: User, data: any) {
+    const document = String(data.document || '').replace(/\D/g, '');
+    const rule = this.ruleFor(data.representationType);
+    if (
+      (rule.documentType === 'CPF' && document.length !== 11) ||
+      (rule.documentType === 'CNPJ' && document.length !== 14)
+    ) {
+      throw new BadRequestException('errors.invalid_document');
     }
-
-    // Check if there is already a pending or active request
-    const existingRequest = await this.representationRepository.findOne({
-      where: [
-        {
-          requesterId: user.id,
-          organizationId: org.id,
-          status: RepresentationStatus.PENDING,
-        },
-        {
-          requesterId: user.id,
-          organizationId: org.id,
-          status: RepresentationStatus.INFO_REQUESTED,
-        },
-        {
-          requesterId: user.id,
-          organizationId: org.id,
-          status: RepresentationStatus.APPROVED,
-        },
-      ],
-    });
-
-    if (existingRequest) {
-      throw new BadRequestException('errors.already_requested');
+    this.validateRepresentedData(rule, data);
+    if (document.length === 11 && !isValidCpfValue(document))
+      throw new BadRequestException('errors.invalid_cpf');
+    if (
+      document.length === 11 &&
+      user.cpf &&
+      document === String(user.cpf).replace(/\D/g, '')
+    ) {
+      throw new BadRequestException(
+        'Não é permitido solicitar representação para o próprio CPF.',
+      );
     }
+    await this.validateDocumentConflict(document, data.representationType);
 
-    // Manual representation
-    // Find admin to assign
-    const admins = await this.roleService.findUsersWithRole(
-      org.id,
-      SYSTEM_ROLES.admin,
+    const documents = this.normalizeAndValidateDocuments(rule, data.documents);
+    const coRepresentatives = this.normalizeCoRepresentatives(
+      data.otherRepresentatives,
     );
-    const assignedTo =
-      data.assignTo === 'owner' ? (admins.length > 0 ? admins[0] : null) : null;
+
+    const organization = await this.findOrCreateOrganization(document, data);
+    const existing = await this.representationRepository.findOne({
+      where: {
+        requesterId: user.id,
+        organizationId: organization.id,
+        status: In(ACTIVE_STATUSES),
+      },
+    });
+    if (existing) throw new BadRequestException('errors.already_requested');
 
     const representation = this.representationRepository.create({
       requester: user,
-      organization: org,
+      organization,
       type: RepresentationType.MANUAL,
       status: RepresentationStatus.PENDING,
-      justification: data.justification,
-      documents: data.documents,
-      assignedTo: assignedTo,
       representationType: data.representationType,
+      validationProcedure: rule.procedure,
+      documents,
+      coRepresentatives,
+      // This records the legal/documentary rule only. Co-representatives do
+      // not receive an invitation and never participate in an Urbis approval
+      // step; the Prefeitura remains the sole reviewer.
+      requiresJointAgreement: [
+        'parental_authority_incapable',
+        'parental_authority_relatively_incapable',
+      ].includes(data.representationType),
     });
-
     await this.representationRepository.save(representation);
     await this.logHistory(
       representation,
@@ -305,7 +456,6 @@ export class RepresentationService {
       null,
       RepresentationStatus.PENDING,
     );
-
     return representation;
   }
 
@@ -313,255 +463,359 @@ export class RepresentationService {
     user: User,
     pagination: IPaginationOptions,
     organizationIds: string[] = [],
+    isGlobal = false,
   ) {
-    const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
-
-    const qb = this.representationRepository
-      .createQueryBuilder('representation')
-      .leftJoinAndSelect('representation.requester', 'requester')
-      .leftJoinAndSelect('representation.organization', 'organization')
-      .leftJoinAndSelect('representation.assignedTo', 'assignedTo')
-      .take(limit)
-      .skip(skip)
-      .orderBy('representation.createdAt', 'DESC');
-
-    qb.andWhere(
-      new Brackets((qb) => {
-        // Requested by user
-        qb.where('representation.requesterId = :userId', { userId: user.id });
-
-        // Assigned directly to user
-        qb.orWhere('representation.assignedToId = :userId', {
-          userId: user.id,
-        });
-
-        // Assigned to organization user is part of
-        if (organizationIds.length > 0) {
-          qb.orWhere('representation.representedId IN (:...organizationIds)', {
-            organizationIds,
-          });
-          qb.orWhere('representation.organizationId IN (:...organizationIds)', {
-            organizationIds,
-          });
-        }
-
-        // Global Admin scope -> organizationIds is empty array from controller rules (or handles assignedToId IS NULL)
-        if (organizationIds.length === 0) {
-          qb.orWhere('representation.assignedToId IS NULL');
-        }
-      }),
+    return this.getOverview(
+      user,
+      { page: pagination.page, limit: pagination.limit },
+      organizationIds,
+      isGlobal,
     );
-
-    const [data, total] = await qb.getManyAndCount();
-    return { data, total };
   }
 
-  async findOne(id: string, user?: User, organizationIds?: string[]) {
-    const qb = this.representationRepository
-      .createQueryBuilder('representation')
-      .leftJoinAndSelect('representation.comments', 'comments')
-      .leftJoinAndSelect('comments.author', 'author')
-      .leftJoinAndSelect('representation.history', 'history')
-      .leftJoinAndSelect('history.actor', 'actor')
-      .leftJoinAndSelect('representation.organization', 'organization')
-      .leftJoinAndSelect('representation.requester', 'requester')
-      .where('representation.id = :id', { id });
+  async findOne(
+    id: string,
+    user: User,
+    organizationIds: string[] = [],
+    isGlobal = false,
+  ) {
+    const representation = await this.representationRepository.findOne({
+      where: { id },
+      relations: [
+        'comments',
+        'comments.author',
+        'history',
+        'history.actor',
+        'organization',
+        'requester',
+      ],
+    });
+    if (!representation)
+      throw new NotFoundException('errors.representation_not_found');
+    if (
+      !isGlobal &&
+      representation.requesterId !== user.id &&
+      !organizationIds.includes(representation.organizationId)
+    ) {
+      throw new ForbiddenException('errors.cannot_view');
+    }
+    const rule = this.ruleFor(representation.representationType || '');
+    Object.assign(representation, {
+      representativeRoleLabel: this.representationRoleLabel(
+        representation.representationType || '',
+      ),
+      representedType: rule.representedType,
+      requesterAccountTypeLabel: this.requesterAccountTypeLabel(
+        representation.requester?.accountType,
+      ),
+      validationProcedureLabel:
+        representation.validationProcedure === 'DECLARATORY'
+          ? 'Declaratório'
+          : 'Conferência',
+      documentCategoryLabels: Object.fromEntries(
+        rule.documents.map((document) => [document.category, document.label]),
+      ),
+    });
+    return representation;
+  }
 
-    if (user) {
-      qb.andWhere(
-        new Brackets((sqb) => {
-          sqb.where('representation.requesterId = :userId', {
-            userId: user.id,
-          });
-          sqb.orWhere('representation.assignedToId = :userId', {
-            userId: user.id,
-          });
-
-          if (organizationIds && organizationIds.length > 0) {
-            sqb.orWhere(
-              'representation.representedId IN (:...organizationIds)',
-              { organizationIds },
-            );
-            sqb.orWhere(
-              'representation.organizationId IN (:...organizationIds)',
-              { organizationIds },
-            );
-          }
-
-          // If organizationIds is provided and is empty, it means global admin
-          if (organizationIds && organizationIds.length === 0) {
-            sqb.orWhere('representation.assignedToId IS NULL');
-          } else if (!organizationIds) {
-            // Fallback for internal calls like approve/reject
-            // We assume if no organizationIds are passed, we just fetch it,
-            // or we could fetch the user orgs internally if needed.
-            // But since these methods do their own assignment checks, we can just allow it to be found
-            // based on the requester/assignedTo check, or we skip the org check entirely.
-            // Actually, internal calls should probably just fetch the entity and do manual check.
-            sqb.orWhere('1=1');
-          }
-        }),
+  async updateStatus(
+    id: string,
+    actor: User,
+    status: RepresentationStatus,
+    text: string,
+    attachments: string[] = [],
+    organizationIds: string[] = [],
+    isGlobal = false,
+  ) {
+    if (!Object.values(RepresentationStatus).includes(status)) {
+      throw new BadRequestException('errors.invalid_representation_status');
+    }
+    if (!text?.trim()) {
+      throw new BadRequestException(
+        'errors.representation_action_reason_required',
       );
     }
 
-    const result = await qb.getOne();
-    if (!result && user) {
-      throw new ForbiddenException('errors.cannot_view');
-    }
-    return result;
-  }
-
-  async approve(id: string, actor: User) {
-    const representation = await this.findOne(id);
-    if (!representation)
-      throw new NotFoundException('errors.representation_not_found');
-    if (representation.status !== RepresentationStatus.PENDING)
-      throw new BadRequestException('errors.representation_not_pending');
-
-    // Check permissions (actor must be assignedTo or Global Admin if assignedTo is null)
-    if (
-      representation.assignedToId &&
-      representation.assignedToId !== actor.id
-    ) {
-      throw new ForbiddenException('errors.cannot_approve');
-    }
-    // If assignedTo is null, ensure actor is global admin (omitted for brevity, covered by guard ideally)
-
-    representation.status = RepresentationStatus.APPROVED;
-    await this.representationRepository.save(representation);
-
-    // Grant access
-    const defaultRole = await this.roleService.findDefault(
-      representation.organizationId,
+    const representation = await this.findOne(
+      id,
+      actor,
+      organizationIds,
+      isGlobal,
     );
-    await this.roleService.assign({
-      userId: representation.requesterId,
-      organizationId: representation.organizationId,
-      roleId: defaultRole?.id || SYSTEM_ROLES.user,
-    });
+    const requesterCannotManageOwnRepresentation =
+      String(representation.requesterId) === String(actor.id) &&
+      [
+        RepresentationStatus.APPROVED,
+        RepresentationStatus.REJECTED,
+        RepresentationStatus.INFO_REQUESTED,
+        RepresentationStatus.INACTIVE,
+      ].includes(status);
 
+    if (requesterCannotManageOwnRepresentation) {
+      throw new ForbiddenException(
+        'O solicitante não pode administrar a própria representação.',
+      );
+    }
+
+    if (status === RepresentationStatus.INACTIVE) {
+      return this.inactivate(
+        id,
+        actor,
+        text,
+        attachments,
+        organizationIds,
+        isGlobal,
+      );
+    }
+
+    const previousStatus = representation.status;
+    const statusChanged = previousStatus !== status;
+    representation.status = status;
+    await this.representationRepository.save(representation);
+    await this.createComment(representation, actor, text, attachments);
     await this.logHistory(
       representation,
       actor,
-      'APPROVED',
-      RepresentationStatus.PENDING,
+      `STATUS_${status}`,
+      previousStatus,
+      status,
+      { reason: text, attachments },
+    );
+
+    // Repeating the same approval must not duplicate access grants or
+    // notifications, while changing back to APPROVED must grant access again.
+    if (status === RepresentationStatus.APPROVED && statusChanged) {
+      await this.grantAccess(representation);
+    }
+    if (
+      statusChanged &&
+      [RepresentationStatus.APPROVED, RepresentationStatus.REJECTED].includes(
+        status,
+      )
+    ) {
+      await this.sendAnalysisEmail(
+        representation,
+        status === RepresentationStatus.APPROVED ? 'Aprovação' : 'Rejeição',
+      );
+    }
+    if (status === RepresentationStatus.INFO_REQUESTED) {
+      await this.sendAnalysisEmail(representation, 'Comentário');
+    }
+    return representation;
+  }
+
+  async approve(
+    id: string,
+    actor: User,
+    organizationIds: string[] = [],
+    isGlobal = false,
+  ) {
+    return this.updateStatus(
+      id,
+      actor,
       RepresentationStatus.APPROVED,
+      'Representação aprovada.',
+      [],
+      organizationIds,
+      isGlobal,
     );
-    return representation;
   }
 
-  async reject(id: string, actor: User) {
-    const representation = await this.findOne(id);
-    if (!representation)
-      throw new NotFoundException('errors.representation_not_found');
-    if (representation.status !== RepresentationStatus.PENDING)
-      throw new BadRequestException('errors.representation_not_pending');
-
-    if (
-      representation.assignedToId &&
-      representation.assignedToId !== actor.id
-    ) {
-      throw new ForbiddenException('errors.cannot_reject');
-    }
-
-    representation.status = RepresentationStatus.REJECTED;
-    await this.representationRepository.save(representation);
-
-    await this.logHistory(
-      representation,
+  async reject(
+    id: string,
+    actor: User,
+    organizationIds: string[] = [],
+    isGlobal = false,
+  ) {
+    return this.updateStatus(
+      id,
       actor,
-      'REJECTED',
-      RepresentationStatus.PENDING,
       RepresentationStatus.REJECTED,
+      'Representação reprovada.',
+      [],
+      organizationIds,
+      isGlobal,
     );
-    return representation;
   }
 
   async requestInfo(
     id: string,
     actor: User,
     text: string,
-    attachments?: any[],
+    attachments: string[] = [],
+    organizationIds: string[] = [],
+    isGlobal = false,
   ) {
-    const representation = await this.findOne(id);
-    if (!representation)
-      throw new NotFoundException('errors.representation_not_found');
-
-    if (
-      representation.assignedToId &&
-      representation.assignedToId !== actor.id
-    ) {
-      throw new ForbiddenException('errors.cannot_request_info');
-    }
-
-    const prevStatus = representation.status;
-    representation.status = RepresentationStatus.INFO_REQUESTED;
-    await this.representationRepository.save(representation);
-
-    await this.addComment(id, actor, text, attachments);
-
-    await this.logHistory(
-      representation,
+    return this.updateStatus(
+      id,
       actor,
-      'INFO_REQUESTED',
-      prevStatus,
       RepresentationStatus.INFO_REQUESTED,
-    );
-    return representation;
-  }
-
-  async addComment(id: string, actor: User, text: string, attachments?: any[]) {
-    const representation = await this.findOne(id);
-    if (!representation)
-      throw new NotFoundException('errors.representation_not_found');
-
-    const comment = this.commentRepository.create({
-      representation,
-      author: actor,
       text,
       attachments,
-    });
-    await this.commentRepository.save(comment);
+      organizationIds,
+      isGlobal,
+    );
+  }
 
-    // If status is INFO_REQUESTED and author is Requester -> Set status PENDING
+  async addComment(
+    id: string,
+    actor: User,
+    text: string,
+    attachments: string[] = [],
+    organizationIds: string[] = [],
+    isGlobal = false,
+  ) {
+    if (!text?.trim()) {
+      throw new BadRequestException(
+        'errors.representation_action_reason_required',
+      );
+    }
+
+    const representation = await this.findOne(
+      id,
+      actor,
+      organizationIds,
+      isGlobal,
+    );
+    const previousStatus = representation.status;
+    const comment = await this.createComment(
+      representation,
+      actor,
+      text,
+      attachments,
+    );
+
+    // A requester answering a request for information returns the request to
+    // the Prefeitura's pending queue. Co-representatives are never involved.
     if (
-      representation.status === RepresentationStatus.INFO_REQUESTED &&
+      previousStatus === RepresentationStatus.INFO_REQUESTED &&
       representation.requesterId === actor.id
     ) {
-      const prevStatus = representation.status;
-      // Use update instead of save to avoid cascading issues with relations
-      await this.representationRepository.update(representation.id, {
-        status: RepresentationStatus.PENDING,
-      });
-      // Update local object for history logging
       representation.status = RepresentationStatus.PENDING;
-
+      await this.representationRepository.save(representation);
       await this.logHistory(
         representation,
         actor,
         'INFO_PROVIDED',
-        prevStatus,
+        previousStatus,
         RepresentationStatus.PENDING,
+        { attachments },
       );
     }
 
+    await this.logHistory(
+      representation,
+      actor,
+      'COMMENTED',
+      previousStatus,
+      representation.status,
+      { attachments },
+    );
+    await this.sendAnalysisEmail(representation, 'Comentário');
     return comment;
+  }
+
+  private async createComment(
+    representation: Representation,
+    actor: User,
+    text: string,
+    attachments: string[],
+  ) {
+    return this.commentRepository.save(
+      this.commentRepository.create({
+        representation,
+        author: actor,
+        text,
+        attachments,
+      }),
+    );
+  }
+
+  private async grantAccess(representation: Representation) {
+    await this.roleService.assign({
+      userId: representation.requesterId,
+      organizationId: representation.organizationId,
+      roleId: SYSTEM_ROLES.organizationAdmin,
+    });
+  }
+
+  async inactivate(
+    id: string,
+    actor: User | null,
+    text: string,
+    attachments: string[] = [],
+    organizationIds: string[] = [],
+    isGlobal = false,
+  ) {
+    const representation = actor
+      ? await this.findOne(id, actor, organizationIds, isGlobal)
+      : await this.representationRepository.findOneByOrFail({ id });
+    if (representation.status === RepresentationStatus.INACTIVE)
+      return representation;
+    const previousStatus = representation.status;
+    representation.status = RepresentationStatus.INACTIVE;
+    await this.representationRepository.save(representation);
+    if (actor)
+      await this.createComment(representation, actor, text, attachments);
+    await this.logHistory(
+      representation,
+      actor,
+      'INACTIVATED',
+      previousStatus,
+      RepresentationStatus.INACTIVE,
+      { reason: text, attachments },
+    );
+    return representation;
+  }
+
+  async inactivateForUserDeletion(user: User) {
+    const representations = await this.representationRepository.find({
+      where: { requesterId: user.id, status: In(ACTIVE_STATUSES) },
+    });
+    for (const representation of representations) {
+      await this.inactivate(
+        representation.id,
+        user,
+        'Representação inativada pela exclusão da conta do usuário.',
+      );
+    }
+  }
+
+  private async sendAnalysisEmail(
+    representation: Representation,
+    event: 'Comentário' | 'Aprovação' | 'Rejeição',
+  ) {
+    const email = representation.requester?.email;
+    if (!email) return;
+    const name = representation.requester?.firstName || 'usuário';
+    const url = `https://conta.urbis.prefeitura.sp.gov.br/representations/detail/${representation.id}`;
+    await this.mailService.representationAnalysis(email, name, event, url);
   }
 
   private async logHistory(
     representation: Representation,
-    actor: User,
+    actor: User | null,
     action: string,
-    previousStatus: RepresentationStatus,
+    previousStatus: RepresentationStatus | null,
     newStatus?: RepresentationStatus,
+    metadata?: any,
   ) {
     await this.historyRepository.save({
       representation,
-      actor,
+      actor: actor || undefined,
       action,
-      previousStatus,
+      previousStatus: previousStatus || undefined,
       newStatus,
+      metadata,
     });
+  }
+
+  representationRoleLabel(representationType: string) {
+    return REPRESENTATION_ROLE_LABELS[representationType] || representationType;
+  }
+
+  requesterAccountTypeLabel(accountType?: string) {
+    return this.accountTypeLabel(accountType);
   }
 }

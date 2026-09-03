@@ -1,4 +1,4 @@
-import { userManager } from '@/auth/oidc-config';
+import { userManager } from "@/auth/oidc-config";
 
 export async function getAccessToken(): Promise<string | undefined> {
   const user = await userManager.getUser();
@@ -26,7 +26,7 @@ export async function requireAuthHeaders(): Promise<Record<string, string>> {
   const headers = await getAuthHeaders();
 
   if (!headers.Authorization) {
-    throw new Error('Authentication required');
+    throw new Error("Authentication required");
   }
 
   return headers;

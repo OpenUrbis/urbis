@@ -7,9 +7,13 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/useToast";
+import {
+  DEFAULT_LAYER_FORM_COLOR,
+  DEFAULT_LAYER_LINE_WIDTH,
+} from "@/lib/layer-style-defaults";
 import { StepsNavigation } from "@/pages/Admin/components/StepsNavigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, ChevronRight, Save } from "lucide-react";
+import { ChevronLeft, ChevronRight, Palette, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { LayerSchemaFormSchema, LayerSchemaFormValues } from "../utils";
@@ -24,7 +28,7 @@ interface LayerEditModalProps {
   layer: { name: string; title: string; crs?: string[]; bbox?: number[] };
   initialConfig?: Partial<LayerSchemaFormValues>;
   onSave: (config: LayerSchemaFormValues) => void;
-  url: string; // The WMS URL is needed for fetching attributes/capabilities
+  url: string; // GeoServer URL used for fetching attributes/capabilities
 }
 
 const steps = [
@@ -49,11 +53,15 @@ export const LayerEditModal = ({
     resolver: zodResolver(LayerSchemaFormSchema) as any,
     defaultValues: {
       url: url,
-      loadingMethod: "CustomWMSLayer",
-      version: "1.1.0",
-      srs: "EPSG:4326",
+      loadingMethod: "GeoJsonLayer",
+      version: "2.0.0",
+      srs: "CRS:84",
       groupId: "geral",
       layerName: layer.title,
+      summaryDescription: "",
+      sourceParameters: "",
+      legisLinks: "",
+      ckanMetadataUrl: "",
       minZoom: "",
       maxZoom: "",
       clickAction: "none",
@@ -61,14 +69,19 @@ export const LayerEditModal = ({
       isSelected: false,
       isVisible: true,
       isDynamic: false,
-      lineWidth: 0.5,
-      colors: [
-        {
-          fillColor: [255, 0, 0, 0.5],
-          borderColor: [0, 0, 0, 1],
-          textColor: [255, 255, 255, 1],
-        },
-      ],
+      lineWidth: DEFAULT_LAYER_LINE_WIDTH,
+      hoverColor: undefined,
+      selectedColor: undefined,
+      label: {
+        enabled: false,
+        property: "",
+        minZoom: "",
+        size: 13,
+        color: "#111827",
+        haloColor: "#ffffff",
+        haloWidth: 2,
+      },
+      colors: [DEFAULT_LAYER_FORM_COLOR],
       selectedLayer: layer,
       ...initialConfig,
     },
@@ -80,9 +93,9 @@ export const LayerEditModal = ({
     if (isOpen && layer) {
       form.reset({
         url: url,
-        loadingMethod: "CustomWMSLayer",
-        version: "1.1.0",
-        srs: "EPSG:4326",
+        loadingMethod: "GeoJsonLayer",
+        version: "2.0.0",
+        srs: "CRS:84",
         groupId: "geral",
         layerName: layer.title,
         minZoom: "",
@@ -92,14 +105,19 @@ export const LayerEditModal = ({
         isSelected: false,
         isVisible: true,
         isDynamic: false,
-        lineWidth: 0.5,
-        colors: [
-          {
-            fillColor: [255, 0, 0, 0.5],
-            borderColor: [0, 0, 0, 1],
-            textColor: [255, 255, 255, 1],
-          },
-        ],
+        lineWidth: DEFAULT_LAYER_LINE_WIDTH,
+        hoverColor: undefined,
+        selectedColor: undefined,
+        label: {
+          enabled: false,
+          property: "",
+          minZoom: "",
+          size: 13,
+          color: "#111827",
+          haloColor: "#ffffff",
+          haloWidth: 2,
+        },
+        colors: [DEFAULT_LAYER_FORM_COLOR],
         selectedLayer: layer,
         ...initialConfig,
       });
@@ -121,7 +139,13 @@ export const LayerEditModal = ({
       // Mapping step - usually optional or handled internally
       isValid = true;
     } else if (step === 3) {
-      isValid = await form.trigger(["isDynamic", "layerProperty", "lineWidth", "colors"]);
+      isValid = await form.trigger([
+        "isDynamic",
+        "layerProperty",
+        "lineWidth",
+        "label",
+        "colors",
+      ]);
     }
 
     if (isValid || step === 4) {
@@ -159,7 +183,10 @@ export const LayerEditModal = ({
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Editar Configuração da Camada</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Palette className="h-4 w-4 text-primary" />
+            Personalizar visualmente camada
+          </DialogTitle>
         </DialogHeader>
 
         <div className="py-4">

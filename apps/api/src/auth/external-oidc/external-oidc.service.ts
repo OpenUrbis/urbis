@@ -13,6 +13,9 @@ import authConfig from '../../common/config/auth.config';
 export class ExternalOidcService {
   private readonly logger = new Logger(ExternalOidcService.name);
   private tokenEndpoint: string | null = null;
+  private cachedDiscoveryData: any = null;
+  private lastDiscoveryFetchTime: number = 0;
+  private readonly DISCOVERY_CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
 
   constructor(
     @Inject(authConfig.KEY)
@@ -29,13 +32,29 @@ export class ExternalOidcService {
       );
     }
 
+    const now = Date.now();
+    if (
+      this.cachedDiscoveryData &&
+      now - this.lastDiscoveryFetchTime < this.DISCOVERY_CACHE_TTL_MS
+    ) {
+      return this.cachedDiscoveryData;
+    }
+
     const wellKnownUrl = `${authority.replace(/\/$/, '')}/.well-known/openid-configuration`;
     let data: any;
 
     try {
       const response = await lastValueFrom(this.httpService.get(wellKnownUrl));
       data = response.data;
+      this.cachedDiscoveryData = data;
+      this.lastDiscoveryFetchTime = now;
     } catch (e) {
+      if (this.cachedDiscoveryData) {
+        this.logger.warn(
+          `Failed to refresh discovery from ${wellKnownUrl}, using cached data: ${e.message}`,
+        );
+        return this.cachedDiscoveryData;
+      }
       this.logger.error(`Failed to fetch discovery from ${wellKnownUrl}`, e);
       throw new BadRequestException('Failed to fetch discovery document');
     }

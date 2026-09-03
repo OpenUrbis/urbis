@@ -1,4 +1,5 @@
 {
-  "title": "Formulários",
-  "pages": ["docs", "subject"]
+  "title": "Viabiliza & Formulários",
+  "icon": "FileText",
+  "pages": ["index", "docs", "subject"]
 }

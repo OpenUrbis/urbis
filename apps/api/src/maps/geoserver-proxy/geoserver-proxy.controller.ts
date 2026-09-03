@@ -1,10 +1,12 @@
-import { Controller, Get, Param, Query, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { GeoserverProxyService } from './geoserver-proxy.service';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ProxyThrottlerGuard } from 'common/guards/proxy-throttler.guard';
 
 @ApiTags('Geoserver Proxy')
 @Controller('maps/geoserver-proxy')
+@UseGuards(ProxyThrottlerGuard)
 export class GeoserverProxyController {
   constructor(private service: GeoserverProxyService) {}
 

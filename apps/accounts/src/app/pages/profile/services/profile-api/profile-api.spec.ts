@@ -8,9 +8,8 @@ describe('ProfileApi', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProfileApi]
-    })
-    .compileComponents();
+      imports: [ProfileApi],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ProfileApi);
     component = fixture.componentInstance;

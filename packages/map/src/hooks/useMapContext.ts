@@ -4,6 +4,9 @@ import { MapContext } from "../context/MapContext";
 import { getMapConfig } from "../integrations/map-integration";
 import { SharedMap, shareService } from "../integrations/share-service";
 import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
+import { normalizeEnvironmentUrl } from "../components/MapView/map-layer-transform";
+import { isMapError, isMapPopulated } from "./useLayerPersistence";
+import { toast } from "./use-toast";
 import {
   IMapContextActions,
   MapContextSelectedFeature,
@@ -11,6 +14,7 @@ import {
 } from "../types/map-context-type";
 
 export const currentShare = signal<SharedMap | null>(null);
+export const activeHighlightFeature = signal<any>(null);
 
 const getMapHandlers = (context: MapContextType) => {
   const {
@@ -25,6 +29,10 @@ const getMapHandlers = (context: MapContextType) => {
     overlayRef,
     is3DActive,
     selectedBaseMap,
+    selectedBaseMaps,
+    baseMapOpacity,
+    baseMapOpacities: _baseMapOpacities,
+    baseMapSaturation,
   } = context;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,10 +40,57 @@ const getMapHandlers = (context: MapContextType) => {
     if (!overlayRef?.current) return;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (overlayRef!.current as any)._map.flyTo(destination);
+    const map = (overlayRef!.current as any)._map;
+    if (!map) return;
+
+    if (destination?.bounds) {
+      const { bounds, center, zoom, maxZoom, ...fitOptions } = destination;
+      map.fitBounds(bounds, {
+        maxZoom: maxZoom ?? 18,
+        duration: 700,
+        ...fitOptions,
+      });
+      return;
+    }
+
+    map.flyTo(destination);
+  };
+
+  const checkAndNotifyLayerWarning = (
+    layer: IGetConfigLayerSchema,
+    willBeVisible: boolean,
+  ) => {
+    if (!willBeVisible) return;
+
+    const rawWarning =
+      layer.properties?.metadata?.sourceParameters ||
+      layer.properties?.sourceParameters ||
+      "";
+
+    if (rawWarning && typeof rawWarning === "string") {
+      const cleanWarning = rawWarning
+        .replace(/<[^>]*>?/gm, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (cleanWarning && typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("layer-warning-alert", {
+            detail: {
+              layerName: layer.name,
+              warning: cleanWarning,
+            },
+          }),
+        );
+      }
+    }
   };
 
   const handleVisibleLayer = (layerId: string) => {
+    const target = layerSchemas.value.find((l) => l.id === layerId);
+    if (target) {
+      checkAndNotifyLayerWarning(target, !target.isVisible);
+    }
     layerSchemas.value = layerSchemas.value.map(
       (layer): IGetConfigLayerSchema => {
         if (layer.id === layerId) {
@@ -50,6 +105,10 @@ const getMapHandlers = (context: MapContextType) => {
   };
 
   const handleActiveLayer = (layerId: string) => {
+    const target = layerSchemas.value.find((l) => l.id === layerId);
+    if (target) {
+      checkAndNotifyLayerWarning(target, !target.isSelected);
+    }
     layerSchemas.value = layerSchemas.value.map(
       (layer): IGetConfigLayerSchema => {
         if (layer.id === layerId) {
@@ -68,22 +127,101 @@ const getMapHandlers = (context: MapContextType) => {
     selectedFeatures.value = [/* ...selectedFeatures.value,  */ feature];
   };
 
+  const filterUnavailableSharedLayers = async (
+    layers: IGetConfigLayerSchema[],
+  ): Promise<IGetConfigLayerSchema[]> => {
+    try {
+      const { layerSchemas: availableLayers } = await getMapConfig();
+      const availableIds = new Set(
+        availableLayers.map((layer) => String(layer.id)),
+      );
+
+      return layers.filter((layer) => {
+        if (availableIds.has(String(layer.id))) return true;
+
+        const origin = typeof layer.origin === "string" ? layer.origin : "";
+        try {
+          const normalizedOrigin = normalizeEnvironmentUrl(origin);
+          const url = new URL(normalizedOrigin, window.location.href);
+          const isManagedLayer =
+            url.hostname === "geoserver.slui.dev" ||
+            url.pathname.includes("/maps/proxy/layers/") ||
+            url.pathname.includes("/maps/proxy/wfs") ||
+            url.pathname.endsWith("/maps/proxy/wfs");
+
+          // Keep external/user-added layers. Drop only stale managed layers
+          // that would otherwise generate repeated proxy errors in deck.gl.
+          return !isManagedLayer;
+        } catch {
+          return true;
+        }
+      });
+    } catch {
+      // A shared map should remain usable even if availability cannot be checked.
+      return layers;
+    }
+  };
+
   const populateMapContext = async (options?: { disablePadding?: boolean }) => {
     const urlParams = new URLSearchParams(window.location.search);
     const shareId = urlParams.get("shareId");
+    const uiPadding = options?.disablePadding
+      ? { top: 0, bottom: 0, left: 0, right: 0 }
+      : {
+          top: 64,
+          bottom: 0,
+          left: 400,
+          right: 0,
+        };
 
     if (shareId) {
       try {
         const sharedMap = await shareService.load(shareId);
-        if (sharedMap?.state?.root?.mapContext) {
-          currentShare.value = sharedMap;
-          const { mapContext: loadedMapContext } = sharedMap.state.root;
+        const rootState = (sharedMap?.state as any)?.root || sharedMap?.state;
+        const loadedMapContext = rootState?.mapContext;
 
-          layerSchemas.value = loadedMapContext.layerSchemas || [];
+        if (loadedMapContext) {
+          currentShare.value = sharedMap;
+
+          layerSchemas.value = await filterUnavailableSharedLayers(
+            loadedMapContext.layerSchemas || [],
+          );
           layerGroups.value = loadedMapContext.layerGroups || [];
           zoom.value = loadedMapContext.zoom ?? 10;
           boundingBox.value = loadedMapContext.boundingBox || boundingBox.value;
-          viewport.value = loadedMapContext.viewport;
+
+          if (
+            loadedMapContext.viewport &&
+            typeof loadedMapContext.viewport.latitude === "number" &&
+            typeof loadedMapContext.viewport.longitude === "number"
+          ) {
+            viewport.value = {
+              ...loadedMapContext.viewport,
+              padding: uiPadding,
+            };
+          } else if (
+            Array.isArray(loadedMapContext.boundingBox) &&
+            loadedMapContext.boundingBox.length === 4
+          ) {
+            const [minX, minY, maxX, maxY] = loadedMapContext.boundingBox;
+            viewport.value = {
+              latitude: (minY + maxY) / 2,
+              longitude: (minX + maxX) / 2,
+              zoom: loadedMapContext.zoom ?? 10,
+              bearing: 0,
+              pitch: 0,
+              padding: uiPadding,
+            };
+          } else {
+            viewport.value = {
+              latitude: -23.5505,
+              longitude: -46.6333,
+              zoom: loadedMapContext.zoom ?? 10,
+              bearing: 0,
+              pitch: 0,
+              padding: uiPadding,
+            };
+          }
 
           if (loadedMapContext.editFeatureTemplate) {
             editFeatureTemplate.value = loadedMapContext.editFeatureTemplate;
@@ -107,61 +245,88 @@ const getMapHandlers = (context: MapContextType) => {
             selectedBaseMap.value = loadedMapContext.selectedBaseMap as any;
           }
 
+          if (loadedMapContext.selectedBaseMaps && selectedBaseMaps) {
+            selectedBaseMaps.value = loadedMapContext.selectedBaseMaps;
+          } else if (loadedMapContext.selectedBaseMap && selectedBaseMaps) {
+            selectedBaseMaps.value = [loadedMapContext.selectedBaseMap as any];
+          }
+
+          if (loadedMapContext.baseMapOpacity !== undefined && baseMapOpacity) {
+            baseMapOpacity.value = loadedMapContext.baseMapOpacity;
+          }
+
+          if (loadedMapContext.baseMapSaturation !== undefined && baseMapSaturation) {
+            baseMapSaturation.value = loadedMapContext.baseMapSaturation;
+          }
+
+          isMapPopulated.value = true;
           return;
+        } else {
+          console.warn(`[Share] Shared map "${shareId}" not found or invalid.`);
+          currentShare.value = null;
+          toast({
+            variant: "warning",
+            title: "Atenção",
+            description: "O mapa compartilhado não foi encontrado ou o link expirou.",
+          });
         }
       } catch (e) {
         console.error("Failed to load shared state", e);
+        currentShare.value = null;
+        toast({
+          variant: "warning",
+          title: "Atenção",
+          description: "Não foi possível carregar o mapa compartilhado.",
+        });
       }
     }
 
-    const {
-      latitude,
-      longitude,
-      bearing,
-      pitch,
-      layerSchemas: cLayerSchemas,
-      layerGroups: cLayerGroups,
-      zoom: cZoom,
-      boundingBox: cBoundingBox,
-      editFeatureTemplate: cEditFeatureTemplate,
-      layerWithRootEditTemplate: cLayerWithRootEditTemplate,
-    } = await getMapConfig();
-    layerSchemas.value = cLayerSchemas.filter((layer) => layer.isActive);
-    layerGroups.value = cLayerGroups;
-    zoom.value = cZoom;
-    boundingBox.value = cBoundingBox;
-    if (cEditFeatureTemplate && cLayerWithRootEditTemplate) {
-      editFeatureTemplate.value = cEditFeatureTemplate;
-      layerWithRootEditTemplate.value = cLayerWithRootEditTemplate;
-    }
-
-    if (options?.disablePadding) {
-      context.disablePadding.value = true;
-    }
-
-    const uiPadding = options?.disablePadding
-      ? { top: 0, bottom: 0, left: 0, right: 0 }
-      : {
-          top: 64,
-          bottom: 0,
-          left: 400,
-          right: 0,
-        };
-
-    if (viewport.value) {
-      viewport.value = {
-        ...viewport.value,
-        padding: uiPadding,
-      };
-    } else {
-      viewport.value = {
+    try {
+      const {
         latitude,
         longitude,
-        zoom: cZoom ?? 10,
-        bearing: bearing ?? 0,
-        pitch: pitch ?? 0,
-        padding: uiPadding,
-      };
+        bearing,
+        pitch,
+        layerSchemas: cLayerSchemas,
+        layerGroups: cLayerGroups,
+        zoom: cZoom,
+        boundingBox: cBoundingBox,
+        editFeatureTemplate: cEditFeatureTemplate,
+        layerWithRootEditTemplate: cLayerWithRootEditTemplate,
+      } = await getMapConfig();
+      layerSchemas.value = (cLayerSchemas || []).filter((layer) => layer.isActive);
+      layerGroups.value = cLayerGroups || [];
+      zoom.value = cZoom;
+      boundingBox.value = cBoundingBox;
+      if (cEditFeatureTemplate && cLayerWithRootEditTemplate) {
+        editFeatureTemplate.value = cEditFeatureTemplate;
+        layerWithRootEditTemplate.value = cLayerWithRootEditTemplate;
+      }
+
+      if (options?.disablePadding) {
+        context.disablePadding.value = true;
+      }
+
+      if (viewport.value) {
+        viewport.value = {
+          ...viewport.value,
+          padding: uiPadding,
+        };
+      } else {
+        viewport.value = {
+          latitude,
+          longitude,
+          zoom: cZoom ?? 10,
+          bearing: bearing ?? 0,
+          pitch: pitch ?? 0,
+          padding: uiPadding,
+        };
+      }
+
+      isMapPopulated.value = true;
+    } catch (e) {
+      console.error("Failed to populate map context", e);
+      isMapError.value = true;
     }
   };
 
@@ -191,6 +356,7 @@ const getMapHandlers = (context: MapContextType) => {
     handleActiveLayer,
     populateMapContext,
     selectFeature,
+    activeHighlightFeature,
     handleViewportChange,
     flyTo,
     flyToWithPadding: flyTo,

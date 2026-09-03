@@ -19,14 +19,16 @@ export const useAppLoading = () => {
       appError.value = {
         code: "M001001DS",
         message: "Erro ao carregar configurações do mapa",
-        isFatal: true
+        isFatal: true,
       };
       return { isLoading: false, text: "" };
     }
 
     if (searchConfigError.value) {
       // Search config error is not fatal, we just log it and proceed
-      console.warn(`[S001001WR] Erro ao carregar configurações de busca: ${searchConfigError.value}`);
+      console.warn(
+        `[S001001WR] Erro ao carregar configurações de busca: ${searchConfigError.value}`,
+      );
     }
 
     if (!isMapPopulated.value) {
@@ -44,11 +46,13 @@ export const useAppLoading = () => {
     return { isLoading: false, text: "" };
   });
 
-  const isAppReady = computed(() => !loadingState.value.isLoading && !appError.value?.isFatal);
+  const isAppReady = computed(
+    () => !loadingState.value.isLoading && !appError.value?.isFatal,
+  );
 
   return {
     loadingState,
     isAppReady,
-    appError
+    appError,
   };
 };

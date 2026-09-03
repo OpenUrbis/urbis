@@ -22,7 +22,7 @@ import { lucideEye, lucideEyeOff } from '@ng-icons/lucide';
     HlmInputDirective,
     HlmIconComponent,
     HlmButtonDirective,
-    HlmLabelDirective
+    HlmLabelDirective,
   ],
   providers: [provideIcons({ lucideEye, lucideEyeOff })],
   templateUrl: './password-form-group.html',

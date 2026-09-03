@@ -20,7 +20,11 @@ export const ButtonTemplate: ITemplatesDeclaration = {
     const action = createFn(properties?.action, false);
 
     return action ? (
-      <Button variant="outline" className="my-2 w-full" onClick={() => action(data)}>
+      <Button
+        variant="outline"
+        className="my-2 w-full"
+        onClick={() => action(data)}
+      >
         {label}
       </Button>
     ) : null;

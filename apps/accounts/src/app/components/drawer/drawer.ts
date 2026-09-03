@@ -23,4 +23,4 @@ import {
   ],
   templateUrl: './drawer.html',
 })
-export class Drawer { }
+export class Drawer {}

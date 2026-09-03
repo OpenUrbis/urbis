@@ -12,13 +12,22 @@ import { RedisService } from './redis.service';
       provide: 'REDIS_CLIENT',
       // eslint-disable-next-line @typescript-eslint/require-await
       useFactory: async (configService: ConfigService) => {
+        const port = parseInt(
+          configService.get('database.redis.port', '6379'),
+          10,
+        );
         const client = new Redis({
           host: configService.get('database.redis.host', 'localhost'),
-          port: parseInt(configService.get('database.redis.port', '6379'), 10),
+          port: port,
           password: configService.get('database.redis.password'),
           db: parseInt(configService.get('database.redis.db', '0'), 10),
           maxRetriesPerRequest: null,
           enableReadyCheck: false,
+          ...(port === 6380 ||
+          port === 10000 ||
+          process.env.REDIS_TLS === 'true'
+            ? { tls: {} }
+            : {}),
         });
 
         client.on('connect', () => console.info('✅ Redis conected!'));

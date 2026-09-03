@@ -13,14 +13,13 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as Popover from "@radix-ui/react-popover";
 import axios, { AxiosResponse } from "axios";
 import {
-  Database,
   Download,
   Eye,
   Loader2,
   Map as MapIcon,
   Upload,
   Wand2,
-  X
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ITemplate } from "../types/templates-type";
@@ -32,7 +31,10 @@ import { BUILDER_TEMPLATES } from "./registry";
 import { IBuilderTemplateConfig } from "./types";
 
 // Helper to find a node by ID
-const findNode = (root: ITemplate | ITemplate[], id: string): ITemplate | null => {
+const findNode = (
+  root: ITemplate | ITemplate[],
+  id: string,
+): ITemplate | null => {
   if (Array.isArray(root)) {
     for (const child of root) {
       const found = findNode(child, id);
@@ -100,7 +102,6 @@ const BuilderHeader = ({
   const { template, setTemplate, mockData, setMockData } = useBuilder();
   const { toastInfo } = useToast();
   const [jsonInput, setJsonInput] = useState("");
-  const [dataInput, setDataInput] = useState("");
 
   // GeoServer Import State
   const [geoUrl, setGeoUrl] = useState(
@@ -109,7 +110,9 @@ const BuilderHeader = ({
   const [geoLayers, setGeoLayers] = useState<{ name: string; title: string }[]>(
     initialGeoLayer ? [{ name: initialGeoLayer, title: initialGeoLayer }] : [],
   );
-  const [selectedGeoLayer, setSelectedGeoLayer] = useState(initialGeoLayer || "");
+  const [selectedGeoLayer, setSelectedGeoLayer] = useState(
+    initialGeoLayer || "",
+  );
   const [isFetchingGeo, setIsFetchingGeo] = useState(false);
   const [isImportingGeo, setIsImportingGeo] = useState(false);
   const [geoError, setGeoError] = useState("");
@@ -173,7 +176,9 @@ const BuilderHeader = ({
     }
   };
 
-  const updateDataWithResponseGeoServer = (response: AxiosResponse<any, any, {}>) => {
+  const updateDataWithResponseGeoServer = (
+    response: AxiosResponse<any, any, {}>,
+  ) => {
     if (
       response.data &&
       response.data.features &&
@@ -185,9 +190,11 @@ const BuilderHeader = ({
     } else {
       setGeoError("Nenhuma feição encontrada na camada.");
     }
-  }
+  };
 
-  const handleImportGeoPropertiesFromInitialURL = async (initialURL: string) => {
+  const handleImportGeoPropertiesFromInitialURL = async (
+    initialURL: string,
+  ) => {
     setIsImportingGeo(true);
     try {
       let baseUrl = initialURL;
@@ -197,11 +204,14 @@ const BuilderHeader = ({
         const url = `${baseURL.origin}${baseURL.pathname}`;
         const layer = searchParams?.typeName ?? searchParams?.layer;
 
-        if (geoLayers.length <= 0 || geoLayers.findIndex(layer => layer.name === selectedGeoLayer)) {
-          setGeoLayers([{ name: selectedGeoLayer, title: selectedGeoLayer }])
+        if (
+          geoLayers.length <= 0 ||
+          geoLayers.findIndex((layer) => layer.name === selectedGeoLayer)
+        ) {
+          setGeoLayers([{ name: selectedGeoLayer, title: selectedGeoLayer }]);
         }
 
-        setGeoUrl(url)
+        setGeoUrl(url);
         setSelectedGeoLayer(layer);
       } catch (e) {
         // use as is
@@ -210,7 +220,7 @@ const BuilderHeader = ({
       const environment = import.meta.env.VITE_API_URL || "/api";
       const response = await axios.get(`${environment}/maps/proxy`, {
         params: {
-          url: baseUrl
+          url: baseUrl,
         },
       });
 
@@ -223,7 +233,7 @@ const BuilderHeader = ({
     } finally {
       setIsImportingGeo(false);
     }
-  }
+  };
 
   const handleImportGeoPropertiesWithOptions = async () => {
     if (!geoUrl || !selectedGeoLayer) return;
@@ -262,13 +272,6 @@ const BuilderHeader = ({
       setIsImportingGeo(false);
     }
   };
-
-
-
-  useEffect(() => {
-    setDataInput(JSON.stringify(mockData, null, 2));
-  }, [mockData]);
-
   const handleImport = () => {
     try {
       const parsed = JSON.parse(jsonInput);
@@ -304,17 +307,8 @@ const BuilderHeader = ({
       setTemplate(importedTemplate);
       if (onLoad) onLoad(importedTemplate);
     } catch (e) {
-      console.log(e)
+      console.log(e);
       toastError("JSON inválido");
-    }
-  };
-
-  const handleUpdateData = () => {
-    try {
-      const parsed = JSON.parse(dataInput);
-      setMockData(parsed);
-    } catch (e) {
-      toastError("JSON de dados inválido");
     }
   };
 
@@ -336,28 +330,31 @@ const BuilderHeader = ({
       const traverse = (nodes: ITemplate[]) => {
         if (!nodes) return;
         for (const node of nodes) {
-          if (node.value && typeof node.value === 'string') {
+          if (node.value && typeof node.value === "string") {
             // match {{key}} ou {{data.key}}
             let match = node.value.match(/{{(?:data\.)?([^}]+)}}/);
-            if (match) keys.add(match[1].replace('properties.', ''));
+            if (match) keys.add(match[1].replace("properties.", ""));
             // match <%- properties?.key ?? '-' %> ou <%- key ?? '-' %>
-            const matchEjs = node.value.match(/<%-\s*(?:data\.)?(?:properties\?\.)?([a-zA-Z0-9_.-]+)/);
+            const matchEjs = node.value.match(
+              /<%-\s*(?:data\.)?(?:properties\?\.)?([a-zA-Z0-9_.-]+)/,
+            );
             if (matchEjs) keys.add(matchEjs[1]);
           }
           if (node.properties) {
-            // @ts-ignore
-            if (node.properties.accessorKey) keys.add(node.properties.accessorKey);
-            // @ts-ignore
-            if (node.properties.field) keys.add(node.properties.field);
+            const props = node.properties as any;
+            if (props.accessorKey)
+              keys.add(props.accessorKey);
+            if (props.field) keys.add(props.field);
           }
           if (node.templates) traverse(node.templates);
           if (node.polygonTemplate) traverse(node.polygonTemplate);
           const config = BUILDER_TEMPLATES.find((t) => t.name === node.type);
           const childrenProp = config?.childrenProp;
-          // @ts-ignore
-          if (childrenProp && node[childrenProp] && Array.isArray(node[childrenProp])) {
-            // @ts-ignore
-            traverse(node[childrenProp]);
+          if (childrenProp) {
+            const children = (node as any)[childrenProp];
+            if (children && Array.isArray(children)) {
+              traverse(children);
+            }
           }
         }
       };
@@ -366,35 +363,45 @@ const BuilderHeader = ({
     };
 
     const usedKeys = getUsedKeys(template);
-    const hasProperties = mockData && typeof mockData === 'object' && 'properties' in mockData && mockData.properties;
-    const baseObj = hasProperties ? mockData.properties : (mockData || {});
-    const unusedKeys = Object.keys(baseObj).filter(k => !usedKeys.has(k));
+    const hasProperties =
+      mockData &&
+      typeof mockData === "object" &&
+      "properties" in mockData &&
+      mockData.properties;
+    const baseObj = hasProperties ? mockData.properties : mockData || {};
+    const unusedKeys = Object.keys(baseObj).filter((k) => !usedKeys.has(k));
 
     if (unusedKeys.length > 0) {
       const formatKey = (key: string) => {
-        if (propertyMapping && propertyMapping[key] && propertyMapping[key].label) {
+        if (
+          propertyMapping &&
+          propertyMapping[key] &&
+          propertyMapping[key].label
+        ) {
           return propertyMapping[key].label;
         }
         return key
-          .replace(/[-_.]/g, ' ')
+          .replace(/[-_.]/g, " ")
           .replace(/\b\w/g, (l) => l.toUpperCase())
           .trim();
       };
 
-      const labelValues: ITemplate[] = unusedKeys.map(key => ({
+      const labelValues: ITemplate[] = unusedKeys.map((key) => ({
         id: crypto.randomUUID(),
         type: "label-value",
         label: formatKey(key),
-        value: hasProperties ? `<%- properties?.${key} ?? '-' %>` : `<%- ${key} ?? '-' %>`,
+        value: hasProperties
+          ? `<%- properties?.${key} ?? '-' %>`
+          : `<%- ${key} ?? '-' %>`,
       }));
 
       const wrapperCard: ITemplate = {
         id: crypto.randomUUID(),
         type: "wrapper-card",
         properties: {
-          title: "Novos Dados"
+          title: "Novos Dados",
         },
-        templates: labelValues
+        templates: labelValues,
       };
 
       setTemplate([wrapperCard, ...template]);
@@ -404,8 +411,9 @@ const BuilderHeader = ({
   };
 
   useEffect(() => {
-    if (initialGeoLayerFullURL) handleImportGeoPropertiesFromInitialURL(initialGeoLayerFullURL);
-  }, [initialGeoLayerFullURL])
+    if (initialGeoLayerFullURL)
+      handleImportGeoPropertiesFromInitialURL(initialGeoLayerFullURL);
+  }, [initialGeoLayerFullURL]);
 
   // Rotate loading messages for standalone = false mode (coupled mode)
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -441,210 +449,211 @@ const BuilderHeader = ({
         </div>
       )}
 
-      <header className={cn("flex items-center p-4 border-b bg-background shrink-0", standalone ? "justify-between" : "justify-end")}>
+      <header
+        className={cn(
+          "flex items-center p-4 border-b bg-background shrink-0",
+          standalone ? "justify-between" : "justify-end",
+        )}
+      >
         {standalone && (
           <div>
             <h1 className="text-xl font-bold">{title}</h1>
-            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            )}
           </div>
         )}
-      <div className="flex items-center gap-2">
-        <Popover.Root>
-          <Popover.Trigger asChild>
-            <Button type="button" variant="outline" size="sm" className="gap-2">
-              <Database className="h-4 w-4" />
-              Dados
-            </Button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              className="w-96 bg-popover p-4 rounded-md shadow-lg border z-50"
-              sideOffset={5}
-            >
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm">
-                  Dados Mock (Variável &apos;data&apos;)
-                </h4>
-                <Textarea
-                  value={dataInput}
-                  onChange={(e) => setDataInput(e.target.value)}
-                  placeholder="{ properties: { ... } }"
-                  className="font-mono text-xs h-64"
-                />
-                <Button type="button" onClick={handleUpdateData} size="sm" className="w-full">
-                  Atualizar Visualização
-                </Button>
-              </div>
-              <Popover.Arrow className="fill-popover" />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
-
-        <div className="w-px h-6 bg-border mx-2" />
-
-        <Popover.Root>
-          <Popover.Trigger asChild>
-            <Button type="button" variant="outline" size="sm" className="gap-2">
-              <MapIcon className="h-4 w-4" />
-              GeoServer
-            </Button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              className="w-80 bg-popover p-4 rounded-md shadow-lg border z-50 flex flex-col gap-3"
-              sideOffset={5}
-            >
-              <div>
-                <h4 className="font-medium text-sm mb-1">URL do GeoServer</h4>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={geoUrl}
-                    onChange={(e) => setGeoUrl(e.target.value)}
-                    placeholder="https://geoserver.exemplo.com/wms"
-                    className="flex-1 px-2 py-1 text-xs border rounded bg-background"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={handleFetchGeoCapabilities}
-                    disabled={isFetchingGeo || !geoUrl}
-                  >
-                    {isFetchingGeo ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      "Buscar"
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              {geoError && (
-                <p className="text-xs text-destructive">{geoError}</p>
-              )}
-
-              {geoLayers.length > 0 && (
+        <div className="flex items-center gap-2">
+          <Popover.Root>
+            <Popover.Trigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <MapIcon className="h-4 w-4" />
+                GeoServer
+              </Button>
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content
+                className="w-80 bg-popover p-4 rounded-md shadow-lg border z-50 flex flex-col gap-3"
+                sideOffset={5}
+              >
                 <div>
-                  <h4 className="font-medium text-sm mb-1">Camada</h4>
-                  <select
-                    value={selectedGeoLayer}
-                    onChange={(e) => setSelectedGeoLayer(e.target.value)}
-                    className="w-full px-2 py-1 text-xs border rounded bg-background mb-2"
-                  >
-                    <option value="">Selecione uma camada...</option>
-                    {geoLayers.map((layer) => (
-                      <option key={layer.name} value={layer.name}>
-                        {layer.title}
-                      </option>
-                    ))}
-                  </select>
-                  <Button
-                    type="button"
-                    size="sm"
-                    className="w-full"
-                    onClick={handleImportGeoPropertiesWithOptions}
-                    disabled={isImportingGeo || !selectedGeoLayer}
-                  >
-                    {isImportingGeo ? (
-                      <Loader2 className="h-3 w-3 animate-spin mr-2" />
-                    ) : null}
-                    Importar Propriedades de Exemplo
-                  </Button>
-                </div>
-              )}
-
-              <Popover.Arrow className="fill-popover" />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
-
-        {standalone && (
-          <>
-            <Popover.Root>
-              <Popover.Trigger asChild>
-                <Button type="button" variant="outline" size="sm" className="gap-2">
-                  <Upload className="h-4 w-4" />
-                  Importar
-                </Button>
-              </Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Content
-                  className="w-80 bg-popover p-4 rounded-md shadow-lg border z-50"
-                  sideOffset={5}
-                >
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Importar Template JSON</h4>
-                    <Textarea
-                      value={jsonInput}
-                      onChange={(e) => setJsonInput(e.target.value)}
-                      placeholder="Cole o JSON aqui..."
-                      className="font-mono text-xs h-32"
+                  <h4 className="font-medium text-sm mb-1">URL do GeoServer</h4>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={geoUrl}
+                      onChange={(e) => setGeoUrl(e.target.value)}
+                      placeholder="https://geoserver.exemplo.com/wms"
+                      className="flex-1 px-2 py-1 text-xs border rounded bg-background"
                     />
-                    <Button type="button" onClick={handleImport} size="sm" className="w-full">
-                      Carregar
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleFetchGeoCapabilities}
+                      disabled={isFetchingGeo || !geoUrl}
+                    >
+                      {isFetchingGeo ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        "Buscar"
+                      )}
                     </Button>
                   </div>
-                  <Popover.Arrow className="fill-popover" />
-                </Popover.Content>
-              </Popover.Portal>
-            </Popover.Root>
+                </div>
 
-            <Button type="button" size="sm" className="gap-2" onClick={() => onSave?.(template)}>
-              <Download className="h-4 w-4" />
-              Exportar
-            </Button>
+                {geoError && (
+                  <p className="text-xs text-destructive">{geoError}</p>
+                )}
 
-            <div className="w-px h-6 bg-border mx-2" />
-          </>
-        )}
+                {geoLayers.length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-sm mb-1">Camada</h4>
+                    <select
+                      value={selectedGeoLayer}
+                      onChange={(e) => setSelectedGeoLayer(e.target.value)}
+                      className="w-full px-2 py-1 text-xs border rounded bg-background mb-2"
+                    >
+                      <option value="">Selecione uma camada...</option>
+                      {geoLayers.map((layer) => (
+                        <option key={layer.name} value={layer.name}>
+                          {layer.title}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="w-full"
+                      onClick={handleImportGeoPropertiesWithOptions}
+                      disabled={isImportingGeo || !selectedGeoLayer}
+                    >
+                      {isImportingGeo ? (
+                        <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                      ) : null}
+                      Importar Propriedades de Exemplo
+                    </Button>
+                  </div>
+                )}
 
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          className="gap-2"
-          onClick={handleAutoFill}
-        >
-          <Wand2 className="h-4 w-4" />
-          Auto Preencher
-        </Button>
+                <Popover.Arrow className="fill-popover" />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
 
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          className="gap-2"
-          onClick={handlePreview}
-        >
-          <Eye className="h-4 w-4" />
-          Pré-visualizar
-        </Button>
-      </div>
+          {standalone && (
+            <>
+              <Popover.Root>
+                <Popover.Trigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Importar
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Content
+                    className="w-80 bg-popover p-4 rounded-md shadow-lg border z-50"
+                    sideOffset={5}
+                  >
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm">
+                        Importar Template JSON
+                      </h4>
+                      <Textarea
+                        value={jsonInput}
+                        onChange={(e) => setJsonInput(e.target.value)}
+                        placeholder="Cole o JSON aqui..."
+                        className="font-mono text-xs h-32"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleImport}
+                        size="sm"
+                        className="w-full"
+                      >
+                        Carregar
+                      </Button>
+                    </div>
+                    <Popover.Arrow className="fill-popover" />
+                  </Popover.Content>
+                </Popover.Portal>
+              </Popover.Root>
 
-      <Dialog.Root open={previewModalOpen} onOpenChange={setPreviewModalOpen}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50" />
-          <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-[90vw] max-w-4xl h-[80vh] translate-x-[-50%] translate-y-[-50%] border bg-background p-0 shadow-lg sm:rounded-lg overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center p-4 border-b">
-              <Dialog.Title className="text-lg font-semibold">Pré-visualização do Template</Dialog.Title>
-              <Dialog.Close asChild>
-                <button type="button" className="rounded-full p-1.5 hover:bg-muted transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
-              </Dialog.Close>
-            </div>
-            <div className="flex-1 bg-muted/30">
-              {previewModalOpen && (
-                <iframe
-                  src="/view-template/preview"
-                  className="w-full h-full border-none"
-                  title="Preview"
-                />
-              )}
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+              <Button
+                type="button"
+                size="sm"
+                className="gap-2"
+                onClick={() => onSave?.(template)}
+              >
+                <Download className="h-4 w-4" />
+                Exportar
+              </Button>
+
+              <div className="w-px h-6 bg-border mx-2" />
+            </>
+          )}
+
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            className="gap-2"
+            onClick={handleAutoFill}
+          >
+            <Wand2 className="h-4 w-4" />
+            Auto Preencher
+          </Button>
+
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            className="gap-2"
+            onClick={handlePreview}
+          >
+            <Eye className="h-4 w-4" />
+            Pré-visualizar
+          </Button>
+        </div>
+
+        <Dialog.Root open={previewModalOpen} onOpenChange={setPreviewModalOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50" />
+            <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-[90vw] max-w-4xl h-[80vh] translate-x-[-50%] translate-y-[-50%] border bg-background p-0 shadow-lg sm:rounded-lg overflow-hidden flex flex-col">
+              <div className="flex justify-between items-center p-4 border-b">
+                <Dialog.Title className="text-lg font-semibold">
+                  Pré-visualização do Template
+                </Dialog.Title>
+                <Dialog.Close asChild>
+                  <button
+                    type="button"
+                    className="rounded-full p-1.5 hover:bg-muted transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </Dialog.Close>
+              </div>
+              <div className="flex-1 bg-muted/30">
+                {previewModalOpen && (
+                  <iframe
+                    src="/view-template/preview"
+                    className="w-full h-full border-none"
+                    title="Preview"
+                  />
+                )}
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       </header>
     </>
   );
@@ -782,17 +791,24 @@ const BuilderContent = ({
       const targetNode = findNode(template, over.id as string);
 
       if (targetNode) {
-        targetConfig = BUILDER_TEMPLATES.find((t) => t.name === targetNode.type) || null;
+        targetConfig =
+          BUILDER_TEMPLATES.find((t) => t.name === targetNode.type) || null;
 
         // Se o target for wrapper, ele é o pai. Se for um componente normal, o pai do novo item será o mesmo do target
         if (targetConfig?.isWrapper || targetNode.type.includes("wrapper")) {
           targetParentType = targetNode.type;
         } else {
           // Find parent of the sibling
-          const findParentOf = (items: ITemplate[], targetId: string, currentParentType: string | null): string | null => {
+          const findParentOf = (
+            items: ITemplate[],
+            targetId: string,
+            currentParentType: string | null,
+          ): string | null => {
             for (const item of items) {
               if (item.id === targetId) return currentParentType;
-              const config = BUILDER_TEMPLATES.find((t) => t.name === item.type);
+              const config = BUILDER_TEMPLATES.find(
+                (t) => t.name === item.type,
+              );
               const childrenProp = config?.childrenProp || "templates";
               // @ts-ignore
               if (item[childrenProp] && Array.isArray(item[childrenProp])) {
@@ -806,7 +822,9 @@ const BuilderContent = ({
           targetParentType = findParentOf(template, over.id as string, null);
 
           if (targetParentType) {
-            targetConfig = BUILDER_TEMPLATES.find((t) => t.name === targetParentType) || null;
+            targetConfig =
+              BUILDER_TEMPLATES.find((t) => t.name === targetParentType) ||
+              null;
           } else {
             targetConfig = null; // if it goes to root
           }
@@ -814,24 +832,42 @@ const BuilderContent = ({
       }
     }
 
-    const checkConstraints = (itemType: string, parentType: string | null): boolean => {
-      const draggedConfig = BUILDER_TEMPLATES.find(t => t.name === itemType);
+    const checkConstraints = (
+      itemType: string,
+      parentType: string | null,
+    ): boolean => {
+      const draggedConfig = BUILDER_TEMPLATES.find((t) => t.name === itemType);
 
       if (!parentType) {
-        if (draggedConfig?.validParents && draggedConfig.validParents.length > 0) {
-          toastError(`Este componente só pode ser inserido dentro de um ${draggedConfig.validParents.join(" ou ")}.`);
+        if (
+          draggedConfig?.validParents &&
+          draggedConfig.validParents.length > 0
+        ) {
+          toastError(
+            `Este componente só pode ser inserido dentro de um ${draggedConfig.validParents.join(" ou ")}.`,
+          );
           return false;
         }
         return true;
       }
 
-      if (draggedConfig?.validParents && !draggedConfig.validParents.includes(parentType)) {
-        toastError(`O componente '${draggedConfig.friendlyName || itemType}' não pode ser inserido em um '${targetConfig?.friendlyName || parentType}'. Ele requer: ${draggedConfig.validParents.join(", ")}`);
+      if (
+        draggedConfig?.validParents &&
+        !draggedConfig.validParents.includes(parentType)
+      ) {
+        toastError(
+          `O componente '${draggedConfig.friendlyName || itemType}' não pode ser inserido em um '${targetConfig?.friendlyName || parentType}'. Ele requer: ${draggedConfig.validParents.join(", ")}`,
+        );
         return false;
       }
 
-      if (targetConfig?.allowedChildren && !targetConfig.allowedChildren.includes(itemType)) {
-        toastError(`O container '${targetConfig.friendlyName || parentType}' não aceita componentes do tipo '${draggedConfig?.friendlyName || itemType}'.`);
+      if (
+        targetConfig?.allowedChildren &&
+        !targetConfig.allowedChildren.includes(itemType)
+      ) {
+        toastError(
+          `O container '${targetConfig.friendlyName || parentType}' não aceita componentes do tipo '${draggedConfig?.friendlyName || itemType}'.`,
+        );
         return false;
       }
 
@@ -891,7 +927,10 @@ const BuilderContent = ({
 
         <div className="flex flex-1 overflow-hidden">
           {/* Left: Configuration */}
-          <div style={{ width: leftWidth }} className="shrink-0 flex flex-col overflow-y-auto">
+          <div
+            style={{ width: leftWidth }}
+            className="shrink-0 flex flex-col overflow-y-auto"
+          >
             <ConfigPanel />
           </div>
 
@@ -905,7 +944,10 @@ const BuilderContent = ({
           <ResizeHandle onMouseDown={startResizing("right")} />
 
           {/* Right: Palette */}
-          <div style={{ width: rightWidth }} className="shrink-0 flex flex-col overflow-y-auto">
+          <div
+            style={{ width: rightWidth }}
+            className="shrink-0 flex flex-col overflow-y-auto"
+          >
             <ComponentPalette />
           </div>
         </div>
@@ -913,8 +955,9 @@ const BuilderContent = ({
       <DragOverlay>
         {activeDragItem ? (
           <div className="p-2 bg-background border rounded shadow opacity-80 cursor-grabbing text-xs">
-            {/* @ts-ignore */}
-            {activeDragItem.friendlyName || activeDragItem.name || activeDragItem.type}
+            {(activeDragItem as any).friendlyName ||
+              (activeDragItem as any).name ||
+              (activeDragItem as any).type}
           </div>
         ) : null}
       </DragOverlay>

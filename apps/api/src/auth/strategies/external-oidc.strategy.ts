@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import * as jwksRsa from 'jwks-rsa';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from '../auth.service';
+import { splitGovBrFullName } from '../utils/person-name.util';
 
 const JWKS_URI = process.env.EXTERNAL_OIDC_JWKS_URI;
 
@@ -60,16 +61,7 @@ export class ExternalOidcStrategy extends PassportStrategy(
       payload?.preferred_username ?? payloadAccessToken?.preferred_username;
     const picture = payload?.picture ?? payloadAccessToken?.picture;
 
-    let firstName = '';
-    let lastName = '';
-
-    if (name) {
-      const parts = name.split(' ');
-      firstName = parts[0];
-      if (parts.length > 1) {
-        lastName = parts.slice(1).join(' ');
-      }
-    }
+    const { firstName, lastName } = splitGovBrFullName(name);
 
     if (!payload || !email) {
       throw new UnauthorizedException('Payload do token incompleto.');

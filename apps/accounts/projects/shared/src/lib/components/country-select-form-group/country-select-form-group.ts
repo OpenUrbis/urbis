@@ -15,7 +15,7 @@ import { HlmLabelDirective } from '../../ui/label/hlm-label.directive';
     ReactiveFormsModule,
     TranslateModule,
     HlmInputDirective,
-    HlmLabelDirective
+    HlmLabelDirective,
   ],
   templateUrl: './country-select-form-group.html',
 })

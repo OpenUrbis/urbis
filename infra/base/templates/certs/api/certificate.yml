@@ -2,11 +2,13 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: urbis-map-certificate
-  namespace: urbis-map
+  namespace: {{ .Release.Namespace | default "urbis-map" }}
 spec:
-  secretName: urbis-map-certificate-tls
+  secretName: {{ .Values.tlsSecretName | default "urbis-map-certificate-tls" }}
   dnsNames:
-  - {{ .Values.domainName }}
+{{- range (.Values.domains | default (list .Values.domainName)) }}
+  - {{ . }}
+{{- end }}
   issuerRef:
-    name: urbis-issuer
+    name: {{ .Values.certManager.issuerName | default "urbis-issuer" }}
     kind: Issuer

@@ -3,11 +3,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import {
   HlmCardDirective,
   HlmCardContentDirective,
-  HlmCardFooterDirective,
   HlmCardHeaderDirective,
   HlmCardTitleDirective,
 } from '../../../../projects/shared/src/public-api';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ConfirmAccountApi } from './services/confirm-account';
 import { CommonModule } from '@angular/common';
@@ -32,7 +31,7 @@ export class ConfirmAccount {
 
   confirmAccountApi = inject(ConfirmAccountApi);
   activatedRoute = inject(ActivatedRoute);
-  router = inject(Router);
+
   translate = inject(TranslateService);
 
   params = toSignal<{ hash: string }>(this.activatedRoute.params as any);
@@ -44,7 +43,6 @@ export class ConfirmAccount {
         this.loading.set(true);
         this.confirmAccountApi.confirmEmail(hash).subscribe({
           next: () => {
-            this.router.navigate(['/']);
             this.loading.set(false);
             this.error.set(undefined);
           },

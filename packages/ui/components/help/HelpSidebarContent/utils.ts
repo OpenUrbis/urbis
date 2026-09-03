@@ -17,7 +17,10 @@ export function buildSectionData() {
   };
 }
 
-export function mergeHeaders(a: Record<string, string>, b: Record<string, string>) {
+export function mergeHeaders(
+  a: Record<string, string>,
+  b: Record<string, string>,
+) {
   const out: Record<string, string> = {};
   for (const k in a) out[k] = a[k];
   for (const k2 in b) out[k2] = b[k2];
@@ -119,7 +122,10 @@ export function loadRecaptchaScript() {
 
 export type RecaptchaCallback = (err: Error | null, token?: string) => void;
 
-export function waitForGrecaptcha(timeoutMs: number, cb: (err: Error | null) => void) {
+export function waitForGrecaptcha(
+  timeoutMs: number,
+  cb: (err: Error | null) => void,
+) {
   if (window.grecaptcha) {
     cb(null);
     return;
@@ -144,10 +150,7 @@ export function waitForGrecaptcha(timeoutMs: number, cb: (err: Error | null) => 
   }, 50);
 }
 
-export function getRecaptchaToken(
-  action: string,
-  callback: RecaptchaCallback,
-) {
+export function getRecaptchaToken(action: string, callback: RecaptchaCallback) {
   waitForGrecaptcha(6000, function (loadErr) {
     if (loadErr) {
       callback(loadErr);
@@ -305,7 +308,8 @@ export function requestPublicUploadUrl(params: {
 
 export function requestDownloadUrl(key: string, recaptcha: string) {
   const base = getApiBase().replace(/\/$/, "");
-  const url = base + "/files/public/download-url?key=" + encodeURIComponent(key);
+  const url =
+    base + "/files/public/download-url?key=" + encodeURIComponent(key);
 
   return fetch(url, {
     method: "GET",

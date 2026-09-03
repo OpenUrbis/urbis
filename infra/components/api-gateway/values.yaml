@@ -1,0 +1,9 @@
+domainName: api.mapa.urbis.example.com
+domains:
+  - api.mapa.urbis.example.com
+  - api.mapa.urbis.prefeitura.sp.gov.br
+ingress:
+  className: nginx-map
+  proxyBodySize: "2g"
+  sslRedirect: "false"
+  tlsSecretName: urbis-map-certificate-tls

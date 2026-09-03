@@ -8,7 +8,7 @@ import {
 } from "../types/fetch-search-config-type";
 
 export const useFetchSearch = (
-  searchConfig: Signal<IGetSearchConfigResponse[]>
+  searchConfig: Signal<IGetSearchConfigResponse[]>,
 ) => {
   const data = useSignal<ISearchResponse | null>(null);
   const loading = useSignal<boolean>(false);

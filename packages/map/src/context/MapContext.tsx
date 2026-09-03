@@ -19,14 +19,25 @@ const boundingBox = signal<MapBoundingBox>([
 const viewport = signal<any>(undefined);
 const zoom = signal<number>(10);
 const is3DActive = signal<boolean>(true);
-const selectedBaseMap = signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets">("standard");
+const selectedBaseMap = signal<
+  "standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets"
+>("standard");
+const selectedBaseMaps = signal<any[]>(["standard"]);
+const baseMapOpacity = signal<number>(100);
+const baseMapOpacities = signal<Record<string, number>>({});
+const baseMapSaturation = signal<number>(100);
+const baseMap3DOpacity = signal<number>(45);
 const editFeatureTemplate = signal<ITemplate[]>([]);
-const layerWithRootEditTemplate = signal<string>('');
-const cursorPosition = signal<{ latitude: number; longitude: number } | null>(null);
+const layerWithRootEditTemplate = signal<string>("");
+const cursorPosition = signal<{ latitude: number; longitude: number } | null>(
+  null,
+);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const digitalAddressFeature = signal<any | null>(null);
 const isPickingLocation = signal<boolean>(false);
-const onLocationPick = signal<((lat: number, lon: number) => void) | null>(null);
+const onLocationPick = signal<((lat: number, lon: number) => void) | null>(
+  null,
+);
 const disablePadding = signal<boolean>(false);
 
 export const MapContext = createContext<MapContextType | null>(null);
@@ -43,6 +54,11 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         zoom,
         is3DActive,
         selectedBaseMap,
+        selectedBaseMaps,
+        baseMapOpacity,
+        baseMapOpacities,
+        baseMapSaturation,
+        baseMap3DOpacity,
         editFeatureTemplate,
         layerWithRootEditTemplate,
         cursorPosition,

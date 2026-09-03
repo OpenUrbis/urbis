@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -38,6 +38,25 @@ export class OrganizationState {
 
   constructor() {
     this.updateSelectedOrganization();
+
+    effect(() => {
+      // Guard against running default selection/clear logic while organizations are still loading
+      if (this.myOrganizations.isLoading()) {
+        return;
+      }
+
+      const orgs = this.myOrganizations.value();
+      const selected = this._selectedOrganization();
+
+      if (orgs && orgs.length > 0) {
+        if (!selected || !orgs.find((o) => o.id === selected.id)) {
+          this.selectOrganization(orgs[0]);
+        }
+      } else if (orgs && orgs.length === 0 && selected) {
+        this.clearSelectedOrganization();
+        this._selectedOrganization.set(null);
+      }
+    });
   }
 
   refresh() {

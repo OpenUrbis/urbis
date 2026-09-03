@@ -12,22 +12,22 @@ export function applyDynamicColorPalette(
 ) {
   const htmlStyle = document.documentElement.style;
   const bodyStyle = document.body.style;
-  
+
   const vars = [
     '--primary',
     '--primary-foreground',
     '--ring',
     '--sidebar-primary',
     '--sidebar-primary-foreground',
-    '--sidebar-ring'
+    '--sidebar-ring',
   ];
 
   if (!baseColor) {
-     vars.forEach(v => {
-         htmlStyle.removeProperty(v);
-         bodyStyle.removeProperty(v);
-     });
-     return;
+    vars.forEach((v) => {
+      htmlStyle.removeProperty(v);
+      bodyStyle.removeProperty(v);
+    });
+    return;
   }
 
   const effectiveTheme =
@@ -38,7 +38,7 @@ export function applyDynamicColorPalette(
       : theme;
 
   const base = chroma(baseColor);
-  
+
   // // Use base color for primary.
   // const primary = base;
 

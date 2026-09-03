@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
-import { accessControl } from '../../auth/user-state';
-import { AccessControlOptions } from '../../utils/access-control';
+import { ReactNode } from "react";
+import { accessControl } from "../../auth/user-state";
+import { AccessControlOptions } from "../../utils/access-control";
 
 interface HasPermissionProps extends AccessControlOptions {
   children: ReactNode;

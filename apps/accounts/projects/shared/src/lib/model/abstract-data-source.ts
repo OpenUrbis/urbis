@@ -68,8 +68,7 @@ export interface DataSourceOptions<TFilter = any> {
 export abstract class AbstractDataSource<
   T = any,
   F extends { [K in keyof F]: AbstractControl<any, any, any> } = any,
-> implements DataSource<T>
-{
+> implements DataSource<T> {
   protected http = inject(HttpClient);
   protected injector = inject(Injector);
   protected destroyRef = inject(DestroyRef);
@@ -124,6 +123,11 @@ export abstract class AbstractDataSource<
         initialValue: this.filterFormGroup.value,
         injector: this.injector,
       }) as unknown as Signal<F>;
+
+      // A filter changes the result set. Always restart at the first page;
+      // otherwise a valid match can appear empty when the previous page no
+      // longer exists for the filtered result.
+      this.filterFormGroup.valueChanges.subscribe(() => this.resetAndReload());
     } else {
       // Se NÃO foi fornecido:
       // Inicializa o filterFormGroup como undefined (ou null)

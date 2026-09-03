@@ -18,6 +18,8 @@ const concatenatedSearch = signal({
     children: [],
   } as any,
   results: [],
+  totalCount: undefined as number | undefined,
+  layerTotalCount: undefined as number | undefined,
   isOpen: false,
 });
 const isSearchConfigLoaded = signal(false);
@@ -25,11 +27,7 @@ const searchConfigError = signal<string | null>(null);
 
 export const SearchContext = createContext<SearchContextType | null>(null);
 
-export const SearchProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+export const SearchProvider = ({ children }: { children: ReactNode }) => {
   const searchQuery = useFetchSearch(searchConfig);
 
   useEffect(() => {

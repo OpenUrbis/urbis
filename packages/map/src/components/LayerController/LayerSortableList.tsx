@@ -21,17 +21,25 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  UrbisIcon,
 } from "@open-urbis/map-ui";
 import { Info, Layers } from "lucide-react";
 import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { LayerItem } from "./LayerItem";
 
-function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
+function SortableItem({
+  item,
+  highlightFilter = false,
+}: {
+  item: IGetConfigLayerSchema;
+  highlightFilter?: boolean;
+}) {
   const { handleVisibleLayer } = useMapContext();
   const {
     attributes,
     listeners,
+    setActivatorNodeRef,
     setNodeRef,
     transform,
     transition,
@@ -55,13 +63,17 @@ function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
       )}
     >
       <div
+        ref={setActivatorNodeRef}
         {...attributes}
         {...listeners}
-        className="p-3 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+        className="touch-none select-none p-3 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+        onClick={(event) => event.stopPropagation()}
       >
-        <span className="material-symbols-outlined text-xl">
-          drag_indicator
-        </span>
+        <UrbisIcon
+          name="drag_indicator"
+          className="text-xl"
+          aria-hidden="true"
+        />
       </div>
       <div className="flex-1 min-w-0">
         <LayerItem
@@ -69,18 +81,23 @@ function SortableItem({ item }: { item: IGetConfigLayerSchema }) {
           className="border-none py-2 hover:bg-transparent pr-4"
           indent={0}
           onClick={handleVisibleLayer}
+          highlightFilter={highlightFilter}
         />
       </div>
     </div>
   );
 }
 
-export const LayerSortableList = () => {
+export const LayerSortableList = ({
+  highlightFilter = false,
+}: {
+  highlightFilter?: boolean;
+}) => {
   const { layerSchemas } = useMapContext();
 
-  // GIS standard: top layers in list are rendered on top of the map.
-  // mapbox/deck.gl usually renders in the order of the array (last is top).
-  // So the list should show the array in reverse order.
+  // GIS standard: top layers in the list are rendered on top of the map.
+  // The rendering stack follows the array order, so the last layer appears on top.
+  // The UI therefore shows the selected layers in reverse order.
   const visibleLayers = layerSchemas.value
     .filter((l) => l.isSelected)
     .reverse();
@@ -99,17 +116,30 @@ export const LayerSortableList = () => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (active.id !== over?.id) {
-      // We find indexes in the underlying signal array
-      const oldIndex = layerSchemas.value.findIndex(
+    if (!over) return;
+
+    if (active.id !== over.id) {
+      const oldVisualIndex = visibleLayers.findIndex(
         (item) => item.id === active.id,
       );
-      const newIndex = layerSchemas.value.findIndex(
-        (item) => item.id === over?.id,
+      const newVisualIndex = visibleLayers.findIndex(
+        (item) => item.id === over.id,
       );
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        layerSchemas.value = arrayMove(layerSchemas.value, oldIndex, newIndex);
+      if (oldVisualIndex !== -1 && newVisualIndex !== -1) {
+        const reorderedVisibleLayers = arrayMove(
+          visibleLayers,
+          oldVisualIndex,
+          newVisualIndex,
+        );
+        const reorderedSelectedLayers = [...reorderedVisibleLayers].reverse();
+        let selectedLayerIndex = 0;
+
+        layerSchemas.value = layerSchemas.value.map((layer) => {
+          if (!layer.isSelected) return layer;
+
+          return reorderedSelectedLayers[selectedLayerIndex++] ?? layer;
+        });
       }
     }
   };
@@ -157,7 +187,11 @@ export const LayerSortableList = () => {
               </div>
             )}
             {visibleLayers.map((item) => (
-              <SortableItem key={item.id} item={item} />
+              <SortableItem
+                key={item.id}
+                item={item}
+                highlightFilter={highlightFilter}
+              />
             ))}
           </div>
         </SortableContext>

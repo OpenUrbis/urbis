@@ -1,0 +1,13 @@
+{
+  "title": "Datalake & Dados",
+  "icon": "Database",
+  "root": true,
+  "pages": [
+    "index",
+    "arquitetura-medalhao",
+    "agendamento",
+    "gerador-assets",
+    "remapeamento-colunas",
+    "catalogo"
+  ]
+}

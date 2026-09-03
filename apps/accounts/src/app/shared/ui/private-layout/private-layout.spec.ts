@@ -27,15 +27,17 @@ describe('PrivateLayout', () => {
             clientId: 'mock-client',
             scope: 'openid profile',
             responseType: 'code',
-          }
+          },
         }),
         { provide: WhitelabelState, useValue: { value: () => ({}) } },
         { provide: ProfileState, useValue: { value: () => ({}) } },
         { provide: AuthState, useValue: { isAuthenticated: () => false } },
-        { provide: OrganizationState, useValue: { clearSelectedOrganization: () => {} } }
-      ]
-    })
-    .compileComponents();
+        {
+          provide: OrganizationState,
+          useValue: { clearSelectedOrganization: () => {} },
+        },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PrivateLayout);
     component = fixture.componentInstance;

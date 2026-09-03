@@ -19,6 +19,8 @@ export interface INavigationContextActions {
   history: ReadonlySignal<any[]>;
   drawerOpen: Signal<boolean>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  isProspectiveSearchActive: ReadonlySignal<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigateTo: (page: any) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigateReplace: (page: any) => void;

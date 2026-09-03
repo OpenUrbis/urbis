@@ -1,10 +1,8 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('geocoding', () => ({
-  mapboxUrl:
-    process.env.MAPBOX_URL ||
-    'https://api.mapbox.com/geocoding/v5/mapbox.places/',
-  mapboxAccessToken: process.env.MAPBOX_ACCESS_TOKEN || '',
+  providerUrl: process.env.GEOCODING_PROVIDER_URL || '',
+  providerAccessToken: process.env.GEOCODING_PROVIDER_ACCESS_TOKEN || '',
   nominatimUrl:
     process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org/search',
   defaultService: process.env.DEFAULT_SERVICE || 'nominatim',

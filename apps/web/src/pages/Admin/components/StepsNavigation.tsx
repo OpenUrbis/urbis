@@ -26,7 +26,7 @@ export const StepsNavigation = ({
             key={s.number}
             className={cn(
               "flex items-center relative",
-              i !== steps.length - 1 ? "flex-1" : ""
+              i !== steps.length - 1 ? "flex-1" : "",
             )}
           >
             <div className="flex flex-col items-center relative">
@@ -39,8 +39,8 @@ export const StepsNavigation = ({
                   currentStep === s.number
                     ? "border-primary bg-primary text-primary-foreground font-bold shadow-sm"
                     : s.number <= maxReachedStep
-                    ? "border-primary bg-background text-primary"
-                    : "border-muted bg-background text-muted-foreground cursor-not-allowed"
+                      ? "border-primary bg-background text-primary"
+                      : "border-muted bg-background text-muted-foreground cursor-not-allowed",
                 )}
               >
                 {s.number}
@@ -50,7 +50,7 @@ export const StepsNavigation = ({
                   "absolute top-10 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap hidden min-[1200px]:block",
                   currentStep === s.number
                     ? "text-primary"
-                    : "text-muted-foreground"
+                    : "text-muted-foreground",
                 )}
               >
                 {s.label}
@@ -60,7 +60,7 @@ export const StepsNavigation = ({
               <div
                 className={cn(
                   "h-0.5 w-full mx-2",
-                  s.number < maxReachedStep ? "bg-primary" : "bg-muted"
+                  s.number < maxReachedStep ? "bg-primary" : "bg-muted",
                 )}
               />
             )}

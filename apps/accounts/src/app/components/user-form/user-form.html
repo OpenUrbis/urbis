@@ -16,9 +16,11 @@
             Selecione o tipo de cadastro
           </option>
           @for (type of accountTypes; track type.value) {
-            <option [value]="type.value">
-              {{ type.label }}
-            </option>
+            @if (allowedAccountTypes.includes(type.value) || type.value === formGroup.get('accountType')?.value) {
+              <option [value]="type.value">
+                {{ type.label }}
+              </option>
+            }
           }
         </select>
         <span
@@ -73,6 +75,12 @@
           formControlName="birthDate"
           class="w-full h-9 text-sm"
         />
+        @if (formGroup.get('birthDate')?.touched && formGroup.get('birthDate')?.hasError('invalidDate')) {
+          <p class="text-xs text-destructive">Valor inválido. Conferir.</p>
+        }
+        @if (formGroup.get('birthDate')?.touched && formGroup.get('birthDate')?.hasError('underSixteen')) {
+          <p class="text-xs text-destructive">O cadastro é permitido apenas para maiores de 16 anos.</p>
+        }
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -371,6 +379,78 @@
                   {{ digitalAddressError() }}
                 </div>
               }
+            </div>
+
+            <div
+              [formGroup]="$any(formGroup.get('address'))"
+              class="flex flex-col gap-2.5 mt-1 animate-in fade-in duration-300"
+            >
+              <div class="flex flex-col gap-1">
+                <label
+                  hlmLabel
+                  for="complement"
+                  class="text-xs font-semibold"
+                  >{{
+                    "pages.signUp.form.fields.complement" | translate
+                  }}</label
+                >
+                <input
+                  hlmInput
+                  id="complement"
+                  placeholder="Apt, bloco..."
+                  formControlName="complement"
+                  class="w-full h-9 text-sm"
+                />
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label
+                  hlmLabel
+                  for="neighborhood"
+                  class="text-xs font-semibold"
+                  >{{
+                    "pages.signUp.form.fields.neighborhood" | translate
+                  }}</label
+                >
+                <input
+                  hlmInput
+                  id="neighborhood"
+                  placeholder="{{
+                    'pages.signUp.form.fields.neighborhood' | translate
+                  }}"
+                  formControlName="neighborhood"
+                  class="w-full h-9 text-sm"
+                />
+              </div>
+
+              <div class="grid grid-cols-4 gap-3">
+                <div class="flex flex-col gap-1 col-span-3">
+                  <label hlmLabel for="city" class="text-xs font-semibold">{{
+                    "pages.signUp.form.fields.city" | translate
+                  }}</label>
+                  <input
+                    hlmInput
+                    id="city"
+                    placeholder="{{
+                      'pages.signUp.form.fields.city' | translate
+                    }}"
+                    formControlName="city"
+                    class="w-full h-9 text-sm"
+                  />
+                </div>
+                <div class="flex flex-col gap-1 col-span-1">
+                  <label hlmLabel for="state" class="text-xs font-semibold">{{
+                    "pages.signUp.form.fields.state" | translate
+                  }}</label>
+                  <input
+                    hlmInput
+                    id="state"
+                    placeholder="UF"
+                    formControlName="state"
+                    class="w-full h-9 text-sm"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         }

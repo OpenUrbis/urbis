@@ -1,8 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Subject, switchMap, tap } from 'rxjs';
-import { LoadingContent, HlmButtonDirective, HlmIconComponent, HlmDialogService } from '../../../../projects/shared/src/public-api';
+import {
+  LoadingContent,
+  HlmButtonDirective,
+  HlmIconComponent,
+  HlmDialogService,
+} from '../../../../projects/shared/src/public-api';
 import { IResponseOrganizationWithRole } from '../../pages/organizations/dto/organization.dto';
 import { OrganizationsApi } from '../../pages/organizations/services/organizations-api';
 import { HandleUserOrganization } from './components/handle-user-organization/handle-user-organization';
@@ -22,7 +28,8 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
     PageStructure,
     HlmButtonDirective,
     HlmIconComponent,
-    HasPermissionDirective
+    HasPermissionDirective,
+    RouterLink,
   ],
   providers: [provideIcons({ lucidePlus, lucidePencil })],
   templateUrl: './user-organization-manager.html',
@@ -46,6 +53,10 @@ export class UserOrganizationManager {
 
   constructor() {
     effect(() => this.user$.next(this.userId()));
+  }
+
+  fullName(person?: { firstName?: string; lastName?: string }) {
+    return [person?.firstName, person?.lastName].filter(Boolean).join(' ');
   }
 
   buildRoles(item: IResponseOrganizationWithRole) {

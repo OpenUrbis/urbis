@@ -1,74 +1,74 @@
-# Urbis Map OpenAPI
+# Urbis API Backend (`@open-urbis/map-api`)
 
-## Quick run
+Backend REST API da plataforma Urbis construído com **NestJS**, **TypeORM**, **PostgreSQL**, **Redis**, **MinIO S3** e provedor **OIDC**.
+
+---
+
+## 🚀 Execução Rápida
+
+A partir da raiz do monorepo:
 
 ```bash
-cd my-app/
-cp .env.example .env
+# 1. Configurar variáveis de ambiente
+cp apps/api/.env.example apps/api/.env
+
+# 2. Iniciar infraestrutura Docker (Postgres, Redis, MinIO)
+pnpm composer:up
+
+# 3. Executar migrations e seeds
+pnpm --filter @open-urbis/map-api migration:run
+pnpm --filter @open-urbis/map-api seed:run
+
+# 4. Iniciar API em modo de desenvolvimento (watch)
+pnpm --filter @open-urbis/map-api dev
 ```
 
-## Comfortable development
+A API estará acessível em: `http://localhost:3000`
+
+---
+
+## 📖 Endpoints e Documentação Interativa
+
+- **Swagger OpenAPI Docs**: [http://localhost:3000/swagger/docs](http://localhost:3000/swagger/docs)
+- **Health Check**: `GET /api/health` ou `GET /`
+
+---
+
+## 🗄️ Utilitários de Banco de Dados
+
+Todos os comandos devem ser executados com o filtro do workspace:
 
 ```bash
-cd my-app/
-cp env.example .env
+# Executar migrations pendentes
+pnpm --filter @open-urbis/map-api migration:run
+
+# Reverter a última migration aplicada
+pnpm --filter @open-urbis/map-api migration:revert
+
+# Gerar uma nova migration a partir das entidades alteradas
+pnpm --filter @open-urbis/map-api migration:generate src/common/database/migrations/NomeDaMigration
+
+# Criar uma migration vazia
+pnpm --filter @open-urbis/map-api migration:create src/common/database/migrations/NomeDaMigration
+
+# Executar seeds (camadas, configurações e usuário admin)
+pnpm --filter @open-urbis/map-api seed:run
+
+# Reset completo do banco (drop schema + run migrations + run seeds)
+pnpm --filter @open-urbis/map-api db:reset
 ```
 
-Local use: localhost in host
-Inside a docker use: postgres host
+---
+
+## 🧪 Testes
 
 ```bash
-npm install
+# Testes unitários
+pnpm --filter @open-urbis/map-api test
 
-npm run migration:run
+# Testes com cobertura
+pnpm --filter @open-urbis/map-api test:cov
 
-npm run seed:run
-
-npm run start:dev
-```
-
-## Links
-
-- Swagger: http://localhost:3000/swagger/docs
-
-## Database utils
-
-Generate migration
-
-```bash
-npm run migration:generate -- src/database/migrations/CreateNameTable 
-```
-
-Run migration
-
-```bash
-npm run migration:run
-```
-
-Revert migration
-
-```bash
-npm run migration:revert
-```
-
-Drop all tables in database
-
-```bash
-npm run schema:drop
-```
-
-Run seed
-
-```bash
-npm run seed:run
-```
-
-## Tests
-
-```bash
-# unit tests
-npm run test
-
-# e2e tests
-npm run test:e2e
+# Testes end-to-end (e2e)
+pnpm --filter @open-urbis/map-api test:e2e
 ```

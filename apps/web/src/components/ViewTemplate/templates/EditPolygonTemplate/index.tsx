@@ -14,7 +14,7 @@ const EditPolygonComponent = ({
 }: ITemplateProps) => {
   const { editFeature, editFeatureTemplate } = usePolygonEditContext();
   const { navigateTo } = useNavigationContext();
-  const { label = "Ajustar Perímetro" } = template;
+  const { label = "Analisar com desenho do perímetro" } = template;
 
   if (!template?.polygonTemplate && !editFeatureTemplate.value) {
     console.error("polygonTemplate is not defined in configs");
@@ -28,7 +28,7 @@ const EditPolygonComponent = ({
       <PolygonDetails
         template={template?.polygonTemplate ?? editFeatureTemplate.value ?? []}
         rootTemplate={rootTemplate!}
-      />
+      />,
     );
   };
 

@@ -1,16 +1,13 @@
 ---
 title: Diretrizes de Commit
 description: Convenção para mensagens de commit.
-icon: List
 ---
-
-![Capa do Repositório](/cover.png)
 
 Seguimos um formato específico de mensagem de commit, inspirado no Angular, para manter o histórico claro e permitir a geração automatizada de changelog. Cada mensagem de commit deve seguir esta estrutura:
 
 ### Formato do Cabeçalho
 
-```
+```text
 <tipo>(<escopo>): <resumo curto>
 ```
 
@@ -42,7 +39,7 @@ Seguimos um formato específico de mensagem de commit, inspirado no Angular, par
 
 ### Exemplo Completo
 
-```
+```text
 feat(client): add new workflow component
 
 This commit introduces a component for managing workflows, enhancing the user experience.
@@ -54,7 +51,7 @@ BREAKING CHANGE: The old workflow API is discontinued. Update to the new compone
 
 Se estiver revertendo um commit anterior, comece a mensagem com `revert: ` seguido pelo cabeçalho do commit revertido. Exemplo:
 
-```
+```text
 revert: feat(client): add new workflow component
 
 This reverts commit abc123.

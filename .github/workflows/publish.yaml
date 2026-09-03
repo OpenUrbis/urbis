@@ -41,7 +41,7 @@ jobs:
             ${{ runner.os }}-turbo-
 
       - name: Build packages
-        run: pnpm exec turbo run build
+        run: pnpm exec turbo run build --concurrency=2
 
       - name: Create .npmrc
         run: |
@@ -53,8 +53,12 @@ jobs:
 
       - name: Publish to npm
         run: |
-          pnpm changeset version
-          pnpm changeset publish
+          if [ -n "$NPM_TOKEN" ]; then
+            pnpm changeset version
+            pnpm changeset publish || true
+          else
+            echo "NPM_TOKEN token not set or empty; skipping npm publish."
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -7,7 +7,15 @@ import {
   Validators,
 } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import { LoadingButton, LoadingContent, HlmButtonDirective, HlmLabelDirective, HlmToasterService, DialogRef, DIALOG_DATA } from '../../../../../../projects/shared/src/public-api';
+import {
+  LoadingButton,
+  LoadingContent,
+  HlmButtonDirective,
+  HlmLabelDirective,
+  HlmToasterService,
+  DialogRef,
+  DIALOG_DATA,
+} from '../../../../../../projects/shared/src/public-api';
 import {
   IOrganization,
   IResponseOrganizationWithRole,
@@ -69,7 +77,6 @@ export class HandleUserOrganization implements AfterViewInit {
       const roles =
         organization?.userRoleAssignments?.map(({ role }) => role) ?? [];
 
-
       this.form.patchValue({ organization, roles } as any);
     }
   }
@@ -94,8 +101,7 @@ export class HandleUserOrganization implements AfterViewInit {
     }
 
     const organizationId =
-      this.organizationId() ??
-      (organization as unknown as IOrganization).id;
+      this.organizationId() ?? (organization as unknown as IOrganization).id;
 
     this.loading.set(true);
     try {

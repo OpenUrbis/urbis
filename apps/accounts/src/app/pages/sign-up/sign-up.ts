@@ -13,7 +13,7 @@ import { provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideCheck } from '@ng-icons/lucide';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { differenceInYears } from 'date-fns';
+
 import {
   RECAPTCHA_V3_SITE_KEY,
   RecaptchaV3Module,
@@ -23,18 +23,19 @@ import { firstValueFrom } from 'rxjs';
 import { EXTERNAL_OIDC_AUTH_CONFIG_ID } from '../../../../projects/shared/src/lib/auth/auth.config';
 import {
   HlmButtonDirective,
-  HlmCardContentDirective,
-  HlmCardDirective,
   HlmIconComponent,
   HlmToasterService,
   passwordFormGroup,
   phoneFormGroup,
+  countrySelectFormGroup,
 } from '../../../../projects/shared/src/public-api';
 import { environment } from '../../../environments/environment';
+import { ACCOUNT_TYPES } from '../../components/user-form/user-form';
 import {
-  ACCOUNT_TYPE_ENUM,
-  ACCOUNT_TYPES,
-} from '../../components/user-form/user-form';
+  allowedAccountTypesForBirthDate,
+  defaultAccountTypeForBirthDate,
+} from '../../shared/utils/account-type-eligibility';
+import { validBirthDate } from '../../shared/utils/birth-date.validator';
 import { mergeFormGroups } from '../../shared/utils/merge-form-groups';
 import { SignUpApi } from './services/sign-up-api';
 import { AccountTypeComponent } from './steps/account-type/account-type.component';
@@ -62,8 +63,6 @@ export type ApiFieldErrors = Record<string, string>;
   imports: [
     CommonModule,
     RouterModule,
-    HlmCardDirective,
-    HlmCardContentDirective,
     HlmIconComponent,
     HlmButtonDirective,
     ReactiveFormsModule,
@@ -112,7 +111,7 @@ export class SignUp {
       accountType: new FormControl('fisica_capaz', [Validators.required]),
       firstName: new FormControl('', [Validators.required]),
       lastName: new FormControl('', [Validators.required]),
-      birthDate: new FormControl('', [Validators.required]),
+      birthDate: new FormControl('', [Validators.required, validBirthDate]),
       socialName: new FormControl(''),
       email: new FormControl('', [Validators.required, Validators.email]),
       cpf: new FormControl('', [Validators.required]),
@@ -135,6 +134,7 @@ export class SignUp {
     }),
     passwordFormGroup(),
     phoneFormGroup({ required: false }),
+    countrySelectFormGroup(),
   );
   formValue = toSignal(this.formGroup.valueChanges);
   birthDateValue = toSignal(this.formGroup.get('birthDate')!.valueChanges);
@@ -142,22 +142,14 @@ export class SignUp {
   constructor() {
     effect(() => {
       const birthDate = this.birthDateValue();
-      if (birthDate) {
-        const age = differenceInYears(new Date(), new Date(birthDate));
-
-        let newType: string;
-        if (age >= 18) {
-          newType = ACCOUNT_TYPE_ENUM.FISICA_CAPAZ;
-        } else if (age >= 16 && age < 18) {
-          newType = ACCOUNT_TYPE_ENUM.FISICA_EMANCIPADA;
-        } else {
-          newType = ACCOUNT_TYPE_ENUM.FISICA_ASSISTIDO_PARENTAL;
-        }
-
+      if (birthDate && this.formGroup.get('birthDate')?.valid) {
+        const allowedTypes = allowedAccountTypesForBirthDate(birthDate);
         const currentType = this.formGroup.get('accountType')?.value;
 
-        if (currentType !== newType) {
-          this.formGroup.get('accountType')?.setValue(newType);
+        if (!allowedTypes.includes(currentType)) {
+          this.formGroup
+            .get('accountType')
+            ?.setValue(defaultAccountTypeForBirthDate(birthDate));
         }
       }
     });
@@ -214,11 +206,11 @@ export class SignUp {
 
       if (userData) {
         this.hasGovBrData.set(true);
-        const partsName = userData.name.split(' ');
+        const { firstName, lastName } = this.splitGovBrFullName(userData.name);
         this.formGroup.patchValue({
           email: userData.email,
-          firstName: partsName[0],
-          lastName: partsName.slice(1).join(' '),
+          firstName,
+          lastName,
           cpf: userData.preferred_username || '',
           socialName: userData.social_name || '',
           birthDate: userData.birth_date || '',
@@ -233,9 +225,7 @@ export class SignUp {
         return;
       }
 
-      // Desabilita campos se dados preenchidos pelo gov.br
-      if (this.formGroup.get('email')?.value)
-        this.formGroup.get('email')?.disable();
+      // Mantém o e-mail editável para que a pessoa escolha o endereço do Urbis.
       if (this.formGroup.get('firstName')?.value)
         this.formGroup.get('firstName')?.disable();
       if (this.formGroup.get('lastName')?.value)
@@ -252,6 +242,25 @@ export class SignUp {
     }
   }
 
+  private splitGovBrFullName(value?: string) {
+    const particles = new Set(['da', 'das', 'de', 'do', 'dos', 'e']);
+    const parts = (value ?? '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part, index) => {
+        const normalized =
+          part.charAt(0).toLocaleUpperCase('pt-BR') +
+          part.slice(1).toLocaleLowerCase('pt-BR');
+        return index > 0 && particles.has(normalized.toLocaleLowerCase('pt-BR'))
+          ? normalized.toLocaleLowerCase('pt-BR')
+          : normalized;
+      });
+
+    const [firstName = '', ...lastNameParts] = parts;
+    return { firstName, lastName: lastNameParts.join(' ') };
+  }
+
   private decodeToken(token: string) {
     try {
       const base64Url = token.split('.')[1];
@@ -263,7 +272,7 @@ export class SignUp {
           .join(''),
       );
       return JSON.parse(jsonPayload);
-    } catch (e) {
+    } catch {
       return null;
     }
   }
@@ -327,9 +336,14 @@ export class SignUp {
           return;
         }
       } else {
-        if (this.formGroup.get('digitalAddress')?.invalid) {
-          this.formGroup.get('digitalAddress')?.markAsTouched();
-          this.toaster.error('Preencha o endereço digital');
+        const addr = this.formGroup.get('address') as FormGroup;
+        const digitalAddressControl = this.formGroup.get('digitalAddress');
+        if (digitalAddressControl?.invalid || addr?.invalid) {
+          digitalAddressControl?.markAsTouched();
+          addr?.markAllAsTouched();
+          this.toaster.error(
+            'Preencha o endereço digital e as informações de endereço corretamente',
+          );
           return;
         }
       }
@@ -397,13 +411,18 @@ export class SignUp {
         phone = rawValue.phoneCountry + cleanPhone;
       }
 
+      const govBrTokens = localStorage.getItem('govBrTokens');
+
       const payload = {
         ...rawValue,
         accountType: rawValue.accountType,
         phone,
-        address: !this.noOfficialAddress()
-          ? JSON.stringify(rawValue.address)
-          : null,
+        address: JSON.stringify({
+          ...rawValue.address,
+          ...(this.noOfficialAddress()
+            ? { cep: null, street: null, number: null }
+            : {}),
+        }),
         digitalAddress: this.noOfficialAddress()
           ? rawValue.digitalAddress
           : null,
@@ -411,7 +430,6 @@ export class SignUp {
 
       await firstValueFrom(this.api.register(payload));
 
-      const govBrTokens = localStorage.getItem('govBrTokens');
       if (govBrTokens) {
         localStorage.setItem('govBrFinalize', 'true');
       }

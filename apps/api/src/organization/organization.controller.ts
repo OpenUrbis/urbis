@@ -28,8 +28,16 @@ export class OrganizationController {
   constructor(private readonly service: OrganizationService) {}
 
   @Get('my')
-  my(@UserData() user: User) {
-    return this.service.my(user.id);
+  my(
+    @UserData() user: User,
+    @Query('isAdmin') isAdmin?: string,
+    @Query('includeHidden') includeHidden?: string,
+  ) {
+    const showHidden = includeHidden === 'true';
+    if (isAdmin === 'true') {
+      return this.service.myAdmin(user.id, showHidden);
+    }
+    return this.service.my(user.id, showHidden);
   }
 
   @Get('user/:id')
@@ -79,16 +87,22 @@ export class OrganizationController {
     description: 'Exclude permissions',
     example: "['role:create','user:create']",
   })
+  @ApiQuery({ name: 'type', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, enum: ['active', 'inactive'] })
   list(
     @Query('page', new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search') search: string,
+    @Query('type') type: string,
+    @Query('status') status: 'active' | 'inactive',
     @Query('exclude') exclude: string[] | string,
   ) {
     return this.service.list(
       { page, limit },
       search,
       typeof exclude === 'string' ? [exclude] : exclude,
+      type,
+      status,
     );
   }
 

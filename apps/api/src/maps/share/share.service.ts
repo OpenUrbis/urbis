@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SharedMap } from './entities/shared-map.entity';
@@ -27,13 +31,26 @@ export class ShareService {
     userId: string,
     page: number = 1,
     limit: number = 10,
+    type: string = 'map',
   ): Promise<{ items: SharedMap[]; total: number }> {
-    const [items, total] = await this.sharedMapRepository.findAndCount({
-      where: { userId },
-      order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const query = this.sharedMapRepository
+      .createQueryBuilder('share')
+      .where('share.userId = :userId', { userId });
+
+    if (type === 'map') {
+      query.andWhere('(share.type = :type OR share.type IS NULL)', {
+        type: 'map',
+      });
+    } else {
+      query.andWhere('share.type = :type', { type });
+    }
+
+    const [items, total] = await query
+      .orderBy('share.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
     return { items, total };
   }
 
@@ -84,5 +101,17 @@ export class ShareService {
 
     Object.assign(sharedMap, updateSharedMapDto);
     return this.sharedMapRepository.save(sharedMap);
+  }
+
+  async remove(id: string, userId: string): Promise<void> {
+    const sharedMap = await this.findOne(id);
+
+    if (sharedMap.userId !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to delete this shared map',
+      );
+    }
+
+    await this.sharedMapRepository.delete(id);
   }
 }

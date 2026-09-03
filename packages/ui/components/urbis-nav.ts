@@ -38,33 +38,40 @@ export function buildUrbisNav(opts: {
   const byHostLegis = beginsWith(hostname, "legis.");
   const byHostViabiliza = beginsWith(hostname, "viabiliza.");
   const byHostDocs = beginsWith(hostname, "docs.");
-  const byHostMosaico = hostname === "urbis.prefeitura.sp.gov.br" || beginsWith(hostname, "urbis.");
+  const byHostMosaico =
+    hostname === "urbis.prefeitura.sp.gov.br" || beginsWith(hostname, "urbis.");
 
   // Detecção por path (dev / host único)
   // Ajuste os prefixes se o seu router usar outra estrutura.
   const byPathMapa = beginsWith(pathname, "/map") || pathname === "/mapa";
-  const byPathDados = beginsWith(pathname, "/dados") || beginsWith(pathname, "/dados-abertos");
+  const byPathDados =
+    beginsWith(pathname, "/dados") || beginsWith(pathname, "/dados-abertos");
   const byPathViabiliza = beginsWith(pathname, "/viabiliza");
   const byPathDocs = beginsWith(pathname, "/docs");
-  const byPathLegis = beginsWith(pathname, "/docs/legis");
+  const byPathLegis = beginsWith(pathname, "/legis");
 
   // ✅ Override explícito (tem prioridade)
   const forced = opts.currentApp;
 
-  const isMapa = forced === "mapa" ? true : byHostMapa || (isLocal && byPathMapa);
-  const isDados = forced === "dados" ? true : byHostDados || (isLocal && byPathDados);
-  const isViabiliza = forced === "viabiliza" ? true : byHostViabiliza || (isLocal && byPathViabiliza);
-  const isDocs = forced === "docs" ? true : byHostDocs || (isLocal && byPathDocs);
-  const isLegis =
-    forced === "legis"
+  const isMapa =
+    forced === "mapa" ? true : byHostMapa || (isLocal && byPathMapa);
+  const isDados =
+    forced === "dados" ? true : byHostDados || (isLocal && byPathDados);
+  const isViabiliza =
+    forced === "viabiliza"
       ? true
-      : byHostLegis || (byHostDocs && beginsWith(pathname, "/docs/legis")) || (isLocal && byPathLegis);
+      : byHostViabiliza || (isLocal && byPathViabiliza);
+  const isDocs =
+    forced === "docs" ? true : byHostDocs || (isLocal && byPathDocs);
+  const isLegis =
+    forced === "legis" ? true : byHostLegis || (isLocal && byPathLegis);
 
   // Mosaico só é "fallback" quando nada mais for verdadeiro
   const isMosaico =
     forced === "mosaico"
       ? true
-      : byHostMosaico || (!isMapa && !isDados && !isViabiliza && !isDocs && !isLegis);
+      : byHostMosaico ||
+        (!isMapa && !isDados && !isViabiliza && !isDocs && !isLegis);
 
   const badgeText = isMapa
     ? "Mapa"
@@ -79,12 +86,36 @@ export function buildUrbisNav(opts: {
             : "Mosaico";
 
   const base: MenuItem[] = [
-    { label: "Mosaico", href: "https://urbis.prefeitura.sp.gov.br", active: isMosaico },
-    { label: "Mapa", href: "https://mapa.urbis.prefeitura.sp.gov.br", active: isMapa },
-    { label: "Dados Abertos", href: "https://dadosabertos.urbis.prefeitura.sp.gov.br", active: isDados },
-    { label: "Legis", href: "https://legis.urbis.prefeitura.sp.gov.br/", active: isLegis },
-    { label: "Viabiliza", href: "https://viabiliza.urbis.prefeitura.sp.gov.br/docs/legis", active: isViabiliza },
-    { label: "Doc. técnica", href: "https://docs.urbis.prefeitura.sp.gov.br/", active: isDocs && !isLegis },
+    {
+      label: "Mosaico",
+      href: "https://urbis.prefeitura.sp.gov.br",
+      active: isMosaico,
+    },
+    {
+      label: "Mapa",
+      href: "https://mapa.urbis.prefeitura.sp.gov.br",
+      active: isMapa,
+    },
+    {
+      label: "Dados Abertos",
+      href: "https://dadosabertos.urbis.prefeitura.sp.gov.br",
+      active: isDados,
+    },
+    {
+      label: "Legis",
+      href: "https://legis.urbis.prefeitura.sp.gov.br/",
+      active: isLegis,
+    },
+    {
+      label: "Viabiliza",
+      href: "https://viabiliza.urbis.prefeitura.sp.gov.br",
+      active: isViabiliza,
+    },
+    {
+      label: "Doc. técnica",
+      href: "https://docs.urbis.prefeitura.sp.gov.br/",
+      active: isDocs && !isLegis,
+    },
   ];
 
   // ✅ remove o item ativo do menu

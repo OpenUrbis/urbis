@@ -11,6 +11,9 @@ export class PermissionScopePipe implements PipeTransform {
     const key = `pages.roles.form.scopeOptions.${value}`;
     const translated = this.translate.instant(key);
 
-    return translated || this.translate.instant('pages.roles.form.scopeOptions.global');
+    return (
+      translated ||
+      this.translate.instant('pages.roles.form.scopeOptions.global')
+    );
   }
 }

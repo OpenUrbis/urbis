@@ -1,7 +1,7 @@
 export enum RolePermissionScopeEnum {
-  GLOBAL = 'global',
-  ANY = 'any',
-  OWN = 'own',
+  GLOBAL = "global",
+  ANY = "any",
+  OWN = "own",
 }
 
 export interface IAccessControlPermission {
@@ -13,7 +13,7 @@ export interface IAccessControlPermission {
 
 export interface AccessControlOptions {
   permissions: IAccessControlPermission | IAccessControlPermission[];
-  mode?: 'AND' | 'OR'; // Default: 'AND'
+  mode?: "AND" | "OR"; // Default: 'AND'
 }
 
 export class AccessControl {
@@ -50,14 +50,14 @@ export class AccessControl {
   }
 
   hasPermission(options: AccessControlOptions): boolean {
-    const mode = options.mode || 'AND';
+    const mode = options.mode || "AND";
     const requirements = Array.isArray(options.permissions)
       ? options.permissions
       : [options.permissions];
 
-    if (mode === 'AND') {
+    if (mode === "AND") {
       return requirements.every((req) => this.hasSinglePermission(req));
-    } else if (mode === 'OR') {
+    } else if (mode === "OR") {
       return requirements.some((req) => this.hasSinglePermission(req));
     }
     return false;

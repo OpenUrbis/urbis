@@ -9,8 +9,14 @@ export class OrganizationDataSource extends AbstractDataSource<IOrganization> {
   protected baseUrl: string = `${environment.api}/organization`;
 
   constructor() {
-    // Define as opções para a classe mãe
+    const filterFormGroup = new FormGroup({
+      search: new FormControl(''),
+      type: new FormControl(''),
+      status: new FormControl(''),
+    });
+
     super({
+      filterFormGroup,
       initialParams: {
         limit: 15,
         sortBy: 'name',

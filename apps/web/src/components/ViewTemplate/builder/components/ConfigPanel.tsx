@@ -6,7 +6,10 @@ import { useBuilder } from "../BuilderContext";
 import { BUILDER_TEMPLATES } from "../registry";
 
 // Helper to find a node by ID
-const findNode = (root: ITemplate | ITemplate[], id: string): ITemplate | null => {
+const findNode = (
+  root: ITemplate | ITemplate[],
+  id: string,
+): ITemplate | null => {
   if (Array.isArray(root)) {
     for (const child of root) {
       const found = findNode(child, id);
@@ -16,10 +19,10 @@ const findNode = (root: ITemplate | ITemplate[], id: string): ITemplate | null =
   }
 
   if (root.id === id) return root;
-  
+
   const config = BUILDER_TEMPLATES.find((t) => t.name === root.type);
   const childrenProp = config?.childrenProp || "templates";
-  
+
   // @ts-ignore
   if (root[childrenProp] && Array.isArray(root[childrenProp])) {
     // @ts-ignore
@@ -28,7 +31,7 @@ const findNode = (root: ITemplate | ITemplate[], id: string): ITemplate | null =
       if (found) return found;
     }
   }
-  
+
   return null;
 };
 

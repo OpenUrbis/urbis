@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ClickActionEnum } from '@open-urbis/map-shared';
+import { ClickActionEnum } from '../../layer-schemas/enums/click-action.enum';
 import {
   Column,
   CreateDateColumn,

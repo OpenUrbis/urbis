@@ -21,11 +21,7 @@ const navigationState: INavigationContextType = {
 export const NavigationContext =
   createContext<INavigationContextType>(navigationState);
 
-export const NavigationProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+export const NavigationProvider = ({ children }: { children: ReactNode }) => {
   return (
     <NavigationContext.Provider value={navigationState}>
       {children}

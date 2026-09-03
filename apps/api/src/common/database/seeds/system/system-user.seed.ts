@@ -30,8 +30,17 @@ export class SystemUserSeedService {
       return existingUser;
     }
 
+    const configuredPassword = this.configService.get<string>(
+      'admin.account.password',
+    );
+    if (!configuredPassword) {
+      throw new Error(
+        'ADMIN_ACCOUNT_PASSWORD must be configured to run the system user seed',
+      );
+    }
+
     const salt = await bcrypt.genSalt();
-    const password = await bcrypt.hash(`Teste@1234`, salt);
+    const password = await bcrypt.hash(configuredPassword, salt);
 
     const user = this.userRepository.create({
       email,

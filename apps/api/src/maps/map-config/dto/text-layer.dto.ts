@@ -11,4 +11,7 @@ export class TextLayerDtoResponse {
   properties: {
     [key: string]: any;
   };
+
+  @ApiProperty({ example: 'Point', required: false })
+  geometryType?: string;
 }

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -25,7 +26,7 @@ import { RolePermissionScopeEnum } from './enums/role-permission-scope.enum';
 import { RoleService } from './role.service';
 
 @ApiTags('Role')
-@UseGuards(AccessControlGuard, OrganizationGuard)
+@UseGuards(AccessControlGuard)
 @Controller('role')
 export class RoleController {
   constructor(private readonly service: RoleService) {}
@@ -80,6 +81,7 @@ export class RoleController {
   }
 
   @Get('user/:userId')
+  @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
       action: 'list',
@@ -95,6 +97,7 @@ export class RoleController {
   }
 
   @Post()
+  @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
       action: 'create',
@@ -110,6 +113,7 @@ export class RoleController {
   }
 
   @Put(':id')
+  @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
       action: 'update',
@@ -125,7 +129,24 @@ export class RoleController {
     return this.service.update(id, data, organization);
   }
 
+  @Delete(':id')
+  @UseGuards(OrganizationGuard)
+  @RequirePermission({
+    permissions: {
+      action: 'delete',
+      resource: 'role',
+      scope: RolePermissionScopeEnum.ANY,
+    },
+  })
+  delete(
+    @Param('id') id: string,
+    @OrganizationData() organization: Organization,
+  ) {
+    return this.service.delete(id, organization);
+  }
+
   @Patch('assign')
+  @UseGuards(OrganizationGuard)
   @RequirePermission({
     permissions: {
       action: 'assign',

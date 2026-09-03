@@ -1,10 +1,21 @@
-import { DynamicSystemResults } from "@open-urbis/map";
+import {
+  DynamicSystemResults,
+  useProspectiveSearchContext,
+} from "@open-urbis/map";
 import { Button } from "@open-urbis/map-ui";
 import { FileText, Maximize2, Minus, X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export const ProspectiveSearchResults = () => {
-  const [isResultsOpen, setIsResultsOpen] = useState(false);
+  const state = useProspectiveSearchContext();
+  const hasInput = !!(
+    state.selectedUse ||
+    Object.keys(state.urbanParams).length > 0 ||
+    Object.keys(state.pqaParams).length > 0 ||
+    state.areaImovel !== null
+  );
+
+  const [isResultsOpen, setIsResultsOpen] = useState(hasInput);
   const [isResultsMinimized, setIsResultsMinimized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -17,17 +28,28 @@ export const ProspectiveSearchResults = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  useEffect(() => {
+    if (hasInput) {
+      setIsResultsOpen(true);
+      setIsResultsMinimized(false);
+    }
+  }, [hasInput]);
+
   return (
     <>
       {/* Floating Results Window */}
       {isResultsOpen && (
         <div
-          className={`absolute bottom-0 right-0 md:right-6 lg:right-16 bg-background rounded-t-xl md:rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] border border-border z-30 flex flex-col transition-all duration-300 ease-in-out ${
+          className={`urbis-app-panel-layer absolute bottom-0 right-0 md:right-6 lg:right-16 bg-background rounded-t-xl md:rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] border border-border flex flex-col transition-all duration-300 ease-in-out ${
             isResultsMinimized
               ? "w-full md:w-[320px] h-[48px]"
               : "w-full md:w-[90vw] lg:w-[920px] h-[85vh] md:h-[700px] max-h-[85vh]"
           }`}
-          style={!isResultsMinimized && !isMobile ? { maxWidth: 'calc(100% - 506px)' } : {}}
+          style={
+            !isResultsMinimized && !isMobile
+              ? { maxWidth: "calc(100% - 506px)" }
+              : {}
+          }
         >
           {/* Window Header */}
           <div
@@ -37,7 +59,7 @@ export const ProspectiveSearchResults = () => {
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               <h3 className="text-sm font-semibold tracking-tight">
-                Legendas, diretrizes e notas.
+                Mais informações
               </h3>
             </div>
             <div className="flex items-center gap-3">
@@ -69,7 +91,9 @@ export const ProspectiveSearchResults = () => {
           {/* Window Content */}
           <div
             className={`flex-1 overflow-hidden transition-opacity duration-300 bg-background text-foreground ${
-              isResultsMinimized ? "opacity-0 pointer-events-none" : "opacity-100"
+              isResultsMinimized
+                ? "opacity-0 pointer-events-none"
+                : "opacity-100"
             }`}
           >
             <DynamicSystemResults />
@@ -79,7 +103,7 @@ export const ProspectiveSearchResults = () => {
 
       {/* Button to reopen results if closed */}
       {!isResultsOpen && (
-        <div className="absolute bottom-6 right-16 z-30">
+        <div className="urbis-app-panel-layer absolute bottom-24 right-16">
           <Button
             onClick={() => {
               setIsResultsOpen(true);
@@ -88,7 +112,7 @@ export const ProspectiveSearchResults = () => {
             className="rounded-full shadow-lg gap-2"
           >
             <FileText className="w-4 h-4" />
-            Abrir Resultados
+            Mais informações
           </Button>
         </div>
       )}

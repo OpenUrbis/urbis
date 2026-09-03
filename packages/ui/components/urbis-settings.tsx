@@ -29,16 +29,18 @@ import { cn } from "../lib/utils";
 export interface UrbisSettingsProps {
   theme?: string;
   setTheme?: (theme: string) => void;
+  extraSettingsContent?: React.ReactNode;
 }
 
 export function UrbisSettings({
   theme: externalTheme,
   setTheme: externalSetTheme,
+  extraSettingsContent,
 }: UrbisSettingsProps) {
   const [internalTheme, setInternalTheme] = React.useState<string>("system");
 
   const theme = externalTheme ?? internalTheme;
-  
+
   // Font Size Logic
   const [fontSize, setFontSize] = React.useState(100);
   const [highContrast, setHighContrast] = React.useState(false);
@@ -72,9 +74,12 @@ export function UrbisSettings({
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
 
-    const activeTheme = theme === "system"
-      ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-      : theme;
+    const activeTheme =
+      theme === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : theme;
 
     root.classList.add(activeTheme);
   }, [theme, externalTheme]);
@@ -110,7 +115,11 @@ export function UrbisSettings({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="relative h-9 w-9 rounded-full shrink-0">
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative h-9 w-9 rounded-full shrink-0"
+        >
           <SettingsIcon />
           <span className="sr-only">Configurações</span>
         </Button>
@@ -130,7 +139,7 @@ export function UrbisSettings({
                     size="sm"
                     className={cn(
                       "flex-1 h-8 px-0 hover:bg-accent hover:text-accent-foreground",
-                      theme === "light" && "bg-background shadow-sm"
+                      theme === "light" && "bg-background shadow-sm",
                     )}
                     onClick={() => handleSetTheme("light")}
                   >
@@ -150,7 +159,7 @@ export function UrbisSettings({
                     size="sm"
                     className={cn(
                       "flex-1 h-8 px-0 hover:bg-accent hover:text-accent-foreground",
-                      theme === "dark" && "bg-background shadow-sm"
+                      theme === "dark" && "bg-background shadow-sm",
                     )}
                     onClick={() => handleSetTheme("dark")}
                   >
@@ -170,7 +179,7 @@ export function UrbisSettings({
                     size="sm"
                     className={cn(
                       "flex-1 h-8 px-0 hover:bg-accent hover:text-accent-foreground",
-                      theme === "system" && "bg-background shadow-sm"
+                      theme === "system" && "bg-background shadow-sm",
                     )}
                     onClick={() => handleSetTheme("system")}
                   >
@@ -189,13 +198,29 @@ export function UrbisSettings({
         <DropdownMenuSeparator />
 
         <div className="px-2 py-1.5">
-          <div className="text-sm text-muted-foreground mb-2">Tamanho da fonte</div>
+          <div className="text-sm text-muted-foreground mb-2">
+            Tamanho da fonte
+          </div>
           <div className="flex items-center justify-between gap-2">
-            <Button variant="outline" size="icon" className="h-8 w-8" onClick={decreaseFont} disabled={fontSize <= 85}>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={decreaseFont}
+              disabled={fontSize <= 85}
+            >
               <RemoveIcon className="h-[18px] w-[18px]" />
             </Button>
-            <span className="text-sm w-12 text-center font-medium">{fontSize}%</span>
-            <Button variant="outline" size="icon" className="h-8 w-8" onClick={increaseFont} disabled={fontSize >= 125}>
+            <span className="text-sm w-12 text-center font-medium">
+              {fontSize}%
+            </span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={increaseFont}
+              disabled={fontSize >= 125}
+            >
               <AddIcon className="h-[18px] w-[18px]" />
             </Button>
           </div>
@@ -207,6 +232,13 @@ export function UrbisSettings({
           <div className="text-sm text-muted-foreground">Alto contraste</div>
           <Switch checked={highContrast} onCheckedChange={setHighContrast} />
         </div>
+
+        {extraSettingsContent ? (
+          <>
+            <DropdownMenuSeparator />
+            {extraSettingsContent}
+          </>
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );

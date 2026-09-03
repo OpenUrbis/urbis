@@ -7,8 +7,11 @@
     "types": []
   },
   "include": [
-    "src/**/*.ts"
-, "projects/shared/src/lib/auth/auth.config.ts"  ],
+    "src/**/*.ts",
+    "projects/shared/src/lib/auth/auth.config.ts",
+    "../../packages/shared/**/*.ts",
+    "../../packages/endereco-digital/src/**/*.ts"
+  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]

@@ -4,6 +4,7 @@
     "exclude": [
       "/assets/*",
       "/*.png",
+      "/*.jpg",
       "/*.ico",
       "/*.svg",
       "/*.webmanifest"
@@ -15,6 +16,16 @@
     "Expires": "0"
   },
   "routes": [
+    {
+      "route": "/info-urbis",
+      "redirect": "/guia-legislacao-urbanistica",
+      "statusCode": 301
+    },
+    {
+      "route": "/licencas",
+      "redirect": "/guia-fiscalizacao-urbanistica",
+      "statusCode": 301
+    },
     {
       "route": "/assets/*",
       "headers": {

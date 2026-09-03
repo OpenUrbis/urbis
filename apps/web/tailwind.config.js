@@ -7,6 +7,7 @@ module.exports = {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "../../packages/ui/components/**/*.{js,ts,jsx,tsx}",
+    "../../packages/map/src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {

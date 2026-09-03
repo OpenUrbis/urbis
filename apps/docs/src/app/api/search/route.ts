@@ -1,9 +1,10 @@
 import { createFromSource } from "fumadocs-core/search/server";
 import { source } from "src/lib/source";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
+export const revalidate = false;
 
-export const { GET } = createFromSource(source, {
+const server = createFromSource(source, {
   language: "english",
   buildIndex: (page) => ({
     id: page.url,
@@ -16,3 +17,5 @@ export const { GET } = createFromSource(source, {
     },
   }),
 });
+
+export const GET = server.staticGET;

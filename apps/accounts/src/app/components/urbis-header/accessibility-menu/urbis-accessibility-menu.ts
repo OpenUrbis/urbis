@@ -5,7 +5,7 @@ import {
   HlmIconComponent,
   HlmDropdownMenuDirective,
   HlmDropdownMenuTriggerDirective,
-  HlmSwitchComponent
+  HlmSwitchComponent,
 } from '../../../../../projects/shared/src/public-api';
 import { provideIcons } from '@ng-icons/core';
 import {
@@ -14,7 +14,7 @@ import {
   lucideMoon,
   lucideMonitor,
   lucideMinus,
-  lucidePlus
+  lucidePlus,
 } from '@ng-icons/lucide';
 import { AccessibilityService } from '../../../services/accessibility.service';
 import { WhitelabelState } from '../../../states/whitelabel/whitelabel.state';
@@ -38,8 +38,8 @@ import { ApplicationTheme } from '../../../states/whitelabel/whitelabel.types';
       lucideMoon,
       lucideMonitor,
       lucideMinus,
-      lucidePlus
-    })
+      lucidePlus,
+    }),
   ],
   template: `
     <button
@@ -55,12 +55,18 @@ import { ApplicationTheme } from '../../../states/whitelabel/whitelabel.types';
 
     <ng-template #menu>
       <div hlmDropdownMenu class="w-64 p-0">
-        <div class="px-3 py-2 font-semibold border-b border-border">Acessibilidade</div>
-        
+        <div class="px-3 py-2 font-semibold border-b border-border">
+          Acessibilidade
+        </div>
+
         <div class="p-3 space-y-4">
           <!-- Theme -->
           <div class="space-y-2">
-            <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tema</div>
+            <div
+              class="text-xs font-medium text-muted-foreground uppercase tracking-wider"
+            >
+              Tema
+            </div>
             <div class="grid grid-cols-3 gap-1 rounded-md bg-muted p-1">
               <button
                 hlmBtn
@@ -108,8 +114,14 @@ import { ApplicationTheme } from '../../../states/whitelabel/whitelabel.types';
 
           <!-- Font Size -->
           <div class="space-y-2">
-            <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tamanho da fonte</div>
-            <div class="flex items-center justify-between gap-2 border border-border rounded-md p-1 bg-background">
+            <div
+              class="text-xs font-medium text-muted-foreground uppercase tracking-wider"
+            >
+              Tamanho da fonte
+            </div>
+            <div
+              class="flex items-center justify-between gap-2 border border-border rounded-md p-1 bg-background"
+            >
               <button
                 hlmBtn
                 variant="ghost"
@@ -120,7 +132,9 @@ import { ApplicationTheme } from '../../../states/whitelabel/whitelabel.types';
               >
                 <hlm-icon name="lucideMinus" size="14" />
               </button>
-              <span class="text-sm font-medium tabular-nums w-12 text-center">{{ accessibility.fontSize() || 100 }}%</span>
+              <span class="text-sm font-medium tabular-nums w-12 text-center"
+                >{{ accessibility.fontSize() || 100 }}%</span
+              >
               <button
                 hlmBtn
                 variant="ghost"
@@ -138,10 +152,14 @@ import { ApplicationTheme } from '../../../states/whitelabel/whitelabel.types';
 
           <!-- High Contrast -->
           <div class="flex items-center justify-between">
-            <div class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Alto contraste</div>
-            <hlm-switch 
-              [checked]="accessibility.highContrast() || false" 
-              (changed)="accessibility.toggleHighContrast()" 
+            <div
+              class="text-xs font-medium text-muted-foreground uppercase tracking-wider"
+            >
+              Alto contraste
+            </div>
+            <hlm-switch
+              [checked]="accessibility.highContrast() || false"
+              (changed)="accessibility.toggleHighContrast()"
               class="scale-90 origin-right"
             />
           </div>

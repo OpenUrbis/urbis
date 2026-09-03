@@ -21,8 +21,18 @@ export function OrGuard(...guards: Type<CanActivate>[]): Type<CanActivate> {
       for (let i = 0; i < guards.length; i++) {
         const Guard = guards[i];
         try {
-          const guard = this.moduleRef.get(Guard, { strict: false });
-          if (!guard) continue;
+          let guard: CanActivate;
+          try {
+            guard = this.moduleRef.get(Guard, { strict: false });
+          } catch {
+            guard = new Guard();
+          }
+          if (!guard) {
+            guard = new Guard();
+          }
+          if (!guard.canActivate) {
+            continue;
+          }
           const result = await guard.canActivate(context);
           if (result === true) {
             return true;

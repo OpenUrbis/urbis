@@ -28,14 +28,14 @@ export const LayerSelect = ({
   const [layers, setLayers] = useState<IGetConfigLayerSchema[]>([]);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 300);
-  
+
   // Try to get from context first if available, otherwise fetch
   let contextLayers: any = null;
   try {
-      const context = useMapContext();
-      contextLayers = context.layerSchemas.value;
+    const context = useMapContext();
+    contextLayers = context.layerSchemas.value;
   } catch (e) {
-      // Ignore if not in provider
+    // Ignore if not in provider
   }
 
   useEffect(() => {
@@ -44,8 +44,8 @@ export const LayerSelect = ({
       if (debouncedSearch) {
         setLayers(
           contextLayers.filter((l: any) =>
-            l.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-          )
+            l.name.toLowerCase().includes(debouncedSearch.toLowerCase()),
+          ),
         );
       } else {
         setLayers(contextLayers);
@@ -59,15 +59,15 @@ export const LayerSelect = ({
             res && typeof res === "object" && "data" in res
               ? (res.data as IGetConfigLayerSchema[])
               : Array.isArray(res)
-              ? res
-              : [];
+                ? res
+                : [];
           setLayers(data);
         } catch (error) {
           console.error("Failed to fetch layers for select", error);
           setLayers([]);
         }
       };
-      
+
       fetchLayers();
     }
   }, [debouncedSearch, contextLayers]);
@@ -101,7 +101,7 @@ export const LayerSelect = ({
                 key={layer.id}
                 className={cn(
                   "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                  value === layer.id ? "bg-accent" : ""
+                  value === layer.id ? "bg-accent" : "",
                 )}
                 onClick={() => {
                   onChange(layer.id === value ? "" : layer.id);
@@ -111,7 +111,7 @@ export const LayerSelect = ({
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === layer.id ? "opacity-100" : "opacity-0"
+                    value === layer.id ? "opacity-100" : "opacity-0",
                   )}
                 />
                 {layer.name}

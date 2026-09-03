@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@open-urbis/map-ui";
+import { Card, CardContent, UrbisIcon } from "@open-urbis/map-ui";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { ViewTemplate } from "../ViewTemplate";
 import { ITemplate } from "../ViewTemplate/types/templates-type";
@@ -16,7 +16,11 @@ export const PolygonDetails = ({
     return (
       <Card className="m-2 rounded-xl">
         <CardContent className="p-4 flex justify-center">
-          <span className="material-symbols-outlined text-2xl animate-spin">progress_activity</span>
+          <UrbisIcon
+            name="progress_activity"
+            className="text-2xl animate-spin"
+            aria-hidden="true"
+          />
         </CardContent>
       </Card>
     );
@@ -30,9 +34,9 @@ export const PolygonDetails = ({
               Selecione uma área e <br /> clique para Salvar:
             </span>
             <p className="text-[10px] text-muted-foreground mt-2 leading-snug">
-              Para selecionar e poder editar os vértices do elemento, clique nele
-              duas vezes e faça as edições necessárias depois clique em Salvar /
-              Atualizar.
+              Para selecionar e poder editar os vértices do elemento, clique
+              nele duas vezes e faça as edições necessárias depois clique em
+              Salvar / Atualizar.
             </p>
           </div>
         </CardContent>

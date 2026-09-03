@@ -1,7 +1,11 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useBuilder } from "../builder/BuilderContext";
 import { Label, Input } from "@open-urbis/map-ui";
-import { UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
+import {
+  UseFormRegister,
+  UseFormSetValue,
+  UseFormWatch,
+} from "react-hook-form";
 
 interface EjsDataSelectorProps {
   name: string;
@@ -35,14 +39,19 @@ export const EjsDataSelector: React.FC<EjsDataSelectorProps> = ({
   // Determine initial mode
   useEffect(() => {
     if (currentValue) {
-      const match = currentValue.match(/^<%- (?:properties\?\.)?([^ ]+)(?: \?\? '-')? %>$/);
+      const match = currentValue.match(
+        /^<%- (?:properties\?\.)?([^ ]+)(?: \?\? '-')? %>$/,
+      );
       const isExactMatch = match && dataKeys.includes(match[1]);
-      
-      if (!isExactMatch && !dataKeys.some((k) => `<%- properties.${k} %>` === currentValue)) {
-         setMode("custom");
+
+      if (
+        !isExactMatch &&
+        !dataKeys.some((k) => `<%- properties.${k} %>` === currentValue)
+      ) {
+        setMode("custom");
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataKeys]);
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -51,7 +60,10 @@ export const EjsDataSelector: React.FC<EjsDataSelectorProps> = ({
       setMode("custom");
     } else if (val) {
       setMode("select");
-      setValue(name, `<%- properties.${val} %>`, { shouldDirty: true, shouldValidate: true });
+      setValue(name, `<%- properties.${val} %>`, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     } else {
       setMode("select");
       setValue(name, "", { shouldDirty: true, shouldValidate: true });
@@ -61,15 +73,17 @@ export const EjsDataSelector: React.FC<EjsDataSelectorProps> = ({
   const getSelectedValue = () => {
     if (mode === "custom") return "___custom___";
     if (!currentValue) return "";
-    
+
     // Testa o formato padrão do select
     const match = currentValue.match(/^<%- properties\.([^ ]+) %>$/);
     if (match && dataKeys.includes(match[1])) {
       return match[1];
     }
-    
+
     // Testa o formato gerado pelo Auto Preencher
-    const matchAuto = currentValue.match(/^<%- (?:properties\?\.)?([^ ]+) \?\? '-' %>$/);
+    const matchAuto = currentValue.match(
+      /^<%- (?:properties\?\.)?([^ ]+) \?\? '-' %>$/,
+    );
     if (matchAuto && dataKeys.includes(matchAuto[1])) {
       return matchAuto[1];
     }
@@ -96,16 +110,14 @@ export const EjsDataSelector: React.FC<EjsDataSelectorProps> = ({
         </select>
 
         {mode === "custom" && (
-          <Input 
-            {...register(name)} 
-            placeholder={placeholder} 
-            className="w-full font-mono text-xs" 
+          <Input
+            {...register(name)}
+            placeholder={placeholder}
+            className="w-full font-mono text-xs"
           />
         )}
-        
-        {mode === "select" && (
-           <input type="hidden" {...register(name)} />
-        )}
+
+        {mode === "select" && <input type="hidden" {...register(name)} />}
       </div>
     </div>
   );

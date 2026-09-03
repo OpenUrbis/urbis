@@ -25,7 +25,7 @@ import { OidcController } from './oidc.controller';
     {
       provide: 'OidcProvider',
       useFactory: oidcProviderFactory,
-      inject: [ConfigService, ClientsService, AuthService],
+      inject: [ConfigService, ClientsService, AuthService, 'REDIS_CLIENT'],
     },
   ],
 })

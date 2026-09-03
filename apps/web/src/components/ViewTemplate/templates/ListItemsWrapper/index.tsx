@@ -49,7 +49,7 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
       const actionFn = clickActions[action];
       if (!actionFn) {
         console.error(
-          `Action "${action}" is not found in CLICK_ACTIONS_CONFIG of project`
+          `Action "${action}" is not found in CLICK_ACTIONS_CONFIG of project`,
         );
         return;
       }
@@ -62,30 +62,57 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
       });
     };
 
+    const items = listItems() ?? [];
+    const printColumnsClass = (() => {
+      switch (properties?.printColumns) {
+        case 1:
+          return "grid grid-cols-1 gap-2 p-0 list-none m-0";
+        case 2:
+          return "grid grid-cols-1 gap-2 p-0 list-none m-0 md:grid-cols-2";
+        case 4:
+          return "grid grid-cols-1 gap-2 p-0 list-none m-0 md:grid-cols-2 xl:grid-cols-4";
+        case 3:
+        default:
+          return "grid grid-cols-1 gap-2 p-0 list-none m-0 md:grid-cols-2 xl:grid-cols-3";
+      }
+    })();
+
     return (
-      <ul className="divide-y divide-border p-0 list-none m-0">
-        {// eslint-disable-next-line @typescript-eslint/no-explicit-any
-        listItems()?.map((value: any, i: number) => (
-          <li
-            key={value?.id ?? i}
-            className="cursor-pointer hover:bg-muted/50 p-2 transition-colors"
-            onClick={() => handleItem(value)}
-          >
-            <div className="w-full">
-                  {templates.map(
-                    (itemTemplate) =>
-                      (
-                        <ViewTemplateEngine
-                          template={itemTemplate}
-                          data={value}
-                          rootTemplate={rootTemplate}
-                          isPrint={isPrint}
-                        />
-                      ) as ReactNode
-                  )}
-            </div>
-          </li>
-        ))}
+      <ul
+        className={
+          isPrint
+            ? printColumnsClass
+            : "divide-y divide-border p-0 list-none m-0"
+        }
+      >
+        {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          items.map((value: any, i: number) => (
+            <li
+              key={value?.id ?? i}
+              className={
+                isPrint
+                  ? "rounded-lg border border-border bg-card p-2 text-xs break-inside-avoid print:border-slate-200 print:bg-white"
+                  : "cursor-pointer hover:bg-muted/50 p-2 transition-colors"
+              }
+              onClick={() => handleItem(value)}
+            >
+              <div className="w-full">
+                {templates.map(
+                  (itemTemplate) =>
+                    (
+                      <ViewTemplateEngine
+                        template={itemTemplate}
+                        data={value}
+                        rootTemplate={rootTemplate}
+                        isPrint={isPrint}
+                      />
+                    ) as ReactNode,
+                )}
+              </div>
+            </li>
+          ))
+        }
       </ul>
     );
   },

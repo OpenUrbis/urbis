@@ -1,8 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ProfileState } from '../../../states/profile/profile.state';
 import { ProfileEditApi } from '../services/profile-edit-api';
-import { passwordFormGroup, PasswordFormGroup, HlmInputDirective, HlmLabelDirective, HlmButtonDirective } from '../../../../../projects/shared/src/public-api';
+import {
+  passwordFormGroup,
+  PasswordFormGroup,
+  HlmInputDirective,
+  HlmLabelDirective,
+  HlmButtonDirective,
+} from '../../../../../projects/shared/src/public-api';
 import { mergeFormGroups } from '../../../shared/utils/merge-form-groups';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,7 +28,7 @@ import { TranslateModule } from '@ngx-translate/core';
     PasswordFormGroup,
     HlmInputDirective,
     HlmLabelDirective,
-    HlmButtonDirective
+    HlmButtonDirective,
   ],
   templateUrl: './change-password-form.html',
 })

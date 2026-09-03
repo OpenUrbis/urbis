@@ -1,15 +1,15 @@
-import Layout from './Layout'
-import Home from './pages/Home'
-import About from './pages/About'
-import Contact from './pages/Contact'
-import Ajuda from './pages/Ajuda'
-import DocTecnica from './pages/DocTecnica'
-import InfoUrbis from './pages/InfoUrbis'
-import CartaServicos from './pages/CartaServicos'
-import Licencas from './pages/Licencas'
-import { RouteObject } from 'react-router-dom'
-import { GlobalProvider } from './GlobalProvider'
-import { Loader2 } from 'lucide-react'
+import Layout from "./Layout";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Ajuda from "./pages/Ajuda";
+import DocTecnica from "./pages/DocTecnica";
+import GuiaLegislacaoUrbanistica from "./pages/GuiaLegislacaoUrbanistica";
+import CartaServicos from "./pages/CartaServicos";
+import GuiaFiscalizacaoUrbanistica from "./pages/GuiaFiscalizacaoUrbanistica";
+import { Navigate, RouteObject } from "react-router-dom";
+import { GlobalProvider } from "./GlobalProvider";
+import { Loader2 } from "lucide-react";
 
 const FullscreenLoader = () => (
   <div className="h-screen w-screen flex items-center justify-center">
@@ -22,25 +22,41 @@ const routes: RouteObject[] = [
     element: <GlobalProvider />,
     children: [
       {
-        path: '/callback',
+        path: "/callback",
         element: <FullscreenLoader />,
       },
       {
-        path: '/',
+        path: "/",
         element: <Layout />,
         children: [
           { index: true, element: <Home /> },
-          { path: 'ajuda', element: <Ajuda /> },
-          { path: 'sobre', element: <About /> },
-          { path: 'contato', element: <Contact /> },
-          { path: 'doc-tecnica', element: <DocTecnica /> },
-          { path: 'info-urbis', element: <InfoUrbis /> },
-          { path: 'carta-servicos', element: <CartaServicos /> },
-          { path: 'licencas', element: <Licencas /> },
+          { path: "ajuda", element: <Ajuda /> },
+          { path: "sobre", element: <About /> },
+          { path: "contato", element: <Contact /> },
+          { path: "doc-tecnica", element: <DocTecnica /> },
+          {
+            path: "guia-legislacao-urbanistica",
+            element: <GuiaLegislacaoUrbanistica />,
+          },
+          { path: "carta-servicos", element: <CartaServicos /> },
+          {
+            path: "guia-fiscalizacao-urbanistica",
+            element: <GuiaFiscalizacaoUrbanistica />,
+          },
+
+          // URLs antigas mantidas por compatibilidade (links externos e indexação)
+          {
+            path: "info-urbis",
+            element: <Navigate to="/guia-legislacao-urbanistica" replace />,
+          },
+          {
+            path: "licencas",
+            element: <Navigate to="/guia-fiscalizacao-urbanistica" replace />,
+          },
         ],
       },
     ],
   },
-]
+];
 
-export default routes
+export default routes;

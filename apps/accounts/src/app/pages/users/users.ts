@@ -15,7 +15,6 @@ import {
   HlmIconComponent,
 } from '../../../../projects/shared/src/public-api';
 import { PageStructure } from '../../components/page-structure/page-structure';
-import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import { OrganizationState } from '../../states/organization/organization.state';
@@ -31,7 +30,6 @@ import { UserDataSource } from './users.data-source';
     PageStructure,
     HlmButtonDirective,
     HlmIconComponent,
-    StatusBadgeComponent,
     HasPermissionDirective,
     ReactiveFormsModule,
   ],

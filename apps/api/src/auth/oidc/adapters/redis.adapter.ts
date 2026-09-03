@@ -1,6 +1,4 @@
-import { ConfigService } from '@nestjs/config';
-
-import isEmpty from 'lodash/isEmpty';
+import Redis from 'ioredis';
 
 const grantable = new Set([
   'AccessToken',
@@ -17,126 +15,154 @@ const consumable = new Set([
   'BackchannelAuthenticationRequest',
 ]);
 
+function isEmptyData(data: any): boolean {
+  if (!data) return true;
+  if (typeof data === 'object') {
+    return Object.keys(data).length === 0;
+  }
+  return false;
+}
+
 function grantKeyFor(id: string) {
-  return `grant:${id}`;
+  return `oidc:urbis:v3:grant:${id}`;
 }
 
 function userCodeKeyFor(userCode: string) {
-  return `userCode:${userCode}`;
+  return `oidc:urbis:v3:userCode:${userCode}`;
 }
 
 function uidKeyFor(uid: string) {
-  return `uid:${uid}`;
+  return `oidc:urbis:v3:uid:${uid}`;
 }
 
 export class RedisAdapter {
-  constructor(
-    public name: string,
-    redisClient: any,
-    configService: ConfigService,
-    public client: any,
-  ) {
+  name: string;
+  client: Redis;
+
+  constructor(name: string, client: Redis) {
     this.name = name;
-    this.client = new redisClient(configService.get('app.cacheHost'), {
-      keyPrefix: 'oidc:urbis:v2:',
-      maxRetriesPerRequest: null,
-    });
+    this.client = client;
   }
 
   async upsert(id: string, payload: any, expiresIn: number) {
     const key = this.key(id);
-    const store = consumable.has(this.name)
-      ? { payload: JSON.stringify(payload) }
-      : JSON.stringify(payload);
 
-    const multi: any = this.client.multi();
-    multi[consumable.has(this.name) ? 'hmset' : 'set'](key, store);
-
-    if (expiresIn) {
-      multi.expire(key, expiresIn);
-    }
-
-    if (grantable.has(this.name) && payload.grantId) {
-      const grantKey = grantKeyFor(payload.grantId as string);
-      multi.rpush(grantKey, key);
-      // if you're seeing grant key lists growing out of acceptable proportions consider using LTRIM
-      // here to trim the list to an appropriate length
-      const ttl = await this.client.ttl(grantKey);
-      if (expiresIn > ttl) {
-        multi.expire(grantKey, expiresIn);
+    try {
+      if (consumable.has(this.name)) {
+        await this.client.hset(key, 'payload', JSON.stringify(payload));
+      } else {
+        await this.client.set(key, JSON.stringify(payload));
       }
-    }
 
-    if (payload.userCode) {
-      const userCodeKey = userCodeKeyFor(payload.userCode as string);
-      multi.set(userCodeKey, id);
-      multi.expire(userCodeKey, expiresIn);
-    }
+      if (expiresIn) {
+        await this.client.expire(key, expiresIn);
+      }
 
-    if (payload.uid) {
-      const uidKey = uidKeyFor(payload.uid as string);
-      multi.set(uidKey, id);
-      multi.expire(uidKey, expiresIn);
-    }
+      if (grantable.has(this.name) && payload.grantId) {
+        const grantKey = grantKeyFor(payload.grantId as string);
+        await this.client.rpush(grantKey, key);
+        const ttl = await this.client.ttl(grantKey);
+        if (expiresIn > ttl) {
+          await this.client.expire(grantKey, expiresIn);
+        }
+      }
 
-    await multi.exec();
+      if (payload.userCode) {
+        const userCodeKey = userCodeKeyFor(payload.userCode as string);
+        await this.client.set(userCodeKey, id, 'EX', expiresIn || 600);
+      }
+
+      if (payload.uid) {
+        const uidKey = uidKeyFor(payload.uid as string);
+        await this.client.set(uidKey, id, 'EX', expiresIn || 600);
+      }
+    } catch (e) {
+      console.error(`RedisAdapter.upsert error for ${this.name}:${id}`, e);
+      throw e;
+    }
   }
 
   async find(id: string) {
-    const data = consumable.has(this.name)
-      ? await this.client.hgetall(this.key(id))
-      : await this.client.get(this.key(id));
+    try {
+      const data = consumable.has(this.name)
+        ? await this.client.hgetall(this.key(id))
+        : await this.client.get(this.key(id));
 
-    if (isEmpty(data)) {
+      if (isEmptyData(data)) {
+        return undefined;
+      }
+
+      if (typeof data === 'string') {
+        return JSON.parse(data);
+      }
+      const { payload, ...rest } = data as Record<string, any>;
+      if (rest.consumed) {
+        rest.consumed = Number(rest.consumed);
+      }
+      if (!payload) {
+        return rest;
+      }
+      return {
+        ...rest,
+        ...JSON.parse(payload as string),
+      };
+    } catch (e) {
+      console.error(`RedisAdapter.find error for ${this.name}:${id}`, e);
       return undefined;
     }
-
-    if (typeof data === 'string') {
-      return JSON.parse(data);
-    }
-    const { payload, ...rest } = data;
-    return {
-      ...rest,
-      ...JSON.parse(payload as string),
-    };
   }
 
   async findByUid(uid: string) {
     const id = await this.client.get(uidKeyFor(uid));
-    return this.find(id as string);
+    if (!id) return undefined;
+    return this.find(id);
   }
 
   async findByUserCode(userCode: string) {
     const id = await this.client.get(userCodeKeyFor(userCode));
-    return this.find(id as string);
+    if (!id) return undefined;
+    return this.find(id);
   }
 
   async destroy(id: string) {
-    const key = this.key(id);
-    await this.client.del(key);
+    if (!id) return;
+    try {
+      const key = this.key(id);
+      await this.client.del(key);
+    } catch (e) {
+      console.error(`RedisAdapter.destroy error for ${this.name}:${id}`, e);
+    }
   }
 
   async revokeByGrantId(grantId: string) {
-    const multi: any = this.client.multi();
-    const tokens = (await this.client.lrange(
-      grantKeyFor(grantId),
-      0,
-      -1,
-    )) as string[];
-    tokens.forEach((token) => multi.del(token));
-    multi.del(grantKeyFor(grantId));
-    await multi.exec();
+    if (!grantId) return;
+    try {
+      const multi = this.client.multi();
+      const tokens = await this.client.lrange(grantKeyFor(grantId), 0, -1);
+      tokens.forEach((token) => multi.del(token));
+      multi.del(grantKeyFor(grantId));
+      await multi.exec();
+    } catch (e) {
+      console.error(
+        `RedisAdapter.revokeByGrantId error for grant:${grantId}`,
+        e,
+      );
+    }
   }
 
   async consume(id: string) {
-    await this.client.hset(
-      this.key(id),
-      'consumed',
-      Math.floor(Date.now() / 1000),
-    );
+    try {
+      await this.client.hset(
+        this.key(id),
+        'consumed',
+        Math.floor(Date.now() / 1000),
+      );
+    } catch (e) {
+      console.error(`RedisAdapter.consume error for ${this.name}:${id}`, e);
+    }
   }
 
   key(id: string) {
-    return `${this.name}:${id}`;
+    return `oidc:urbis:v3:${this.name}:${id}`;
   }
 }

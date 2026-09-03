@@ -33,6 +33,16 @@ export class RoleManagerApi {
     return this.httpClient.put(`${API_BASE}/${id}`, data);
   }
 
+  delete(id: string) {
+    return this.httpClient.delete(`${API_BASE}/${id}`).pipe(
+      catchError((err) => {
+        console.error(err);
+        this.toaster.error('Houve um erro ao excluir o cargo');
+        return of(null);
+      }),
+    );
+  }
+
   getUserRoles(userId: string) {
     return this.httpClient.get<IUserAssigmentResponse[]>(
       `${API_BASE}/user/${userId}`,
@@ -68,11 +78,12 @@ export class RoleManagerApi {
       .pipe(
         catchError((err) => {
           console.error(err);
-          this.toaster.error(
-            'Houve um erro ao carregar os cargos do sistema',
-          );
+          this.toaster.error('Houve um erro ao carregar os cargos do sistema');
 
-          return of({ data: [], total: 0 } as IPaginationResponse<IRoleResponse>);
+          return of({
+            data: [],
+            total: 0,
+          } as IPaginationResponse<IRoleResponse>);
         }),
       );
   }

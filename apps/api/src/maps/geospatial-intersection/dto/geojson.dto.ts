@@ -6,17 +6,18 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
  */
 class GeoJsonGeometry {
   @ApiProperty({
-    description: 'Type of geometry, either "Polygon" or "MultiPolygon"',
-    enum: ['Polygon', 'MultiPolygon'],
+    description:
+      'Type of geometry, either "Polygon", "MultiPolygon" or "Point"',
+    enum: ['Polygon', 'MultiPolygon', 'Point'],
     example: 'Polygon',
   })
   @IsString()
   @IsNotEmpty()
-  type: 'Polygon' | 'MultiPolygon';
+  type: 'Polygon' | 'MultiPolygon' | 'Point';
 
   @ApiProperty({
     description:
-      'Coordinates array. For Polygon: Array of linear ring coordinate arrays. For MultiPolygon: Array of Polygon coordinate arrays.',
+      'Coordinates array. For Point: [lon, lat]. For Polygon: Array of linear ring coordinate arrays. For MultiPolygon: Array of Polygon coordinate arrays.',
     type: 'array',
     items: { type: 'array', items: { type: 'number' } },
     example: [
@@ -31,7 +32,7 @@ class GeoJsonGeometry {
   })
   @IsArray()
   @IsNotEmpty()
-  coordinates: number[][][] | number[][][][];
+  coordinates: number[] | number[][] | number[][][] | number[][][][];
 }
 
 /**

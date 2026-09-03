@@ -1,0 +1,171 @@
+import * as React from "react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  BadgeInfo,
+  Binary,
+  Bug,
+  Car,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  PlusCircle,
+  ClipboardList,
+  UploadCloud,
+  Copy,
+  Download,
+  Edit,
+  ExternalLink,
+  FileText,
+  Filter,
+  FolderOpen,
+  GripVertical,
+  HelpCircle,
+  Image,
+  Layers,
+  Link,
+  ListFilter,
+  ListTree,
+  Loader2,
+  Map,
+  MapPinHouse,
+  Menu,
+  MoreHorizontal,
+  MoreVertical,
+  Move,
+  Move3D,
+  PackageOpen,
+  Pencil,
+  Save,
+  Share2,
+  Pin,
+  Printer,
+  RotateCw,
+  Ruler,
+  Search,
+  Shield,
+  Tag,
+  Trash2,
+  Upload,
+  X,
+  ZoomOut,
+  CopyPlus,
+  ImagePlus,
+  Palette,
+  List,
+  Library,
+  Globe,
+  User,
+  History,
+  SlidersHorizontal,
+  type LucideIcon,
+} from "lucide-react";
+
+import { cn } from "../lib/utils";
+
+const ICONS = {
+  add_circle: PlusCircle,
+  add_photo_alternate: ImagePlus,
+  admin_panel_settings: Shield,
+  arrow_back: ArrowLeft,
+  arrow_forward: ArrowRight,
+  assignment: ClipboardList,
+  bug_report: Bug,
+  check: Check,
+  check_circle: CheckCircle2,
+  chevron_left: ChevronLeft,
+  chevron_right: ChevronRight,
+  close: X,
+  cloud_upload: UploadCloud,
+  content_copy: Copy,
+  data_object: Binary,
+  delete: Trash2,
+  directions_car: Car,
+  dns: ListTree,
+  download: Download,
+  drag_indicator: GripVertical,
+  draw: Pencil,
+  edit: Edit,
+  edit_location_alt: Pin,
+  error: AlertCircle,
+  expand_less: ChevronDown,
+  expand_more: ChevronDown,
+  filter_alt: Filter,
+  filter_list: ListFilter,
+  folder_open: FolderOpen,
+  help: HelpCircle,
+  home_pin: MapPinHouse,
+  image: Image,
+  info: BadgeInfo,
+  layers: Layers,
+  layers_clear: PackageOpen,
+  link: Link,
+  list_alt: FileText,
+  map: Map,
+  menu: Menu,
+  menu_open: Menu,
+  more_horiz: MoreHorizontal,
+  more_vert: MoreVertical,
+  open_in_new: ExternalLink,
+  open_with: Move,
+  picture_as_pdf: FileText,
+  print: Printer,
+  progress_activity: Loader2,
+  rotate_right: RotateCw,
+  save: Save,
+  search: Search,
+  share: Share2,
+  square_foot: Ruler,
+  subdirectory_arrow_right: ArrowRight,
+  tag: Tag,
+  upload_file: Upload,
+  view_in_ar: Move3D,
+  travel_explore: Search,
+  warning: AlertTriangle,
+  zoom_out_map: ZoomOut,
+  library_add: CopyPlus,
+  library: Library,
+  library_books: Library,
+  palette: Palette,
+  list: List,
+  public: Globe,
+  person: User,
+  history: History,
+  opacity: SlidersHorizontal,
+} satisfies Record<string, LucideIcon>;
+
+export type UrbisIconName = keyof typeof ICONS;
+
+export interface UrbisIconProps extends React.SVGAttributes<SVGSVGElement> {
+  name: UrbisIconName | string;
+  size?: number | string;
+}
+
+export const UrbisIcon = ({
+  name,
+  className,
+  size = "1em",
+  strokeWidth = 2,
+  ...props
+}: UrbisIconProps) => {
+  const Icon = ICONS[name as UrbisIconName] ?? HelpCircle;
+  const isExpandLess = name === "expand_less";
+
+  return (
+    <Icon
+      aria-hidden="true"
+      className={cn(
+        "inline-block shrink-0",
+        isExpandLess && "rotate-180",
+        className,
+      )}
+      size={size}
+      strokeWidth={strokeWidth}
+      {...props}
+    />
+  );
+};

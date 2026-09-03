@@ -16,21 +16,23 @@ export const SearchSchemaFormSchema = z.object({
       template: z.string().optional(),
     })
     .optional(),
-  
+
   // Step 2
   transformParams: z.string().optional(),
   filterTree: z.any().optional(),
-  
+
   // Step 3
   transformRequest: z.string().optional(),
-  
+
   // Step 4
   transformResponse: z.string().optional(),
 }) as any;
 
 export type SearchSchemaFormValues = z.infer<typeof SearchSchemaFormSchema>;
 
-export const buildSearchSchema = (data: SearchSchemaFormValues): Partial<IGetSearchConfigResponse> => {
+export const buildSearchSchema = (
+  data: SearchSchemaFormValues,
+): Partial<IGetSearchConfigResponse> => {
   let clickActionObj = undefined;
   if (data.clickAction && data.clickAction !== "none") {
     clickActionObj = {
@@ -40,7 +42,10 @@ export const buildSearchSchema = (data: SearchSchemaFormValues): Partial<IGetSea
 
     if (data.clickAction === "setZoom" && data.clickActionParams?.zoom) {
       clickActionObj.params = { zoom: Number(data.clickActionParams.zoom) };
-    } else if (data.clickAction === "openFeature" && data.clickActionParams?.template) {
+    } else if (
+      data.clickAction === "openFeature" &&
+      data.clickActionParams?.template
+    ) {
       clickActionObj.params = { template: data.clickActionParams.template };
     }
   }
@@ -55,20 +60,28 @@ export const buildSearchSchema = (data: SearchSchemaFormValues): Partial<IGetSea
     clickAction: clickActionObj,
     ...(data.transformParams ? { transformParams: data.transformParams } : {}),
     ...(data.filterTree ? { filterTree: data.filterTree } : {}),
-    ...(data.transformRequest ? { transformRequest: data.transformRequest } : {}),
-    ...(data.transformResponse ? { transformResponse: data.transformResponse } : {}),
+    ...(data.transformRequest
+      ? { transformRequest: data.transformRequest }
+      : {}),
+    ...(data.transformResponse
+      ? { transformResponse: data.transformResponse }
+      : {}),
   };
 };
 
-export const parseSearchSchemaToForm = (data: IGetSearchConfigResponse): SearchSchemaFormValues => {
+export const parseSearchSchemaToForm = (
+  data: IGetSearchConfigResponse,
+): SearchSchemaFormValues => {
   let formClickAction = "none";
   let formClickActionParams = {};
 
   if (data.clickAction?.action) {
     formClickAction = data.clickAction.action;
-    
+
     if (formClickAction === "setZoom") {
-      formClickActionParams = { zoom: data.clickAction.params?.zoom?.toString() };
+      formClickActionParams = {
+        zoom: data.clickAction.params?.zoom?.toString(),
+      };
     } else if (formClickAction === "openFeature") {
       formClickActionParams = { template: data.clickAction.params?.template };
     }
@@ -76,7 +89,8 @@ export const parseSearchSchemaToForm = (data: IGetSearchConfigResponse): SearchS
 
   return {
     name: data.name,
-    method: (data.method as "GET" | "POST" | "PUT" | "DELETE" | "PATCH") || "GET",
+    method:
+      (data.method as "GET" | "POST" | "PUT" | "DELETE" | "PATCH") || "GET",
     origin: data.origin,
     index: data.index?.toString() || "",
     layerId: data.layerSchemaId || data.layerSchema?.id || "",

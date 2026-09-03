@@ -111,10 +111,10 @@ export const routes: Routes = [
               import('./pages/users/users.routes').then((m) => m.usersRoutes),
           },
           {
-  path: 'help',
-  loadChildren: () =>
-    import('./pages/help/help.routes').then((m) => m.helpRoutes),
-},
+            path: 'help',
+            loadChildren: () =>
+              import('./pages/help/help.routes').then((m) => m.helpRoutes),
+          },
           {
             path: 'organizations',
             loadChildren: () =>
@@ -122,13 +122,7 @@ export const routes: Routes = [
                 (m) => m.organizationsRoutes,
               ),
           },
-          {
-            path: 'settings',
-            canActivate: [permissionGuard],
-            data: { permission: 'app-settings:list' },
-            loadComponent: () =>
-              import('./pages/whitelabel/whitelabel').then((m) => m.Whitelabel),
-          },
+
           {
             path: 'representations',
             loadChildren: () =>

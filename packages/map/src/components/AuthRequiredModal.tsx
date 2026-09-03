@@ -40,9 +40,7 @@ export const AuthRequiredModal = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleLogin}>
-            Entrar
-          </Button>
+          <Button onClick={handleLogin}>Entrar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

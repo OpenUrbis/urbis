@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import {
@@ -13,6 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import {
   HlmButtonDirective,
   HlmIconComponent,
+  HlmInputDirective,
 } from '../../../../projects/shared/src/public-api';
 import { PageStructure } from '../../components/page-structure/page-structure';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
@@ -28,7 +30,9 @@ import { OrganizationDataSource } from './organizations.data-source';
     PageStructure,
     HlmButtonDirective,
     HlmIconComponent,
+    HlmInputDirective,
     HasPermissionDirective,
+    ReactiveFormsModule,
   ],
   providers: [
     provideIcons({
@@ -43,7 +47,54 @@ import { OrganizationDataSource } from './organizations.data-source';
 })
 export class Organizations {
   dataSource = inject(OrganizationDataSource);
-  displayedColumns = ['name', 'description', 'actions'];
+  displayedColumns = [
+    'name',
+    'document',
+    'description',
+    'userCount',
+    'status',
+    'actions',
+  ];
+
+  typeOptions = [
+    ['fisica_capaz', 'Pessoa física capaz'],
+    ['fisica_emancipada', 'Pessoa física capaz (emancipada)'],
+    [
+      'fisica_assistido_parental',
+      'Pessoa física assistida por autoridade parental',
+    ],
+    ['fisica_assistido_tutor', 'Pessoa física assistida por tutor'],
+    ['espolio', 'Espólio'],
+    ['heranca', 'Herança jacente ou vacante'],
+    ['juridica', 'Pessoa jurídica'],
+    ['massa_falida', 'Massa falida'],
+    ['massa_insolvente', 'Massa do insolvente civil'],
+    ['condominio', 'Condomínio edilício'],
+  ];
+
+  get searchControl() {
+    return this.dataSource.filterFormGroup.get('search') as FormControl;
+  }
+
+  get typeControl() {
+    return this.dataSource.filterFormGroup.get('type') as FormControl;
+  }
+
+  get statusControl() {
+    return this.dataSource.filterFormGroup.get('status') as FormControl;
+  }
+
+  description(organization: any): string {
+    if (organization.representedType) return organization.representedType;
+    const registrationType = this.typeOptions.find(
+      ([value]) => value === organization.registrationType,
+    );
+    return (
+      registrationType?.[1] ||
+      organization.description?.replace(/^Sua conta -\s*/, '') ||
+      '—'
+    );
+  }
 
   constructor() {
     this.dataSource.resetAndReload();

@@ -1,4 +1,12 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { LoadingContent } from '../../../../projects/shared/src/public-api';
 import { IOrganization } from '../../pages/organizations/dto/organization.dto';
 import { OrganizationState } from '../../states/organization/organization.state';

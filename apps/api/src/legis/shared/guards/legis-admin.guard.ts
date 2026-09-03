@@ -5,7 +5,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 
 @Injectable()
 export class LegisAdminGuard implements CanActivate {
@@ -17,15 +16,12 @@ export class LegisAdminGuard implements CanActivate {
       throw new UnauthorizedException('User is not authenticated.');
     }
 
-    const isAdmin = user.userRoleAssignments?.some(
-      (assignment: { roleId?: string; role?: { id?: string } }) =>
-        assignment.roleId === SYSTEM_ROLES.admin ||
-        assignment.role?.id === SYSTEM_ROLES.admin,
-    );
-
-    if (!isAdmin) {
+    // AccessControlGuard loads the current role assignments from the database.
+    // Do not infer this privilege from role names, claims, or the JWT payload:
+    // only the exact system administrator role may mutate Legis resources.
+    if (!request?.accessControl?.isAdminMaster?.()) {
       throw new ForbiddenException(
-        'Only administrators can modify Legis resources.',
+        'Only the principal system administrator can modify Legis resources.',
       );
     }
 

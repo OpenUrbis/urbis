@@ -61,7 +61,7 @@ export function ColorPickerSwatch({
         <div
           className={cn(
             "w-8 h-8 rounded-md cursor-pointer border border-input shadow-sm transition-colors relative grid place-items-center overflow-hidden dark:border-white/40 hover:border-accent-foreground/50",
-            className
+            className,
           )}
           style={{ backgroundColor: isLight ? "#000" : "#fff" }}
           title={Color(internalColor).hex()}

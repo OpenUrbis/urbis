@@ -56,20 +56,20 @@ export function convertGeoJsonCoordinates(geoJson: any): any {
         if (feature.geometry.type === "Polygon") {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return coordinates.map((ring: any) =>
-            ring.map((coord: number[]) => proj4(source, destination, coord))
+            ring.map((coord: number[]) => proj4(source, destination, coord)),
           );
         } else if (feature.geometry.type === "MultiPolygon") {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return coordinates.map((polygon: any) =>
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             polygon.map((ring: any) =>
-              ring.map((coord: number[]) => proj4(source, destination, coord))
-            )
+              ring.map((coord: number[]) => proj4(source, destination, coord)),
+            ),
           );
         }
 
         return proj4(source, destination, coordinates);
-      }
+      },
     );
 
     return {

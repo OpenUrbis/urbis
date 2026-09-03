@@ -10,7 +10,12 @@ import {
 import { ReactiveFormsModule } from '@angular/forms';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { firstValueFrom } from 'rxjs';
-import { LoadingContent, HlmButtonDirective, HlmIconComponent, HlmToasterService } from '../../../../projects/shared/src/public-api';
+import {
+  LoadingContent,
+  HlmButtonDirective,
+  HlmIconComponent,
+  HlmToasterService,
+} from '../../../../projects/shared/src/public-api';
 import { IUser } from '../../pages/users/dto/user.dto';
 import { ProfileState } from '../../states/profile/profile.state';
 import { TwoFactorVerify } from '../two-factor/components/two-factor-verify/two-factor-verify';
@@ -86,9 +91,7 @@ export class TwoFactorManager {
       this.step.set(0);
     } catch (err) {
       this.toaster.error(
-        this.translate.instant(
-          'components.twoFactorManager.errors.disable',
-        ),
+        this.translate.instant('components.twoFactorManager.errors.disable'),
       );
     } finally {
       this.loading.set(false);

@@ -1,37 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, EventEmitter, Output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { map } from 'rxjs';
-import { HlmButtonDirective } from '../../../../../../projects/shared/src/public-api';
+import { Component, EventEmitter, Output } from '@angular/core';
 
-export interface AccountType {
-  value: string;
-  label: string;
-  allow: boolean;
-}
+import { HlmButtonDirective } from '../../../../../../projects/shared/src/public-api';
 
 @Component({
   selector: 'app-account-type',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HlmButtonDirective],
+  imports: [HlmButtonDirective],
   templateUrl: './account-type.component.html',
 })
 export class AccountTypeComponent {
   @Output() next = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
-
-  accountTypes: AccountType[] = [
-    { value: 'fisica', label: 'Pessoa física', allow: true },
-    { value: 'juridica', label: 'Pessoa jurídica', allow: false },
-  ];
-  selected = new FormControl(this.accountTypes[0].value);
-
-  selectedValue = toSignal(
-    this.selected.valueChanges.pipe(
-      map((val) => this.accountTypes.find((a) => a.value === val)),
-    ),
-    { initialValue: this.accountTypes[0] },
-  );
-  isAllow = computed(() => this.selectedValue()?.allow);
 }

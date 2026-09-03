@@ -1,10 +1,148 @@
 base:
-  domainName: api.mapa.urbis.sampa.br
+  domainName: api.mapa.urbis.example.com
+  domains:
+    - api.mapa.urbis.example.com
+    - api.mapa.urbis.prefeitura.sp.gov.br
+  certManager:
+    email: admin@urbis.example.com
+    issuerName: urbis-issuer
+    server: https://acme-v02.api.letsencrypt.org/directory
+
 components-api-gateway:
-  domainName: api.mapa.urbis.sampa.br
-  cm-acme-http-solver-name: cm-acme-http-solver-n7vxv
+  domainName: api.mapa.urbis.example.com
+  domains:
+    - api.mapa.urbis.example.com
+    - api.mapa.urbis.prefeitura.sp.gov.br
+  ingress:
+    className: nginx-map
+    proxyBodySize: "2g"
+    sslRedirect: "false"
+    tlsSecretName: urbis-map-certificate-tls
+
 components-apps:
-  domainName: api.mapa.urbis.sampa.br
+  domainName: api.mapa.urbis.example.com
+  domains:
+    - api.mapa.urbis.example.com
+    - api.mapa.urbis.prefeitura.sp.gov.br
+
+  api:
+    image:
+      repository: openurbis/urbis-map
+      tag: latest
+      pullPolicy: Always
+    imagePullSecrets:
+      - name: urbis-docker-hub
+    replicaCount: 4
+    hpa:
+      enabled: true
+      minReplicas: 4
+      maxReplicas: 8
+      targetCpuUtilization: 70
+      targetMemoryUtilization: 80
+    pdb:
+      enabled: true
+      minAvailable: 1
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 1500m
+        memory: 1024Mi
+    probes:
+      startup:
+        initialDelaySeconds: 5
+        periodSeconds: 3
+        timeoutSeconds: 2
+        failureThreshold: 20
+      readiness:
+        path: /health/ready
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 3
+      liveness:
+        initialDelaySeconds: 20
+        periodSeconds: 15
+        timeoutSeconds: 3
+        failureThreshold: 4
+    nodeOptions: "--max-old-space-size=896"
+    config:
+      nodeEnv: "production"
+      appPort: "3000"
+      appName: "Urbis Map OPENAPI"
+      apiPrefix: "api"
+      appFallbackLanguage: "en"
+      appHeaderLanguage: "x-custom-lang"
+      frontendDomain: "https://conta.urbis.example.com"
+      backendDomain: "https://api.mapa.urbis.example.com"
+      swaggerEnabled: "true"
+      i18nDirectory: "dist/app/i18n"
+      databaseType: "postgres"
+      databaseHost: "urbis-map-postgres"
+      databasePort: "5432"
+      databaseName: "postgres"
+      databaseSynchronize: "false"
+      databaseMaxConnections: "30"
+      databaseSslEnabled: "false"
+      databaseRejectUnauthorized: "false"
+      redisHost: "redis"
+      redisPort: "6379"
+      redisDb: "0"
+      authSessionTable: "session"
+      twoFactorAppName: "Urbis"
+      externalOidcJwksUri: "https://sso.acesso.gov.br/jwk"
+      externalOidcAuthority: "https://sso.acesso.gov.br"
+      externalOidcClientId: "p-urbis.prefeitura.sp.gov.br"
+      geoserverUrl: "https://geoserver.example.com/geoserver"
+      geoserverBaseUrl: "https://geoserver.example.com/geoserver/ows"
+      geoserverUser: "dagster"
+      mailProvider: "azure"
+      mailTemplatesPath: "src/common/mail/templates"
+      mailFrom: "naoresponda@urbis.example.com"
+      awsS3Region: "us-east-1"
+      awsRegion: "us-east-1"
+      s3BucketName: "storage"
+      awsS3Endpoint: "https://api.mapa.urbis.example.com"
+    secrets:
+      databaseUsername: "postgres"
+      databasePassword: "CHANGE_ME_DATABASE_PASSWORD"
+      redisPassword: "CHANGE_ME_REDIS_PASSWORD"
+      authSecret: "CHANGE_ME_AUTH_SECRET"
+      authApiKey: "CHANGE_ME_AUTH_API_KEY"
+      twoFactorSecret: "CHANGE_ME_2FA_SECRET"
+      externalOidcClientSecret: "CHANGE_ME_OIDC_CLIENT_SECRET"
+      geoserverBearerToken: "Bearer CHANGE_ME_GEOSERVER_TOKEN"
+      geoserverPassword: "CHANGE_ME_GEOSERVER_PASSWORD"
+      maxarApiKey: "CHANGE_ME_MAXAR_API_KEY"
+      googleRecaptchaSecretKey: "CHANGE_ME_RECAPTCHA_SECRET_KEY"
+      googleGenerativeAiApiKey: "CHANGE_ME_GEMINI_API_KEY"
+      azureCommunicationServicesConnectionString: "endpoint=https://YOUR_RESOURCE.communication.azure.com/;accesskey=YOUR_ACCESS_KEY"
+      mailSendgridApiKey: ""
+      awsAccessKey: "CHANGE_ME_S3_ACCESS_KEY"
+      awsSecretAccessKey: "CHANGE_ME_S3_SECRET_ACCESS_KEY"
+
+  storage:
+    enabled: true
+    image:
+      repository: andrewgaul/s3proxy
+      tag: latest
+      pullPolicy: Always
+    replicaCount: 1
+    port: 8080
+    config:
+      authorization: "aws-v2-or-v4"
+      endpoint: "http://0.0.0.0:8080"
+      corsAllowAll: "true"
+      jcloudsProvider: "azureblob"
+      jcloudsAzureBlobAuth: "azureKey"
+      jcloudsEndpoint: "https://YOUR_STORAGE_ACCOUNT.blob.core.windows.net"
+    secrets:
+      identity: "CHANGE_ME_S3PROXY_IDENTITY"
+      credential: "CHANGE_ME_S3PROXY_CREDENTIAL"
+      jcloudsIdentity: "YOUR_STORAGE_ACCOUNT_NAME"
+      jcloudsCredential: "CHANGE_ME_AZURE_STORAGE_KEY"
+
 ingress-nginx:
   controller:
     ingressClassResource:
@@ -12,9 +150,6 @@ ingress-nginx:
       default: false
       controllerValue: "k8s.io/ingress-nginx"
     service:
-      externalTrafficPolicy: Local # Mudado para Local
+      externalTrafficPolicy: Local
       annotations:
-        # Adiciona a anotação para a health probe do Azure LB
-        # Note as aspas por causa dos caracteres especiais no nome da chave
         "service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path": "/healthz"
-        #... outras anotações que você possa ter...

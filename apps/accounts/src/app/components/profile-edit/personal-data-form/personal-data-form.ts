@@ -19,6 +19,8 @@ import { ProfileState } from '../../../states/profile/profile.state';
 import { UserFormComponent } from '../../user-form/user-form';
 import { ProfileEditApi } from '../services/profile-edit-api';
 
+const ADMIN_ROLE_ID = 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4';
+
 @Component({
   standalone: true,
   selector: 'app-personal-data-form',
@@ -37,14 +39,19 @@ export class PersonalDataForm {
   api = inject(ProfileEditApi);
   state = inject(ProfileState);
 
+  isAdmin = signal(false);
   noOfficialAddress = signal<boolean>(false);
 
   form = mergeFormGroups(
     new FormGroup({
-      firstName: new FormControl('', Validators.required),
-      lastName: new FormControl('', Validators.required),
+      firstName: new FormControl({ value: '', disabled: true }, Validators.required),
+      lastName: new FormControl({ value: '', disabled: true }, Validators.required),
+      birthDate: new FormControl({ value: '', disabled: true }),
       socialName: new FormControl(''),
       cpf: new FormControl({ value: '', disabled: true }, [
+        Validators.required,
+      ]),
+      accountType: new FormControl({ value: '', disabled: true }, [
         Validators.required,
       ]),
       address: new FormGroup({
@@ -64,6 +71,21 @@ export class PersonalDataForm {
   );
 
   constructor() {
+    this.api.getMyRoles().subscribe((roles) => {
+      const isAdmin = roles.some((role) => role.roleId === ADMIN_ROLE_ID);
+      this.isAdmin.set(isAdmin);
+
+      const nameControls = ['firstName', 'lastName'];
+      nameControls.forEach((name) => {
+        const control = this.form.get(name);
+        if (isAdmin) {
+          control?.enable();
+        } else {
+          control?.disable();
+        }
+      });
+    });
+
     effect(() => {
       const value = this.state.value();
       console.log('Profile data changed, updating form', value);
@@ -116,12 +138,27 @@ export class PersonalDataForm {
       this.form.patchValue({
         firstName: value.firstName,
         lastName: value.lastName,
+        birthDate: this.toDateInputValue(value.birthDate),
         socialName: value.socialName,
         cpf: value.cpf,
+        accountType: value.accountType,
         digitalAddress: value.digitalAddress,
         country: value.country, // Assuming countrySelectFormGroup adds 'country' control
       });
     });
+  }
+
+  private toDateInputValue(value?: string): string {
+    if (!value) return '';
+
+    const isoDate = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoDate) return isoDate[0];
+
+    const brazilianDate = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!brazilianDate) return '';
+
+    const [, day, month, year] = brazilianDate;
+    return `${year}-${month}-${day}`;
   }
 
   submit() {
@@ -137,13 +174,21 @@ export class PersonalDataForm {
     }
 
     delete rawValue.cpf;
+    delete rawValue.birthDate;
+    if (!this.isAdmin()) {
+      delete rawValue.firstName;
+      delete rawValue.lastName;
+    }
 
     const payload = {
       ...rawValue,
       phone,
-      address: !this.noOfficialAddress()
-        ? JSON.stringify(rawValue.address)
-        : null,
+      address: JSON.stringify({
+        ...rawValue.address,
+        ...(this.noOfficialAddress()
+          ? { cep: null, street: null, number: null }
+          : {}),
+      }),
       digitalAddress: this.noOfficialAddress() ? rawValue.digitalAddress : null,
     };
 

@@ -15,6 +15,7 @@ on:
 
 env:
   NODE_VERSION: '20' # Adjust according to your Node.js version
+  NODE_OPTIONS: '--max-old-space-size=4096'
 
 jobs:
   build-and-test:
@@ -41,11 +42,22 @@ jobs:
 
       # Installs dependencies
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      # Restore Turborepo cache before build, lint, and tests
+      - name: Setup Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .turbo
+            node_modules/.cache/turbo
+          key: ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
 
       # Builds with Turborepo
       - name: Build
-        run: pnpm exec turbo run build
+        run: pnpm exec turbo run build --concurrency=2
 
       # Runs linting
       - name: Run lint
@@ -54,14 +66,3 @@ jobs:
       # Runs tests
       - name: Run tests
         run: pnpm test
-
-      # Turborepo cache setup
-      - name: Setup Turborepo cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            .turbo
-            node_modules/.cache/turbo
-          key: ${{ runner.os }}-turbo-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-turbo-

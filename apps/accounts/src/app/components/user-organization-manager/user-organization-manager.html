@@ -21,36 +21,88 @@
       </button>
     </section>
 
-    <div class="rounded-md border border-border divide-y divide-border">
-      @for (item of organizations(); track item.id) {
-        <div class="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-          <div class="flex flex-col gap-1">
-            <span class="font-medium text-sm">{{ item.name }}</span>
-
-            @if (item.description) {
-              <span class="text-xs text-muted-foreground">{{ item.description }}</span>
-            }
-
-            <span class="text-xs text-muted-foreground">
-              {{ buildRoles(item) }}
-            </span>
-          </div>
-
-          <button
-            *hasPermission="'role:assign'"
-            hlmBtn
-            variant="ghost"
-            size="icon"
-            [attr.aria-label]="
-              'components.userOrganizationManager.page.buttons.edit.ariaLabel'
-                | translate
-            "
-            (click)="handleAssign(item)"
-          >
-            <hlm-icon name="lucidePencil" size="sm" />
-          </button>
-        </div>
-      }
+    <div class="rounded-md border border-border overflow-x-auto">
+      <table class="w-full caption-bottom text-sm text-left">
+        <thead class="border-b bg-muted/10">
+          <tr>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              Nome do representado
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              Documento
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              Tipo de representado
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              Nome do representante (solicitante)
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              Tipo de representante
+            </th>
+            <th
+              class="h-12 px-4 align-middle font-medium text-muted-foreground"
+            >
+              Cargos
+            </th>
+            <th class="h-12 px-4 align-middle"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of organizations() ?? []; track item.id) {
+            <tr
+              class="border-b last:border-0 hover:bg-muted/50 transition-colors"
+            >
+              <td class="p-4 align-middle">
+                <a
+                  class="font-medium text-primary hover:underline"
+                  [routerLink]="['/organizations/edit', item.id]"
+                >
+                  {{ item.name }}
+                </a>
+              </td>
+              <td class="p-4 align-middle">
+                {{ item.document || "Não informado" }}
+              </td>
+              <td class="p-4 align-middle">
+                {{ item.representedType || "—" }}
+              </td>
+              <td class="p-4 align-middle">
+                {{ fullName(item.representative) || "—" }}
+              </td>
+              <td class="p-4 align-middle">
+                {{ item.representativeType || "—" }}
+              </td>
+              <td class="p-4 align-middle">{{ buildRoles(item) }}</td>
+              <td class="p-4 align-middle text-right">
+                <button
+                  *hasPermission="'role:assign'"
+                  hlmBtn
+                  variant="ghost"
+                  size="icon"
+                  [attr.aria-label]="
+                    'components.userOrganizationManager.page.buttons.edit.ariaLabel'
+                      | translate
+                  "
+                  (click)="handleAssign(item)"
+                >
+                  <hlm-icon name="lucidePencil" size="sm" />
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   </app-page-structure>
 </lib-loading-content>

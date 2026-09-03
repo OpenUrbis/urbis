@@ -1,12 +1,14 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   Post,
   Query,
   Request,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserData } from 'common/decorators/user-data/user-data.decorator';
@@ -23,7 +25,7 @@ import { AddCommentDto } from './dto/add-comment.dto';
 import { GetRepresentationOverviewDto } from './dto/get-representation-overview.dto';
 import { RequestRepresentationDto } from './dto/request-representation.dto';
 import { RepresentationService } from './representation.service';
-import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
+import { UpdateRepresentationStatusDto } from './dto/update-representation-status.dto';
 
 @ApiTags('Representations')
 @Controller({
@@ -35,38 +37,52 @@ import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 export class RepresentationController {
   constructor(private readonly service: RepresentationService) {}
 
+  private ensureSupportAccess(accessControl: AccessControl): void {
+    if (!accessControl.isAdminMaster()) {
+      throw new ForbiddenException(
+        'Only support administrators can decide representation requests',
+      );
+    }
+  }
+
+  private hasGlobalPermission(
+    accessControl: AccessControl,
+    action: string,
+  ): boolean {
+    return accessControl.hasPermission({
+      permissions: {
+        id: `representation:${action}`,
+        resource: 'representation',
+        action,
+        scope: RolePermissionScopeEnum.GLOBAL,
+        exactScope: true,
+      },
+    });
+  }
+
   private getAuthorizedOrganizationIds(
     accessControl: AccessControl,
     action: string,
   ): string[] {
-    if (
-      accessControl.hasPermission({
-        permissions: {
-          resource: 'representation',
-          action,
-          scope: RolePermissionScopeEnum.GLOBAL,
-          exactScope: true,
-          organizationId: SYSTEM_ROLES.admin,
-        } as any,
-      })
-    ) {
+    if (this.hasGlobalPermission(accessControl, action)) {
       return [];
     }
 
-    if (
-      accessControl.hasPermission({
-        permissions: {
-          resource: 'representation',
-          action,
-          scope: RolePermissionScopeEnum.ANY,
-          exactScope: true,
-        } as any,
-      })
-    ) {
-      return accessControl.organizations.map((org) => org.id);
-    }
-
-    return accessControl.organizations.map((org) => org.id); // For 'OWN', fallback to user's assigned organizations
+    // The user's organizations are not all necessarily authorized for this
+    // action. Keep only organizations whose permission is explicitly ANY.
+    return [
+      ...new Set(
+        accessControl.permissions
+          .filter(
+            (permission) =>
+              permission.resource === 'representation' &&
+              permission.action === action &&
+              permission.scope === RolePermissionScopeEnum.ANY &&
+              Boolean(permission.organizationId),
+          )
+          .map((permission) => permission.organizationId),
+      ),
+    ];
   }
 
   @Post()
@@ -78,10 +94,15 @@ export class RepresentationController {
   }
 
   @Get('check-document/:document')
-  async checkDocument(@Param('document') document: string, @Request() request) {
+  async checkDocument(
+    @Param('document') document: string,
+    @Query('representationType') representationType: string | undefined,
+    @Request() request,
+  ) {
     return this.service.checkOrganizationDocument(
       document,
       request.user as User,
+      representationType,
     );
   }
 
@@ -100,18 +121,22 @@ export class RepresentationController {
     @OrganizationData() organization: Organization,
     @PermissionsData() accessControl: AccessControl,
   ) {
+    const isGlobal = this.hasGlobalPermission(accessControl, 'list');
     let organizationIds = this.getAuthorizedOrganizationIds(
       accessControl,
       'list',
     );
 
-    // For specific organization query in overview, if it's not global
-    if (organizationIds.length > 0 && organization) {
-      // Filter the accessible ones to just the one requested (if applicable) or default to the organization
-      organizationIds = [organization.id];
+    // The selected organization must also be authorized for this action.
+    // Otherwise an OWN user could turn the organization header into an
+    // organization-wide filter merely by changing its value.
+    if (!isGlobal && organization) {
+      organizationIds = organizationIds.includes(organization.id)
+        ? [organization.id]
+        : [];
     }
 
-    return this.service.getOverview(user, query, organizationIds);
+    return this.service.getOverview(user, query, organizationIds, isGlobal);
   }
 
   @Get()
@@ -134,6 +159,8 @@ export class RepresentationController {
       'list',
     );
 
+    const isGlobal = this.hasGlobalPermission(accessControl, 'list');
+
     return this.service.findAll(
       user,
       {
@@ -141,6 +168,7 @@ export class RepresentationController {
         limit: Number(limit),
       },
       organizationIds,
+      isGlobal,
     );
   }
 
@@ -163,7 +191,41 @@ export class RepresentationController {
       'view',
     );
 
-    return this.service.findOne(id, user, organizationIds);
+    const isGlobal = this.hasGlobalPermission(accessControl, 'view');
+
+    return this.service.findOne(id, user, organizationIds, isGlobal);
+  }
+
+  @Patch(':id/status')
+  @UseGuards(OrganizationGuard)
+  @RequirePermission({
+    permissions: {
+      resource: 'representation',
+      action: 'approve',
+      scope: RolePermissionScopeEnum.OWN,
+    },
+  })
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateRepresentationStatusDto,
+    @UserData() user: User,
+    @PermissionsData() accessControl: AccessControl,
+  ) {
+    this.ensureSupportAccess(accessControl);
+    const organizationIds = this.getAuthorizedOrganizationIds(
+      accessControl,
+      'approve',
+    );
+    const isGlobal = this.hasGlobalPermission(accessControl, 'approve');
+    return this.service.updateStatus(
+      id,
+      user,
+      dto.status,
+      dto.text,
+      dto.attachments,
+      organizationIds,
+      isGlobal,
+    );
   }
 
   @Post(':id/approve')
@@ -175,8 +237,19 @@ export class RepresentationController {
       scope: RolePermissionScopeEnum.OWN,
     },
   })
-  async approve(@Param('id') id: string, @Request() request) {
-    return this.service.approve(id, request.user as User);
+  async approve(
+    @Param('id') id: string,
+    @UserData() user: User,
+    @PermissionsData() accessControl: AccessControl,
+  ) {
+    this.ensureSupportAccess(accessControl);
+    const organizationIds = this.getAuthorizedOrganizationIds(
+      accessControl,
+      'approve',
+    );
+    const isGlobal = this.hasGlobalPermission(accessControl, 'approve');
+
+    return this.service.approve(id, user, organizationIds, isGlobal);
   }
 
   @Post(':id/reject')
@@ -188,8 +261,19 @@ export class RepresentationController {
       scope: RolePermissionScopeEnum.OWN,
     },
   })
-  async reject(@Param('id') id: string, @Request() request) {
-    return this.service.reject(id, request.user as User);
+  async reject(
+    @Param('id') id: string,
+    @UserData() user: User,
+    @PermissionsData() accessControl: AccessControl,
+  ) {
+    this.ensureSupportAccess(accessControl);
+    const organizationIds = this.getAuthorizedOrganizationIds(
+      accessControl,
+      'reject',
+    );
+    const isGlobal = this.hasGlobalPermission(accessControl, 'reject');
+
+    return this.service.reject(id, user, organizationIds, isGlobal);
   }
 
   @Post(':id/request-info')
@@ -203,14 +287,23 @@ export class RepresentationController {
   })
   async requestInfo(
     @Param('id') id: string,
-    @Request() request,
     @Body() dto: AddCommentDto,
+    @UserData() user: User,
+    @PermissionsData() accessControl: AccessControl,
   ) {
+    const organizationIds = this.getAuthorizedOrganizationIds(
+      accessControl,
+      'comment',
+    );
+    const isGlobal = this.hasGlobalPermission(accessControl, 'comment');
+
     return this.service.requestInfo(
       id,
-      request.user as User,
+      user,
       dto.text,
       dto.attachments,
+      organizationIds,
+      isGlobal,
     );
   }
 
@@ -225,14 +318,23 @@ export class RepresentationController {
   })
   async addComment(
     @Param('id') id: string,
-    @Request() request,
+    @UserData() user: User,
     @Body() dto: AddCommentDto,
+    @PermissionsData() accessControl: AccessControl,
   ) {
+    const organizationIds = this.getAuthorizedOrganizationIds(
+      accessControl,
+      'comment',
+    );
+    const isGlobal = this.hasGlobalPermission(accessControl, 'comment');
+
     return this.service.addComment(
       id,
-      request.user as User,
+      user,
       dto.text,
       dto.attachments,
+      organizationIds,
+      isGlobal,
     );
   }
 }

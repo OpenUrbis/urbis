@@ -12,6 +12,7 @@ import {
 import { IsCPF } from 'common/utils/validators/is-cpf.validator';
 import { UserStatus } from 'user/enums/user-status.enum';
 import { IsNotExist } from '../../common/utils/validators/is-not-exists.validator';
+import { IsValidBirthDate } from '../../common/utils/validators/is-valid-birth-date.validator';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'test1@example.com' })
@@ -73,6 +74,7 @@ export class CreateUserDto {
 
   @ApiProperty({ example: '1990-01-01' })
   @IsNotEmpty()
+  @IsValidBirthDate({ message: 'invalid' })
   birthDate: string;
 
   @ApiProperty({ example: 'fisica_capaz' })

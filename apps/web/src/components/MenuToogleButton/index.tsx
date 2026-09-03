@@ -1,4 +1,4 @@
-import { Button } from "@open-urbis/map-ui";
+import { Button, UrbisIcon } from "@open-urbis/map-ui";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 
 interface MenuToggleButtonProps {
@@ -24,7 +24,7 @@ export const MenuToggleButton = ({ onClick }: MenuToggleButtonProps) => {
       className="mr-2"
       aria-label="Alternar menu"
     >
-      <span className="material-symbols-outlined text-2xl">menu</span>
+      <UrbisIcon name="menu" className="text-2xl" aria-hidden="true" />
     </Button>
   );
 };

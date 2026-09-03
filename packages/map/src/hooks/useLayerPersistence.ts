@@ -1,6 +1,6 @@
 import { effect, signal, batch } from "@preact/signals";
 import { useContext, useEffect } from "react";
-import { useMapContext } from "./useMapContext";
+import { useMapContext, currentShare } from "./useMapContext";
 import { SearchContext } from "../context/SearchContext";
 import { shareService } from "../integrations/share-service";
 
@@ -15,7 +15,11 @@ export const useLayerPersistence = () => {
 
   // Monitor when map is populated by API
   effect(() => {
-    if (mapContext.layerSchemas.value.length > 0 && !isMapPopulated.value) {
+    if (
+      (mapContext.layerSchemas.value.length > 0 ||
+        mapContext.layerGroups.value.length > 0) &&
+      !isMapPopulated.value
+    ) {
       isMapPopulated.value = true;
     }
   });
@@ -25,17 +29,16 @@ export const useLayerPersistence = () => {
     if (!isMapPopulated.value) {
       const timer = setTimeout(() => {
         if (!isMapPopulated.value) {
-           // We can verify if it's really an error or just slow connection
-           // For now, if no layers after 30s, we flag error/warning
-           // but we don't block the app if layers are empty by design (rare)
-           if (mapContext.layerSchemas.value.length === 0) {
-               // Only flag error if we really have no data
-               // We could also check a specific error flag from mapContext if implemented
-               // For this task, we'll assume timeout = error
-               isMapError.value = true;
-           }
+          if (
+            mapContext.layerSchemas.value.length === 0 &&
+            mapContext.layerGroups.value.length === 0
+          ) {
+            isMapError.value = true;
+          } else {
+            isMapPopulated.value = true;
+          }
         }
-      }, 30000); // 30s timeout
+      }, 10000); // 10s timeout
       return () => clearTimeout(timer);
     }
     return () => {}; // Explicitly return void cleanup function
@@ -67,17 +70,23 @@ export const useLayerPersistence = () => {
         const effectiveId = (shareId || id)!;
         currentSessionId.value = effectiveId;
         try {
-          const data = await shareService.load(effectiveId);
+          const data =
+            currentShare.value && currentShare.value.id === effectiveId
+              ? currentShare.value
+              : await shareService.load(effectiveId);
+
           if (data && data.state) {
             restoreState(data.state, (data as any).type);
           }
         } catch (e) {
           console.error("Failed to load session", e);
+        } finally {
+          isRestored.value = true;
         }
+      } else {
+        // Allow saving after restore is done
+        isRestored.value = true;
       }
-
-      // Allow saving after restore is done
-      isRestored.value = true;
     };
 
     const restoreState = (state: any, type?: string) => {
@@ -94,23 +103,42 @@ export const useLayerPersistence = () => {
             mapContext.layerSchemas.value = [...mapState.layerSchemas];
           if (mapState.layerGroups)
             mapContext.layerGroups.value = [...mapState.layerGroups];
-          if (mapState.zoom !== undefined) mapContext.zoom.value = mapState.zoom;
+          if (mapState.zoom !== undefined)
+            mapContext.zoom.value = mapState.zoom;
           if (mapState.boundingBox)
             mapContext.boundingBox.value = mapState.boundingBox;
           if (mapState.is3DActive !== undefined)
             mapContext.is3DActive.value = mapState.is3DActive;
           if (mapState.selectedBaseMap)
             mapContext.selectedBaseMap.value = mapState.selectedBaseMap;
+          if (mapState.selectedBaseMaps && mapContext.selectedBaseMaps)
+            mapContext.selectedBaseMaps.value = mapState.selectedBaseMaps;
+          if (mapState.baseMapOpacity !== undefined && mapContext.baseMapOpacity)
+            mapContext.baseMapOpacity.value = mapState.baseMapOpacity;
+          if (mapState.baseMapSaturation !== undefined && mapContext.baseMapSaturation)
+            mapContext.baseMapSaturation.value = mapState.baseMapSaturation;
           if (mapState.selectedFeatures)
             mapContext.selectedFeatures.value = [...mapState.selectedFeatures];
-          if (mapState.viewport) mapContext.viewport.value = mapState.viewport;
+          if (mapState.viewport) {
+            mapContext.viewport.value = mapState.viewport;
+          } else if (!mapContext.viewport.value) {
+            mapContext.viewport.value = {
+              latitude: -23.5505,
+              longitude: -46.6333,
+              zoom: mapState.zoom ?? 10,
+              bearing: 0,
+              pitch: 0,
+              padding: { top: 64, bottom: 0, left: 400, right: 0 },
+            };
+          }
         }
 
         // If type is 'search', restore concatenated search state and force it open
         if (type === "search" && root.searchContext?.concatenatedSearch) {
           const searchState = root.searchContext;
           searchContext!.concatenatedSearch.value = {
-            selectedLayerId: searchState.concatenatedSearch.selectedLayerId || "",
+            selectedLayerId:
+              searchState.concatenatedSearch.selectedLayerId || "",
             filterTree: searchState.concatenatedSearch.filterTree || {
               id: "root",
               type: "group",
@@ -121,7 +149,11 @@ export const useLayerPersistence = () => {
             totalCount: searchState.concatenatedSearch.totalCount,
             isOpen: true, // Auto-open for search shares
           };
-        } else if ((!type || type === "map") && root.searchContext && searchContext) {
+        } else if (
+          (!type || type === "map") &&
+          root.searchContext &&
+          searchContext
+        ) {
           // Restore basic search context for map shares
           const searchState = root.searchContext;
           if (searchState.currentTerm !== undefined)

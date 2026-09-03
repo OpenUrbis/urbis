@@ -75,6 +75,15 @@
                     {{ "components.roleManager.default" | translate }}
                   </span>
                 }
+                @if (role.isSystemRole) {
+                  <span
+                    class="ml-2 inline-flex items-center rounded-full border border-transparent bg-destructive/10 text-destructive dark:bg-destructive/20 px-2 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+                    title="Cargos do sistema não podem ser editados ou excluídos"
+                  >
+                    <hlm-icon name="lucideLock" size="12" class="mr-1" />
+                    Cargo do Sistema
+                  </span>
+                }
               </td>
               <td class="p-4 align-middle text-muted-foreground">
                 {{ role.description }}
@@ -89,7 +98,7 @@
                 <app-status-badge [status]="role.status" />
               </td>
               @if (!role.isSystemRole) {
-                <td class="p-4 align-middle text-right">
+                <td class="p-4 align-middle text-right flex items-center justify-end gap-1">
                   <a
                     hlmBtn
                     variant="ghost"
@@ -102,6 +111,26 @@
                   >
                     <hlm-icon name="lucidePencil" size="16" />
                   </a>
+                  <button
+                    hlmBtn
+                    variant="ghost"
+                    size="icon"
+                    class="text-destructive hover:text-destructive"
+                    [attr.aria-label]="
+                      'pages.roles.page.buttons.delete.ariaLabel' | translate
+                    "
+                    *hasPermission="'role:delete'"
+                    (click)="deleteRole(role)"
+                  >
+                    <hlm-icon name="lucideTrash2" size="16" />
+                  </button>
+                </td>
+              } @else {
+                <td class="p-4 align-middle text-right text-muted-foreground text-xs font-medium">
+                  <span title="Cargos padrão do sistema não podem ser excluídos ou alterados">
+                    <hlm-icon name="lucideLock" size="14" class="inline mr-1" />
+                    Não editável
+                  </span>
                 </td>
               }
             </tr>

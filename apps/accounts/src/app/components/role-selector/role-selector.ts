@@ -1,5 +1,5 @@
-import { COMMA, ENTER } from "@angular/cdk/keycodes";
-import { CommonModule } from "@angular/common";
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -8,22 +8,22 @@ import {
   input,
   OnInit,
   signal,
-} from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { debounceTime, map, startWith, switchMap, tap } from "rxjs";
-import { IRoleResponse } from "../../components/role-manager/dto/role.dto";
-import { RoleManagerApi } from "../../components/role-manager/services/role-manager-api";
-import { TranslateModule } from "@ngx-translate/core";
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
+import { IRoleResponse } from '../../components/role-manager/dto/role.dto';
+import { RoleManagerApi } from '../../components/role-manager/services/role-manager-api';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   HlmInputDirective,
   HlmIconComponent,
-} from "../../../../projects/shared/src/public-api";
-import { provideIcons } from "@ng-icons/core";
-import { lucideSearch, lucideX } from "@ng-icons/lucide";
+} from '../../../../projects/shared/src/public-api';
+import { provideIcons } from '@ng-icons/core';
+import { lucideSearch, lucideX } from '@ng-icons/lucide';
 
 @Component({
-  selector: "app-role-selector",
+  selector: 'app-role-selector',
   standalone: true,
   imports: [
     CommonModule,
@@ -33,7 +33,7 @@ import { lucideSearch, lucideX } from "@ng-icons/lucide";
     HlmIconComponent,
   ],
   providers: [provideIcons({ lucideSearch, lucideX })],
-  templateUrl: "./role-selector.html",
+  templateUrl: './role-selector.html',
 })
 export class RoleSelector implements OnInit {
   control = input.required<FormControl>();
@@ -50,13 +50,13 @@ export class RoleSelector implements OnInit {
 
   roles = toSignal(
     this.search.valueChanges.pipe(
-      startWith(""),
+      startWith(''),
       debounceTime(300),
       tap(() => this.searchLoading.set(true)),
       switchMap((search) =>
         this.roleManagerApi
           .listRoles({
-            search: typeof search === "string" ? search : "",
+            search: typeof search === 'string' ? search : '',
             exclude: this.multi() ? this.selectedRoleIds() : [],
           })
           .pipe(map((value) => (value as any)?.data ?? [])),
@@ -75,6 +75,14 @@ export class RoleSelector implements OnInit {
   }
 
   ngOnInit(): void {
+    const initialValue = this.control()?.value;
+    if (initialValue) {
+      const newValue = Array.isArray(initialValue)
+        ? initialValue
+        : [initialValue];
+      this.selectedRoles.set(newValue);
+    }
+
     this.control()
       ?.valueChanges.pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -90,7 +98,7 @@ export class RoleSelector implements OnInit {
         const newValue = Array.isArray(value) ? value : [value];
         this.selectedRoles.set(newValue);
 
-        if (!this.multi()) this.search.setValue("", { emitEvent: false });
+        if (!this.multi()) this.search.setValue('', { emitEvent: false });
       });
   }
 
@@ -107,6 +115,6 @@ export class RoleSelector implements OnInit {
     this.selectedRoles.update((roles) =>
       this.multi() ? [...roles, role] : [role],
     );
-    this.search.setValue("");
+    this.search.setValue('');
   }
 }

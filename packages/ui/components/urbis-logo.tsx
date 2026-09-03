@@ -14,13 +14,15 @@ export const UrbisLogo = ({
   alt = "Prefeitura de São Paulo",
   src,
 }: UrbisLogoProps) => {
-  const [resolvedTheme, setResolvedTheme] = React.useState<"light" | "dark">("light");
+  const [resolvedTheme, setResolvedTheme] = React.useState<"light" | "dark">(
+    "light",
+  );
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;
 
     const root = window.document.documentElement;
-    
+
     const updateTheme = () => {
       const isDarkClass = root.classList.contains("dark");
       setResolvedTheme(isDarkClass ? "dark" : "light");

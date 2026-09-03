@@ -7,6 +7,12 @@ interface ISemanticTemplateUnit {
   sourceIndex: number;
 }
 
+export interface ISemanticTemplateGridItem {
+  template: ITemplate;
+  span: number;
+  sourceIndex: number;
+}
+
 type ISemanticTemplateUnitDraft = Omit<ISemanticTemplateUnit, "sourceIndex">;
 
 const DEFAULT_COLUMN_COUNT = 3;
@@ -15,6 +21,7 @@ const SEMANTIC_WEIGHT_KEYS = [
   "printColumnWeight",
 ] as const;
 const SEMANTIC_COLUMN_KEYS = ["semanticColumn", "printColumn"] as const;
+const SEMANTIC_SPAN_KEYS = ["semanticSpan", "printSpan"] as const;
 
 const getTemplateProperties = (template: ITemplate) => {
   return (template.properties ?? {}) as Record<string, unknown>;
@@ -39,11 +46,7 @@ const getCustomTemplateColumn = (template: ITemplate) => {
   for (const key of SEMANTIC_COLUMN_KEYS) {
     const value = properties[key];
 
-    if (
-      typeof value === "number" &&
-      Number.isInteger(value) &&
-      value > 0
-    ) {
+    if (typeof value === "number" && Number.isInteger(value) && value > 0) {
       return value;
     }
   }
@@ -51,7 +54,24 @@ const getCustomTemplateColumn = (template: ITemplate) => {
   return undefined;
 };
 
-const hasDescendantType = (template: ITemplate, targetType: string): boolean => {
+const getCustomTemplateSpan = (template: ITemplate) => {
+  const properties = getTemplateProperties(template);
+
+  for (const key of SEMANTIC_SPAN_KEYS) {
+    const value = properties[key];
+
+    if (typeof value === "number" && Number.isInteger(value) && value > 0) {
+      return Math.min(12, Math.max(1, value));
+    }
+  }
+
+  return undefined;
+};
+
+const hasDescendantType = (
+  template: ITemplate,
+  targetType: string,
+): boolean => {
   if (template.type === targetType) return true;
 
   return (template.templates ?? []).some((childTemplate) =>
@@ -84,6 +104,10 @@ const buildSemanticRequestUnit = (
     template: {
       ...requestTemplate,
       id: `${requestTemplate.id ?? requestTemplate.type}-${requestUnitId}`,
+      properties: {
+        ...(requestTemplate.properties ?? {}),
+        ...(childTemplate.properties ?? {}),
+      },
       templates: [childTemplate],
     },
     weight: estimateTemplateWeight(childTemplate),
@@ -92,48 +116,55 @@ const buildSemanticRequestUnit = (
   };
 };
 
-const extractSemanticUnits = (templates: ITemplate[]): ISemanticTemplateUnit[] => {
-  const units = templates.reduce<ISemanticTemplateUnitDraft[]>((acc, template) => {
-    if (template.type !== "wrapper-request") {
-      acc.push({
-        template,
-        weight: estimateTemplateWeight(template),
-        preferredColumn: getCustomTemplateColumn(template),
+const extractSemanticUnits = (
+  templates: ITemplate[],
+): ISemanticTemplateUnit[] => {
+  const units = templates.reduce<ISemanticTemplateUnitDraft[]>(
+    (acc, template) => {
+      if (template.type !== "wrapper-request") {
+        acc.push({
+          template,
+          weight: estimateTemplateWeight(template),
+          preferredColumn: getCustomTemplateColumn(template),
+        });
+
+        return acc;
+      }
+
+      const requestTemplates = template.templates ?? [];
+
+      if (!requestTemplates.length) {
+        acc.push({
+          template,
+          weight: estimateTemplateWeight(template),
+          preferredColumn: getCustomTemplateColumn(template),
+        });
+
+        return acc;
+      }
+
+      requestTemplates.forEach((childTemplate, index) => {
+        const { sourceIndex: _sourceIndex, ...unit } = buildSemanticRequestUnit(
+          template,
+          childTemplate,
+          index,
+          0,
+        );
+
+        acc.push(unit);
       });
 
       return acc;
-    }
+    },
+    [],
+  );
 
-    const requestTemplates = template.templates ?? [];
-
-    if (!requestTemplates.length) {
-      acc.push({
-        template,
-        weight: estimateTemplateWeight(template),
-        preferredColumn: getCustomTemplateColumn(template),
-      });
-
-      return acc;
-    }
-
-    requestTemplates.forEach((childTemplate, index) => {
-      const { sourceIndex: _sourceIndex, ...unit } = buildSemanticRequestUnit(
-        template,
-        childTemplate,
-        index,
-        0,
-      );
-
-      acc.push(unit);
-    });
-
-    return acc;
-  }, []);
-
-  return units.map((unit, index): ISemanticTemplateUnit => ({
-    ...unit,
-    sourceIndex: index,
-  }));
+  return units.map(
+    (unit, index): ISemanticTemplateUnit => ({
+      ...unit,
+      sourceIndex: index,
+    }),
+  );
 };
 
 const isValidPreferredColumn = (
@@ -143,6 +174,16 @@ const isValidPreferredColumn = (
   typeof preferredColumn === "number" &&
   preferredColumn >= 1 &&
   preferredColumn <= columnCount;
+
+export const buildSemanticTemplateGridItems = (
+  templates: ITemplate[],
+  defaultSpan = 4,
+): ISemanticTemplateGridItem[] =>
+  extractSemanticUnits(templates).map((unit) => ({
+    template: unit.template,
+    span: getCustomTemplateSpan(unit.template) ?? defaultSpan,
+    sourceIndex: unit.sourceIndex,
+  }));
 
 export const buildSemanticTemplateColumns = (
   templates: ITemplate[],
@@ -163,7 +204,8 @@ export const buildSemanticTemplateColumns = (
 
   const remainingUnits = units
     .filter((unit) => {
-      if (!isValidPreferredColumn(unit.preferredColumn, columnCount)) return true;
+      if (!isValidPreferredColumn(unit.preferredColumn, columnCount))
+        return true;
 
       const targetColumn = columns[unit.preferredColumn! - 1];
       targetColumn.items.push(unit);

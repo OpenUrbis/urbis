@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urbis - Licenças | GNU Affero General Public License - AGPL v3</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #6c7882;
+            color: #111111;
+            padding: 24px;
+            font-size: 13.5px;
+            line-height: 1.45;
+        }
+        .container {
+            display: flex;
+            gap: 24px;
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .back-link {
+            display: inline-block;
+            color: #111;
+            text-decoration: underline;
+            font-size: 13px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .app-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #000;
+            letter-spacing: -0.3px;
+        }
+        .license-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #000;
+        }
+        .meta-group {
+            margin-bottom: 12px;
+        }
+        .meta-item {
+            margin-bottom: 6px;
+            color: #111;
+            word-break: break-word;
+        }
+        .meta-item strong {
+            font-weight: 700;
+        }
+        .meta-item a {
+            color: #003399;
+            text-decoration: underline;
+        }
+        .warning-text {
+            margin-top: 4px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        .iframe-wrapper {
+            flex: 1;
+            width: 100%;
+            min-height: 720px;
+            margin-top: 8px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 720px;
+            border: 1px solid #3a424a;
+            border-radius: 4px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+                gap: 32px;
+            }
+            body {
+                padding: 16px;
+            }
+            .iframe-wrapper, iframe, .translated-text-box {
+                min-height: 500px !important;
+                max-height: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Coluna Esquerda: Versão Original -->
+        <div class="column">
+            <a href="#" class="back-link" onclick="if (history.length > 1) { history.back(); } else { window.close(); } return false;">voltar</a>
+            <h1 class="app-title">Urbis - Licenças</h1>
+            <h2 class="license-title">Licença GNU Affero General Public License - Version 3 - AGPL v3</h2>
+            
+            <div class="meta-group">
+                <p class="meta-item">
+                    <strong>Versão original da licença:</strong> 
+                    <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank" rel="noopener">https://www.gnu.org/licenses/agpl-3.0.en.html</a>
+                </p>
+            </div>
+
+            <div class="iframe-wrapper">
+                <iframe src="./agpl-3.0.en.html" title="Versão Original - AGPL v3"></iframe>
+            </div>
+        </div>
+
+        <!-- Coluna Direita: Versão Traduzida -->
+        <div class="column">
+            <div class="meta-group" style="margin-top: 0px;">
+                <p class="meta-item">
+                    <strong>Versão traduzida da licença:</strong> 
+                    <a href="./agpl-3.0.pt-br.html" target="_blank" rel="noopener">agpl-3.0.pt-br.html (local)</a>, com base em 
+                    <a href="https://web.archive.org/web/20230716103808/http://licencas.softwarelivre.org/agpl-3.0.pt-br.html" target="_blank" rel="noopener">web.archive.org</a>
+                </p>
+                <p class="meta-item">
+                    <strong>Fonte da tradução:</strong> <a href="https://pt.wikipedia.org/wiki/GNU_Affero_General_Public_License" target="_blank" rel="noopener">Associação Software Livre</a>
+                </p>
+                <p class="meta-item">
+                    <strong>Motivo da exibição da tradução:</strong> "Art. 224. Os documentos redigidos em língua estrangeira serão traduzidos para o português para ter efeitos legais no País" (BRASIL. Lei nº 10.406/2002 - "Código Civil").
+                </p>
+                <p class="meta-item warning-text">
+                    ATENÇÃO: A exibição da tradução da licença não é uma adequação da licença ao Direito brasileiro, nem uma versão oficial do licenciador.
+                </p>
+                <p class="meta-item">
+                    <strong>Explicações sobre a licença:</strong> <a href="https://pt.wikipedia.org/wiki/GNU_Affero_General_Public_License" target="_blank" rel="noopener">GNU Affero General Public License</a>
+                </p>
+            </div>
+
+            <div class="iframe-wrapper">
+                <iframe src="./agpl-3.0.pt-br.html" title="Versão Traduzida - AGPL v3"></iframe>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

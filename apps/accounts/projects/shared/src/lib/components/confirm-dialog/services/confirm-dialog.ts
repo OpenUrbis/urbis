@@ -14,16 +14,16 @@ export const useConfirmDialog = () => {
     preferences: ConfirmDialogPreferences = { resultMode: 'resolve' },
   ): Promise<boolean> => {
     const { resultMode, rejectReason } = preferences;
-    
+
     const dialogRef = dialog.open(ConfirmDialog, { data, width: '400px' });
     const value = await dialogRef.afterClosed();
 
     if (value === true) return true;
     if (resultMode === 'resolve') return false;
-    
+
     throw {
-        message: rejectReason ?? 'Rejected confirmation',
-        internalMessage: true,
+      message: rejectReason ?? 'Rejected confirmation',
+      internalMessage: true,
     };
   };
 

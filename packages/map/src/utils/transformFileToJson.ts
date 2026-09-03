@@ -1,8 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function transformFileToJson(file: File): Promise<any> {
   return new Promise((resolve, reject) => {
-    // Verifica se o arquivo é um GeoJSON
-    if (file && file.type === "application/geo+json") {
+    const isGeoJson =
+      file &&
+      (file.type === "application/geo+json" ||
+        file.type === "application/json" ||
+        file.name.endsWith(".geojson") ||
+        file.name.endsWith(".json"));
+
+    if (isGeoJson) {
       const reader = new FileReader();
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

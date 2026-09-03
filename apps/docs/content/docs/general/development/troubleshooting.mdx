@@ -1,43 +1,87 @@
 ---
 title: Solução de Problemas
-description: Problemas comuns e como resolvê-los.
+description: Problemas comuns de desenvolvimento, banco de dados, SSL e como resolvê-los.
+icon: HelpCircle
 ---
 
-Problemas comuns que os desenvolvedores podem encontrar e suas soluções.
+Guia de diagnóstico e resolução dos erros mais comuns encontrados durante a instalação e execução do Urbis.
 
-## Conexão com Banco de Dados Recusada
+---
 
-**Erro**: `ECONNREFUSED 127.0.0.1:5432`
+## 🗄️ Banco de Dados e Docker
 
-**Solução**:
-1.  Certifique-se de que o Docker está rodando.
-2.  Verifique se o container do banco de dados está no ar: `docker ps`.
-3.  Se executar `pnpm composer:up` falhar com "port already in use", pare outras instâncias do Postgres rodando na sua máquina.
-
-## Permissões do Docker (Linux)
-
-**Erro**: `permission denied while trying to connect to the Docker daemon socket`
+### Erro: Conexão Recusada (`ECONNREFUSED 127.0.0.1:5432`)
+**Causa**: O container do PostgreSQL não está em execução ou há conflito de porta com outra instância local.
 
 **Solução**:
-Adicione seu usuário ao grupo docker:
+1. Verifique se o Docker está ativo e execute `docker ps`.
+2. Inicie os containers de infraestrutura:
+   ```bash
+   pnpm composer:up
+   ```
+3. Se a porta 5432 estiver ocupada por um PostgreSQL local na máquina host, pare o serviço local ou configure outra porta no arquivo `.env`.
+
+---
+
+## 🔐 Certificados SSL e OIDC (Accounts)
+
+### Erro: `SSL certificates not found in apps/accounts root`
+**Causa**: Os arquivos de certificado TLS necessários para o domínio local de autenticação não foram encontrados.
+
+**Solução**:
+Execute o `mkcert` para gerar os certificados na raiz de `apps/accounts`:
 ```bash
-sudo usermod -aG docker $USER
-newgrp docker
+mkcert -key-file apps/accounts/conta.urbis.prefeitura.sp.gov.br-key.pem \
+       -cert-file apps/accounts/conta.urbis.prefeitura.sp.gov.br.pem \
+       conta.urbis.prefeitura.sp.gov.br localhost 127.0.0.1
 ```
 
-## Problemas de Cache do Turbo Build
-
-**Problema**: Alterações não estão sendo refletidas no build.
+### Erro: `EACCES: permission denied` ao executar `pnpm dev:ssl`
+**Causa**: O proxy SSL escuta na porta 443 (padrão HTTPS), o que pode exigir privilégios de administrador no Linux/macOS.
 
 **Solução**:
-Force um rebuild ignorando o cache:
+Execute o comando com elevação de privilégios:
+```bash
+sudo pnpm dev:ssl
+```
+
+### Erro: `Invalid redirect_uri` no login
+**Causa**: A URL da aplicação frontend não corresponde à lista de origens autorizadas no Provedor OIDC.
+
+**Solução**:
+Verifique se a URL de redirecionamento está configurada no backend (`apps/api/src/auth/oidc/oidc.config.ts`) e certifique-se de acessar pelo host correto mapeado no arquivo `/etc/hosts`.
+
+---
+
+## 📦 Armazenamento de Arquivos e MinIO S3
+
+### Erro: Uploads falham com `NoSuchBucket` ou `Connection Refused`
+**Causa**: O container do MinIO não criou os buckets padrões ou o endpoint S3 não está apontando para `http://localhost:9000`.
+
+**Solução**:
+1. Acesse o console do MinIO em `http://localhost:9001` (login: `minioadmin` / senha: `minioadmin123`).
+2. Verifique se os buckets `public`, `private` e `uploads` existem.
+3. No arquivo `apps/api/.env`, certifique-se de ter:
+   ```ini
+   AWS_S3_ENDPOINT=http://localhost:9000
+   AWS_ACCESS_KEY_ID=minioadmin
+   AWS_SECRET_ACCESS_KEY=minioadmin123
+   S3_BUCKET_NAME=public
+   ```
+
+---
+
+## ⚡ Turborepo & Cache de Build
+
+### Alterações em pacotes compartilhados (`packages/*`) não refletem nos apps
+**Causa**: O Turborepo pode estar servindo artefatos em cache.
+
+**Solução**:
+Force uma reconstrução completa ignorando o cache:
 ```bash
 pnpm build --force
 ```
-
-## Problemas de Redirecionamento OIDC
-
-**Problema**: "Invalid redirect_uri" ao tentar fazer login.
-
-**Solução**:
-Certifique-se de que a URL do seu frontend corresponde ao que está na lista de permissões na configuração do Provedor OIDC (`apps/api/src/auth/oidc/oidc.config.ts`).
+Ou remova a pasta de cache do Turbo:
+```bash
+rm -rf .turbo apps/*/.turbo packages/*/.turbo
+```

@@ -49,7 +49,7 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
       const actionFn = clickActions[action];
       if (!actionFn) {
         console.error(
-          `Action "${action}" is not found in CLICK_ACTIONS_CONFIG of project`
+          `Action "${action}" is not found in CLICK_ACTIONS_CONFIG of project`,
         );
         return;
       }
@@ -72,17 +72,17 @@ export const ListItemsWrapper: ITemplatesDeclaration = {
             onClick={() => handleItem(value)}
           >
             <div className="w-full">
-                  {templates.map(
-                    (itemTemplate) =>
-                      (
-                        <ViewTemplateEngine
-                          template={itemTemplate}
-                          data={value}
-                          rootTemplate={rootTemplate}
-                          isPrint={isPrint}
-                        />
-                      ) as ReactNode
-                  )}
+              {templates.map(
+                (itemTemplate) =>
+                  (
+                    <ViewTemplateEngine
+                      template={itemTemplate}
+                      data={value}
+                      rootTemplate={rootTemplate}
+                      isPrint={isPrint}
+                    />
+                  ) as ReactNode,
+              )}
             </div>
           </li>
         ))}

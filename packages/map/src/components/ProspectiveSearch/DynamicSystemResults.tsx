@@ -1,18 +1,20 @@
-import React from 'react';
-import { useProspectiveSearchContext } from './ProspectiveSearchContext';
-import { ResultsTable } from './ui/ResultsTable';
-import { SynthesisModal } from './ui/SynthesisModal';
-import { ModalExplicativo } from './ui/ModalExplicativo';
-import { NotesModal } from './ui/NotesModal';
-import { ScrollArea } from '@open-urbis/map-ui';
-import { Layers, Info, Search, Check } from 'lucide-react';
+import React from "react";
+import { useProspectiveSearchContext } from "./ProspectiveSearchContext";
+import { ResultsTable } from "./ui/ResultsTable";
+import { SynthesisModal } from "./ui/SynthesisModal";
+import { ModalExplicativo } from "./ui/ModalExplicativo";
+import { NotesModal } from "./ui/NotesModal";
+import { ScrollArea } from "@open-urbis/map-ui";
+import { Layers, Info, Search, Check } from "lucide-react";
 
 export function DynamicSystemResults() {
   const state = useProspectiveSearchContext();
 
   const [synthesisModalOpen, setSynthesisModalOpen] = React.useState(false);
   const [explicativoOpen, setExplicativoOpen] = React.useState(false);
-  const [selectedNoteId, setSelectedNoteId] = React.useState<string | null>(null);
+  const [selectedNoteId, setSelectedNoteId] = React.useState<string | null>(
+    null,
+  );
 
   React.useEffect(() => {
     if (state.synthesisMode) {
@@ -25,13 +27,13 @@ export function DynamicSystemResults() {
     condicoesInstalacao,
     compatibleZones,
     compatiblePqas,
-    allPqaNames
+    allPqaNames,
   } = state;
 
   return (
     <div className="flex-1 bg-background h-full overflow-hidden flex flex-col relative min-w-0 z-10">
       <ScrollArea className="h-full w-full">
-        <div className="p-6 w-full max-w-[596px] mx-auto h-full flex flex-col">
+        <div className="mx-auto flex h-full w-full max-w-[860px] flex-col p-4 md:p-6 lg:p-7">
           {state.synthesisMode ? (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
               <div className="mb-10 flex justify-between items-end">
@@ -41,7 +43,8 @@ export function DynamicSystemResults() {
                     Zonamento compatível
                   </h2>
                   <p className="  mt-2 text-sm font-medium">
-                    Interseção entre atividades permitidas e parâmetros urbanísticos.
+                    Interseção entre atividades permitidas e parâmetros
+                    urbanísticos.
                   </p>
                 </div>
                 <button
@@ -59,18 +62,34 @@ export function DynamicSystemResults() {
                     <div className="p-1.5 bg-emerald-500 rounded-full text-white shadow-sm flex items-center justify-center">
                       <Check className="w-3 h-3" strokeWidth={3} />
                     </div>
-                    <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-400 tracking-tight">Uso permitido direto</h4>
+                    <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-400 tracking-tight">
+                      Uso permitido direto
+                    </h4>
                   </div>
                   <div className="p-6 flex-1 bg-white/50 dark:bg-slate-900/20">
                     <div className="flex flex-wrap gap-2">
                       {compatibleZones
-                        .filter(z => !regrasZonamento || regrasZonamento.simSemNota.includes(z))
-                        .map(z => (
-                          <span key={z} className="dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold shadow-sm border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 rounded-lg">{z}</span>
-                        ))
-                      }
-                      {compatibleZones.filter(z => !regrasZonamento || regrasZonamento.simSemNota.includes(z)).length === 0 && (
-                        <span className="text-xs text-emerald-600/60 dark:text-emerald-500/50 font-medium">Nenhuma zona encontrada</span>
+                        .filter(
+                          (z: string) =>
+                            !regrasZonamento ||
+                            regrasZonamento.simSemNota.includes(z),
+                        )
+                        .map((z: string) => (
+                          <span
+                            key={z}
+                            className="dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold shadow-sm border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 rounded-lg"
+                          >
+                            {z}
+                          </span>
+                        ))}
+                      {compatibleZones.filter(
+                        (z: string) =>
+                          !regrasZonamento ||
+                          regrasZonamento.simSemNota.includes(z),
+                      ).length === 0 && (
+                        <span className="text-xs text-emerald-600/60 dark:text-emerald-500/50 font-medium">
+                          Nenhuma zona encontrada
+                        </span>
                       )}
                     </div>
                   </div>
@@ -81,26 +100,48 @@ export function DynamicSystemResults() {
                     <div className="p-1.5 bg-blue-500 rounded-full text-white shadow-sm flex items-center justify-center">
                       <Info className="w-3 h-3" strokeWidth={3} />
                     </div>
-                    <h4 className="text-sm font-bold text-blue-900 dark:text-blue-400 tracking-tight">Uso com restrições</h4>
+                    <h4 className="text-sm font-bold text-blue-900 dark:text-blue-400 tracking-tight">
+                      Uso com restrições
+                    </h4>
                   </div>
                   <div className="p-6 flex-1 bg-white/50 dark:bg-slate-900/20">
                     <div className="flex flex-wrap gap-2">
                       {compatibleZones
-                        .filter(z => regrasZonamento && Object.values(regrasZonamento.simComNota).flat().includes(z))
-                        .map(z => (
-                          <span key={z} className="bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold shadow-sm border border-blue-200 dark:border-blue-800/60 text-blue-800 dark:text-blue-300 rounded-lg">{z}</span>
-                        ))
-                      }
-                      {compatibleZones.filter(z => regrasZonamento && Object.values(regrasZonamento.simComNota).flat().includes(z)).length === 0 && (
-                        <span className="text-xs text-blue-600/60 dark:text-blue-500/50 font-medium">Nenhuma zona encontrada</span>
+                        .filter(
+                          (z: string) =>
+                            regrasZonamento &&
+                            Object.values(regrasZonamento.simComNota)
+                              .flat()
+                              .includes(z),
+                        )
+                        .map((z: string) => (
+                          <span
+                            key={z}
+                            className="bg-white dark:bg-slate-800 px-3 py-1.5 text-xs font-semibold shadow-sm border border-blue-200 dark:border-blue-800/60 text-blue-800 dark:text-blue-300 rounded-lg"
+                          >
+                            {z}
+                          </span>
+                        ))}
+                      {compatibleZones.filter(
+                        (z: string) =>
+                          regrasZonamento &&
+                          Object.values(regrasZonamento.simComNota)
+                            .flat()
+                            .includes(z),
+                      ).length === 0 && (
+                        <span className="text-xs text-blue-600/60 dark:text-blue-500/50 font-medium">
+                          Nenhuma zona encontrada
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          ) : (state.selectedUse || Object.keys(state.urbanParams).length > 0 || Object.keys(state.pqaParams).length > 0) ? (
-            <div className="flex flex-col gap-8 pb-10">
+          ) : state.selectedUse ||
+            Object.keys(state.urbanParams).length > 0 ||
+            Object.keys(state.pqaParams).length > 0 ? (
+            <div className="flex flex-col gap-6 pb-8">
               {/* Table 1: Use Permissions (Filtered ONLY by Use) */}
               {state.selectedUse && (
                 <ResultsTable
@@ -120,7 +161,8 @@ export function DynamicSystemResults() {
               )}
 
               {/* Table 2: Urban Params (Filtered by Params) */}
-              {(Object.keys(state.urbanParams).length > 0 || Object.keys(state.pqaParams).length > 0) && (
+              {(Object.keys(state.urbanParams).length > 0 ||
+                Object.keys(state.pqaParams).length > 0) && (
                 <ResultsTable
                   selectedUse={null} // Force "Params Mode" layout
                   regrasZonamento={null}
@@ -137,14 +179,21 @@ export function DynamicSystemResults() {
               )}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full w-full py-24 text-center animate-in fade-in duration-700">
-              <Search className="w-12 h-12   mb-6" strokeWidth={1} />
-              <h3 className="text-gray-900  text-base font-semibold mb-2">
-                Nenhum uso selecionado
-              </h3>
-              <p className="text-sm font-normal text-gray-500  max-w-[280px] leading-relaxed">
-                Selecione uma atividade na barra lateral para ver a viabilidade e parâmetros técnicos nesta zona.
-              </p>
+            <div className="flex h-full w-full animate-in fade-in duration-700 items-center justify-center py-20 text-center">
+              <div className="max-w-sm rounded-[28px] border border-slate-200/80 bg-white/90 px-8 py-10 shadow-sm dark:border-slate-800 dark:bg-slate-950/80">
+                <Search
+                  className="mx-auto mb-6 h-12 w-12 text-slate-400"
+                  strokeWidth={1.2}
+                />
+                <h3 className="mb-2 text-base font-semibold text-gray-900 dark:text-slate-100">
+                  Nenhum uso selecionado
+                </h3>
+                <p className="max-w-[280px] text-sm font-normal leading-relaxed text-gray-500 dark:text-slate-400">
+                  Selecione uma atividade na barra lateral para ver a
+                  viabilidade, os parâmetros técnicos e as notas aplicáveis
+                  nesta zona.
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -155,17 +204,21 @@ export function DynamicSystemResults() {
         onClose={() => setSynthesisModalOpen(false)}
       />
 
-      {regrasZonamento && (
-        <ModalExplicativo
-          isOpen={explicativoOpen}
-          onClose={() => setExplicativoOpen(false)}
-          regrasZonamento={regrasZonamento}
-          condicoesInstalacao={condicoesInstalacao}
-        />
-      )}
+      <ModalExplicativo
+        isOpen={explicativoOpen}
+        onClose={() => setExplicativoOpen(false)}
+        regrasZonamento={regrasZonamento}
+        condicoesInstalacao={condicoesInstalacao}
+        hasCnaeUsed={
+          state.searchMode === "cnae" || !!state.selectedUse?.cnaeOriginario
+        }
+        hasUrbanFilters={Object.keys(state.urbanParams).length > 0}
+        hasPqaFilters={Object.keys(state.pqaParams).length > 0}
+        hasAreaFilter={state.areaImovel !== null}
+      />
 
       <NotesModal
-        notaId={selectedNoteId || ''}
+        notaId={selectedNoteId || ""}
         isOpen={!!selectedNoteId}
         onClose={() => setSelectedNoteId(null)}
       />

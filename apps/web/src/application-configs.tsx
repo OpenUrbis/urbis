@@ -3,13 +3,40 @@ import { ClickActionEnum } from "@open-urbis/map-shared";
 import polylabel from "polylabel";
 import { BackButton } from "./components/BackButton";
 import { FeaturesView } from "./components/FeaturesView";
+import { getGeoJsonBounds } from "./components/MapView/utils";
+import { calculateCenterId } from "./utils/calculateCenterId";
 import { useMapContext } from "./hooks/useMapContext";
-import { useMediaQuery } from "./hooks/useMediaQuery";
 import { useNavigationContext } from "./hooks/useNavigationContext";
+import { PATTERN_ATLAS_URL, PATTERN_MAPPING_URL } from "./lib/layer-patterns";
 import {
   IMapActionProps,
   MapContextLayerSchemaTypeMapProps,
 } from "./types/map-context-type";
+
+const buildComparableFeatureIds = (feature: any): string[] => {
+  const properties = feature?.properties ?? {};
+  const ids = [
+    feature?.id,
+    properties?.id,
+    properties?.cd_identificador,
+    properties?.cd_identificador_original_lote,
+  ];
+
+  const inscriçãoParts = [
+    properties?.cd_setor_fiscal,
+    properties?.cd_quadra_fiscal,
+    properties?.cd_lote,
+    properties?.cd_condominio,
+  ].filter(Boolean);
+
+  if (inscriçãoParts.length >= 3) {
+    ids.push(inscriçãoParts.join("|"));
+  }
+
+  return ids
+    .filter((value) => value !== undefined && value !== null && value !== "")
+    .map(String);
+};
 
 interface FillPatternProperties {
   fillPatternMask: boolean;
@@ -26,11 +53,17 @@ interface DefaultPropertiesDestination {
 }
 
 interface DefaultLayerProperties {
+  pointType?: string;
   filled: boolean;
   stroked?: boolean;
+  lineWidthUnits?: string;
   lineWidthMinPixels?: number;
+  pointRadiusUnits?: string;
+  pointRadiusMinPixels?: number;
   getText: () => string;
   getTextSize: number;
+  transitions?: Record<string, any>;
+  onError?: (error: any) => void;
 }
 
 type PreProcessingLayerProperties = (properties: {
@@ -65,8 +98,8 @@ export const MAP_CONFIGS: MapConfigs = {
   PATTERN_PROPERTIES: {
     // props added by FillStyleExtension
     fillPatternMask: true,
-    fillPatternAtlas: "/pattern.png",
-    fillPatternMapping: "/pattern.json",
+    fillPatternAtlas: PATTERN_ATLAS_URL,
+    fillPatternMapping: PATTERN_MAPPING_URL,
     getFillPatternScale: 0.25,
     getFillPatternOffset: [0, 0],
 
@@ -80,11 +113,25 @@ export const MAP_CONFIGS: MapConfigs = {
     // bearing: 0,
   },
   DEFAULT_LAYER_PROPERTIES: {
+    pointType: "circle",
     filled: true,
     stroked: true,
+    lineWidthUnits: "pixels",
     lineWidthMinPixels: 1,
+    pointRadiusUnits: "pixels",
+    pointRadiusMinPixels: 4,
     getText: () => "",
     getTextSize: 12,
+    transitions: {
+      getFillColor: 150,
+      getLineColor: 150,
+      getElevation: 200,
+      getRadius: 150,
+      getTextColor: 150,
+    },
+    onError: (error: any) => {
+      console.warn("[deck.gl Layer Error]", error?.message || error);
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PRE_PROCESSING_LAYER_PROPERTIES: (properties: any) => {
@@ -107,10 +154,8 @@ export const MAP_CONFIGS: MapConfigs = {
   CHECKER_POLYGON_IS_SELECTED: {
     BUILD_ARRAY_OF_PROPERTIES: ({ selectedFeature }) =>
       selectedFeature
-        ? selectedFeature.map(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (item) =>
-              (item.feature as any).id || (item.feature as any).properties?.id,
+        ? selectedFeature.flatMap((item) =>
+            buildComparableFeatureIds(item.feature),
           )
         : [],
     CHECK_ARRAY_OF_PROPERTIES: (
@@ -118,8 +163,10 @@ export const MAP_CONFIGS: MapConfigs = {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       polygon: any,
     ): [number, number, number, number] | null => {
-      const id = polygon.id || polygon?.properties?.id;
-      return selectedFeatureIds.includes(id) ? [255, 0, 0, 255] : null;
+      const ids = buildComparableFeatureIds(polygon);
+      return ids.some((id) => selectedFeatureIds.includes(id))
+        ? [255, 0, 0, 255]
+        : null;
     },
   },
 };
@@ -132,8 +179,7 @@ export const CLICK_ACTIONS_CONFIG = (): {
   ) => void;
 } => {
   const { selectFeature, flyTo } = useMapContext();
-  const { navigateTo, toggleDrawer, drawerOpen } = useNavigationContext();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const { navigateTo } = useNavigationContext();
 
   return {
     [ClickActionEnum.SelectFeature]: function (
@@ -148,8 +194,6 @@ export const CLICK_ACTIONS_CONFIG = (): {
         return console.error(
           'clickAction(selectFeature) Error: Property "template" is not defined',
         );
-
-      if (isDesktop && !drawerOpen.value) toggleDrawer();
 
       let center = [longitude, latitude];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,54 +211,102 @@ export const CLICK_ACTIONS_CONFIG = (): {
         }
       }
 
-      if (!isDesktop) toggleDrawer();
       selectFeature({ feature, template });
 
-      const padding = { top: 0, bottom: 0, left: 0, right: 0 };
+      const padding = { top: 72, bottom: 40, left: 40, right: 40 };
 
-      if (isDesktop) {
-        padding.left = 420;
-      }
-      padding.top = 64;
+      const bounds = getGeoJsonBounds(feature);
 
       flyTo({
-        center,
-        zoom,
+        ...(bounds ? { bounds } : { center, zoom }),
         padding,
         ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
       });
-      navigateTo(
-        <div className="initial-page">
-          <FeaturesView />
-        </div>,
-      );
+    },
+    [ClickActionEnum.OpenAttributesTable]: function (
+      { zoom = 17.1 },
+      { latitude, longitude, template, feature },
+    ): void {
+      if (!feature)
+        return console.error(
+          'clickAction(OpenAttributesTable) Error: Property "feature" is not defined',
+        );
+
+      let center = [longitude, latitude];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const geom = (feature as any)?.geometry;
+      if (geom && (geom.type === "Polygon" || geom.type === "MultiPolygon")) {
+        try {
+          const coords =
+            geom.type === "Polygon" ? geom.coordinates : geom.coordinates[0];
+          const centroid = polylabel(coords, 0.000001);
+          if (centroid && !isNaN(centroid[0]) && !isNaN(centroid[1])) {
+            center = centroid;
+          }
+        } catch (e) {
+          console.warn("Failed to calculate centroid", e);
+        }
+      }
+
+      selectFeature({
+        feature: {
+          ...feature,
+          _initialTab: "table",
+        },
+        template: template || [],
+      });
+
+      const padding = { top: 72, bottom: 40, left: 40, right: 40 };
+
+      const bounds = getGeoJsonBounds(feature);
+
+      flyTo({
+        ...(bounds ? { bounds } : { center, zoom }),
+        padding,
+        ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
+      });
     },
     [ClickActionEnum.SetZoom]: function (
       { zoom },
-      { latitude, longitude },
+      { latitude, longitude, feature },
     ): void {
+      let center = [longitude, latitude];
+      if (
+        (isNaN(longitude) ||
+          isNaN(latitude) ||
+          longitude === undefined ||
+          latitude === undefined) &&
+        feature
+      ) {
+        center = calculateCenterId(feature);
+      }
+
       if (!zoom)
         return console.error(
           'clickAction(setZoom) Error: Property "zoom" is not defined',
         );
 
+      if (isNaN(center[0]) || isNaN(center[1])) {
+        return console.error(
+          'clickAction(setZoom) Error: Invalid center coordinates',
+          center,
+        );
+      }
+
       setTimeout(() => {
         flyTo({
-          center: [longitude, latitude],
+          center,
           zoom,
           ...MAP_CONFIGS.DEFAULT_PROPERTIES_DESTINATION_ON_OPEN_PROPS,
         });
       });
     },
     [ClickActionEnum.openFeature]: function ({ template }, { feature }) {
-      navigateTo(
-        <div className="page active">
-          <div className="page-header">
-            <BackButton />
-          </div>
-          <FeaturesView feature={{ template: template ?? [], feature }} />
-        </div>,
-      );
+      if (!feature) return;
+      selectFeature({
+        feature,
+        template: template ?? [],
+      });
     },
   };
 };

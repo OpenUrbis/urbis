@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Monitoramento de dependências npm/pnpm (Monorepo)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+
+  # Monitoramento de GitHub Actions Workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Monitoramento de imagens Docker no Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/infra/docker"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

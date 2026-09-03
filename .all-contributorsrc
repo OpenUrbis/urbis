@@ -7,7 +7,7 @@
     "README.md"
   ],
   "imageSize": 100,
-  "commit": true,
+  "commit": false,
   "commitConvention": "angular",
   "contributors": [
     {
@@ -83,6 +83,34 @@
         "maintenance",
         "test",
         "projectManagement"
+      ]
+    },
+    {
+      "login": "gvrDev",
+      "name": "gvrDev",
+      "avatar_url": "https://avatars.githubusercontent.com/u/107437001?v=4",
+      "profile": "https://github.com/gvrDev",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "luskizera",
+      "name": "Luka Zinkoski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/112437099?v=4",
+      "profile": "https://github.com/luskizera",
+      "contributions": [
+        "code",
+        "design"
+      ]
+    },
+    {
+      "login": "Kadjow",
+      "name": "Diogo Arthur Gulhak",
+      "avatar_url": "https://avatars.githubusercontent.com/u/132962594?v=4",
+      "profile": "https://github.com/Kadjow",
+      "contributions": [
+        "code"
       ]
     }
   ],

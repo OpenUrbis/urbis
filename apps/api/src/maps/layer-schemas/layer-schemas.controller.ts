@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -19,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
+import { OptionalAccessControlGuard } from 'common/guards/access-control/optional-access-control.guard';
 import { OrGuard } from 'common/guards/or-guard/or.guard';
 import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
 import { LayerSchemaDto } from './dto/layer-schema.dto';
@@ -31,6 +33,7 @@ export class LayerSchemasController {
   constructor(private readonly service: LayerSchemasService) {}
 
   @Get()
+  @UseGuards(OptionalAccessControlGuard)
   @ApiOperation({ summary: 'Get all layer schemas' })
   @ApiResponse({
     status: 200,
@@ -38,13 +41,22 @@ export class LayerSchemasController {
     type: [LayerSchema],
   })
   async findAll(
+    @Req() request: any,
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
     @Query('search') search?: string,
     @Query('orderBy') orderBy?: string,
     @Query('orderType') orderType?: 'ASC' | 'DESC',
   ): Promise<LayerSchema[] | { data: LayerSchema[]; total: number }> {
-    return this.service.findAll(page, pageSize, search, orderBy, orderType);
+    const accessControl = request.accessControl;
+    return this.service.findAll(
+      accessControl,
+      page,
+      pageSize,
+      search,
+      orderBy,
+      orderType,
+    );
   }
 
   @Get(':id')
@@ -59,8 +71,12 @@ export class LayerSchemasController {
     description: 'Layer schema with ID not found',
     type: LayerSchema,
   })
-  async findOne(@Param('id') id: string): Promise<LayerSchema> {
-    return this.service.findOne(id);
+  @UseGuards(OptionalAccessControlGuard)
+  async findOne(
+    @Param('id') id: string,
+    @Req() request: any,
+  ): Promise<LayerSchema> {
+    return this.service.findOne(id, request.accessControl);
   }
 
   @ApiSecurity('api_key')

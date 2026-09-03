@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -7,6 +9,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { UserStatus } from 'user/enums/user-status.enum';
+import { IsValidBirthDate } from '../../common/utils/validators/is-valid-birth-date.validator';
 
 export class UpdateUserDto {
   @ApiPropertyOptional()
@@ -66,9 +69,10 @@ export class UpdateUserDto {
   @IsString()
   digitalAddress?: string;
 
-  @ApiProperty({ example: '1990-01-01' })
-  @IsNotEmpty()
-  birthDate: string;
+  @ApiPropertyOptional({ example: '1990-01-01' })
+  @IsOptional()
+  @IsValidBirthDate({ message: 'invalid' })
+  birthDate?: string;
 
   @ApiProperty({ example: 'fisica_capaz' })
   @IsNotEmpty()
@@ -77,4 +81,18 @@ export class UpdateUserDto {
   @ApiProperty()
   @IsOptional()
   metadata?: any;
+
+  @ApiPropertyOptional({
+    description: 'Justificativa para alteração de campos sensíveis',
+  })
+  @IsOptional()
+  @IsString()
+  sensitiveChangeJustification?: string;
+
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10)
+  @IsString({ each: true })
+  sensitiveChangeAttachments?: string[];
 }

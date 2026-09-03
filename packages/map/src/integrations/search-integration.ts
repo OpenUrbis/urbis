@@ -6,16 +6,16 @@ import {
 } from "../types/fetch-search-config-type";
 import { createFn } from "../utils/createFn";
 import { normalizeTerm } from "../utils/layer-utils";
-import { getAuthHeaders } from "../utils/auth-headers";
+import { getAuthHeaders, getOptionalAuthHeaders } from "../utils/auth-headers";
 
-const environment =
-  (import.meta.env.VITE_API_URL || "/api") + "/maps";
+const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
 // Public config fetch (probably for map usage)
 export const getSearchConfig = async (): Promise<
   IGetSearchConfigResponse[]
 > => {
-  const response = await fetch(`${environment}/config/search`);
+  const headers = await getOptionalAuthHeaders();
+  const response = await fetch(`${environment}/config/search`, { headers });
   if (!response.ok) {
     throw new Error("Failed to fetch map config");
   }
@@ -24,27 +24,47 @@ export const getSearchConfig = async (): Promise<
 };
 
 // CRUD Methods
-export const getSearchConfigs = async (page = 1, limit = 10, orderBy?: string, orderType?: 'ASC' | 'DESC'): Promise<{ data: IGetSearchConfigResponse[], total: number } | IGetSearchConfigResponse[]> => {
+export const getSearchConfigs = async (
+  page = 1,
+  limit = 10,
+  orderBy?: string,
+  orderType?: "ASC" | "DESC",
+): Promise<
+  | { data: IGetSearchConfigResponse[]; total: number }
+  | IGetSearchConfigResponse[]
+> => {
+  const headers = await getOptionalAuthHeaders();
   const response = await axios.get(`${environment}/search`, {
-    params: { page, limit, pageSize: limit, orderBy, orderType }
+    params: { page, limit, pageSize: limit, orderBy, orderType },
+    headers,
   });
   return response.data;
 };
 
-export const getSearchConfigById = async (id: string): Promise<IGetSearchConfigResponse> => {
-  const response = await axios.get(`${environment}/search/${id}`);
+export const getSearchConfigById = async (
+  id: string,
+): Promise<IGetSearchConfigResponse> => {
+  const headers = await getOptionalAuthHeaders();
+  const response = await axios.get(`${environment}/search/${id}`, { headers });
   return response.data;
 };
 
-export const createSearchConfig = async (data: Partial<IGetSearchConfigResponse>): Promise<IGetSearchConfigResponse> => {
+export const createSearchConfig = async (
+  data: Partial<IGetSearchConfigResponse>,
+): Promise<IGetSearchConfigResponse> => {
   const headers = await getAuthHeaders();
   const response = await axios.post(`${environment}/search`, data, { headers });
   return response.data;
 };
 
-export const updateSearchConfig = async (id: string, data: Partial<IGetSearchConfigResponse>): Promise<IGetSearchConfigResponse> => {
+export const updateSearchConfig = async (
+  id: string,
+  data: Partial<IGetSearchConfigResponse>,
+): Promise<IGetSearchConfigResponse> => {
   const headers = await getAuthHeaders();
-  const response = await axios.put(`${environment}/search/${id}`, data, { headers });
+  const response = await axios.put(`${environment}/search/${id}`, data, {
+    headers,
+  });
   return response.data;
 };
 
@@ -55,7 +75,7 @@ export const deleteSearchConfig = async (id: string): Promise<void> => {
 
 export const fetchSearchItem = async (
   item: IGetSearchConfigResponse,
-  term: string
+  term: string,
 ): Promise<IGetSearchItem[] | IGetSearchItemError[]> => {
   try {
     if (!term) return [];
@@ -67,15 +87,37 @@ export const fetchSearchItem = async (
       transformRequest,
       transformResponse,
     } = item;
+
+    let targetUrl = origin;
+    if (
+      targetUrl.includes("geoserver.slui.dev/geoserver/slui/ows") ||
+      targetUrl.includes("geoserver.slui.dev/geoserver/slui/wms")
+    ) {
+      targetUrl = `${environment}/proxy/wfs`;
+    } else if (
+      targetUrl.startsWith("http") &&
+      !targetUrl.includes(window.location.host) &&
+      !targetUrl.includes("/maps/proxy")
+    ) {
+      targetUrl = `${environment}/proxy?url=${encodeURIComponent(targetUrl)}`;
+    } else {
+      targetUrl = targetUrl.replace("{environment}", environment);
+    }
+
+    const headers = await getAuthHeaders().catch(() => ({}));
+
     const config: AxiosRequestConfig = {
-      url: origin.replace("{environment}", environment),
+      url: targetUrl,
       method: method || "GET",
+      headers,
     };
 
     if (transformParams) {
       const transformParamsFn = createFn(transformParams);
       const normalizedTerm = term ? normalizeTerm(term) : term;
-      config.params = transformParamsFn ? transformParamsFn({ term: normalizedTerm }) : {};
+      config.params = transformParamsFn
+        ? transformParamsFn({ term: normalizedTerm })
+        : {};
     }
 
     if (transformRequest)

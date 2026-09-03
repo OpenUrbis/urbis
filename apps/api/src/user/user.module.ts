@@ -8,6 +8,8 @@ import { SharedModule } from 'shared/shared.module';
 import { UserModuleEntities } from './index.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { UserApiKeyService } from './user-api-key.service';
+import { RepresentationModule } from '../representation/representation.module';
 
 @Module({
   imports: [
@@ -17,9 +19,10 @@ import { UserService } from './user.service';
     forwardRef(() => RoleModule),
     forwardRef(() => OrganizationModule),
     forwardRef(() => MailModule),
+    forwardRef(() => RepresentationModule),
   ],
   controllers: [UserController],
-  providers: [UserService],
-  exports: [UserService],
+  providers: [UserService, UserApiKeyService],
+  exports: [UserService, UserApiKeyService],
 })
 export class UserModule {}

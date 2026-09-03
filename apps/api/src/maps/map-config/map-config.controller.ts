@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -17,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { RequirePermission } from 'common/decorators/require-permissions/require-permissions.decorator';
 import { AccessControlGuard } from 'common/guards/access-control/access-control.guard';
+import { OptionalAccessControlGuard } from 'common/guards/access-control/optional-access-control.guard';
 import { SearchConfig } from 'maps/search/entities/search-config.entity';
 import { SearchService } from 'maps/search/search.service';
 import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
@@ -46,6 +48,7 @@ export class MapConfigController {
   }
 
   @Get('map')
+  @UseGuards(OptionalAccessControlGuard)
   @ApiOperation({
     summary: 'Get configurations of map view and schemas in front end',
   })
@@ -54,8 +57,8 @@ export class MapConfigController {
     description: 'Map configurations, layers and groups to use in front end',
     type: MapConfigResponseDto,
   })
-  getConfigs() {
-    return this.mapConfigService.getConfigs();
+  getConfigs(@Req() request: any) {
+    return this.mapConfigService.getConfigs(request.accessControl);
   }
 
   @Get('search')
@@ -83,11 +86,19 @@ export class MapConfigController {
     description: 'Features array',
     type: [TextLayerDtoResponse],
   })
-  getTextLayer(@Query() params: any) {
+  getTextLayer(@Query() params: any, @Req() request: any) {
     if (!params.origin)
       throw new BadRequestException({ message: 'origin is required' });
 
-    return this.mapConfigService.getTextLayer(params);
+    const headers: Record<string, string> = {};
+    if (request.headers?.authorization) {
+      headers['authorization'] = request.headers.authorization;
+    }
+    if (request.headers?.['x-organization-id']) {
+      headers['x-organization-id'] = request.headers['x-organization-id'];
+    }
+
+    return this.mapConfigService.getTextLayer(params, headers);
   }
 
   @Patch(':id')

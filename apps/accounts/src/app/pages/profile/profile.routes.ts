@@ -15,4 +15,9 @@ export const profileRoutes: Routes = [
     loadComponent: () =>
       import('./pages/usage-limit/usage-limit').then((c) => c.UsageLimit),
   },
+  {
+    path: 'api-keys',
+    loadComponent: () =>
+      import('./pages/api-keys/api-keys').then((c) => c.ApiKeysComponent),
+  },
 ];

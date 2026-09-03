@@ -18,7 +18,10 @@ import {
   UploaderApi,
   UploadStrategyPathEnum,
 } from '../../../../../projects/shared/src/lib/components/file-uploader/services/uploader.service';
-import { HlmButtonDirective, HlmIconComponent } from '../../../../../projects/shared/src/public-api';
+import {
+  HlmButtonDirective,
+  HlmIconComponent,
+} from '../../../../../projects/shared/src/public-api';
 import { provideIcons } from '@ng-icons/core';
 import { lucidePencil } from '@ng-icons/lucide';
 
@@ -28,7 +31,12 @@ import { lucidePencil } from '@ng-icons/lucide';
   providers: [provideIcons({ lucidePencil })],
   template: `
     @if (!disabled()) {
-      <button hlmBtn size="icon" class="rounded-full shadow-md h-8 w-8" (click)="handleOpen()">
+      <button
+        hlmBtn
+        size="icon"
+        class="rounded-full shadow-md h-8 w-8"
+        (click)="handleOpen()"
+      >
         <hlm-icon name="lucidePencil" size="16" />
       </button>
     }

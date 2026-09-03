@@ -1,39 +1,47 @@
-# Urbis Documentation
+# Urbis Documentation (`@open-urbis/map-docs`)
 
-This is the documentation application for the Urbis project, built with Next.js and Fumadocs.
+Portal web interativo de documentação técnica da plataforma Urbis, desenvolvido com **Next.js 16**, **Fumadocs MDX**, **Tailwind CSS** e explorador de especificações **OpenAPI**.
 
-## Getting Started
+---
 
-Run the development server:
+## 🚀 Execução em Desenvolvimento
+
+A partir da raiz do monorepo:
 
 ```bash
-pnpm dev --filter docs
-# or inside apps/docs
-pnpm dev
+pnpm --filter @open-urbis/map-docs dev
 ```
 
-Open http://localhost:3010 with your browser to see the result.
+A documentação estará acessível em: `http://localhost:3010`
 
-## Documentation Structure
+---
 
-The documentation is located in `content/docs` and is organized as follows:
+## 📁 Estrutura dos Conteúdos
 
-- **Map**: Configuration and schemas for the map component.
-- **Forms**: Dynamic forms documentation.
-- **Infrastructure**: Deployment and infrastructure guides.
-- **Development**: Contributing guides and setup instructions.
-- **Architecture**: System architecture overview.
+Os conteúdos são escritos em **MDX** e localizados no diretório `content/docs`:
 
-## Explore
+- `content/docs/general/architecture/`: Arquitetura do sistema, monorepo, frontend, backend e OIDC.
+- `content/docs/general/development/`: Guias de instalação, setup, contribuição, pull requests e troubleshooting.
+- `content/docs/general/mapa/`: Configuração de camadas, esquemas, view templates e busca espacial.
+- `content/docs/general/feature-flags.mdx`: Fonte da verdade em código para feature flags, RBAC e PostHog.
+- `content/docs/openapi/`: Referência interativa dos endpoints da API REST.
 
-In the project, you can see:
+---
 
-- `lib/source.ts`: Code for content source adapter.
-- `lib/layout.shared.tsx`: Shared options for layouts.
+## 🏗️ Build de Produção
 
-## Learn More
+```bash
+pnpm --filter @open-urbis/map-docs build
+```
 
-To learn more about Next.js and Fumadocs:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Fumadocs](https://fumadocs.dev)
+## 🔍 Verificação de Tipos e Linting
+
+```bash
+# Validar tipos MDX e TypeScript
+pnpm --filter @open-urbis/map-docs types:check
+
+# Executar linter Biome
+pnpm --filter @open-urbis/map-docs lint
+```

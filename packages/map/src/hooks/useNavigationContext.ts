@@ -7,7 +7,7 @@ export const useNavigationContext = (): INavigationContextActions => {
   const context = useContext(NavigationContext);
   if (!context)
     throw new Error(
-      "useNavigationContext must be used within a NavigationProvider"
+      "useNavigationContext must be used within a NavigationProvider",
     );
 
   const {
@@ -19,6 +19,9 @@ export const useNavigationContext = (): INavigationContextActions => {
   const currentPage = computed(() => ctxCurrentPage.value);
   const lastPage = computed(() => ctxLastPage.value);
   const history = computed(() => ctxHistory.value);
+  const isProspectiveSearchActive = computed(() => {
+    return ctxCurrentPage.value?.key === "nav-prospective-search";
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const navigateTo = (page: any) => {
@@ -30,7 +33,7 @@ export const useNavigationContext = (): INavigationContextActions => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const navigateReplace = (page: any) => {
     if (ctxHistory.value.length > 0) {
-        ctxHistory.value.pop();
+      ctxHistory.value.pop();
     }
     ctxHistory.value.push(page);
     ctxCurrentPage.value = page;
@@ -46,21 +49,22 @@ export const useNavigationContext = (): INavigationContextActions => {
   };
 
   const navigatePop = () => {
-  if (ctxHistory.value.length <= 1) {
-    ctxCurrentPage.value = null;
-    ctxLastPage.value = null;
-    ctxHistory.value = [];
-    return;
-  }
+    if (ctxHistory.value.length <= 1) {
+      ctxCurrentPage.value = null;
+      ctxLastPage.value = null;
+      ctxHistory.value = [];
+      return;
+    }
 
-  ctxHistory.value.pop();
-  
-  ctxCurrentPage.value = ctxHistory.value[ctxHistory.value.length - 1];
+    ctxHistory.value.pop();
 
-  ctxLastPage.value = ctxHistory.value.length > 1 
-    ? ctxHistory.value[ctxHistory.value.length - 2] 
-    : null;
-};
+    ctxCurrentPage.value = ctxHistory.value[ctxHistory.value.length - 1];
+
+    ctxLastPage.value =
+      ctxHistory.value.length > 1
+        ? ctxHistory.value[ctxHistory.value.length - 2]
+        : null;
+  };
 
   const rmOnPage = () => {
     if (!Array.isArray(ctxCurrentPage.value)) return;
@@ -70,6 +74,9 @@ export const useNavigationContext = (): INavigationContextActions => {
 
   const clearCurrentPage = () => {
     ctxCurrentPage.value = null;
+    ctxLastPage.value = null;
+    ctxHistory.value = [];
+    drawerOpen.value = false;
   };
 
   return {
@@ -77,6 +84,7 @@ export const useNavigationContext = (): INavigationContextActions => {
     lastPage,
     history,
     drawerOpen,
+    isProspectiveSearchActive,
     navigateTo,
     navigateReplace,
     addOnPage,

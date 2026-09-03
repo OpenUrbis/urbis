@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Loader2 } from "lucide-react";
+import { ProspectiveSearchProvider } from "../ProspectiveSearch/ProspectiveSearchContext";
 
 interface DynamicDataResponse {
   version: string;
   modules: string[];
 }
 
-import { ProspectiveSearchProvider } from '../ProspectiveSearch/ProspectiveSearchContext';
-import { Loader2 } from 'lucide-react';
-
 const REQUIRED_MODULE_NAMES = new Set([
-  'Usos',
-  'CNAEs por Atividade',
-  'Usos permitidos por Zona',
-  'Parâmetros urbanísticos por Uso',
+  "Usos",
+  "CNAE",
+  "CNAEs por Atividade",
+  "Usos permitidos por Zona",
+  "Parâmetros urbanísticos por Uso",
 ]);
 
 const REQUIRED_MODULE_PREFIXES = [
-  'Parâmetros urbanísticos por Zon',
-  'Parâmetros urbanísticos por Per',
+  "Parâmetros urbanísticos por Zon",
+  "Parâmetros urbanísticos por Per",
 ];
 
 function isRequiredModule(moduleName: string) {
@@ -32,7 +32,9 @@ interface DynamicSystemProviderProps {
   children: React.ReactNode;
 }
 
-export function DynamicSystemProvider({ children }: DynamicSystemProviderProps) {
+export function DynamicSystemProvider({
+  children,
+}: DynamicSystemProviderProps) {
   const [moduleData, setModuleData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
@@ -41,13 +43,16 @@ export function DynamicSystemProvider({ children }: DynamicSystemProviderProps) 
       try {
         setLoading(true);
         // Use Vite environment variable for API URL or default to localhost:3000
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
         // Fetch list of available modules
-        const response = await axios.get<DynamicDataResponse>(`${apiUrl}/dynamic-system-data`);
+        const response = await axios.get<DynamicDataResponse>(
+          `${apiUrl}/dynamic-system-data`,
+        );
 
         if (response.data && Array.isArray(response.data.modules)) {
-          const relevantModules = response.data.modules.filter(isRequiredModule);
+          const relevantModules =
+            response.data.modules.filter(isRequiredModule);
 
           // Pre-fetch all modules data
           const fetchedData: Record<string, any> = {};
@@ -56,13 +61,15 @@ export function DynamicSystemProvider({ children }: DynamicSystemProviderProps) 
           await Promise.all(
             relevantModules.map(async (moduleName) => {
               try {
-                const moduleResponse = await axios.get(`${apiUrl}/dynamic-system-data/${encodeURIComponent(moduleName)}`);
+                const moduleResponse = await axios.get(
+                  `${apiUrl}/dynamic-system-data/${encodeURIComponent(moduleName)}`,
+                );
                 fetchedData[moduleName] = moduleResponse.data.data;
               } catch (err) {
                 console.error(`Error fetching module ${moduleName}:`, err);
-                fetchedData[moduleName] = { error: 'Failed to load data' };
+                fetchedData[moduleName] = { error: "Failed to load data" };
               }
-            })
+            }),
           );
 
           setModuleData(fetchedData);
@@ -70,7 +77,7 @@ export function DynamicSystemProvider({ children }: DynamicSystemProviderProps) 
           setModuleData({});
         }
       } catch (err) {
-        console.error('Error fetching dynamic system data modules:', err);
+        console.error("Error fetching dynamic system data modules:", err);
       } finally {
         setLoading(false);
       }
@@ -81,8 +88,8 @@ export function DynamicSystemProvider({ children }: DynamicSystemProviderProps) 
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full w-full bg-slate-50/50">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
+      <div className="flex h-[100vh] w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }

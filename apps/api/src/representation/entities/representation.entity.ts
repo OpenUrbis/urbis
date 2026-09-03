@@ -83,8 +83,17 @@ export class Representation extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   justification?: string;
 
-  @Column('text', { array: true, nullable: true })
-  documents?: string[];
+  @Column({ type: 'varchar', default: 'CONFERENCE' })
+  validationProcedure: 'CONFERENCE' | 'DECLARATORY';
+
+  @Column({ type: 'jsonb', nullable: true })
+  documents?: Array<{ category: string; files: string[] }>;
+
+  @Column({ type: 'jsonb', nullable: true })
+  coRepresentatives?: string[];
+
+  @Column({ default: false })
+  requiresJointAgreement: boolean;
 
   @OneToMany(() => RepresentationComment, (comment) => comment.representation)
   comments: RepresentationComment[];

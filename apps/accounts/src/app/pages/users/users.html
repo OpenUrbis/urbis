@@ -24,14 +24,25 @@
         </div>
     }
 
-    <div class="flex items-center gap-4 p-4 border-b border-border bg-muted/10">
-      <div class="flex flex-col gap-1.5 w-64" [formGroup]="dataSource.filterFormGroup">
-        <label class="text-xs font-semibold text-muted-foreground">{{ "pages.users.table.columns.status" | translate }}</label>
-        <select formControlName="status" class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
-          <option [ngValue]="null">Todos os Status</option>
-          <option value="active">{{ "components.shared.status.active" | translate }}</option>
-          <option value="inactive">{{ "components.shared.status.inactive" | translate }}</option>
-          <option value="in_analysis">{{ "components.shared.status.in_analysis" | translate }}</option>
+    <div class="flex items-center gap-4 p-4 border-b border-border bg-muted/10" [formGroup]="dataSource.filterFormGroup">
+      <div class="flex flex-col gap-1.5 w-full max-w-sm">
+        <label class="text-xs font-semibold text-muted-foreground">Pesquisar</label>
+        <input formControlName="search" class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" placeholder="Buscar por nome, CPF ou e-mail" />
+      </div>
+      <div class="flex flex-col gap-1.5 w-48">
+        <label class="text-xs font-semibold text-muted-foreground">Status</label>
+        <select formControlName="status" class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+          <option [ngValue]="null">Todos</option>
+          <option value="active">Ativo</option>
+          <option value="in_analysis">Em análise</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1.5 w-48">
+        <label class="text-xs font-semibold text-muted-foreground">Verificação de e-mail</label>
+        <select formControlName="emailConfirmed" class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
+          <option [ngValue]="null">Todos</option>
+          <option [ngValue]="true">Verificado</option>
+          <option [ngValue]="false">Pendente</option>
         </select>
       </div>
     </div>
@@ -41,14 +52,12 @@
         <thead class="[&_tr]:border-b">
           <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
             <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
-              {{ "pages.users.table.columns.name" | translate }}
+              Nome completo
             </th>
-            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
-              {{ "pages.users.table.columns.email" | translate }}
-            </th>
-            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">
-              {{ "pages.users.table.columns.status" | translate }}
-            </th>
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">CPF</th>
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">Tipo de cadastro</th>
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">E-mail</th>
+            <th class="h-12 px-4 align-middle font-medium text-muted-foreground">Verificação de e-mail</th>
             <th class="h-12 px-4 align-middle font-medium text-muted-foreground text-right">
               {{ "pages.users.table.columns.actions" | translate }}
             </th>
@@ -60,9 +69,11 @@
               <td class="p-4 align-middle">
                 {{ user.firstName }} {{ user.lastName }}
               </td>
+              <td class="p-4 align-middle">{{ user.cpf || 'Não informado' }}</td>
+              <td class="p-4 align-middle">{{ user.accountType || 'Não informado' }}</td>
               <td class="p-4 align-middle">{{ user.email }}</td>
               <td class="p-4 align-middle">
-                <app-status-badge [status]="user.status" />
+                {{ user.isEmailConfirmed ? 'Verificado' : 'Pendente' }}
               </td>
               <td class="p-4 align-middle text-right" *hasPermission="'user:update'">
                 <a
@@ -79,7 +90,7 @@
           } @empty {
             @if (!dataSource.loading()) {
                 <tr>
-                    <td colspan="4" class="p-4 align-middle text-center text-muted-foreground">
+                    <td colspan="6" class="p-4 align-middle text-center text-muted-foreground">
                         {{ "pages.users.table.noData" | translate }}
                     </td>
                 </tr>

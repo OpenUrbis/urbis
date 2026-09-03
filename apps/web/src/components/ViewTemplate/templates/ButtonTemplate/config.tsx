@@ -13,7 +13,7 @@ const ConfigForm = ({
   onChange: (newTemplate: ITemplate) => void;
 }) => {
   const properties = (template.properties || {}) as any;
-  
+
   const { register, watch, setValue } = useForm({
     defaultValues: {
       label: template.label || "",
@@ -32,7 +32,7 @@ const ConfigForm = ({
         action: values.action,
       },
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values.label, values.action]);
 
   return (

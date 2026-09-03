@@ -1,4 +1,6 @@
-export const generateColor = (id?: string | number): [number, number, number] => {
+export const generateColor = (
+  id?: string | number,
+): [number, number, number] => {
   if (!id) {
     return [
       Math.floor(Math.random() * 256),
@@ -14,7 +16,7 @@ export const generateColor = (id?: string | number): [number, number, number] =>
   }
   const c = (hash & 0x00ffffff).toString(16).toUpperCase();
   const hex = "00000".substring(0, 6 - c.length) + c;
-  
+
   return [
     parseInt(hex.substr(0, 2), 16),
     parseInt(hex.substr(2, 2), 16),

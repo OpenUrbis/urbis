@@ -11,7 +11,7 @@ export class GeocodingQueryDto {
   search: string;
 
   @ApiProperty({
-    description: 'Geocoding service (mapbox or nominatim)',
+    description: 'Geocoding service (provider or nominatim)',
     example: 'nominatim',
     required: false,
   })

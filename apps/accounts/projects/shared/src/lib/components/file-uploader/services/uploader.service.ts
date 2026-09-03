@@ -57,7 +57,6 @@ export class UploaderApi {
       reportProgress: true,
       headers: {
         'content-type': contentType,
-        'Access-Control-Allow-Origin': '*',
         DISABLE_INTERCEPTORS: 'true',
       },
     });

@@ -1,352 +1,491 @@
-import { Search, Rss, ChevronDown, FileText, ExternalLink, Github, BookOpen } from 'lucide-react'
-import * as Accordion from '@radix-ui/react-accordion'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Card, CardContent } from '@open-urbis/map-ui/ui/card'
-import { Input } from '@open-urbis/map-ui/ui/input'
-import { Button } from '@open-urbis/map-ui/ui/button'
+import {
+  Search,
+  Rss,
+  FileText,
+  ExternalLink,
+  Github,
+  BookOpenText,
+  Scale,
+  Binoculars,
+  Award,
+  ClipboardList,
+  FileCode2,
+  Database,
+} from "lucide-react";
+import { useEffect, useState, type ComponentType } from "react";
+import { Link } from "react-router-dom";
+import { isAdminUser } from "@open-urbis/map-auth";
+import { Card, CardContent } from "@open-urbis/map-ui/ui/card";
+import { Input } from "@open-urbis/map-ui/ui/input";
+import { Button } from "@open-urbis/map-ui/ui/button";
+
+const MAP_URL = "https://mapa.urbis.prefeitura.sp.gov.br";
+const SEARCH_EXAMPLES = [
+  "Av. Paulista, 1578",
+  "Praça da Sé",
+  "Viaduto do Chá, 15",
+  "Parque Ibirapuera",
+  "-23.5614, -46.6559",
+];
+
+/** Animação de entrada dos cards, desligada em `prefers-reduced-motion`. */
+const ENTER =
+  "animate-in fade-in slide-in-from-bottom-4 [animation-duration:700ms] fill-mode-both motion-reduce:animate-none";
+
+/** Anel de foco para navegação por teclado. */
+const FOCUS_RING =
+  "rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+const CARD_BASE =
+  "h-full bg-card rounded-sm relative overflow-hidden shadow-sm transition-shadow duration-200 hover:shadow-md";
+
+/** Faixa vertical de destaque à esquerda do card. */
+const CARD_ACCENT =
+  "before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary";
+
+const SECTION_LABEL = "sr-only";
+
+type MosaicoItem = {
+  title: string;
+  description: string;
+  href: string;
+  icon: ComponentType<{ className?: string }>;
+  /** Destino fora do site do Mosaico. */
+  external?: boolean;
+  /** Abre em nova aba (reservado a destinos de terceiros). */
+  newTab?: boolean;
+  /** Ambiente interno: só aparece para quem tem papel de administrador. */
+  adminOnly?: boolean;
+};
+
+const componentes: MosaicoItem[] = [
+  {
+    title: "Viabiliza",
+    description:
+      "Formulários complexos com integração aos dados do Urbis e ao SEI, com caixa de entrada e geração de documentos.",
+    href: "https://viabiliza.urbis.prefeitura.sp.gov.br",
+    icon: ClipboardList,
+    external: true,
+  },
+  {
+    title: "Dados Abertos",
+    description:
+      "Catálogo de metadados, com informações explicativas, administrativas e técnicas, com as opções de consumo do dado.",
+    href: "https://dadosabertos.urbis.prefeitura.sp.gov.br",
+    icon: BookOpenText,
+    external: true,
+  },
+  {
+    title: "Código aberto",
+    description:
+      "Código-fonte, melhorias e componentes abertos do ecossistema Urbis, publicados no GitHub.",
+    href: "https://github.com/OpenUrbis",
+    icon: Github,
+    external: true,
+    newTab: true,
+  },
+  {
+    title: "Documentação técnica",
+    description:
+      "Guias, referências técnicas e APIs para entender, integrar e desenvolver com o Urbis.",
+    href: "/doc-tecnica",
+    icon: FileCode2,
+  },
+  {
+    title: "Data lake",
+    description:
+      "Ambiente interno para organização, integração e consumo de bases de dados utilizadas pelos componentes do Urbis.",
+    href: "https://dadosabertos.urbis.prefeitura.sp.gov.br",
+    icon: Database,
+    external: true,
+    newTab: true,
+    adminOnly: true,
+  },
+];
+
+const guias: MosaicoItem[] = [
+  {
+    title: "Carta de Serviços urbanísticos, ambientais e culturais",
+    description:
+      "Encontre o canal correto para solicitar autorizações, licenças, certidões e demais serviços relacionados ao território.",
+    href: "/carta-servicos",
+    icon: FileText,
+  },
+  {
+    title: "Guia para a legislação urbanística",
+    description:
+      "Guia do Urbis para pesquisas em legislação urbanística, com uma seleção de fontes e dicas de uso.",
+    href: "/guia-legislacao-urbanistica",
+    icon: Scale,
+  },
+  {
+    title: "Guia para a fiscalização urbanística",
+    description:
+      "Saiba onde consultar autorizações, licenças e certificados emitidos, acompanhar informações públicas e denunciar irregularidades.",
+    href: "/guia-fiscalizacao-urbanistica",
+    icon: Binoculars,
+  },
+];
+
+function ItemLink({
+  item,
+  className,
+  children,
+}: {
+  item: MosaicoItem;
+  className: string;
+  children: React.ReactNode;
+}) {
+  const classes = `group no-underline ${FOCUS_RING} ${className}`;
+
+  if (item.external) {
+    return (
+      <a
+        href={item.href}
+        className={classes}
+        {...(item.newTab
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
+      >
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={item.href} className={classes}>
+      {children}
+    </Link>
+  );
+}
+
+function ComponenteCard({ item, delay }: { item: MosaicoItem; delay: number }) {
+  const Icon = item.icon;
+
+  return (
+    <ItemLink item={item} className="block h-full">
+      <Card
+        className={`${CARD_BASE} ${CARD_ACCENT} ${ENTER}`}
+        style={{ animationDelay: `${delay}ms` }}
+      >
+        <CardContent className="p-4 pl-5">
+          <div className="mb-1 flex items-start justify-between gap-2">
+            <h3 className="flex items-center gap-2 text-xl font-bold text-foreground transition-colors group-hover:text-primary">
+              <Icon
+                className="h-5 w-5 shrink-0 text-primary"
+                aria-hidden="true"
+              />
+              {item.title}
+              {item.newTab && (
+                <span className="sr-only">(abre em nova aba)</span>
+              )}
+            </h3>
+            {item.external && (
+              <div className="mt-1 flex shrink-0 items-center gap-2">
+                {item.adminOnly && (
+                  <span className="rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
+                    Uso interno
+                  </span>
+                )}
+                <ExternalLink
+                  className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
+                  aria-hidden="true"
+                />
+              </div>
+            )}
+          </div>
+          <p className="text-sm leading-snug text-muted-foreground">
+            {item.description}
+          </p>
+        </CardContent>
+      </Card>
+    </ItemLink>
+  );
+}
+
+function GuiaCard({ item, delay }: { item: MosaicoItem; delay: number }) {
+  const Icon = item.icon;
+
+  return (
+    <ItemLink item={item} className="flex flex-1 flex-col">
+      <Card
+        className={`${CARD_BASE} ${CARD_ACCENT} ${ENTER} flex flex-col justify-center`}
+        style={{ animationDelay: `${delay}ms` }}
+      >
+        <CardContent className="flex items-center gap-4 p-4 pl-5">
+          <Icon className="h-8 w-8 shrink-0 text-primary" aria-hidden="true" />
+          <div>
+            <h3 className="mb-0.5 text-lg font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
+              {item.title}
+            </h3>
+            <p className="text-sm leading-snug text-muted-foreground">
+              {item.description}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </ItemLink>
+  );
+}
 
 export function Mosaico() {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Assinatura manual do sinal (sem transform do Babel) para manter o SSG seguro:
+  // na pré-renderização o efeito não roda, então os itens internos ficam fora do HTML estático.
+  useEffect(() => isAdminUser.subscribe((value) => setIsAdmin(!!value)), []);
+
+  const componentesVisiveis = componentes.filter(
+    (item) => !item.adminOnly || isAdmin,
+  );
 
   const handleSearch = (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const query = searchTerm.trim();
-  if (!query) return;
+    const query = searchTerm.trim();
+    if (!query) return;
 
-  const url = `https://mapa.urbis.prefeitura.sp.gov.br/?search=${encodeURIComponent(query)}`;
+    window.open(
+      `${MAP_URL}/?search=${encodeURIComponent(query)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
 
-  window.open(url, "_blank");
-};
   return (
-    <div className="container mx-auto px-4 xl:px-8 py-8 font-sans">
-      <div className="relative mb-8 pb-4 w-full">
-        <h1 className="font-sans text-5xl md:text-6xl font-bold text-primary tracking-tight m-0 leading-tight">
-          Urbis
-        </h1>
-        <div className="absolute bottom-0 left-0 h-2 bg-primary w-[60%] rounded-full"></div>
-      </div>
+    <div className="container mx-auto px-4 xl:px-8 pt-8 pb-12 font-sans">
+      <header className="mb-8">
+        <div className="relative w-full pb-4">
+          <h1 className="m-0 font-sans text-5xl font-bold leading-tight tracking-tight text-primary md:text-6xl">
+            Urbis
+          </h1>
+          <span
+            className="absolute bottom-0 left-0 h-2 w-[60%] rounded-full bg-primary"
+            aria-hidden="true"
+          />
+        </div>
+        <p className="mt-3 max-w-2xl text-base text-muted-foreground">
+          Dados, serviços e informações sobre o território da cidade de São
+          Paulo.
+        </p>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
-        {/* Main Content: 7/12 */}
-        <div className="lg:col-span-7 flex flex-col gap-2">
-          
-          {/* Search Card - No Border */}
-          <Card 
-            className="bg-white dark:bg-card shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-            style={{ animationDelay: '0ms' }}
-          >
-            <CardContent className="p-4">
-              <form onSubmit={handleSearch} className="flex flex-col gap-3">
-  <label className="font-semibold text-xl block text-foreground">
-    Busca Direta:
-  </label>
-
-  <div className="relative w-full">
-    <div className="flex gap-2">
-      <Input
-        type="text"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Ex: Paulista, SQL, coordenadas..."
-        className="flex-1 h-11 text-base rounded-sm"
-        required
-      />
-
-      <Button
-        type="submit"
-        size="icon"
-        className="h-11 w-11 shrink-0 rounded-sm"
-      >
-        <Search className="h-5 w-5" aria-hidden="true" />
-        <span className="sr-only">Pesquisar no Mapa Urbis</span>
-      </Button>
-    </div>
-
-    <div className="mt-1 text-xs text-muted-foreground">
-      Av. Paulista, 1578 (exemplo)
-    </div>
-  </div>
-
-  <div className="text-sm text-muted-foreground leading-relaxed">
-    Pesquise por endereço, código tributário do imóvel, coordenadas ou nº de documento. <br />
-    <span className="block mt-1">
-      <strong>Obs:</strong> para buscas georreferenciadas, acesse o{" "}
-      <a
-        href="https://mapa.urbis.prefeitura.sp.gov.br/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary font-medium hover:underline inline-flex items-center gap-0.5"
-      >
-        Mapa.Urbis <ExternalLink className="h-3.5 w-3.5" />
-      </a>.
-    </span>
-  </div>
-</form>
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-             {/* Left Column of Inner Grid */}
-            <div className="flex flex-col gap-2">
-               {/* Viabiliza - With Border (Increased) */}
-              <a href="https://viabiliza.urbis.prefeitura.sp.gov.br" className="group block no-underline h-full">
-                <span className="sr-only">Acessar Viabiliza - Licenciamentos edilícios, de atividades e ambientais</span>
-                <Card 
-                  className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-                  style={{ animationDelay: '100ms' }}
-                  aria-hidden="true"
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-12">
+        {/* Coluna principal: 7/12 */}
+        <div className="flex flex-col gap-2 lg:col-span-7">
+          <section aria-labelledby="busca-titulo">
+            <Card
+              className={`${CARD_BASE} ${ENTER}`}
+              style={{ animationDelay: "0ms" }}
+            >
+              <CardContent className="p-4">
+                <h2
+                  id="busca-titulo"
+                  className="text-xl font-semibold text-foreground"
                 >
-                    <CardContent className="p-4">
-                        <h2 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
-                            Viabiliza
-                        </h2>
-                        <p className="text-muted-foreground text-sm leading-snug">
-                        Licenciamentos edilícios, de atividades e ambientais.
-                        </p>
-                    </CardContent>
-                </Card>
-              </a>
+                  Busca direta
+                </h2>
 
-              {/* Dados Abertos - With Border */}
-              <a href="https://dadosabertos.urbis.prefeitura.sp.gov.br" className="group block no-underline h-full">
-                <span className="sr-only">Acessar Dados Abertos - dados urbanos abertos, incluindo zoneamento e licenças</span>
-                <Card 
-                  className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-                  style={{ animationDelay: '150ms' }}
-                  aria-hidden="true"
+                <form
+                  onSubmit={handleSearch}
+                  className="mt-3 flex flex-col gap-3"
                 >
-                    <CardContent className="p-4">
-                        <h2 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors">Dados Abertos</h2>
-                        <p className="text-muted-foreground text-sm leading-snug">
-                        Acesse uma vasta gama de dados urbanos abertos, incluindo informações sobre zoneamento, licenças e muito mais.
-                        </p>
-                    </CardContent>
-                </Card>
-              </a>
+                  <label htmlFor="busca-urbis" className="sr-only">
+                    Buscar endereço, imóvel ou coordenada no Mapa Urbis
+                  </label>
 
-              {/* OpenUrbis - With Border */}
-               <a href="https://github.com/OpenUrbis" target="_blank" rel="noopener noreferrer" className="group block no-underline h-full relative">
-                <span className="sr-only">Acessar projeto de código aberto do Urbis no Github</span>
-                <Card 
-                  className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-                  style={{ animationDelay: '200ms' }}
-                  aria-hidden="true"
-                >
-                     <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                             <h2 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors">Github</h2>
-                             <div className="bg-secondary text-secondary-foreground text-xs px-2 py-0.5 rounded-sm font-bold flex items-center gap-0.5">
-                                <Github className="h-3.5 w-3.5" aria-hidden="true" /> GitHub
-                             </div>
-                        </div>
-                        <p className="text-muted-foreground text-sm leading-snug">
-                        Contribua com nosso open-source.
-                        </p>
-                    </CardContent>
-                </Card>
-              </a>
+                  <div className="flex gap-2">
+                    <Input
+                      id="busca-urbis"
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Ex: Paulista, SQL, coordenadas..."
+                      className="h-11 flex-1 rounded-sm text-base"
+                      aria-describedby="busca-ajuda"
+                      required
+                    />
 
-              {/* Docs Urbis - With Border */}
-              <Link to="/doc-tecnica" className="group block no-underline h-full">
-                 <span className="sr-only">Acessar a Documentação Técnica do Urbis</span>
-                 <Card 
-                   className="h-full bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-                   style={{ animationDelay: '250ms' }}
-                   aria-hidden="true"
-                 >
-                     <CardContent className="p-4">
-                        <h2 className="text-xl font-bold mb-1 text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
-                            Documentação Técnica 
-                        </h2>
-                        <p className="text-muted-foreground text-sm leading-snug">
-                        O Urbis se baseia e desenvolve todos os seus componentes em software livre, com código aberto e cláusula copyleft, contribuindo para um ambiente de colaboração e melhoria contínua. Sua documentação técnica detalhada está disponível no Docs.Urbis, e o código-fonte está publicado no GitHub.
-                        </p>
-                    </CardContent>
-                </Card>
-              </Link>
-            </div>
+                    <Button
+                      type="submit"
+                      size="icon"
+                      className="h-11 w-11 shrink-0 rounded-sm"
+                    >
+                      <Search className="h-5 w-5" aria-hidden="true" />
+                      <span className="sr-only">
+                        Pesquisar no Mapa Urbis (abre em nova aba)
+                      </span>
+                    </Button>
+                  </div>
 
-            {/* Right Column of Inner Grid - With Border */}
-            <div className="flex flex-col gap-2 h-full">
-              
-              {/* Carta de Serviços */}
-              <Link to="/carta-servicos" className="group flex flex-col flex-1 no-underline h-full">
-                 <Card 
-                   className="h-full bg-white dark:bg-card flex flex-col justify-center hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-                   style={{ animationDelay: '100ms' }}
-                 >
-                    <CardContent className="p-4 flex gap-4 items-center">
-                       <div className="text-primary shrink-0">
-                           <FileText className="h-8 w-8" />
-                       </div>
-                       <div>
-                         <h2 className="text-lg font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors leading-tight">Carta de Serviços urbanísticos, ambientais e culturais</h2>
-                         <p className="text-muted-foreground text-sm leading-snug">Veja onde solicitar autorizações, licenças, certidões etc.</p>
-                       </div>
-                    </CardContent>
-                 </Card>
-              </Link>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <span>Exemplos:</span>
+                    {SEARCH_EXAMPLES.map((example) => (
+                      <button
+                        key={example}
+                        type="button"
+                        onClick={() => setSearchTerm(example)}
+                        className={`rounded-full border border-border px-2 py-0.5 font-medium text-foreground transition-colors hover:border-primary hover:text-primary ${FOCUS_RING}`}
+                      >
+                        {example}
+                      </button>
+                    ))}
+                  </div>
 
-              {/* Legislação */}
-              <Link to="/info-urbis" className="group flex flex-col flex-1 no-underline h-full">
-                 <Card 
-                   className="h-full bg-white dark:bg-card flex flex-col justify-center hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-                   style={{ animationDelay: '150ms' }}
-                 >
-                    <CardContent className="p-4 flex gap-4 items-center">
-                       <div className="text-primary shrink-0">
-                           <BookOpen className="h-8 w-8" />
-                       </div>
-                       <div>
-                         <h2 className="text-lg font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors leading-tight">Legislação urbanística:</h2>
-                         <ul className="text-muted-foreground text-sm list-disc pl-4 space-y-0.5 leading-snug">
-                           <li>Lei de Parcelamento, Uso e Ocupação do Solo - LPUOS</li>
-                           <li>Código de Obras e Edificações - COE</li>
-                           <li>+informações sobre legislação urbanística - +info.Urbis</li>
-                         </ul>
-                       </div>
-                    </CardContent>
-                 </Card>
-              </Link>
+                  <p
+                    id="busca-ajuda"
+                    className="text-sm leading-relaxed text-muted-foreground"
+                  >
+                    Pesquise por endereço, cadastro fiscal (“SQL”, “IPTU”),
+                    referências (distritos etc.), coordenadas georref. ou endereço
+                    digital (Urbis ou Plus Code)
+                  </p>
+                </form>
+              </CardContent>
+            </Card>
+          </section>
 
-               {/* Licenças */}
-              <Link to="/licencas" className="group flex flex-col flex-1 no-underline h-full">
-                 <Card 
-                   className="h-full bg-white dark:bg-card flex flex-col justify-center hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-                   style={{ animationDelay: '200ms' }}
-                 >
-                    <CardContent className="p-4 flex gap-4 items-center">
-                       <div className="text-primary shrink-0">
-                           <FileText className="h-8 w-8" />
-                       </div>
-                       <div>
-                         <h2 className="text-lg font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors leading-tight">Informações sobre licenças emitidas e denúncias</h2>
-                         <p className="text-muted-foreground text-sm leading-snug">Veja onde encontrar informações sobre autorizações, licenças etc. e denunciar irregularidades.</p>
-                       </div>
-                    </CardContent>
-                 </Card>
-              </Link>
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+            <section
+              aria-labelledby="componentes-titulo"
+              className="flex flex-col gap-2"
+            >
+              <h2 id="componentes-titulo" className={SECTION_LABEL}>
+                Componentes
+              </h2>
+              {componentesVisiveis.map((item, index) => (
+                <ComponenteCard
+                  key={item.title}
+                  item={item}
+                  delay={100 + index * 50}
+                />
+              ))}
+            </section>
 
-            </div>
+            <section
+              aria-labelledby="guias-titulo"
+              className="flex flex-col gap-2"
+            >
+              <h2 id="guias-titulo" className={SECTION_LABEL}>
+                Guias e serviços
+              </h2>
+              {guias.map((item, index) => (
+                <GuiaCard
+                  key={item.title}
+                  item={item}
+                  delay={100 + index * 50}
+                />
+              ))}
+            </section>
           </div>
         </div>
 
-         {/* Side Content: 5/12 */}
-        <div className="lg:col-span-5 flex flex-col gap-2">
-           {/* Mapa Urbis - No Border */}
-           <a 
-             href="https://mapa.urbis.prefeitura.sp.gov.br" 
-             className="block relative rounded-sm bg-white dark:bg-card overflow-hidden group border border-border shadow-sm hover:shadow-md transition-all animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-             style={{ animationDelay: '100ms' }}
-           >
-             <div className="relative aspect-video bg-muted flex items-center justify-center">
-                 <div className="absolute bottom-3 right-3 bg-background/90 backdrop-blur text-primary text-sm px-3 py-1 rounded-sm font-bold shadow-sm z-10 flex items-center gap-1 border border-border">
-                   Mapa.urbis <ExternalLink className="h-3.5 w-3.5" />
-                 </div>
-                 <img
-                   src="/sp-here-map.jpg"
-                   alt="Mapa Urbano"
-                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                   loading="lazy"
-                   width="800"
-                   height="450"
-                 />
-                 <div className="absolute inset-0 flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
-                    <span className="sr-only">Acessar Mapa</span>
-                 </div>
-             </div>
-           </a>
+        {/* Coluna lateral: 5/12 */}
+        <div className="flex flex-col gap-2 lg:col-span-5">
+          <a
+            href={MAP_URL}
+            className={`group block overflow-hidden border border-border bg-card no-underline shadow-sm transition-shadow duration-200 hover:shadow-md ${ENTER} ${FOCUS_RING}`}
+            style={{ animationDelay: "100ms" }}
+          >
+            <div className="relative aspect-video bg-muted">
+              <img
+                src="/sp-here-map.jpg"
+                alt="Recorte do mapa da cidade de São Paulo no Mapa Urbis"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                loading="lazy"
+                decoding="async"
+                width="800"
+                height="450"
+              />
+            </div>
+            <div className="flex items-start justify-between gap-3 p-4">
+              <div>
+                <h2 className="text-xl font-bold text-foreground transition-colors group-hover:text-primary">
+                  Mapa Urbis
+                </h2>
+                <p className="text-sm leading-snug text-muted-foreground">
+                  Visualize camadas, lotes e informações do território da cidade
+                  em um único mapa.
+                </p>
+              </div>
+              <ExternalLink
+                className="mt-1 h-5 w-5 shrink-0 text-primary"
+                aria-hidden="true"
+              />
+            </div>
+          </a>
 
-           {/* Data Lake - With Border */}
-           <a href="https://datalake.urbis.prefeitura.sp.gov.br/" target="_blank" rel="noopener noreferrer" className="group block no-underline">
-                <Card 
-                  className="bg-white dark:bg-card hover:shadow-md transition-all duration-200 rounded-sm relative overflow-hidden before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-primary animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-                  style={{ animationDelay: '200ms' }}
+          <section aria-labelledby="novidades-titulo">
+            <Card
+              className={`${CARD_BASE} ${ENTER}`}
+              style={{ animationDelay: "150ms" }}
+            >
+              <CardContent className="p-4">
+                <div className="mb-3 flex items-center gap-2 border-b border-border pb-2">
+                  <Rss className="h-5 w-5 text-primary" aria-hidden="true" />
+                  <h2
+                    id="novidades-titulo"
+                    className="text-xl font-bold text-foreground"
+                  >
+                    Novidades
+                  </h2>
+                </div>
+
+                <a
+                  href="https://www.youtube.com/live/LlSHX1FQJLM?t=6995"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`group block no-underline ${FOCUS_RING}`}
                 >
-                    <CardContent className="p-4">
-                         <h2 className="text-xl font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors">Data lake</h2>
-                        <p className="text-muted-foreground text-sm leading-snug">
-                          Acesse o nosso datalake (apenas uso interno)
-                        </p>
-                    </CardContent>
-                </Card>
-           </a>
+                  <div className="flex items-start gap-3">
+                    <div className="relative w-[60%] shrink-0 overflow-hidden rounded-sm border border-border">
+                      <img
+                        src="/premia-sampa-2026-foto.jpg"
+                        alt="Equipe do Urbis recebendo o prêmio de 1º lugar na categoria Processos Internos do Premia Sampa 2026"
+                        className="aspect-video w-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                        loading="lazy"
+                        decoding="async"
+                        width="1162"
+                        height="646"
+                      />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="mb-0.5 flex items-center gap-1.5 text-sm font-bold text-foreground transition-colors group-hover:text-primary">
+                        <Award
+                          className="h-4 w-4 shrink-0 text-primary"
+                          aria-hidden="true"
+                        />
+                        Premia Sampa 2026
+                      </h3>
+                      <p className="text-xs leading-tight text-muted-foreground">
+                        1º colocado na categoria Processos Internos, a mais
+                        concorrida do Premia Sampa 2026.
+                      </p>
+                      <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                        Assista à premiação
+                        <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                        <span className="sr-only">(abre em nova aba)</span>
+                      </span>
+                    </div>
+                  </div>
+                </a>
+
+                <a
+                  href="https://premiasampa.prefeitura.sp.gov.br/#finalistas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`mt-3 inline-block text-xs text-muted-foreground underline hover:text-primary ${FOCUS_RING}`}
+                >
+                  Conheça os finalistas do Premia Sampa 2026
+                  <span className="sr-only">(abre em nova aba)</span>
+                </a>
+              </CardContent>
+            </Card>
+          </section>
         </div>
       </div>
-
-      {/* Bottom Section: FAQ & Novidades (FAQ First) - No Borders */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-         {/* FAQ - No Border */}
-         <Card 
-           className="bg-white dark:bg-card shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-           style={{ animationDelay: '300ms' }}
-         >
-            <CardContent className="p-4">
-                <h2 className="text-xl font-bold mb-3 text-foreground">Perguntas Frequentes</h2>
-                
-                <Accordion.Root type="multiple" className="space-y-1">
-                  <Accordion.Item value="item-1" className="border-b border-border last:border-0">
-                    <Accordion.Header>
-                      <Accordion.Trigger className="flex items-center justify-between w-full py-2 text-left font-medium text-foreground hover:text-primary transition-colors group text-sm">
-                        O que é o Data Urbs?
-                        <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                      </Accordion.Trigger>
-                    </Accordion.Header>
-                    <Accordion.Content className="text-muted-foreground pb-2 text-sm leading-relaxed overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-                      O Data Urbs é um projeto de software open source focado em urbanismo para a cidade de São Paulo.
-                    </Accordion.Content>
-                  </Accordion.Item>
-
-                  <Accordion.Item value="item-2" className="border-b border-border last:border-0">
-                    <Accordion.Header>
-                      <Accordion.Trigger className="flex items-center justify-between w-full py-2 text-left font-medium text-foreground hover:text-primary transition-colors group text-sm">
-                        Como posso contribuir?
-                        <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                      </Accordion.Trigger>
-                    </Accordion.Header>
-                    <Accordion.Content className="text-muted-foreground pb-2 text-sm leading-relaxed overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-                      Você pode contribuir reportando bugs, sugerindo funcionalidades ou desenvolvendo código no GitHub.
-                    </Accordion.Content>
-                  </Accordion.Item>
-
-                  <Accordion.Item value="item-3" className="border-b border-border last:border-0">
-                    <Accordion.Header>
-                      <Accordion.Trigger className="flex items-center justify-between w-full py-2 text-left font-medium text-foreground hover:text-primary transition-colors group text-sm">
-                        Mais dados sobre urbanismo?
-                        <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                      </Accordion.Trigger>
-                    </Accordion.Header>
-                    <Accordion.Content className="text-muted-foreground pb-2 text-sm leading-relaxed overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
-                      Além do Data Urbs, consulte o Plano Diretor, o Código de Obras e o site da Prefeitura de São Paulo.
-                    </Accordion.Content>
-                  </Accordion.Item>
-                </Accordion.Root>
-            </CardContent>
-         </Card>
-
-         {/* Novidades - No Border */}
-         <Card 
-           className="bg-white dark:bg-card shadow-sm hover:shadow-md transition-shadow rounded-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-           style={{ animationDelay: '350ms' }}
-         >
-            <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3 border-b border-border pb-2">
-                   <Rss className="text-primary h-5 w-5" />
-                   <h2 className="text-xl font-bold text-foreground">Novidades</h2>
-                </div>
-                <div className="flex flex-col gap-2">
-                   <div className="group block bg-muted/30 rounded-sm border-l-2 border-l-muted-foreground p-3 hover:bg-muted/50 transition-colors cursor-pointer">
-                      <h3 className="text-sm font-bold mb-0.5 text-foreground group-hover:text-primary transition-colors">Atualizações do Data Urbs</h3>
-                      <p className="text-xs text-muted-foreground leading-tight">
-                        Fique por dentro das últimas novidades e melhorias no projeto Data Urbs.
-                      </p>
-                   </div>
-                </div>
-            </CardContent>
-         </Card>
-      </div>
     </div>
-  )
+  );
 }

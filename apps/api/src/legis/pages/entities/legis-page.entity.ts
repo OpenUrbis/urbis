@@ -14,6 +14,7 @@ import {
 @Index(['type'])
 @Index(['categoryId'])
 @Index(['isPublic'])
+@Index(['authorId'])
 @Index(['createdAt'])
 export class LegisPage {
   @PrimaryColumn({ type: 'varchar', length: 191 })
@@ -32,9 +33,19 @@ export class LegisPage {
   @ApiProperty()
   type: string;
 
+  /**
+   * Display label for the responsible party. Filled from `authorId` when the
+   * page is written through the API and kept as free text only for imported or
+   * legacy content that has no matching system user.
+   */
   @Column({ type: 'varchar', length: 255, default: 'Desconhecido' })
   @ApiProperty()
   author: string;
+
+  /** System user (users.id) credited as the author of the content. */
+  @Column({ type: 'uuid', nullable: true })
+  @ApiPropertyOptional()
+  authorId?: string | null;
 
   @Column({ type: 'jsonb', default: () => "'[]'::jsonb" })
   @ApiProperty({ type: [String] })

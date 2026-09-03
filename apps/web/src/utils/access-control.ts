@@ -1,7 +1,4 @@
-export {
-  AccessControl,
-  RolePermissionScopeEnum,
-} from "@open-urbis/map-auth";
+export { AccessControl, RolePermissionScopeEnum } from "@open-urbis/map-auth";
 export type {
   IAccessControlPermission,
   AccessControlOptions,

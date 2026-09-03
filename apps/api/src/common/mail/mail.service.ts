@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectSendGrid, SendGridService } from '@ntegral/nestjs-sendgrid';
+import { EmailClient } from '@azure/communication-email';
 import { readFileSync } from 'fs';
 import Handlebars from 'handlebars';
 import { I18n, I18nService } from 'nestjs-i18n';
@@ -13,7 +14,77 @@ export class MailService {
     @I18n() private i18n: I18nService,
     @InjectSendGrid() private readonly sendGridService: SendGridService,
     private configService: ConfigService,
+    @Inject('AZURE_EMAIL_CLIENT')
+    @Optional()
+    private readonly azureEmailClient?: EmailClient,
   ) {}
+
+  /**
+   * Helper method to send emails via either SendGrid or Azure Communication Services.
+   */
+  private async sendMail(params: {
+    to: string | string[];
+    cc?: string | string[];
+    from?: string;
+    fromname?: string;
+    subject: string;
+    html: string;
+    replyTo?: string | string[];
+  }): Promise<void> {
+    const provider =
+      this.configService.get<string>('mail.provider') || 'sendgrid';
+
+    if (provider === 'azure') {
+      if (!this.azureEmailClient) {
+        throw new Error(
+          'Azure Email Client is not initialized. Please check your AZURE_COMMUNICATION_SERVICES_CONNECTION_STRING.',
+        );
+      }
+
+      const senderAddress = params.from || this.configService.get('mail.from');
+
+      const toAddresses = Array.isArray(params.to)
+        ? params.to.map((address) => ({ address }))
+        : [{ address: params.to }];
+
+      const ccAddresses = params.cc
+        ? Array.isArray(params.cc)
+          ? params.cc.map((address) => ({ address }))
+          : [{ address: params.cc }]
+        : undefined;
+
+      const emailMessage = {
+        senderAddress: senderAddress,
+        content: {
+          subject: params.subject,
+          html: params.html,
+        },
+        recipients: {
+          to: toAddresses,
+          cc: ccAddresses,
+        },
+        replyTo: params.replyTo
+          ? Array.isArray(params.replyTo)
+            ? params.replyTo.map((address) => ({ address }))
+            : [{ address: params.replyTo }]
+          : undefined,
+      };
+
+      const poller = await this.azureEmailClient.beginSend(emailMessage);
+      await poller.pollUntilDone();
+    } else {
+      // Fallback to SendGrid
+      await this.sendGridService.send({
+        to: params.to,
+        cc: params.cc,
+        from: params.from,
+        fromname: params.fromname,
+        subject: params.subject,
+        html: params.html,
+        replyTo: params.replyTo,
+      } as any);
+    }
+  }
 
   /**
    * Builds the email template using Handlebars.
@@ -53,9 +124,7 @@ export class MailService {
   ): Promise<void> {
     try {
       // Create subject title in the correct language
-      const subject = `${this.i18n.translate('common.confirmEmail', {
-        lang: language,
-      })}`;
+      const subject = 'Confirmar e-mail - Urbis';
 
       // Create email content
       const html = this.buildTemplate('confirm-account', {
@@ -68,12 +137,12 @@ export class MailService {
       const emailParams = {
         to: mailData.to,
         from: this.configService.get('mail.from'),
-        fromname: 'Monorepo',
+        fromname: 'Urbis',
         subject,
         html,
       };
 
-      await this.sendGridService.send(emailParams);
+      await this.sendMail(emailParams);
     } catch (err) {
       console.error(err);
     }
@@ -94,9 +163,7 @@ export class MailService {
   ): Promise<void> {
     try {
       // Create subject title in the correct language
-      const subject = `${this.i18n.translate('common.resetPassword', {
-        lang: language,
-      })} - Monorepo`;
+      const subject = 'Redefinir senha - Urbis';
 
       // Create email content
       const html = this.buildTemplate('reset-password', {
@@ -110,10 +177,10 @@ export class MailService {
         to: mailData.to,
         from: this.configService.get('mail.from'),
         subject,
-        fromname: 'Monorepo',
+        fromname: 'Urbis',
         html,
       };
-      await this.sendGridService.send(emailParams);
+      await this.sendMail(emailParams);
     } catch (err) {
       console.error(err);
     }
@@ -133,7 +200,7 @@ export class MailService {
       // Create subject title in the correct language
       const subject = `${this.i18n.translate('common.invite', {
         lang: language,
-      })} - Monorepo`;
+      })} - Urbis`;
 
       // Create email content
       const html = this.buildTemplate('invite', {
@@ -146,11 +213,11 @@ export class MailService {
       const emailParams = {
         to: mailData.to,
         from: this.configService.get('mail.from'),
-        fromname: 'Monorepo',
+        fromname: 'Urbis',
         subject,
         html,
       };
-      await this.sendGridService.send(emailParams);
+      await this.sendMail(emailParams);
     } catch (err) {
       console.error(err);
     }
@@ -164,12 +231,15 @@ export class MailService {
     try {
       const html = Object.values(mailData).join('<br>');
       const emailParams = {
-        to: this.configService.get('mail.from'),
-        from: this.configService.get('mail.from'),
+        to: mailData.email,
+        cc: 'codataurbis@prefeitura.sp.gov.br',
+        from: 'suporte@urbis.prefeitura.sp.gov.br',
+        fromname: 'Suporte Urbis',
+        replyTo: 'codataurbis@prefeitura.sp.gov.br',
         subject: mailData.subject,
         html,
       };
-      await this.sendGridService.send(emailParams);
+      await this.sendMail(emailParams);
     } catch (err) {
       console.error(err);
     }
@@ -186,7 +256,7 @@ export class MailService {
         {
           lang: language,
         },
-      )} - Monorepo`;
+      )} - Urbis`;
 
       const subject: string = mailData.subject ?? alternataiveSubject;
 
@@ -197,19 +267,18 @@ export class MailService {
         to: mailData.to,
         from: this.configService.get('mail.from'),
         subject,
-        fromname: 'Monorepo',
+        fromname: 'Urbis',
         html,
       };
 
-      // Enviar o e-mail usando o SendGrid
-      await this.sendGridService.send(emailParams);
+      await this.sendMail(emailParams);
     } catch (err) {
       console.error(err);
     }
   }
 
   async sendOtpCode(code: string, to: string) {
-    await this.sendGridService.send({
+    await this.sendMail({
       to,
       from: this.configService.get('mail.from'),
       subject: 'Código de verificação de dois fatores',
@@ -220,7 +289,7 @@ export class MailService {
   async accountApproved(email: string, name: string): Promise<void> {
     try {
       const subject = `Sua conta foi aprovada - Urbis`;
-      const html = `<p>Olá ${name},</p><p>Sua conta foi aprovada! Agora você pode acessar o sistema Urbis.</p>`;
+      const html = `<p>Olá ${name},</p><p>Sua conta foi aprovada! Agora você pode acessar o sistema Urbis.</p><br><p>Atenciosamente,<br>Equipe Urbis</p>`;
       const emailParams = {
         to: email,
         from: this.configService.get('mail.from'),
@@ -228,9 +297,40 @@ export class MailService {
         html,
       };
 
-      await this.sendGridService.send(emailParams);
+      await this.sendMail(emailParams);
     } catch (err) {
       console.error('Error sending approval email:', err);
+    }
+  }
+
+  async representationAnalysis(
+    email: string,
+    name: string,
+    event: 'Comentário' | 'Aprovação' | 'Rejeição',
+    url: string,
+  ): Promise<void> {
+    const subject = `Urbis - Representações - Análise - ${event}`;
+    const html = `
+      <p><strong>Urbis</strong></p>
+      <p>Olá, ${name}!</p>
+      <p>O cadastro de Representação solicitado teve um ${event}.</p>
+      <p><a href="${url}">Representação</a></p>
+      <p>Caso o botão não funcione, copie e cole o link abaixo no seu navegador:</p>
+      <p>${url}</p>
+      <br>
+      <p>Atenciosamente,<br>Equipe Urbis</p>
+      <br>
+      <p>Este é um e-mail automático. Não é necessário respondê-lo.</p>
+    `;
+    try {
+      await this.sendMail({
+        to: email,
+        from: this.configService.get('mail.from'),
+        subject,
+        html,
+      });
+    } catch (error) {
+      console.error('Error sending representation analysis email:', error);
     }
   }
 
@@ -272,14 +372,16 @@ export class MailService {
       `;
 
       const emailParams = {
-        to: 'contas@urbis.prefeitura.sp.gov.br',
-        cc: ticket.email,
-        from: this.configService.get('mail.from'),
+        to: ticket.email,
+        cc: 'codataurbis@prefeitura.sp.gov.br',
+        from: 'suporte@urbis.prefeitura.sp.gov.br',
+        fromname: 'Suporte Urbis',
+        replyTo: 'codataurbis@prefeitura.sp.gov.br',
         subject,
         html,
       };
 
-      await this.sendGridService.send(emailParams);
+      await this.sendMail(emailParams);
     } catch (err) {
       console.error('Error sending support ticket email:', err);
     }

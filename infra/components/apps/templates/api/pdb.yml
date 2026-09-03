@@ -1,0 +1,14 @@
+{{- $api := .Values.api | default dict -}}
+{{- $pdb := $api.pdb | default dict -}}
+{{- if $pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: urbis-map-api-pdb
+  namespace: {{ .Release.Namespace | default "urbis-map" }}
+spec:
+  minAvailable: {{ $pdb.minAvailable | default 1 }}
+  selector:
+    matchLabels:
+      app: urbis-map-api
+{{- end }}

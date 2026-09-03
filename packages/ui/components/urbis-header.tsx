@@ -63,10 +63,12 @@ export const UrbisHeader = ({
   onMobileMenuClick,
   theme,
   setTheme,
+  extraSettingsContent,
 }: UrbisHeaderProps) => {
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
 
-  const displayName = user?.socialName || user?.name || user?.email || "Usuário";
+  const displayName =
+    user?.socialName || user?.name || user?.email || "Usuário";
 
   const initials =
     (user?.socialName || user?.name || user?.email || "")
@@ -77,23 +79,28 @@ export const UrbisHeader = ({
       .join("") || "U";
 
   return (
-    <header className="sticky top-0 z-[50] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center px-4 w-full">
+    <header className="sticky top-0 z-[var(--urbis-z-app-header,10140)] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 items-center px-2 sm:px-3 lg:px-4 w-full overflow-visible">
         {/* LEFT SLOT */}
-        <div className="mr-2 flex items-center shrink-0">{leftSlot}</div>
+        <div className="mr-1 flex items-center shrink-0 sm:mr-2">
+          {leftSlot}
+        </div>
 
         {/* LOGO */}
-        <div className="mr-4 flex items-center shrink-0">
-          <a className="mr-6 flex items-center space-x-2" href={logoHref}>
+        <div className="mr-2 flex min-w-0 items-center shrink-0 lg:mr-4">
+          <a
+            className="mr-2 flex min-w-0 items-center space-x-2 sm:mr-3 lg:mr-6"
+            href={logoHref}
+          >
             <UrbisLogo alt={logoAlt} src={logoSrc} />
 
             {badgeText ? (
-              <span className="hidden sm:inline-flex items-center gap-2 text-muted-foreground text-sm font-semibold">
+              <span className="hidden sm:inline-flex min-w-0 items-center gap-2 text-muted-foreground text-sm font-semibold">
                 <span className="opacity-40" aria-hidden="true">
                   •
                 </span>
 
-                <span className="inline-flex items-center gap-2 whitespace-nowrap">
+                <span className="inline-flex max-w-[92px] items-center gap-2 truncate whitespace-nowrap lg:max-w-none">
                   {badgeText === "Mosaico" && (
                     <Home className="h-4 w-4" aria-hidden="true" />
                   )}
@@ -105,7 +112,7 @@ export const UrbisHeader = ({
         </div>
 
         {/* MENU DESKTOP */}
-        <div className="hidden md:flex items-center gap-2 shrink-0">
+        <div className="hidden origin-left items-center gap-1 shrink-0 opacity-0 transition-all duration-200 ease-out lg:flex lg:gap-2 lg:opacity-100">
           <NavigationMenu>
             <NavigationMenuList>
               {menuItems.map((item) => (
@@ -114,8 +121,8 @@ export const UrbisHeader = ({
                     href={item.href}
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      "rounded-full border border-input h-8 px-4 bg-transparent hover:bg-accent",
-                      item.active && "bg-accent text-accent-foreground"
+                      "rounded-full border border-input h-8 px-3 bg-transparent hover:bg-accent xl:px-4",
+                      item.active && "bg-accent text-accent-foreground",
                     )}
                   >
                     <span className="inline-flex items-center gap-2">
@@ -132,10 +139,10 @@ export const UrbisHeader = ({
         </div>
 
         {/* RIGHT SIDE */}
-        <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
+        <div className="flex flex-1 min-w-0 items-center justify-end gap-1 sm:gap-2">
           {/* MENU MOBILE */}
           {showMobileMenu && (
-            <div className="md:hidden shrink-0">
+            <div className="shrink-0 lg:hidden">
               {onMobileMenuClick ? (
                 <Button
                   variant="ghost"
@@ -170,9 +177,10 @@ export const UrbisHeader = ({
                           className="text-lg font-medium hover:text-primary transition-colors"
                         >
                           <span className="inline-flex items-center gap-2">
-                            {item.label === "Mosaico" && badgeText === "Mosaico" && (
-                              <Home className="h-5 w-5" aria-hidden="true" />
-                            )}
+                            {item.label === "Mosaico" &&
+                              badgeText === "Mosaico" && (
+                                <Home className="h-5 w-5" aria-hidden="true" />
+                              )}
                             {item.label}
                           </span>
                         </a>
@@ -192,7 +200,11 @@ export const UrbisHeader = ({
 
           {/* SETTINGS */}
           <div className="shrink-0">
-            <UrbisSettings theme={theme} setTheme={setTheme} />
+            <UrbisSettings
+              theme={theme}
+              setTheme={setTheme}
+              extraSettingsContent={extraSettingsContent}
+            />
           </div>
 
           {/* RIGHT SLOT */}
@@ -204,7 +216,7 @@ export const UrbisHeader = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 rounded-full h-9 px-3 shrink-0"
+                className="gap-2 rounded-full h-9 px-2 shrink-0 sm:px-3"
                 onClick={() => setUserMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={userMenuOpen}
@@ -214,7 +226,7 @@ export const UrbisHeader = ({
                   {initials}
                 </span>
 
-                <span className="hidden md:inline text-sm font-medium max-w-[140px] truncate">
+                <span className="hidden lg:inline text-sm font-medium max-w-[120px] truncate xl:max-w-[140px]">
                   {displayName}
                 </span>
               </Button>
@@ -223,13 +235,13 @@ export const UrbisHeader = ({
                 <>
                   <button
                     type="button"
-                    className="fixed inset-0 z-40 cursor-default"
+                    className="fixed inset-0 z-[var(--urbis-z-app-panel,10080)] cursor-default"
                     onClick={() => setUserMenuOpen(false)}
                     aria-label="Fechar menu do usuário"
                   />
 
                   <div
-                    className="absolute right-0 mt-2 w-72 rounded-xl border bg-background shadow-lg z-50 overflow-hidden"
+                    className="absolute right-0 z-[var(--urbis-z-app-menu,10130)] mt-2 w-72 overflow-hidden rounded-xl border bg-background shadow-lg"
                     role="menu"
                   >
                     <div className="p-3 border-b">
@@ -276,7 +288,7 @@ export const UrbisHeader = ({
                 variant="outline"
                 size="sm"
                 onClick={onLogin}
-                className="gap-2 hidden md:flex items-center shrink-0 h-9 rounded-full px-4"
+                className="gap-2 hidden lg:flex items-center shrink-0 h-9 rounded-full px-4"
                 aria-label="Entrar"
               >
                 <User className="h-4 w-4" aria-hidden="true" />
@@ -288,7 +300,7 @@ export const UrbisHeader = ({
                 variant="outline"
                 size="icon"
                 onClick={onLogin}
-                className="md:hidden shrink-0 h-9 w-9 rounded-full"
+                className="lg:hidden shrink-0 h-9 w-9 rounded-full"
                 aria-label="Entrar"
               >
                 <User className="h-4 w-4" aria-hidden="true" />

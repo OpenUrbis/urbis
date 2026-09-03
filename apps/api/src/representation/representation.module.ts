@@ -7,6 +7,7 @@ import { UserModule } from '../user/user.module';
 import { RepresentationEntities } from './entities';
 import { RepresentationController } from './representation.controller';
 import { RepresentationService } from './representation.service';
+import { MailModule } from '../common/mail/mail.module';
 import { OpenCnpjModule } from '../maps/open-cnpj/open-cnpj.module';
 
 @Module({
@@ -15,7 +16,8 @@ import { OpenCnpjModule } from '../maps/open-cnpj/open-cnpj.module';
     forwardRef(() => OrganizationModule),
     forwardRef(() => RoleModule),
     forwardRef(() => UserModule),
-    AccessControlModule,
+    forwardRef(() => AccessControlModule),
+    MailModule,
     OpenCnpjModule,
   ],
   controllers: [RepresentationController],

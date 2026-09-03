@@ -16,10 +16,14 @@ import { provideIcons } from '@ng-icons/core';
 import { lucideChevronDown, lucideMap } from '@ng-icons/lucide';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { decode } from '@open-urbis/endereco-digital';
-import { differenceInYears } from 'date-fns';
+
 import { Subject, Subscription, firstValueFrom } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PasswordFormGroup } from '../../../../projects/shared/src/lib/components/password-form-group/password-form-group';
+import {
+  allowedAccountTypesForBirthDate,
+  defaultAccountTypeForBirthDate,
+} from '../../shared/utils/account-type-eligibility';
 import {
   HlmIconComponent,
   HlmInputDirective,
@@ -131,7 +135,8 @@ export const ACCOUNT_TYPES = [
 })
 export class UserFormComponent implements OnInit, OnDestroy {
   @Input({ required: true }) formGroup!: FormGroup;
-  accountTypes = ACCOUNT_TYPES.filter((t) => t.allow);
+  @Input() allowAllAccountTypes = false;
+  accountTypes = ACCOUNT_TYPES;
   @Input() loading = false;
 
   displayMode = input();
@@ -156,12 +161,11 @@ export class UserFormComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private translate = inject(TranslateService);
 
-  get age() {
+  get allowedAccountTypes() {
+    if (this.allowAllAccountTypes) return ACCOUNT_TYPES.map((type) => type.value);
     const birthDate = this.formGroup.get('birthDate')?.value;
-    if (!birthDate) return 0;
-    const today = new Date();
-    const birth = new Date(birthDate);
-    return differenceInYears(today, birth);
+    if (!birthDate || this.formGroup.get('birthDate')?.invalid) return [];
+    return allowedAccountTypesForBirthDate(birthDate);
   }
 
   get hasEmail() {
@@ -196,6 +200,36 @@ export class UserFormComponent implements OnInit, OnDestroy {
           this.validateDigitalAddress(value);
         }),
     );
+
+    const birthDateControl = this.formGroup.get('birthDate');
+    if (birthDateControl) {
+      const updateAccountType = (birthDate: string) => {
+        if (!birthDate || birthDateControl.invalid) return;
+
+        // If the accountType control is disabled (e.g., in edit mode), do not overwrite the loaded value
+        if (this.formGroup.get('accountType')?.disabled) return;
+
+        const allowedTypes = allowedAccountTypesForBirthDate(birthDate);
+        const currentType = this.formGroup.get('accountType')?.value;
+        if (!allowedTypes.includes(currentType)) {
+          this.formGroup
+            .get('accountType')
+            ?.setValue(defaultAccountTypeForBirthDate(birthDate));
+        }
+      };
+
+      // Run once initially if birthDate is already set
+      if (birthDateControl.value) {
+        updateAccountType(birthDateControl.value);
+      }
+
+      this.sub.add(
+        birthDateControl.valueChanges.subscribe((value) => {
+          updateAccountType(value);
+        }),
+      );
+    }
+
     // Ensure validators are set initially (in case input setter ran before formGroup was available)
     this.updateAddressValidators();
   }
@@ -211,11 +245,16 @@ export class UserFormComponent implements OnInit, OnDestroy {
     const digitalAddressControl = this.formGroup.get('digitalAddress');
 
     if (this.noOfficialAddress) {
-      // Digital Address Mode: Address fields optional, Digital Address required
+      // Digital Address Mode: CEP, street, number optional; neighborhood, city, state, and digitalAddress required
       if (addressGroup) {
+        const requiredFields = ['neighborhood', 'city', 'state'];
         Object.keys(addressGroup.controls).forEach((key) => {
           const control = addressGroup.get(key);
-          control?.clearValidators();
+          if (requiredFields.includes(key)) {
+            control?.setValidators([Validators.required]);
+          } else {
+            control?.clearValidators();
+          }
           control?.updateValueAndValidity();
         });
       }
@@ -383,14 +422,5 @@ export class UserFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  isDisableAccountType(type: any) {
-    const { minAge, maxAge } = type;
-    const age = this.age;
-    if (!minAge && !maxAge) return false;
 
-    if (minAge && age < minAge) return true;
-    if (maxAge && age >= maxAge) return true;
-
-    return false;
-  }
 }

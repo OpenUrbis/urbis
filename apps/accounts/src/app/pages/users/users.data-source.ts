@@ -7,7 +7,7 @@ import { IUser } from './dto/user.dto';
 @Injectable({ providedIn: 'root' })
 export class UserDataSource extends AbstractDataSource<
   IUser,
-  { organizationId: AbstractControl; status: AbstractControl }
+  { organizationId: AbstractControl; status: AbstractControl; search: AbstractControl; emailConfirmed: AbstractControl }
 > {
   protected baseUrl: string = `${environment.api}/user`;
 
@@ -22,6 +22,8 @@ export class UserDataSource extends AbstractDataSource<
       filterFormGroup: new FormGroup({
         organizationId: new FormControl(),
         status: new FormControl(),
+        search: new FormControl(),
+        emailConfirmed: new FormControl(),
       }),
     });
   }

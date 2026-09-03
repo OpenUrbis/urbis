@@ -38,20 +38,21 @@ export class Onboarding {
 
   name = computed(() => this.profileState.value()?.firstName);
 
-  isLoading = computed(() => 
-    !this.authState.isAuthenticated() ||
-    this.profileState.loading() || 
-    this.organizationState.loading()
+  isLoading = computed(
+    () =>
+      !this.authState.isAuthenticated() ||
+      this.profileState.loading() ||
+      this.organizationState.loading(),
   );
 
-  hasOrganizations = computed(() => 
-    this.organizationState.value().myOrganizations.length > 0
+  hasOrganizations = computed(
+    () => this.organizationState.value().myOrganizations.length > 0,
   );
 
   constructor() {
     this.profileState.refresh();
     this.organizationState.refresh();
-    
+
     effect(() => {
       const selectedOrganization =
         this.organizationState.selectedOrganization();

@@ -11,6 +11,7 @@ import {
   lucideFileText,
   lucideHelpCircle,
   lucideMessageSquare,
+  lucideTrash2,
   lucideX,
 } from '@ng-icons/lucide';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -66,6 +67,7 @@ import { RepresentationApi } from '../../services/representation-api';
       lucideCheck,
       lucideX,
       lucideMessageSquare,
+      lucideTrash2,
       lucideHelpCircle,
       lucideFileText,
       lucideDownload,
@@ -93,6 +95,9 @@ export class RepresentationDetail implements OnInit {
   loading = signal(true);
   commentControl = new FormControl('', [Validators.required]);
   attachmentsControl = new FormControl([]);
+  statusControl = new FormControl<'PENDING' | 'APPROVED' | 'REJECTED'>('PENDING', [Validators.required]);
+  actionReasonControl = new FormControl('', [Validators.required]);
+  actionAttachmentsControl = new FormControl<string[]>([]);
   userId = computed(() => this.profile.value()?.id);
   attachmentLoading = signal(false);
 
@@ -109,19 +114,22 @@ export class RepresentationDetail implements OnInit {
     try {
       const res: any = await firstValueFrom(this.api.findOne(id));
 
-      // Hydrate documents
+      // Hydrate structured document categories, retaining the category for auditing.
       if (res.documents && res.documents.length > 0) {
-        const hydratedDocs = [];
-        for (const doc of res.documents) {
-          if (typeof doc === 'string') {
-            const url = await this.attachmentsService.getDownloadUrl(doc);
-            hydratedDocs.push({ key: doc, url, name: doc.split('/').pop() });
-          } else {
-            hydratedDocs.push(doc);
+        const categories = Array.isArray(res.documents) && typeof res.documents[0] === 'string'
+          ? [{ category: 'Documentos anexados', files: res.documents }]
+          : res.documents;
+        res.documentGroups = [];
+        for (const category of categories) {
+          const files = [];
+          for (const key of category.files || []) {
+            const url = await this.attachmentsService.getDownloadUrl(key);
+            files.push({ key, url, name: key.split('/').pop() });
           }
+          res.documentGroups.push({ category: category.category, files });
         }
-        res.documents = hydratedDocs;
       }
+      this.statusControl.setValue(res.status === 'INACTIVE' ? 'PENDING' : res.status);
 
       // Hydrate comment attachments
       if (res.comments) {
@@ -208,6 +216,56 @@ export class RepresentationDetail implements OnInit {
     }
   }
 
+  async saveStatus() {
+    if (this.actionReasonControl.invalid || this.attachmentLoading()) {
+      this.actionReasonControl.markAsTouched();
+      return;
+    }
+    try {
+      await firstValueFrom(
+        this.api.updateStatus(
+          this.representation().id,
+          this.statusControl.value!,
+          this.actionReasonControl.value!,
+          this.actionAttachmentsControl.value!,
+        ),
+      );
+      this.actionReasonControl.reset();
+      this.actionAttachmentsControl.reset([]);
+      await this.loadData(this.representation().id);
+      this.toaster.success('Representação atualizada com sucesso.');
+    } catch (_error) {
+      this.toaster.error('Não foi possível atualizar a representação.');
+    }
+  }
+
+  async inactivate() {
+    if (this.actionReasonControl.invalid || this.attachmentLoading()) {
+      this.actionReasonControl.markAsTouched();
+      return;
+    }
+    if (!(await this.confirm({
+      title: 'Excluir representação',
+      description: 'A representação será inativada e permanecerá no histórico.',
+      confirmText: 'Excluir',
+      confirmColor: 'warn',
+    }))) return;
+    try {
+      await firstValueFrom(
+        this.api.updateStatus(
+          this.representation().id,
+          'INACTIVE',
+          this.actionReasonControl.value!,
+          this.actionAttachmentsControl.value!,
+        ),
+      );
+      await this.loadData(this.representation().id);
+      this.toaster.success('Representação inativada com sucesso.');
+    } catch (_error) {
+      this.toaster.error('Não foi possível inativar a representação.');
+    }
+  }
+
   async requestInfo() {
     if (this.commentControl.invalid) {
       this.toaster.error(
@@ -217,7 +275,9 @@ export class RepresentationDetail implements OnInit {
     }
     if (
       !(await this.confirm({
-        title: this.translate.instant('representation.actions.requestInfo.title'),
+        title: this.translate.instant(
+          'representation.actions.requestInfo.title',
+        ),
         description: this.translate.instant(
           'representation.actions.requestInfo.description',
         ),
@@ -275,18 +335,22 @@ export class RepresentationDetail implements OnInit {
   }
 
   canApprove(item: any) {
-    if (!item.organizationId) return false;
+    if (String(item.requesterId) === String(this.userId())) return false;
+    const orgId = item.organizationId || item.organization?.id;
+    if (!orgId) return false;
     return this.permissionState.hasPermission({
       id: 'representation:approve',
-      organizationId: item.organizationId,
+      organizationId: orgId,
     });
   }
 
   canReject(item: any) {
-    if (!item.organizationId) return false;
+    if (String(item.requesterId) === String(this.userId())) return false;
+    const orgId = item.organizationId || item.organization?.id;
+    if (!orgId) return false;
     return this.permissionState.hasPermission({
       id: 'representation:reject',
-      organizationId: item.organizationId,
+      organizationId: orgId,
     });
   }
 }

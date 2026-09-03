@@ -6,6 +6,7 @@ import {
   IGetConfigLayerSchema,
 } from "../types/fetch-map-config-type";
 import { MapBoundingBox, MapContextType } from "../types/map-context-type";
+import type { BaseMapStyleId } from "../components/MapView/base-map-styles";
 
 const layerSchemas = signal<IGetConfigLayerSchema[]>([]);
 const layerGroups = signal<IGetConfigLayerGroup[]>([]);
@@ -18,15 +19,25 @@ const boundingBox = signal<MapBoundingBox>([
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const viewport = signal<any>(undefined);
 const zoom = signal<number>(10);
-const is3DActive = signal<boolean>(false);
-const selectedBaseMap = signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets">("standard");
+const is3DActive = signal<boolean>(true);
+const selectedBaseMap = signal<BaseMapStyleId>("geosampa-ortofoto-2020");
+const selectedBaseMaps = signal<BaseMapStyleId[]>(["geosampa-ortofoto-2020"]);
+const baseMapOpacity = signal<number>(100);
+const baseMapOpacities = signal<Record<string, number>>({});
+const baseMapSaturation = signal<number>(100);
+const baseMap3DOpacity = signal<number>(45);
 const editFeatureTemplate = signal<ITemplate[]>([]);
-const layerWithRootEditTemplate = signal<string>('');
-const cursorPosition = signal<{ latitude: number; longitude: number } | null>(null);
+const layerWithRootEditTemplate = signal<string>("");
+const cursorPosition = signal<{ latitude: number; longitude: number } | null>(
+  null,
+);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const digitalAddressFeature = signal<any | null>(null);
 const isPickingLocation = signal<boolean>(false);
-const onLocationPick = signal<((lat: number, lon: number) => void) | null>(null);
+const disablePadding = signal<boolean>(false);
+const onLocationPick = signal<((lat: number, lon: number) => void) | null>(
+  null,
+);
 
 export const MapContext = createContext<MapContextType | null>(null);
 
@@ -42,12 +53,18 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         zoom,
         is3DActive,
         selectedBaseMap,
+        selectedBaseMaps,
+        baseMapOpacity,
+        baseMapOpacities,
+        baseMapSaturation,
+        baseMap3DOpacity,
         editFeatureTemplate,
         layerWithRootEditTemplate,
         cursorPosition,
         digitalAddressFeature,
         isPickingLocation,
         onLocationPick,
+        disablePadding,
         overlayRef: useRef(null),
       }}
     >

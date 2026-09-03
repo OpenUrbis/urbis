@@ -1,4 +1,4 @@
-export type JobStatus = 'processing' | 'completed' | 'failed';
+export type JobStatus = "processing" | "completed" | "failed";
 
 export interface JobResponse {
   jobId: string;
@@ -21,30 +21,32 @@ export const uploadAndProcessDwg = async (file: File): Promise<JobResponse> => {
   });
 };
 
-export const checkJobStatus = async (jobId: string): Promise<JobStatusResponse> => {
+export const checkJobStatus = async (
+  jobId: string,
+): Promise<JobStatusResponse> => {
   return new Promise((resolve) => {
     setTimeout(async () => {
       const job = jobs.get(jobId);
       if (!job) {
-        resolve({ status: 'failed' });
+        resolve({ status: "failed" });
         return;
       }
 
       // Simulate a processing time of 15 seconds (so it polls at least once or twice)
       const elapsed = Date.now() - job.startTime;
       if (elapsed < 15000) {
-        resolve({ status: 'processing' });
+        resolve({ status: "processing" });
         return;
       }
 
       try {
         // Fetch the mock data
-        const response = await fetch('/novojson.json');
+        const response = await fetch("/novojson.json");
         const data = await response.json();
-        resolve({ status: 'completed', data });
+        resolve({ status: "completed", data });
       } catch (error) {
-        console.error('Failed to fetch mock JSON:', error);
-        resolve({ status: 'failed' });
+        console.error("Failed to fetch mock JSON:", error);
+        resolve({ status: "failed" });
       }
     }, 500);
   });

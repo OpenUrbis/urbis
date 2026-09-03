@@ -36,6 +36,9 @@ export class LayerSchemaColors {
   @Column({ nullable: true })
   value?: string;
 
+  @Column({ nullable: true })
+  legisUrl?: string;
+
   @Column({ nullable: false })
   layerSchemaId?: string;
 

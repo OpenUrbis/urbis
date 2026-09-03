@@ -1,9 +1,11 @@
 import { useSignal } from "@preact/signals";
 import { useMapContext } from "../../hooks/useMapContext";
-import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
-import { LayerMetadataModal } from "./modals/LayerMetadataModal";
+import {
+  IGetConfigColor,
+  IGetConfigLayerSchema,
+} from "../../types/fetch-map-config-type";
 import { LayerFilterModal } from "./modals/LayerFilterModal";
-import { cn } from "@open-urbis/map-ui";
+import { cn, UrbisIcon } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui";
 import {
   Tooltip,
@@ -11,77 +13,120 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@open-urbis/map-ui";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { getLayerNameFromConfig } from "../../utils/layer-utils";
-import { Pencil, MoreVertical, Trash2, Eye, EyeOff, Info, Filter } from "lucide-react";
+import {
+  Palette,
+  MoreVertical,
+  Trash2,
+  Eye,
+  EyeOff,
+  Ellipsis,
+  Filter,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@open-urbis/map-ui";
-import { LayerEditModal } from "@/pages/Admin/pages/LayerManager/pages/LayerHandle/steps/LayerEditModal";
-import { buildLayerSchema, LayerSchemaFormValues, parseLayerSchemaToForm } from "@/pages/Admin/pages/LayerManager/pages/LayerHandle/utils";
 
-export const LayerItem = ({ 
-  item, 
-  indent, 
+export const LayerItem = ({
+  item,
+  indent,
   className,
-  onClick
-}: { 
-  item: IGetConfigLayerSchema; 
-  indent?: number; 
+  onClick,
+  onCustomize,
+  onShowMetadata,
+  onRemove,
+  highlightCustomize = false,
+  highlightFilter = false,
+}: {
+  item: IGetConfigLayerSchema;
+  indent?: number;
   className?: string;
   onClick?: (id: string) => void;
+  onCustomize?: (id: string) => void;
+  onShowMetadata?: (id: string) => void;
+  onRemove?: (id: string) => void;
+  highlightCustomize?: boolean;
+  highlightFilter?: boolean;
 }) => {
-  const { zoom, layerSchemas, handleActiveLayer } = useMapContext();
-  const showMetadata = useSignal(false);
+  const { zoom, handleActiveLayer } = useMapContext();
   const showFilter = useSignal(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-
-  const handleSaveConfig = (formValues: LayerSchemaFormValues) => {
-    const schema = buildLayerSchema(formValues);
-    
-    // Merge updates into the existing layer
-    const updatedLayer = {
-      ...item,
-      ...schema,
-      // Preserve properties that might be lost or handled differently
-      properties: {
-        ...(item.properties || {}),
-        ...(schema.properties || {}),
-      },
-    };
-
-    layerSchemas.value = layerSchemas.value.map((l) =>
-      l.id === item.id ? (updatedLayer as unknown as IGetConfigLayerSchema) : l
+  const isUserAddedLayer = useMemo(() => {
+    const id = item.id.toString();
+    return (
+      id.startsWith("wms-") ||
+      id.startsWith("wfs-") ||
+      id.startsWith("file-") ||
+      id.startsWith("upload-")
     );
-  };
+  }, [item.id]);
 
   const canFilter = useMemo(() => {
-      const id = item.id.toString();
-      const isImported = id.startsWith('wms-') || 
-                         id.startsWith('wfs-') || 
-                         id.startsWith('file-') ||
-                         id.startsWith('upload-');
-      
-      if (isImported) return false;
+    if (isUserAddedLayer) return false;
 
-      const layerName = getLayerNameFromConfig(item);
-      return !!layerName;
-  }, [item]);
+    const layerName = getLayerNameFromConfig(item);
+    return !!layerName;
+  }, [item, isUserAddedLayer]);
+
+  const canCustomizeLayer = useMemo(() => {
+    if (!onCustomize) return false;
+    if (item.properties?.supportsVisualCustomization === false) return false;
+    if (item.properties?.source === "geoserver-catalog") return false;
+    return true;
+  }, [item.properties, onCustomize]);
+
+  const getColorKey = (color: IGetConfigColor) => color.value ?? color.label;
+
+  const handleRemoveClick = () => {
+    if (isUserAddedLayer && onRemove) {
+      const confirmed = window.confirm(
+        `Excluir a camada "${item.name}"? Esta ação remove a camada do mapa e do catálogo desta sessão.`,
+      );
+      if (confirmed) onRemove(item.id);
+      return;
+    }
+
+    handleActiveLayer(item.id);
+  };
+
+  const formatRgba = (color: IGetConfigColor["color"]) =>
+    `rgba(${color.join(",")})`;
 
   const renderColor = () => {
     const { colors } = item;
-    const colorArray = colors.filter((color) => color.type === "fill");
+    const fillColors = colors.filter(
+      (color) => color.type !== "line" && color.type !== "text",
+    );
+    const lineColorsByKey = new Map(
+      colors
+        .filter((color) => color.type === "line")
+        .map((color) => [getColorKey(color), color]),
+    );
+
+    const colorArray =
+      fillColors.length > 0
+        ? fillColors
+        : colors.filter((color) => color.type === "line");
 
     return (
-      <div className="w-[10px] h-6 flex flex-col rounded-sm overflow-hidden shrink-0 border border-border/50">
+      <div className="h-5 w-2 flex shrink-0 flex-col overflow-hidden rounded-sm border border-border/50">
         {colorArray.map((itemColor, index) => (
           <div
             key={index}
-            className="w-full h-full"
-            style={{ backgroundColor: `rgba(${itemColor.color.join(",")})` }}
+            className="w-full h-full border"
+            style={{
+              backgroundColor:
+                itemColor.type === "line"
+                  ? "transparent"
+                  : formatRgba(itemColor.color),
+              borderColor: formatRgba(
+                lineColorsByKey.get(getColorKey(itemColor))?.color ??
+                  itemColor.color,
+              ),
+            }}
           ></div>
         ))}
       </div>
@@ -107,18 +152,18 @@ export const LayerItem = ({
     }
 
     const icon = !item.isVisible ? (
-      <EyeOff className="h-4 w-4 text-muted-foreground" />
+      <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
     ) : !isVisibleByZoom ? (
-      <EyeOff className="h-4 w-4 text-muted-foreground opacity-50" />
+      <Eye className="h-3.5 w-3.5 text-muted-foreground opacity-50" />
     ) : (
-      <Eye className="h-4 w-4 text-muted-foreground" />
+      <Eye className="h-3.5 w-3.5 text-muted-foreground" />
     );
 
     const button = (
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 rounded-full hover:bg-muted"
+        className="h-6 w-6 rounded-full hover:bg-muted"
         onClick={(e) => {
           e.stopPropagation();
           onClick?.(item.id);
@@ -157,29 +202,103 @@ export const LayerItem = ({
     <div
       key={item.id}
       className={cn(
-        "flex flex-nowrap items-center justify-between py-2 w-full cursor-pointer transition-colors hover:bg-muted/50 border-b border-border/40 group pr-4",
-        className
+        "flex flex-nowrap items-center justify-between py-0.5 w-full cursor-pointer transition-colors hover:bg-muted/50 border-b border-border/30 group pr-2",
+        className,
       )}
-      style={{ paddingLeft: indent !== undefined ? `${indent}px` : '16px' }}
+      style={{
+        paddingLeft:
+          indent !== undefined ? `${Math.max(indent - 4, 8)}px` : "12px",
+      }}
       onClick={() => onClick && onClick(item.id)}
     >
-      <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
-         {renderColor()}
-         <span className={cn("text-sm truncate", item.isVisible ? "font-medium text-foreground" : "font-normal text-muted-foreground")}>{item.name}</span>
+      <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+        {renderColor()}
+        <span
+          className={cn(
+            "truncate text-[11px] leading-5",
+            item.isVisible
+              ? "font-medium text-foreground"
+              : "font-normal text-muted-foreground",
+          )}
+        >
+          {item.name}
+        </span>
       </div>
-      
-      <div className="flex items-center shrink-0 ml-2 gap-1">
+
+      <div className="ml-1 flex shrink-0 items-center gap-0">
         {renderVisibilityButton()}
-        
+
+        {canFilter && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-6 w-6 rounded-full shrink-0 text-primary hover:bg-primary/10 hover:text-primary",
+                    item.cqlFilter &&
+                      "text-blue-500 hover:bg-blue-500/10 hover:text-blue-600",
+                    highlightFilter &&
+                      "animate-pulse bg-blue-500/15 ring-1 ring-blue-500/40 text-blue-500",
+                  )}
+                  aria-label="Filtrar por atributos"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showFilter.value = true;
+                  }}
+                >
+                  <Filter className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {item.cqlFilter
+                    ? "Filtro por atributos ativo. Clique para gerenciar."
+                    : "Filtrar por atributos"}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {canCustomizeLayer && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-6 w-6 rounded-full text-primary hover:bg-primary/10 hover:text-primary",
+                    highlightCustomize &&
+                      "animate-pulse bg-primary/15 ring-1 ring-primary/40",
+                  )}
+                  aria-label="Personalizar visualmente"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCustomize?.(item.id);
+                  }}
+                >
+                  <Palette className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Personalizar visualmente</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full hover:bg-muted"
+              className="h-6 w-6 rounded-full hover:bg-muted"
               onClick={(e) => e.stopPropagation()}
             >
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+              <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
@@ -191,80 +310,71 @@ export const LayerItem = ({
                 }}
               >
                 <Filter className="mr-2 h-4 w-4" />
-                <span>Filtrar Camada</span>
+                <span>Filtrar por atributos</span>
+              </DropdownMenuItem>
+            )}
+            {canCustomizeLayer && (
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCustomize?.(item.id);
+                }}
+              >
+                <Palette className="mr-2 h-4 w-4" />
+                <span>Personalizar visualmente</span>
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
-                setShowEditModal(true);
+                onShowMetadata?.(item.id);
               }}
             >
-              <Pencil className="mr-2 h-4 w-4" />
-              <span>Editar Camada</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation();
-                showMetadata.value = true;
-              }}
-            >
-              <Info className="mr-2 h-4 w-4" />
+              <Ellipsis className="mr-2 h-4 w-4" />
               <span>Informações</span>
             </DropdownMenuItem>
 
-            {item.properties?.layerActions?.map(({ icon, action, label }: any, i: number) => (
-              <DropdownMenuItem
-                key={`${icon}-${i}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const actionFn = (window as any).createFn(action, false);
-                  actionFn();
-                }}
-              >
-                <span className="material-symbols-outlined mr-2 text-base">{icon}</span>
-                <span>{label || 'Ação'}</span>
-              </DropdownMenuItem>
-            ))}
+            {item.properties?.layerActions?.map(
+              ({ icon, action, label }: any, i: number) => (
+                <DropdownMenuItem
+                  key={`${icon}-${i}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const actionFn = (window as any).createFn(action, false);
+                    actionFn();
+                  }}
+                >
+                  <UrbisIcon
+                    name={icon}
+                    className="mr-2 text-base"
+                    aria-hidden="true"
+                  />
+                  <span>{label || "Ação"}</span>
+                </DropdownMenuItem>
+              ),
+            )}
 
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
-                handleActiveLayer(item.id);
+                handleRemoveClick();
               }}
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              <span>Remover</span>
+              <span>
+                {isUserAddedLayer ? "Excluir camada" : "Remover do mapa"}
+              </span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      <LayerMetadataModal
-        open={showMetadata.value}
-        onOpenChange={(v) => (showMetadata.value = v)}
-        layer={item}
-      />
       <LayerFilterModal
         open={showFilter.value}
         onOpenChange={(v) => (showFilter.value = v)}
         layer={item}
       />
-
-      {showEditModal && (
-        <LayerEditModal
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          layer={{
-            name: item.name,
-            title: item.name,
-          }}
-          url={item.origin}
-          initialConfig={parseLayerSchemaToForm(item as any)}
-          onSave={handleSaveConfig}
-        />
-      )}
     </div>
   );
 };

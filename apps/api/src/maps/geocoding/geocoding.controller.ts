@@ -25,7 +25,7 @@ export class GeocodingController {
   @ApiQuery({
     name: 'service',
     type: String,
-    description: 'Geocoding service (mapbox or nominatim)',
+    description: 'Geocoding service (provider or nominatim)',
     required: false,
   })
   @ApiResponse({

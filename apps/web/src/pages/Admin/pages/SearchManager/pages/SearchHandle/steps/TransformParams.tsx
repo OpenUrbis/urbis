@@ -33,9 +33,7 @@ export const TransformParams = ({ onBack, onNext }: TransformParamsProps) => {
   const [layerFields, setLayerFields] = useState<FilterField[]>([]);
   const layerId = form.watch("layerId");
 
-    const environment =
-    (import.meta.env.VITE_API_URL || "/api") +
-    "/maps";
+  const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -47,8 +45,8 @@ export const TransformParams = ({ onBack, onNext }: TransformParamsProps) => {
           layers && typeof layers === "object" && "data" in layers
             ? (layers.data as any[])
             : Array.isArray(layers)
-            ? layers
-            : [];
+              ? layers
+              : [];
 
         const selectedLayer = allLayers.find((l) => l.id === layerId);
 
@@ -63,36 +61,36 @@ export const TransformParams = ({ onBack, onNext }: TransformParamsProps) => {
           const match = selectedLayer.origin.match(/layers=([^&]+)/);
           if (match) fullLayerName = match[1];
         } else if (selectedLayer.id) {
-           // Fallback if we can assume id maps to layer name or check properties
-           // Often the ID is not the layer name directly.
-           // However, based on previous code `getLayerNameFromConfig`, we might need that util.
-           // Let's try to fetch attributes using what we have or the ID if it looks like workspace:layer
-           fullLayerName = selectedLayer.id;
+          // Fallback if we can assume id maps to layer name or check properties
+          // Often the ID is not the layer name directly.
+          // However, based on previous code `getLayerNameFromConfig`, we might need that util.
+          // Let's try to fetch attributes using what we have or the ID if it looks like workspace:layer
+          fullLayerName = selectedLayer.id;
         }
 
         // If it doesn't have a workspace, it might be hard to fetch attributes from geoserver proxy
         // unless we know the workspace.
         // Assuming some convention or that getLayerNameFromConfig logic is needed.
         // For now, let's try to use the ID if it has a colon, otherwise skip or try a default workspace?
-        
+
         if (!fullLayerName.includes(":")) {
-             // Try to find it in properties?
-             // Or maybe we can't fetch attributes easily without more info.
-             // Let's try to continue only if we have a colon.
-             return; 
+          // Try to find it in properties?
+          // Or maybe we can't fetch attributes easily without more info.
+          // Let's try to continue only if we have a colon.
+          return;
         }
 
         const [workspace, layerName] = fullLayerName.split(":");
 
         const response = await axios.get(
-          `${environment}/geoserver-proxy/layers/${workspace}/${layerName}/attributes`
+          `${environment}/geoserver-proxy/layers/${workspace}/${layerName}/attributes`,
         );
         const attributes = response.data;
         setLayerFields(
           attributes.map((a: any) => ({
             name: a.name,
             type: "text", // Fallback to text
-          }))
+          })),
         );
       } catch (error) {
         console.error("Failed to fetch layer fields", error);
@@ -117,7 +115,11 @@ export const TransformParams = ({ onBack, onNext }: TransformParamsProps) => {
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex-1 flex flex-col"
+        >
           <TabsList>
             <TabsTrigger value="code">Editor de Código</TabsTrigger>
             <TabsTrigger value="visual">Construtor Visual</TabsTrigger>
@@ -143,7 +145,10 @@ export const TransformParams = ({ onBack, onNext }: TransformParamsProps) => {
             />
           </TabsContent>
 
-          <TabsContent value="visual" className="flex-1 flex flex-col mt-4 overflow-hidden">
+          <TabsContent
+            value="visual"
+            className="flex-1 flex flex-col mt-4 overflow-hidden"
+          >
             <FormField
               control={form.control}
               name="filterTree"

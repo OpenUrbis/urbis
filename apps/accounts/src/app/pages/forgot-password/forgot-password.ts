@@ -1,18 +1,12 @@
 import { Component, inject } from '@angular/core';
 import {
   HlmButtonDirective,
-  HlmCardDirective,
-  HlmCardContentDirective,
-  HlmCardFooterDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
-  HlmCardDescriptionDirective,
   HlmInputDirective,
   HlmLabelDirective,
   HlmIconComponent,
 } from '../../../../projects/shared/src/public-api';
 import { provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideLoader2 } from '@ng-icons/lucide';
 import { ForgotServiceApi } from './services/forgot-password-api';
 import {
   FormControl,
@@ -21,29 +15,21 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { catchError, EMPTY } from 'rxjs';
-import { _, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { catchError, EMPTY, finalize } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HlmToasterService } from '../../../../projects/shared/src/public-api';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  providers: [
-    provideIcons({ lucideArrowLeft }),
-  ],
+  providers: [provideIcons({ lucideArrowLeft, lucideLoader2 })],
   imports: [
     CommonModule,
     RouterModule,
     HlmInputDirective,
     HlmButtonDirective,
     HlmLabelDirective,
-    HlmCardDirective,
-    HlmCardContentDirective,
-    HlmCardFooterDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
-    HlmCardDescriptionDirective,
     HlmIconComponent,
     ReactiveFormsModule,
     TranslateModule,
@@ -58,6 +44,8 @@ export class ForgotPassword {
   private readonly toaster = inject(HlmToasterService);
   private readonly translate = inject(TranslateService);
 
+  protected loading = false;
+
   protected readonly form = new FormGroup({
     email: new FormControl('', {
       validators: [Validators.required],
@@ -66,17 +54,20 @@ export class ForgotPassword {
   });
 
   protected submit() {
-    if (this.form.invalid) return;
+    if (this.form.invalid || this.loading) return;
+
+    this.loading = true;
     this.api
       .sendEmail(this.form.controls.email.value)
       .pipe(
         catchError((error) => {
           console.error(error);
           this.toaster.error(
-            this.translate.instant('pages.forgotPassword.errors.sendEmail')
+            this.translate.instant('pages.forgotPassword.errors.sendEmail'),
           );
           return EMPTY;
         }),
+        finalize(() => (this.loading = false)),
       )
       .subscribe(() =>
         this.router.navigate(['sent'], { relativeTo: this.route }),

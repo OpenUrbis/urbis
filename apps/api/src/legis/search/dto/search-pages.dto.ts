@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsIn,
   IsOptional,
   IsString,
@@ -14,10 +15,32 @@ class SearchConditionDto {
   id: string;
 
   @ApiProperty({
-    enum: ['term', 'normativeType', 'actDate', 'authorityId', 'scope'],
+    enum: [
+      'term',
+      'normativeType',
+      'actDate',
+      'date',
+      'authorityId',
+      'authority',
+      'scope',
+      'number',
+      'pageId',
+      'id',
+    ],
   })
   @IsString()
-  @IsIn(['term', 'normativeType', 'actDate', 'authorityId', 'scope'])
+  @IsIn([
+    'term',
+    'normativeType',
+    'actDate',
+    'date',
+    'authorityId',
+    'authority',
+    'scope',
+    'number',
+    'pageId',
+    'id',
+  ])
   field: string;
 
   @ApiProperty({
@@ -44,6 +67,11 @@ export class SearchPagesDto {
   @ValidateNested({ each: true })
   @Type(() => SearchConditionDto)
   conditions: SearchConditionDto[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  withDeleted?: boolean;
 }
 
 export { SearchConditionDto };

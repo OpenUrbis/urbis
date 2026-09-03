@@ -16,7 +16,9 @@ export class AttachmentsService {
   private recaptcha = inject(ReCaptchaV3Service);
 
   async uploadFile(file: File): Promise<UploadResult> {
-    const uploadToken = await firstValueFrom(this.recaptcha.execute('upload_file'));
+    const uploadToken = await firstValueFrom(
+      this.recaptcha.execute('upload_file'),
+    );
 
     const contentType = file.type || 'application/octet-stream';
     const folderPath = 'solicitations/anexos';
@@ -25,12 +27,14 @@ export class AttachmentsService {
         contentType,
         folderPath,
         recaptcha: uploadToken,
-      })
+      }),
     );
 
     await this.uploadToS3(uploadInfo, file);
 
-    const downloadToken = await firstValueFrom(this.recaptcha.execute('download_url'));
+    const downloadToken = await firstValueFrom(
+      this.recaptcha.execute('download_url'),
+    );
 
     const downloadUrl: any = await firstValueFrom(
       this.http.get(`${environment.api}/files/public/download-url`, {
@@ -40,8 +44,8 @@ export class AttachmentsService {
         headers: {
           recaptcha: downloadToken,
         },
-        responseType: 'json'
-      })
+        responseType: 'json',
+      }),
     );
 
     const url = downloadUrl.downloadURL || downloadUrl.url || downloadUrl;
@@ -69,20 +73,22 @@ export class AttachmentsService {
         method: 'PUT',
         body: file,
         headers: {
-            'x-amz-content-sha256': 'UNSIGNED-PAYLOAD'
-        }
+          'x-amz-content-sha256': 'UNSIGNED-PAYLOAD',
+        },
       });
     }
   }
 
   async getDownloadUrl(key: string): Promise<string> {
-    const downloadToken = await firstValueFrom(this.recaptcha.execute('download_url'));
+    const downloadToken = await firstValueFrom(
+      this.recaptcha.execute('download_url'),
+    );
     const res: any = await firstValueFrom(
       this.http.get(`${environment.api}/files/public/download-url`, {
         params: { key },
         headers: { recaptcha: downloadToken },
-        responseType: 'json'
-      })
+        responseType: 'json',
+      }),
     );
     return res.downloadURL || res.url || res;
   }

@@ -1,7 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { deleteLayerSchema, getLayerSchemas } from "@/integrations/layer-schema-integration";
+import {
+  deleteLayerSchema,
+  getLayerSchemas,
+} from "@/integrations/layer-schema-integration";
 import { useQuery } from "@preact-signals/query";
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  Edit2,
+  Loader2,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/useToast";
 import { AdminHeader } from "@/components/AdminHeader";
@@ -28,7 +40,7 @@ const getDomain = (url: string) => {
   }
 };
 
-type SortOrder = 'ASC' | 'DESC';
+type SortOrder = "ASC" | "DESC";
 
 const LayerManagerPage = () => {
   const [, setLocation] = useLocation();
@@ -36,33 +48,39 @@ const LayerManagerPage = () => {
   const itemsPerPage = 10;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [layerToDelete, setLayerToDelete] = useState<string | null>(null);
-  
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Sorting state
-  const [sortBy, setSortBy] = useState<string>('isActive');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('DESC');
-  
+  const [sortBy, setSortBy] = useState<string>("isActive");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("DESC");
+
   const { toastSuccess, toastError } = useToast();
 
   const {
     data: response,
     isLoading,
     isError,
-    refetch
+    refetch,
   } = useQuery({
     queryKey: ["layer-schemas", currentPage, itemsPerPage, sortBy, sortOrder],
-    queryFn: () => getLayerSchemas(currentPage, itemsPerPage, undefined, sortBy, sortOrder),
+    queryFn: () =>
+      getLayerSchemas(currentPage, itemsPerPage, undefined, sortBy, sortOrder),
   });
 
   const handleDelete = async () => {
     if (!layerToDelete) return;
+    setIsDeleting(true);
     try {
       await deleteLayerSchema(layerToDelete);
       toastSuccess("Camada excluída com sucesso");
       refetch();
     } catch (error) {
       console.error("Failed to delete layer", error);
-      toastError("Erro ao excluir camada");
+      toastError(
+        error instanceof Error ? error.message : "Erro ao excluir camada",
+      );
     } finally {
+      setIsDeleting(false);
       setDeleteDialogOpen(false);
       setLayerToDelete(null);
     }
@@ -70,33 +88,48 @@ const LayerManagerPage = () => {
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
-      setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+      setSortOrder(sortOrder === "ASC" ? "DESC" : "ASC");
     } else {
       setSortBy(column);
-      setSortOrder('ASC');
+      setSortOrder("ASC");
     }
   };
 
   const renderSortIcon = (column: string) => {
     if (sortBy !== column) return null;
-    return sortOrder === 'ASC' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />;
+    return sortOrder === "ASC" ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
+    );
   };
 
   if (isError) {
-    return <div className="p-4 text-red-500">Erro ao carregar camadas.</div>;
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+        <p className="text-sm text-destructive">Erro ao carregar camadas.</p>
+        <Button variant="outline" onClick={() => refetch()}>
+          Tentar novamente
+        </Button>
+      </div>
+    );
   }
 
   // Handle server-side pagination (Object) or fallback (Array)
-  const layers: IGetConfigLayerSchema[] = (response && typeof response === 'object' && 'data' in response) 
-    ? (response as { data: IGetConfigLayerSchema[] }).data 
-    : (Array.isArray(response) ? response : []);
-  
-  const totalItems = (response && typeof response === 'object' && 'total' in response)
-    ? (response as { total: number }).total
-    : layers.length;
+  const layers: IGetConfigLayerSchema[] =
+    response && typeof response === "object" && "data" in response
+      ? (response as { data: IGetConfigLayerSchema[] }).data
+      : Array.isArray(response)
+        ? response
+        : [];
+
+  const totalItems =
+    response && typeof response === "object" && "total" in response
+      ? (response as { total: number }).total
+      : layers.length;
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
+
   const currentLayers = layers;
 
   // startIndex for display "Showing X to Y"
@@ -120,9 +153,9 @@ const LayerManagerPage = () => {
       >
         <HasPermission
           permissions={{
-            id: 'layer-schema:create',
-            action: 'create',
-            resource: 'layer-schema',
+            id: "layer-schema:create",
+            action: "create",
+            resource: "layer-schema",
             scope: RolePermissionScopeEnum.ANY,
           }}
         >
@@ -137,52 +170,52 @@ const LayerManagerPage = () => {
         <table className="w-full text-sm">
           <thead className="bg-muted/50 sticky top-0 z-10">
             <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-              <th 
+              <th
                 className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
-                onClick={() => handleSort('name')}
+                onClick={() => handleSort("name")}
               >
                 <div className="flex items-center">
                   Nome
-                  {renderSortIcon('name')}
+                  {renderSortIcon("name")}
                 </div>
               </th>
-              <th 
+              <th
                 className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
-                onClick={() => handleSort('origin')}
+                onClick={() => handleSort("origin")}
               >
                 <div className="flex items-center">
                   Origem
-                  {renderSortIcon('origin')}
+                  {renderSortIcon("origin")}
                 </div>
               </th>
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                 Grupo
               </th>
-              <th 
+              <th
                 className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
-                onClick={() => handleSort('type')}
+                onClick={() => handleSort("type")}
               >
                 <div className="flex items-center">
                   Tipo
-                  {renderSortIcon('type')}
+                  {renderSortIcon("type")}
                 </div>
               </th>
-              <th 
+              <th
                 className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
-                onClick={() => handleSort('isVisible')}
+                onClick={() => handleSort("isVisible")}
               >
                 <div className="flex items-center">
                   Visível por padrão
-                  {renderSortIcon('isVisible')}
+                  {renderSortIcon("isVisible")}
                 </div>
               </th>
-              <th 
+              <th
                 className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
-                onClick={() => handleSort('isActive')}
+                onClick={() => handleSort("isActive")}
               >
                 <div className="flex items-center">
                   Status
-                  {renderSortIcon('isActive')}
+                  {renderSortIcon("isActive")}
                 </div>
               </th>
               <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
@@ -192,13 +225,13 @@ const LayerManagerPage = () => {
           </thead>
           <tbody className="[&_tr:last-child]:border-0">
             {isLoading ? (
-               <tr>
-                 <td colSpan={7} className="h-24 text-center">
-                   <div className="flex items-center justify-center">
-                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                   </div>
-                 </td>
-               </tr>
+              <tr>
+                <td colSpan={7} className="h-24 text-center">
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                </td>
+              </tr>
             ) : (
               <>
                 {currentLayers.map((layer) => (
@@ -206,16 +239,22 @@ const LayerManagerPage = () => {
                     key={layer.id}
                     className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                   >
-                    <td className="p-4 align-middle font-medium">{layer.name}</td>
-                    <td className="p-4 align-middle">{getDomain(layer.origin)}</td>
-                    <td className="p-4 align-middle">{layer.layerGroup.name}</td>
+                    <td className="p-4 align-middle font-medium">
+                      {layer.name}
+                    </td>
+                    <td className="p-4 align-middle">
+                      {getDomain(layer.origin)}
+                    </td>
+                    <td className="p-4 align-middle">
+                      {layer.layerGroup?.name ?? "Sem grupo"}
+                    </td>
                     <td className="p-4 align-middle">{layer.type}</td>
                     <td className="p-4 align-middle">
                       {layer.isVisible ? "Sim" : "Não"}
                     </td>
                     <td className="p-4 align-middle">
-                      {/* @ts-expect-error: handling potential string type mismatch from user requirement */}
-                      {layer.isActive === true || layer.isActive === "active" ? (
+                      {(layer.isActive as any) === true ||
+                      (layer.isActive as any) === "active" ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
                           Ativa
                         </span>
@@ -225,28 +264,31 @@ const LayerManagerPage = () => {
                         </span>
                       )}
                     </td>
-                    <td className="p-4 flex align-middle text-right space-x-2">
+                    <td className="p-4 align-middle text-right">
+                      <div className="flex items-center justify-end space-x-2">
                       <HasPermission
                         permissions={{
-                          id: 'layer-schema:update',
-                          action: 'update',
-                          resource: 'layer-schema',
+                          id: "layer-schema:update",
+                          action: "update",
+                          resource: "layer-schema",
                           scope: RolePermissionScopeEnum.ANY,
                         }}
                       >
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => setLocation(`~/admin/layer-manager/${layer.id}`)}
+                          onClick={() =>
+                            setLocation(`~/admin/layer-manager/${layer.id}`)
+                          }
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>
                       </HasPermission>
                       <HasPermission
                         permissions={{
-                          id: 'layer-schema:delete',
-                          action: 'delete',
-                          resource: 'layer-schema',
+                          id: "layer-schema:delete",
+                          action: "delete",
+                          resource: "layer-schema",
                           scope: RolePermissionScopeEnum.ANY,
                         }}
                       >
@@ -262,6 +304,7 @@ const LayerManagerPage = () => {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </HasPermission>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -319,7 +362,8 @@ const LayerManagerPage = () => {
           <DialogHeader>
             <DialogTitle>Excluir Camada</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir esta camada? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir esta camada? Esta ação não pode ser
+              desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -332,8 +376,10 @@ const LayerManagerPage = () => {
             <Button
               variant="destructive"
               onClick={handleDelete}
+              disabled={isDeleting}
             >
-              Excluir
+              {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isDeleting ? "Excluindo..." : "Excluir"}
             </Button>
           </DialogFooter>
         </DialogContent>

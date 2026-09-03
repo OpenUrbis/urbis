@@ -74,10 +74,6 @@
             { prod: 'https://mapa.urbis.prefeitura.sp.gov.br', local: 'http://localhost:5173' },
             { prod: 'https://urbis.prefeitura.sp.gov.br', local: 'http://localhost:5174' },
             { prod: 'https://docs.urbis.prefeitura.sp.gov.br', local: 'http://localhost:3010' },
-            { prod: 'https://conta.urbis.sampa.br', local: 'http://localhost:4200' },
-            { prod: 'https://mapa.urbis.sampa.br', local: 'http://localhost:5173' },
-            { prod: 'https://urbis.sampa.br', local: 'http://localhost:5174' },
-            { prod: 'https://docs.urbis.sampa.br', local: 'http://localhost:3010' },
         ];
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -127,7 +123,7 @@
                     if (isLocal) {
                         window.location.href = 'http://localhost:5174';
                     } else {
-                        window.location.href = 'https://urbis.sampa.br';
+                        window.location.href = 'https://urbis.prefeitura.sp.gov.br';
                     }
                 }, 2000);
             });

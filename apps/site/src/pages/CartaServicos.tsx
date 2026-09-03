@@ -1,14 +1,13 @@
 export default function CartaServicos() {
-
   const scrollTo = (id: string) => {
-    const element = document.getElementById(id)
+    const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' })
+      element.scrollIntoView({ behavior: "smooth" });
     }
-  }
+  };
 
   return (
-     <div className="flex flex-col font-sans bg-muted/30">
+    <div className="flex flex-col font-sans bg-muted/30">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center gap-4 py-6 px-4 max-w-[900px] mx-auto w-full border-b border-border">
         <h1 className="text-2xl font-bold m-0 text-foreground">
@@ -22,9 +21,9 @@ export default function CartaServicos() {
         <div className="bg-destructive/10 border-l-4 border-destructive p-4 rounded-r-md">
           <strong className="text-destructive">ATENÇÃO:</strong>
           <span className="text-foreground ml-2">
-            {' '}
-            esta página é uma versão demonstrativa e pode conter erros. Contribuições e correções de links podem
-            ser enviados para{' '}
+            {" "}
+            esta página é uma versão demonstrativa e pode conter erros.
+            Contribuições e correções de links podem ser enviados para{" "}
             <a
               href="mailto:codata@prefeitura.sp.gov.br"
               className="text-blue-600 underline hover:text-blue-700 font-medium"
@@ -38,10 +37,12 @@ export default function CartaServicos() {
         {/* Intro */}
         <section className="bg-card p-6 rounded-lg shadow-sm border border-border">
           <p className="text-card-foreground leading-relaxed">
-            Abaixo estão os sistemas e outros canais para solicitar documentos de controle urbanístico como licenças,
-            autorizações, permissões, termos etc. e documentos auxiliares, necessários para atividades como
-            parcelamentos do solo, obras, construções, edificações, usos urbanísticos, assim como documentos de
-            controle de segurança, acessibilidade, ambiental, cultural e sanitário.
+            Abaixo estão os sistemas e outros canais para solicitar documentos
+            de controle urbanístico como licenças, autorizações, permissões,
+            termos etc. e documentos auxiliares, necessários para atividades
+            como parcelamentos do solo, obras, construções, edificações, usos
+            urbanísticos, assim como documentos de controle de segurança,
+            acessibilidade, ambiental, cultural e sanitário.
           </p>
         </section>
 
@@ -49,7 +50,8 @@ export default function CartaServicos() {
         <nav className="p-6 bg-accent/20 border-l-4 border-primary rounded-r-lg">
           <h2 className="text-xl font-bold mb-4 text-primary">Sumário</h2>
           <p className="mb-2 font-semibold text-foreground">
-            Sistemas e outros canais de solicitação de documentos e outros pedidos relacionados
+            Sistemas e outros canais de solicitação de documentos e outros
+            pedidos relacionados
           </p>
           <ul className="list-none pl-0 space-y-2 text-foreground">
             <li>
@@ -59,8 +61,8 @@ export default function CartaServicos() {
                   <button
                     className="text-primary hover:underline bg-transparent border-none p-0 text-left cursor-pointer font-medium"
                     onClick={(e) => {
-                      e.preventDefault()
-                      scrollTo('cadastro')
+                      e.preventDefault();
+                      scrollTo("cadastro");
                     }}
                   >
                     Cadastrais e de viabilidade
@@ -70,8 +72,8 @@ export default function CartaServicos() {
                   <button
                     className="text-primary hover:underline bg-transparent border-none p-0 text-left cursor-pointer font-medium"
                     onClick={(e) => {
-                      e.preventDefault()
-                      scrollTo('geral')
+                      e.preventDefault();
+                      scrollTo("geral");
                     }}
                   >
                     Geral
@@ -81,8 +83,8 @@ export default function CartaServicos() {
                   <button
                     className="text-primary hover:underline bg-transparent border-none p-0 text-left cursor-pointer font-medium"
                     onClick={(e) => {
-                      e.preventDefault()
-                      scrollTo('seguranca')
+                      e.preventDefault();
+                      scrollTo("seguranca");
                     }}
                   >
                     Segurança
@@ -92,8 +94,8 @@ export default function CartaServicos() {
                   <button
                     className="text-primary hover:underline bg-transparent border-none p-0 text-left cursor-pointer font-medium"
                     onClick={(e) => {
-                      e.preventDefault()
-                      scrollTo('salubridade')
+                      e.preventDefault();
+                      scrollTo("salubridade");
                     }}
                   >
                     Sanitário
@@ -103,8 +105,8 @@ export default function CartaServicos() {
                   <button
                     className="text-primary hover:underline bg-transparent border-none p-0 text-left cursor-pointer font-medium"
                     onClick={(e) => {
-                      e.preventDefault()
-                      scrollTo('acessibilidade')
+                      e.preventDefault();
+                      scrollTo("acessibilidade");
                     }}
                   >
                     Acessibilidade
@@ -116,8 +118,8 @@ export default function CartaServicos() {
               <button
                 className="text-primary hover:underline bg-transparent border-none p-0 text-left cursor-pointer font-medium"
                 onClick={(e) => {
-                  e.preventDefault()
-                  scrollTo('ambiental')
+                  e.preventDefault();
+                  scrollTo("ambiental");
                 }}
               >
                 Controle ambiental
@@ -127,8 +129,8 @@ export default function CartaServicos() {
               <button
                 className="text-primary hover:underline bg-transparent border-none p-0 text-left cursor-pointer font-medium"
                 onClick={(e) => {
-                  e.preventDefault()
-                  scrollTo('cultural')
+                  e.preventDefault();
+                  scrollTo("cultural");
                 }}
               >
                 Controle cultural
@@ -139,11 +141,9 @@ export default function CartaServicos() {
 
         {/* CADASTRAIS E DE VIABILIDADE */}
         <section className="bg-card p-6 rounded-lg shadow-sm border border-border">
-          <h2
-            id="cadastro"
-            className="text-xl font-bold mb-4 text-primary"
-          >
-            Documentos de controle urbanístico (Cadastrais e de viabilidade) - Sistemas e outros canais de solicitação
+          <h2 id="cadastro" className="text-xl font-bold mb-4 text-primary">
+            Documentos de controle urbanístico (Cadastrais e de viabilidade) -
+            Sistemas e outros canais de solicitação
           </h2>
 
           <ul className="list-disc pl-6 space-y-3 text-muted-foreground">
@@ -157,18 +157,30 @@ export default function CartaServicos() {
                 Portal 156
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
-                <li>Certidão de Melhoramento Viário e/ou cópia digital da Planta de Melhoramento Viário</li>
+                <li>
+                  Certidão de Melhoramento Viário e/ou cópia digital da Planta
+                  de Melhoramento Viário
+                </li>
                 <li>Certidão de Desapropriação</li>
                 <li>Cópia de planta expropriatória (desapropriação)</li>
-                <li>Certidão de Diretrizes Hidráulicas e Faixas não Edificáveis</li>
+                <li>
+                  Certidão de Diretrizes Hidráulicas e Faixas não Edificáveis
+                </li>
                 <li>Certidão sobre o histórico da numeração do imóvel</li>
-                <li>Certidão sobre a oficialização e alteração de denominação de logradouro</li>
+                <li>
+                  Certidão sobre a oficialização e alteração de denominação de
+                  logradouro
+                </li>
                 <li>Certidão de Tombamento Definitivo</li>
-                <li>Certidão de Tombamento Provisório (Abertura de Processo de Tombamento - APT)</li>
+                <li>
+                  Certidão de Tombamento Provisório (Abertura de Processo de
+                  Tombamento - APT)
+                </li>
                 <li>Certidão de Arquivamento da APT</li>
                 <li>
-                  Certidão de incidência de Legislação municipal e estadual de Patrimônio Cultural no Município de São
-                  Paulo (indisponibilidade de emissão pelo GeoSampa)
+                  Certidão de incidência de Legislação municipal e estadual de
+                  Patrimônio Cultural no Município de São Paulo
+                  (indisponibilidade de emissão pelo GeoSampa)
                 </li>
               </ul>
             </li>
@@ -184,14 +196,16 @@ export default function CartaServicos() {
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Pesquisa de existência de processos e desarquivamento (planta/alvarás) (de processos físicos
-                  arquivados)
+                  Pesquisa de existência de processos e desarquivamento
+                  (planta/alvarás) (de processos físicos arquivados)
                 </li>
               </ul>
             </li>
 
             <li>
-              <span className="font-semibold text-foreground">Protocolo pelo e-mail </span>
+              <span className="font-semibold text-foreground">
+                Protocolo pelo e-mail{" "}
+              </span>
               <a
                 href="mailto:capdeprot@prefeitura.sp.gov.br"
                 target="_blank"
@@ -199,15 +213,21 @@ export default function CartaServicos() {
                 className="text-blue-600 underline hover:text-blue-700 font-semibold"
               >
                 capdeprot@prefeitura.sp.gov.br
-              </a>{' '}
+              </a>{" "}
               <span className="font-semibold text-foreground">
-                (autuação no Sistema Eletrônico de Informações - SEI por SMUL/CAP/DEPROT)
+                (autuação no Sistema Eletrônico de Informações - SEI por
+                SMUL/CAP/DEPROT)
               </span>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>Diretrizes de Projeto</li>
-                <li>Termo de Consulta de Funcionamento (para Alvará de Funcionamento para Local de Reunião)</li>
+                <li>
+                  Termo de Consulta de Funcionamento (para Alvará de
+                  Funcionamento para Local de Reunião)
+                </li>
                 <li>Certidão de Uso e Ocupação do Solo</li>
-                <li>Certidão de Confrontação referente a Parcelamento do Solo</li>
+                <li>
+                  Certidão de Confrontação referente a Parcelamento do Solo
+                </li>
               </ul>
             </li>
 
@@ -223,11 +243,14 @@ export default function CartaServicos() {
               </a>
               )
               <ul className="list-disc pl-6 mt-1 space-y-1">
-                <li>Termo de Consulta de Funcionamento (para Auto de Licença de Funcionamento)</li>
+                <li>
+                  Termo de Consulta de Funcionamento (para Auto de Licença de
+                  Funcionamento)
+                </li>
                 <li>Certidão de alinhamento e nivelamento de imóveis</li>
                 <li>
-                  Orientações e autorização para execução de calçada em condições excepcionais (Decreto nº
-                  59.671/2020 - art. 25)
+                  Orientações e autorização para execução de calçada em
+                  condições excepcionais (Decreto nº 59.671/2020 - art. 25)
                 </li>
               </ul>
             </li>
@@ -239,7 +262,8 @@ export default function CartaServicos() {
                 rel="noreferrer"
                 className="text-blue-600 underline hover:text-blue-700 font-semibold"
               >
-                Plataforma de Regularização de Edificações (“Portal de Licenciamento”)
+                Plataforma de Regularização de Edificações (“Portal de
+                Licenciamento”)
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>Ficha Técnica</li>
@@ -303,16 +327,17 @@ export default function CartaServicos() {
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Certidão de incidência de Legislação municipal e estadual de Patrimônio Cultural no Município de São
-                  Paulo (Pesquisar {'>'} CIT {'>'} Visualizar Impressão)
+                  Certidão de incidência de Legislação municipal e estadual de
+                  Patrimônio Cultural no Município de São Paulo (Pesquisar {">"}{" "}
+                  CIT {">"} Visualizar Impressão)
                 </li>
               </ul>
             </li>
 
             <li>
               <span className="font-semibold text-foreground">
-                Protocolo na Rua do Paraíso, nº 387, Térreo, Paraíso, de segunda a sexta-feira, das 8h às 17h ou pelo
-                e-mail{' '}
+                Protocolo na Rua do Paraíso, nº 387, Térreo, Paraíso, de segunda
+                a sexta-feira, das 8h às 17h ou pelo e-mail{" "}
               </span>
               <a
                 href="mailto:svmaprotocolo@prefeitura.sp.gov.br"
@@ -321,14 +346,15 @@ export default function CartaServicos() {
                 className="text-blue-600 underline hover:text-blue-700 font-semibold"
               >
                 svmaprotocolo@prefeitura.sp.gov.br
-              </a>{' '}
+              </a>{" "}
               <span className="font-semibold text-foreground">
-                (autuação no Sistema Eletrônico de Informações - SEI por SVMA/DIM)
+                (autuação no Sistema Eletrônico de Informações - SEI por
+                SVMA/DIM)
               </span>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Consulta Prévia (para Licença Ambiental de empreendimentos geradores de impacto local ou Alvará
-                  Ambiental em APRM)
+                  Consulta Prévia (para Licença Ambiental de empreendimentos
+                  geradores de impacto local ou Alvará Ambiental em APRM)
                 </li>
                 <li>Pré análise</li>
               </ul>
@@ -338,11 +364,9 @@ export default function CartaServicos() {
 
         {/* GERAL */}
         <section className="bg-card p-6 rounded-lg shadow-sm border border-border">
-          <h2
-            id="geral"
-            className="text-xl font-bold mb-4 text-primary"
-          >
-            Documentos de controle urbanístico (Geral) - Sistemas e outros canais de solicitação
+          <h2 id="geral" className="text-xl font-bold mb-4 text-primary">
+            Documentos de controle urbanístico (Geral) - Sistemas e outros
+            canais de solicitação
           </h2>
 
           <ul className="list-disc pl-6 space-y-3 text-muted-foreground">
@@ -360,7 +384,8 @@ export default function CartaServicos() {
                   Alvará (incluindo de Projeto Modificativo)
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>
-                      de Aprovação e/ou Execução de Edificação Nova / Reforma (exceto Unifamiliar; HIS/HMP ou não)
+                      de Aprovação e/ou Execução de Edificação Nova / Reforma
+                      (exceto Unifamiliar; HIS/HMP ou não)
                     </li>
                   </ul>
                 </li>
@@ -368,22 +393,30 @@ export default function CartaServicos() {
                   Alvará
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>
-                      de Execução de Demolição (total ou parcial da edificação, quando incluído no licenciamento
-                      edilício dado por documento emitido pelo AD)
+                      de Execução de Demolição (total ou parcial da edificação,
+                      quando incluído no licenciamento edilício dado por
+                      documento emitido pelo AD)
                     </li>
                     <li>
-                      de Execução de Movimento de Terra (quando incluído no licenciamento edilício dado por documento
-                      emitido pelo AD)
+                      de Execução de Movimento de Terra (quando incluído no
+                      licenciamento edilício dado por documento emitido pelo AD)
                     </li>
                     <li>
-                      de Execução de Muro de Arrimo (quando incluído no licenciamento edilício dado por documento
-                      emitido pelo AD)
+                      de Execução de Muro de Arrimo (quando incluído no
+                      licenciamento edilício dado por documento emitido pelo AD)
                     </li>
                     <li>
-                      de Desmembramento (exceto se vinculado a pedido edilício do SLCe; seccionado por ZEIS ou não)
+                      de Desmembramento (exceto se vinculado a pedido edilício
+                      do SLCe; seccionado por ZEIS ou não)
                     </li>
-                    <li>de Remembramento (exceto se vinculado a pedido edilício do SLCe)</li>
-                    <li>de Reparcelamento (exceto se vinculado a pedido edilício do SLCe)</li>
+                    <li>
+                      de Remembramento (exceto se vinculado a pedido edilício do
+                      SLCe)
+                    </li>
+                    <li>
+                      de Reparcelamento (exceto se vinculado a pedido edilício
+                      do SLCe)
+                    </li>
                     <li>de Instalação de Heliponto</li>
                     <li>de Implantação de Estação Rádio-Base - ERB</li>
                   </ul>
@@ -392,27 +425,38 @@ export default function CartaServicos() {
                   Autorização
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>
-                      Avanço de Grua sobre o Espaço Público (relacionado a obra licenciada por documento emitido pelo
-                      AD)
-                    </li>
-                    <li>
-                      Avanço do Tapume sobre Parte do Passeio Público (relacionado a obra dispensada de licença ou
+                      Avanço de Grua sobre o Espaço Público (relacionado a obra
                       licenciada por documento emitido pelo AD)
                     </li>
                     <li>
-                      Implantação e/ou Utilização de Estande de Vendas (relacionado a obra licenciada por documento
-                      emitido pelo AD)
+                      Avanço do Tapume sobre Parte do Passeio Público
+                      (relacionado a obra dispensada de licença ou licenciada
+                      por documento emitido pelo AD)
+                    </li>
+                    <li>
+                      Implantação e/ou Utilização de Estande de Vendas
+                      (relacionado a obra licenciada por documento emitido pelo
+                      AD)
                     </li>
                   </ul>
                 </li>
-                <li>Certificado de Conclusão (de edificação licenciada por documento emitido pelo AD)</li>
-                <li>Isenção da Taxa para Exame e Verificação (de documentos emitidos pelo AD)</li>
+                <li>
+                  Certificado de Conclusão (de edificação licenciada por
+                  documento emitido pelo AD)
+                </li>
+                <li>
+                  Isenção da Taxa para Exame e Verificação (de documentos
+                  emitidos pelo AD)
+                </li>
                 <li>Apostilamento (de documentos emitidos pelo AD)</li>
                 <li>Revalidação (de documentos emitidos pelo AD)</li>
                 <li>
                   Documentos auxiliares
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>Certidão de Conformidade (emitida nos processos de Desmembramento / Loteamento)</li>
+                    <li>
+                      Certidão de Conformidade (emitida nos processos de
+                      Desmembramento / Loteamento)
+                    </li>
                     <li>Certidão de Diretrizes Urbanísticas</li>
                   </ul>
                 </li>
@@ -423,14 +467,18 @@ export default function CartaServicos() {
                       Plano Integrado
                       <ul className="list-disc pl-6 mt-1 space-y-1">
                         <li>
-                          Alvará de Desmembramento / Loteamento + Alvará de Aprovação e/ou Execução de Edificação Nova
+                          Alvará de Desmembramento / Loteamento + Alvará de
+                          Aprovação e/ou Execução de Edificação Nova
                         </li>
                       </ul>
                     </li>
                     <li>
                       Programa Pode Entrar
                       <ul className="list-disc pl-6 mt-1 space-y-1">
-                        <li>Alvará de Aprovação e/ou Execução de Edificação Nova (HIS/HMP)</li>
+                        <li>
+                          Alvará de Aprovação e/ou Execução de Edificação Nova
+                          (HIS/HMP)
+                        </li>
                       </ul>
                     </li>
                   </ul>
@@ -449,67 +497,110 @@ export default function CartaServicos() {
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Alvará (incluindo de Projeto Modificativo / Apostilamento / Revalidação)
+                  Alvará (incluindo de Projeto Modificativo / Apostilamento /
+                  Revalidação)
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>de Aprovação e Execução para Residência Unifamiliar (de Edificação Nova / Reforma)</li>
+                    <li>
+                      de Aprovação e Execução para Residência Unifamiliar (de
+                      Edificação Nova / Reforma)
+                    </li>
                   </ul>
                 </li>
                 <li>
                   Alvará (incluindo Apostilamento / Revalidação)
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>
-                      de Execução de Demolição (total ou parcial da edificação, quando incluído no licenciamento edilício
-                      dado por documento emitido pelo SLCe, ou total da edificação, quando desvinculado de licenciamento
-                      edilício)
+                      de Execução de Demolição (total ou parcial da edificação,
+                      quando incluído no licenciamento edilício dado por
+                      documento emitido pelo SLCe, ou total da edificação,
+                      quando desvinculado de licenciamento edilício)
                     </li>
                     <li>
-                      de Execução de Movimento de Terra (quando incluído no licenciamento edilício dado por documento
-                      emitido pelo SLCe)
+                      de Execução de Movimento de Terra (quando incluído no
+                      licenciamento edilício dado por documento emitido pelo
+                      SLCe)
                     </li>
                     <li>
-                      de Execução de Muro de Arrimo (quando incluído no licenciamento edilício dado por documento
-                      emitido pelo SLCe)
+                      de Execução de Muro de Arrimo (quando incluído no
+                      licenciamento edilício dado por documento emitido pelo
+                      SLCe)
                     </li>
-                    <li>de Desmembramento (vinculado a pedido edilício do SLCe)</li>
-                    <li>de Remembramento (vinculado a pedido edilício do SLCe)</li>
-                    <li>de Reparcelamento (vinculado a pedido edilício do SLCe)</li>
+                    <li>
+                      de Desmembramento (vinculado a pedido edilício do SLCe)
+                    </li>
+                    <li>
+                      de Remembramento (vinculado a pedido edilício do SLCe)
+                    </li>
+                    <li>
+                      de Reparcelamento (vinculado a pedido edilício do SLCe)
+                    </li>
                   </ul>
                 </li>
                 <li>
                   Autorização
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>
-                      Avanço de Grua sobre o Espaço Público (relacionado a obra licenciada por documento emitido pelo
+                      Avanço de Grua sobre o Espaço Público (relacionado a obra
+                      licenciada por documento emitido pelo SLCe)
+                    </li>
+                    <li>
+                      Avanço do Tapume sobre Parte do Passeio Público
+                      (relacionado a obra licenciada por documento emitido pelo
                       SLCe)
                     </li>
                     <li>
-                      Avanço do Tapume sobre Parte do Passeio Público (relacionado a obra licenciada por documento
-                      emitido pelo SLCe)
-                    </li>
-                    <li>
-                      Implantação e/ou Utilização de Estande de Vendas (relacionado a obra licenciada por documento
-                      emitido pelo SLCe ou pelo SISACOE, exceto pelo procedimento Aprova Rápido)
+                      Implantação e/ou Utilização de Estande de Vendas
+                      (relacionado a obra licenciada por documento emitido pelo
+                      SLCe ou pelo SISACOE, exceto pelo procedimento Aprova
+                      Rápido)
                     </li>
                   </ul>
                 </li>
                 <li>
                   Certificado de Conclusão
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>edilício (de edificação licenciada por documento emitido pelo SLCe, exceto demolição)</li>
-                    <li>de Demolição (relacionado a demolição licenciada por documento emitido pelo SLCe)</li>
+                    <li>
+                      edilício (de edificação licenciada por documento emitido
+                      pelo SLCe, exceto demolição)
+                    </li>
+                    <li>
+                      de Demolição (relacionado a demolição licenciada por
+                      documento emitido pelo SLCe)
+                    </li>
                   </ul>
                 </li>
                 <li>
                   Comunicações
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>de Execução de Obras Emergenciais</li>
-                    <li>de Transferência de Responsabilidade Técnica (de documentos emitidos pelo SLCe)</li>
-                    <li>de Substituição de Responsabilidade Técnica (de documentos emitidos pelo SLCe)</li>
-                    <li>de Baixa de Responsabilidade Técnica (de documentos emitidos pelo SLCe)</li>
-                    <li>de Assunção de Responsabilidade Técnica (de documentos emitidos pelo SLCe)</li>
-                    <li>de Início de Obra (licenciada por documento emitido pelo SLCe)</li>
-                    <li>de Paralização de Obra (licenciada por documento emitido pelo SLCe)</li>
-                    <li>de Reinício de Obra Paralisada (licenciada por documento emitido pelo SLCe)</li>
+                    <li>
+                      de Transferência de Responsabilidade Técnica (de
+                      documentos emitidos pelo SLCe)
+                    </li>
+                    <li>
+                      de Substituição de Responsabilidade Técnica (de documentos
+                      emitidos pelo SLCe)
+                    </li>
+                    <li>
+                      de Baixa de Responsabilidade Técnica (de documentos
+                      emitidos pelo SLCe)
+                    </li>
+                    <li>
+                      de Assunção de Responsabilidade Técnica (de documentos
+                      emitidos pelo SLCe)
+                    </li>
+                    <li>
+                      de Início de Obra (licenciada por documento emitido pelo
+                      SLCe)
+                    </li>
+                    <li>
+                      de Paralização de Obra (licenciada por documento emitido
+                      pelo SLCe)
+                    </li>
+                    <li>
+                      de Reinício de Obra Paralisada (licenciada por documento
+                      emitido pelo SLCe)
+                    </li>
                   </ul>
                 </li>
                 <li>Projeto Modificativo (de documentos emitidos pelo SLCe)</li>
@@ -526,8 +617,9 @@ export default function CartaServicos() {
 
             <li>
               <span className="font-semibold text-foreground">
-                Requerimento Web (Sistema de Administração do Código de Obras e Edificações - SISACOE)
-              </span>{' '}
+                Requerimento Web (Sistema de Administração do Código de Obras e
+                Edificações - SISACOE)
+              </span>{" "}
               (
               <a
                 href="https://www3.prefeitura.sp.gov.br/sd2110/Forms/sisacoePH.aspx"
@@ -537,7 +629,7 @@ export default function CartaServicos() {
               >
                 link
               </a>
-              ) e{' '}
+              ) e{" "}
               <a
                 href="https://processos.prefeitura.sp.gov.br/Forms/PedidoEletronico1.aspx"
                 target="_blank"
@@ -556,13 +648,17 @@ export default function CartaServicos() {
                         <li>
                           Alvará (incluindo de Projeto Modificativo)
                           <ul className="list-disc pl-6 mt-1 space-y-1">
-                            <li>de Aprovação e/ou Execução de Edificação Nova (HIS/HMP ou não)</li>
+                            <li>
+                              de Aprovação e/ou Execução de Edificação Nova
+                              (HIS/HMP ou não)
+                            </li>
                           </ul>
                         </li>
                         <li>
-                          Autorização de Implantação e/ou Utilização de Estande de Vendas (emitida nos processos de
-                          Alvará / Projeto Modificativo de Aprovação e/ou Execução de Edificação Nova - HIS/HMP ou
-                          não, no procedimento Aprova Rápido)
+                          Autorização de Implantação e/ou Utilização de Estande
+                          de Vendas (emitida nos processos de Alvará / Projeto
+                          Modificativo de Aprovação e/ou Execução de Edificação
+                          Nova - HIS/HMP ou não, no procedimento Aprova Rápido)
                         </li>
                       </ul>
                     </li>
@@ -576,22 +672,25 @@ export default function CartaServicos() {
                           </ul>
                         </li>
                         <li>
-                          Autorização de Implantação e/ou Utilização de Estande de Vendas (emitida nos processos de
-                          Alvará / Projeto Modificativo de Requalificação, no procedimento Requalifica Rápido)
+                          Autorização de Implantação e/ou Utilização de Estande
+                          de Vendas (emitida nos processos de Alvará / Projeto
+                          Modificativo de Requalificação, no procedimento
+                          Requalifica Rápido)
                         </li>
                       </ul>
                     </li>
                   </ul>
                 </li>
                 <li>
-                  Apostilamento (de documentos emitidos através dos procedimentos Aprova Rápido / Requalifica Rápido)
+                  Apostilamento (de documentos emitidos através dos
+                  procedimentos Aprova Rápido / Requalifica Rápido)
                 </li>
               </ul>
             </li>
 
             <li>
               <span className="font-semibold text-foreground">
-                Requerimento Web (SISACOE) e autuação pelo e-mail{' '}
+                Requerimento Web (SISACOE) e autuação pelo e-mail{" "}
               </span>
               <a
                 href="mailto:capdeprot@prefeitura.sp.gov.br"
@@ -600,7 +699,7 @@ export default function CartaServicos() {
                 className="text-blue-600 underline hover:text-blue-700 font-semibold"
               >
                 capdeprot@prefeitura.sp.gov.br
-              </a>{' '}
+              </a>{" "}
               <span className="font-semibold text-foreground">
                 (no Sistema Eletrônico de Informações - SEI por SMUL/CAP/DEPROT)
               </span>
@@ -612,15 +711,21 @@ export default function CartaServicos() {
                     <li>de Autorização para eventos públicos e temporários</li>
                   </ul>
                 </li>
-                <li>Certificado de Regularização (exceto pela Lei nº 17.202/2019)</li>
                 <li>
-                  Notificação de Exigências Complementares - NEC (emitida nos processos de Certificado de Regularização
-                  - exceto pela Lei nº 17.202/2019)
+                  Certificado de Regularização (exceto pela Lei nº 17.202/2019)
                 </li>
-                <li>Termo de Consentimento para Atividade Edilícia Pública - TCAEP</li>
                 <li>
-                  Apostilamento (de documentos emitidos pelo SISACOE, incluindo Transferência, Substituição, Baixa e
-                  Assunção de Responsabilidade Técnica)
+                  Notificação de Exigências Complementares - NEC (emitida nos
+                  processos de Certificado de Regularização - exceto pela Lei nº
+                  17.202/2019)
+                </li>
+                <li>
+                  Termo de Consentimento para Atividade Edilícia Pública - TCAEP
+                </li>
+                <li>
+                  Apostilamento (de documentos emitidos pelo SISACOE, incluindo
+                  Transferência, Substituição, Baixa e Assunção de
+                  Responsabilidade Técnica)
                 </li>
               </ul>
             </li>
@@ -638,20 +743,30 @@ export default function CartaServicos() {
                 <li>
                   Certificado de Conclusão
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>edilício (de edificação licenciada por documento emitido pelo SISACOE, exceto demolição)</li>
-                    <li>de Demolição (de demolição licenciada por documento emitido pelo SISACOE)</li>
+                    <li>
+                      edilício (de edificação licenciada por documento emitido
+                      pelo SISACOE, exceto demolição)
+                    </li>
+                    <li>
+                      de Demolição (de demolição licenciada por documento
+                      emitido pelo SISACOE)
+                    </li>
                   </ul>
                 </li>
                 <li>
                   Autorização
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>
-                      Avanço de Grua sobre o Espaço Público (relacionado a obra licenciada por documento emitido pelo
-                      SISACOE, exceto TCAEP ou pelo procedimento Aprova Rápido ou Requalifica Rápido)
+                      Avanço de Grua sobre o Espaço Público (relacionado a obra
+                      licenciada por documento emitido pelo SISACOE, exceto
+                      TCAEP ou pelo procedimento Aprova Rápido ou Requalifica
+                      Rápido)
                     </li>
                     <li>
-                      Avanço do Tapume sobre Parte do Passeio Público (relacionado a obra licenciada por documento
-                      emitido pelo SISACOE, exceto TCAEP ou pelo procedimento Aprova Rápido ou Requalifica Rápido)
+                      Avanço do Tapume sobre Parte do Passeio Público
+                      (relacionado a obra licenciada por documento emitido pelo
+                      SISACOE, exceto TCAEP ou pelo procedimento Aprova Rápido
+                      ou Requalifica Rápido)
                     </li>
                   </ul>
                 </li>
@@ -665,13 +780,15 @@ export default function CartaServicos() {
                 rel="noreferrer"
                 className="text-blue-600 underline hover:text-blue-700 font-semibold"
               >
-                Plataforma de Regularização de Edificações (“Portal de Licenciamento”)
+                Plataforma de Regularização de Edificações (“Portal de
+                Licenciamento”)
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>Certificado de Regularização (Lei nº 17.202/2019)</li>
                 <li>
-                  Notificação de Exigências Complementares - NEC (emitida nos processos de Certificado de
-                  Regularização - Lei nº 17.202/2019)
+                  Notificação de Exigências Complementares - NEC (emitida nos
+                  processos de Certificado de Regularização - Lei nº
+                  17.202/2019)
                 </li>
               </ul>
             </li>
@@ -687,27 +804,30 @@ export default function CartaServicos() {
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Autorização para Execução de Obras de Infraestrutura Urbana (execução de serviço ou obra nas vias e
-                  espaços públicos municipais)
+                  Autorização para Execução de Obras de Infraestrutura Urbana
+                  (execução de serviço ou obra nas vias e espaços públicos
+                  municipais)
                 </li>
                 <li>
                   Documentos auxiliares:
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>
-                      Termo de Permissão de Uso - TPU (emitido nos processos de Autorização para Execução de Obras de
-                      Infraestrutura Urbana)
+                      Termo de Permissão de Uso - TPU (emitido nos processos de
+                      Autorização para Execução de Obras de Infraestrutura
+                      Urbana)
                     </li>
                     <li>
-                      Alvará de Instalação (emitido nos processos de Autorização para Execução de Obras de
-                      Infraestrutura Urbana)
+                      Alvará de Instalação (emitido nos processos de Autorização
+                      para Execução de Obras de Infraestrutura Urbana)
                     </li>
                     <li>
-                      Alvará de Manutenção (emitido nos processos de Autorização para Execução de Obras de
-                      Infraestrutura Urbana)
+                      Alvará de Manutenção (emitido nos processos de Autorização
+                      para Execução de Obras de Infraestrutura Urbana)
                     </li>
                     <li>
-                      Termo de Permissão para Ocupação de Vias - TPOV (emitido nos processos de Autorização para
-                      Execução de Obras de Infraestrutura Urbana)
+                      Termo de Permissão para Ocupação de Vias - TPOV (emitido
+                      nos processos de Autorização para Execução de Obras de
+                      Infraestrutura Urbana)
                     </li>
                   </ul>
                 </li>
@@ -726,8 +846,8 @@ export default function CartaServicos() {
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>Cadastro de Estação Rádio-Base - ERB móvel</li>
                 <li>
-                  Apostilamentos (de documentos emitidos pelo SLC, também conhecido como SLC2 ou SLCII - Portaria SMSP
-                  nº 8/2013)
+                  Apostilamentos (de documentos emitidos pelo SLC, também
+                  conhecido como SLC2 ou SLCII - Portaria SMSP nº 8/2013)
                 </li>
                 <li>
                   Pedidos auxiliares:
@@ -740,7 +860,7 @@ export default function CartaServicos() {
 
             <li>
               <span className="font-semibold text-foreground">
-                Protocolo pelo e-mail{' '}
+                Protocolo pelo e-mail{" "}
                 <a
                   href="mailto:capdeprot@prefeitura.sp.gov.br"
                   target="_blank"
@@ -748,23 +868,31 @@ export default function CartaServicos() {
                   className="text-blue-600 underline hover:text-blue-700 font-semibold"
                 >
                   capdeprot@prefeitura.sp.gov.br
-                </a>{' '}
-                (autuação no Sistema Eletrônico de Informações - SEI por SMUL/CAP/DEPROT)
+                </a>{" "}
+                (autuação no Sistema Eletrônico de Informações - SEI por
+                SMUL/CAP/DEPROT)
               </span>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
                   Alvará (incluindo de Projeto Modificativo)
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>de Aprovação e/ou Execução de Movimento de Terra (exceto se incluído no licenciamento edilício)</li>
+                    <li>
+                      de Aprovação e/ou Execução de Movimento de Terra (exceto
+                      se incluído no licenciamento edilício)
+                    </li>
                   </ul>
                 </li>
                 <li>
                   Alvará
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>de Execução de Muro de Arrimo (exceto se incluído no licenciamento edilício)</li>
                     <li>
-                      de Execução de Demolição de Bloco Isolado (exceto se incluído no licenciamento edilício - Lei nº
-                      16.642/2017 - art. 23 - V)
+                      de Execução de Muro de Arrimo (exceto se incluído no
+                      licenciamento edilício)
+                    </li>
+                    <li>
+                      de Execução de Demolição de Bloco Isolado (exceto se
+                      incluído no licenciamento edilício - Lei nº 16.642/2017 -
+                      art. 23 - V)
                     </li>
                   </ul>
                 </li>
@@ -772,26 +900,34 @@ export default function CartaServicos() {
                   Autorização
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>
-                      Avanço de Grua sobre o Espaço Público (relacionado a obra licenciada por TCAEP ou pelo
+                      Avanço de Grua sobre o Espaço Público (relacionado a obra
+                      licenciada por TCAEP ou pelo procedimento Aprova Rápido ou
+                      Requalifica Rápido)
+                    </li>
+                    <li>
+                      Avanço do Tapume sobre Parte do Passeio Público
+                      (relacionado a obra licenciada por TCAEP ou pelo
                       procedimento Aprova Rápido ou Requalifica Rápido)
                     </li>
                     <li>
-                      Avanço do Tapume sobre Parte do Passeio Público (relacionado a obra licenciada por TCAEP ou pelo
-                      procedimento Aprova Rápido ou Requalifica Rápido)
+                      Instalação de Canteiro de Obras em Imóvel Distinto daquele
+                      em que a Obra será Executada
                     </li>
-                    <li>Instalação de Canteiro de Obras em Imóvel Distinto daquele em que a Obra será Executada</li>
                   </ul>
                 </li>
                 <li>Auto de Licença de Funcionamento de Heliponto</li>
                 <li>
-                  Comunicar término de fundações e/ou andamento da obra (Decreto nº 57.776/2017 - art. 22 - § 1º - I e
-                  III)
+                  Comunicar término de fundações e/ou andamento da obra (Decreto
+                  nº 57.776/2017 - art. 22 - § 1º - I e III)
                 </li>
                 <li>
                   Documentos auxiliares:
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>Oficialização e desoficialização de logradouros</li>
-                    <li>Declaração de Potencial Construtivo Passível de Transferência</li>
+                    <li>
+                      Declaração de Potencial Construtivo Passível de
+                      Transferência
+                    </li>
                     <li>Certidão de Transferência do Direito de Construir</li>
                   </ul>
                 </li>
@@ -800,9 +936,11 @@ export default function CartaServicos() {
 
             <li>
               <span className="font-semibold text-foreground">
-                Protocolo na Rua Boa Vista, 128, Térreo, Centro Histórico, de segunda a sexta-feira, das 10h às 15h
-              </span>{' '}
-              (autuação no Sistema Eletrônico de Informações - SEI por SMT/Protocolo -{' '}
+                Protocolo na Rua Boa Vista, 128, Térreo, Centro Histórico, de
+                segunda a sexta-feira, das 10h às 15h
+              </span>{" "}
+              (autuação no Sistema Eletrônico de Informações - SEI por
+              SMT/Protocolo -{" "}
               <a
                 href="mailto:smtprotocolo@prefeitura.sp.gov.br"
                 target="_blank"
@@ -816,7 +954,9 @@ export default function CartaServicos() {
                 <li>
                   Documentos auxiliares:
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>Certidão de Diretrizes para Pólo Gerador de Tráfego - PGT</li>
+                    <li>
+                      Certidão de Diretrizes para Pólo Gerador de Tráfego - PGT
+                    </li>
                     <li>Termo de Recebimento e Aceitação Parcial - TRAP</li>
                     <li>Termo de Recebimento e Aceitação Definitivo - TRAD</li>
                   </ul>
@@ -835,14 +975,15 @@ export default function CartaServicos() {
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Autorização para Ocupação ou Interferência em Via Pública - TPOV (para desvio do trânsito de
-                  pedestres para o leito carroçável)
+                  Autorização para Ocupação ou Interferência em Via Pública -
+                  TPOV (para desvio do trânsito de pedestres para o leito
+                  carroçável)
                 </li>
               </ul>
             </li>
 
             <li>
-              Protocolo pelo e-mail{' '}
+              Protocolo pelo e-mail{" "}
               <a
                 href="mailto:dao@cetsp.com.br"
                 target="_blank"
@@ -850,10 +991,14 @@ export default function CartaServicos() {
                 className="text-blue-600 underline hover:text-blue-700 font-semibold"
               >
                 dao@cetsp.com.br
-              </a>{' '}
-              (autuação no Sistema Eletrônico de Informações - SEI por CET/DAF/SGT/GOB/DAO)
+              </a>{" "}
+              (autuação no Sistema Eletrônico de Informações - SEI por
+              CET/DAF/SGT/GOB/DAO)
               <ul className="list-disc pl-6 mt-1 space-y-1">
-                <li>Termo de Permissão para Ocupação de Vias – TPOV (não sujeito ao licenciamento pelo GEOINFRA)</li>
+                <li>
+                  Termo de Permissão para Ocupação de Vias – TPOV (não sujeito
+                  ao licenciamento pelo GEOINFRA)
+                </li>
               </ul>
             </li>
 
@@ -868,7 +1013,10 @@ export default function CartaServicos() {
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>Certificado de Licenciamento Integrado</li>
-                <li>Auto de Licença de Funcionamento - ALF (apto à emissão automática)</li>
+                <li>
+                  Auto de Licença de Funcionamento - ALF (apto à emissão
+                  automática)
+                </li>
               </ul>
             </li>
 
@@ -884,12 +1032,21 @@ export default function CartaServicos() {
               </a>
               )
               <ul className="list-disc pl-6 mt-1 space-y-1">
-                <li>Auto de Licença de Funcionamento - ALF (não apto à emissão automática pelo VRE)</li>
-                <li>Termo de cooperação para instalação, manutenção e remoção do parklet</li>
-                <li>Rebaixamento e chanframento de guias para acesso de veículos (Decreto nº 52.903/2012 - art. 25 e 27)</li>
                 <li>
-                  Abertura de gárgulas sob o passeio público para escoamento das águas pluviais (Decreto nº
-                  52.903/2012 - art. 25 e 27)
+                  Auto de Licença de Funcionamento - ALF (não apto à emissão
+                  automática pelo VRE)
+                </li>
+                <li>
+                  Termo de cooperação para instalação, manutenção e remoção do
+                  parklet
+                </li>
+                <li>
+                  Rebaixamento e chanframento de guias para acesso de veículos
+                  (Decreto nº 52.903/2012 - art. 25 e 27)
+                </li>
+                <li>
+                  Abertura de gárgulas sob o passeio público para escoamento das
+                  águas pluviais (Decreto nº 52.903/2012 - art. 25 e 27)
                 </li>
               </ul>
             </li>
@@ -933,7 +1090,7 @@ export default function CartaServicos() {
             </li>
 
             <li>
-              Protocolo pelo e-mail{' '}
+              Protocolo pelo e-mail{" "}
               <a
                 href="mailto:convias.erb@smsub.prefeitura.sp.gov.br"
                 target="_blank"
@@ -941,8 +1098,9 @@ export default function CartaServicos() {
                 className="text-blue-600 underline hover:text-blue-700 font-semibold"
               >
                 convias.erb@smsub.prefeitura.sp.gov.br
-              </a>{' '}
-              (autuação no Sistema Eletrônico de Informações - SEI via SMSUB/CONVIAS)
+              </a>{" "}
+              (autuação no Sistema Eletrônico de Informações - SEI via
+              SMSUB/CONVIAS)
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>Termo de Cadastramento Eletrônico de Mini ERB</li>
               </ul>
@@ -952,11 +1110,9 @@ export default function CartaServicos() {
 
         {/* SEGURANÇA */}
         <section className="bg-card p-6 rounded-lg shadow-sm border border-border">
-          <h2
-            id="seguranca"
-            className="text-xl font-bold mb-4 text-primary"
-          >
-            Documentos de controle urbanístico (Segurança) - Sistemas e outros canais de solicitação
+          <h2 id="seguranca" className="text-xl font-bold mb-4 text-primary">
+            Documentos de controle urbanístico (Segurança) - Sistemas e outros
+            canais de solicitação
           </h2>
 
           <ul className="list-disc pl-6 space-y-3 text-muted-foreground">
@@ -981,19 +1137,23 @@ export default function CartaServicos() {
                 <li>
                   Cadastros / Manutenção
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>de Tanque de armazenagem, bomba, filtro de combustível e equipamentos afins</li>
+                    <li>
+                      de Tanque de armazenagem, bomba, filtro de combustível e
+                      equipamentos afins
+                    </li>
                     <li>de Sistema Especial de Segurança</li>
                   </ul>
                 </li>
                 <li>
-                  Intimação para Execução de Obras e Serviços - IEOS (emitida nos processos de Alvará de Funcionamento
-                  para Local de Reunião e Certificado de Segurança)
+                  Intimação para Execução de Obras e Serviços - IEOS (emitida
+                  nos processos de Alvará de Funcionamento para Local de Reunião
+                  e Certificado de Segurança)
                 </li>
               </ul>
             </li>
 
             <li>
-              Protocolo pelo e-mail{' '}
+              Protocolo pelo e-mail{" "}
               <a
                 href="mailto:capdeprot@prefeitura.sp.gov.br"
                 target="_blank"
@@ -1001,19 +1161,31 @@ export default function CartaServicos() {
                 className="text-blue-600 underline hover:text-blue-700 font-semibold"
               >
                 capdeprot@prefeitura.sp.gov.br
-              </a>{' '}
-              (autuação no Sistema Eletrônico de Informações - SEI por SMUL/CAP/DEPROT)
+              </a>{" "}
+              (autuação no Sistema Eletrônico de Informações - SEI por
+              SMUL/CAP/DEPROT)
               <ul className="list-disc pl-6 mt-1 space-y-1">
-                <li>Concessão de Registro das empresas conservadoras de elevadores</li>
-                <li>Comunicação de modernização de Aparelho de Transporte Vertical e Horizontal</li>
-                <li>Certificado de Manutenção (do Sistema de Segurança – emitido pelo Sistema SEL - SISSEL)</li>
+                <li>
+                  Concessão de Registro das empresas conservadoras de elevadores
+                </li>
+                <li>
+                  Comunicação de modernização de Aparelho de Transporte Vertical
+                  e Horizontal
+                </li>
+                <li>
+                  Certificado de Manutenção (do Sistema de Segurança – emitido
+                  pelo Sistema SEL - SISSEL)
+                </li>
                 <li>
                   Pedidos auxiliares:
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>Baixa de aparelho de transporte</li>
                     <li>Baixa e Substituição de aparelho de transporte</li>
                     <li>Desativação de aparelho de transporte</li>
-                    <li>Alteração do cadastro de equipamento mecânico de transporte permanente</li>
+                    <li>
+                      Alteração do cadastro de equipamento mecânico de
+                      transporte permanente
+                    </li>
                   </ul>
                 </li>
               </ul>
@@ -1030,8 +1202,9 @@ export default function CartaServicos() {
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Ficha de Inscrição no Cadastro de Manutenção dos Sistemas de Segurança Contra Incêndios das
-                  Edificações - FICAM (emitido pelo Sistema SEL - SISSEL)
+                  Ficha de Inscrição no Cadastro de Manutenção dos Sistemas de
+                  Segurança Contra Incêndios das Edificações - FICAM (emitido
+                  pelo Sistema SEL - SISSEL)
                 </li>
               </ul>
             </li>
@@ -1046,7 +1219,9 @@ export default function CartaServicos() {
                 Sistema ELEV
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
-                <li>Cadastro de Equipamento mecânico de transporte permanente</li>
+                <li>
+                  Cadastro de Equipamento mecânico de transporte permanente
+                </li>
                 <li>
                   Pedidos auxiliares:
                   <ul className="list-disc pl-6 mt-1 space-y-1">
@@ -1085,8 +1260,8 @@ export default function CartaServicos() {
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>Desembargo de Obra</li>
                 <li>
-                  Alvará de Licença para executar desmonte de rocha, matacões, resíduos de construção civil (Portaria
-                  SMSUB nº 8/2015)
+                  Alvará de Licença para executar desmonte de rocha, matacões,
+                  resíduos de construção civil (Portaria SMSUB nº 8/2015)
                 </li>
               </ul>
             </li>
@@ -1095,11 +1270,9 @@ export default function CartaServicos() {
 
         {/* SANITÁRIO */}
         <section className="bg-card p-6 rounded-lg shadow-sm border border-border">
-          <h2
-            id="salubridade"
-            className="text-xl font-bold mb-4 text-primary"
-          >
-            Documentos de controle urbanístico (Sanitário) - Sistemas e outros canais de solicitação
+          <h2 id="salubridade" className="text-xl font-bold mb-4 text-primary">
+            Documentos de controle urbanístico (Sanitário) - Sistemas e outros
+            canais de solicitação
           </h2>
 
           <ul className="list-disc pl-6 space-y-3 text-muted-foreground">
@@ -1124,13 +1297,21 @@ export default function CartaServicos() {
                         <li>de endereço</li>
                         <li>de razão social</li>
                         <li>de responsável legal</li>
-                        <li>do número ou tipo de equipamentos isentos de licença</li>
+                        <li>
+                          do número ou tipo de equipamentos isentos de licença
+                        </li>
                       </ul>
                     </li>
                     <li>Exclusão ou inclusão de responsável técnico</li>
-                    <li>Ampliação ou redução de atividades, classe ou categoria de produtos</li>
+                    <li>
+                      Ampliação ou redução de atividades, classe ou categoria de
+                      produtos
+                    </li>
                     <li>Inclusão ou exclusão de veículos</li>
-                    <li>Retificação do Cadastro Municipal de Vigilância em Saúde – CMVS</li>
+                    <li>
+                      Retificação do Cadastro Municipal de Vigilância em Saúde –
+                      CMVS
+                    </li>
                     <li>Cancelamento</li>
                   </ul>
                 </li>
@@ -1145,7 +1326,8 @@ export default function CartaServicos() {
             id="acessibilidade"
             className="text-xl font-bold mb-4 text-primary"
           >
-            Documentos de controle urbanístico (Acessibilidade) - Sistemas e outros canais de solicitação
+            Documentos de controle urbanístico (Acessibilidade) - Sistemas e
+            outros canais de solicitação
           </h2>
 
           <ul className="list-disc pl-6 space-y-3 text-muted-foreground">
@@ -1161,8 +1343,8 @@ export default function CartaServicos() {
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>Certificado de Acessibilidade</li>
                 <li>
-                  Intimação para Execução de Obras e Serviços - IEOS (emitida nos processos de Certificado de
-                  Acessibilidade)
+                  Intimação para Execução de Obras e Serviços - IEOS (emitida
+                  nos processos de Certificado de Acessibilidade)
                 </li>
               </ul>
             </li>
@@ -1185,11 +1367,9 @@ export default function CartaServicos() {
 
         {/* AMBIENTAL */}
         <section className="bg-card p-6 rounded-lg shadow-sm border border-border">
-          <h2
-            id="ambiental"
-            className="text-xl font-bold mb-4 text-primary"
-          >
-            Documentos de controle ambiental - Sistemas e outros canais de solicitação
+          <h2 id="ambiental" className="text-xl font-bold mb-4 text-primary">
+            Documentos de controle ambiental - Sistemas e outros canais de
+            solicitação
           </h2>
 
           <ul className="list-disc pl-6 space-y-3 text-muted-foreground">
@@ -1204,8 +1384,8 @@ export default function CartaServicos() {
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Licença Ambiental (para empreendimentos industriais geradores de impacto local - exceto de grande
-                  porte)
+                  Licença Ambiental (para empreendimentos industriais geradores
+                  de impacto local - exceto de grande porte)
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>Prévia - LAP</li>
                     <li>de Instalação - LAI</li>
@@ -1225,18 +1405,26 @@ export default function CartaServicos() {
                 Portal 156
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
-                <li>Termo de Compromisso Ambiental - TCA para manejo arbóreo</li>
+                <li>
+                  Termo de Compromisso Ambiental - TCA para manejo arbóreo
+                </li>
                 <li>Certificado Ambiental (total ou parcial)</li>
                 <li>Comunicação de poda de árvore em área interna</li>
                 <li>Autorização para remoção de árvore em área interna</li>
                 <li>Avaliação de árvore em calçadas e praças</li>
                 <li>Termo de Ajustamento de Conduta - TAC Ambiental</li>
                 <li>Manifestação de SVMA sobre Áreas Contaminadas</li>
-                <li>Avaliação prévia de SVMA para implantação de Estação Rádio-Base</li>
+                <li>
+                  Avaliação prévia de SVMA para implantação de Estação
+                  Rádio-Base
+                </li>
                 <li>
                   Pedidos auxiliares:
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>Vistas (de processos do Grupo Técnico de Áreas Contaminadas - GTAC)</li>
+                    <li>
+                      Vistas (de processos do Grupo Técnico de Áreas
+                      Contaminadas - GTAC)
+                    </li>
                     <li>Envio de documentos e/ou alterações de TAC</li>
                   </ul>
                 </li>
@@ -1245,8 +1433,8 @@ export default function CartaServicos() {
 
             <li className="list-none mt-4 text-muted-foreground">
               <span className="font-semibold text-foreground">
-                Protocolo na Rua do Paraíso, nº 387, Térreo, Paraíso, de segunda a sexta-feira, das 8h às 17h ou pelo
-                e-mail{' '}
+                Protocolo na Rua do Paraíso, nº 387, Térreo, Paraíso, de segunda
+                a sexta-feira, das 8h às 17h ou pelo e-mail{" "}
                 <a
                   href="mailto:svmaprotocolo@prefeitura.sp.gov.br"
                   target="_blank"
@@ -1254,62 +1442,99 @@ export default function CartaServicos() {
                   className="text-blue-600 underline hover:text-blue-700 font-semibold"
                 >
                   svmaprotocolo@prefeitura.sp.gov.br
-                </a>{' '}
-                (autuação no Sistema Eletrônico de Informações - SEI por SVMA/DIM)
+                </a>{" "}
+                (autuação no Sistema Eletrônico de Informações - SEI por
+                SVMA/DIM)
               </span>
               <ul className="list-disc pl-6 mt-2 space-y-1">
                 <li>
-                  Certificado de Dispensa de Licença Ambiental - CDLA (para Licença Ambiental de empreendimentos
-                  geradores de impacto local)
+                  Certificado de Dispensa de Licença Ambiental - CDLA (para
+                  Licença Ambiental de empreendimentos geradores de impacto
+                  local)
                 </li>
                 <li>Licenças Ambientais (LAP, LAI, LAO, APRM, etc.)</li>
                 <li>
-                  Licença Ambiental (para Licença Ambiental de empreendimentos geradores de impacto local de grande
-                  porte, exceto subestação de energia elétrica e linha de transmissão)
+                  Licença Ambiental (para Licença Ambiental de empreendimentos
+                  geradores de impacto local de grande porte, exceto subestação
+                  de energia elétrica e linha de transmissão)
                 </li>
-                <li>Licença Ambiental para subestação de energia elétrica e linha de transmissão</li>
                 <li>
-                  Licenças Ambientais Concomitantes (para Licença Ambiental de empreendimentos geradores de impacto
-                  local, exceto de grande porte e subestação de energia elétrica e linha de transmissão)
+                  Licença Ambiental para subestação de energia elétrica e linha
+                  de transmissão
+                </li>
+                <li>
+                  Licenças Ambientais Concomitantes (para Licença Ambiental de
+                  empreendimentos geradores de impacto local, exceto de grande
+                  porte e subestação de energia elétrica e linha de transmissão)
                   <ul className="list-disc pl-6 mt-1 space-y-1">
                     <li>Prévia - LAP e de Instalação - LAI</li>
-                    <li>Prévia - LAP, de Instalação - LAI e de Operação - LAO</li>
+                    <li>
+                      Prévia - LAP, de Instalação - LAI e de Operação - LAO
+                    </li>
                   </ul>
                 </li>
-                <li>Licença Ambiental de Operação - LAO (para regularização ou não)</li>
+                <li>
+                  Licença Ambiental de Operação - LAO (para regularização ou
+                  não)
+                </li>
                 <li>Prorrogação de Licença Ambiental de Instalação - LAI</li>
                 <li>Renovação de Licença Ambiental de Operação - LAO</li>
-                <li>Alvará Ambiental em APRM (para APRM Billings e Alto Juquery)</li>
-                <li>Termo de Compromisso Ambiental - TCA para intervenção em Área de Preservação Permanente - APP</li>
                 <li>
-                  Termo de Compromisso Ambiental - TCA (associados a Projeto de Recuperação de Áreas Degradadas - PRAD,
-                  remediação ambiental de áreas contaminadas, outras intervenções - mesmo quando associadas a
-                  licenciamento ambiental próprio, e transferência de potencial construtivo sem previsão de doação de
-                  área, Portaria SVMA nº 105/2024)
+                  Alvará Ambiental em APRM (para APRM Billings e Alto Juquery)
                 </li>
                 <li>
-                  Declaração de encerramento de empreendimento industrial (obrigado a apresentar Memorial de
-                  Caracterização do Empreendimento - MCE)
+                  Termo de Compromisso Ambiental - TCA para intervenção em Área
+                  de Preservação Permanente - APP
                 </li>
-                <li>Manifestação técnica para licenciamento ambiental pela CETESB</li>
-                <li>Acompanhamento das exigências de RIV para fins de obtenção de Certificado de Conclusão</li>
+                <li>
+                  Termo de Compromisso Ambiental - TCA (associados a Projeto de
+                  Recuperação de Áreas Degradadas - PRAD, remediação ambiental
+                  de áreas contaminadas, outras intervenções - mesmo quando
+                  associadas a licenciamento ambiental próprio, e transferência
+                  de potencial construtivo sem previsão de doação de área,
+                  Portaria SVMA nº 105/2024)
+                </li>
+                <li>
+                  Declaração de encerramento de empreendimento industrial
+                  (obrigado a apresentar Memorial de Caracterização do
+                  Empreendimento - MCE)
+                </li>
+                <li>
+                  Manifestação técnica para licenciamento ambiental pela CETESB
+                </li>
+                <li>
+                  Acompanhamento das exigências de RIV para fins de obtenção de
+                  Certificado de Conclusão
+                </li>
                 <li>
                   pedidos auxiliares
                   <ul className="list-disc pl-6 mt-1 space-y-1">
-                    <li>Alteração de dados cadastrados de Licença Ambiental (emitida pelo município)</li>
-                    <li>Análise de Termo de Referência (para Licença Ambiental de empreendimentos geradores de impacto local)</li>
-                    <li>Análise de Estudo de Impacto Ambiental e Relatório de Impacto Ambiental - EIA/RIMA</li>
                     <li>
-                      Análise de Estudo de Impacto de Vizinhança e Relatório de Impacto de Vizinhança – EIV/RIV para
-                      heliponto
+                      Alteração de dados cadastrados de Licença Ambiental
+                      (emitida pelo município)
+                    </li>
+                    <li>
+                      Análise de Termo de Referência (para Licença Ambiental de
+                      empreendimentos geradores de impacto local)
+                    </li>
+                    <li>
+                      Análise de Estudo de Impacto Ambiental e Relatório de
+                      Impacto Ambiental - EIA/RIMA
+                    </li>
+                    <li>
+                      Análise de Estudo de Impacto de Vizinhança e Relatório de
+                      Impacto de Vizinhança – EIV/RIV para heliponto
                     </li>
                     <li>Análise de Estudo de Viabilidade Ambiental – EVA</li>
                     <li>Análise de Estudo Ambiental Simplificado – EAS</li>
                     <li>
-                      Manifestação técnica ambiental sobre Memorial de Caracterização do Empreendimento - MCE
-                      (atividades industriais)
+                      Manifestação técnica ambiental sobre Memorial de
+                      Caracterização do Empreendimento - MCE (atividades
+                      industriais)
                     </li>
-                    <li>Análise de Plano de Recuperação de Áreas Degradadas – PRAD</li>
+                    <li>
+                      Análise de Plano de Recuperação de Áreas Degradadas – PRAD
+                    </li>
                   </ul>
                 </li>
               </ul>
@@ -1319,11 +1544,9 @@ export default function CartaServicos() {
 
         {/* CULTURAL */}
         <section className="bg-card p-6 rounded-lg shadow-sm border border-border">
-          <h2
-            id="cultural"
-            className="text-xl font-bold mb-4 text-primary"
-          >
-            Documentos de controle cultural - Sistemas e outros canais de solicitação
+          <h2 id="cultural" className="text-xl font-bold mb-4 text-primary">
+            Documentos de controle cultural - Sistemas e outros canais de
+            solicitação
           </h2>
 
           <ul className="list-disc pl-6 space-y-3 text-muted-foreground">
@@ -1338,33 +1561,44 @@ export default function CartaServicos() {
               </a>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Autorização para intervenção em um bem tombado ou em processo de tombamento (manutenção, obra
-                  emergencial, conservação, remembramento/desmembramento, reforma, construção nova, demolição, restauro,
-                  anúncios ou instalação de ERB, na esfera municipal)
+                  Autorização para intervenção em um bem tombado ou em processo
+                  de tombamento (manutenção, obra emergencial, conservação,
+                  remembramento/desmembramento, reforma, construção nova,
+                  demolição, restauro, anúncios ou instalação de ERB, na esfera
+                  municipal)
                 </li>
                 <li>
-                  Autorização para intervenção em área envoltória de bem tombado ou bairro ambiental (tombado ou em
-                  processo de tombamento, manutenção, obra emergencial, conservação, remembramento/desmembramento,
-                  reforma, construção nova, demolição, restauro, anúncios ou instalação de ERB, na esfera municipal)
+                  Autorização para intervenção em área envoltória de bem tombado
+                  ou bairro ambiental (tombado ou em processo de tombamento,
+                  manutenção, obra emergencial, conservação,
+                  remembramento/desmembramento, reforma, construção nova,
+                  demolição, restauro, anúncios ou instalação de ERB, na esfera
+                  municipal)
                 </li>
                 <li>
-                  Autorização para realização de eventos / instalação temporária em bens tombados e áreas envoltórias
-                </li>
-                <li>Autorização para intervenção em um bem arqueológico (na esfera municipal)</li>
-                <li>
-                  Declaração de atendimento aos requisitos para instalação de ERB em área envoltória ou bairro tombado
+                  Autorização para realização de eventos / instalação temporária
+                  em bens tombados e áreas envoltórias
                 </li>
                 <li>
-                  Regularização (recomposição da legalidade frente à tutela cultural na esfera municipal - Lei nº
-                  10.032/1985 - art. 34, Decreto nº 47.493/2006 - art. 9º - §§ 4º e 5º, e Resolução CONPRESP nº
-                  54/2018 - 8)
+                  Autorização para intervenção em um bem arqueológico (na esfera
+                  municipal)
+                </li>
+                <li>
+                  Declaração de atendimento aos requisitos para instalação de
+                  ERB em área envoltória ou bairro tombado
+                </li>
+                <li>
+                  Regularização (recomposição da legalidade frente à tutela
+                  cultural na esfera municipal - Lei nº 10.032/1985 - art. 34,
+                  Decreto nº 47.493/2006 - art. 9º - §§ 4º e 5º, e Resolução
+                  CONPRESP nº 54/2018 - 8)
                 </li>
               </ul>
             </li>
 
             <li>
               <span className="font-semibold text-foreground">
-                Protocolo pelo e-mail{' '}
+                Protocolo pelo e-mail{" "}
                 <a
                   href="mailto:dphapoiosei@prefeitura.sp.gov.br"
                   target="_blank"
@@ -1372,22 +1606,25 @@ export default function CartaServicos() {
                   className="text-blue-600 underline hover:text-blue-700 font-semibold"
                 >
                   dphapoiosei@prefeitura.sp.gov.br
-                </a>{' '}
-                (autuação no Sistema Eletrônico de Informações - SEI por SMC/CPH - Equipe de Apoio)
+                </a>{" "}
+                (autuação no Sistema Eletrônico de Informações - SEI por SMC/CPH
+                - Equipe de Apoio)
               </span>
               <ul className="list-disc pl-6 mt-1 space-y-1">
                 <li>
-                  Termo de Ajustamento de Conduta - TAC Cultural (por infrações relativas a bem tombado na esfera
-                  municipal - Lei federal 7.347/1985 - art. 5º - § 6º, e Leis municipais nº 16.050/2014 - arts. 68 e
-                  173 e nº 10.032/1985 - arts. 34-A e 34-B)
+                  Termo de Ajustamento de Conduta - TAC Cultural (por infrações
+                  relativas a bem tombado na esfera municipal - Lei federal
+                  7.347/1985 - art. 5º - § 6º, e Leis municipais nº 16.050/2014
+                  - arts. 68 e 173 e nº 10.032/1985 - arts. 34-A e 34-B)
                 </li>
                 <li>
-                  Atestado de Conservação (para Transferência do Potencial Construtivo, Resolução CONPRESP nº 54/2018 -
-                  9)
+                  Atestado de Conservação (para Transferência do Potencial
+                  Construtivo, Resolução CONPRESP nº 54/2018 - 9)
                 </li>
                 <li>
-                  Termo de Compromisso (atesta a inexistência de condições financeiras para custear o projeto e/ou
-                  obras de restauro ou conservação do imóvel, Resolução CONPRESP nº 54/2018 - 10)
+                  Termo de Compromisso (atesta a inexistência de condições
+                  financeiras para custear o projeto e/ou obras de restauro ou
+                  conservação do imóvel, Resolução CONPRESP nº 54/2018 - 10)
                 </li>
               </ul>
             </li>
@@ -1395,5 +1632,5 @@ export default function CartaServicos() {
         </section>
       </main>
     </div>
-  )
+  );
 }

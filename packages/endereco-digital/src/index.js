@@ -1,5 +1,5 @@
 // Conjunto de caracteres válidos para codificação base27
-export const BASE27_CHARS = '23456789BCDFGHJKLMNPQTVWXYZ';
+export const BASE27_CHARS = "23456789BCDFGHJKLMNPQTVWXYZ";
 /**
  * Expande uma string de coordenada para intervalo mínimo e máximo
  * @param {string} s - String da coordenada (ex: "-23.12345")
@@ -34,7 +34,7 @@ export function expandirPorTexto(s) {
  * @returns {string} String codificada em base27
  */
 export function converterParaBase27(numeroDecimal) {
-    let resultado = '';
+    let resultado = "";
     let numero = BigInt(numeroDecimal);
     const base = BigInt(27);
     if (numero === 0n) {
@@ -67,7 +67,7 @@ export function converterDeBase27(codigoBase27) {
         const valor = BigInt(index);
         resultado = resultado * base + valor;
     }
-    return resultado.toString().padStart(10, '0');
+    return resultado.toString().padStart(10, "0");
 }
 /**
  * Extrai 5 primeiros decimais de um valor de coordenada
@@ -75,16 +75,16 @@ export function converterDeBase27(codigoBase27) {
  * @returns {string} 5 dígitos decimais
  */
 export function extrair5Decimais(valor) {
-    const partes = valor.toString().split('.');
+    const partes = valor.toString().split(".");
     if (partes.length === 1) {
-        return '00000';
+        return "00000";
     }
     let decimais = partes[1];
     if (decimais.length > 5) {
         decimais = decimais.substring(0, 5);
     }
     else {
-        decimais = decimais.padEnd(5, '0');
+        decimais = decimais.padEnd(5, "0");
     }
     return decimais;
 }
@@ -95,7 +95,7 @@ export function extrair5Decimais(valor) {
  */
 export function formatarEnderecoDigital(endereco) {
     if (endereco.length === 7) {
-        return endereco.substring(0, 3) + '-' + endereco.substring(3);
+        return endereco.substring(0, 3) + "-" + endereco.substring(3);
     }
     return endereco;
 }
@@ -105,7 +105,7 @@ export function formatarEnderecoDigital(endereco) {
  * @returns {string} Endereço sem formatação
  */
 export function desformatarEnderecoDigital(endereco) {
-    return endereco.replace(/-/g, '');
+    return endereco.replace(/-/g, "");
 }
 /**
  * Codifica latitude e longitude para endereço digital
@@ -173,7 +173,7 @@ function parseDigitalAddress(digitalAddress) {
     // Parse prefix
     // Expecting [+-]lat[+-]lon
     // We clean up the prefix part to match regex
-    const cleanPrefix = prefixPart.replace(/[^0-9+-]/g, '');
+    const cleanPrefix = prefixPart.replace(/[^0-9+-]/g, "");
     const prefixRegex = /^([+-])(\d{1,2})([+-])(\d{1,3})$/;
     const match = cleanPrefix.match(prefixRegex);
     if (!match) {
@@ -196,7 +196,7 @@ export function decode(digitalAddress) {
     const { latStr, lonStr } = parseDigitalAddress(digitalAddress);
     return {
         latitude: parseFloat(latStr),
-        longitude: parseFloat(lonStr)
+        longitude: parseFloat(lonStr),
     };
 }
 /**
@@ -212,7 +212,7 @@ export function getPolygon(digitalAddress) {
         { lat: parseFloat(latMin), lon: parseFloat(lonMin) },
         { lat: parseFloat(latMin), lon: parseFloat(lonMax) },
         { lat: parseFloat(latMax), lon: parseFloat(lonMax) },
-        { lat: parseFloat(latMax), lon: parseFloat(lonMin) }
+        { lat: parseFloat(latMax), lon: parseFloat(lonMin) },
     ];
 }
 /**
@@ -225,11 +225,13 @@ export function getPolygon(digitalAddress) {
  */
 export function calculateDistance(lat1, lng1, lat2, lng2) {
     const R = 6371000;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
 }
@@ -240,14 +242,14 @@ export function calculateDistance(lat1, lng1, lat2, lng2) {
  */
 export function calculateArea(polygon) {
     let area = 0;
-    const points = polygon.map(p => [p.lat, p.lon]);
+    const points = polygon.map((p) => [p.lat, p.lon]);
     for (let i = 0; i < points.length; i++) {
         const j = (i + 1) % points.length;
         area += points[i][1] * points[j][0];
         area -= points[j][1] * points[i][0];
     }
     // Conversão de graus quadrados para metros quadrados
-    area = Math.abs(area) * 111319.488 * 111319.488 / 2;
+    area = (Math.abs(area) * 111319.488 * 111319.488) / 2;
     return area;
 }
 /**
@@ -261,7 +263,7 @@ export function getAddressMetrics(digitalAddress) {
         calculateDistance(polygon[0].lat, polygon[0].lon, polygon[1].lat, polygon[1].lon),
         calculateDistance(polygon[1].lat, polygon[1].lon, polygon[2].lat, polygon[2].lon),
         calculateDistance(polygon[2].lat, polygon[2].lon, polygon[3].lat, polygon[3].lon),
-        calculateDistance(polygon[3].lat, polygon[3].lon, polygon[0].lat, polygon[0].lon)
+        calculateDistance(polygon[3].lat, polygon[3].lon, polygon[0].lat, polygon[0].lon),
     ];
     const area = calculateArea(polygon);
     return { faces, area };

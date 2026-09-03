@@ -1,12 +1,12 @@
 {
   "name": "@open-urbis/endereco-digital",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Pacote para codificação e decodificação de Endereçamento Digital, convertendo coordenadas geográficas em códigos curtos Base27.",
   "publishConfig": {
     "access": "public"
   },
   "author": "SEPLAN/SIME/CODATA",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "keywords": [
     "digital-address",
     "geolocation",

@@ -34,7 +34,8 @@ const SearchHandlePage = () => {
   const [step, setStep] = useState(1);
   const [maxReachedStep, setMaxReachedStep] = useState(isEditing ? 5 : 1);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const [originalData, setOriginalData] = useState<IGetSearchConfigResponse | null>(null);
+  const [originalData, setOriginalData] =
+    useState<IGetSearchConfigResponse | null>(null);
   const [, setLocation] = useLocation();
   const { toastSuccess, toastError } = useToast();
 
@@ -139,7 +140,7 @@ const SearchHandlePage = () => {
       } else {
         const techName = data.name;
         const generatedId = `${techName.toLowerCase().replace(/[^a-z0-9]/g, "_")}_${Date.now()}`;
-        
+
         const payload = {
           ...transformed,
           id: generatedId,
@@ -215,8 +216,10 @@ const SearchHandlePage = () => {
                   <TransformRequest onBack={handleBack} onNext={handleNext} />
                 )}
 
-                {step === 4 && <TransformResponse onBack={handleBack} onNext={handleNext} />}
-                
+                {step === 4 && (
+                  <TransformResponse onBack={handleBack} onNext={handleNext} />
+                )}
+
                 {step === 5 && <SearchReview onBack={handleBack} />}
               </form>
             </Form>

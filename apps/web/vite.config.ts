@@ -1,11 +1,13 @@
+// Touch config to force dependency cache reload
 import preact from "@preact/preset-vite";
 import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [
-    preact(),
-  ],
+  plugins: [preact()],
+  optimizeDeps: {
+    exclude: ["@open-urbis/map"],
+  },
   resolve: {
     dedupe: [
       "preact",

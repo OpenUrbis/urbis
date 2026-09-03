@@ -19,6 +19,20 @@ export class RedisService {
     return value ? JSON.parse(value) : null;
   }
 
+  async getInteger(key: string): Promise<number> {
+    const value = await this.redisClient.get(key);
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  async increment(key: string, ttlSeconds?: number): Promise<number> {
+    const value = await this.redisClient.incr(key);
+    if (value === 1 && ttlSeconds) {
+      await this.redisClient.expire(key, ttlSeconds);
+    }
+    return value;
+  }
+
   async del(key: string): Promise<number> {
     return this.redisClient.del(key);
   }

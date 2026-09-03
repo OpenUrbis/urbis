@@ -1,37 +1,43 @@
-<section class="max-w-md mx-auto py-8">
-  <div hlmCard>
-    <div hlmCardHeader>
-      <h3 hlmCardTitle>
+<section class="max-w-3xl mx-auto py-8 px-4">
+  <div hlmCard class="shadow-md border border-border/80 rounded-xl overflow-hidden bg-card">
+    
+    <!-- Step Progress Header -->
+    <div class="bg-muted/40 border-b border-border/60 px-6 py-4 flex items-center justify-between">
+      <h3 class="text-base font-semibold text-foreground">
         {{ "representations.request.title" | translate }}
       </h3>
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs font-medium text-muted-foreground">Etapa {{ step() }} de 2</span>
+        <div class="flex gap-1">
+          <div class="h-1.5 w-6 rounded-full transition-all duration-300" [ngClass]="step() >= 1 ? 'bg-primary' : 'bg-muted-foreground/20'"></div>
+          <div class="h-1.5 w-6 rounded-full transition-all duration-300" [ngClass]="step() >= 2 ? 'bg-primary' : 'bg-muted-foreground/20'"></div>
+        </div>
+      </div>
     </div>
-    <div hlmCardContent>
-      @if (step() === 1) {
-        <app-step-document
-          [formGroup]="form"
-          [loading]="loading()"
-          (onDocumentInput)="onDocumentInput($event)"
-          (checkDocument)="checkDocument()"
-        ></app-step-document>
-      }
 
-      @if (step() === 2) {
+    <div hlmCardContent class="p-6">
+      @if (step() === 1) {
         <app-step-details
           [formGroup]="form"
-          [isCnpj]="isCnpj()"
           [representationTypes]="representationTypes"
           (goBack)="goBack()"
-          (goToStep3)="goToStep3()"
+          (goToStep2)="goToStep2()"
         ></app-step-details>
       }
 
-      @if (step() === 3) {
-        <app-step-upload
+      @if (step() === 2) {
+        <app-step-document
           [formGroup]="form"
           [loading]="loading()"
+          [isCnpj]="isCnpj()"
+          [cnpjLookupMessage]="cnpjLookupMessage()"
+          [selectedTypeLabel]="getSelectedTypeLabel()"
+          [requiredDocs]="getRequiredDocumentsInfo()"
+          (onDocumentInput)="onDocumentInput($event)"
+          (checkDocument)="checkDocument()"
           (goBack)="goBack()"
           (submit)="submit()"
-        ></app-step-upload>
+        ></app-step-document>
       }
     </div>
   </div>

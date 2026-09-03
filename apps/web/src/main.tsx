@@ -1,7 +1,11 @@
 import "preact/debug";
 
 import { setUrbisConfig } from "@open-urbis/map-ui";
+import { initPostHog } from "@open-urbis/map-shared";
 import "./globals.css";
+
+// Inicializar PostHog Analytics
+initPostHog({ appName: "Urbis Map Web" });
 
 // Configurar API global para componentes do packages/ui
 setUrbisConfig({
@@ -15,7 +19,7 @@ import { Route, Router } from "wouter";
 
 import { QueryClient, QueryClientProvider } from "@preact-signals/query";
 
-import { RequireAuth } from "./components/AccessControl/RequireAuth";
+import { RequireAdmin } from "./components/AccessControl/RequireAdmin";
 import { AuthProvider } from "./components/AuthProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 
@@ -50,8 +54,8 @@ const queryClient = new QueryClient({
 });
 
 const FullscreenLoader = () => (
-  <div className="h-screen w-screen flex items-center justify-center">
-    <Loader2 className="h-10 w-10 animate-spin" />
+  <div className="flex h-[100vh] w-full items-center justify-center">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
   </div>
 );
 
@@ -80,25 +84,33 @@ const App = () => (
                             </Route>
 
                             <Route path="/print">
-                              <PrintPage />
+                              <RequireAdmin>
+                                <PrintPage />
+                              </RequireAdmin>
                             </Route>
 
                             <Route path="/map-data-test">
-                              <MapDataTestPage />
+                              <RequireAdmin>
+                                <MapDataTestPage />
+                              </RequireAdmin>
                             </Route>
 
                             <Route path="/admin" nest>
-                              <RequireAuth>
+                              <RequireAdmin>
                                 <AdminPage />
-                              </RequireAuth>
+                              </RequireAdmin>
                             </Route>
 
                             <Route path="/view-template">
-                              <ViewTemplateEditorPage />
+                              <RequireAdmin>
+                                <ViewTemplateEditorPage />
+                              </RequireAdmin>
                             </Route>
 
                             <Route path="/view-template/preview">
-                              <ViewTemplatePreviewPage />
+                              <RequireAdmin>
+                                <ViewTemplatePreviewPage />
+                              </RequireAdmin>
                             </Route>
                           </Suspense>
                         </Router>

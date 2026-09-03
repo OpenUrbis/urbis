@@ -1,4 +1,12 @@
-import { Checkbox, Label } from "@open-urbis/map-ui";
+import {
+  Checkbox,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@open-urbis/map-ui";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { CodeEditor } from "../../builder/components/CodeEditor";
@@ -19,6 +27,7 @@ const ConfigForm = ({
       data: properties.data || "",
       twoLine: properties.twoLine || false,
       onItemClick: JSON.stringify(properties.onItemClick || {}, null, 2),
+      printColumns: String(properties.printColumns || 3),
     },
   });
 
@@ -39,10 +48,11 @@ const ConfigForm = ({
         data: values.data,
         twoLine: values.twoLine,
         onItemClick: parsedClick,
+        printColumns: Number(values.printColumns),
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values.data, values.twoLine, values.onItemClick]);
+  }, [values.data, values.twoLine, values.onItemClick, values.printColumns]);
 
   return (
     <div className="space-y-4">
@@ -62,6 +72,28 @@ const ConfigForm = ({
           onCheckedChange={(c) => setValue("twoLine", c as boolean)}
         />
         <Label htmlFor="twoLine">Duas Linhas</Label>
+      </div>
+      <div className="space-y-2">
+        <Label>Colunas na FIU / visual compacto</Label>
+        <Select
+          value={values.printColumns}
+          onValueChange={(value) => setValue("printColumns", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecionar colunas" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">1 coluna</SelectItem>
+            <SelectItem value="2">2 colunas</SelectItem>
+            <SelectItem value="3">3 colunas</SelectItem>
+            <SelectItem value="4">4 colunas</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          Controla a distribuição dos itens quando o template está em modo de
+          FIU/visual compacto. Para listas de interseções, 3 costuma funcionar
+          bem em cards largos.
+        </p>
       </div>
       <div className="space-y-2">
         <Label>On Item Click (JSON)</Label>
@@ -85,6 +117,7 @@ export const ListItemsWrapperConfig: Partial<IBuilderTemplateConfig> = {
   defaultProps: {
     properties: {
       twoLine: true,
+      printColumns: 3,
       data: '() => [{primary:"Valor primário", secondary:"Valor secundário"}]',
     },
     templates: [

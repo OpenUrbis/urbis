@@ -9,7 +9,7 @@ describe('ConfirmAccountApi', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [ConfirmAccountApi]
+      providers: [ConfirmAccountApi],
     });
     service = TestBed.inject(ConfirmAccountApi);
   });

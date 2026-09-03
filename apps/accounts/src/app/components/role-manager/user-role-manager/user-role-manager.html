@@ -33,19 +33,28 @@
             <span class="text-xs text-muted-foreground">{{ formatPermissions(item.role) }}</span>
           </div>
 
-          <button
-            *hasPermission="'role:unassign'"
-            hlmBtn
-            variant="ghost"
-            style="min-width: 40px;"
-            size="icon"
-            [attr.aria-label]="
-              'components.userRoleManager.buttons.remove' | translate
-            "
-            (click)="rmRole(item)"
-          >
-            <hlm-icon name="lucideTrash2" size="sm" />
-          </button>
+          @if (!isSystemUserRole(item)) {
+            <button
+              *hasPermission="'role:unassign'"
+              hlmBtn
+              variant="ghost"
+              style="min-width: 40px;"
+              size="icon"
+              [attr.aria-label]="
+                'components.userRoleManager.buttons.remove' | translate
+              "
+              (click)="rmRole(item)"
+            >
+              <hlm-icon name="lucideTrash2" size="sm" />
+            </button>
+          } @else {
+            <span
+              class="text-xs text-muted-foreground flex items-center px-2 py-1"
+              title="Cargo padrão do sistema não pode ser removido"
+            >
+              <hlm-icon name="lucideLock" size="sm" class="text-muted-foreground" />
+            </span>
+          }
         </div>
       }
     </div>

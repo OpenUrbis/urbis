@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-  DialogClose
+  DialogClose,
 } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui";
 import { createElement } from "react";
@@ -27,7 +27,7 @@ export const Debugger = () => {
       JSON.stringify({
         searchContext,
         mapContext,
-      })
+      }),
     );
   };
 
@@ -59,15 +59,20 @@ export const Debugger = () => {
           })}
         </div>
         <DialogFooter className="gap-2 sm:gap-0">
-           <Button type="button" variant="outline" onClick={copyToClipboard} className="gap-2">
-             <Copy className="h-4 w-4" />
-             Copiar JSON
-           </Button>
-           <DialogClose asChild>
-             <Button type="button" variant="secondary">
-               Fechar
-             </Button>
-           </DialogClose>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={copyToClipboard}
+            className="gap-2"
+          >
+            <Copy className="h-4 w-4" />
+            Copiar JSON
+          </Button>
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Fechar
+            </Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

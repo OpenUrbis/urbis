@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Inject,
@@ -68,21 +69,17 @@ export class AuthService {
     });
   }
 
-  async register(
-    dto: AuthRegisterLoginDto,
-    emailConfirmation = true,
-  ): Promise<any> {
+  async register(dto: AuthRegisterLoginDto): Promise<any> {
     // todo: change this var to confirmHash
-    let emailHashConfirm = crypto
+    const emailHashConfirm = crypto
       .createHash('sha256')
       .update(randomStringGenerator())
       .digest('hex');
-    if (!emailConfirmation) {
-      emailHashConfirm = null;
-    }
 
     if (dto.cpf) {
-      await this.cpfValidationService.validate(dto.cpf.replace(/\D/g, ''));
+      dto.cpf = dto.cpf.replace(/\D/g, '');
+      await this.cpfValidationService.validate(dto.cpf);
+      await this.validateExistingLegalRegistration(dto.cpf);
     }
 
     let initialStatus = UserStatus.ACTIVE;
@@ -116,20 +113,32 @@ export class AuthService {
     // Ensure PF Organization is created
     await this.createOrUpdatePfOrganization(user);
 
-    if (emailConfirmation) {
-      await this.mailService.userSignUp({
-        to: user.email,
-        data: {
-          hash: emailHashConfirm,
-          firstName: user.firstName,
-        },
-      });
-    }
+    await this.mailService.userSignUp({
+      to: user.email,
+      data: {
+        hash: emailHashConfirm,
+        firstName: user.firstName,
+      },
+    });
+
     if (this.configService.get('app.nodeEnv') !== 'production') {
       return { hash: emailHashConfirm, ...user };
     }
 
     return user;
+  }
+
+  private async validateExistingLegalRegistration(cpf: string): Promise<void> {
+    const organization = await this.organizationService.findOneByDocument(cpf);
+    const representedType = organization?.metadata?.representedType;
+
+    if (!['Espólio', 'Herança jacente ou vacante'].includes(representedType)) {
+      return;
+    }
+
+    throw new BadRequestException(
+      `Este CPF já está cadastrado como ${representedType}. Para alterar ou corrigir a situação, contate o suporte do Urbis.`,
+    );
   }
 
   async confirmEmail(emailHashConfirm: string): Promise<void> {
@@ -214,10 +223,40 @@ export class AuthService {
     await this.forgotService.softDelete(forgot.id);
   }
 
-  async me(user: any): Promise<User> {
-    return await this.userService.findOne({
+  async me(user: any, includeSystem = false): Promise<User> {
+    const currentUser = await this.userService.findOne({
       id: user.id,
     });
+
+    if (!currentUser || includeSystem === false) {
+      if (currentUser?.userRoleAssignments) {
+        const systemOrganizationId = this.configService.get<string>(
+          'admin.organization.id',
+        );
+        currentUser.userRoleAssignments =
+          currentUser.userRoleAssignments.filter(
+            (assignment) => assignment.organizationId !== systemOrganizationId,
+          );
+      }
+      return currentUser;
+    }
+
+    const systemOrganizationId = this.configService.get<string>(
+      'admin.organization.id',
+    );
+    const isSystemAdmin = currentUser.userRoleAssignments?.some(
+      (assignment) =>
+        assignment.organizationId === systemOrganizationId &&
+        assignment.roleId === SYSTEM_ROLES.admin,
+    );
+
+    if (!isSystemAdmin) {
+      currentUser.userRoleAssignments = currentUser.userRoleAssignments?.filter(
+        (assignment) => assignment.organizationId !== systemOrganizationId,
+      );
+    }
+
+    return currentUser;
   }
 
   async passwordValidationStep(
@@ -272,6 +311,21 @@ export class AuthService {
       userDto.oldPassword,
     );
 
+    const isChangingName =
+      userDto.firstName !== undefined || userDto.lastName !== undefined;
+    if (isChangingName) {
+      const roles = await this.roleService.listUserRoles(user.id);
+      const isAdmin = roles.some(
+        (assignment) => assignment.roleId === SYSTEM_ROLES.admin,
+      );
+
+      if (!isAdmin) {
+        throw new ForbiddenException(
+          'Somente administradores podem alterar nome e sobrenome.',
+        );
+      }
+    }
+
     delete userDto.oldPassword;
 
     await this.userService.findByIdAndUpdate(user.id, userDto as any);
@@ -318,21 +372,39 @@ export class AuthService {
     });
   }
 
-  async getPermissions(user: User): Promise<IAccessControlPermission[]> {
-    const assignments = await this.roleService.listUserRoles(user.id);
+  async getPermissions(
+    user: User,
+    organizationId?: string,
+  ): Promise<IAccessControlPermission[]> {
+    const assignments = await this.roleService.listUserRoles(
+      user.id,
+      organizationId,
+    );
     const accessControl = new AccessControl(assignments);
     return accessControl.permissions;
   }
 
-  async getRoles(user: User) {
-    return await this.roleService.listUserRoles(user.id);
+  async getRoles(user: User, organizationId?: string) {
+    return await this.roleService.listUserRoles(user.id, organizationId);
   }
 
   async createOrValidateExternalOidcUser(payload: AuthExternalStrategyDto) {
-    payload.email = payload.email.toLowerCase();
-    const user = await this.userService.findOne({
-      email: payload.email,
-    });
+    payload.email = payload.email.toLowerCase().trim();
+    const cpf = payload.cpf?.replace(/\D/g, '');
+    const formattedCpf = cpf?.replace(
+      /(\d{3})(\d{3})(\d{3})(\d{2})/,
+      '$1.$2.$3-$4',
+    );
+    const userByCpf = cpf ? await this.userService.findOne({ cpf }) : null;
+    const legacyUserByCpf =
+      !userByCpf && formattedCpf
+        ? await this.userService.findOne({ cpf: formattedCpf })
+        : null;
+    const userByEmail =
+      userByCpf || legacyUserByCpf
+        ? null
+        : await this.userService.findOne({ email: payload.email });
+    const user = userByCpf ?? legacyUserByCpf ?? userByEmail;
 
     const now = new Date();
 
@@ -345,7 +417,7 @@ export class AuthService {
             email: payload.email,
             firstName: payload.firstName,
             lastName: payload.lastName,
-            cpf: payload.cpf.replace(/\D/g, ''),
+            cpf,
             picture: payload.picture,
           },
         },
@@ -364,8 +436,8 @@ export class AuthService {
         updateData.govBrData = payload.govBrData;
       }
 
-      if (!user.cpf && payload.cpf) {
-        updateData.cpf = payload.cpf.replace(/\D/g, '');
+      if (!user.cpf && cpf) {
+        updateData.cpf = cpf;
       }
 
       if (payload.firstName && !user.firstName) {
@@ -390,6 +462,17 @@ export class AuthService {
   async createOrUpdatePfOrganization(user: User) {
     if (!user.cpf) return;
 
+    const ACCOUNT_TYPE_LABELS: Record<string, string> = {
+      fisica_capaz: 'Pessoa física Capaz',
+      fisica_emancipada: 'Pessoa física capaz (emancipada)',
+      fisica_assistido_parental:
+        'Pessoa física assistida por autoridade parental',
+      fisica_assistido_tutor: 'Pessoa física assistida por tutor',
+    };
+    const pfLabel =
+      ACCOUNT_TYPE_LABELS[user.accountType] || 'Pessoa física Capaz';
+    const pfDescription = `Sua conta - ${pfLabel}`;
+
     const pfOrg = await this.organizationService.findOneByDocument(
       user.cpf.replace(/\D/g, ''),
     );
@@ -401,6 +484,7 @@ export class AuthService {
         {
           name: user.firstName,
           document: user.cpf.replace(/\D/g, ''),
+          description: pfDescription,
           metadata: {
             ...pfOrg.metadata,
             userId: user.id,
@@ -421,7 +505,7 @@ export class AuthService {
           {
             organizationId: pfOrg.id,
             userId: user.id,
-            roleId: SYSTEM_ROLES.admin,
+            roleId: SYSTEM_ROLES.organizationAdmin,
           },
           pfOrg,
         );
@@ -434,7 +518,7 @@ export class AuthService {
         {
           name: user.firstName,
           document: user.cpf.replace(/\D/g, ''),
-          description: 'Conta Pessoal',
+          description: pfDescription,
           metadata: {
             documentType: 'CPF',
             userId: user.id,

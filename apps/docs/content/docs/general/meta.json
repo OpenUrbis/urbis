@@ -1,14 +1,19 @@
 {
-  "title": "Geral",
+  "title": "Plataforma & Módulos",
+  "icon": "Layers",
   "root": true,
   "pages": [
     "index",
+    "---Módulos da Aplicação---",
     "mapa",
     "usuarios",
     "forms",
-    "infrastructure",
-    "development",
+    "---Engenharia & Arquitetura---",
     "architecture",
-    "design-system"
+    "feature-flags",
+    "design-system",
+    "---Operações & Contribuição---",
+    "infrastructure",
+    "development"
   ]
 }

@@ -29,7 +29,10 @@ export class OrganizationsApi {
         catchError((err) => {
           console.error(err);
           this.toaster.error('Houve um erro ao carregar as organizações');
-          return of({ data: [], total: 0 } as IPaginationResponse<IOrganization>);
+          return of({
+            data: [],
+            total: 0,
+          } as IPaginationResponse<IOrganization>);
         }),
       );
   }
@@ -61,8 +64,11 @@ export class OrganizationsApi {
   }
 
   assignUser(organizationId: string, userId: string, roles: string[]) {
-    return this.httpClient.post(`${API_BASE}/${organizationId}/user/${userId}`, {
-      roles,
-    });
+    return this.httpClient.post(
+      `${API_BASE}/${organizationId}/user/${userId}`,
+      {
+        roles,
+      },
+    );
   }
 }

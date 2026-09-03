@@ -55,6 +55,32 @@
                 <label hlmLabel for="org-desc">{{ 'pages.organizations.form.fields.description' | translate }}</label>
                 <input hlmInput id="org-desc" formControlName="description" [attr.aria-label]="'pages.organizations.form.fields.description' | translate" />
             </div>
+
+            <!-- Ativa / Inativa (Checkbox) -->
+            <div class="flex items-center gap-2 py-2">
+                <input 
+                  type="checkbox" 
+                  id="org-active" 
+                  formControlName="isActive" 
+                  class="rounded border-input text-primary focus:ring-ring h-4 w-4 bg-background" 
+                />
+                <label hlmLabel for="org-active" class="cursor-pointer text-sm">Entidade Ativa (Se desmarcado, todos os acessos de usuários e chaves de API desta entidade serão bloqueados)</label>
+            </div>
+
+            <!-- Limite Diário (Number) -->
+            <div class="flex flex-col gap-1.5">
+                <label hlmLabel for="org-limit">Limite Diário de Requisições de Mapas (Cota da Entidade)</label>
+                <input 
+                  hlmInput 
+                  type="number" 
+                  id="org-limit" 
+                  formControlName="dailyLimit" 
+                  [attr.aria-label]="'Limite Diário'" 
+                  min="0" 
+                  class="w-full sm:w-48"
+                />
+                <p class="text-xs text-muted-foreground">O valor padrão é 1.000 requisições diárias de mapa.</p>
+            </div>
             <div class="flex justify-end mt-4">
                 <button hlmBtn type="submit" [disabled]="loadingSave() || form.invalid">
                     <hlm-icon name="lucideLoader2" class="mr-2 animate-spin" *ngIf="loadingSave()" />

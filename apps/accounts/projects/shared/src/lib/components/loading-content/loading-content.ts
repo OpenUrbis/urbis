@@ -10,7 +10,10 @@ import { lucideLoader2 } from '@ng-icons/lucide';
   providers: [provideIcons({ lucideLoader2 })],
   template: `@if (loading()) {
       <div class="flex justify-center p-5">
-        <hlm-icon name="lucideLoader2" class="animate-spin h-8 w-8 text-primary" />
+        <hlm-icon
+          name="lucideLoader2"
+          class="animate-spin h-8 w-8 text-primary"
+        />
       </div>
     } @else {
       <ng-content />

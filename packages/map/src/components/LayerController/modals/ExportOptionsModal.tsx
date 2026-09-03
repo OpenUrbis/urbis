@@ -6,6 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  UrbisIcon,
 } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui";
 import { Label } from "@open-urbis/map-ui";
@@ -36,13 +37,15 @@ export const ExportOptionsModal = ({
 
         <div className="py-4 space-y-6">
           <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-900 flex gap-3 text-sm text-yellow-800 dark:text-yellow-200">
-            <span className="material-symbols-outlined text-lg shrink-0">
-              info
-            </span>
+            <UrbisIcon
+              name="info"
+              className="text-lg shrink-0"
+              aria-hidden="true"
+            />
             <div className="space-y-1">
               <p>
-                O limite de exportação é de 1000 feições. Caso exceda, aproxime o
-                mapa.
+                O limite de exportação é de 1000 feições. Caso exceda, aproxime
+                o mapa.
               </p>
             </div>
           </div>

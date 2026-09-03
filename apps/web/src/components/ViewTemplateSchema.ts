@@ -115,7 +115,7 @@ export const viewTemplateSchema = {
       },
       required: ["type"],
     },
-/*     button: {
+    /*     button: {
       type: "object",
       properties: {
         type: { const: "button" },

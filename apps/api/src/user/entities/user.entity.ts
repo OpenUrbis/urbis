@@ -105,7 +105,11 @@ export class User extends BaseEntity {
     if (!this.birthDate) {
       return null;
     }
-    return differenceInYears(new Date(), parseISO(this.birthDate));
+    const birthDateObj =
+      typeof this.birthDate === 'string'
+        ? parseISO(this.birthDate)
+        : (this.birthDate as any);
+    return differenceInYears(new Date(), birthDateObj);
   }
 
   @CreateDateColumn()

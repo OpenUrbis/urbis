@@ -16,13 +16,13 @@ export class UserRoleAssignment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ name: 'userId' })
   userId: string;
 
-  @Column()
+  @Column({ name: 'roleId' })
   roleId: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'organizationId', nullable: true })
   organizationId?: string;
 
   @CreateDateColumn({ name: 'assignAt' })

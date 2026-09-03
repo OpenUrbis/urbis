@@ -1,105 +1,251 @@
 ---
 title: Scripts SQL e Gerenciamento de Acesso
-description: Scripts para configuração do banco de dados e diretrizes de segurança para gerenciamento de acesso.
-icon: Terminal
+description: Procedimento atualizado para criar usuários técnicos e conceder permissões no Azure PostgreSQL Flexible Server para uso com QGIS.
+icon: Database
 ---
 
-Este guia fornece os scripts SQL necessários para configurar o banco de dados `integracoes` e gerenciar permissões de forma segura, garantindo que usuários tenham acesso apenas ao necessário.
+Este guia documenta o procedimento que funciona no ambiente atual da Urbis para criar usuários de acesso ao PostgreSQL/PostGIS usado pelo QGIS. O foco aqui é **Azure Database for PostgreSQL Flexible Server**, onde existem limitações importantes em relação a um PostgreSQL self-hosted ou com superusuário completo.
 
-### SQL Scripts para Configuração do Banco de Dados e Gerenciamento de Acesso
+### Quando usar este guia
 
-Abaixo, forneço os scripts SQL para criar o banco de dados `integracoes`, configurar um role (papel) com permissões limitadas apenas a esse banco de dados, e criar um usuário exemplo com uma senha forte. Esses scripts assumem que você está executando como um superusuário (ex.: `postgres`) no PostgreSQL com PostGIS habilitado. Eles seguem boas práticas de segurança: o role é restrito ao banco `integracoes`, sem permissões em outros bancos, e o usuário é criado com senha expirável para forçar uma troca inicial.
+Use este documento quando precisar:
 
-**Avisos importantes antes de executar:**
-- Rode esses comandos no terminal psql ou em uma ferramenta como pgAdmin, conectando-se ao banco padrão (ex.: `postgres`).
-- Substitua placeholders como `<nome_do_usuario>` pelo nome real do usuário (ex.: `integracoes_user1`) e `<senha_forte>` por uma senha gerada (mínimo 12 caracteres, com maiúsculas, minúsculas, números e símbolos).
-- Após criar, teste as permissões conectando-se com o novo usuário e tentando acessar outros bancos (deve falhar).
-
-#### 1. Criar o Banco de Dados
+- criar um novo usuário técnico para uso no **QGIS**;
+- conceder acesso amplo a um ou mais bancos de aplicação;
+- validar se o usuário realmente consegue conectar e operar no banco;
+- ajustar permissões sem depender de superusuário global.
 
 > [!IMPORTANT]
-> **Projeção Padrão**: Sempre utilize a projeção **SIRGAS 2000 / UTM** como padrão do projeto para todos os dados geográficos.
+> **Contexto real do ambiente**: no Azure PostgreSQL Flexible Server, o usuário administrador **não é superuser global**. Por isso, alguns `GRANT ALL` sobre extensões como **PostGIS** e `pg_trgm` podem retornar warnings do tipo `no privileges were granted`, o que é esperado.
 
-```sql
--- Conecte-se ao banco padrão (ex.: psql -U postgres)
-CREATE DATABASE integracoes
-    WITH 
-    OWNER = postgres
-    ENCODING = 'UTF8';
+## Premissas
 
--- Conecte-se ao novo banco e habilite PostGIS (essencial para QGIS/GeoServer)
-\c integracoes
-CREATE EXTENSION IF NOT EXISTS postgis;
+Antes de executar qualquer comando:
+
+- tenha o **host**, **porta**, **usuário administrador** e **senha** do servidor PostgreSQL;
+- saiba em quais databases o usuário deve acessar, por exemplo: `integracoes`, `urbis`, `arandu`;
+- execute os comandos com `sslmode=require`;
+- se o nome do usuário tiver hífen, escreva-o sempre entre aspas duplas, por exemplo: `"urbis-qgis"`.
+
+## Fluxo recomendado
+
+O fluxo correto para este ambiente é:
+
+1. conectar com o usuário administrador do Azure;
+2. criar o usuário com `LOGIN`;
+3. conceder permissões por database;
+4. conceder permissões no schema `public`;
+5. aplicar `ALTER DEFAULT PRIVILEGES` para novos objetos criados pelo administrador;
+6. testar login real com o usuário novo.
+
+## 1. Conectar no servidor
+
+Exemplo com `psql`:
+
+```bash
+export PGPASSWORD='<senha_admin>'
+
+psql "host=<host>.postgres.database.azure.com port=5432 dbname=postgres user=<admin> sslmode=require"
 ```
 
-#### 2. Criar o Role (Papel) com Permissões Limitadas
-Esse role permite conectar apenas ao banco `integracoes`, usar o schema `public`, e editar tabelas nesse schema.
+Exemplo real do ambiente:
 
-> [!IMPORTANT]
-> **Acesso ao Banco `postgres`**: No PostgreSQL, o privilégio `CONNECT` no banco de dados `postgres` (e em outros criados sem restrições explícitas) é concedido ao role `PUBLIC` por padrão. Para restringir o acesso, é necessário revogar esse privilégio do `PUBLIC`.
+```bash
+export PGPASSWORD='<senha_admin>'
 
-```sql
--- 1. Criar o role
-CREATE ROLE integracoes_editor
-    WITH 
-    NOSUPERUSER
-    NOCREATEDB
-    NOCREATEROLE
-    NOINHERIT
-    NOREPLICATION
-    NOBYPASSRLS
-    CONNECTION LIMIT -1;
-
--- 2. Conceder acesso apenas ao banco integracoes
-GRANT CONNECT ON DATABASE integracoes TO integracoes_editor;
-
--- 3. Restringir acesso ao banco padrão (postgres) e outros bancos
--- IMPORTANTE: No Postgres, 'PUBLIC' tem acesso de conexão por padrão.
--- Você deve revogar do PUBLIC para que o GRANT específico acima seja a única forma de entrar.
-REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
-REVOKE CONNECT ON DATABASE postgres FROM integracoes_editor; -- Garantia adicional
-
--- 4. Configurar permissões dentro do banco integracoes
-\c integracoes
-
-GRANT USAGE ON SCHEMA public TO integracoes_editor;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO integracoes_editor;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO integracoes_editor;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO integracoes_editor;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO integracoes_editor;
+psql "host=<seu-postgres-host>.postgres.database.azure.com port=5432 dbname=postgres user=postgres sslmode=require"
 ```
 
-#### 3. Criar o Usuário e Associar ao Role
-Aqui, criamos um usuário que herda o role `integracoes_editor`.
+## 2. Criar o usuário
+
+Se quiser recriar do zero, remova antes. Isso é útil quando a senha precisa ser regenerada.
+
+```sql
+DROP ROLE IF EXISTS "urbis-qgis";
+
+CREATE ROLE "urbis-qgis"
+WITH LOGIN
+PASSWORD '<senha_forte>'
+INHERIT
+CREATEDB
+CREATEROLE;
+```
 
 > [!TIP]
-> **Nomes com hífens**: Se o nome do usuário contiver caracteres especiais como hífens (ex: `integracao-1`), ele deve ser escrito entre aspas duplas: `"integracao-1"`.
+> Use uma senha forte, com alta entropia, e distribua essa credencial apenas pelos canais internos autorizados.
+
+## 3. Conceder acesso ao database
+
+Para cada database que o usuário deve acessar, conceda os privilégios de conexão e criação no database:
 
 ```sql
--- No banco padrão: \c postgres
-
-CREATE USER "nome_do_usuario"  -- Ex.: "integracao-1"
-    WITH 
-    PASSWORD '<senha_forte>'
-    VALID UNTIL 'infinity'
-    IN ROLE integracoes_editor
-    CONNECTION LIMIT -1;
-
--- Forçar expiração da senha em 30 dias (opcional, mas recomendado para segurança inicial)
-ALTER USER "nome_do_usuario" PASSWORD '<senha_forte>' VALID UNTIL (CURRENT_DATE + INTERVAL '30 days');
+GRANT CONNECT, TEMP ON DATABASE "integracoes" TO "urbis-qgis";
+GRANT CREATE ON DATABASE "integracoes" TO "urbis-qgis";
 ```
 
-### Documentação para Gerenciamento de Acesso no QGIS e Integração
+Se o usuário precisar acessar múltiplos bancos, repita o processo em cada um deles.
 
-Esta documentação complementa o guia de [Integração com o QGIS](./exportar-camada.mdx), focando no gerenciamento de acesso seguro ao banco `integracoes`.
+### Databases já validados neste ambiente
 
-#### Princípios de Segurança
-- **Isolamento**: O role `integracoes_editor` limita ações ao banco `integracoes`.
-- **Credenciais**: Nunca compartilhe credenciais de superusuário. Use usuários específicos para integração.
-- **QGIS e PostGIS**: As permissões do banco controlam o que pode ser editado/visualizado no QGIS.
+Os grants abaixo já foram testados com sucesso neste servidor:
 
-#### Gerenciamento de Acesso e Manutenção
-- **Adicionar Mais Usuários**: Repita o SQL de criação de usuário, alterando o nome e senha. Todos herdarão o role.
-- **Revogar Acesso**: `REVOKE CONNECT ON DATABASE integracoes FROM <nome_do_usuario>;` ou `DROP USER <nome_do_usuario>;`.
-- **Monitorar**: Use `pg_stat_activity` para ver conexões: `SELECT * FROM pg_stat_activity WHERE datname = 'integracoes';`.
-- **Boas Práticas**: Rotacione senhas periodicamente. Use VPN para conexões remotas.
+- `arandu`
+- `integracoes`
+- `postgres`
+- `slui-geoserver`
+- `sluigeoserver`
+- `urbis`
+
+> [!WARNING]
+> Evite aplicar esse procedimento em databases internos da Azure, como `azure_sys` e `azure_maintenance`.
+
+## 4. Conceder permissões dentro do schema `public`
+
+Depois de conceder acesso ao database, conecte-se em cada database alvo e aplique os grants no schema:
+
+```sql
+GRANT USAGE, CREATE ON SCHEMA public TO "urbis-qgis";
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "urbis-qgis";
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "urbis-qgis";
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO "urbis-qgis";
+```
+
+Esses comandos permitem que o usuário técnico consiga:
+
+- ler tabelas existentes;
+- inserir, atualizar e remover dados;
+- usar sequences;
+- criar objetos no schema `public`;
+- consumir funções disponíveis quando o provedor permitir.
+
+## 5. Garantir acesso em objetos novos
+
+Para que tabelas, sequences e funções novas criadas pelo administrador também fiquem acessíveis ao usuário técnico, aplique `ALTER DEFAULT PRIVILEGES` dentro de cada database alvo:
+
+```sql
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+GRANT ALL PRIVILEGES ON TABLES TO "urbis-qgis";
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+GRANT ALL PRIVILEGES ON SEQUENCES TO "urbis-qgis";
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+GRANT ALL PRIVILEGES ON FUNCTIONS TO "urbis-qgis";
+```
+
+> [!IMPORTANT]
+> Ajuste o nome do role em `FOR ROLE postgres` caso o dono real dos objetos seja outro usuário administrador.
+
+## 6. Exemplo completo por database
+
+O bloco abaixo representa o procedimento completo para um database, por exemplo `urbis`:
+
+```sql
+GRANT CONNECT, TEMP ON DATABASE "urbis" TO "urbis-qgis";
+GRANT CREATE ON DATABASE "urbis" TO "urbis-qgis";
+
+\c urbis
+
+GRANT USAGE, CREATE ON SCHEMA public TO "urbis-qgis";
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "urbis-qgis";
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "urbis-qgis";
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO "urbis-qgis";
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+GRANT ALL PRIVILEGES ON TABLES TO "urbis-qgis";
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+GRANT ALL PRIVILEGES ON SEQUENCES TO "urbis-qgis";
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+GRANT ALL PRIVILEGES ON FUNCTIONS TO "urbis-qgis";
+```
+
+## 7. Validar o acesso
+
+Depois da criação, o passo mais importante é testar com login real usando o novo usuário.
+
+Exemplo de teste no database `urbis`:
+
+```bash
+export PGPASSWORD='<senha_do_novo_usuario>'
+
+PGUSER='urbis-qgis' \
+PGHOST='<seu-postgres-host>.postgres.database.azure.com' \
+PGPORT='5432' \
+PGDATABASE='urbis' \
+PGSSLMODE='require' \
+psql -v ON_ERROR_STOP=1 -tAc "SELECT current_user, current_database(); CREATE TEMP TABLE cline_priv_test(id int); INSERT INTO cline_priv_test VALUES (1); SELECT count(*) FROM cline_priv_test;"
+```
+
+Saída esperada:
+
+```text
+urbis-qgis|urbis
+CREATE TABLE
+INSERT 0 1
+1
+```
+
+Isso confirma que o usuário consegue:
+
+- autenticar;
+- criar tabela temporária;
+- inserir dados;
+- consultar dados.
+
+## 8. Verificar privilégios de forma objetiva
+
+Para validar rapidamente se o usuário tem `CREATE` no database e `USAGE, CREATE` no schema `public`, use:
+
+```sql
+SELECT
+  current_user,
+  current_database(),
+  has_database_privilege(current_user, current_database(), 'CREATE'),
+  has_schema_privilege(current_user, 'public', 'USAGE,CREATE');
+```
+
+Resultado esperado:
+
+```text
+urbis-qgis|urbis|t|t
+```
+
+## Limitações conhecidas no Azure
+
+Alguns warnings são esperados ao aplicar grants amplos, por exemplo:
+
+```text
+WARNING: no privileges were granted for "geometry_columns"
+WARNING: no privileges were granted for "word_similarity"
+```
+
+Isso normalmente ocorre em objetos de extensões gerenciadas pelo provedor. Esses avisos **não invalidam** o acesso principal ao banco e ao schema `public`.
+
+## Revogar ou remover acesso
+
+Para remover o usuário por completo:
+
+```sql
+DROP ROLE IF EXISTS "urbis-qgis";
+```
+
+Para apenas trocar a senha:
+
+```sql
+ALTER ROLE "urbis-qgis" WITH PASSWORD '<nova_senha_forte>';
+```
+
+## Boas práticas
+
+- nunca distribua credenciais de administrador para equipes de operação em QGIS;
+- prefira um usuário técnico por contexto de uso;
+- registre em quais databases cada usuário recebeu grants;
+- valide sempre com login real antes de entregar a credencial;
+- rotacione senhas periodicamente;
+- mantenha a projeção **SIRGAS 2000 / UTM** como padrão dos dados geográficos do projeto.
+
+## Relação com o guia do QGIS
+
+Este documento complementa o guia de [Integração com o QGIS](./exportar-camada.mdx). Depois que o usuário for criado e validado, use essas credenciais para configurar a conexão PostgreSQL/PostGIS no QGIS.

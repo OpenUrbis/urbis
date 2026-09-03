@@ -7,7 +7,7 @@ export const usePolygonEditContext = (): IPolygonEditContextActions => {
   const context = useContext(PolygonEditContext);
   if (!context)
     throw new Error(
-      "usePolygonEditContext must be used within a NavigationProvider"
+      "usePolygonEditContext must be used within a NavigationProvider",
     );
 
   const {
@@ -54,13 +54,20 @@ export const usePolygonEditContext = (): IPolygonEditContextActions => {
     setIsEditing(true);
 
     draw!.deleteAll();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    draw!.add(data as any);
+    if (data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const addedIds = draw!.add(data as any);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const featureId = (data as any).id;
-    if (featureId) {
-      draw!.changeMode("direct_select", { featureId });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const featureId = (data as any).id || (addedIds && addedIds[0]);
+      if (featureId) {
+        try {
+          draw!.changeMode("direct_select", { featureId });
+        } catch (e) {
+          console.warn("Failed to enter direct_select mode", e);
+          draw!.changeMode("simple_select", { featureIds: [featureId] });
+        }
+      }
     }
   };
 

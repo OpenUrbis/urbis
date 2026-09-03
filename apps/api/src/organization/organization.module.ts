@@ -4,12 +4,13 @@ import { OrganizationGuard } from 'common/guards/organization/organization.guard
 import { RoleModule } from 'role/role.module';
 import { UserModule } from 'user/user.module';
 import { OrganizationModuleEntities } from './index.entity';
+import { Representation } from '../representation/entities/representation.entity';
 import { OrganizationController } from './organization.controller';
 import { OrganizationService } from './organization.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([...OrganizationModuleEntities]),
+    TypeOrmModule.forFeature([...OrganizationModuleEntities, Representation]),
     forwardRef(() => UserModule),
     forwardRef(() => RoleModule),
   ],

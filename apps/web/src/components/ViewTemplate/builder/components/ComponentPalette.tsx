@@ -29,7 +29,10 @@ const DraggableItem = ({ template }: { template: IBuilderTemplateConfig }) => {
           {template.friendlyName || template.name}
         </div>
         {template.description && (
-          <div className="text-xs text-muted-foreground truncate" title={template.description}>
+          <div
+            className="text-xs text-muted-foreground truncate"
+            title={template.description}
+          >
             {template.description}
           </div>
         )}
@@ -54,16 +57,20 @@ export const ComponentPalette = () => {
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           <div>
-            <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Wrappers</h3>
+            <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+              Wrappers
+            </h3>
             <div className="space-y-1">
               {wrappers.map((t) => (
                 <DraggableItem key={t.name} template={t} />
               ))}
             </div>
           </div>
-          
+
           <div>
-            <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Templates</h3>
+            <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+              Templates
+            </h3>
             <div className="space-y-1">
               {components.map((t) => (
                 <DraggableItem key={t.name} template={t} />

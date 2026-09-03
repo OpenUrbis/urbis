@@ -6,6 +6,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  IsUUID,
 } from 'class-validator';
 
 export class CreateLegisPageDto {
@@ -34,10 +35,22 @@ export class CreateLegisPageDto {
   @IsString()
   slug?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description:
+      'Display label for the author. Omit it to reuse the authenticated user name.',
+  })
   @IsOptional()
   @IsString()
   author?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'System user credited as author. Defaults to the authenticated user.',
+    format: 'uuid',
+  })
+  @IsOptional()
+  @IsUUID()
+  authorId?: string;
 
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()

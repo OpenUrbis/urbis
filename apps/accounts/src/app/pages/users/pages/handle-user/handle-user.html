@@ -36,18 +36,54 @@
             <app-user-form
               [formGroup]="form"
               [loading]="loadingSave()"
+              [allowAllAccountTypes]="!!id() && canEditSensitiveFields"
               [noOfficialAddress]="noOfficialAddress()"
               (noOfficialAddressChange)="noOfficialAddress.set($event)"
             />
 
-            <div class="flex justify-end pt-4">
-              <lib-loading-button
-                [loading]="loadingSave()"
-                [disabled]="form.invalid"
-              >
-                {{ 'common.actions.save' | translate }}
-              </lib-loading-button>
-            </div>
+            @if (id() && canEditSensitiveFields) {
+              <div class="mt-2 rounded-md border border-border bg-muted/20 p-4 flex flex-col gap-3">
+                <div>
+                  <label class="text-sm font-semibold" for="sensitiveChangeJustification">
+                    Justificativa da alteração
+                  </label>
+                  <p class="text-xs text-muted-foreground mt-1">
+                    A justificativa é obrigatória quando o Tipo de cadastro ou a Data de nascimento forem alterados.
+                  </p>
+                </div>
+                <textarea
+                  id="sensitiveChangeJustification"
+                  formControlName="sensitiveChangeJustification"
+                  rows="3"
+                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  placeholder="Descreva o motivo da alteração"
+                ></textarea>
+                @if (form.get('sensitiveChangeJustification')?.touched && form.get('sensitiveChangeJustification')?.hasError('required')) {
+                  <p class="text-xs text-destructive">Informe a justificativa para salvar alterações nesses campos.</p>
+                }
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-semibold" for="sensitiveChangeAttachments">
+                    Anexos comprobatórios (opcional)
+                  </label>
+                  <input
+                    id="sensitiveChangeAttachments"
+                    type="file"
+                    multiple
+                    (change)="onSensitiveAttachmentChange($event)"
+                    [disabled]="uploadingAttachments() || loadingSave()"
+                    class="text-sm file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-primary-foreground"
+                  />
+                  @if (uploadingAttachments()) {
+                    <p class="text-xs text-muted-foreground">Enviando anexos...</p>
+                  }
+                  @if (form.get('sensitiveChangeAttachments')?.value?.length) {
+                    <p class="text-xs text-muted-foreground">
+                      {{ form.get('sensitiveChangeAttachments')?.value?.length }} anexo(s) selecionado(s).
+                    </p>
+                  }
+                </div>
+              </div>
+            }
           </form>
         </section>
 

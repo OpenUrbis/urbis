@@ -1,6 +1,6 @@
 {
   "name": "@open-urbis/map-ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "type": "module",
   "scripts": {
@@ -20,7 +20,7 @@
     "./header": "./components/header.ts",
     "./setup-counter": "./utils/counter.ts"
   },
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "dependencies": {
     "@preact/signals": "2.0.3",
     "@radix-ui/number": "^1.1.1",

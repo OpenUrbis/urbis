@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import {
@@ -17,6 +17,9 @@ import {
   lucideShuffle,
   lucideUser,
   lucideUsers,
+  lucideLock,
+  lucideKey,
+  lucideActivity,
 } from '@ng-icons/lucide';
 import { TranslateModule } from '@ngx-translate/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
@@ -71,6 +74,9 @@ import { SwitchOrganizationDialog } from '../../../switch-organization-dialog/sw
       lucideHelpCircle,
       lucideBriefcase,
       lucideFileText,
+      lucideLock,
+      lucideKey,
+      lucideActivity,
     }),
   ],
   templateUrl: './sidenav.html',
@@ -82,6 +88,23 @@ export class Sidenav {
   dialog = inject(HlmDialogService);
 
   state = this.sidebarService.state;
+
+  isPersonalAccount = computed(() => {
+    const org = this.organizationState.selectedOrganization();
+    return (
+      org?.description?.startsWith('Sua conta -') ||
+      org?.description === 'Conta Pessoal' ||
+      org?.metadata?.userId
+    );
+  });
+
+  isSystemOrganization = computed(() => {
+    const org = this.organizationState.selectedOrganization();
+    const normalizedName = org?.name?.trim().toLowerCase();
+
+    // Keep the name fallback for system organizations created before metadata.isSystem was added.
+    return org?.metadata?.isSystem === true || normalizedName === 'codata';
+  });
 
   changeOrganization() {
     this.dialog.open(SwitchOrganizationDialog);

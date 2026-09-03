@@ -13,7 +13,22 @@ export default function Layout({ children }: { children: ReactNode }) {
         <DocsHeaderClient />
 
         <div className="flex-1">
-          <DocsLayout tree={source.pageTree} {...baseOptions()}>
+          <DocsLayout
+            tree={source.pageTree}
+            {...baseOptions()}
+            sidebar={{
+              defaultOpenLevel: 1,
+              collapsible: true,
+              footer: (
+                <div className="px-2 py-3 border-t border-border/50 text-[11px] text-muted-foreground flex items-center justify-between">
+                  <span>Prefeitura de São Paulo</span>
+                  <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-muted">
+                    AGPL v3
+                  </span>
+                </div>
+              ),
+            }}
+          >
             <SidebarController />
             {children}
           </DocsLayout>

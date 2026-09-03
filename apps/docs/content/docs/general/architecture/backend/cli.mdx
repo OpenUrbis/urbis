@@ -28,3 +28,13 @@ Você também pode executar comandos especificamente para o workspace da API (`a
 -   `schema:drop`: Remove todo o esquema do banco de dados (CUIDADO: Perda de dados).
 -   `documentation`: Gera documentação Compodoc.
 -   `documentation:serve`: Serve a documentação Compodoc.
+
+## Logs da API (map-api)
+
+Para acompanhar e depurar a execução da API (`map-api`), utilize os comandos de CLI dependendo do ambiente:
+
+- **Desenvolvimento local**: `pnpm --filter @open-urbis/map-api dev` (ou `dev:debug`)
+- **Kubernetes (Staging/Produção)**: `kubectl logs -n urbis-map -l app.kubernetes.io/name=map-api -f --tail=100`
+- **Docker**: `docker logs -f --tail 100 openurbis-map-api`
+
+Para um guia completo sobre filtragem, nível de log e inspeção de pod/container, consulte a página [Acessar Logs do Sistema (map-api) via CLI](/docs/general/infrastructure/logs).

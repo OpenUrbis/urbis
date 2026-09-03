@@ -6,40 +6,15 @@
           <a hlmBtn variant="ghost" size="icon" routerLink="/profile" class="-ml-2">
              <hlm-icon name="lucideArrowLeft" size="18" />
           </a>
-          <h1 class="text-xl font-semibold tracking-tight">{{ 'pages.profile.edit.pageTitle' | translate }}</h1>
-       </div>
-
-       <!-- Tabs -->
-       <div class="inline-flex h-10 items-center justify-start rounded-lg bg-muted p-1 text-muted-foreground w-full sm:w-fit">
-          <button 
-             type="button"
-             class="inline-flex flex-1 sm:flex-none items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-             [class.bg-background]="selectedTabIndex() === 0"
-             [class.text-foreground]="selectedTabIndex() === 0"
-             [class.shadow-sm]="selectedTabIndex() === 0"
-             (click)="selectedTabIndex.set(0)">
-             {{ 'pages.profile.edit.tabs.personalData' | translate }}
-          </button>
-          
-          <button 
-             type="button"
-             class="inline-flex flex-1 sm:flex-none items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-             [class.bg-background]="selectedTabIndex() === 1"
-             [class.text-foreground]="selectedTabIndex() === 1"
-             [class.shadow-sm]="selectedTabIndex() === 1"
-             (click)="selectedTabIndex.set(1)">
-             {{ 'pages.profile.edit.tabs.changePassword' | translate }}
-          </button>
-
-          <button 
-             type="button"
-             class="inline-flex flex-1 sm:flex-none items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-             [class.bg-background]="selectedTabIndex() === 2"
-             [class.text-foreground]="selectedTabIndex() === 2"
-             [class.shadow-sm]="selectedTabIndex() === 2"
-             (click)="selectedTabIndex.set(2)">
-             {{ 'pages.profile.edit.tabs.twoFactor' | translate }}
-          </button>
+          <h1 class="text-xl font-semibold tracking-tight">
+            @if (selectedTabIndex() === 0) {
+              {{ 'pages.profile.edit.tabs.personalData' | translate }}
+            } @else if (selectedTabIndex() === 1) {
+              {{ 'pages.profile.edit.tabs.changePassword' | translate }}
+            } @else if (selectedTabIndex() === 2) {
+              {{ 'pages.profile.edit.tabs.twoFactor' | translate }}
+            }
+          </h1>
        </div>
     </div>
 

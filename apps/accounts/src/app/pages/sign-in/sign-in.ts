@@ -19,11 +19,6 @@ import { firstValueFrom } from 'rxjs';
 import { EXTERNAL_OIDC_AUTH_CONFIG_ID } from '../../../../projects/shared/src/lib/auth/auth.config';
 import {
   HlmButtonDirective,
-  HlmCardContentDirective,
-  HlmCardDirective,
-  HlmCardFooterDirective,
-  HlmCardHeaderDirective,
-  HlmCardTitleDirective,
   HlmInputDirective,
   HlmLabelDirective,
   HlmToasterService,
@@ -41,11 +36,6 @@ import { SignInApi } from './services/sign-in-api';
     HlmInputDirective,
     HlmButtonDirective,
     HlmLabelDirective,
-    HlmCardDirective,
-    HlmCardContentDirective,
-    HlmCardFooterDirective,
-    HlmCardHeaderDirective,
-    HlmCardTitleDirective,
     ReactiveFormsModule,
     TranslateModule,
     RecaptchaV3Module,

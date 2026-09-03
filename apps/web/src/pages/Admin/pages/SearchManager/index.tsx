@@ -1,7 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { deleteSearchConfig, getSearchConfigs } from "@/integrations/search-integration";
+import {
+  deleteSearchConfig,
+  getSearchConfigs,
+} from "@/integrations/search-integration";
 import { useQuery } from "@preact-signals/query";
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Edit2, Loader2, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  Edit2,
+  Loader2,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/useToast";
 import { AdminHeader } from "@/components/AdminHeader";
@@ -18,7 +30,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type SortOrder = 'ASC' | 'DESC';
+type SortOrder = "ASC" | "DESC";
 
 const SearchManagerPage = () => {
   const [, setLocation] = useLocation();
@@ -26,10 +38,10 @@ const SearchManagerPage = () => {
   const itemsPerPage = 10;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [searchToDelete, setSearchToDelete] = useState<string | null>(null);
-  
+
   // Sorting state
-  const [sortBy, setSortBy] = useState<string>('index');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('ASC');
+  const [sortBy, setSortBy] = useState<string>("index");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("ASC");
 
   const { toastSuccess, toastError } = useToast();
 
@@ -37,10 +49,11 @@ const SearchManagerPage = () => {
     data: response,
     isLoading,
     isError,
-    refetch
+    refetch,
   } = useQuery({
     queryKey: ["search-configs", currentPage, itemsPerPage, sortBy, sortOrder],
-    queryFn: () => getSearchConfigs(currentPage, itemsPerPage, sortBy, sortOrder),
+    queryFn: () =>
+      getSearchConfigs(currentPage, itemsPerPage, sortBy, sortOrder),
   });
 
   const handleDelete = async () => {
@@ -60,16 +73,20 @@ const SearchManagerPage = () => {
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
-      setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+      setSortOrder(sortOrder === "ASC" ? "DESC" : "ASC");
     } else {
       setSortBy(column);
-      setSortOrder('ASC');
+      setSortOrder("ASC");
     }
   };
 
   const renderSortIcon = (column: string) => {
     if (sortBy !== column) return null;
-    return sortOrder === 'ASC' ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />;
+    return sortOrder === "ASC" ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
+    );
   };
 
   if (isError) {
@@ -77,16 +94,20 @@ const SearchManagerPage = () => {
   }
 
   // Handle server-side pagination (Object) or fallback (Array)
-  const searchConfigs: IGetSearchConfigResponse[] = (response && typeof response === 'object' && 'data' in response) 
-    ? (response as { data: IGetSearchConfigResponse[] }).data 
-    : (Array.isArray(response) ? response : []);
-  
-  const totalItems = (response && typeof response === 'object' && 'total' in response)
-    ? (response as { total: number }).total
-    : searchConfigs.length;
+  const searchConfigs: IGetSearchConfigResponse[] =
+    response && typeof response === "object" && "data" in response
+      ? (response as { data: IGetSearchConfigResponse[] }).data
+      : Array.isArray(response)
+        ? response
+        : [];
+
+  const totalItems =
+    response && typeof response === "object" && "total" in response
+      ? (response as { total: number }).total
+      : searchConfigs.length;
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
+
   const currentItems = searchConfigs;
 
   // startIndex for display "Showing X to Y"
@@ -110,9 +131,9 @@ const SearchManagerPage = () => {
       >
         <HasPermission
           permissions={{
-            id: 'search-config:create',
-            action: 'create',
-            resource: 'search-config',
+            id: "search-config:create",
+            action: "create",
+            resource: "search-config",
             scope: RolePermissionScopeEnum.ANY,
           }}
         >
@@ -127,34 +148,34 @@ const SearchManagerPage = () => {
         <table className="w-full text-sm">
           <thead className="bg-muted/50 sticky top-0 z-10">
             <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-              <th 
+              <th
                 className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
-                onClick={() => handleSort('name')}
+                onClick={() => handleSort("name")}
               >
                 <div className="flex items-center">
                   Nome
-                  {renderSortIcon('name')}
+                  {renderSortIcon("name")}
                 </div>
               </th>
-              <th 
+              <th
                 className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
-                onClick={() => handleSort('method')}
+                onClick={() => handleSort("method")}
               >
                 <div className="flex items-center">
                   Método
-                  {renderSortIcon('method')}
+                  {renderSortIcon("method")}
                 </div>
               </th>
               <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                 Camada Vinculada
               </th>
-              <th 
+              <th
                 className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground"
-                onClick={() => handleSort('isActive')}
+                onClick={() => handleSort("isActive")}
               >
                 <div className="flex items-center">
                   Status
-                  {renderSortIcon('isActive')}
+                  {renderSortIcon("isActive")}
                 </div>
               </th>
               <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
@@ -164,13 +185,13 @@ const SearchManagerPage = () => {
           </thead>
           <tbody className="[&_tr:last-child]:border-0">
             {isLoading ? (
-               <tr>
-                 <td colSpan={5} className="h-24 text-center">
-                   <div className="flex items-center justify-center">
-                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                   </div>
-                 </td>
-               </tr>
+              <tr>
+                <td colSpan={5} className="h-24 text-center">
+                  <div className="flex items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                </td>
+              </tr>
             ) : (
               <>
                 {currentItems.map((item) => (
@@ -178,9 +199,13 @@ const SearchManagerPage = () => {
                     key={item.id}
                     className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                   >
-                    <td className="p-4 align-middle font-medium">{item.name}</td>
+                    <td className="p-4 align-middle font-medium">
+                      {item.name}
+                    </td>
                     <td className="p-4 align-middle">{item.method || "GET"}</td>
-                    <td className="p-4 align-middle">{item.layerSchema?.name || "-"}</td>
+                    <td className="p-4 align-middle">
+                      {item.layerSchema?.name || "-"}
+                    </td>
                     <td className="p-4 align-middle">
                       {item.isActive ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
@@ -195,25 +220,27 @@ const SearchManagerPage = () => {
                     <td className="p-4 flex align-middle justify-end space-x-2">
                       <HasPermission
                         permissions={{
-                          id: 'search-config:update',
-                          action: 'update',
-                          resource: 'search-config',
+                          id: "search-config:update",
+                          action: "update",
+                          resource: "search-config",
                           scope: RolePermissionScopeEnum.ANY,
                         }}
                       >
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => setLocation(`~/admin/search-manager/${item.id}`)}
+                          onClick={() =>
+                            setLocation(`~/admin/search-manager/${item.id}`)
+                          }
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>
                       </HasPermission>
                       <HasPermission
                         permissions={{
-                          id: 'search-config:delete',
-                          action: 'delete',
-                          resource: 'search-config',
+                          id: "search-config:delete",
+                          action: "delete",
+                          resource: "search-config",
                           scope: RolePermissionScopeEnum.ANY,
                         }}
                       >
@@ -286,7 +313,8 @@ const SearchManagerPage = () => {
           <DialogHeader>
             <DialogTitle>Excluir Pesquisa</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir esta pesquisa? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir esta pesquisa? Esta ação não pode
+              ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -296,10 +324,7 @@ const SearchManagerPage = () => {
             >
               Cancelar
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-            >
+            <Button variant="destructive" onClick={handleDelete}>
               Excluir
             </Button>
           </DialogFooter>

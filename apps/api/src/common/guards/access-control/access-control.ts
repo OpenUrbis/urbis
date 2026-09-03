@@ -2,6 +2,7 @@ import { Organization } from 'organization/entities/organization.entity';
 import { Role } from 'role/entities/role.entity';
 import { UserRoleAssignment } from 'role/entities/user-role-assignment.entity';
 import { RolePermissionScopeEnum } from 'role/enums/role-permission-scope.enum';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 
 export interface IAccessControlPermission {
   id: string;
@@ -40,6 +41,7 @@ export class AccessControl {
   private _roles: Set<Role> = new Set(); // Usamos Set para evitar duplicatas
   private _organizations: Set<Organization> = new Set(); // Usamos Set para evitar duplicatas
   private _permissions: IAccessControlPermission[] = [];
+  private defaultOrgId?: string;
 
   get roles(): Role[] {
     return Array.from(this._roles);
@@ -53,7 +55,13 @@ export class AccessControl {
     return this._permissions;
   }
 
-  constructor(userAssignments: UserRoleAssignment[]) {
+  isAdminMaster(): boolean {
+    return this.roles.some((role) => role.id === SYSTEM_ROLES.admin);
+  }
+
+  constructor(userAssignments: UserRoleAssignment[], defaultOrgId?: string) {
+    this.defaultOrgId = defaultOrgId;
+
     userAssignments.forEach((assignment) => {
       const role = assignment.role;
       const organization = assignment.organization;
@@ -94,7 +102,11 @@ export class AccessControl {
       if (!isScopeOk) return false;
 
       if (req.organizationId) {
-        if (prm.organizationId !== req.organizationId) {
+        if (
+          prm.organizationId &&
+          prm.organizationId !== req.organizationId &&
+          prm.organizationId !== this.defaultOrgId
+        ) {
           return false;
         }
       }

@@ -1,0 +1,82 @@
+---
+title: Remapeamento e DE-PARAs
+description: Padrões de tradução de nomes de colunas, tipagem e enriquecimento na camada Silver.
+icon: Table
+---
+
+Os dados brutos obtidos diretamente dos portais externos frequentemente contêm nomes de colunas técnicos, crípticos ou abreviados (ex: `nm_perimetro_divisao_pde`, `cd_tipo_setor_macro`, `nr_quadra_viaria`).
+
+Na camada **Silver**, o objetivo principal é limpar e padronizar esses dados para que fiquem intuitivos, legíveis e semanticamente compatíveis com as regras de negócio do Urbis.
+
+---
+
+## 🛠️ Como Implementar o Remapeamento com GeoPandas
+
+No asset da camada Silver, após carregar o GeoDataFrame vindo da camada Bronze, utilize as funções `.rename()` e transformações do Pandas/GeoPandas:
+
+```python
+import json
+import geopandas as gpd
+from dagster import asset, Output, AssetExecutionContext
+
+@asset(
+    deps=[geojson_setores_e_subsetores_bronze],
+    group_name="silver"
+)
+def geojson_setores_silver(context: AssetExecutionContext, geojson_setores_e_subsetores_bronze):
+    # 1. Carrega os dados da camada Bronze
+    features = json.loads(geojson_setores_e_subsetores_bronze)["features"]
+    gdf = gpd.GeoDataFrame.from_features(features)
+    
+    # 2. Clona o DataFrame para manter a pureza da função
+    setores_df = gdf.copy()
+
+    # 3. Decodifica valores categóricos numéricos para descrições textuais claras
+    setores_df["cd_tipo_setor_macro"] = setores_df["cd_tipo_setor_macro"].replace({
+        1: "1 - Centro",
+        2: "2 - Setor Eixos de Desenvolvimento",
+        3: "3 - Setor Orla Ferroviária e Fluvial"
+    })
+
+    # 4. Remapeia as colunas técnicas para identificadores intuitivos
+    setores_df.rename(
+        columns={
+            "cd_tipo_setor_macro": "setor", 
+            "nm_perimetro_divisao_pde": "subsetor",
+            "vl_area_m2": "area_m2"
+        }, 
+        inplace=True
+    )
+
+    # 5. Remove colunas que não pertencem ao modelo de consumo
+    setores_df.drop(columns=["subsetor"], inplace=True, errors="ignore")
+
+    yield Output(value=setores_df)
+```
+
+---
+
+## 📌 Boas Práticas e Diretrizes de Engenharia
+
+### 1. Preservar as Chaves de Integração (`unique_id`)
+Se uma coluna funciona como identificador único ou chave primária de negócio (ex: `sql`, `id_zoneamento`, `cd_identificador`), garanta que o novo nome corresponda exatamente ao configurado no asset da camada **Gold** (`PostGisLayerUpdate.unique_column`).
+
+### 2. Conversão Explícita de Tipos
+Certifique-se de converter strings que representam valores numéricos ou datas para seus tipos nativos:
+```python
+# Converter áreas e coeficientes para float
+gdf["coeficiente_aproveitamento"] = gdf["coeficiente_aproveitamento"].astype(float)
+
+# Converter datas para datetime ISO
+gdf["data_publicacao"] = pd.to_datetime(gdf["data_publicacao"], errors="coerce")
+```
+
+### 3. Validação e Homogeneização de Geometrias
+Antes de enviar para a camada Gold, certifique-se de que não existem geometrias nulas ou inválidas:
+```python
+# Remover feições com geometria vazia
+gdf = gdf[gdf.geometry.notnull()]
+
+# Corrigir geometrias auto-intersecionadas
+gdf["geometry"] = gdf["geometry"].apply(lambda g: make_valid(g) if not g.is_valid else g)
+```

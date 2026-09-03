@@ -9,13 +9,21 @@ import {
   LoadingContent,
   phoneFormGroup,
   HlmToasterService,
-  HlmButtonDirective,
   HlmCardDirective,
   HlmCardContentDirective,
   HlmIconComponent,
 } from '../../../../projects/shared/src/public-api';
 import { provideIcons } from '@ng-icons/core';
-import { lucidePencil, lucideUser, lucideMail, lucideGlobe, lucideCheck, lucideCalendar, lucideLogIn } from '@ng-icons/lucide';
+import {
+  lucidePencil,
+  lucideUser,
+  lucideMail,
+  lucideGlobe,
+  lucideCheck,
+  lucideCalendar,
+  lucideLogIn,
+  lucideKey,
+} from '@ng-icons/lucide';
 import { mergeFormGroups } from '../../shared/utils/merge-form-groups';
 import { ProfileState } from '../../states/profile/profile.state';
 import { UsersApi } from '../users/services/users-api';
@@ -32,7 +40,6 @@ import { lucideActivity } from '@ng-icons/lucide';
     ReactiveFormsModule,
     HlmCardDirective,
     HlmCardContentDirective,
-    HlmButtonDirective,
     HlmIconComponent,
     LoadingContent,
     LoadingButton,
@@ -50,7 +57,8 @@ import { lucideActivity } from '@ng-icons/lucide';
       lucideCalendar,
       lucideLogIn,
       lucideActivity,
-    })
+      lucideKey,
+    }),
   ],
   templateUrl: './profile.html',
 })
@@ -84,7 +92,9 @@ export class Profile {
   cpf = computed(() => this.profileState.value().cpf);
   govBrData = computed(() => this.profileState.value().govBrData);
   lastGovBrLoginAt = computed(() => this.profileState.value().lastGovBrLoginAt);
-  govBrFirstLoginAt = computed(() => this.profileState.value().govBrFirstLoginAt);
+  govBrFirstLoginAt = computed(
+    () => this.profileState.value().govBrFirstLoginAt,
+  );
 
   profileState = inject(ProfileState);
   userApi = inject(UsersApi);
@@ -112,12 +122,12 @@ export class Profile {
     try {
       await firstValueFrom(this.userApi.resendEmailConfirmation());
       this.toaster.success(
-        this.translate.instant('pages.profile.email.resendSuccess')
+        this.translate.instant('pages.profile.email.resendSuccess'),
       );
     } catch (err) {
       console.error(err);
       this.toaster.error(
-        this.translate.instant('pages.profile.email.resendError')
+        this.translate.instant('pages.profile.email.resendError'),
       );
     } finally {
       this.loadingResend.set(false);

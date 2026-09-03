@@ -13,17 +13,29 @@ describe('Callback', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Callback, TranslateModule.forRoot(), HttpClientTestingModule, RouterTestingModule],
+      imports: [
+        Callback,
+        TranslateModule.forRoot(),
+        HttpClientTestingModule,
+        RouterTestingModule,
+      ],
       providers: [
         {
           provide: OidcSecurityService,
           useValue: {
-            checkAuthMultiple: () => of([{ isAuthenticated: true, userData: {}, errorMessage: null, configId: 'configId' }])
-          }
-        }
-      ]
-    })
-    .compileComponents();
+            checkAuthMultiple: () =>
+              of([
+                {
+                  isAuthenticated: true,
+                  userData: {},
+                  errorMessage: null,
+                  configId: 'configId',
+                },
+              ]),
+          },
+        },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Callback);
     component = fixture.componentInstance;

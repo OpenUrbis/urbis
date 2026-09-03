@@ -69,6 +69,20 @@ export class PermissionState {
   ): boolean {
     const reqs = Array.isArray(requirements) ? requirements : [requirements];
 
+    const result = this.hasPermissionInternal(reqs, mode, defaultScope);
+    console.log('[URBIS PERM DEBUG]', {
+      checking: reqs,
+      result,
+      allUserPermissions: Array.from(this.permissionMap().entries()),
+    });
+    return result;
+  }
+
+  private hasPermissionInternal(
+    reqs: (string | PermissionRequirement)[],
+    mode: 'AND' | 'OR',
+    defaultScope: RolePermissionScopeEnum | string,
+  ): boolean {
     const checkOne = (req: string | PermissionRequirement) => {
       const id = typeof req === 'string' ? req : req.id;
       const scope =
@@ -81,15 +95,17 @@ export class PermissionState {
 
       // Check if any of the user's permissions satisfy the requirement
       return userPermissions.some((userPerm) => {
+        // If user has GLOBAL scope, it applies to all organizations, so bypass organizationId check
+        if (userPerm.scope === RolePermissionScopeEnum.GLOBAL) {
+          return true;
+        }
+
         // If organization is required, check match
         if (organizationId && userPerm.organizationId !== organizationId) {
           return false;
         }
 
-        if (
-          userPerm.scope === RolePermissionScopeEnum.GLOBAL ||
-          userPerm.scope === RolePermissionScopeEnum.ANY
-        ) {
+        if (userPerm.scope === RolePermissionScopeEnum.ANY) {
           return true;
         }
 

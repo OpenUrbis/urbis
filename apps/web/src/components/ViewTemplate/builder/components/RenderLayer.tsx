@@ -27,6 +27,7 @@ import {
   ITemplateProps,
   ITemplatesDeclaration,
 } from "../../types/templates-type";
+import { ViewTemplate } from "../../index";
 import { ViewTemplateEngine } from "../../ViewTemplateEngine";
 import { useBuilder } from "../BuilderContext";
 import { BUILDER_TEMPLATES } from "../registry";
@@ -95,10 +96,7 @@ const RootAddButton = () => {
           className="max-h-60 overflow-y-auto"
         >
           {allowedTemplates.map((t) => (
-            <DropdownMenuItem
-              key={t.name}
-              onClick={() => handleAddItem(t)}
-            >
+            <DropdownMenuItem key={t.name} onClick={() => handleAddItem(t)}>
               {t.friendlyName || t.name}
             </DropdownMenuItem>
           ))}
@@ -112,7 +110,8 @@ const RootAddButton = () => {
 const AddButtonComponent = (props: ITemplateProps) => {
   const { addItem } = useBuilder();
   const { template } = props;
-  const { parentId, allowedChildren, parentType, isEmpty } = template.properties as any;
+  const { parentId, allowedChildren, parentType, isEmpty } =
+    template.properties as any;
 
   const parentConfig = useMemo(() => {
     return BUILDER_TEMPLATES.find((t) => t.name === parentType);
@@ -148,12 +147,12 @@ const AddButtonComponent = (props: ITemplateProps) => {
   if (isEmpty) {
     // Empty state - large placeholder
     if (allowedTemplates.length === 1) {
-       const t = allowedTemplates[0];
-       
-       return (
-        <div 
+      const t = allowedTemplates[0];
+
+      return (
+        <div
           className="w-full h-full min-h-[120px] flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/20 hover:border-muted-foreground/50 hover:bg-muted/30 rounded-lg transition-all cursor-pointer p-4 group pointer-events-auto"
-          style={{ pointerEvents: 'auto' }}
+          style={{ pointerEvents: "auto" }}
           onClick={(e) => {
             e.stopPropagation();
             handleAddItem(t);
@@ -163,24 +162,24 @@ const AddButtonComponent = (props: ITemplateProps) => {
             <Plus className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
           </div>
           <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground">
-             {`Adicionar ${t.friendlyName || t.name}`}
+            {`Adicionar ${t.friendlyName || t.name}`}
           </span>
         </div>
-       );
+      );
     }
-    
+
     // Multiple options - Placeholder with Dropdown behavior
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button 
+          <button
             className="w-full h-full min-h-[120px] flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/20 hover:border-muted-foreground/50 hover:bg-muted/30 rounded-lg transition-all cursor-pointer p-4 group outline-none focus:ring-2 focus:ring-primary/50 pointer-events-auto"
-            style={{ pointerEvents: 'auto' }}
+            style={{ pointerEvents: "auto" }}
             onClick={(e) => {
-               e.stopPropagation();
+              e.stopPropagation();
             }}
           >
-             <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-background group-hover:shadow-sm transition-all mb-2">
+            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-background group-hover:shadow-sm transition-all mb-2">
               <Plus className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
             </div>
             <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground">
@@ -188,7 +187,10 @@ const AddButtonComponent = (props: ITemplateProps) => {
             </span>
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="center" className="max-h-60 overflow-y-auto">
+        <DropdownMenuContent
+          align="center"
+          className="max-h-60 overflow-y-auto"
+        >
           {allowedTemplates.map((t) => (
             <DropdownMenuItem
               key={t.name}
@@ -208,7 +210,7 @@ const AddButtonComponent = (props: ITemplateProps) => {
   // Not empty - small button at the end
   if (allowedTemplates.length === 1) {
     const t = allowedTemplates[0];
-    
+
     return (
       <div
         className="flex justify-center p-2 opacity-50 hover:opacity-100 transition-opacity border-2 border-dashed border-transparent hover:border-muted-foreground/20 rounded-md m-1 w-full pointer-events-auto"
@@ -406,7 +408,13 @@ const BuilderComponentWrapper = ({
     },
   });
 
-  const { attributes, listeners, setNodeRef: setDraggableRef, transform, isDragging } = useDraggable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setDraggableRef,
+    transform,
+    isDragging,
+  } = useDraggable({
     id: template!.id || "unknown",
     data: {
       type: "existing-item",
@@ -469,7 +477,7 @@ const BuilderComponentWrapper = ({
     const children = newTemplate[childrenProp]
       ? [...newTemplate[childrenProp]]
       : [];
-    
+
     const isEmpty = children.length === 0;
 
     children.push({
@@ -504,17 +512,20 @@ const BuilderComponentWrapper = ({
           style={{
             minHeight: isWrapper ? "50px" : undefined,
             pointerEvents: "auto",
-            ...style
+            ...style,
           }}
         >
           {/* Container Droppable invisível que engloba o elemento para receber drops.
-              Usar ref={setDroppableRef} na mesma div principal pode conflitar com draggable 
+              Usar ref={setDroppableRef} na mesma div principal pode conflitar com draggable
               durante o hover no DndKit, então inserimos ele envolvendo o conteudo. */}
-          <div ref={setDroppableRef} className="absolute inset-0 z-0 pointer-events-none" />
+          <div
+            ref={setDroppableRef}
+            className="absolute inset-0 z-0 pointer-events-none"
+          />
 
           {/* Label tag when selected or hovered */}
           {(isSelected || isOver) && (
-            <div 
+            <div
               className="absolute -top-6 left-0 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-t z-10 cursor-grab active:cursor-grabbing flex items-center gap-1 pointer-events-auto"
               {...attributes}
               {...listeners}
@@ -525,11 +536,16 @@ const BuilderComponentWrapper = ({
           )}
 
           {/* Resize Overlay for Grid */}
-          {isGrid && template && node && <ResizeOverlay template={template} nodeRef={node} />}
+          {isGrid && template && node && (
+            <ResizeOverlay template={template} nodeRef={node} />
+          )}
 
           {/* Render the original component with pointer-events: none to prevent internal clicks */}
 
-          <div className="contents" style={{ pointerEvents: "none", position: 'relative', zIndex: 1 }}>
+          <div
+            className="contents"
+            style={{ pointerEvents: "none", position: "relative", zIndex: 1 }}
+          >
             <OriginalRender {...props} template={modifiedTemplate} />
           </div>
         </div>
@@ -661,6 +677,7 @@ const BuilderComponentWrapper = ({
 
 export const RenderLayer = () => {
   const { template, mockData, addItem } = useBuilder();
+  const [previewMode, setPreviewMode] = useState<"edit" | "fiu">("edit");
 
   // Create wrapped templates
   const wrappedTemplates = useMemo(() => {
@@ -688,35 +705,71 @@ export const RenderLayer = () => {
     },
   });
 
+  const content =
+    template.length === 0 ? (
+      <div className="h-full min-h-[700px] flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed rounded-md gap-4">
+        <p>Arraste componentes aqui para começar ou</p>
+        <RootAddButton />
+      </div>
+    ) : previewMode === "fiu" ? (
+      <ViewTemplate
+        templates={template}
+        data={mockData}
+        rootTemplate={template}
+        isPrint
+        layoutMode="semantic-grid"
+      />
+    ) : (
+      <TemplateRegistryProvider value={{ templates: wrappedTemplates }}>
+        {template.map((t, i) => (
+          <ViewTemplateEngine
+            key={t.id || `root-${i}`}
+            template={t}
+            data={mockData}
+            rootTemplate={template}
+          />
+        ))}
+        <RootAddButton />
+      </TemplateRegistryProvider>
+    );
+
   return (
-    <TemplateRegistryProvider value={{ templates: wrappedTemplates }}>
-      <div className="h-full w-full p-8 bg-muted/10 overflow-auto">
-        <div
-          ref={setNodeRef}
-          className={`bg-background shadow-sm border rounded-lg min-h-[800px] p-8 max-w-4xl mx-auto transition-colors ${
-            isOver ? "bg-accent/10 ring-2 ring-primary/20" : ""
-          }`}
-        >
-          {template.length === 0 ? (
-            <div className="h-full min-h-[700px] flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed rounded-md gap-4">
-              <p>Arraste componentes aqui para começar ou</p>
-              <RootAddButton />
-            </div>
-          ) : (
-            <>
-              {template.map((t, i) => (
-                <ViewTemplateEngine
-                  key={t.id || `root-${i}`}
-                  template={t}
-                  data={mockData}
-                  rootTemplate={template}
-                />
-              ))}
-              <RootAddButton />
-            </>
-          )}
+    <div className="h-full w-full p-8 bg-muted/10 overflow-auto">
+      <div className="mx-auto mb-3 flex max-w-6xl items-center justify-between rounded-lg border bg-background p-2 shadow-sm">
+        <div>
+          <p className="text-sm font-semibold">Visualização do template</p>
+          <p className="text-xs text-muted-foreground">
+            Use “Prévia FIU” para conferir largura, cards compactos e abas como
+            aparecem no print/painel, sem os wrappers de edição.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant={previewMode === "edit" ? "default" : "outline"}
+            onClick={() => setPreviewMode("edit")}
+          >
+            Edição
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={previewMode === "fiu" ? "default" : "outline"}
+            onClick={() => setPreviewMode("fiu")}
+          >
+            Prévia FIU
+          </Button>
         </div>
       </div>
-    </TemplateRegistryProvider>
+      <div
+        ref={setNodeRef}
+        className={`bg-background shadow-sm border rounded-lg min-h-[800px] p-8 mx-auto transition-colors ${
+          previewMode === "fiu" ? "max-w-6xl" : "max-w-4xl"
+        } ${isOver ? "bg-accent/10 ring-2 ring-primary/20" : ""}`}
+      >
+        {content}
+      </div>
+    </div>
   );
 };

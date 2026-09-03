@@ -1,4 +1,5 @@
 import { ClickActionEnum } from "@open-urbis/map-shared";
+import { ILayerPattern } from "../lib/layer-patterns";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import { MapBoundingBox } from "./map-context-type";
 
@@ -32,11 +33,11 @@ export interface IGetConfigLayerGroup {
   childGroups: IGetConfigLayerGroup[];
 }
 
-export type IGetConfigFillPattern =
-  | "dots"
-  | "hatch-1x"
-  | "full"
-  | "hatch-cross";
+/**
+ * Padrões de preenchimento disponíveis no atlas `/pattern.png`.
+ * A lista de referência (com rótulos e coordenadas) fica em `src/lib/layer-patterns.ts`.
+ */
+export type IGetConfigFillPattern = ILayerPattern;
 
 export interface IGetConfigFillPatternConfig {
   fillPatternMask?: boolean;
@@ -44,6 +45,8 @@ export interface IGetConfigFillPatternConfig {
   fillPatternMapping?: string;
   getFillPatternScale?: number;
   getFillPatternOffset?: [number, number];
+  getFillPatternAngle?: number;
+  backgroundColor?: [number, number, number, number] | number[];
 }
 
 export interface IGetConfigColor {
@@ -55,6 +58,7 @@ export interface IGetConfigColor {
   type?: "text" | "fill" | "line";
   value: string;
   layerSchemaId: string;
+  legisUrl?: string;
 }
 
 export enum IGetConfigLayerSchemaTypeEnum {
@@ -76,14 +80,27 @@ export interface IGetConfigLayerSchemaGroup {
   ownerGroup?: string;
 }
 
+export interface IGetConfigLayerLabel {
+  enabled: boolean;
+  property?: string;
+  minZoom?: number;
+  size?: number;
+  color?: string;
+  haloColor?: string;
+  haloWidth?: number;
+}
+
 export interface IGetConfigLayerSchema {
   id: string;
+  proxyLayerId?: string;
   name: string;
   origin: string;
   isActive: boolean;
   isSelected: boolean;
   type: IGetConfigLayerSchemaTypeEnum;
   isVisible: boolean;
+  isPublic?: boolean;
+  allowedRoles?: string[];
   index?: number;
   minZoom?: number;
   getTextColorPropName?: string;
@@ -94,6 +111,7 @@ export interface IGetConfigLayerSchema {
   boardTemplate?: ITemplate[];
   groupId?: string;
   colors: IGetConfigColor[];
+  label?: IGetConfigLayerLabel;
   layerGroup: IGetConfigLayerSchemaGroup;
   cqlFilter?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -102,5 +120,9 @@ export interface IGetConfigLayerSchema {
   filterTree?: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: any;
+  visualState?: {
+    hoverColor?: [number, number, number, number] | number[];
+    selectedColor?: [number, number, number, number] | number[];
+  };
   attributeMapping?: Record<string, { name: string; description?: string }>;
 }

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { RepresentationStatus } from '../enums/representation-status.enum';
 
 export class GetRepresentationOverviewDto {
   @ApiProperty({ required: false })
@@ -8,10 +9,10 @@ export class GetRepresentationOverviewDto {
   @IsString()
   search?: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ enum: RepresentationStatus, required: false })
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsEnum(RepresentationStatus)
+  status?: RepresentationStatus;
 
   @ApiProperty({ required: false })
   @IsOptional()

@@ -3,7 +3,7 @@ import { useMapContext } from "../../hooks/useMapContext";
 import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
 import { LayerMetadataModal } from "./modals/LayerMetadataModal";
 import { LayerFilterModal } from "./modals/LayerFilterModal";
-import { cn } from "@open-urbis/map-ui";
+import { cn, UrbisIcon } from "@open-urbis/map-ui";
 import { Button } from "@open-urbis/map-ui";
 import {
   Tooltip,
@@ -13,7 +13,15 @@ import {
 } from "@open-urbis/map-ui";
 import { useMemo, useState } from "react";
 import { getLayerNameFromConfig } from "../../utils/layer-utils";
-import { Pencil, MoreVertical, Trash2, Eye, EyeOff, Info, Filter } from "lucide-react";
+import {
+  Palette,
+  MoreVertical,
+  Trash2,
+  Eye,
+  EyeOff,
+  Ellipsis,
+  Filter,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,25 +31,27 @@ import {
 // import { LayerEditModal } from "@/pages/Admin/pages/LayerManager/pages/LayerHandle/steps/LayerEditModal";
 // import { buildLayerSchema, LayerSchemaFormValues, parseLayerSchemaToForm } from "@/pages/Admin/pages/LayerManager/pages/LayerHandle/utils";
 
-export const LayerItem = ({ 
-  item, 
-  indent, 
+export const LayerItem = ({
+  item,
+  indent,
   className,
-  onClick
-}: { 
-  item: IGetConfigLayerSchema; 
-  indent?: number; 
+  onClick,
+  highlightFilter = false,
+}: {
+  item: IGetConfigLayerSchema;
+  indent?: number;
   className?: string;
   onClick?: (id: string) => void;
+  highlightFilter?: boolean;
 }) => {
-  const { zoom, layerSchemas, handleActiveLayer } = useMapContext();
+  const { zoom, handleActiveLayer } = useMapContext();
   const showMetadata = useSignal(false);
   const showFilter = useSignal(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [_showEditModal, setShowEditModal] = useState(false);
 
   // const handleSaveConfig = (formValues: LayerSchemaFormValues) => {
   //   const schema = buildLayerSchema(formValues);
-    
+
   //   // Merge updates into the existing layer
   //   const updatedLayer = {
   //     ...item,
@@ -59,16 +69,17 @@ export const LayerItem = ({
   // };
 
   const canFilter = useMemo(() => {
-      const id = item.id.toString();
-      const isImported = id.startsWith('wms-') || 
-                         id.startsWith('wfs-') || 
-                         id.startsWith('file-') ||
-                         id.startsWith('upload-');
-      
-      if (isImported) return false;
+    const id = item.id.toString();
+    const isImported =
+      id.startsWith("wms-") ||
+      id.startsWith("wfs-") ||
+      id.startsWith("file-") ||
+      id.startsWith("upload-");
 
-      const layerName = getLayerNameFromConfig(item);
-      return !!layerName;
+    if (isImported) return false;
+
+    const layerName = getLayerNameFromConfig(item);
+    return !!layerName;
   }, [item]);
 
   const renderColor = () => {
@@ -158,19 +169,62 @@ export const LayerItem = ({
       key={item.id}
       className={cn(
         "flex flex-nowrap items-center justify-between py-2 w-full cursor-pointer transition-colors hover:bg-muted/50 border-b border-border/40 group pr-4",
-        className
+        className,
       )}
-      style={{ paddingLeft: indent !== undefined ? `${indent}px` : '16px' }}
+      style={{ paddingLeft: indent !== undefined ? `${indent}px` : "16px" }}
       onClick={() => onClick && onClick(item.id)}
     >
       <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
-         {renderColor()}
-         <span className={cn("text-sm truncate", item.isVisible ? "font-medium text-foreground" : "font-normal text-muted-foreground")}>{item.name}</span>
+        {renderColor()}
+        <span
+          className={cn(
+            "text-sm truncate",
+            item.isVisible
+              ? "font-medium text-foreground"
+              : "font-normal text-muted-foreground",
+          )}
+        >
+          {item.name}
+        </span>
       </div>
-      
+
       <div className="flex items-center shrink-0 ml-2 gap-1">
         {renderVisibilityButton()}
-        
+
+        {canFilter && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-6 w-6 rounded-full shrink-0 text-primary hover:bg-primary/10 hover:text-primary",
+                    item.cqlFilter &&
+                      "text-blue-500 hover:bg-blue-500/10 hover:text-blue-600",
+                    highlightFilter &&
+                      "animate-pulse bg-blue-500/15 ring-1 ring-blue-500/40 text-blue-500",
+                  )}
+                  aria-label="Filtrar por atributos"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showFilter.value = true;
+                  }}
+                >
+                  <Filter className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {item.cqlFilter
+                    ? "Filtro por atributos ativo. Clique para gerenciar."
+                    : "Filtrar por atributos"}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -191,7 +245,7 @@ export const LayerItem = ({
                 }}
               >
                 <Filter className="mr-2 h-4 w-4" />
-                <span>Filtrar Camada</span>
+                <span>Filtrar por atributos</span>
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
@@ -200,8 +254,8 @@ export const LayerItem = ({
                 setShowEditModal(true);
               }}
             >
-              <Pencil className="mr-2 h-4 w-4" />
-              <span>Editar Camada</span>
+              <Palette className="mr-2 h-4 w-4" />
+              <span>Personalizar visualmente</span>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {
@@ -209,23 +263,29 @@ export const LayerItem = ({
                 showMetadata.value = true;
               }}
             >
-              <Info className="mr-2 h-4 w-4" />
+              <Ellipsis className="mr-2 h-4 w-4" />
               <span>Informações</span>
             </DropdownMenuItem>
 
-            {item.properties?.layerActions?.map(({ icon, action, label }: any, i: number) => (
-              <DropdownMenuItem
-                key={`${icon}-${i}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const actionFn = (window as any).createFn(action, false);
-                  actionFn();
-                }}
-              >
-                <span className="material-symbols-outlined mr-2 text-base">{icon}</span>
-                <span>{label || 'Ação'}</span>
-              </DropdownMenuItem>
-            ))}
+            {item.properties?.layerActions?.map(
+              ({ icon, action, label }: any, i: number) => (
+                <DropdownMenuItem
+                  key={`${icon}-${i}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const actionFn = (window as any).createFn(action, false);
+                    actionFn();
+                  }}
+                >
+                  <UrbisIcon
+                    name={icon}
+                    className="mr-2 text-base"
+                    aria-hidden="true"
+                  />
+                  <span>{label || "Ação"}</span>
+                </DropdownMenuItem>
+              ),
+            )}
 
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"

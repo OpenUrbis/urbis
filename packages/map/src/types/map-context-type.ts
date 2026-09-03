@@ -4,6 +4,7 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 import { Signal } from "@preact/signals";
 import React from "react";
 import { CustomWMSLayer } from "../components/MapView/CustomWMSLayer";
+import { BaseMapStyleId } from "../components/MapView/base-map-styles";
 import { ITemplate } from "../components/ViewTemplate/types/templates-type";
 import {
   IGetConfigLayerGroup,
@@ -24,7 +25,12 @@ export interface MapContextType {
   viewport: Signal<any>;
   zoom: Signal<number>;
   is3DActive: Signal<boolean>;
-  selectedBaseMap: Signal<"standard" | "light" | "dark" | "outdoors" | "satellite" | "satellite-streets" | "maxar-satellite">;
+  selectedBaseMap: Signal<BaseMapStyleId>;
+  selectedBaseMaps?: Signal<BaseMapStyleId[]>;
+  baseMapOpacity?: Signal<number>;
+  baseMapOpacities?: Signal<Record<string, number>>;
+  baseMapSaturation?: Signal<number>;
+  baseMap3DOpacity?: Signal<number>;
   overlayRef: React.RefObject<MapboxOverlay | null>;
   editFeatureTemplate: Signal<ITemplate[]>;
   layerWithRootEditTemplate: Signal<string>;
@@ -54,12 +60,14 @@ export type MapContextLayerSchemaTypeMapProps = {
   selectedFeature?: MapContextSelectedFeature[];
   selectedFeatureIds?: string[];
   is3DActive?: boolean;
+  token?: string;
+  organizationId?: string;
 };
 
 export type MapContextLayerSchemaTypeMap = {
   [K in IGetConfigLayerSchemaTypeEnum]?: (
     layer: IGetConfigLayerSchema,
-    props: MapContextLayerSchemaTypeMapProps
+    props: MapContextLayerSchemaTypeMapProps,
   ) => MapContextRenderedLayer[];
 };
 
@@ -70,6 +78,7 @@ export interface MapContextSelectedFeature {
 
 export interface IMapContextActions extends MapContextType {
   handleVisibleLayer: (layerId: string) => void;
+  activeHighlightFeature: Signal<any>;
   handleActiveLayer: (layerId: string) => void;
   populateMapContext: (options?: { disablePadding?: boolean }) => Promise<void>;
   selectFeature: (feature: MapContextSelectedFeature) => void;

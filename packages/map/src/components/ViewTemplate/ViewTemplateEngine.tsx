@@ -52,7 +52,7 @@ export const ViewTemplateEngine = ({
         return <div>Error on loading template</div>;
       }
     },
-    [templateTypes, data, rootTemplate, isPrint]
+    [templateTypes, data, rootTemplate, isPrint],
   );
 
   return <>{renderTemplate(template)}</>;

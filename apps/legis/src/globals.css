@@ -1,8 +1,80 @@
 @import "../../web/src/globals.css";
 
+:root {
+    /*
+      Fallback for the header band (`h-16` + `border-b`). `LegisLayout` sets the same
+      value inline; declaring it here keeps sub-headers correctly offset even when a
+      screen is rendered outside the layout (tests, isolated previews).
+    */
+    --header-height: calc(4rem + 1px);
+}
+
 html, body {
     height: 100%;
     /* overflow: auto;  <-- Removed to allow Layout to control scroll */
+}
+
+/*
+  Âncoras de dispositivo (`#el-<id>`).
+
+  O recuo vive aqui, e não na rotina de rolagem, porque `scroll-margin-top` é
+  respeitado tanto pelo `scrollIntoView` quanto pela rolagem nativa do hash — a
+  que o navegador faz sozinho ao clicar `<a href="#el-...">`. Sem isso o
+  dispositivo para debaixo do cabeçalho fixo e o leitor não vê o que pediu.
+
+  Cada tela declara `--element-anchor-offset` conforme a sua barra fixa (ver
+  `useElementAnchorOffset`). No editor a rolagem é interna à área de texto, que
+  já começa abaixo da barra de ações: lá só o respiro do fallback se aplica.
+*/
+[data-element-anchor],
+.ProseMirror [data-normative-id] {
+    scroll-margin-top: var(--element-anchor-offset, 1.5rem);
+}
+
+/* Realce de chegada: diz qual dispositivo a âncora endereçava, e sai de cena. */
+[data-element-anchor-focus] {
+    animation: element-anchor-focus 1.4s ease-out forwards;
+    border-radius: 4px;
+}
+
+@keyframes element-anchor-focus {
+    from { background-color: hsl(var(--muted)); }
+    to { background-color: transparent; }
+}
+
+p.active-block.is-empty:before {
+    content: "Digite ou cole aqui. Utilize '/' para comandos como tabelas, figuras, titulos  ou vinculos...";
+    color: hsl(var(--neutral));
+    position: absolute;
+    padding-left: 6px;
+    font-size: 1rem;
+}
+
+.drag-handle.hide {
+    display: none;
+}
+
+code {
+    font-family: "Noto Sans", Verdana, sans-serif;
+    font-size: inherit!important;
+    font-weight: inherit!important;
+}
+
+code {
+    font-family: "Noto Sans", Verdana, sans-serif!important;
+}
+
+code:before {
+    content: '` '!important;
+}
+
+code:after {
+    content: ' `'!important;
+}
+td, th {
+    border-width: 1px!important;
+    font-family: "Noto Sans", Verdana, sans-serif!important;
+
 }
 
 /* Global Drag Handle Styles */

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urbis - Licenças | Licença MapLibre</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #6c7882;
+            color: #111111;
+            padding: 24px;
+            font-size: 13.5px;
+            line-height: 1.45;
+        }
+        .container {
+            display: flex;
+            gap: 24px;
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .back-link {
+            display: inline-block;
+            color: #111;
+            text-decoration: underline;
+            font-size: 13px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .app-title {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #000;
+            letter-spacing: -0.3px;
+        }
+        .license-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #000;
+        }
+        .meta-group {
+            margin-bottom: 12px;
+        }
+        .meta-item {
+            margin-bottom: 6px;
+            color: #111;
+            word-break: break-word;
+        }
+        .meta-item strong {
+            font-weight: 700;
+        }
+        .meta-item a {
+            color: #003399;
+            text-decoration: underline;
+        }
+        .warning-text {
+            margin-top: 4px;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+        .iframe-wrapper {
+            flex: 1;
+            width: 100%;
+            min-height: 720px;
+            margin-top: 8px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 720px;
+            border: 1px solid #3a424a;
+            border-radius: 4px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .translated-text-box {
+            flex: 1;
+            width: 100%;
+            min-height: 720px;
+            max-height: 780px;
+            margin-top: 8px;
+            background-color: #24292e;
+            color: #e1e4e8;
+            border: 1px solid #3a424a;
+            border-radius: 4px;
+            padding: 24px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+                gap: 32px;
+            }
+            body {
+                padding: 16px;
+            }
+            .iframe-wrapper, iframe, .translated-text-box {
+                min-height: 500px !important;
+                max-height: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Coluna Esquerda: Versão Original -->
+        <div class="column">
+            <a href="#" class="back-link" onclick="if (history.length > 1) { history.back(); } else { window.close(); } return false;">voltar</a>
+            <h1 class="app-title">Urbis - Licenças</h1>
+            <h2 class="license-title">Licença MapLibre</h2>
+            
+            <div class="meta-group">
+                <p class="meta-item">
+                    <strong>Versão original da licença:</strong> 
+                    <a href="https://github.com/maplibre/maplibre-gl-js/blob/main/LICENSE.txt" target="_blank" rel="noopener">https://github.com/maplibre/maplibre-gl-js/blob/main/LICENSE.txt</a>
+                </p>
+            </div>
+
+            <div class="iframe-wrapper">
+                <iframe src="./maplibre.en.html" title="Versão Original - Licença MapLibre"></iframe>
+            </div>
+        </div>
+
+        <!-- Coluna Direita: Versão Traduzida -->
+        <div class="column">
+            <div class="meta-group" style="margin-top: 0px;">
+                <p class="meta-item">
+                    <strong>Fonte da tradução:</strong> <a href="https://www.codata.prefeitura.sp.gov.br/" target="_blank" rel="noopener">Coordenadoria de Tecnologia e Dados - CODATA</a>, com base na tradução pela Inteligência Artificial especializada DeepL.
+                </p>
+                <p class="meta-item">
+                    <strong>Motivo da exibição da tradução:</strong> "Art. 224. Os documentos redigidos em língua estrangeira serão traduzidos para o português para ter efeitos legais no País" (BRASIL. Lei nº 10.406/2002 - "Código Civil").
+                </p>
+                <p class="meta-item warning-text">
+                    ATENÇÃO: A exibição da tradução da licença não é uma adequação da licença ao Direito brasileiro, nem uma versão oficial do licenciador.
+                </p>
+                <p class="meta-item">
+                    <strong>Explicações sobre a licença:</strong> não há
+                </p>
+            </div>
+
+            <div class="translated-text-box">
+                <h3 style="font-size: 15px; font-weight: bold; margin-top: 16px; margin-bottom: 8px; color: #ffffff;">Licença BSD de 3 Cláusulas (BSD-3-Clause)</h3>
+                <p style="margin-bottom: 12px;">Direitos autorais (c) 2020, colaboradores do MapLibre<br>Todos os direitos reservados.</p>
+                <p style="margin-bottom: 12px;">A redistribuição e o uso em formas de código fonte e binário, com ou sem modificação, são permitidos desde que as seguintes condições sejam atendidas:</p>
+                <p style="margin-bottom: 12px;">1. As redistribuições do código fonte devem manter o aviso de direitos autorais acima, esta lista de condições e a seguinte isenção de responsabilidade.</p>
+                <p style="margin-bottom: 12px;">2. As redistribuições em forma binária devem reproduzir o aviso de direitos autorais acima, esta lista de condições e a seguinte isenção de responsabilidade na documentação e/ou outros materiais fornecidos com a distribuição.</p>
+                <p style="margin-bottom: 12px;">3. Nem o nome do detentor dos direitos autorais nem os nomes de seus colaboradores podem ser usados para endossar ou promover produtos derivados deste software sem permissão prévia por escrito.</p>
+                <p style="margin-bottom: 12px; font-weight: bold;">ESTE SOFTWARE É FORNECIDO PELOS DETENTORES DOS DIREITOS AUTORAIS E COLABORADORES "COMO ESTÁ" E TODA E QUALQUER GARANTIA EXPRESSA OU IMPLÍCITA, INCLUINDO, SEM LIMITAÇÃO, AS GARANTIAS IMPLÍCITAS DE COMERCIALIZAÇÃO E ADEQUAÇÃO A UM PROPÓSITO ESPECÍFICO SÃO REJEITADAS. EM NENHUM CASO O DETENTOR DOS DIREITOS AUTORAIS OU COLABORADORES SERÃO RESPONSÁVEIS POR QUAISQUER DANOS DIRETOS, INDIRETOS, INCIDENTAIS, ESPECIAIS, EXEMPLARES OU CONSEQUENTES (INCLUINDO, SEM LIMITAÇÃO, A AQUISIÇÃO DE BENS OU SERVIÇOS SUBSTITUTOS; PERDA DE USO, DADOS OU LUCROS; OU INTERRUPÇÃO DE NEGÓCIOS) SEJA QUAL FOR A CAUSA E SOB QUALQUER TEORIA DE RESPONSABILIDADE, SEJA POR CONTRATO, RESPONSABILIDADE OBJETIVA OU ATO ILÍCITO (INCLUINDO NEGLIGÊNCIA OU OUTRO) DECORRENTE DE QUALQUER FORMA DO USO DESTE SOFTWARE, MESMO QUE AVISADO DA POSSIBILIDADE DE TAIS DANOS.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

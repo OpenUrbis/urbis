@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect } from "react";
-import { useControl } from "react-map-gl/mapbox";
+import { useControl } from "react-map-gl/maplibre";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { DeckProps } from "@deck.gl/core";
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const DeckGLOverlay = React.forwardRef((props: DeckProps, ref: any) => {
   const overlay = useControl<MapboxOverlay>(
-    () => new MapboxOverlay({ ...props })
+    () => new MapboxOverlay({ interleaved: true, ...props }),
   );
 
   useEffect(() => {

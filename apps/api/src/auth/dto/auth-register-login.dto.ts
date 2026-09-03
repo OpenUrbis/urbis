@@ -10,6 +10,8 @@ import { IsNotExist } from './../../common/utils/validators/is-not-exists.valida
 import { Transform } from 'class-transformer';
 import { IsCountryCode } from './validators/isCountry.validator';
 import { IsCPF } from '../../common/utils/validators/is-cpf.validator';
+import { IsValidBirthDate } from '../../common/utils/validators/is-valid-birth-date.validator';
+import { IsAccountTypeAllowedForAge } from '../validators/is-account-type-allowed-for-age.validator';
 
 export class AuthRegisterLoginDto {
   @ApiProperty({ example: 'test1@example.com' })
@@ -83,10 +85,12 @@ export class AuthRegisterLoginDto {
 
   @ApiProperty({ example: '1990-01-01' })
   @IsNotEmpty()
+  @IsValidBirthDate({ message: 'invalid' })
   birthDate: string;
 
   @ApiProperty({ example: 'fisica_capaz' })
   @IsNotEmpty()
+  @IsAccountTypeAllowedForAge({ message: 'invalidForBirthDate' })
   accountType: string;
 
   @ApiProperty()

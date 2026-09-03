@@ -1,22 +1,39 @@
 // @ts-nocheck
 import { useSignal } from "@preact/signals";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@open-urbis/map-ui";
+import { useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  UrbisIcon,
+} from "@open-urbis/map-ui";
 import { UploadLayer } from "../AddLayer/UploadLayer";
 import { WebLayer } from "../AddLayer/WebLayer";
+
+type AddLayerMode = "select" | "web" | "upload";
 
 interface AddLayerModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  initialMode?: AddLayerMode;
 }
 
-type AddLayerMode = "select" | "web" | "upload";
-
-export const AddLayerModal = ({ isOpen, onOpenChange }: AddLayerModalProps) => {
-  const mode = useSignal<AddLayerMode>("select");
+export const AddLayerModal = ({
+  isOpen,
+  onOpenChange,
+  initialMode = "select",
+}: AddLayerModalProps) => {
+  const mode = useSignal<AddLayerMode>(initialMode);
 
   const reset = () => {
-    mode.value = "select";
+    mode.value = initialMode;
   };
+
+  useEffect(() => {
+    if (isOpen) mode.value = initialMode;
+  }, [isOpen, initialMode]);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) reset();
@@ -25,55 +42,87 @@ export const AddLayerModal = ({ isOpen, onOpenChange }: AddLayerModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[85vh] flex-col overflow-hidden sm:max-w-xl">
+        <DialogHeader className="shrink-0">
           <DialogTitle>
-            {mode.value === "select" ? "Adicionar Camada" : 
-             mode.value === "web" ? "Integração GeoServer" : "Upload de Dados"}
+            {mode.value === "select"
+              ? "Adicionar camada"
+              : mode.value === "web"
+                ? "GeoServer"
+                : "GeoJSON"}
           </DialogTitle>
-          <DialogDescription className="text-base text-muted-foreground pt-2">
-            {mode.value === "select" ? "Adicione camadas personalizadas ao seu mapa de forma rápida. Estas camadas são temporárias e ficam disponíveis apenas durante a sua sessão atual." : 
-             mode.value === "web" ? "Conecte-se a serviços externos via WMS ou WFS para visualizar dados geográficos em tempo real." : "Envie arquivos geográficos diretamente do seu computador (máx. 400MB)."}
+          <DialogDescription className="pt-1 text-sm text-muted-foreground">
+            {mode.value === "select"
+              ? "Adicione uma camada temporária ao mapa."
+              : mode.value === "web"
+                ? "Escolha um serviço WMS/WFS e uma camada publicada."
+                : "Importe um arquivo GeoJSON do seu computador."}
           </DialogDescription>
         </DialogHeader>
-        
-        {mode.value === "select" && (
-          <div className="grid grid-cols-2 gap-4 py-6">
-            <div 
-              className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-2xl hover:bg-primary/5 hover:border-primary/50 cursor-pointer transition-all group gap-4 text-center"
-              onClick={() => (mode.value = "web")}
-            >
-              <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-4xl text-blue-600">dns</span>
+
+        <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+          {mode.value === "select" && (
+            <div className="grid grid-cols-2 gap-2 py-3">
+              <div
+                className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed p-4 text-center transition-all hover:border-primary/50 hover:bg-primary/5"
+                onClick={() => (mode.value = "web")}
+              >
+                <div className="rounded-full bg-blue-100 p-2 transition-transform group-hover:scale-105 dark:bg-blue-900/30">
+                  <UrbisIcon
+                    name="dns"
+                    className="text-2xl text-blue-600"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div>
+                  <span className="block text-sm font-semibold text-foreground">
+                    GeoServer
+                  </span>
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                    WMS / WFS
+                  </span>
+                </div>
               </div>
-              <div className="space-y-1">
-                <span className="text-foreground font-bold text-lg block">GeoServer</span>
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">WMS / WFS Integration</span>
+              <div
+                className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed p-4 text-center transition-all hover:border-primary/50 hover:bg-primary/5"
+                onClick={() => (mode.value = "upload")}
+              >
+                <div className="rounded-full bg-green-100 p-2 transition-transform group-hover:scale-105 dark:bg-green-900/30">
+                  <span
+                    className="h-6 w-6 text-green-600 dark:text-green-400 shrink-0"
+                    style={{
+                      backgroundColor: "currentColor",
+                      mask: "url(/importar_arquivo_georreferenciado.svg) no-repeat center / contain",
+                      WebkitMask: "url(/importar_arquivo_georreferenciado.svg) no-repeat center / contain",
+                    }}
+                  />
+                </div>
+                <div>
+                  <span className="block text-sm font-semibold text-foreground">
+                    GeoJSON
+                  </span>
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                    Importar
+                  </span>
+                </div>
               </div>
             </div>
-            <div 
-              className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-2xl hover:bg-primary/5 hover:border-primary/50 cursor-pointer transition-all group gap-4 text-center"
-              onClick={() => (mode.value = "upload")}
-            >
-              <div className="bg-green-100 dark:bg-green-900/30 p-4 rounded-full group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-4xl text-green-600">cloud_upload</span>
-              </div>
-              <div className="space-y-1">
-                <span className="text-foreground font-bold text-lg block">Local File</span>
-                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Upload de Dados</span>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
 
-        {mode.value === "web" && (
-          <WebLayer onBack={() => (mode.value = "select")} onClose={() => handleOpenChange(false)} />
-        )}
+          {mode.value === "web" && (
+            <WebLayer
+              onBack={() => (mode.value = "select")}
+              onClose={() => handleOpenChange(false)}
+            />
+          )}
 
-        {mode.value === "upload" && (
-          <UploadLayer onBack={() => (mode.value = "select")} onClose={() => handleOpenChange(false)} />
-        )}
-
+          {mode.value === "upload" && (
+            <UploadLayer
+              onBack={() => (mode.value = "select")}
+              onClose={() => handleOpenChange(false)}
+            />
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

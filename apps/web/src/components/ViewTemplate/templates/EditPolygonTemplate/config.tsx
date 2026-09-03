@@ -31,7 +31,10 @@ const ConfigForm = ({
     <div className="space-y-4">
       <div className="space-y-2">
         <Label>Rótulo do Botão</Label>
-        <Input {...register("label")} placeholder="Ex: Ajustar Perímetro" />
+        <Input
+          {...register("label")}
+          placeholder="Ex: Analisar com desenho do perímetro"
+        />
       </div>
     </div>
   );
@@ -44,7 +47,7 @@ export const EditPolygonTemplateConfig: Partial<IBuilderTemplateConfig> = {
   childrenProp: "polygonTemplate",
   isWrapper: true, // It acts as a wrapper for the polygonTemplate content
   defaultProps: {
-    label: "Ajustar Perímetro",
+    label: "Analisar com desenho do perímetro",
     polygonTemplate: [],
   },
 };

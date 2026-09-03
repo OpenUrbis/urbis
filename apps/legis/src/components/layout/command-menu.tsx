@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { FileText, Plus, Search, Settings } from "lucide-react";
-import { usePage } from "@/hooks/use-page";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@open-urbis/map-ui";
-import { 
-  Command, 
-  CommandInput, 
-  CommandList, 
-  CommandEmpty, 
-  CommandGroup, 
-  CommandItem, 
+import { FileText, Plus, Settings } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@open-urbis/map-ui";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
   CommandSeparator,
-  CommandShortcut 
+  CommandShortcut,
 } from "@open-urbis/map-ui/ui/command";
 
 export function CommandMenu() {
   const [open, setOpen] = useState(false);
   const [, setLocation] = useLocation();
-  const { createPage } = usePage();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -39,25 +42,29 @@ export function CommandMenu() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="p-0 overflow-hidden shadow-2xl">
         <DialogTitle className="sr-only">Menu de Comandos</DialogTitle>
-        <DialogDescription className="sr-only">Navegue ou execute comandos</DialogDescription>
+        <DialogDescription className="sr-only">
+          Navegue ou execute comandos
+        </DialogDescription>
         <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           <CommandInput placeholder="Digite um comando ou busque..." />
           <CommandList>
             <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
             <CommandGroup heading="Sugestões">
-              <CommandItem onSelect={() => run(() => setLocation('/pages/new'))}>
+              <CommandItem
+                onSelect={() => run(() => setLocation("/pages/new"))}
+              >
                 <Plus className="mr-2 h-4 w-4" />
-                <span>Nova Página</span>
+                <span>Criar Página</span>
                 <CommandShortcut>⌘N</CommandShortcut>
               </CommandItem>
-              <CommandItem onSelect={() => run(() => setLocation('/pages'))}>
+              <CommandItem onSelect={() => run(() => setLocation("/pages"))}>
                 <FileText className="mr-2 h-4 w-4" />
                 <span>Ir para Páginas</span>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Configurações">
-              <CommandItem onSelect={() => run(() => console.log('Settings'))}>
+              <CommandItem onSelect={() => run(() => console.log("Settings"))}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Configurações</span>
               </CommandItem>

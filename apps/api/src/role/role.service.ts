@@ -1,4 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
 import { OrganizationService } from 'organization/organization.service';
@@ -145,6 +151,32 @@ export class RoleService {
     return this.findOne(id);
   }
 
+  async delete(
+    id: string,
+    organization?: Organization,
+  ): Promise<{ message: string }> {
+    const role = await this.findOne(id);
+
+    if (organization && role.organizationId !== organization.id) {
+      throw new NotFoundException({ message: 'Role is not found' });
+    }
+
+    if (
+      role.isSystemRole ||
+      Object.values(SYSTEM_ROLES).includes(role.id) ||
+      !role.organizationId
+    ) {
+      throw new BadRequestException(
+        'Cargos do sistema não podem ser excluídos',
+      );
+    }
+
+    await this.userRoleAssignmentRepository.delete({ roleId: id });
+    await this.roleRepository.softDelete(id);
+
+    return { message: 'OK' };
+  }
+
   async assign(
     data: AssignRoleDto,
     organization?: Organization,
@@ -173,6 +205,28 @@ export class RoleService {
   }
 
   async unassign(id: string, entityManager?: EntityManager) {
+    const repo = entityManager
+      ? entityManager.getRepository(UserRoleAssignment)
+      : this.userRoleAssignmentRepository;
+
+    const assign = await repo.findOne({
+      where: { id },
+      relations: ['role'],
+    });
+
+    if (!assign) {
+      return { message: 'OK' };
+    }
+
+    if (
+      assign.roleId === SYSTEM_ROLES.user ||
+      assign.role?.id === SYSTEM_ROLES.user
+    ) {
+      throw new BadRequestException(
+        'O cargo de Usuário do sistema não pode ser removido do usuário',
+      );
+    }
+
     if (entityManager) await entityManager.delete(UserRoleAssignment, { id });
     else await this.userRoleAssignmentRepository.delete({ id });
 
@@ -217,9 +271,11 @@ export class RoleService {
 
     return this.entityManager.transaction(async (manager) => {
       const unassignPromises = [];
-      assigns.forEach((assign) =>
-        unassignPromises.push(this.unassign(assign.id, manager)),
-      );
+      assigns
+        .filter((assign) => assign.roleId !== SYSTEM_ROLES.user)
+        .forEach((assign) =>
+          unassignPromises.push(this.unassign(assign.id, manager)),
+        );
       await Promise.all(unassignPromises);
 
       const assignPromises = [];

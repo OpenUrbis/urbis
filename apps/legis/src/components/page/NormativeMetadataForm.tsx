@@ -1,149 +1,638 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Label, 
-    Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
-    Textarea, Separator, Card, CardContent, Badge
-} from '@open-urbis/map-ui';
-import { Plus, Trash2, AlertCircle, PlusCircle, Calendar as CalendarIcon, Check, ExternalLink, X, Loader2, MousePointerClick, FileText, Edit, Link as LinkIcon, Search } from 'lucide-react';
-import { format, parse, isValid, isAfter, isBefore, getYear } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { OriginalNormativo, Authority, EmentaAlteration, CollectionLink } from '../../domain/entities';
-import { NORMATIVE_TYPES, NormativeTypeKey } from '../../data/normative-types';
-import { AUTHORITIES } from '../../data/authorities';
-import { LegisEditor } from '../Editor/LegisEditor';
-import { SimpleEditor } from '../Editor/SimpleEditor';
-import { safeJSONParse } from '@/lib/content';
-import { JSONContent } from '@tiptap/core';
-import { SegmentSelector, Segment } from '../common/SegmentSelector';
-import { extractTextFromWordIndices } from '../../domain/text-utils';
-import { pageService } from '../../services/page-service';
-import { CollectionLinkManager } from '../collection/CollectionLinkManager';
-import { NormativeLinkInput } from '../common/NormativeLinkInput';
-import { DatePartsInput } from '../common/DatePartsInput';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import {
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Label,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Textarea,
+  cn,
+} from "@open-urbis/map-ui";
+import {
+  Plus,
+  Trash2,
+  AlertCircle,
+  PlusCircle,
+  ExternalLink,
+  X,
+  Loader2,
+  MousePointerClick,
+  Edit,
+  Upload,
+  FileText,
+  Paperclip,
+} from "lucide-react";
+import { parse, isAfter, isBefore } from "date-fns";
+import {
+  OriginalNormativo,
+  Authority,
+  EmentaAlteration,
+} from "../../domain/entities";
+import type { AnnotatedTextSegment } from "../../domain/types";
+import { NORMATIVE_TYPES, NormativeTypeKey } from "../../data/normative-types";
+import { SimpleEditor } from "../Editor/SimpleEditor";
+import { uploadFileToS3, isImageUrl } from "../../services/file-service";
+import { S3FilePickerModal } from "../common/S3FilePickerModal";
+import { safeJSONParse } from "@/lib/content";
+import {
+  buildAnnotatedSegmentsExcerpt,
+  htmlToPlainText,
+} from "../../domain/text-utils";
+import {
+  getSegmentBaseText,
+  withSegmentAnchor,
+} from "../../domain/segment-anchor";
+import { pageService } from "../../services/page-service";
+import { authorityService } from "../../services/authority-service";
+import { useInspectorTaskRequest } from "../inspector/inspector-task-context";
+import { UserChip } from "../common/UserChip";
+import type { LinkPickerSelection } from "../inspector/LinkPickerView";
+import { NormativeLinkInput } from "../common/NormativeLinkInput";
+import { DatePartsInput } from "../common/DatePartsInput";
+import { ValidityInputFields } from "../common/ValidityInputFields";
+import { ApiError } from "../../integrations/api-client";
+import { toast } from "sonner";
+import {
+  createEmptyValidity,
+  resolveLinkedElementDate,
+  updateValidityNormativeElement,
+} from "../../domain/validity";
+
+/** Passage of an ementa alteration, as persisted. */
+type AlterationSegment = AnnotatedTextSegment & { changedText?: string };
+
+/**
+ * The ementa is plain metadata, not a node of the editor, so no `normativeId`
+ * matches it: the inspector degrades to selecting inside its own panel.
+ */
+const EMENTA_ELEMENT_ID = "metadata:ementa";
+
+/** Passages of the source device, carrying the excerpt persisted as `changedText`. */
+export function buildSourceSegments(
+  baseText: string,
+  segments: AnnotatedTextSegment[],
+): AlterationSegment[] {
+  return segments.map((segment) => {
+    const anchored = withSegmentAnchor(baseText, segment);
+    return {
+      ...anchored,
+      changedText: buildAnnotatedSegmentsExcerpt([anchored]),
+    };
+  });
+}
+
+/** Passages targeted in the ementa. */
+export function buildTargetSegments(
+  baseText: string,
+  segments: AnnotatedTextSegment[],
+): AnnotatedTextSegment[] {
+  return segments.map((segment) => withSegmentAnchor(baseText, segment));
+}
+
+/** Label persisted for a link, from what the picker already resolved. */
+export function buildLinkLabel(selection: LinkPickerSelection): string {
+  return (
+    [selection.documentLabel, selection.deviceLabel]
+      .filter(Boolean)
+      .join(" - ") || selection.elementId
+  );
+}
+
+const formatAuthorityAuditValue = (value?: string) => {
+  if (!value) return "—";
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return value;
+  }
+
+  return parsedDate.toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+};
+
+// ==========================================
+// Layout primitives
+// ==========================================
+
+/**
+ * A section is announced by its heading and separated by a single hairline.
+ * There is no filled panel: nesting boxes inside boxes made the form read as a
+ * pile of cards instead of one document, and the fill carried no information.
+ */
+function FormSection({
+  title,
+  description,
+  required,
+  action,
+  children,
+}: {
+  title: string;
+  description?: string;
+  required?: boolean;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-3 border-t pt-5 first:border-t-0 first:pt-0">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-0.5">
+          <h3 className="text-sm font-medium leading-none">
+            {title}
+            {required && <RequiredMark />}
+          </h3>
+          {description && (
+            <p className="text-xs text-muted-foreground">{description}</p>
+          )}
+        </div>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+/**
+ * Every field stacks the same way — label, control, then hint or error — so the
+ * eye only has to learn one shape. The hint slot is reused by the error so the
+ * layout does not jump when validation kicks in.
+ */
+function Field({
+  label,
+  htmlFor,
+  required,
+  hint,
+  error,
+  className,
+  children,
+}: {
+  label: string;
+  htmlFor?: string;
+  required?: boolean;
+  hint?: string;
+  error?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      <Label htmlFor={htmlFor} className="font-normal">
+        {label}
+        {required && <RequiredMark />}
+      </Label>
+      {children}
+      {error ? (
+        <p className="text-xs text-destructive">{error}</p>
+      ) : hint ? (
+        <p className="text-xs text-muted-foreground">{hint}</p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * The asterisk is the whole signal, so it is hidden from assistive tech and the
+ * obligation is carried by `aria-required` on the control itself — otherwise
+ * every required label also read out a parenthetical.
+ */
+function RequiredMark() {
+  return (
+    <span aria-hidden="true" className="text-destructive">
+      {" "}
+      *
+    </span>
+  );
+}
+
+type OriginalValidity = NonNullable<OriginalNormativo["originalStartValidity"]>;
+
+/**
+ * Optional validity, shared by the start and the end so both behave alike.
+ *
+ * While empty the slot states what the absence means and offers "Adicionar";
+ * once filled, "Remover" sits in the same place. The previous version floated a
+ * round X over the corner of a filled panel, which read as a badge rather than
+ * as the action it was.
+ */
+function ValiditySlot({
+  label,
+  emptyHint,
+  value,
+  onAdd,
+  onRemove,
+  onChange,
+  onOpenLinkManager,
+  linkLabel,
+  disabled,
+  isRequired = false,
+  dateError,
+  linkError,
+}: {
+  label: string;
+  emptyHint: string;
+  value?: OriginalValidity;
+  onAdd?: () => void;
+  onRemove?: () => void;
+  onChange: (value: OriginalValidity) => void;
+  onOpenLinkManager: () => void;
+  linkLabel?: string;
+  disabled?: boolean;
+  isRequired?: boolean;
+  dateError?: string;
+  linkError?: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <Label className="font-normal flex items-center gap-1">
+          {label}
+          {isRequired && <span className="text-destructive">*</span>}
+        </Label>
+        {!isRequired && value && onRemove && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-6 px-1.5 text-xs font-normal text-muted-foreground hover:text-destructive"
+            onClick={onRemove}
+            disabled={disabled}
+          >
+            <X className="mr-1 h-3 w-3" /> Remover
+          </Button>
+        )}
+        {!isRequired && !value && onAdd && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-6 px-1.5 text-xs font-normal"
+            onClick={onAdd}
+            disabled={disabled}
+          >
+            <Plus className="mr-1 h-3 w-3" /> Adicionar
+          </Button>
+        )}
+      </div>
+
+      {(value || isRequired) ? (
+        <div className="space-y-1.5">
+          <ValidityInputFields
+            value={value || createEmptyValidity()}
+            onChange={onChange}
+            onOpenLinkManager={onOpenLinkManager}
+            linkLabel={linkLabel}
+            disabled={disabled}
+          />
+          {dateError && (
+            <p className="text-[11px] font-medium text-destructive flex items-center gap-1">
+              <AlertCircle className="h-3 w-3 shrink-0" />
+              {dateError}
+            </p>
+          )}
+          {linkError && (
+            <p className="text-[11px] font-medium text-destructive flex items-center gap-1">
+              <AlertCircle className="h-3 w-3 shrink-0" />
+              {linkError}
+            </p>
+          )}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">{emptyHint}</p>
+      )}
+    </div>
+  );
+}
 
 // ==========================================
 // Authority Dialog Component
 // ==========================================
 
 interface AuthorityDialogProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onSave: (authority: Authority) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  authority?: Authority | null;
+  mode: "create" | "edit";
+  onSave: (authority: AuthorityDialogSubmitData) => Promise<void>;
+  onDelete?: (authorityId: string) => Promise<void>;
+  disabled?: boolean;
 }
 
-function AuthorityDialog({ open, onOpenChange, onSave }: AuthorityDialogProps) {
-    const [formData, setFormData] = useState<Partial<Authority>>({
-        startDate: '',
-        commonRefFull: '',
-        commonRefAbbr: ''
-    });
+type AuthorityDialogSubmitData = {
+  id?: string;
+  commonRefFull: string;
+  commonRefAbbr: string;
+  complementFull?: string;
+  complementAbbr?: string;
+  startDate: string;
+  endDate?: string;
+  pageId?: string;
+};
 
-    const isValid = useMemo(() => {
-        return formData.commonRefFull && formData.commonRefAbbr && formData.startDate;
-    }, [formData]);
+function AuthorityDialog({
+  open,
+  onOpenChange,
+  authority,
+  mode,
+  onSave,
+  onDelete,
+  disabled,
+}: AuthorityDialogProps) {
+  const [formData, setFormData] = useState<Partial<Authority>>({
+    startDate: "",
+    commonRefFull: "",
+    commonRefAbbr: "",
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsSavingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
-    const handleSubmit = () => {
-        if (!isValid) return;
-        
-        const newAuth: Authority = {
-            id: Math.floor(Math.random() * 90000 + 10000).toString(), // Mock ID generation (ex: 32154)
-            commonRefFull: formData.commonRefFull!,
-            commonRefAbbr: formData.commonRefAbbr!,
-            complementFull: formData.complementFull,
-            complementAbbr: formData.complementAbbr,
-            startDate: formData.startDate!,
-            endDate: formData.endDate,
-            pageId: formData.pageId
-        };
-        
-        onSave(newAuth);
-        onOpenChange(false);
-        setFormData({ startDate: '', commonRefFull: '', commonRefAbbr: '' });
-    };
-
+  const isValid = useMemo(() => {
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                    <DialogTitle>Cadastrar Nova Autoridade</DialogTitle>
-                </DialogHeader>
-                
-                <div className="grid grid-cols-2 gap-4 py-4">
-                    <div className="space-y-2 col-span-2">
-                        <Label>Referência Comum - Por Extenso (*)</Label>
-                        <Input 
-                            value={formData.commonRefFull || ''} 
-                            onChange={e => setFormData({...formData, commonRefFull: e.target.value})} 
-                            placeholder="Ex: República Federativa do Brasil"
-                        />
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <Label>Referência Comum - Abreviação (*)</Label>
-                        <Input 
-                            value={formData.commonRefAbbr || ''} 
-                            onChange={e => setFormData({...formData, commonRefAbbr: e.target.value})} 
-                            placeholder="Ex: BRASIL"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label>ID (Automático)</Label>
-                        <Input disabled placeholder="Gerado pelo sistema" />
-                    </div>
-
-                    <div className="space-y-2 col-span-2">
-                        <Label>Complemento - Por Extenso</Label>
-                        <Input 
-                            value={formData.complementFull || ''} 
-                            onChange={e => setFormData({...formData, complementFull: e.target.value})} 
-                            placeholder="Ex: Ministério da Fazenda"
-                        />
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <Label>Complemento - Abreviação</Label>
-                        <Input 
-                            value={formData.complementAbbr || ''} 
-                            onChange={e => setFormData({...formData, complementAbbr: e.target.value})} 
-                            placeholder="Ex: MF"
-                        />
-                    </div>
-
-                    <div className="col-span-2 grid grid-cols-2 gap-4">
-                         <div className="space-y-2">
-                            <Label>Data Início (*)</Label>
-                            <DatePartsInput 
-                                value={formData.startDate} 
-                                onChange={v => setFormData({...formData, startDate: v})} 
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Data Fim</Label>
-                            <DatePartsInput 
-                                value={formData.endDate} 
-                                onChange={v => setFormData({...formData, endDate: v})} 
-                            />
-                        </div>
-                    </div>
-                    
-                    <div className="space-y-2 col-span-2">
-                        <Label>ID da Página (Legis)</Label>
-                        <Input 
-                            value={formData.pageId || ''} 
-                            onChange={e => setFormData({...formData, pageId: e.target.value})} 
-                            placeholder="Opcional"
-                        />
-                    </div>
-                </div>
-
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-                    <Button onClick={handleSubmit} disabled={!isValid}>Salvar Autoridade</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+      formData.commonRefFull && formData.commonRefAbbr && formData.startDate
     );
+  }, [formData]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setFormData(
+      authority
+        ? {
+            id: authority.id,
+            commonRefFull: authority.commonRefFull,
+            commonRefAbbr: authority.commonRefAbbr,
+            complementFull: authority.complementFull,
+            complementAbbr: authority.complementAbbr,
+            startDate: authority.startDate,
+            endDate: authority.endDate,
+            pageId: authority.pageId,
+          }
+        : {
+            startDate: "",
+            commonRefFull: "",
+            commonRefAbbr: "",
+          },
+    );
+    setIsSaving(false);
+  }, [open, authority]);
+
+  useEffect(() => {
+    if (!open) {
+      setFormData({ startDate: "", commonRefFull: "", commonRefAbbr: "" });
+      setIsSaving(false);
+    }
+  }, [open]);
+
+  const handleSubmit = async () => {
+    if (!isValid) return;
+
+    try {
+      setIsSaving(true);
+      await onSave({
+        id: formData.id,
+        commonRefFull: formData.commonRefFull!,
+        commonRefAbbr: formData.commonRefAbbr!,
+        complementFull: formData.complementFull,
+        complementAbbr: formData.complementAbbr,
+        startDate: formData.startDate!,
+        endDate: formData.endDate,
+        pageId: formData.pageId,
+      });
+
+      onOpenChange(false);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {mode === "edit"
+              ? "Editar autoridade"
+              : "Cadastrar nova autoridade"}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-2">
+          <Field
+            label="Referência comum — por extenso"
+            htmlFor="authority-common-ref-full"
+            required
+            className="col-span-2"
+          >
+            <Input
+              id="authority-common-ref-full"
+              aria-required="true"
+              value={formData.commonRefFull || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, commonRefFull: e.target.value })
+              }
+              placeholder="Ex: República Federativa do Brasil"
+              disabled={disabled || isSaving}
+            />
+          </Field>
+
+          <Field
+            label="Referência comum — abreviação"
+            htmlFor="authority-common-ref-abbr"
+            required
+          >
+            <Input
+              id="authority-common-ref-abbr"
+              aria-required="true"
+              value={formData.commonRefAbbr || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, commonRefAbbr: e.target.value })
+              }
+              placeholder="Ex: Brasil"
+              disabled={disabled || isSaving}
+            />
+          </Field>
+
+          <Field
+            label="Complemento — por extenso"
+            htmlFor="authority-complement-full"
+            className="col-span-2"
+          >
+            <Input
+              id="authority-complement-full"
+              value={formData.complementFull || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, complementFull: e.target.value })
+              }
+              placeholder="Ex: Ministério da Fazenda"
+              disabled={disabled || isSaving}
+            />
+          </Field>
+
+          <Field
+            label="Complemento — abreviação"
+            htmlFor="authority-complement-abbr"
+          >
+            <Input
+              id="authority-complement-abbr"
+              value={formData.complementAbbr || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, complementAbbr: e.target.value })
+              }
+              placeholder="Ex: MF"
+              disabled={disabled || isSaving}
+            />
+          </Field>
+
+          <Field label="ID da página (Legis)" htmlFor="authority-page-id">
+            <Input
+              id="authority-page-id"
+              value={formData.pageId || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, pageId: e.target.value })
+              }
+              placeholder="Opcional"
+              disabled={disabled || isSaving}
+            />
+          </Field>
+
+          <Field label="Data de início" required>
+            <DatePartsInput
+              value={formData.startDate}
+              onChange={(v) => setFormData({ ...formData, startDate: v })}
+              disabled={disabled || isSaving}
+            />
+          </Field>
+
+          <Field
+            label="Data de fim"
+            hint="Deixe vazio se a autoridade segue vigente."
+          >
+            <DatePartsInput
+              value={formData.endDate}
+              onChange={(v) => setFormData({ ...formData, endDate: v })}
+              disabled={disabled || isSaving}
+            />
+          </Field>
+
+          {mode === "edit" && (
+            <Field label="ID" hint="Gerado pelo sistema.">
+              <p className="pt-2 font-mono text-xs text-muted-foreground">
+                {authority?.id || "—"}
+              </p>
+            </Field>
+          )}
+
+          {authority && (
+            <div className="col-span-2 space-y-2 border-t pt-4">
+              <p className="text-xs text-muted-foreground">
+                Auditoria da autoridade persistida.
+              </p>
+
+              <div className="grid grid-cols-1 gap-x-6 gap-y-2 text-xs md:grid-cols-2">
+                <div className="flex flex-wrap items-center gap-x-2">
+                  <span className="text-muted-foreground">Criador:</span>
+                  <UserChip
+                    user={authority.createdByUser}
+                    emptyLabel="—"
+                    size="sm"
+                    showProfileLink
+                  />
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Criação:</span>{" "}
+                  {formatAuthorityAuditValue(authority.createdAt)}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-2">
+                  <span className="text-muted-foreground">Últ. editor:</span>
+                  <UserChip
+                    user={authority.updatedByUser}
+                    emptyLabel="—"
+                    size="sm"
+                    showProfileLink
+                  />
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Últ. edição:</span>{" "}
+                  {formatAuthorityAuditValue(authority.updatedAt)}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {deleteError && (
+          <div className="mx-6 mb-2 rounded border border-destructive/50 bg-destructive/10 p-2.5 text-xs text-destructive">
+            {deleteError}
+          </div>
+        )}
+
+        <DialogFooter className="flex items-center justify-between sm:justify-between">
+          {mode === "edit" && authority?.id && onDelete ? (
+            <Button
+              variant="ghost"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              disabled={isSaving || isDeleting || disabled}
+              onClick={async () => {
+                if (!window.confirm("Deseja realmente excluir esta autoridade?")) {
+                  return;
+                }
+                setDeleteError(null);
+                setIsSavingDelete(true);
+                try {
+                  await onDelete(authority.id);
+                  onOpenChange(false);
+                } catch (err: any) {
+                  setDeleteError(
+                    err?.message ||
+                      "Não foi possível excluir esta autoridade pois existem vínculos ativos.",
+                  );
+                } finally {
+                  setIsSavingDelete(false);
+                }
+              }}
+            >
+              {isDeleting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : null}
+              Excluir autoridade
+            </Button>
+          ) : <div />}
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              disabled={isSaving || isDeleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => void handleSubmit()}
+              disabled={!isValid || disabled || isSaving || isDeleting}
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : null}
+              {mode === "edit" ? "Salvar alterações" : "Salvar autoridade"}
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 // ==========================================
@@ -151,674 +640,1335 @@ function AuthorityDialog({ open, onOpenChange, onSave }: AuthorityDialogProps) {
 // ==========================================
 
 interface NormativeMetadataFormProps {
-    data: Partial<OriginalNormativo>;
-    onChange: (data: Partial<OriginalNormativo>) => void;
-    disabled?: boolean;
+  data: Partial<OriginalNormativo>;
+  onChange: (data: Partial<OriginalNormativo>) => void;
+  disabled?: boolean;
 }
 
-export function NormativeMetadataForm({ data, onChange, disabled, title, onTitleChange }: NormativeMetadataFormProps & { title?: string, onTitleChange?: (v: string) => void }) {
-    const [authorities, setAuthorities] = useState<Authority[]>(AUTHORITIES);
-    const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
+type LinkTarget =
+  | { type: "alteration"; index: number }
+  | { type: "startValidity" }
+  | { type: "endValidity" };
 
-    // Segment Selector State
-    const [segmentSelectorOpen, setSegmentSelectorOpen] = useState(false);
-    const [segmentContext, setSegmentContext] = useState<{ type: 'source' | 'target', index: number, text: string } | null>(null);
-    const [loadingText, setLoadingText] = useState(false);
+/**
+ * The title is not edited here: `PageForm` already owns it as the heading of the
+ * document, and repeating the field inside the metadata sheet meant the same
+ * value (and the same hint) showed up twice on one screen.
+ */
+export function NormativeMetadataForm({
+  data,
+  onChange,
+  disabled,
+}: NormativeMetadataFormProps) {
+  const [authorities, setAuthorities] = useState<Authority[]>([]);
+  const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authorityDialogMode, setAuthorityDialogMode] = useState<
+    "create" | "edit"
+  >("create");
+  const [editingAuthority, setEditingAuthority] = useState<Authority | null>(
+    null,
+  );
+  const [isLoadingAuthorities, setIsLoadingAuthorities] = useState(false);
+  const [isCreatingAuthority, setIsCreatingAuthority] = useState(false);
+  const [isUpdatingAuthority, setIsUpdatingAuthority] = useState(false);
+  const [authoritiesError, setAuthoritiesError] = useState<string | null>(null);
 
-    // Link Manager State
-    const [linkManagerOpen, setLinkManagerOpen] = useState(false);
-    const [activeLinkIndex, setActiveLinkIndex] = useState<number | null>(null);
-    const [linkCache, setLinkCache] = useState<Record<string, { label: string }>>({});
-    
-    // Derived State
-    const selectedAuthority = authorities.find(a => a.id === data.authorityId);
-    
-    // Validation Logic
-    const isDateValidForAuthority = useMemo(() => {
-        if (!data.actDate || !selectedAuthority) return true;
-        
-        try {
-            const actDate = parse(data.actDate, 'dd.MM.yyyy', new Date());
-            const authStart = parse(selectedAuthority.startDate, 'dd.MM.yyyy', new Date());
-            
-            if (isBefore(actDate, authStart)) return false;
-            
-            if (selectedAuthority.endDate) {
-                const authEnd = parse(selectedAuthority.endDate, 'dd.MM.yyyy', new Date());
-                if (isAfter(actDate, authEnd)) return false;
-            }
-            
-            return true;
-        } catch (e) {
-            return false;
+  const { request: requestInspectorTask } = useInspectorTaskRequest();
+
+  /**
+   * The inspector is not blocking, so the form stays editable while a step is
+   * pending: resolving must merge into the current data, not into whatever was
+   * on screen when the step was requested.
+   */
+  const dataRef = useRef(data);
+
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
+  const [loadingText, setLoadingText] = useState(false);
+  const [linkCache, setLinkCache] = useState<Record<string, { label: string }>>(
+    {},
+  );
+
+  // Derived State
+  const selectedAuthority = authorities.find((a) => a.id === data.authorityId);
+
+  // Validation Logic
+  const isDateValidForAuthority = useMemo(() => {
+    if (!data.actDate || !selectedAuthority) return true;
+
+    try {
+      const actDate = parse(data.actDate, "dd.MM.yyyy", new Date());
+      const authStart = parse(
+        selectedAuthority.startDate,
+        "dd.MM.yyyy",
+        new Date(),
+      );
+
+      if (isBefore(actDate, authStart)) return false;
+
+      if (selectedAuthority.endDate) {
+        const authEnd = parse(
+          selectedAuthority.endDate,
+          "dd.MM.yyyy",
+          new Date(),
+        );
+        if (isAfter(actDate, authEnd)) return false;
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  }, [data.actDate, selectedAuthority]);
+
+  const hasMinimumDocumentIdentification = useMemo(() => {
+    return !!(data.number || data.actDate || data.publicationDate);
+  }, [data.number, data.actDate, data.publicationDate]);
+
+  const hasSelectedAuthority = useMemo(() => {
+    return !!data.authorityId?.trim();
+  }, [data.authorityId]);
+
+  const hasNormativeType = useMemo(() => {
+    return !!data.normativeType?.trim();
+  }, [data.normativeType]);
+
+  const loadAuthorities = useCallback(async () => {
+    setIsLoadingAuthorities(true);
+    setAuthoritiesError(null);
+
+    try {
+      const loadedAuthorities = await authorityService.list();
+      setAuthorities(loadedAuthorities);
+    } catch (error) {
+      console.error(error);
+      setAuthoritiesError("Não foi possível carregar as autoridades.");
+    } finally {
+      setIsLoadingAuthorities(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadAuthorities();
+  }, [loadAuthorities]);
+
+  // Handlers
+  const sortAuthorities = useCallback((items: Authority[]) => {
+    return [...items].sort((left, right) => {
+      const leftLabel =
+        `${left.commonRefAbbr} ${left.complementAbbr || ""} ${left.commonRefFull}`.trim();
+      const rightLabel =
+        `${right.commonRefAbbr} ${right.complementAbbr || ""} ${right.commonRefFull}`.trim();
+      return leftLabel.localeCompare(rightLabel, "pt-BR");
+    });
+  }, []);
+
+  const handleCreateAuthority = useCallback(
+    async (newAuth: AuthorityDialogSubmitData) => {
+      setIsCreatingAuthority(true);
+
+      try {
+        const createdAuthority = await authorityService.create(newAuth);
+
+        setAuthorities((current) =>
+          sortAuthorities([...current, createdAuthority]),
+        );
+
+        onChange({ ...data, authorityId: createdAuthority.id });
+        toast.success("Autoridade cadastrada com sucesso.");
+      } catch (error) {
+        console.error(error);
+
+        if (error instanceof ApiError && error.status === 403) {
+          toast.error("Você não tem permissão para cadastrar autoridades.");
+          return;
         }
-    }, [data.actDate, selectedAuthority]);
 
-    const isMinimumRequirementMet = useMemo(() => {
-        return !!(data.number || data.actDate || data.publicationDate);
-    }, [data.number, data.actDate, data.publicationDate]);
+        toast.error("Não foi possível cadastrar a autoridade.");
+        throw error;
+      } finally {
+        setIsCreatingAuthority(false);
+      }
+    },
+    [data, onChange, sortAuthorities],
+  );
 
-    // Handlers
-    const handleAddAuthority = (newAuth: Authority) => {
-        setAuthorities([...authorities, newAuth]);
-        onChange({ ...data, authorityId: newAuth.id });
+  const handleEditAuthority = useCallback(
+    async (authorityData: AuthorityDialogSubmitData) => {
+      if (!authorityData.id) {
+        toast.error("Não foi possível identificar a autoridade para edição.");
+        return;
+      }
+
+      setIsUpdatingAuthority(true);
+
+      try {
+        const updatedAuthority = await authorityService.update(
+          authorityData.id,
+          {
+            commonRefFull: authorityData.commonRefFull,
+            commonRefAbbr: authorityData.commonRefAbbr,
+            complementFull: authorityData.complementFull,
+            complementAbbr: authorityData.complementAbbr,
+            startDate: authorityData.startDate,
+            endDate: authorityData.endDate,
+            pageId: authorityData.pageId,
+          },
+        );
+
+        setAuthorities((current) =>
+          sortAuthorities(
+            current.map((authority) =>
+              authority.id === updatedAuthority.id
+                ? updatedAuthority
+                : authority,
+            ),
+          ),
+        );
+
+        if (data.authorityId === updatedAuthority.id) {
+          onChange({ ...data, authorityId: updatedAuthority.id });
+        }
+
+        setEditingAuthority(updatedAuthority);
+        toast.success("Autoridade atualizada com sucesso.");
+      } catch (error) {
+        console.error(error);
+
+        if (error instanceof ApiError && error.status === 403) {
+          toast.error("Você não tem permissão para editar autoridades.");
+          return;
+        }
+
+        toast.error("Não foi possível atualizar a autoridade.");
+        throw error;
+      } finally {
+        setIsUpdatingAuthority(false);
+      }
+    },
+    [data, onChange, sortAuthorities],
+  );
+
+  const handleSaveAuthority = useCallback(
+    async (authorityData: AuthorityDialogSubmitData) => {
+      if (authorityDialogMode === "edit") {
+        await handleEditAuthority(authorityData);
+        return;
+      }
+
+      await handleCreateAuthority(authorityData);
+    },
+    [authorityDialogMode, handleCreateAuthority, handleEditAuthority],
+  );
+
+  const openCreateAuthorityDialog = useCallback(() => {
+    setAuthorityDialogMode("create");
+    setEditingAuthority(null);
+    setAuthDialogOpen(true);
+  }, []);
+
+  const openEditAuthorityDialog = useCallback(() => {
+    if (!selectedAuthority) {
+      toast.error("Selecione uma autoridade para editar.");
+      return;
+    }
+
+    setAuthorityDialogMode("edit");
+    setEditingAuthority(selectedAuthority);
+    setAuthDialogOpen(true);
+  }, [selectedAuthority]);
+
+  const handleAddAlteration = () => {
+    const newAlt: EmentaAlteration = {
+      type: "Alteração de ementa",
+      device: "",
+      normativeElementId: "",
+      targetSegments: [],
     };
+    onChange({
+      ...data,
+      ementaAlterations: [...(data.ementaAlterations || []), newAlt],
+    });
+  };
 
-    const handleAddAlteration = () => {
-        const newAlt: EmentaAlteration = {
-            type: 'Alteração de ementa',
-            device: '',
-            normativeElementId: '',
-            targetSegments: []
+  const handleRemoveAlteration = (index: number) => {
+    const newAlts = [...(data.ementaAlterations || [])];
+    newAlts.splice(index, 1);
+    onChange({ ...data, ementaAlterations: newAlts });
+  };
+
+  const handleUpdateAlteration = (
+    index: number,
+    field: keyof EmentaAlteration,
+    value: any,
+  ) => {
+    const current = dataRef.current;
+    const newAlts = [...(current.ementaAlterations || [])];
+    newAlts[index] = { ...newAlts[index], [field]: value };
+    onChange({ ...current, ementaAlterations: newAlts });
+  };
+
+  const handleAddSource = () => {
+    onChange({
+      ...data,
+      sources: [...(data.sources || []), { url: "", name: "" }],
+    });
+  };
+
+  const handleUpdateSource = (
+    index: number,
+    field: "url" | "name",
+    value: string,
+  ) => {
+    const newSources = [...(data.sources || [])];
+    newSources[index] = { ...newSources[index], [field]: value };
+    onChange({ ...data, sources: newSources });
+  };
+
+  const handleRemoveSource = (index: number) => {
+    const newSources = [...(data.sources || [])];
+    newSources.splice(index, 1);
+    onChange({ ...data, sources: newSources });
+  };
+
+  const sourceFileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingSourceIndex, setUploadingSourceIndex] = useState<number | null>(null);
+  const [isUploadingSource, setIsUploadingSource] = useState(false);
+
+  const [isS3ModalOpen, setIsS3ModalOpen] = useState(false);
+  const [s3ModalTargetIndex, setS3ModalTargetIndex] = useState<number | null>(null);
+
+  const handleUploadSourceFile = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    targetIndex?: number,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (targetIndex !== undefined) {
+      setUploadingSourceIndex(targetIndex);
+    } else {
+      setIsUploadingSource(true);
+    }
+
+    try {
+      const result = await uploadFileToS3(file, "legis/fontes");
+      if (targetIndex !== undefined) {
+        const newSources = [...(data.sources || [])];
+        const existingName = newSources[targetIndex]?.name;
+        newSources[targetIndex] = {
+          url: result.url,
+          name: existingName || result.name,
         };
-        onChange({ 
-            ...data, 
-            ementaAlterations: [...(data.ementaAlterations || []), newAlt] 
-        });
-    };
-
-    const handleRemoveAlteration = (index: number) => {
-        const newAlts = [...(data.ementaAlterations || [])];
-        newAlts.splice(index, 1);
-        onChange({ ...data, ementaAlterations: newAlts });
-    };
-
-    const handleUpdateAlteration = (index: number, field: keyof EmentaAlteration, value: any) => {
-        const newAlts = [...(data.ementaAlterations || [])];
-        newAlts[index] = { ...newAlts[index], [field]: value };
-        onChange({ ...data, ementaAlterations: newAlts });
-    };
-
-    const handleAddSource = () => {
-        onChange({ 
-            ...data, 
-            sources: [...(data.sources || []), { url: '', name: '' }] 
-        });
-    };
-
-    const handleUpdateSource = (index: number, field: 'url' | 'name', value: string) => {
-        const newSources = [...(data.sources || [])];
-        newSources[index] = { ...newSources[index], [field]: value };
         onChange({ ...data, sources: newSources });
-    };
+      } else {
+        onChange({
+          ...data,
+          sources: [
+            ...(data.sources || []),
+            { url: result.url, name: result.name },
+          ],
+        });
+      }
+    } catch (err: any) {
+      alert(err?.message || "Erro ao enviar arquivo para o S3.");
+    } finally {
+      setUploadingSourceIndex(null);
+      setIsUploadingSource(false);
+      event.target.value = "";
+    }
+  };
 
-    const handleRemoveSource = (index: number) => {
-        const newSources = [...(data.sources || [])];
-        newSources.splice(index, 1);
-        onChange({ ...data, sources: newSources });
-    };
+  const currentLinkedElementId = (target: LinkTarget) => {
+    const current = dataRef.current;
 
-    const handleOpenLinkManager = (index: number) => {
-        setActiveLinkIndex(index);
-        setLinkManagerOpen(true);
-    };
+    if (target.type === "alteration") {
+      return current.ementaAlterations?.[target.index]?.normativeElementId;
+    }
 
-    const handleLinkSelection = (links: CollectionLink[], cache: any) => {
-        if (activeLinkIndex === null) return;
-        
-        if (links.length > 0 && links[0].linkedElements && links[0].linkedElements.length > 0) {
-            const selectedId = links[0].linkedElements[0].elementId;
-            const docId = links[0].resourceId;
-            
-            // Generate label
-            const doc = cache[docId];
-            let label = selectedId;
-            if (doc) {
-                const el = doc.elements?.find((e: any) => e.id === selectedId);
-                const docLabel = doc.number ? `${doc.normativeType} ${doc.number}` : doc.ementa?.substring(0,20);
-                if (el) {
-                    label = `${docLabel} - ${el.type} ${el.index}`;
-                } else {
-                    label = docLabel;
-                }
+    return target.type === "startValidity"
+      ? current.originalStartValidity?.normativeElementId
+      : current.originalEndValidity?.normativeElementId;
+  };
+
+  const requestLink = (target: LinkTarget) => {
+    requestInspectorTask({
+      kind: "link",
+      title: "Vincular dispositivo de origem",
+      localElements: data.elements,
+      initialSelection: {
+        elementId: currentLinkedElementId(target) || undefined,
+      },
+      onResolve: (selection) => {
+        const label = buildLinkLabel(selection);
+        setLinkCache((prev) => ({ ...prev, [selection.elementId]: { label } }));
+
+        if (target.type === "alteration") {
+          handleUpdateAlteration(
+            target.index,
+            "normativeElementId",
+            selection.elementId,
+          );
+          return;
+        }
+
+        const current = dataRef.current;
+        const linkedDate =
+          resolveLinkedElementDate(selection.document, selection.elementId) ||
+          current.originalStartValidity?.date ||
+          data.actDate ||
+          data.publicationDate ||
+          "";
+
+        if (target.type === "startValidity") {
+          onChange({
+            ...current,
+            originalStartValidity: updateValidityNormativeElement(
+              current.originalStartValidity,
+              selection.elementId,
+              label,
+              linkedDate,
+            ),
+          });
+          return;
+        }
+
+        onChange({
+          ...current,
+          originalEndValidity: updateValidityNormativeElement(
+            current.originalEndValidity,
+            selection.elementId,
+            label,
+            linkedDate,
+          ),
+        });
+      },
+    });
+  };
+
+  const handleOpenSourceSegments = async (index: number) => {
+    const alt = data.ementaAlterations?.[index];
+    if (!alt || !alt.normativeElementId) {
+      alert("Preencha o ID do Elemento Normativo primeiro.");
+      return;
+    }
+
+    setLoadingText(true);
+    try {
+      // There is no endpoint to fetch an element by id, so the element is
+      // looked up in the pages already available.
+      const allPages = await pageService.getAll();
+      let baseText = "";
+      let elementLabel = alt.device || "Dispositivo de origem";
+
+      for (const page of allPages) {
+        if (page.type === "original_normativo" && page.entity) {
+          const norm = page.entity as OriginalNormativo;
+          const el = norm.elements.find((e) => e.id === alt.normativeElementId);
+          if (el) {
+            baseText = getSegmentBaseText(el);
+            elementLabel =
+              [el.type, el.index].filter(Boolean).join(" ").trim() ||
+              elementLabel;
+            break;
+          }
+        }
+      }
+
+      if (!baseText) {
+        alert("Elemento não encontrado no sistema. Verifique o ID.");
+        return;
+      }
+
+      requestInspectorTask({
+        kind: "trechos",
+        title: "Trechos da nova redação",
+        baseText,
+        elementId: alt.normativeElementId,
+        elementLabel,
+        situationType: "Nova redação",
+        segments:
+          dataRef.current.ementaAlterations?.[index]?.sourceSegments || [],
+        onResolve: (segments) => {
+          handleUpdateAlteration(
+            index,
+            "sourceSegments",
+            buildSourceSegments(baseText, segments),
+          );
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao Pesquisar texto do elemento.");
+    } finally {
+      setLoadingText(false);
+    }
+  };
+
+  const handleOpenTargetSegments = (index: number) => {
+    const baseText = htmlToPlainText(data.ementa || "").trim();
+    if (!baseText) {
+      alert("Preencha a Ementa primeiro.");
+      return;
+    }
+
+    requestInspectorTask({
+      kind: "trechos",
+      title: "Trechos a substituir",
+      baseText,
+      elementId: EMENTA_ELEMENT_ID,
+      elementLabel: "Ementa",
+      situationType: "Alteração de ementa",
+      segments: data.ementaAlterations?.[index]?.targetSegments || [],
+      onResolve: (segments) => {
+        handleUpdateAlteration(
+          index,
+          "targetSegments",
+          buildTargetSegments(baseText, segments),
+        );
+      },
+    });
+  };
+
+  return (
+    <div className="space-y-5 pb-6">
+      {(!hasNormativeType ||
+        !hasMinimumDocumentIdentification ||
+        !hasSelectedAuthority) && (
+        <p
+          className="flex items-start gap-2 border-l-2 border-destructive pl-3 text-sm text-destructive"
+          role="status"
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>
+            Para salvar o original normativo, selecione um tipo normativo,
+            preencha pelo menos um dos campos Número, Data do ato ou Data de
+            publicação e selecione uma autoridade.
+          </span>
+        </p>
+      )}
+
+      <FormSection
+        title="Identificação"
+        description="Preencha ao menos o número ou uma das datas."
+      >
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+          <Field
+            label="Tipo normativo"
+            required
+            hint="Campo de preenchimento obrigatório."
+            error={
+              !hasNormativeType
+                ? "O campo Tipo normativo é obrigatório. Selecione um tipo normativo."
+                : undefined
             }
-            setLinkCache(prev => ({ ...prev, [selectedId]: { label } }));
-
-            handleUpdateAlteration(activeLinkIndex, 'normativeElementId', selectedId);
-        }
-        setLinkManagerOpen(false);
-    };
-
-    const handleOpenSourceSegments = async (index: number) => {
-        const alt = data.ementaAlterations?.[index];
-        if (!alt || !alt.normativeElementId) {
-            alert("Preencha o ID do Elemento Normativo primeiro.");
-            return;
-        }
-
-        setLoadingText(true);
-        try {
-            // We need to find the element. Since we don't have a direct API to get element text by ID efficiently without page context,
-            // we might need to search or assume it's in the system.
-            // PageService.getById gets a PAGE. If ID is an element ID, we need to find the page it belongs to?
-            // Or assume ID is Page ID?
-            // "ID de Elemento normativo" usually implies the element UUID.
-            // If we use the global search to find the element?
-            // Let's try to fetch by ID if it matches a Page (unlikely for element) or search.
-            
-            // For now, let's look up in the mock/cache if possible, or use a placeholder if not found.
-            // In a real app, we'd have `elementService.getById`.
-            // Let's assume we can search for it.
-            
-            // Temporary: Use pageService to search for element ID?
-            // Or assume the user linked a Page ID?
-            // If the user inputs a UUID, we might not be able to resolve it easily without a backend index.
-            
-            // Fallback: Ask user to paste text? No, that defeats the purpose.
-            // Let's try to search by elementId in all pages (inefficient but works for mocks).
-            
-            const allPages = await pageService.getAll();
-            let foundText = '';
-            
-            for (const page of allPages) {
-                if (page.type === 'original_normativo' && page.entity) {
-                    const norm = page.entity as OriginalNormativo;
-                    const el = norm.elements.find(e => e.id === alt.normativeElementId);
-                    if (el) {
-                        foundText = el.text;
-                        break;
-                    }
-                }
-            }
-            
-            if (foundText) {
-                setSegmentContext({ type: 'source', index, text: foundText });
-                setSegmentSelectorOpen(true);
-            } else {
-                alert("Elemento não encontrado no sistema. Verifique o ID.");
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Erro ao buscar texto do elemento.");
-        } finally {
-            setLoadingText(false);
-        }
-    };
-
-    const handleOpenTargetSegments = (index: number) => {
-        if (!data.ementa) {
-            alert("Preencha a Ementa primeiro.");
-            return;
-        }
-        setSegmentContext({ type: 'target', index, text: data.ementa });
-        setSegmentSelectorOpen(true);
-    };
-
-    const handleSegmentConfirm = (segments: Segment[]) => {
-        if (!segmentContext) return;
-        
-        const newAlts = [...(data.ementaAlterations || [])];
-        const alt = newAlts[segmentContext.index];
-        
-        if (segmentContext.type === 'source') {
-            // Update sourceSegments
-            const sourceSegments = segments.map(s => ({
-                start: s.start,
-                end: s.end,
-                changedText: s.text // Raw text
-            }));
-            
-            // Generate New Ementa Content (stripping quotes)
-            const extractedText = segments.map(s => extractTextFromWordIndices(segmentContext.text, s.start, s.end, true)).join(' [...] ');
-            
-            // We set it as "changedText" of the first segment? Or where do we store the full text?
-            // The requirement says "Texto alterado: [obrigatório]".
-            // But EmentaAlteration struct has sourceSegments (array).
-            // Maybe we populate the first segment's text with the full text?
-            // Or maybe we need a separate field for "New Text derived"?
-            // EmentaAlteration interface has `sourceSegments`.
-            // Let's update the first segment's `changedText` to be the processed one, or just store raw.
-            // Wait, "O conteúdo de cada versão alterada de Ementa é dado pelos trechos...".
-            // So we don't store a separate string, we derive it.
-            // BUT UI has "Texto alterado" input.
-            // Let's auto-fill the input if it exists in the UI?
-            // My previous UI implementation for EmentaAlteration had `sourceSegments` list with `changedText`.
-            // It seems `changedText` in `sourceSegments` is per-segment.
-            
-            // Let's update `sourceSegments` with the extracted (and quote-stripped) text.
-            const updatedSegments = segments.map(s => ({
-                start: s.start,
-                end: s.end,
-                changedText: extractTextFromWordIndices(segmentContext.text, s.start, s.end, true)
-            }));
-            
-            alt.sourceSegments = updatedSegments;
-            
-        } else {
-            // Update targetSegments
-            const targetSegments = segments.map(s => ({
-                start: s.start,
-                end: s.end
-            }));
-            alt.targetSegments = targetSegments;
-        }
-        
-        newAlts[segmentContext.index] = alt;
-        onChange({ ...data, ementaAlterations: newAlts });
-    };
-
-    return (
-        <div className="space-y-8 pb-10">
-            {/* Header / Errors */}
-            {!isMinimumRequirementMet && (
-                <div className="bg-destructive/10 text-destructive p-3 rounded-md flex items-center text-sm">
-                    <AlertCircle className="w-4 h-4 mr-2" />
-                    É obrigatório preencher pelo menos um dos campos: Número, Data do Ato ou Data de Publicação.
-                </div>
-            )}
-
-            {/* Main Fields Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                
-                {/* Tipo Normativo */}
-                <div className="space-y-2">
-                    <Label>Tipo Normativo</Label>
-                    <Select
-                        value={data.normativeType}
-                        onValueChange={(v) => onChange({ ...data, normativeType: v as NormativeTypeKey })}
-                        disabled={disabled}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                            {Object.entries(NORMATIVE_TYPES).map(([key, label]) => (
-                                <SelectItem key={key} value={key}>
-                                    {label} ({key})
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                {/* Número */}
-                <div className="space-y-2">
-                    <Label>Número da norma</Label>
-                    <Input
-                        value={data.number || ''}
-                        onChange={(e) => onChange({ ...data, number: e.target.value })}
-                        placeholder="Ex: 12.345-A"
-                        disabled={disabled}
-                    />
-                    <p className="text-[10px] text-muted-foreground">Pode conter pontuação e letras.</p>
-                </div>
-
-                {/* Data do Ato */}
-                <div className="space-y-2">
-                    <Label>Data do Ato</Label>
-                    <DatePartsInput 
-                        value={data.actDate} 
-                        onChange={v => onChange({ ...data, actDate: v })}
-                        maxYear={new Date().getFullYear() + 1}
-                        disabled={disabled}
-                    />
-                    {!isDateValidForAuthority && (
-                        <p className="text-[10px] text-destructive mt-1">
-                            Data incompatível com a vigência da Autoridade selecionada.
-                        </p>
-                    )}
-                </div>
-
-                {/* Data de Publicação */}
-                <div className="space-y-2">
-                    <Label>Data de Publicação</Label>
-                    <DatePartsInput 
-                        value={data.publicationDate} 
-                        onChange={v => onChange({ ...data, publicationDate: v })}
-                        maxYear={new Date().getFullYear()}
-                        disabled={disabled}
-                    />
-                </div>
-
-                {/* Autoridade */}
-                <div className="col-span-1 md:col-span-2 space-y-2">
-                    <div className="flex justify-between items-center">
-                        <Label>Autoridade (*)</Label>
-                        <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => setAuthDialogOpen(true)}>
-                            <PlusCircle className="w-3 h-3 mr-1" /> Nova Autoridade
-                        </Button>
-                    </div>
-                    <Select
-                        value={data.authorityId}
-                        onValueChange={(v) => onChange({ ...data, authorityId: v })}
-                        disabled={disabled}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Selecione a autoridade..." />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                            {authorities.map(auth => (
-                                <SelectItem key={auth.id} value={auth.id}>
-                                    <span className="font-medium">{auth.commonRefAbbr}</span>
-                                    {auth.complementAbbr && <span className="text-muted-foreground"> - {auth.complementAbbr}</span>}
-                                    <span className="text-muted-foreground text-xs ml-2">
-                                        ({auth.complementFull || auth.commonRefFull})
-                                    </span>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    {selectedAuthority && (
-                        <div className="text-xs text-muted-foreground flex gap-4 mt-1">
-                            <span>Vigência: {selectedAuthority.startDate} até {selectedAuthority.endDate || 'Presente'}</span>
-                            {selectedAuthority.pageId && (
-                                <span className="flex items-center text-primary cursor-pointer hover:underline">
-                                    <ExternalLink className="w-3 h-3 mr-1" /> Ver página da autoridade
-                                </span>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Nome/Título Amigável */}
-                <div className="col-span-1 md:col-span-2 space-y-2">
-                    <Label>Nome Amigável / Título</Label>
-                    <Input
-                        value={title || ''}
-                        onChange={(e) => onTitleChange?.(e.target.value)}
-                        placeholder="Ex: Lei de Zoneamento"
-                        disabled={disabled}
-                        className="font-medium"
-                    />
-                    <p className="text-[10px] text-muted-foreground">Este título é sincronizado com o campo principal no topo da página.</p>
-                </div>
-
-                {/* Ementa */}
-                <div className="col-span-1 md:col-span-2 space-y-2">
-                    <Label>Ementa (*)</Label>
-                    <Textarea
-                        value={data.ementa || ''}
-                        onChange={(e) => onChange({ ...data, ementa: e.target.value })}
-                        className="min-h-[80px]"
-                        placeholder="Digite a ementa da norma..."
-                        disabled={disabled}
-                    />
-                </div>
-            </div>
-
-            <Separator />
-
-            {/* Alterações de Ementa */}
-            <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                    <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Alterações de Ementa</h3>
-                    <Button variant="outline" size="sm" onClick={handleAddAlteration}>
-                        <Plus className="w-4 h-4 mr-2" /> Adicionar Alteração
-                    </Button>
-                </div>
-                
-                {data.ementaAlterations?.map((alt, index) => (
-                    <Card key={index} className="bg-muted/30">
-                        <CardContent className="p-4 space-y-4 relative">
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="absolute top-2 right-2 h-6 w-6 text-muted-foreground hover:text-destructive"
-                                onClick={() => handleRemoveAlteration(index)}
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label className="text-xs">Dispositivo (*)</Label>
-                                    <Input 
-                                        value={alt.device} 
-                                        onChange={e => handleUpdateAlteration(index, 'device', e.target.value)}
-                                        placeholder="Ex: Art. 1º"
-                                        className="h-8"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-xs">ID Elemento Normativo (*)</Label>
-                                    <NormativeLinkInput 
-                                        value={alt.normativeElementId || ''} 
-                                        onChange={val => handleUpdateAlteration(index, 'normativeElementId', val)} 
-                                        onOpen={() => handleOpenLinkManager(index)}
-                                        label={alt.normativeElementId ? linkCache[alt.normativeElementId]?.label : undefined}
-                                        placeholder="Vincular elemento"
-                                    />
-                                </div>
-                            </div>
-                            
-                            {/* Source Segments (Trechos com Texto Alterado) */}
-                            <div className="space-y-2 border rounded-md p-2 bg-background/50">
-                                <div className="flex justify-between items-center">
-                                    <Label className="text-xs font-semibold">Trechos (Texto Alterado) [Opcional]</Label>
-                                    <div className="flex gap-2">
-                                        <Button 
-                                            variant="ghost" 
-                                            size="sm" 
-                                            className="h-5 text-[10px] text-blue-600 hover:text-blue-700 hover:bg-blue-50" 
-                                            onClick={() => handleOpenSourceSegments(index)}
-                                            disabled={loadingText}
-                                        >
-                                            {loadingText ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <MousePointerClick className="w-3 h-3 mr-1" />}
-                                            Selecionar da Fonte
-                                        </Button>
-                                        <Button variant="ghost" size="sm" className="h-5 text-[10px]" onClick={() => {
-                                            const newSegs = [...(alt.sourceSegments || []), { start: 0, end: 0, changedText: '' }];
-                                            handleUpdateAlteration(index, 'sourceSegments', newSegs);
-                                        }}>
-                                            <Plus className="w-3 h-3 mr-1" /> Manual
-                                        </Button>
-                                    </div>
-                                </div>
-                                {alt.sourceSegments?.map((seg: any, sIdx: number) => (
-                                    <div key={sIdx} className="grid grid-cols-[1fr_80px_80px_24px] gap-2 items-start">
-                                        <Input 
-                                            value={seg.changedText || ''} 
-                                            onChange={e => {
-                                                const newSegs = [...(alt.sourceSegments || [])];
-                                                newSegs[sIdx] = { ...seg, changedText: e.target.value };
-                                                handleUpdateAlteration(index, 'sourceSegments', newSegs);
-                                            }}
-                                            placeholder="Texto alterado"
-                                            className="h-7 text-xs"
-                                        />
-                                        <Input 
-                                            type="number"
-                                            value={seg.start} 
-                                            onChange={e => {
-                                                const newSegs = [...(alt.sourceSegments || [])];
-                                                newSegs[sIdx] = { ...seg, start: parseInt(e.target.value) || 0 };
-                                                handleUpdateAlteration(index, 'sourceSegments', newSegs);
-                                            }}
-                                            placeholder="Início"
-                                            className="h-7 text-xs"
-                                        />
-                                        <Input 
-                                            type="number"
-                                            value={seg.end} 
-                                            onChange={e => {
-                                                const newSegs = [...(alt.sourceSegments || [])];
-                                                newSegs[sIdx] = { ...seg, end: parseInt(e.target.value) || 0 };
-                                                handleUpdateAlteration(index, 'sourceSegments', newSegs);
-                                            }}
-                                            placeholder="Fim"
-                                            className="h-7 text-xs"
-                                        />
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon" 
-                                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                                            onClick={() => {
-                                                const newSegs = [...(alt.sourceSegments || [])];
-                                                newSegs.splice(sIdx, 1);
-                                                handleUpdateAlteration(index, 'sourceSegments', newSegs);
-                                            }}
-                                        >
-                                            <X className="w-3 h-3" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Target Segments (Trechos Alvo) */}
-                            <div className="space-y-2 border rounded-md p-2 bg-background/50">
-                                <div className="flex justify-between items-center">
-                                    <Label className="text-xs font-semibold">Trechos (Alvos na Ementa) [Obrigatório]</Label>
-                                    <div className="flex gap-2">
-                                        <Button 
-                                            variant="ghost" 
-                                            size="sm" 
-                                            className="h-5 text-[10px] text-blue-600 hover:text-blue-700 hover:bg-blue-50" 
-                                            onClick={() => handleOpenTargetSegments(index)}
-                                        >
-                                            <MousePointerClick className="w-3 h-3 mr-1" /> Selecionar na Ementa
-                                        </Button>
-                                        <Button variant="ghost" size="sm" className="h-5 text-[10px]" onClick={() => {
-                                            const newSegs = [...(alt.targetSegments || []), { start: 0, end: 0 }];
-                                            handleUpdateAlteration(index, 'targetSegments', newSegs);
-                                        }}>
-                                            <Plus className="w-3 h-3 mr-1" /> Manual
-                                        </Button>
-                                    </div>
-                                </div>
-                                {alt.targetSegments?.map((seg, tIdx) => (
-                                    <div key={tIdx} className="grid grid-cols-[1fr_1fr_24px] gap-2 items-start">
-                                        <div className="flex items-center gap-2">
-                                            <Label className="text-[10px] text-muted-foreground w-8">Início:</Label>
-                                            <Input 
-                                                type="number"
-                                                value={seg.start} 
-                                                onChange={e => {
-                                                    const newSegs = [...(alt.targetSegments || [])];
-                                                    newSegs[tIdx] = { ...seg, start: parseInt(e.target.value) || 0 };
-                                                    handleUpdateAlteration(index, 'targetSegments', newSegs);
-                                                }}
-                                                className="h-7 text-xs"
-                                            />
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Label className="text-[10px] text-muted-foreground w-8">Fim:</Label>
-                                            <Input 
-                                                type="number"
-                                                value={seg.end} 
-                                                onChange={e => {
-                                                    const newSegs = [...(alt.targetSegments || [])];
-                                                    newSegs[tIdx] = { ...seg, end: parseInt(e.target.value) || 0 };
-                                                    handleUpdateAlteration(index, 'targetSegments', newSegs);
-                                                }}
-                                                className="h-7 text-xs"
-                                            />
-                                        </div>
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon" 
-                                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                                            onClick={() => {
-                                                const newSegs = [...(alt.targetSegments || [])];
-                                                newSegs.splice(tIdx, 1);
-                                                handleUpdateAlteration(index, 'targetSegments', newSegs);
-                                            }}
-                                        >
-                                            <X className="w-3 h-3" />
-                                        </Button>
-                                    </div>
-                                ))}
-                                {(!alt.targetSegments || alt.targetSegments.length === 0) && (
-                                    <p className="text-[10px] text-destructive italic">Nenhum trecho alvo definido.</p>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card>
+          >
+            <Select
+              value={data.normativeType}
+              onValueChange={(v) =>
+                onChange({ ...data, normativeType: v as NormativeTypeKey })
+              }
+              disabled={disabled}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione..." />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                {Object.entries(NORMATIVE_TYPES).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label} ({key})
+                  </SelectItem>
                 ))}
-            </div>
+              </SelectContent>
+            </Select>
+          </Field>
 
-            <Separator />
-
-            {/* Preâmbulo e Assinatura */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <Label>Preâmbulo</Label>
-                    <SimpleEditor
-                        key={data.id ? `preamble-${data.id}` : 'preamble-new'}
-                        initialContent={data.preamble ? (data.preamble.startsWith('{') ? (safeJSONParse(data.preamble) || data.preamble) : data.preamble) : undefined}
-                        onChange={(content) => onChange({ ...data, preamble: content })}
-                        readOnly={disabled}
-                        className="prose-sm"
-                        placeholder="O Presidente da República..."
-                        outputFormat="html"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label>Assinatura</Label>
-                    <SimpleEditor
-                        key={data.id ? `signature-${data.id}` : 'signature-new'}
-                        initialContent={data.signature ? (data.signature.startsWith('{') ? (safeJSONParse(data.signature) || data.signature) : data.signature) : undefined}
-                        onChange={(content) => onChange({ ...data, signature: content })}
-                        readOnly={disabled}
-                        className="prose-sm text-right"
-                        placeholder="Nome do Signatário..."
-                        outputFormat="html"
-                    />
-                </div>
-            </div>
-
-            <Separator />
-
-            {/* Fontes */}
-            <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                    <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Fontes</h3>
-                    <Button variant="outline" size="sm" onClick={handleAddSource}>
-                        <Plus className="w-4 h-4 mr-2" /> Adicionar Fonte
-                    </Button>
-                </div>
-
-                {data.sources?.map((source, index) => (
-                    <div key={index} className="flex gap-2 items-start">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 flex-1">
-                            <Input 
-                                value={source.url} 
-                                onChange={e => handleUpdateSource(index, 'url', e.target.value)}
-                                placeholder="URL da Fonte (*)"
-                                className="h-8"
-                            />
-                            <Input 
-                                value={source.name || ''} 
-                                onChange={e => handleUpdateSource(index, 'name', e.target.value)}
-                                placeholder="Nome da Fonte (Opcional)"
-                                className="h-8"
-                            />
-                        </div>
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                            onClick={() => handleRemoveSource(index)}
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </Button>
-                    </div>
-                ))}
-                {(!data.sources || data.sources.length === 0) && (
-                    <p className="text-sm text-muted-foreground italic">Nenhuma fonte cadastrada.</p>
-                )}
-            </div>
-
-            <AuthorityDialog 
-                open={isAuthDialogOpen} 
-                onOpenChange={setAuthDialogOpen} 
-                onSave={handleAddAuthority} 
+          <Field
+            label="Número da norma"
+            htmlFor="normative-number"
+            hint="Pode conter pontuação e letras."
+          >
+            <Input
+              id="normative-number"
+              value={data.number || ""}
+              onChange={(e) => onChange({ ...data, number: e.target.value })}
+              placeholder="Ex: 12.345-A"
+              disabled={disabled}
             />
+          </Field>
 
-            <SegmentSelector
-                open={segmentSelectorOpen}
-                onOpenChange={setSegmentSelectorOpen}
-                text={segmentContext?.text || ''}
-                onConfirm={handleSegmentConfirm}
-                title={segmentContext?.type === 'source' ? "Selecionar Trechos da Nova Redação" : "Selecionar Trechos a Substituir"}
+          <Field
+            label="Data do ato"
+            error={
+              isDateValidForAuthority
+                ? undefined
+                : "Data incompatível com a vigência da autoridade selecionada."
+            }
+          >
+            <DatePartsInput
+              value={data.actDate}
+              onChange={(v) => {
+                const currentStart = data.originalStartValidity || createEmptyValidity();
+                const updatedStartDate = currentStart.date?.trim() ? currentStart.date : (data.publicationDate || v || "");
+                onChange({
+                  ...data,
+                  actDate: v,
+                  originalStartValidity: {
+                    ...currentStart,
+                    date: updatedStartDate,
+                  },
+                });
+              }}
+              maxYear={new Date().getFullYear() + 1}
+              disabled={disabled}
             />
+          </Field>
 
-            <CollectionLinkManager 
-                open={linkManagerOpen} 
-                onOpenChange={setLinkManagerOpen}
-                initialLinks={[]} 
-                onSave={handleLinkSelection}
-                selectionMode="single"
+          <Field label="Data de publicação">
+            <DatePartsInput
+              value={data.publicationDate}
+              onChange={(v) => {
+                const currentStart = data.originalStartValidity || createEmptyValidity();
+                const updatedStartDate = currentStart.date?.trim() ? currentStart.date : (v || data.actDate || "");
+                onChange({
+                  ...data,
+                  publicationDate: v,
+                  originalStartValidity: {
+                    ...currentStart,
+                    date: updatedStartDate,
+                  },
+                });
+              }}
+              maxYear={new Date().getFullYear()}
+              disabled={disabled}
             />
+          </Field>
         </div>
-    );
+      </FormSection>
+
+      <FormSection
+        title="Vigência do original"
+        description="Elementos com vigência própria prevalecem."
+      >
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+          <ValiditySlot
+            label="Vigência inicial"
+            emptyHint="Defina a data e vincule o elemento normativo."
+            value={data.originalStartValidity || createEmptyValidity()}
+            isRequired
+            dateError={
+              !data.originalStartValidity?.date?.trim()
+                ? "Data de vigência inicial é obrigatória."
+                : undefined
+            }
+            linkError={
+              !data.originalStartValidity?.normativeElementId?.trim()
+                ? "A vigência inicial precisa estar vinculada a um elemento normativo."
+                : undefined
+            }
+            onChange={(originalStartValidity) =>
+              onChange({ ...data, originalStartValidity })
+            }
+            onOpenLinkManager={() => requestLink({ type: "startValidity" })}
+            linkLabel={
+              data.originalStartValidity?.normativeElementId
+                ? linkCache[data.originalStartValidity.normativeElementId]
+                    ?.label
+                : undefined
+            }
+            disabled={disabled}
+          />
+
+          <ValiditySlot
+            label="Vigência final"
+            emptyHint="Sem vigência final: a norma segue vigente."
+            value={data.originalEndValidity}
+            onAdd={() =>
+              onChange({ ...data, originalEndValidity: createEmptyValidity() })
+            }
+            onRemove={() =>
+              onChange({ ...data, originalEndValidity: undefined })
+            }
+            onChange={(originalEndValidity) =>
+              onChange({ ...data, originalEndValidity })
+            }
+            onOpenLinkManager={() => requestLink({ type: "endValidity" })}
+            linkLabel={
+              data.originalEndValidity?.normativeElementId
+                ? linkCache[data.originalEndValidity.normativeElementId]?.label
+                : undefined
+            }
+            disabled={disabled}
+          />
+        </div>
+      </FormSection>
+
+      <FormSection
+        title="Autoridade"
+        required
+        action={
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs font-normal"
+              onClick={openCreateAuthorityDialog}
+              disabled={disabled || isCreatingAuthority || isUpdatingAuthority}
+            >
+              <PlusCircle className="mr-1 h-3 w-3" /> Nova
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs font-normal"
+              onClick={openEditAuthorityDialog}
+              disabled={
+                disabled ||
+                !selectedAuthority ||
+                isCreatingAuthority ||
+                isUpdatingAuthority
+              }
+            >
+              <Edit className="mr-1 h-3 w-3" /> Editar
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-1.5">
+          <Select
+            value={data.authorityId}
+            onValueChange={(v) => onChange({ ...data, authorityId: v })}
+            disabled={disabled || isLoadingAuthorities}
+          >
+            {/*
+                          The trigger renders its own single line instead of
+                          `SelectValue`, which would echo the whole multi-line
+                          body of the chosen item into the closed control.
+                        */}
+            <SelectTrigger aria-label="Autoridade" aria-required="true">
+              {selectedAuthority ? (
+                <span className="min-w-0 truncate text-left">
+                  {selectedAuthority.commonRefAbbr}
+                  {selectedAuthority.complementAbbr
+                    ? ` · ${selectedAuthority.complementAbbr}`
+                    : ""}
+                  <span className="text-muted-foreground">
+                    {" — "}
+                    {selectedAuthority.complementFull ||
+                      selectedAuthority.commonRefFull}
+                  </span>
+                </span>
+              ) : (
+                <SelectValue
+                  placeholder={
+                    isLoadingAuthorities
+                      ? "Carregando autoridades..."
+                      : "Selecione a autoridade..."
+                  }
+                />
+              )}
+            </SelectTrigger>
+            <SelectContent className="max-h-[300px]">
+              {authorities.map((auth) => (
+                <SelectItem key={auth.id} value={auth.id}>
+                  <div className="flex max-w-[520px] flex-col py-0.5 leading-snug">
+                    <span>
+                      {auth.commonRefAbbr}
+                      {auth.complementAbbr ? ` · ${auth.complementAbbr}` : ""}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {auth.commonRefFull}
+                      {auth.complementFull ? ` — ${auth.complementFull}` : ""}
+                      {" · "}
+                      {auth.startDate} até {auth.endDate || "presente"}
+                    </span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {!hasSelectedAuthority && !authoritiesError && (
+            <p className="text-xs text-destructive">
+              Selecione uma autoridade para permitir o salvamento.
+            </p>
+          )}
+        </div>
+
+        {authoritiesError && (
+          <div className="flex items-center justify-between gap-3 border-l-2 border-destructive pl-3 text-xs text-destructive">
+            <span>{authoritiesError}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 font-normal"
+              onClick={() => void loadAuthorities()}
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        )}
+
+        {/*
+                  Only what the closed trigger does not already say. The audit
+                  trail (creator, timestamps) lives in the "Editar" dialog: on
+                  this screen it repeated four rows nobody fills in.
+                */}
+        {selectedAuthority && (
+          <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-xs text-muted-foreground sm:grid-cols-2">
+            <div>
+              <dt className="inline">Referência: </dt>
+              <dd className="inline text-foreground">
+                {selectedAuthority.commonRefFull}
+              </dd>
+            </div>
+            <div>
+              <dt className="inline">Vigência: </dt>
+              <dd className="inline text-foreground">
+                {selectedAuthority.startDate} até{" "}
+                {selectedAuthority.endDate || "presente"}
+              </dd>
+            </div>
+            <div>
+              <dt className="inline">ID: </dt>
+              <dd className="inline font-mono text-foreground">
+                {selectedAuthority.id}
+              </dd>
+            </div>
+            {selectedAuthority.pageId && (
+              <div>
+                <dt className="inline">Página vinculada: </dt>
+                <dd className="inline">
+                  <a
+                    href={`/pages/${selectedAuthority.pageId}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-foreground hover:underline"
+                  >
+                    {selectedAuthority.pageId}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </dd>
+              </div>
+            )}
+          </dl>
+        )}
+      </FormSection>
+
+      <FormSection title="Ementa" required>
+        <Textarea
+          id="normative-ementa"
+          aria-label="Ementa"
+          aria-required="true"
+          value={data.ementa || ""}
+          onChange={(e) => onChange({ ...data, ementa: e.target.value })}
+          className="min-h-[80px]"
+          placeholder="Dispõe sobre..."
+          disabled={disabled}
+        />
+      </FormSection>
+
+      <FormSection
+        title="Alterações de ementa"
+        action={
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs font-normal"
+            onClick={handleAddAlteration}
+          >
+            <Plus className="mr-1 h-3 w-3" /> Adicionar alteração
+          </Button>
+        }
+      >
+        {!data.ementaAlterations?.length && (
+          <p className="text-xs text-muted-foreground">
+            Nenhuma alteração cadastrada.
+          </p>
+        )}
+
+        {data.ementaAlterations?.map((alt, index) => (
+          <div key={index} className="space-y-3 border-t pt-3 first:border-t-0">
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-xs text-muted-foreground">
+                Alteração {index + 1}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1.5 text-xs font-normal text-muted-foreground hover:text-destructive"
+                onClick={() => handleRemoveAlteration(index)}
+              >
+                <Trash2 className="mr-1 h-3 w-3" /> Remover
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+              <Field
+                label="Dispositivo"
+                htmlFor={`alteration-device-${index}`}
+                required
+              >
+                <Input
+                  id={`alteration-device-${index}`}
+                  aria-required="true"
+                  value={alt.device}
+                  onChange={(e) =>
+                    handleUpdateAlteration(index, "device", e.target.value)
+                  }
+                  placeholder="Ex: Art. 1º"
+                  className="h-8"
+                />
+              </Field>
+              <Field label="Elemento normativo vinculado" required>
+                <NormativeLinkInput
+                  value={alt.normativeElementId || ""}
+                  onChange={(val) =>
+                    handleUpdateAlteration(index, "normativeElementId", val)
+                  }
+                  onOpen={() => requestLink({ type: "alteration", index })}
+                  label={
+                    alt.normativeElementId
+                      ? linkCache[alt.normativeElementId]?.label
+                      : undefined
+                  }
+                  placeholder="Vincular elemento"
+                />
+              </Field>
+            </div>
+
+            {/* Source Segments (Trechos com Texto Alterado) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <Label className="font-normal">
+                  Trechos do texto alterado{" "}
+                  <span className="text-muted-foreground">(opcional)</span>
+                </Label>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-1.5 text-xs font-normal"
+                    onClick={() => handleOpenSourceSegments(index)}
+                    disabled={loadingText}
+                  >
+                    {loadingText ? (
+                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    ) : (
+                      <MousePointerClick className="mr-1 h-3 w-3" />
+                    )}
+                    Selecionar da fonte
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-1.5 text-xs font-normal"
+                    onClick={() => {
+                      const newSegs = [
+                        ...(alt.sourceSegments || []),
+                        { start: 0, end: 0, changedText: "" },
+                      ];
+                      handleUpdateAlteration(index, "sourceSegments", newSegs);
+                    }}
+                  >
+                    <Plus className="mr-1 h-3 w-3" /> Manual
+                  </Button>
+                </div>
+              </div>
+              {alt.sourceSegments?.map((seg: any, sIdx: number) => (
+                <div
+                  key={sIdx}
+                  className="grid grid-cols-[1fr_80px_80px_24px] items-start gap-2"
+                >
+                  <Input
+                    value={seg.changedText || ""}
+                    onChange={(e) => {
+                      const newSegs = [...(alt.sourceSegments || [])];
+                      newSegs[sIdx] = { ...seg, changedText: e.target.value };
+                      handleUpdateAlteration(index, "sourceSegments", newSegs);
+                    }}
+                    placeholder="Texto alterado"
+                    className="h-7 text-xs"
+                    aria-label={`Texto alterado do trecho ${sIdx + 1}`}
+                  />
+                  <Input
+                    type="number"
+                    value={seg.start}
+                    onChange={(e) => {
+                      const newSegs = [...(alt.sourceSegments || [])];
+                      newSegs[sIdx] = {
+                        ...seg,
+                        start: parseInt(e.target.value) || 0,
+                      };
+                      handleUpdateAlteration(index, "sourceSegments", newSegs);
+                    }}
+                    placeholder="Início"
+                    className="h-7 text-xs"
+                    aria-label={`Início do trecho ${sIdx + 1}`}
+                  />
+                  <Input
+                    type="number"
+                    value={seg.end}
+                    onChange={(e) => {
+                      const newSegs = [...(alt.sourceSegments || [])];
+                      newSegs[sIdx] = {
+                        ...seg,
+                        end: parseInt(e.target.value) || 0,
+                      };
+                      handleUpdateAlteration(index, "sourceSegments", newSegs);
+                    }}
+                    placeholder="Fim"
+                    className="h-7 text-xs"
+                    aria-label={`Fim do trecho ${sIdx + 1}`}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                    onClick={() => {
+                      const newSegs = [...(alt.sourceSegments || [])];
+                      newSegs.splice(sIdx, 1);
+                      handleUpdateAlteration(index, "sourceSegments", newSegs);
+                    }}
+                    title="Remover trecho"
+                    aria-label="Remover trecho"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Target Segments (Trechos Alvo) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <Label className="font-normal">
+                  Trechos alvo na ementa
+                  <RequiredMark />
+                </Label>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-1.5 text-xs font-normal"
+                    onClick={() => handleOpenTargetSegments(index)}
+                  >
+                    <MousePointerClick className="mr-1 h-3 w-3" /> Selecionar na
+                    ementa
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-1.5 text-xs font-normal"
+                    onClick={() => {
+                      const newSegs = [
+                        ...(alt.targetSegments || []),
+                        { start: 0, end: 0 },
+                      ];
+                      handleUpdateAlteration(index, "targetSegments", newSegs);
+                    }}
+                  >
+                    <Plus className="mr-1 h-3 w-3" /> Manual
+                  </Button>
+                </div>
+              </div>
+              {alt.targetSegments?.map((seg, tIdx) => (
+                <div
+                  key={tIdx}
+                  className="grid grid-cols-[1fr_1fr_24px] items-center gap-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <Label
+                      htmlFor={`target-start-${index}-${tIdx}`}
+                      className="w-10 text-xs font-normal text-muted-foreground"
+                    >
+                      Início
+                    </Label>
+                    <Input
+                      id={`target-start-${index}-${tIdx}`}
+                      type="number"
+                      value={seg.start}
+                      onChange={(e) => {
+                        const newSegs = [...(alt.targetSegments || [])];
+                        newSegs[tIdx] = {
+                          ...seg,
+                          start: parseInt(e.target.value) || 0,
+                        };
+                        handleUpdateAlteration(
+                          index,
+                          "targetSegments",
+                          newSegs,
+                        );
+                      }}
+                      className="h-7 text-xs"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Label
+                      htmlFor={`target-end-${index}-${tIdx}`}
+                      className="w-10 text-xs font-normal text-muted-foreground"
+                    >
+                      Fim
+                    </Label>
+                    <Input
+                      id={`target-end-${index}-${tIdx}`}
+                      type="number"
+                      value={seg.end}
+                      onChange={(e) => {
+                        const newSegs = [...(alt.targetSegments || [])];
+                        newSegs[tIdx] = {
+                          ...seg,
+                          end: parseInt(e.target.value) || 0,
+                        };
+                        handleUpdateAlteration(
+                          index,
+                          "targetSegments",
+                          newSegs,
+                        );
+                      }}
+                      className="h-7 text-xs"
+                    />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                    onClick={() => {
+                      const newSegs = [...(alt.targetSegments || [])];
+                      newSegs.splice(tIdx, 1);
+                      handleUpdateAlteration(index, "targetSegments", newSegs);
+                    }}
+                    title="Remover trecho"
+                    aria-label="Remover trecho"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+              {(!alt.targetSegments || alt.targetSegments.length === 0) && (
+                <p className="text-xs text-destructive">
+                  Nenhum trecho alvo definido.
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </FormSection>
+
+      <FormSection
+        title="Preâmbulo e assinatura"
+        description="Fora da estrutura de dispositivos."
+      >
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+          <Field label="Preâmbulo">
+            <SimpleEditor
+              key={data.id ? `preamble-${data.id}` : "preamble-new"}
+              initialContent={
+                data.preamble
+                  ? data.preamble.startsWith("{")
+                    ? safeJSONParse(data.preamble) || data.preamble
+                    : data.preamble
+                  : undefined
+              }
+              onChange={(content) => onChange({ ...data, preamble: content })}
+              readOnly={disabled}
+              className="prose-sm"
+              placeholder="O Presidente da República..."
+              outputFormat="html"
+            />
+          </Field>
+          <Field label="Assinatura">
+            <SimpleEditor
+              key={data.id ? `signature-${data.id}` : "signature-new"}
+              initialContent={
+                data.signature
+                  ? data.signature.startsWith("{")
+                    ? safeJSONParse(data.signature) || data.signature
+                    : data.signature
+                  : undefined
+              }
+              onChange={(content) => onChange({ ...data, signature: content })}
+              readOnly={disabled}
+              className="prose-sm text-right"
+              placeholder="Nome do signatário..."
+              outputFormat="html"
+            />
+          </Field>
+        </div>
+      </FormSection>
+
+      <FormSection
+        title="Fontes e Anexos"
+        description="URLs externas ou arquivos enviados para o S3."
+        action={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs font-normal"
+              onClick={() => {
+                setS3ModalTargetIndex(null);
+                setIsS3ModalOpen(true);
+              }}
+            >
+              <Upload className="mr-1 h-3 w-3" /> Upload S3 / Recentes
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs font-normal"
+              onClick={handleAddSource}
+            >
+              <Plus className="mr-1 h-3 w-3" /> Adicionar fonte
+            </Button>
+          </div>
+        }
+      >
+        <S3FilePickerModal
+          open={isS3ModalOpen}
+          onOpenChange={setIsS3ModalOpen}
+          onSelect={(result) => {
+            if (s3ModalTargetIndex !== null) {
+              const newSources = [...(data.sources || [])];
+              const existingName = newSources[s3ModalTargetIndex]?.name;
+              newSources[s3ModalTargetIndex] = {
+                url: result.url,
+                name: existingName || result.name,
+              };
+              onChange({ ...data, sources: newSources });
+            } else {
+              onChange({
+                ...data,
+                sources: [
+                  ...(data.sources || []),
+                  { url: result.url, name: result.name },
+                ],
+              });
+            }
+          }}
+          folderPath="legis/fontes"
+        />
+        {data.sources?.map((source, index) => {
+          const isImg = isImageUrl(source.url || source.name);
+
+          return (
+            <div
+              key={index}
+              className="space-y-1.5 rounded-md border p-2 bg-muted/20"
+            >
+              <div className="flex items-center gap-2">
+                <div className="grid flex-1 grid-cols-1 gap-2 md:grid-cols-2">
+                  <Input
+                    value={source.url}
+                    onChange={(e) =>
+                      handleUpdateSource(index, "url", e.target.value)
+                    }
+                    placeholder="URL ou link do arquivo"
+                    className="h-8 text-xs"
+                    aria-label={`URL da fonte ${index + 1}`}
+                  />
+                  <Input
+                    value={source.name || ""}
+                    onChange={(e) =>
+                      handleUpdateSource(index, "name", e.target.value)
+                    }
+                    placeholder="Nome da fonte / arquivo (opcional)"
+                    className="h-8 text-xs"
+                    aria-label={`Nome da fonte ${index + 1}`}
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2 text-xs font-normal shrink-0"
+                  onClick={() => {
+                    setS3ModalTargetIndex(index);
+                    setIsS3ModalOpen(true);
+                  }}
+                  title="Upload S3 ou escolher recente para esta fonte"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                  onClick={() => handleRemoveSource(index)}
+                  title="Remover fonte"
+                  aria-label="Remover fonte"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {source.url && (
+                <div className="mt-1">
+                  {isImg ? (
+                    <div className="flex items-center gap-2 rounded border bg-background p-1.5 max-w-xs">
+                      <img
+                        src={source.url}
+                        alt={source.name || "Imagem da fonte"}
+                        className="h-12 w-12 object-cover rounded"
+                      />
+                      <div className="min-w-0 flex-1 text-xs">
+                        <span className="font-medium truncate block">
+                          {source.name || "Imagem"}
+                        </span>
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary hover:underline text-[11px] inline-flex items-center gap-1"
+                        >
+                          Abrir <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="inline-flex items-center gap-2 rounded border bg-background px-2.5 py-1 text-xs">
+                      <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="font-medium truncate max-w-[220px]">
+                        {source.name || source.url}
+                      </span>
+                      <a
+                        href={source.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary hover:underline text-[11px] ml-1 shrink-0 inline-flex items-center gap-1"
+                      >
+                        Abrir <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {(!data.sources || data.sources.length === 0) && (
+          <p className="text-xs text-muted-foreground">
+            Nenhuma fonte cadastrada. Use "Upload S3" ou "Adicionar fonte" para incluir.
+          </p>
+        )}
+      </FormSection>
+
+      <AuthorityDialog
+        open={isAuthDialogOpen}
+        onOpenChange={(open) => {
+          setAuthDialogOpen(open);
+          if (!open) {
+            setEditingAuthority(null);
+            setAuthorityDialogMode("create");
+          }
+        }}
+        authority={editingAuthority}
+        mode={authorityDialogMode}
+        onSave={handleSaveAuthority}
+        disabled={disabled || isCreatingAuthority || isUpdatingAuthority}
+      />
+    </div>
+  );
 }

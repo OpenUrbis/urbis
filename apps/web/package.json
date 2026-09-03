@@ -7,7 +7,8 @@
     "dev": "vite --clearScreen false",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint \"src/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "vitest run"
   },
   "dependencies": {
     "@deck.gl-community/editable-layers": "^9.1.1",
@@ -72,7 +73,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "lucide-react": "^0.562.0",
-    "mapbox-gl": "^3.17.0",
+    "maplibre-gl": "^5.6.2",
     "mapbox-gl-style-switcher": "^1.0.11",
     "nuqs": "^2.8.6",
     "oidc-client-ts": "^3.4.1",
@@ -115,6 +116,8 @@
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.5.4",
-    "vite": "^5.1.4"
-  }
+    "vite": "^5.1.4",
+    "vitest": "^4.0.18"
+  },
+  "license": "AGPL-3.0-only"
 }

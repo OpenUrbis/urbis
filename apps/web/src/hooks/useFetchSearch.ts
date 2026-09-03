@@ -1,4 +1,5 @@
 import { Signal, useSignal } from "@preact/signals";
+import { useRef } from "react";
 import { fetchSearchItem } from "../integrations/search-integration";
 import {
   IGetSearchConfigResponse,
@@ -8,13 +9,20 @@ import {
 } from "../types/fetch-search-config-type";
 
 export const useFetchSearch = (
-  searchConfig: Signal<IGetSearchConfigResponse[]>
+  searchConfig: Signal<IGetSearchConfigResponse[]>,
 ) => {
   const data = useSignal<ISearchResponse | null>(null);
   const loading = useSignal<boolean>(false);
   const error = useSignal<string | null>(null);
+  const latestRequestId = useRef(0);
 
-  const fetchData = async (term: string) => {
+  const fetchData = async (
+    term: string,
+    initialResults: ISearchResponse = {},
+  ) => {
+    const requestId = latestRequestId.current + 1;
+    latestRequestId.current = requestId;
+
     loading.value = true;
     error.value = null;
 
@@ -30,7 +38,9 @@ export const useFetchSearch = (
       });
 
       const results = await Promise.all(promises);
-      const searchResults: ISearchResponse = {};
+      if (requestId !== latestRequestId.current) return;
+
+      const searchResults: ISearchResponse = { ...initialResults };
 
       results.forEach((result, index) => {
         searchResults[mapIndex[index]] = result;
@@ -38,21 +48,27 @@ export const useFetchSearch = (
 
       data.value = searchResults;
     } catch (err) {
+      if (requestId !== latestRequestId.current) return;
+
       console.error(err);
       error.value = "Error fetching search results";
     } finally {
-      loading.value = false;
+      if (requestId === latestRequestId.current) {
+        loading.value = false;
+      }
     }
   };
 
   // Função para limpar os resultados
   const clearResults = () => {
+    latestRequestId.current += 1;
     data.value = null;
     loading.value = false;
     error.value = null;
   };
 
   const setResults = (results: ISearchResponse) => {
+    latestRequestId.current += 1;
     data.value = results;
   };
 

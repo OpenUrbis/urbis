@@ -27,7 +27,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     HlmLabelDirective,
     LoadingButton,
     TranslateModule,
-
   ],
   templateUrl: './two-factor-verify.html',
 })
@@ -49,7 +48,7 @@ export class TwoFactorVerify {
   async send(): Promise<any> {
     if (this.otp.invalid)
       return this.toaster.error(
-        this.translate.instant('components.twoFactorVerify.errors.invalid')
+        this.translate.instant('components.twoFactorVerify.errors.invalid'),
       );
 
     this.loading.set(true);
@@ -74,11 +73,11 @@ export class TwoFactorVerify {
       this.toaster.error(
         isInvalid
           ? this.translate.instant(
-            'components.twoFactorVerify.errors.invalidProvided'
-          )
+              'components.twoFactorVerify.errors.invalidProvided',
+            )
           : this.translate.instant(
-            'components.twoFactorVerify.errors.validate'
-          )
+              'components.twoFactorVerify.errors.validate',
+            ),
       );
     } finally {
       this.loading.set(false);

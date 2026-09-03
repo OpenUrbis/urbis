@@ -1,5 +1,5 @@
 {
-  "title": "Arquitetura",
+  "title": "Arquitetura & Engenharia",
   "icon": "Layers",
-  "pages": ["stack", "monorepo", "frontend"]
+  "pages": ["index", "stack", "monorepo", "frontend", "backend", "auth"]
 }

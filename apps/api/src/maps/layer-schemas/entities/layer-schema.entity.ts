@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ClickActionEnum } from '@open-urbis/map-shared';
+import { ClickActionEnum } from '../enums/click-action.enum';
 import {
   Column,
   CreateDateColumn,
@@ -81,6 +81,24 @@ export class LayerSchema {
   })
   @Column({ nullable: true })
   isSelected?: boolean;
+
+  @ApiProperty({
+    example: true,
+    required: false,
+    description:
+      'Determines whether the layer is included in territorial intersection analysis',
+  })
+  @Column({ nullable: true, default: true })
+  includeInAnalysis?: boolean;
+
+  @ApiProperty({
+    example: true,
+    required: false,
+    description:
+      'Determines whether the layer is included in FIU (Ficha de Informação Urbanística)',
+  })
+  @Column({ nullable: true, default: true })
+  includeInFiu?: boolean;
 
   @ApiProperty({
     example: 10,
@@ -196,6 +214,22 @@ export class LayerSchema {
   })
   @Column({ nullable: true })
   groupId?: string;
+
+  @ApiProperty({
+    example: true,
+    description:
+      'Determines whether the layer is public or restricted to specific roles',
+  })
+  @Column({ default: true })
+  isPublic?: boolean;
+
+  @ApiProperty({
+    example: [],
+    description:
+      'List of role IDs allowed to access this layer if isPublic is false',
+  })
+  @Column({ type: 'jsonb', default: [] })
+  allowedRoles?: string[];
 
   @ManyToOne(() => LayerGroup, { nullable: true })
   @JoinColumn({ name: 'groupId' })

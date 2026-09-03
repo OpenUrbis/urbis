@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Organization } from '../../../../organization/entities/organization.entity';
@@ -18,6 +20,8 @@ export class UserSeedService {
 
     @InjectRepository(UserRoleAssignment)
     private userRoleAssignmentRepository: Repository<UserRoleAssignment>,
+
+    private configService: ConfigService,
   ) {}
 
   async createOrg() {
@@ -42,17 +46,30 @@ export class UserSeedService {
   }
 
   async createUser() {
+    const email = this.configService.get<string>(
+      'admin.account.email',
+      'admin@urbis.prefeitura.sp.gov.br',
+    );
     const existingUser = await this.userRepository.findOne({
-      where: { email: 'test@test.com' },
+      where: { email },
     });
 
     if (existingUser) {
       return existingUser;
     }
 
+    const configuredPassword = this.configService.get<string>(
+      'admin.account.password',
+    );
+    if (!configuredPassword) {
+      throw new Error(
+        'ADMIN_ACCOUNT_PASSWORD must be configured to run the user seed',
+      );
+    }
+
     const user = this.userRepository.create({
-      email: 'test@test.com',
-      password: 'Teste@123',
+      email,
+      password: await bcrypt.hash(configuredPassword, await bcrypt.genSalt()),
       firstName: 'John',
       lastName: 'Dom',
       status: UserStatus.ACTIVE,

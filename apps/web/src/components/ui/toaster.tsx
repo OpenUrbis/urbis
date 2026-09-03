@@ -1,4 +1,4 @@
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast";
 import {
   Toast,
   ToastClose,
@@ -6,24 +6,25 @@ import {
   ToastProvider,
   ToastTitle,
   ToastViewport,
-} from "@/components/ui/toast"
-import { CheckCircle2, AlertCircle, Info, AlertTriangle } from "lucide-react"
+} from "@/components/ui/toast";
+import { CheckCircle2, AlertCircle, Info, AlertTriangle } from "lucide-react";
 
 export function Toaster() {
-  const { toasts } = useToast()
+  const { toasts } = useToast();
 
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
-        const Icon = props.variant === "success" 
-          ? CheckCircle2 
-          : props.variant === "destructive" || props.variant === "error"
-          ? AlertCircle
-          : props.variant === "warning"
-          ? AlertTriangle
-          : props.variant === "info"
-          ? Info
-          : null
+        const Icon =
+          props.variant === "success"
+            ? CheckCircle2
+            : props.variant === "destructive" || props.variant === "error"
+              ? AlertCircle
+              : props.variant === "warning"
+                ? AlertTriangle
+                : props.variant === "info"
+                  ? Info
+                  : null;
 
         return (
           <Toast key={id} {...props}>
@@ -39,9 +40,9 @@ export function Toaster() {
             {action}
             <ToastClose />
           </Toast>
-        )
+        );
       })}
       <ToastViewport />
     </ToastProvider>
-  )
+  );
 }

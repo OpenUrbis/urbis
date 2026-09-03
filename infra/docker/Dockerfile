@@ -1,5 +1,11 @@
 FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
-RUN apk add --no-cache python3 make g++ && corepack enable
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    pkgconf \
+    libsecret-dev \
+    && corepack enable
 WORKDIR /app
 
 # Copy root workspace files

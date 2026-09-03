@@ -1,7 +1,16 @@
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucideGripVertical, lucideTrash2, lucidePlus } from '@ng-icons/lucide';
@@ -17,7 +26,11 @@ import {
 } from '../../../../../../projects/shared/src/public-api';
 import { PageStructure } from '../../../../components/page-structure/page-structure';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
-import { CreateQuestionTabDto, QuestionAnswer, QuestionTab } from '../../help.models';
+import {
+  CreateQuestionTabDto,
+  QuestionAnswer,
+  QuestionTab,
+} from '../../help.models';
 import { HelpService } from '../../help.service';
 
 @Component({
@@ -122,13 +135,17 @@ export class HandleQuestionTab {
         this.toaster.success('Aba atualizada com sucesso.');
         this.router.navigate(['/help']);
       } else {
-        const result = await firstValueFrom(this.helpService.createTab(payload));
+        const result = await firstValueFrom(
+          this.helpService.createTab(payload),
+        );
         this.toaster.success('Aba criada com sucesso.');
         this.router.navigate(['/help/tabs', result.id, 'edit']);
       }
     } catch (error: any) {
       console.error(error);
-      this.toaster.error(error?.error?.message || 'Não foi possível salvar a aba.');
+      this.toaster.error(
+        error?.error?.message || 'Não foi possível salvar a aba.',
+      );
     } finally {
       this.saving.set(false);
     }
@@ -152,13 +169,15 @@ export class HandleQuestionTab {
             questionAnswerId: item.id,
             index: index + 1,
           })),
-        })
+        }),
       );
       this.toaster.success('Ordem salva com sucesso.');
       this.loadTab(tabId);
     } catch (error: any) {
       console.error(error);
-      this.toaster.error(error?.error?.message || 'Não foi possível salvar a ordem.');
+      this.toaster.error(
+        error?.error?.message || 'Não foi possível salvar a ordem.',
+      );
     } finally {
       this.savingOrder.set(false);
     }
@@ -169,9 +188,10 @@ export class HandleQuestionTab {
       await this.confirmDialog(
         {
           title: 'Deseja excluir esta aba?',
-          description: 'Esta ação é irreversível e removerá o vínculo com as perguntas desta aba.',
+          description:
+            'Esta ação é irreversível e removerá o vínculo com as perguntas desta aba.',
         },
-        { resultMode: 'reject' }
+        { resultMode: 'reject' },
       );
 
       this.loading.set(true);

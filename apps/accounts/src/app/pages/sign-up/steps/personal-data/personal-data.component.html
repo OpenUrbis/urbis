@@ -47,7 +47,7 @@
     <button
       hlmBtn
       class="w-2/3"
-      [disabled]="!hasGovBrData || !formGroup.get('birthDate')?.value"
+      [disabled]="!hasGovBrData || !formGroup.get('birthDate')?.value || formGroup.get('birthDate')?.invalid"
       (click)="next.emit()"
     >
       Continuar

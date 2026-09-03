@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -30,7 +37,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     LoadingButton,
     TwoFactorVerify,
     TranslateModule,
-
   ],
   templateUrl: './two-factor-setup.html',
 })
@@ -52,7 +58,6 @@ export class TwoFactorSetup {
   resendCount = signal<number>(0);
 
   step = signal<number>(0);
-
 
   twoFactorApi = inject(TwoFactorApi);
   toaster = inject(HlmToasterService);
@@ -87,7 +92,7 @@ export class TwoFactorSetup {
     } catch (err) {
       console.error(err);
       this.toaster.error(
-        this.translate.instant('components.twoFactorSetup.errors.resend')
+        this.translate.instant('components.twoFactorSetup.errors.resend'),
       );
     } finally {
       this.contentLoading.set(false);
@@ -99,8 +104,8 @@ export class TwoFactorSetup {
     if (this.emailOtp.invalid)
       return this.toaster.error(
         this.translate.instant(
-          'components.twoFactorSetup.errors.emailOtpInvalid'
-        )
+          'components.twoFactorSetup.errors.emailOtpInvalid',
+        ),
       );
     this.loading.set(true);
 
@@ -117,9 +122,9 @@ export class TwoFactorSetup {
       this.toaster.error(
         isInvalid
           ? this.translate.instant(
-            'components.twoFactorSetup.errors.invalidCode'
-          )
-          : this.translate.instant('components.twoFactorSetup.errors.validate')
+              'components.twoFactorSetup.errors.invalidCode',
+            )
+          : this.translate.instant('components.twoFactorSetup.errors.validate'),
       );
     } finally {
       this.loading.set(false);

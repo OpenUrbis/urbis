@@ -1,7 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "../ui/sidebar";
 import { AppSidebar } from "./app-sidebar";
-import { UrbisHeader, Button, HelpSidebarContent, buildUrbisNav } from "@open-urbis/map-ui";
+import {
+  UrbisHeader,
+  Button,
+  HelpSidebarContent,
+  buildUrbisNav,
+} from "@open-urbis/map-ui";
 import { useAuth } from "@open-urbis/map-auth";
 import { CommandMenu } from "./command-menu";
 import { useLocation } from "wouter";
@@ -10,11 +15,11 @@ import { cn } from "@open-urbis/map-ui";
 
 // Context to control layout features (like Help)
 interface LegisLayoutContextType {
-    setHelpOpen: (open: boolean) => void;
+  setHelpOpen: (open: boolean) => void;
 }
 
 const LegisLayoutContext = React.createContext<LegisLayoutContextType>({
-    setHelpOpen: () => {},
+  setHelpOpen: () => {},
 });
 
 export const useLegisLayout = () => React.useContext(LegisLayoutContext);
@@ -27,9 +32,15 @@ export function LegisLayout({ children }: LegisLayoutProps) {
   const auth = useAuth();
   const [helpOpen, setHelpOpen] = useState(false);
   const [location] = useLocation();
-  
-  // Header height constant for consistent spacing
-  const HEADER_HEIGHT = "4rem"; // 64px
+
+  /*
+    Single source of truth for how much vertical space the app header occupies.
+    `UrbisHeader` is `h-16` plus a `border-b`, so the band that covers the page is
+    65px, not 64px. Anything that sticks below the header (page sub-headers, the
+    sidebar, the editor shell) must offset by this exact value, otherwise it slides
+    underneath the header and vanishes on long pages.
+  */
+  const HEADER_HEIGHT = "calc(4rem + 1px)"; // h-16 + border-b
 
   const { menuItems, badgeText } = useMemo(() => {
     return buildUrbisNav({
@@ -41,71 +52,88 @@ export function LegisLayout({ children }: LegisLayoutProps) {
   // isCustomLayout = true for Editor pages (Fixed viewport, internal scroll)
   // isCustomLayout = false for List/Home/View (Document scroll, footer at bottom)
   // Only Edit/New pages need the app-like fixed layout
-  const isCustomLayout = location.includes('/edit') || location.includes('/new');
+  const isCustomLayout =
+    location.includes("/edit") || location.includes("/new");
 
   return (
     <LegisLayoutContext.Provider value={{ setHelpOpen }}>
-    <SidebarProvider defaultOpen={false} style={{ "--header-height": HEADER_HEIGHT } as React.CSSProperties}>
-      <CommandMenu />
-      <div className={cn(
-          "flex flex-col w-full bg-background",
-          isCustomLayout ? "h-screen overflow-hidden" : "min-h-screen"
-      )}>
+      <SidebarProvider
+        defaultOpen={false}
+        style={{ "--header-height": HEADER_HEIGHT } as React.CSSProperties}
+      >
+        <CommandMenu />
+        <div
+          className={cn(
+            "flex flex-col w-full bg-background",
+            isCustomLayout ? "h-svh overflow-hidden" : "min-h-svh",
+          )}
+        >
           <div className="z-50 relative sticky top-0">
-            <UrbisHeader 
-                badgeText={badgeText}
-                menuItems={menuItems}
-                isAuthenticated={auth.isAuthenticated}
-                user={{
-                    name: auth.user?.profile.name,
-                    email: auth.user?.profile.email,
-                }}
-                onLogin={() => auth.signinRedirect()}
-                onLogout={() => auth.signoutRedirect()}
-                leftSlot={<SidebarTrigger className="mr-2" />}
-                rightSlot={
-                    <div className="flex items-center gap-2">
-                        <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setHelpOpen(true)}
-                        className="hidden md:inline-flex h-9 rounded-full px-4"
-                        title="Ajuda"
-                        aria-label="Ajuda"
-                        >
-                        Ajuda
-                        </Button>
-                        <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setHelpOpen(true)}
-                        className="inline-flex md:hidden h-9 w-9 rounded-full"
-                        title="Ajuda"
-                        aria-label="Ajuda"
-                        >
-                        ?
-                        </Button>
-                    </div>
-                }
+            <UrbisHeader
+              badgeText={badgeText}
+              menuItems={menuItems}
+              isAuthenticated={auth.isAuthenticated}
+              user={{
+                name: auth.user?.profile.name,
+                email: auth.user?.profile.email,
+              }}
+              onLogin={() => auth.signinRedirect()}
+              onLogout={() => auth.signoutRedirect()}
+              leftSlot={<SidebarTrigger className="mr-2" />}
+              rightSlot={
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setHelpOpen(true)}
+                    className="hidden md:inline-flex h-9 rounded-full px-4"
+                    title="Ajuda"
+                    aria-label="Ajuda"
+                  >
+                    Ajuda
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setHelpOpen(true)}
+                    className="inline-flex md:hidden h-9 w-9 rounded-full"
+                    title="Ajuda"
+                    aria-label="Ajuda"
+                  >
+                    ?
+                  </Button>
+                </div>
+              }
             />
           </div>
-          
-          <div className={cn(
+
+          <div
+            className={cn(
               "flex flex-1 relative",
-              isCustomLayout ? "overflow-hidden" : "flex-col md:flex-row"
-          )}>
+              isCustomLayout ? "overflow-hidden" : "flex-col md:flex-row",
+            )}
+          >
             <AppSidebar className="md:fixed md:!top-[--header-height] md:!h-[calc(100svh-var(--header-height))]" />
-            
-            <SidebarInset className={cn(
+
+            {/*
+              `SidebarInset` ships with `min-h-svh`. Inside the fixed-viewport editor
+              layout that minimum is taller than the space left below the header, so
+              it has to be released explicitly or the bottom of the editor is clipped.
+            */}
+            <SidebarInset
+              className={cn(
                 "flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out",
-                isCustomLayout ? "h-full overflow-hidden" : ""
-            )}>
-                <main className={cn(
-                    "flex-1 bg-muted/10 p-0 flex flex-col",
-                    isCustomLayout ? "overflow-hidden" : ""
-                )}>
-                    {children}
-                </main>
+                isCustomLayout ? "h-full !min-h-0 overflow-hidden" : "",
+              )}
+            >
+              <main
+                className={cn(
+                  "flex-1 bg-muted/10 p-0 flex flex-col",
+                  isCustomLayout ? "overflow-hidden" : "",
+                )}
+              >
+                {children}
+              </main>
             </SidebarInset>
           </div>
 
@@ -115,35 +143,39 @@ export function LegisLayout({ children }: LegisLayoutProps) {
           {/* Help Overlay */}
           {helpOpen && (
             <div className="fixed inset-0 z-50 flex">
-            <div
+              <div
                 className="absolute inset-0 bg-black/40"
                 onClick={() => setHelpOpen(false)}
-            />
-            <div className="relative ml-auto h-full w-full max-w-[420px] bg-background shadow-xl overflow-y-auto animate-in slide-in-from-right duration-300">
+              />
+              <div className="relative ml-auto h-full w-full max-w-[420px] bg-background shadow-xl overflow-y-auto animate-in slide-in-from-right duration-300">
                 <div className="flex items-center justify-between p-4 border-b">
-                <h2 className="text-sm font-semibold">Ajuda</h2>
-                <button
+                  <h2 className="text-sm font-semibold">Ajuda</h2>
+                  <button
                     type="button"
                     onClick={() => setHelpOpen(false)}
                     className="text-sm text-muted-foreground hover:text-foreground"
                     aria-label="Fechar ajuda"
-                >
+                  >
                     ✕
-                </button>
+                  </button>
                 </div>
                 <div className="p-3">
-                <HelpSidebarContent
-                  currentTabSlug="legis"
-                  appFilter="legis"
-                  faqEndpointBase={import.meta.env.VITE_API_URL + '/support/question-tabs'}
-                  endpoint={import.meta.env.VITE_API_URL + '/support/create-ticket'}
-                />
+                  <HelpSidebarContent
+                    currentTabSlug="legis"
+                    appFilter="legis"
+                    faqEndpointBase={
+                      import.meta.env.VITE_API_URL + "/support/question-tabs"
+                    }
+                    endpoint={
+                      import.meta.env.VITE_API_URL + "/support/create-ticket"
+                    }
+                  />
                 </div>
+              </div>
             </div>
-            </div>
-        )}
-      </div>
-    </SidebarProvider>
+          )}
+        </div>
+      </SidebarProvider>
     </LegisLayoutContext.Provider>
   );
 }

@@ -1,39 +1,60 @@
-# Accounts
+# Urbis Accounts (`@open-urbis/map-accounts`)
 
-Urbis Accounts handles user authentication and profile management.
+Aplicação frontend Angular responsável pela gestão de usuários, cadastro de representações legais, perfil, recuperação de credenciais e interface de autenticação do provedor OIDC.
 
-## Local Development with SSL
+---
 
-For full functionality (including OIDC/OAuth callbacks), it is recommended to run the Accounts app with SSL locally using the custom domain `conta.urbis.prefeitura.sp.gov.br`.
+## 🚀 Execução em Desenvolvimento
 
-### Prerequisites
+### Opção 1: Desenvolvimento com SSL Local e Domínio (Recomendado para OIDC)
 
-1.  **SSL Certificates**: You must have `conta.urbis.prefeitura.sp.gov.br.pem` and `conta.urbis.prefeitura.sp.gov.br-key.pem` in the root of `apps/accounts`.
-2.  **Hosts File**: Add the following entry to your `/etc/hosts` (macOS/Linux) or `C:\Windows\System32\drivers\etc\hosts` (Windows):
-    ```
-    127.0.0.1 conta.urbis.prefeitura.sp.gov.br
-    ```
+Para suporte completo a redirecionamentos OAuth/OIDC e cookies de sessão:
 
-### Running with SSL
+1. **Hosts**: Adicione a linha no seu `/etc/hosts` ou `C:\Windows\System32\drivers\etc\hosts`:
+   ```plaintext
+   127.0.0.1 conta.urbis.prefeitura.sp.gov.br
+   ```
 
-To start the Angular development server and the SSL proxy/redirect server simultaneously:
+2. **Gerar Certificados SSL**:
+   Gere os certificados na raiz de `apps/accounts`:
+   ```bash
+   mkcert -install
+   mkcert -key-file apps/accounts/conta.urbis.prefeitura.sp.gov.br-key.pem \
+          -cert-file apps/accounts/conta.urbis.prefeitura.sp.gov.br.pem \
+          conta.urbis.prefeitura.sp.gov.br localhost 127.0.0.1
+   ```
+
+3. **Iniciar com Proxy SSL**:
+   ```bash
+   pnpm --filter @open-urbis/map-accounts dev:ssl
+   # ou a partir da raiz do monorepo:
+   pnpm dev:ssl
+   ```
+
+Acesse em: `https://conta.urbis.prefeitura.sp.gov.br`
+
+### Opção 2: Desenvolvimento Padrão (Sem Proxy SSL)
 
 ```bash
-pnpm dev:ssl
+pnpm --filter @open-urbis/map-accounts dev
 ```
 
-This will:
-*   Start the Angular dev server on `http://localhost:4200`.
-*   Start a secure proxy server on `https://conta.urbis.prefeitura.sp.gov.br` (port 443).
+Acesse em: `http://localhost:4200`
 
-> **Note**: Since it binds to port 443, you may be prompted for your administrator password.
+---
 
-## Production Build
-
-To create a production build:
+## 🏗️ Build de Produção
 
 ```bash
-pnpm build:prod
+pnpm --filter @open-urbis/map-accounts build:prod
 ```
 
-The output will be available in `dist/accounts/browser`.
+Os arquivos de distribuição serão gerados em `dist/accounts/browser`.
+
+---
+
+## 🧪 Testes
+
+```bash
+pnpm --filter @open-urbis/map-accounts test
+```

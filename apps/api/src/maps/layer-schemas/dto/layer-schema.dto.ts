@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ClickActionEnum } from '@open-urbis/map-shared';
+import { ClickActionEnum } from '../enums/click-action.enum';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -76,6 +76,15 @@ class LayerSchemaColorDto {
   @IsOptional()
   @IsString()
   value?: string;
+
+  @ApiProperty({
+    example: 'https://legis.urbis.prefeitura.sp.gov.br/pages/zeu',
+    required: false,
+    description: 'URL pointing to the Legis normative definition page',
+  })
+  @IsOptional()
+  @IsString()
+  legisUrl?: string;
 }
 
 export class LayerSchemaDto {
@@ -117,6 +126,26 @@ export class LayerSchemaDto {
   })
   @IsBoolean()
   isSelected: boolean;
+
+  @ApiProperty({
+    description:
+      'Determines whether the layer is included in territorial intersection analysis',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  includeInAnalysis?: boolean;
+
+  @ApiProperty({
+    description:
+      'Determines whether the layer is included in FIU (Ficha de Informação Urbanística)',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  includeInFiu?: boolean;
 
   @ApiProperty({
     enum: LayerSchemaTypeEnum,
@@ -222,6 +251,27 @@ export class LayerSchemaDto {
   @IsOptional()
   @IsString()
   groupId?: string;
+
+  @ApiProperty({
+    example: true,
+    required: false,
+    description:
+      'Determines whether the layer is public or restricted to specific roles',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isPublic?: boolean;
+
+  @ApiProperty({
+    example: [],
+    required: false,
+    description:
+      'List of role IDs allowed to access this layer if isPublic is false',
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  allowedRoles?: string[];
 
   @ApiProperty({
     type: [LayerSchemaColorDto],

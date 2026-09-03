@@ -1,20 +1,27 @@
-import { Component, Input, Output, EventEmitter, HostBinding, forwardRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  HostBinding,
+  forwardRef,
+} from '@angular/core';
 import { hlm } from '../hlm/utils';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-    selector: 'hlm-switch',
-    standalone: true,
-    imports: [CommonModule],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => HlmSwitchComponent),
-            multi: true
-        }
-    ],
-    template: `
+  selector: 'hlm-switch',
+  standalone: true,
+  imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => HlmSwitchComponent),
+      multi: true,
+    },
+  ],
+  template: `
     <button
       type="button"
       role="switch"
@@ -33,28 +40,28 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   `,
 })
 export class HlmSwitchComponent implements ControlValueAccessor {
-    @Input() checked: boolean = false;
-    @Output() changed = new EventEmitter<boolean>();
+  @Input() checked: boolean = false;
+  @Output() changed = new EventEmitter<boolean>();
 
-    onChange: any = () => {};
-    onTouch: any = () => {};
+  onChange: any = () => {};
+  onTouch: any = () => {};
 
-    toggle() {
-        this.checked = !this.checked;
-        this.changed.emit(this.checked);
-        this.onChange(this.checked);
-        this.onTouch();
-    }
+  toggle() {
+    this.checked = !this.checked;
+    this.changed.emit(this.checked);
+    this.onChange(this.checked);
+    this.onTouch();
+  }
 
-    writeValue(value: boolean): void {
-        this.checked = !!value;
-    }
+  writeValue(value: boolean): void {
+    this.checked = !!value;
+  }
 
-    registerOnChange(fn: any): void {
-        this.onChange = fn;
-    }
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
 
-    registerOnTouched(fn: any): void {
-        this.onTouch = fn;
-    }
+  registerOnTouched(fn: any): void {
+    this.onTouch = fn;
+  }
 }

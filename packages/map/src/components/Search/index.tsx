@@ -15,10 +15,12 @@ import {
   Input,
   Switch,
   cn,
+  UrbisIcon,
 } from "@open-urbis/map-ui";
 import { useEffect, useState } from "preact/compat";
 import proj4 from "proj4";
 import { CLICK_ACTIONS_CONFIG } from "../../application-configs";
+import { calculateCenterId } from "../../utils/calculateCenterId";
 import { useAppLoading } from "../../hooks/useAppLoading";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
@@ -69,16 +71,26 @@ const convertFeatureToSirgas = (feature: any) => {
   return cloned;
 };
 
-export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu?: boolean, onMenuClick?: () => void, isMenuOpen?: boolean }) => {
+export const Search = ({
+  hideMenu = false,
+  onMenuClick,
+  isMenuOpen,
+}: {
+  hideMenu?: boolean;
+  onMenuClick?: () => void;
+  isMenuOpen?: boolean;
+}) => {
   const { toastInfo } = useToast();
-  const {
-    currentTerm,
-    searchConfig,
-    resetSearch,
-    searchQuery,
-  } = useSearchContext();
+  const { currentTerm, searchConfig, resetSearch, searchQuery } =
+    useSearchContext();
   const { toggleDrawer, drawerOpen, navigateTo } = useNavigationContext();
-  const { flyTo, digitalAddressFeature, layerSchemas, selectedBaseMap, overlayRef } = useMapContext();
+  const {
+    flyTo,
+    digitalAddressFeature,
+    layerSchemas,
+    selectedBaseMap,
+    overlayRef,
+  } = useMapContext();
   const { data, error, fetchData, clearResults, loading } = searchQuery;
   const clickActions = CLICK_ACTIONS_CONFIG();
   const { reset: resetPolygonEdit } = usePolygonEditContext();
@@ -101,7 +113,8 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
       /^[23456789BCDFGHJKLMNPQTVWXYZ]{3}-?[23456789BCDFGHJKLMNPQTVWXYZ]{4}$/i;
 
     // Regex for full address (prefix + suffix)
-    const digitalFullRegex = /^[+-]\d{1,2}[+-]\d{1,3}[23456789BCDFGHJKLMNPQTVWXYZ]{3}-?[23456789BCDFGHJKLMNPQTVWXYZ]{4}$/i;
+    const digitalFullRegex =
+      /^[+-]\d{1,2}[+-]\d{1,3}[23456789BCDFGHJKLMNPQTVWXYZ]{3}-?[23456789BCDFGHJKLMNPQTVWXYZ]{4}$/i;
 
     if (digitalPartialRegex.test(cleanTerm)) {
       const cleanSuffix = cleanTerm.toUpperCase().replace("-", "");
@@ -118,96 +131,100 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
     }
 
     if (isDigital) {
-        setIsLocalLoading(true);
-        try {
-          const decoded = decode(term);
-          const lat = decoded.latitude;
-          const lon = decoded.longitude;
-          const sourceType = "digital";
+      setIsLocalLoading(true);
+      try {
+        const decoded = decode(term);
+        const lat = decoded.latitude;
+        const lon = decoded.longitude;
+        const sourceType = "digital";
 
-          const p = getPolygon(term);
-          const lats = p.map(pt => pt.lat);
-          const lons = p.map(pt => pt.lon);
-          const minLat = Math.min(...lats);
-          const maxLat = Math.max(...lats);
-          const minLon = Math.min(...lons);
-          const maxLon = Math.max(...lons);
-          
+        const p = getPolygon(term);
+        const lats = p.map((pt) => pt.lat);
+        const lons = p.map((pt) => pt.lon);
+        const minLat = Math.min(...lats);
+        const maxLat = Math.max(...lats);
+        const minLon = Math.min(...lons);
+        const maxLon = Math.max(...lons);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const polygonCoords: any[] = [
+          [
+            [minLon, minLat],
+            [maxLon, minLat],
+            [maxLon, maxLat],
+            [minLon, maxLat],
+            [minLon, minLat],
+          ],
+        ];
+
+        // Construct FeatureCollection
+        const featureCollection = {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "Polygon",
+                coordinates: polygonCoords,
+              },
+              properties: { type: "polygon", sourceType },
+            },
+            {
+              type: "Feature",
+              geometry: {
+                type: "Point",
+                coordinates: [lon, lat],
+              },
+              properties: { type: "marker" },
+            },
+          ],
+        };
+
+        // Hide all layers
+        layerSchemas.value = layerSchemas.value.map((l) => ({
+          ...l,
+          isVisible: false,
+        }));
+
+        // Set feature and navigate
+        digitalAddressFeature.value = featureCollection;
+
+        const destination = {
+          center: [lon, lat],
+          zoom: 22,
+          pitch: 45,
+          bearing: 0,
+        };
+
+        const attemptFly = () => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const polygonCoords: any[] = [[
-              [minLon, minLat],
-              [maxLon, minLat],
-              [maxLon, maxLat],
-              [minLon, maxLat],
-              [minLon, minLat]
-          ]];
-
-          // Construct FeatureCollection
-          const featureCollection = {
-              type: "FeatureCollection",
-              features: [
-                  {
-                      type: "Feature",
-                      geometry: {
-                          type: "Polygon",
-                          coordinates: polygonCoords
-                      },
-                      properties: { type: "polygon", sourceType }
-                  },
-                  {
-                      type: "Feature",
-                      geometry: {
-                          type: "Point",
-                          coordinates: [lon, lat]
-                      },
-                      properties: { type: "marker" }
-                  }
-              ]
-          };
-
-          // Hide all layers
-          layerSchemas.value = layerSchemas.value.map(l => ({ ...l, isVisible: false }));
-
-          // Set feature and navigate
-          digitalAddressFeature.value = featureCollection;
-
-          const destination = {
-            center: [lon, lat],
-            zoom: 22,
-            pitch: 45,
-            bearing: 0,
-          };
-
-          const attemptFly = () => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (overlayRef.current && (overlayRef.current as any)._map) {
-              flyTo(destination);
-            } else {
-              setTimeout(attemptFly, 200);
-            }
-          };
-          attemptFly();
-
-          navigateTo(
-              <DigitalAddressDetails 
-                  latitude={lat} 
-                  longitude={lon} 
-                  sourceType={sourceType}
-              />
-          );
-
-          if (!drawerOpen.value) {
-            toggleDrawer();
+          if (overlayRef.current && (overlayRef.current as any)._map) {
+            flyTo(destination);
+          } else {
+            setTimeout(attemptFly, 200);
           }
-          
-          setIsLocalLoading(false);
-          return; // Skip standard fetch
+        };
+        attemptFly();
 
-        } catch (e) {
-            console.error("Error decoding digital address", e);
-            setIsLocalLoading(false);
-            // Fallback to standard search if decoding fails
+        navigateTo(
+          <DigitalAddressDetails
+            latitude={lat}
+            longitude={lon}
+            sourceType={sourceType}
+          />,
+        );
+
+        if (!drawerOpen.value) {
+          toggleDrawer();
         }
+
+        setIsLocalLoading(false);
+        return; // Skip standard fetch
+      } catch (e) {
+        console.error("Error decoding digital address", e);
+        setIsLocalLoading(false);
+        // Fallback to standard search if decoding fails
+      }
     }
 
     fetchData(term);
@@ -223,7 +240,6 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
     }
   };
 
-
   useEffect(() => {
     if (!isAppReady.value) return;
 
@@ -232,9 +248,9 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
     const p = query.get("p");
 
     if (p) {
-        // Handle Digital Address from URL
-        selectedBaseMap.value = "maxar-satellite";
-        handleSearch(p);
+      // Handle Digital Address from URL
+      selectedBaseMap.value = "maxar-satellite";
+      handleSearch(p);
     } else if (search && currentTerm.value !== search) {
       currentTerm.value = search;
       // O debounce cuidará do fetch
@@ -262,17 +278,33 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
       : layerSchema?.clickAction;
     const template = layerSchema?.viewTemplate ?? [];
 
-    if (!clickAction) return;
+    let lat = item.latitude;
+    let lon = item.longitude;
+    if ((isNaN(lat) || isNaN(lon) || lat === undefined || lon === undefined) && item.rawData) {
+      const [cLon, cLat] = calculateCenterId(item.rawData);
+      lon = cLon;
+      lat = cLat;
+    }
+
+    if (!clickAction) {
+      if (typeof lat === "number" && !isNaN(lat) && typeof lon === "number" && !isNaN(lon)) {
+        resetPolygonEdit();
+        flyTo({
+          center: [lon, lat],
+          zoom: 15,
+        });
+      }
+      return;
+    }
 
     const { action, params } = clickAction;
     const actionFn = clickActions[action as keyof typeof clickActions];
     if (actionFn) {
-      const { latitude, longitude, rawData } = item;
       resetPolygonEdit();
       actionFn(params, {
-        latitude,
-        longitude,
-        feature: rawData,
+        latitude: lat,
+        longitude: lon,
+        feature: item.rawData,
         template,
       });
     }
@@ -339,9 +371,11 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
                   }}
                   title="Ver JSON"
                 >
-                  <span className="material-symbols-outlined text-[14px]">
-                    data_object
-                  </span>
+                  <UrbisIcon
+                    name="data_object"
+                    className="text-[14px]"
+                    aria-hidden="true"
+                  />
                 </Button>
               </li>
             );
@@ -368,18 +402,24 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
             className="flex items-center gap-2"
           >
             {!hideMenu && (
-            <Button
-              variant="ghost"
-              size="icon"
-              type="button"
-              className="shrink-0 rounded-full h-10 w-10 hover:bg-accent"
-              onClick={onMenuClick || toggleDrawer}
-              title={(isMenuOpen ?? drawerOpen.value) ? "Recolher menu" : "Expandir menu"}
-            >
-              <span className="material-symbols-outlined text-base">
-                {(isMenuOpen ?? drawerOpen.value) ? "menu_open" : "menu"}
-              </span>
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                type="button"
+                className="shrink-0 rounded-full h-10 w-10 hover:bg-accent"
+                onClick={onMenuClick || toggleDrawer}
+                title={
+                  (isMenuOpen ?? drawerOpen.value)
+                    ? "Recolher menu"
+                    : "Expandir menu"
+                }
+              >
+                <UrbisIcon
+                  name={(isMenuOpen ?? drawerOpen.value) ? "menu_open" : "menu"}
+                  className="text-base"
+                  aria-hidden="true"
+                />
+              </Button>
             )}
 
             <div className="relative flex-1">
@@ -402,9 +442,11 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
                     clearResults();
                   }}
                 >
-                  <span className="material-symbols-outlined text-base text-muted-foreground">
-                    close
-                  </span>
+                  <UrbisIcon
+                    name="close"
+                    className="text-base text-muted-foreground"
+                    aria-hidden="true"
+                  />
                 </Button>
               )}
             </div>
@@ -418,9 +460,11 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
                   className="shrink-0 rounded-full h-10 w-10 border-input"
                   title="Configurações de busca"
                 >
-                  <span className="material-symbols-outlined text-base">
-                    tune
-                  </span>
+                  <UrbisIcon
+                    name="tune"
+                    className="text-base"
+                    aria-hidden="true"
+                  />
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md p-4">
@@ -475,13 +519,17 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
               disabled={loading || isLocalLoading}
             >
               {loading || isLocalLoading ? (
-                <span className="material-symbols-outlined text-base animate-spin">
-                  progress_activity
-                </span>
+                <UrbisIcon
+                  name="progress_activity"
+                  className="text-base animate-spin"
+                  aria-hidden="true"
+                />
               ) : (
-                <span className="material-symbols-outlined text-base">
-                  search
-                </span>
+                <UrbisIcon
+                  name="search"
+                  className="text-base"
+                  aria-hidden="true"
+                />
               )}
             </Button>
           </form>
@@ -536,9 +584,11 @@ export const Search = ({ hideMenu = false, onMenuClick, isMenuOpen }: { hideMenu
               onClick={handleCopyJson}
               className="gap-2 rounded-full px-8 shadow-md"
             >
-              <span className="material-symbols-outlined text-base">
-                content_copy
-              </span>
+              <UrbisIcon
+                name="content_copy"
+                className="text-base"
+                aria-hidden="true"
+              />
               Copiar GeoJSON
             </Button>
           </div>

@@ -20,13 +20,13 @@ O usuário deve estar logado com um acesso que possua permissão para acessar a 
 
 Após realizar o login, acesse a área administrativa clicando no botão **Administração**, localizado no canto superior direito do mapa.
 
-![Acessar área adm](/create-layer-schema/Acessar%20área%20adm.png)
+![Acessar área adm](/create-layer-schema/acessar-area-adm.png)
 
 ## Iniciando o Cadastro
 
 Na área administrativa, acesse o menu **Camadas** na barra lateral e clique no botão **Criar Camada**.
 
-![Cadastrar uma nova camada](/create-layer-schema/Cadastrar%20uma%20nova%20camada.png)
+![Cadastrar uma nova camada](/create-layer-schema/cadastrar-uma-nova-camada.png)
 
 ## Etapa 1: Seleção da Camada
 
@@ -37,7 +37,7 @@ No formulário de cadastro:
 3. Selecione a camada desejada na lista apresentada.
 4. Clique em **Próximo**.
 
-![Insira URL e selecione a camada](/create-layer-schema/Insira%20URL%20e%20selecione%20a%20camada.png)
+![Insira URL e selecione a camada](/create-layer-schema/insira-url-e-selecione-a-camada.png)
 
 ## Etapa 2: Configurações Gerais
 
@@ -55,8 +55,8 @@ Nesta etapa, você define como a camada será carregada e exibida.
 - **Visível por Padrão**: Se a camada já inicia ativada no mapa.
 
 <div className="grid grid-cols-2 gap-4">
-  <img src="/create-layer-schema/Configurar.png" alt="Configurar" />
-  <img src="/create-layer-schema/Configurar%20WFS.png" alt="Configurar WFS" />
+  <img src="/create-layer-schema/configurar.png" alt="Configurar" />
+  <img src="/create-layer-schema/configurar-wfs.png" alt="Configurar WFS" />
 </div>
 
 > **Nota**: O botão "Visualizar Camada" no canto superior direito permite pré-visualizar a camada no mapa durante esta etapa.
@@ -67,7 +67,7 @@ Disponível apenas para camadas vetoriais (WFS). Aqui você configura o template
 
 O template deve ser um array de objetos, configurado conforme a documentação de [Modelo de Visualização](/docs/general/mapa/view-template).
 
-![Configurar template](/create-layer-schema/Configurar%20template.png)
+![Configurar template](/create-layer-schema/configurar-template.png)
 
 ## Etapa 4: Cores e Estilos (Apenas Vetorial)
 
@@ -82,11 +82,11 @@ Você pode configurar:
 
 <div className="grid grid-cols-2 gap-4">
   <img
-    src="/create-layer-schema/Configurar%20cores.png"
+    src="/create-layer-schema/configurar-cores.png"
     alt="Configurar cores"
   />
   <img
-    src="/create-layer-schema/Configurar%20cor%20avançado.png"
+    src="/create-layer-schema/configurar-cor-avancado.png"
     alt="Configurar cor avançado"
   />
 </div>
@@ -97,14 +97,18 @@ Você pode configurar:
 
 Nesta etapa, configure o nome visual e a descrição das propriedades dos polígonos. Isso é útil para funcionalidades como a busca concatenada, facilitando a identificação dos dados pelo usuário final.
 
-![Mapear props](/create-layer-schema/Mapear%20props.png)
+![Mapear props](/create-layer-schema/mapear-props.png)
 
 ## Etapa 6: Revisão e Confirmação
 
 Revise todas as informações configuradas para a camada.
 
-![Revisar configs](/create-layer-schema/Revisar%20configs.png)
+![Revisar configs](/create-layer-schema/revisar-configs.png)
 
 Se tudo estiver correto, clique em **Confirmar e Salvar** para registrar a camada no banco de dados. A camada estará imediatamente disponível para visualização no mapa conforme as configurações de ativação e visibilidade.
 
 > Utilize o botão "Visualizar Camada" para uma última verificação antes de salvar.
+
+## Exclusão de Camadas
+
+Caso precise remover uma camada cadastrada, consulte o guia completo de [Excluir Camada (Mapa, GeoServer e Banco de Dados)](/docs/general/mapa/excluir-camada).

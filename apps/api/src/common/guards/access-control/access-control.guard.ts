@@ -7,6 +7,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { PERMISSIONS_KEY } from 'common/decorators/require-permissions/require-permissions.decorator';
@@ -26,6 +27,7 @@ export class AccessControlGuard
     private readonly roleService: RoleService,
 
     private readonly reflector: Reflector,
+    private readonly configService: ConfigService,
   ) {
     super();
   }
@@ -33,7 +35,7 @@ export class AccessControlGuard
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isValid = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();
-    if (!request?.user?.id || !request?.user?._id) return false;
+    if (!request?.user?.id && !request?.user?._id) return false;
 
     if (!isValid) {
       throw new UnauthorizedException('Invalid token.');
@@ -47,8 +49,15 @@ export class AccessControlGuard
       throw new UnauthorizedException('User is not found.');
     }
 
+    const defaultOrgId = this.configService.get<string>(
+      'admin.organization.id',
+    );
+    const organizationId = request.headers['x-organization-id'] as
+      | string
+      | undefined;
     const accessControl = new AccessControl(
-      await this.roleService.listUserRoles(user.id),
+      await this.roleService.listUserRoles(user.id, organizationId),
+      defaultOrgId,
     );
 
     const requiredOptions = this.reflector.get<AccessControlOptions>(
@@ -56,8 +65,25 @@ export class AccessControlGuard
       context.getHandler(),
     );
 
-    if (requiredOptions && !accessControl.hasPermission(requiredOptions))
-      throw new ForbiddenException('Insufficient permission');
+    if (requiredOptions) {
+      const organizationId = request.headers['x-organization-id'] as string;
+      const permissions = Array.isArray(requiredOptions.permissions)
+        ? requiredOptions.permissions
+        : [requiredOptions.permissions];
+
+      const scopedPermissions = permissions.map((p) => ({
+        ...p,
+        organizationId: p.organizationId ?? organizationId,
+      }));
+
+      const scopedOptions = {
+        ...requiredOptions,
+        permissions: scopedPermissions,
+      };
+
+      if (!accessControl.hasPermission(scopedOptions))
+        throw new ForbiddenException('Insufficient permission');
+    }
 
     request.user = user;
     request.accessControl = accessControl;

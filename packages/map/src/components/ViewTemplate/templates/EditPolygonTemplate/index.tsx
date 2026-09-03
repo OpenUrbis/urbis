@@ -28,7 +28,7 @@ const EditPolygonComponent = ({
       <PolygonDetails
         template={template?.polygonTemplate ?? editFeatureTemplate.value ?? []}
         rootTemplate={rootTemplate!}
-      />
+      />,
     );
   };
 

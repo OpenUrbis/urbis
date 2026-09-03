@@ -38,7 +38,7 @@ jobs:
         run: pnpm turbo run build --filter=@open-urbis/map-api
 
       - name: Turborepo Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             .turbo/cache
@@ -65,7 +65,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker Layers
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}

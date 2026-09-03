@@ -46,7 +46,7 @@ jobs:
 
       # Restore Turborepo cache before build, lint, and tests
       - name: Setup Turborepo cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             .turbo

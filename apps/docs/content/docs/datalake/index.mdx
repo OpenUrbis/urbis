@@ -14,39 +14,30 @@ O **Urbis Datalake** é a espinha dorsal de engenharia de dados geoespaciais e t
 
 ```mermaid
 graph TD
-    subgraph Fontes["Fontes Externas"]
+    subgraph "Fontes Externas"
         WFS["🌐 WFS GeoSampa"]
         ArcGIS["🗺️ ArcGIS Server REST"]
         CEDI["📜 CEDI Histórico"]
         Maxar["🛰️ Ortofotos Maxar"]
     end
 
-    subgraph Datalake["Orquestração (Dagster)"]
+    subgraph "Orquestração (Dagster)"
         Raw["📥 Camada Raw (MinIO GeoJSON / JSON)"]
         Bronze["🥉 Camada Bronze (Validação EPSG:4326/31983)"]
         Silver["🥈 Camada Silver (Higienização & Parquet)"]
-        GoldPG["🥇 Gold PostGIS (Tabelas Espaciais)"]
+        GoldPG["🥇 Gold PostGIS (Tabelas Espaciais & Índices GIST)"]
         GoldGS["🗺️ Gold GeoServer (Publicação WMS / WFS)"]
     end
 
-    subgraph Consumo["Consumo & Aplicações"]
+    subgraph "Consumo"
         Mapa["🗺️ Mapa Urbis (Deck.gl / MapLibre)"]
         API["🔌 Urbis Map API"]
         Viabiliza["📝 Viabiliza Workflows"]
     end
 
-    WFS --> Raw
-    ArcGIS --> Raw
-    CEDI --> Raw
-    Maxar --> Raw
-
-    Raw --> Bronze
-    Bronze --> Silver
-    Silver --> GoldPG
-    GoldPG --> GoldGS
-
-    GoldPG --> API
-    API --> Mapa
+    WFS & ArcGIS & CEDI & Maxar --> Raw
+    Raw --> Bronze --> Silver --> GoldPG --> GoldGS
+    GoldPG --> API --> Mapa
     GoldPG --> Viabiliza
 ```
 

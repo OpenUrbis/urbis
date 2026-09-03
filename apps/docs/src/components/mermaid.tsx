@@ -62,90 +62,54 @@ export function Mermaid({
       try {
         setError(null);
         const mermaid = (await import("mermaid")).default;
-        const isDark = resolvedTheme === "dark";
 
+        const isDark = resolvedTheme === "dark";
         mermaid.initialize({
           startOnLoad: false,
           securityLevel: "loose",
-          fontFamily:
-            "var(--font-sans, Inter, system-ui, -apple-system, sans-serif)",
-          theme: "base",
+          fontFamily: "inherit",
+          theme: isDark ? "dark" : "default",
           themeVariables: isDark
             ? {
-                darkMode: true,
-                background: "transparent",
-                mainBkg: "#0f172a",
-                primaryColor: "#1e293b",
+                primaryColor: "#2563eb",
                 primaryTextColor: "#f8fafc",
                 primaryBorderColor: "#3b82f6",
-                nodeBorder: "#3b82f6",
-                nodeTextColor: "#f8fafc",
-                lineColor: "#60a5fa",
+                lineColor: "#94a3b8",
                 secondaryColor: "#1e293b",
-                tertiaryColor: "#020817",
-                clusterBkg: "#0f172a80",
+                tertiaryColor: "#0f172a",
+                background: "#020817",
+                nodeBorder: "#334155",
+                mainBkg: "#0f172a",
+                clusterBkg: "#1e293b55",
                 clusterBorder: "#334155",
-                titleColor: "#93c5fd",
+                defaultLinkColor: "#94a3b8",
+                titleColor: "#f8fafc",
                 edgeLabelBackground: "#0f172a",
-                textColor: "#f8fafc",
-                actorTextColor: "#f8fafc",
-                actorBkg: "#1e293b",
-                actorBorder: "#3b82f6",
-                signalColor: "#60a5fa",
-                signalTextColor: "#f8fafc",
-                labelBoxBkgColor: "#1e293b",
-                labelBoxBorderColor: "#3b82f6",
-                labelTextColor: "#f8fafc",
-                loopTextColor: "#f8fafc",
-                noteBorderColor: "#3b82f6",
-                noteBkgColor: "#1e293b",
-                noteTextColor: "#f8fafc",
-                fontSize: "13px",
               }
             : {
-                darkMode: false,
-                background: "transparent",
-                mainBkg: "#ffffff",
-                primaryColor: "#f0f9ff",
+                primaryColor: "#3b82f6",
                 primaryTextColor: "#0f172a",
                 primaryBorderColor: "#2563eb",
-                nodeBorder: "#3b82f6",
-                nodeTextColor: "#0f172a",
-                lineColor: "#2563eb",
-                secondaryColor: "#f8fafc",
-                tertiaryColor: "#ffffff",
-                clusterBkg: "#f8fafc",
+                lineColor: "#64748b",
+                secondaryColor: "#f1f5f9",
+                tertiaryColor: "#f8fafc",
+                background: "#ffffff",
+                nodeBorder: "#cbd5e1",
+                mainBkg: "#f8fafc",
+                clusterBkg: "#f1f5f988",
                 clusterBorder: "#cbd5e1",
-                titleColor: "#1e40af",
+                defaultLinkColor: "#64748b",
+                titleColor: "#0f172a",
                 edgeLabelBackground: "#ffffff",
-                textColor: "#0f172a",
-                actorTextColor: "#0f172a",
-                actorBkg: "#f0f9ff",
-                actorBorder: "#2563eb",
-                signalColor: "#2563eb",
-                signalTextColor: "#0f172a",
-                labelBoxBkgColor: "#f0f9ff",
-                labelBoxBorderColor: "#2563eb",
-                labelTextColor: "#0f172a",
-                loopTextColor: "#0f172a",
-                noteBorderColor: "#2563eb",
-                noteBkgColor: "#f0f9ff",
-                noteTextColor: "#0f172a",
-                fontSize: "13px",
               },
-          flowchart: {
-            htmlLabels: true,
-            curve: "basis",
-            padding: 16,
-            nodeSpacing: 45,
-            rankSpacing: 45,
-          },
         });
 
+        // Use a unique diagram render ID for each run to avoid SVG collision
         const renderId = `${id}-${Date.now()}`;
         const { svg } = await mermaid.render(renderId, cleanChart);
 
         if (!isCancelled) {
+          // Ensure svg is responsive
           const cleanSvg = svg
             .replace(/<svg\s+id="[^"]*"/, `<svg id="${id}"`)
             .replace(
@@ -179,7 +143,7 @@ export function Mermaid({
     >
       <div className="flex items-center justify-between border-b border-fd-border bg-fd-muted/50 px-4 py-2 text-xs text-fd-muted-foreground">
         <span className="flex items-center gap-1.5 font-medium">
-          <Eye className="size-3.5 text-fd-primary" /> Diagrama
+          <Eye className="size-3.5 text-fd-primary" /> Diagrama Interativo
         </span>
         <div className="flex items-center gap-1">
           <button
@@ -230,7 +194,7 @@ export function Mermaid({
           <div className="flex flex-col gap-2 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-xs text-red-600 dark:text-red-400">
             <div className="flex items-center gap-2 font-medium">
               <AlertCircle className="size-4 shrink-0" />
-              <span>Falha na renderização do diagrama</span>
+              <span>Falha na renderização do diagrama Mermaid</span>
             </div>
             <p className="font-mono text-[11px] opacity-90">{error}</p>
             <details className="mt-2 text-fd-muted-foreground">
@@ -245,7 +209,7 @@ export function Mermaid({
         ) : svgHtml ? (
           <div
             ref={containerRef}
-            className="mermaid-wrapper flex justify-center items-center py-4 w-full transition-all overflow-x-auto"
+            className="flex justify-center items-center py-2 w-full [&_svg]:max-w-full [&_svg]:h-auto transition-all"
             // biome-ignore lint/security/noDangerouslySetInnerHtml: Sanitized SVG output from Mermaid library
             dangerouslySetInnerHTML={{ __html: svgHtml }}
           />

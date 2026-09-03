@@ -25,21 +25,21 @@ O ecossistema é distribuído em **3 clusters gerenciados**:
 
 ```mermaid
 graph TD
-    subgraph "Cluster Urbis (Workloads Web & APIs)"
+    subgraph ClusterUrbis["Cluster Urbis (Workloads Web & APIs)"]
         UrbisMapAPI["urbis-map-api (Namespace urbis-map)"]
         ViabilizaAPI["urbis-api / Viabiliza (Namespace urbis-workflows)"]
         Reports["reports-app (Certidões e Relatórios)"]
         ImgProxy["imgproxy (Processamento de Imagens)"]
     end
 
-    subgraph "Cluster SiiauDataLake (Engenharia de Dados)"
+    subgraph ClusterDataLake["Cluster SiiauDataLake (Engenharia de Dados)"]
         DLPg["PostGIS (urbis-datalake-postgresql-0)"]
         DagsterWeb["Dagster Webserver & GraphQL"]
         DagsterDaemon["Dagster Daemon (Schedulers)"]
         MinioDL["MinIO S3 Storage"]
     end
 
-    subgraph "Cluster slui-geoserver (Serviços OGC)"
+    subgraph ClusterGeoServer["Cluster slui-geoserver (Serviços OGC)"]
         GeoServer["GeoServer (Porta 8080 / Ingress geoserver.slui.dev)"]
     end
 ```

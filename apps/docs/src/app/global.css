@@ -157,3 +157,88 @@ html {
 #nd-sidebar-mobile {
   z-index: 100000;
 }
+
+/* =========================================================
+   Mermaid Flowcharts & Diagrams Clean Typography & Contrast
+   ========================================================= */
+.mermaid-wrapper svg {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.mermaid-wrapper .node foreignObject {
+  overflow: visible !important;
+}
+
+.mermaid-wrapper .node foreignObject div,
+.mermaid-wrapper .node text,
+.mermaid-wrapper .node .label,
+.mermaid-wrapper .node span {
+  color: #0f172a !important;
+  font-family: var(--font-sans, Inter, system-ui, sans-serif) !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.dark .mermaid-wrapper .node foreignObject div,
+.dark .mermaid-wrapper .node text,
+.dark .mermaid-wrapper .node .label,
+.dark .mermaid-wrapper .node span {
+  color: #f8fafc !important;
+}
+
+.mermaid-wrapper .cluster text,
+.mermaid-wrapper .cluster .label,
+.mermaid-wrapper .cluster span,
+.mermaid-wrapper .cluster-label,
+.mermaid-wrapper .cluster-title {
+  color: #1e40af !important;
+  fill: #1e40af !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  font-family: var(--font-sans, Inter, system-ui, sans-serif) !important;
+}
+
+.dark .mermaid-wrapper .cluster text,
+.dark .mermaid-wrapper .cluster .label,
+.dark .mermaid-wrapper .cluster span,
+.dark .mermaid-wrapper .cluster-label,
+.dark .mermaid-wrapper .cluster-title {
+  color: #93c5fd !important;
+  fill: #93c5fd !important;
+  font-weight: 600 !important;
+}
+
+.mermaid-wrapper .cluster rect,
+.mermaid-wrapper .cluster polygon {
+  rx: 12px !important;
+  ry: 12px !important;
+}
+
+.mermaid-wrapper .node rect,
+.mermaid-wrapper .node polygon {
+  rx: 8px !important;
+  ry: 8px !important;
+}
+
+.mermaid-wrapper .edgeLabel,
+.mermaid-wrapper .edgeLabel text,
+.mermaid-wrapper .edgeLabel span {
+  color: #475569 !important;
+  fill: #475569 !important;
+  font-size: 12px !important;
+}
+
+.dark .mermaid-wrapper .edgeLabel,
+.dark .mermaid-wrapper .edgeLabel text,
+.dark .mermaid-wrapper .edgeLabel span {
+  color: #94a3b8 !important;
+  fill: #94a3b8 !important;
+}

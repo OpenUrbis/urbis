@@ -168,7 +168,9 @@ export class MapConfigService {
         Buffer.isBuffer(responseJson) ||
         responseJson instanceof ArrayBuffer
       ) {
-        responseJson = JSON.parse(Buffer.from(responseJson).toString('utf-8'));
+        responseJson = JSON.parse(
+          Buffer.from(responseJson as any).toString('utf-8'),
+        );
       } else if (typeof responseJson === 'string') {
         responseJson = JSON.parse(responseJson);
       }

@@ -48,6 +48,7 @@ export class User extends BaseEntity {
   emailHashConfirm?: string;
 
   @Column({ nullable: true })
+  @Exclude({ toPlainOnly: true })
   otpSecret!: string;
 
   @Column({ default: false })

@@ -7,6 +7,7 @@ export const setupSwagger = (app: INestApplication) => {
   const options = new DocumentBuilder()
     .setTitle(config.get('app.name'))
     .setDescription(`API Documentation for ${config.get('app.name')}`)
+    .addBearerAuth()
     .addApiKey(
       {
         type: 'apiKey',

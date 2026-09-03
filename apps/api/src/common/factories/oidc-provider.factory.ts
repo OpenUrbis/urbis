@@ -48,7 +48,7 @@ export const oidcProviderFactory = (
     },
     findAccount: (ctx, id) => AccountProvider.findAccount(ctx, id, authService),
     loadExistingGrant: AccountProvider.loadExistingGrant,
-    jwks: jwks,
+    jwks: configService.get('auth.jwks') || jwks,
     ttl: {
       AccessToken: TTL,
       AuthorizationCode: 60, // 1 minute

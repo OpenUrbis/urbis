@@ -13,7 +13,6 @@ const TEST_CODE = '869562';
 
 const PREFIX_REDIS_EMAIL_OTP = 'USER_EMAIL_OTP';
 const algorithm = 'aes-256-ctr';
-const iv = crypto.randomBytes(16);
 
 @Injectable()
 export class TwoFactorService {
@@ -45,32 +44,28 @@ export class TwoFactorService {
     return true;
   }
 
+  private getEncryptionKey(): Buffer {
+    const rawKey: string =
+      this.configService.get('auth.twoFactorSecret') ||
+      '2FAsecret_fallback_key_32_bytes';
+    return crypto.createHash('sha256').update(rawKey).digest();
+  }
+
   private decrypt(encrypted: string) {
-    const encryptionKey: string = this.configService.get(
-      'auth.twoFactorSecret',
-    );
+    const key = this.getEncryptionKey();
     const parts = encrypted.split(':');
     const iv = Buffer.from(parts[0], 'hex');
     const encryptedText = parts[1];
-    const decipher = crypto.createDecipheriv(
-      algorithm,
-      Buffer.from(encryptionKey, 'hex'),
-      iv,
-    );
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
     let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
     return decrypted;
   }
 
   private encrypt(secret: string) {
-    const encryptionKey: string = this.configService.get(
-      'auth.twoFactorSecret',
-    );
-    const cipher = crypto.createCipheriv(
-      algorithm,
-      Buffer.from(encryptionKey, 'hex'),
-      iv,
-    );
+    const key = this.getEncryptionKey();
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
     let encrypted = cipher.update(secret, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     const encryptedData = iv.toString('hex') + ':' + encrypted;
@@ -124,15 +119,19 @@ export class TwoFactorService {
   }
 
   async resendEmailOtp(user: User) {
-    const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+    const code = String(crypto.randomInt(100000, 999999));
 
-    await this.redisService.set(`${PREFIX_REDIS_EMAIL_OTP}_${user.id}`, code);
+    // Save in Redis with 10-minute (600s) TTL
+    await this.redisService.set(
+      `${PREFIX_REDIS_EMAIL_OTP}_${user.id}`,
+      code,
+      600,
+    );
 
-    console.log('>>>>>>>>>>>> ', this.configService.get('mail.sendGridApiKey'));
     try {
       await this.mailService.sendOtpCode(code, user.email);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to send OTP email:', err);
     }
 
     if (this.configService.get('app.nodeEnv') !== 'production') return { code };

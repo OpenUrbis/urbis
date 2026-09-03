@@ -29,9 +29,6 @@ jobs:
       # Install pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: 9
-          run_install: false
 
       # Sets up Node.js with pnpm cache
       - name: Setup Node.js

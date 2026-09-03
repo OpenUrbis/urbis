@@ -18,10 +18,8 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
-        with:
-          version: 9
-          run_install: false
 
+      - name: Set Up Node
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:

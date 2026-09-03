@@ -5,7 +5,7 @@
 [![CI Pipeline](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Version](https://img.shields.io/github/v/release/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/releases)
-[![Contribute](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](docs/CONTRIBUTING.md)
+[![Contribute](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/pulls)
 
 **Urbis** is an open-source territorial and municipal management platform designed to empower city governments with high-performance geospatial mapping (GIS), urban data management, legislation tracking, and citizen service workflows.
@@ -13,8 +13,8 @@
 *O **Urbis** é uma plataforma de código aberto para gestão pública municipal e mapeamento territorial (GIS), permitindo a visualização de dados urbanos, gestão legislativa e processos administrativos voltados à transparência e tomada de decisão orientada a dados.*
 
 - 🌐 **Portal Público**: [mapa.urbis.prefeitura.sp.gov.br](https://mapa.urbis.prefeitura.sp.gov.br/)
-- 📖 **Documentação Completa**: [docs/](docs/) ou via aplicativo de documentação local (`apps/docs`).
-- 🛠️ **Guia de Instalação**: [docs/INSTALACAO.md](docs/INSTALACAO.md) (PT-BR) | [docs/INSTALLATION.md](docs/INSTALLATION.md) (EN).
+- 📖 **Documentação Completa**: [apps/docs](apps/docs) ou online em [docs.urbis.prefeitura.sp.gov.br](https://docs.urbis.prefeitura.sp.gov.br).
+- 🛠️ **Guia de Instalação**: [apps/docs/content/docs/general/development/setup.mdx](apps/docs/content/docs/general/development/setup.mdx).
 
 ---
 
@@ -80,7 +80,7 @@ pnpm dev
 ```
 
 > 🔐 **Autenticação OIDC & SSL Local no Accounts:**
-> Para executar o portal de contas com HTTPS local e suporte OIDC completo, consulte o [Guia de Instalação Detalhado](docs/INSTALACAO.md#7-certificados-ssl-e-domínio-local).
+> Para executar o portal de contas com HTTPS local e suporte OIDC completo, consulte o [Guia de Configuração](apps/docs/content/docs/general/development/setup.mdx#7-certificados-ssl-e-domínio-local-portal-de-contas) ou [apps/accounts/README.md](apps/accounts/README.md).
 
 ---
 
@@ -101,17 +101,18 @@ pnpm dev
 
 ## 📚 Documentação Adicional
 
-- 📖 [Guia de Instalação Completo (PT-BR)](docs/INSTALACAO.md)
-- 📖 [Installation & Setup Guide (EN)](docs/INSTALLATION.md)
-- 🏛️ [Arquitetura do Sistema](docs/ARCHITECTURE.md)
-- 🤝 [Como Contribuir](docs/CONTRIBUTING.md)
-- 📋 [Relatório de Homologação de Representações](docs/relatorio-testes-representacoes-cadastros.md)
+- 📖 [Guia de Instalação & Setup](apps/docs/content/docs/general/development/setup.mdx)
+- 🏛️ [Arquitetura do Sistema](apps/docs/content/docs/general/architecture/index.mdx)
+- 🤝 [Como Contribuir](CONTRIBUTING.md)
+- 📐 [Design System](apps/docs/content/docs/general/design-system/index.mdx)
+- 🗺️ [Gestão e Cadastro de Camadas](apps/docs/content/docs/general/mapa/index.mdx)
+- 🌊 [Datalake e Engenharia de Dados](apps/docs/content/docs/datalake/index.mdx)
 
 ---
 
 ## 🤝 Contribuições
 
-Contribuições são muito bem-vindas! Consulte o guia [CONTRIBUTING.md](docs/CONTRIBUTING.md) para detalhes sobre fluxo de branches, convenções de código e abertura de Pull Requests.
+Contribuições são muito bem-vindas! Consulte o guia [CONTRIBUTING.md](CONTRIBUTING.md) para detalhes sobre fluxo de branches, convenções de código e abertura de Pull Requests.
 
 ---
 

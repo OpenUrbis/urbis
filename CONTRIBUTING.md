@@ -65,4 +65,4 @@ Utilizamos o padrão de Conventional Commits para rastreabilidade e geração au
 ### Pull Requests Coesos
 - Mantenha cada PR focado em um único objetivo bem delimitado.
 - Sempre rode linter e testes antes de submeter: `pnpm lint` e `pnpm test`.
-- Certifique-se de que a pipeline de CI e o scanner do **Gitleaks** passem sem advertências.
+- Certifique-se de que a pipeline de CI e o scanner do **TruffleHog OSS** passem sem advertências.

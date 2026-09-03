@@ -3,18 +3,23 @@
 ![Capa do Repositório](apps/docs/public/cover.png)
 
 [![CI Pipeline](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml/badge.svg)](https://github.com/OpenUrbis/urbis-map/actions/workflows/lint-and-test.yaml)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Security Scan](https://img.shields.io/badge/Security-TruffleHog_OSS-success.svg)](https://github.com/trufflesecurity/trufflehog)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE.md)
 [![Version](https://img.shields.io/github/v/release/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/OpenUrbis/urbis-map?style=social)](https://github.com/OpenUrbis/urbis-map/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/OpenUrbis/urbis-map?style=social)](https://github.com/OpenUrbis/urbis-map/network/members)
 [![Contribute](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/pulls)
+[![GitHub issues](https://img.shields.io/github/issues/OpenUrbis/urbis-map)](https://github.com/OpenUrbis/urbis-map/issues)
 
 **Urbis** is an open-source territorial and municipal management platform designed to empower city governments with high-performance geospatial mapping (GIS), urban data management, legislation tracking, and citizen service workflows.
 
 *O **Urbis** é uma plataforma de código aberto para gestão pública municipal e mapeamento territorial (GIS), permitindo a visualização de dados urbanos, gestão legislativa e processos administrativos voltados à transparência e tomada de decisão orientada a dados.*
 
 - 🌐 **Portal Público**: [mapa.urbis.prefeitura.sp.gov.br](https://mapa.urbis.prefeitura.sp.gov.br/)
-- 📖 **Documentação Completa**: [apps/docs](apps/docs) ou online em [docs.urbis.prefeitura.sp.gov.br](https://docs.urbis.prefeitura.sp.gov.br).
-- 🛠️ **Guia de Instalação**: [apps/docs/content/docs/general/development/setup.mdx](apps/docs/content/docs/general/development/setup.mdx).
+- 📖 **Documentação Completa**: [`apps/docs`](apps/docs) ou online em [docs.urbis.prefeitura.sp.gov.br](https://docs.urbis.prefeitura.sp.gov.br)
+- 🛠️ **Guia de Instalação & Setup**: [`apps/docs/content/docs/general/development/setup.mdx`](apps/docs/content/docs/general/development/setup.mdx) | [Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/development/setup)
+- 🏛️ **Arquitetura & Módulos**: [`apps/docs/content/docs/general/architecture/index.mdx`](apps/docs/content/docs/general/architecture/index.mdx) | [Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/architecture)
 
 ---
 
@@ -101,12 +106,14 @@ pnpm dev
 
 ## 📚 Documentação Adicional
 
-- 📖 [Guia de Instalação & Setup](apps/docs/content/docs/general/development/setup.mdx)
-- 🏛️ [Arquitetura do Sistema](apps/docs/content/docs/general/architecture/index.mdx)
-- 🤝 [Como Contribuir](CONTRIBUTING.md)
-- 📐 [Design System](apps/docs/content/docs/general/design-system/index.mdx)
-- 🗺️ [Gestão e Cadastro de Camadas](apps/docs/content/docs/general/mapa/index.mdx)
-- 🌊 [Datalake e Engenharia de Dados](apps/docs/content/docs/datalake/index.mdx)
+- 📖 **Instalação e Ambiente:** [`apps/docs/content/docs/general/development/setup.mdx`](apps/docs/content/docs/general/development/setup.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/development/setup))
+- 🏛️ **Arquitetura do Sistema:** [`apps/docs/content/docs/general/architecture/index.mdx`](apps/docs/content/docs/general/architecture/index.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/architecture))
+- 🤝 **Como Contribuir:** [`CONTRIBUTING.md`](CONTRIBUTING.md) ([Guia Detalhado](apps/docs/content/docs/general/development/contributing.mdx))
+- 📐 **Design System:** [`apps/docs/content/docs/general/design-system/index.mdx`](apps/docs/content/docs/general/design-system/index.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/design-system))
+- 🗺️ **Gestão e Cadastro de Camadas:** [`apps/docs/content/docs/general/mapa/index.mdx`](apps/docs/content/docs/general/mapa/index.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/mapa))
+- 🌊 **Datalake e Engenharia de Dados:** [`apps/docs/content/docs/datalake/index.mdx`](apps/docs/content/docs/datalake/index.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/datalake))
+- ⚖️ **Legislação Territorial (Legis):** [`apps/docs/content/docs/legis/architecture.mdx`](apps/docs/content/docs/legis/architecture.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/legis))
+- 🔌 **Referência de APIs (OpenAPI):** [`apps/docs/content/docs/openapi/reference.mdx`](apps/docs/content/docs/openapi/reference.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/openapi/reference))
 
 ---
 
@@ -150,6 +157,12 @@ Agradecemos imensamente a todos que contribuem para tornar o Urbis uma ferrament
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+---
+
+## ⭐ Histórico de Estrelas (Star History)
+
+[![Star History Chart](https://api.star-history.com/svg?repos=OpenUrbis/urbis-map&type=Date)](https://star-history.com/#OpenUrbis/urbis-map&Date)
 
 ---
 

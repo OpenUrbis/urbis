@@ -780,7 +780,9 @@ export class ProxyController {
           error.response?.headers?.['content-type'] ||
           error.response?.headers?.['Content-Type'];
 
-        let contentType = upstreamContentType;
+        let contentType = upstreamContentType
+          ? String(upstreamContentType)
+          : '';
         if (!contentType) {
           if (Buffer.isBuffer(data) || typeof data === 'string') {
             const str = data.toString();
@@ -803,7 +805,7 @@ export class ProxyController {
 
         res
           .status(status)
-          .set('content-type', contentType)
+          .set('content-type', String(contentType))
           .send(data || error.message);
       } else {
         res

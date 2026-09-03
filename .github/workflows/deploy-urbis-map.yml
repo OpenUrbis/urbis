@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - master
+  # pull_request:
+  #   types: [opened, synchronize, reopened, closed]
+  #   branches:
+  #     - master
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     name: Build and Deploy urbis-map
     permissions:
@@ -57,15 +57,3 @@ jobs:
           output_location: ""
           skip_app_build: true
           ###### End of Configurations ######
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WONDERFUL_GRASS_0CFD53C10 }}
-          action: "close"

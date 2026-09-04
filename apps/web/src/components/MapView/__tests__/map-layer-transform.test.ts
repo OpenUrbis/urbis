@@ -236,10 +236,10 @@ describe("map-layer-transform", () => {
     expect(bottomGeoJson).toBeDefined();
     expect(topGeoJson).toBeDefined();
 
-    // Depth parameters for flat 2D layers (depthTest true with depthMask false to respect 3D occlusions while preventing overlay clipping)
-    expect(bottomGeoJson?.props.parameters?.depthTest).toBe(true);
+    // Depth parameters for flat 2D layers (depthTest & depthMask false to eliminate any depth buffer contention)
+    expect(bottomGeoJson?.props.parameters?.depthTest).toBe(false);
     expect(bottomGeoJson?.props.parameters?.depthMask).toBe(false);
-    expect(topGeoJson?.props.parameters?.depthTest).toBe(true);
+    expect(topGeoJson?.props.parameters?.depthTest).toBe(false);
     expect(topGeoJson?.props.parameters?.depthMask).toBe(false);
 
     // Polygon offset for bottom layer (index 0) vs top layer (index 1)

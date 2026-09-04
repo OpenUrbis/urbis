@@ -397,7 +397,7 @@ const prepareLayerProperties = (
         depthMask: true,
       }
     : {
-        depthTest: true,
+        depthTest: false,
         depthMask: false,
       };
 

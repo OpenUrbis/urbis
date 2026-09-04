@@ -56,6 +56,7 @@ export const GLOBAL_LAYER_NAMES_DE_PARA: Record<string, string> = {
   idesp_ambientais_paisagisticos_estadual: "Patrimônio Estadual — Bens Ambientais (IDESP)",
   idesp_bens_moveis_estadual: "Patrimônio Estadual — Bens Móveis (IDESP)",
   indicativo_area_construida_3d: "Edificações 3D (Área Construída)",
+  edificacoes_3d: "Edificações 3D (OpenStreetMap)",
   indicativo_funai: "Terras Indígenas (FUNAI)",
   indicativo_igc: "Limites Municipais (IGC)",
   limites_municipio: "Limites do Município",

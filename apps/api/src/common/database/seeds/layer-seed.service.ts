@@ -2,16 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LayerGroup } from '../../../maps/layer-groups/entities/layer-group.entity';
+import { LayerSchema } from '../../../maps/layer-schemas/entities/layer-schema.entity';
+import { LayerSchemaColors } from '../../../maps/layer-schemas/entities/layer-schema-color.entity';
+import {
+  LayerSchemaColorTypeEnum,
+  LayerSchemaTypeEnum,
+} from '../../../maps/layer-schemas/enums/layer-schema.enum';
 
 @Injectable()
 export class LayerSeedService {
   constructor(
     @InjectRepository(LayerGroup)
     private readonly layerGroupRepository: Repository<LayerGroup>,
+    @InjectRepository(LayerSchema)
+    private readonly layerSchemaRepository: Repository<LayerSchema>,
+    @InjectRepository(LayerSchemaColors)
+    private readonly layerSchemaColorsRepository: Repository<LayerSchemaColors>,
   ) {}
 
   async run(): Promise<void> {
-    console.info('Starting LayerGroup seeding...');
+    console.info('Starting LayerGroup and LayerSchema seeding...');
 
     // Seed LayerGroup
     const layerGroup: LayerGroup[] = [
@@ -113,6 +123,58 @@ export class LayerSeedService {
       console.error(`Query failed: ${error}`);
     }
 
-    console.info('LayerGroup database seeding completed.');
+    // Seed default 3D Buildings layer (OpenStreetMap building tiles)
+    const defaultLayerSchemas: Partial<LayerSchema>[] = [
+      {
+        id: 'edificacoes_3d',
+        name: 'Edificações 3D (OpenStreetMap)',
+        origin: 'https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf',
+        type: LayerSchemaTypeEnum.GeoJsonLayer,
+        isActive: true,
+        isVisible: false,
+        isSelected: false,
+        minZoom: 13,
+        groupId: 'infra_urb',
+        properties: {
+          source: 'openmaptiles',
+          sourceLayer: 'building',
+          sourceType: 'vector',
+          tiles: ['https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf'],
+          minZoom: 13,
+          maxZoom: 20,
+          extruded: true,
+          getElevation: 'height',
+          wireframe: false,
+          opacity: 0.85,
+        },
+      },
+    ];
+
+    try {
+      await this.layerSchemaRepository.upsert(defaultLayerSchemas, ['id']);
+      console.info(
+        `Seeded LayerSchema: ${defaultLayerSchemas.map((s) => s.id).join(', ')}`,
+      );
+
+      const existingColor = await this.layerSchemaColorsRepository.findOne({
+        where: { layerSchemaId: 'edificacoes_3d' },
+      });
+
+      if (!existingColor) {
+        await this.layerSchemaColorsRepository.save({
+          layerSchemaId: 'edificacoes_3d',
+          type: LayerSchemaColorTypeEnum.FILL,
+          label: 'Edificações',
+          value: 'default',
+          color: [203, 213, 225, 220],
+          pattern: 'full',
+        });
+        console.info('Seeded LayerSchemaColors for edificacoes_3d');
+      }
+    } catch (error) {
+      console.error(`LayerSchema seed failed: ${error}`);
+    }
+
+    console.info('LayerGroup and LayerSchema database seeding completed.');
   }
 }

@@ -453,7 +453,20 @@ export const MapView = ({
         }
       }
 
-      // Add 3D buildings extrusion layer if not present
+      // Add 3D buildings extrusion layer if not present (controlled via edificacoes_3d layer)
+      const edificacoesLayer = layerSchemas.value?.find(
+        (l) => l.id === "edificacoes_3d" || l.properties?.source === "openmaptiles",
+      );
+      const is3DBuildingsLayerActive = Boolean(
+        edificacoesLayer && (edificacoesLayer.isVisible ?? edificacoesLayer.isSelected),
+      );
+      const visibility = is3DBuildingsLayerActive ? "visible" : "none";
+      const b3dOpacity = is3DBuildingsLayerActive
+        ? (typeof edificacoesLayer?.properties?.opacity === "number"
+            ? edificacoesLayer.properties.opacity
+            : 0.85)
+        : 0;
+
       if (
         map.getSource("openmaptiles") &&
         !map.getLayer("openfreemap-3d-buildings") &&
@@ -467,7 +480,7 @@ export const MapView = ({
             "source-layer": "building",
             minzoom: 13,
             layout: {
-              visibility: is3DActive.value ? "visible" : "none",
+              visibility: visibility,
             },
             paint: {
               "fill-extrusion-color": [
@@ -503,7 +516,7 @@ export const MapView = ({
                 13.5,
                 ["coalesce", ["get", "render_min_height"], ["get", "min_height"], 0],
               ],
-              "fill-extrusion-opacity": 0.85,
+              "fill-extrusion-opacity": b3dOpacity,
               "fill-extrusion-vertical-gradient": true,
             },
           });
@@ -511,10 +524,6 @@ export const MapView = ({
           // Ignore if layer cannot be added
         }
       }
-
-      const is3D = is3DActive.value;
-      const visibility = is3D ? "visible" : "none";
-      const b3dOpacity = is3D ? 0.85 : 0;
 
       const flatBuildingLayerIds = [
         "building",
@@ -525,7 +534,11 @@ export const MapView = ({
       flatBuildingLayerIds.forEach((id) => {
         if (map.getLayer(id)) {
           try {
-            map.setLayoutProperty(id, "visibility", is3D ? "none" : "visible");
+            map.setLayoutProperty(
+              id,
+              "visibility",
+              is3DBuildingsLayerActive ? "none" : "visible",
+            );
           } catch {
             // Ignore
           }
@@ -755,10 +768,19 @@ export const MapView = ({
           }
         });
 
-        // Keep 3D building layers linked with baseMap3DOpacity control
-        const b3dOpacity = (baseMap3DOpacity?.value ?? 85) / 100;
-        const is3D = is3DActive.value && b3dOpacity > 0;
-        const visibility = is3D ? "visible" : "none";
+        // 3D building layers linked with edificacoes_3d layer in layerSchemas
+        const edificacoesLayer = layerSchemas.value?.find(
+          (l) => l.id === "edificacoes_3d" || l.properties?.source === "openmaptiles",
+        );
+        const is3DBuildingsLayerActive = Boolean(
+          edificacoesLayer && (edificacoesLayer.isVisible ?? edificacoesLayer.isSelected),
+        );
+        const b3dOpacity = is3DBuildingsLayerActive
+          ? (typeof edificacoesLayer?.properties?.opacity === "number"
+              ? edificacoesLayer.properties.opacity
+              : 0.85)
+          : 0;
+        const visibility = is3DBuildingsLayerActive ? "visible" : "none";
 
         localizeMapLabels(map);
 
@@ -771,7 +793,11 @@ export const MapView = ({
         flatBuildingLayerIds.forEach((id) => {
           if (map.getLayer(id)) {
             try {
-              map.setLayoutProperty(id, "visibility", is3D ? "none" : "visible");
+              map.setLayoutProperty(
+                id,
+                "visibility",
+                is3DBuildingsLayerActive ? "none" : "visible",
+              );
             } catch {
               // Ignore
             }
@@ -824,6 +850,7 @@ export const MapView = ({
     selectedBaseMap.value,
     selectedBaseMaps?.value,
     is3DActive.value,
+    layerSchemas.value,
   ]);
 
   useEffect(() => {

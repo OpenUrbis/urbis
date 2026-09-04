@@ -893,13 +893,13 @@ const BaseMapsPanel = ({ onOpenOptions }: BaseMapsPanelProps) => {
         description="Escolha a referência visual de fundo e configure a visualização 3D e ajustes visuais."
       />
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
-        {/* Controles rápidos compactos: 3D e Sobrepor */}
-        <div className="grid grid-cols-2 gap-2 text-xs">
+        {/* Controles: 3D e Sobrepor em linhas separadas */}
+        <div className="space-y-2 text-xs">
           <label
             htmlFor="3d-mode-panel"
-            className="flex items-center justify-between gap-1.5 rounded-xl border bg-muted/20 px-3 py-2 cursor-pointer hover:bg-muted/40 transition-colors select-none"
+            className="flex items-center justify-between gap-2 rounded-xl border bg-muted/20 px-3 py-2.5 cursor-pointer hover:bg-muted/40 transition-colors select-none"
           >
-            <span className="flex items-center gap-1.5 font-medium truncate">
+            <span className="flex items-center gap-2 font-medium">
               <UrbisIcon
                 name="view_in_ar"
                 className="text-muted-foreground text-base shrink-0"
@@ -911,27 +911,25 @@ const BaseMapsPanel = ({ onOpenOptions }: BaseMapsPanelProps) => {
               id="3d-mode-panel"
               checked={is3DActive.value}
               onCheckedChange={(checked) => (is3DActive.value = checked)}
-              className="scale-90"
             />
           </label>
 
           <label
             htmlFor="multi-base-mode-lc"
-            className="flex items-center justify-between gap-1.5 rounded-xl border bg-muted/20 px-3 py-2 cursor-pointer hover:bg-muted/40 transition-colors select-none"
+            className="flex items-center justify-between gap-2 rounded-xl border bg-muted/20 px-3 py-2.5 cursor-pointer hover:bg-muted/40 transition-colors select-none"
           >
-            <span className="flex items-center gap-1.5 font-medium truncate">
+            <span className="flex items-center gap-2 font-medium">
               <UrbisIcon
                 name="layers"
                 className="text-muted-foreground text-base shrink-0"
                 aria-hidden="true"
               />
-              Sobrepor mapas
+              Sobrepor mapas base
             </span>
             <Switch
               id="multi-base-mode-lc"
               checked={isMultiSelect.value}
               onCheckedChange={handleMultiSelectChange}
-              className="scale-90"
             />
           </label>
         </div>

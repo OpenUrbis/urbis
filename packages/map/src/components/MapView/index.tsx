@@ -631,8 +631,6 @@ export const MapView = ({
               });
 
               singleSpec.layers.forEach((l: any) => {
-                if (l.type === "background") return;
-
                 const layerId = `${prefix}${l.id}`;
                 if (!map.getLayer(layerId)) {
                   const opacityVal = opacitiesMap[styleId] ?? 100;
@@ -647,19 +645,33 @@ export const MapView = ({
                     : undefined;
 
                   try {
-                    map.addLayer(
-                      {
-                        ...l,
-                        id: layerId,
-                        source: `${prefix}${l.source}`,
-                        paint: {
-                          ...l.paint,
-                          "raster-opacity": normOpacity,
-                          "raster-saturation": normSat,
+                    if (l.type === "background") {
+                      map.addLayer(
+                        {
+                          ...l,
+                          id: layerId,
+                          paint: {
+                            ...l.paint,
+                            "background-opacity": normOpacity,
+                          },
                         },
-                      },
-                      beforeLayerId,
-                    );
+                        beforeLayerId,
+                      );
+                    } else if (l.type === "raster") {
+                      map.addLayer(
+                        {
+                          ...l,
+                          id: layerId,
+                          source: `${prefix}${l.source}`,
+                          paint: {
+                            ...l.paint,
+                            "raster-opacity": normOpacity,
+                            "raster-saturation": normSat,
+                          },
+                        },
+                        beforeLayerId,
+                      );
+                    }
                   } catch {
                     // Ignore
                   }

@@ -87,16 +87,16 @@ export const BaseMapSelector = () => {
       </CardHeader>
 
       <CardContent className="p-3 pt-0 grid gap-2.5">
-        {/* Controles rápidos compactos: 3D e Sobrepor */}
-        <div className="grid grid-cols-2 gap-2 text-xs">
+        {/* Controles: 3D e Sobrepor em linhas separadas */}
+        <div className="space-y-1.5 text-xs">
           <label
             htmlFor="3d-mode"
-            className="flex items-center justify-between gap-1.5 rounded-lg border bg-muted/20 px-2.5 py-1.5 cursor-pointer hover:bg-muted/40 transition-colors select-none"
+            className="flex items-center justify-between gap-2 rounded-lg border bg-muted/20 px-3 py-2 cursor-pointer hover:bg-muted/40 transition-colors select-none"
           >
-            <span className="flex items-center gap-1.5 font-medium truncate">
+            <span className="flex items-center gap-2 font-medium">
               <UrbisIcon
                 name="view_in_ar"
-                className="text-muted-foreground text-sm shrink-0"
+                className="text-muted-foreground text-base shrink-0"
                 aria-hidden="true"
               />
               Edificações 3D
@@ -105,27 +105,25 @@ export const BaseMapSelector = () => {
               id="3d-mode"
               checked={is3DActive.value}
               onCheckedChange={(checked) => (is3DActive.value = checked)}
-              className="scale-90"
             />
           </label>
 
           <label
             htmlFor="multi-base-mode"
-            className="flex items-center justify-between gap-1.5 rounded-lg border bg-muted/20 px-2.5 py-1.5 cursor-pointer hover:bg-muted/40 transition-colors select-none"
+            className="flex items-center justify-between gap-2 rounded-lg border bg-muted/20 px-3 py-2 cursor-pointer hover:bg-muted/40 transition-colors select-none"
           >
-            <span className="flex items-center gap-1.5 font-medium truncate">
+            <span className="flex items-center gap-2 font-medium">
               <UrbisIcon
                 name="layers"
-                className="text-muted-foreground text-sm shrink-0"
+                className="text-muted-foreground text-base shrink-0"
                 aria-hidden="true"
               />
-              Sobrepor mapas
+              Sobrepor mapas base
             </span>
             <Switch
               id="multi-base-mode"
               checked={isMultiSelect.value}
               onCheckedChange={handleMultiSelectChange}
-              className="scale-90"
             />
           </label>
         </div>

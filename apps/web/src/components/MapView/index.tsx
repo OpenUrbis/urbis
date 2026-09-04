@@ -10,6 +10,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  UrbisIcon,
   cn,
 } from "@open-urbis/map-ui";
 import { ClickActionEnum } from "@open-urbis/map-shared";
@@ -21,7 +22,11 @@ import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
 import { useAuth } from "@open-urbis/map-auth";
 import { LayerController } from "../LayerController";
 import { DeckGLOverlay } from "./DeckGLOverlay";
-import { addMapControls } from "./map-controls";
+import {
+  addMapControls,
+  mapImageControl,
+  activeImageRasterState,
+} from "./map-controls";
 import { transformSchemaLayers } from "./map-layer-transform";
 import { useTheme } from "../ThemeProvider";
 
@@ -1231,6 +1236,198 @@ export const MapView = ({
     toastSuccess("Camada criada e adicionada ao mapa com sucesso!");
   };
 
+  const createLayerFromImage = () => {
+    const control = mapImageControl.current;
+    if (!control) return;
+
+    const currentRaster =
+      control.currentRaster ||
+      (activeImageRasterState.activeRasterId.value
+        ? control.rasters[activeImageRasterState.activeRasterId.value]
+        : Object.values(control.rasters || {})[0]);
+
+    if (!currentRaster) return;
+
+    const layerId = `image-${Date.now()}`;
+    const layerName = `Imagem ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+
+    const coords = currentRaster.coordinates;
+    const deckBounds = [coords[3], coords[0], coords[1], coords[2]];
+
+    const newLayer: IGetConfigLayerSchema = {
+      id: layerId,
+      name: layerName,
+      origin: currentRaster.src,
+      isActive: true,
+      isSelected: true,
+      type: IGetConfigLayerSchemaTypeEnum.BitmapLayer,
+      isVisible: true,
+      groupId: "drawings",
+      layerGroup: {
+        id: "drawings",
+        name: "Desenhos e Imagens",
+      },
+      colors: [
+        {
+          id: Date.now(),
+          type: "fill",
+          color: [255, 255, 255, 255],
+          label: "Tonalidade",
+          value: "default",
+          layerSchemaId: layerId,
+          pattern: "full",
+        },
+      ],
+      clickAction: { action: ClickActionEnum.SelectFeature as any, params: {} },
+      properties: {
+        image: currentRaster.src,
+        bounds: deckBounds,
+        boundsFormat: "deckgl",
+        opacity: 1.0,
+        tintColor: [255, 255, 255],
+        desaturate: 0,
+        supportsVisualCustomization: true,
+        metadata: {
+          description:
+            "Camada de imagem inserida pelo usuário e renderizada via Deck.gl",
+        },
+      },
+    };
+
+    const currentGroups = layerGroups?.value || [];
+    if (!currentGroups.some((g) => g.id === "drawings")) {
+      layerGroups.value = [
+        ...currentGroups,
+        {
+          id: "drawings",
+          name: "Desenhos e Imagens",
+          ownerGroup: "local",
+          childGroups: [],
+        },
+      ];
+    }
+
+    layerSchemas.value = [...layerSchemas.value, newLayer];
+
+    try {
+      control.selectRaster(currentRaster.id);
+      control.removeRaster();
+    } catch (e) {
+      console.warn("Could not cleanly remove temporary raster", e);
+    }
+
+    activeImageRasterState.activeRasterId.value = null;
+    activeImageRasterState.activeMode.value = null;
+    toastSuccess("Imagem transformada em camada do Deck.gl com sucesso!");
+  };
+
+  const imageControlsButton = () => {
+    const control = mapImageControl.current;
+    const activeMode = activeImageRasterState.activeMode.value;
+
+    const setMode = (mode: "move" | "scale" | "rotate") => {
+      if (!control) return;
+      try {
+        control.setMode(mode);
+      } catch (err) {
+        console.warn("Error setting image mode", err);
+      }
+    };
+
+    const removeImage = () => {
+      if (!control) return;
+      try {
+        control.removeRaster();
+      } catch (err) {
+        console.warn("Error removing raster", err);
+      }
+      activeImageRasterState.activeRasterId.value = null;
+      activeImageRasterState.activeMode.value = null;
+    };
+
+    return (
+      <div className="urbis-image-layer absolute bottom-24 right-4 z-[999999] flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 pointer-events-auto">
+        <Button
+          variant="outline"
+          size="sm"
+          title="Remover imagem do mapa"
+          className="rounded-full shadow-lg h-10 px-3 bg-background/95 backdrop-blur border text-xs gap-1.5 hover:bg-destructive/10 hover:text-destructive transition-colors"
+          onClick={removeImage}
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+          <span>Remover</span>
+        </Button>
+
+        <Button
+          variant={activeMode === "move" ? "secondary" : "outline"}
+          size="sm"
+          title="Mover imagem no mapa"
+          className={cn(
+            "rounded-full shadow-lg h-10 px-3 bg-background/95 backdrop-blur border text-xs gap-1.5",
+            activeMode === "move" &&
+              "border-primary bg-primary/10 text-primary font-semibold",
+          )}
+          onClick={() => setMode("move")}
+        >
+          <UrbisIcon
+            name="open_with"
+            className="text-base"
+            aria-hidden="true"
+          />
+          <span>Mover</span>
+        </Button>
+
+        <Button
+          variant={activeMode === "scale" ? "secondary" : "outline"}
+          size="sm"
+          title="Ajustar tamanho da imagem"
+          className={cn(
+            "rounded-full shadow-lg h-10 px-3 bg-background/95 backdrop-blur border text-xs gap-1.5",
+            activeMode === "scale" &&
+              "border-primary bg-primary/10 text-primary font-semibold",
+          )}
+          onClick={() => setMode("scale")}
+        >
+          <UrbisIcon
+            name="zoom_out_map"
+            className="text-base"
+            aria-hidden="true"
+          />
+          <span>Tamanho</span>
+        </Button>
+
+        <Button
+          variant={activeMode === "rotate" ? "secondary" : "outline"}
+          size="sm"
+          title="Girar imagem"
+          className={cn(
+            "rounded-full shadow-lg h-10 px-3 bg-background/95 backdrop-blur border text-xs gap-1.5",
+            activeMode === "rotate" &&
+              "border-primary bg-primary/10 text-primary font-semibold",
+          )}
+          onClick={() => setMode("rotate")}
+        >
+          <UrbisIcon
+            name="rotate_right"
+            className="text-base"
+            aria-hidden="true"
+          />
+          <span>Girar</span>
+        </Button>
+
+        <Button
+          size="sm"
+          title="Transformar esta imagem em uma camada permanente do Deck.gl"
+          className="rounded-full shadow-lg h-10 px-4 text-xs font-bold gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
+          onClick={createLayerFromImage}
+        >
+          <Layers className="h-4 w-4" />
+          <span>Transformar em camada</span>
+        </Button>
+      </div>
+    );
+  };
+
   const handleMapClickFallback = (evt: MapClickEventLike) => {
     if (isRulerActiveRef.current) return;
 
@@ -1882,6 +2079,8 @@ export const MapView = ({
         !minimalPreview &&
         (isEditing.value ? (
           saveButton()
+        ) : activeImageRasterState.activeRasterId.value ? (
+          imageControlsButton()
         ) : (
           <LayerController
             hideManager={hideLayerManager}

@@ -17,7 +17,10 @@ import {
   DEFAULT_LAYER_FORM_COLOR,
   DEFAULT_LAYER_LINE_WIDTH,
 } from "../../lib/layer-style-defaults";
-import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
+import {
+  IGetConfigLayerSchema,
+  IGetConfigLayerSchemaTypeEnum,
+} from "../../types/fetch-map-config-type";
 import {
   buildLayerSchema,
   LayerSchemaFormSchema,
@@ -40,7 +43,7 @@ export const buildLayerVisualFormDefaults = (
 
   return {
     url: parsed.url,
-    loadingMethod: "CustomWMSLayer",
+    loadingMethod: (layer.type || parsed.loadingMethod || "CustomWMSLayer") as any,
     version: "1.3.0",
     srs: "EPSG:3857",
     groupId: "geral",
@@ -78,11 +81,29 @@ export const mergeLayerWithVisualFormValues = (
   const schema = buildLayerSchema(formValues);
 
   const nextName = formValues.layerName?.trim() || layer.name;
+  const isBitmapLayer =
+    layer.type === "BitmapLayer" ||
+    layer.type === IGetConfigLayerSchemaTypeEnum.BitmapLayer;
+
+  const primaryColor = schema.colors?.[0]?.color;
+  const bitmapProperties =
+    isBitmapLayer && primaryColor
+      ? {
+          opacity:
+            primaryColor[3] !== undefined
+              ? primaryColor[3] > 1
+                ? primaryColor[3] / 255
+                : primaryColor[3]
+              : (layer.properties?.opacity ?? 1),
+          tintColor: [primaryColor[0], primaryColor[1], primaryColor[2]],
+        }
+      : {};
 
   return {
     ...layer,
     ...schema,
     id: layer.id,
+    type: layer.type || schema.type,
     name: nextName,
     origin: layer.origin,
     groupId: layer.groupId,
@@ -94,6 +115,7 @@ export const mergeLayerWithVisualFormValues = (
     properties: {
       ...(layer.properties || {}),
       ...(schema.properties || {}),
+      ...bitmapProperties,
     },
   } as unknown as IGetConfigLayerSchema;
 };

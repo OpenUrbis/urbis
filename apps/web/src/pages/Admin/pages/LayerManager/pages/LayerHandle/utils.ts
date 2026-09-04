@@ -621,6 +621,7 @@ export const buildLayerSchema = (data: LayerSchemaFormValues) => {
   let type = "GeoJsonLayer";
   if (loadingMethod === "CustomWMSLayer") type = "CustomWMSLayer";
   if (loadingMethod === "Stream") type = "Stream";
+  if (loadingMethod === "BitmapLayer") type = "BitmapLayer";
 
   let clickActionObj = undefined;
   if (clickAction && clickAction !== "none") {
@@ -1064,6 +1065,7 @@ export const parseLayerSchemaToForm = (
   let loadingMethod = "GeoJsonLayer";
   if (type === "CustomWMSLayer") loadingMethod = "CustomWMSLayer";
   if (type === "Stream") loadingMethod = "Stream";
+  if (type === "BitmapLayer") loadingMethod = "BitmapLayer";
 
   let formClickAction = "none";
   let formClickActionParams = {};

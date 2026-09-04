@@ -26,7 +26,7 @@ interface UploadLayerProps {
 }
 
 export const UploadLayer = ({ onBack, onClose }: UploadLayerProps) => {
-  const { layerSchemas, layerGroups } = useMapContext();
+  const { layerSchemas, layerGroups, boundingBox } = useMapContext();
   const file = useSignal<File | null>(null);
   const loading = useSignal(false);
   const error = useSignal("");
@@ -71,6 +71,72 @@ export const UploadLayer = ({ onBack, onClose }: UploadLayerProps) => {
     error.value = "";
 
     try {
+      const isImage =
+        file.value.type.startsWith("image/") ||
+        /\.(png|jpe?g|webp|svg|gif|bmp|tiff?)$/i.test(file.value.name);
+
+      if (isImage) {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file.value!);
+        });
+
+        const bbox = boundingBox?.value;
+        const bounds = bbox
+          ? [
+              [bbox[0], bbox[1]],
+              [bbox[0], bbox[3]],
+              [bbox[2], bbox[3]],
+              [bbox[2], bbox[1]],
+            ]
+          : [
+              [-46.66, -23.57],
+              [-46.66, -23.53],
+              [-46.62, -23.53],
+              [-46.62, -23.57],
+            ];
+
+        const layerId = `image-${Date.now()}`;
+        const newLayer: IGetConfigLayerSchema = {
+          id: layerId,
+          name: file.value.name.replace(/\.[^/.]+$/, ""),
+          origin: dataUrl,
+          isActive: true,
+          isSelected: true,
+          type: IGetConfigLayerSchemaTypeEnum.BitmapLayer,
+          isVisible: true,
+          groupId: selectedGroupId.value,
+          colors: [
+            {
+              id: Date.now(),
+              type: "fill",
+              color: [255, 255, 255, 255],
+              label: "Tonalidade",
+              value: "default",
+              layerSchemaId: layerId,
+              pattern: "full",
+            },
+          ],
+          clickAction: { action: "info" as any, params: {} },
+          properties: {
+            metadata: {
+              description: "Camada de imagem enviada pelo usuário (Deck.gl)",
+            },
+            image: dataUrl,
+            bounds,
+            boundsFormat: "deckgl",
+            opacity: 1.0,
+            tintColor: [255, 255, 255],
+            supportsVisualCustomization: true,
+          },
+        };
+
+        pendingSchema.value = newLayer;
+        return;
+      }
+
       const geoJson = await transformFileToJson(file.value);
 
       const layerId = `upload-${Date.now()}`;
@@ -133,15 +199,15 @@ export const UploadLayer = ({ onBack, onClose }: UploadLayerProps) => {
       {!pendingSchema.value ? (
         <div className="grid w-full gap-3">
           <div className="grid gap-1.5">
-            <Label htmlFor="geojson">Arquivo GeoJSON</Label>
+            <Label htmlFor="geojson">Arquivo GeoJSON ou Imagem</Label>
             <Input
               id="geojson"
               type="file"
-              accept=".geojson,.json"
+              accept=".geojson,.json,image/*,.png,.jpg,.jpeg,.webp,.svg"
               onChange={handleFileChange}
             />
             <p className="text-xs text-muted-foreground">
-              Formato suportado: .geojson ou .json, até 400MB.
+              Formatos suportados: .geojson, .json ou imagens (.png, .jpg, .webp, .svg), até 400MB.
             </p>
           </div>
 

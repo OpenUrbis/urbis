@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useState, useRef } from "preact/hooks";
 import { useSignal } from "@preact/signals";
 import { Button, Input, UrbisIcon } from "@open-urbis/map-ui";
 import {
@@ -8,21 +8,26 @@ import {
   Search,
   CheckCircle2,
   Info,
+  Image as ImageIcon,
 } from "lucide-react";
 import proj4 from "proj4";
 import { useMapContext } from "../../hooks/useMapContext";
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { usePolygonEditContext } from "../../hooks/usePolygonEditContext";
+import { useToast } from "../../hooks/useToast";
 import { transformFileToJson } from "../../utils/transformFileToJson";
 import { getGeoJsonBounds } from "../MapView/utils";
+import { mapImageControl } from "../MapView/map-controls";
 
 export const DrawingWorkflowPanel = () => {
   const file = useSignal<File | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const crs = useSignal<"EPSG:4674" | "EPSG:4326" | "EPSG:31983">("EPSG:31983");
   const error = useSignal("");
   const polygonEdit = usePolygonEditContext();
   const { flyTo } = useMapContext();
   const { clearCurrentPage } = useNavigationContext();
+  const { toastSuccess } = useToast();
 
   const [mode, setMode] = useState<"options" | "import">("options");
 
@@ -32,6 +37,31 @@ export const DrawingWorkflowPanel = () => {
     polygonEdit.drawRef.current?.deleteAll();
     polygonEdit.drawRef.current?.changeMode("draw_polygon");
     clearCurrentPage();
+  };
+
+  const handleImageSelect = async (e: any) => {
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+
+    if (!mapImageControl.current) {
+      error.value = "Controle de imagem do mapa não inicializado.";
+      return;
+    }
+
+    try {
+      const control = mapImageControl.current;
+      const imageId = await control.addFile(selected);
+      if (imageId) {
+        control.selectRaster(imageId);
+      }
+      clearCurrentPage();
+      toastSuccess(
+        "Imagem inserida! Ajuste a posição no mapa e clique em 'Transformar em camada'.",
+      );
+    } catch (err) {
+      console.error("Erro ao inserir imagem", err);
+      error.value = "Falha ao carregar a imagem selecionada.";
+    }
   };
 
   const selectedExample =
@@ -178,12 +208,31 @@ export const DrawingWorkflowPanel = () => {
 
             {/* Primary Action Button */}
             <div className="space-y-2 pt-1">
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageSelect}
+              />
+
               <Button
                 className="w-full text-xs font-bold h-9 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
                 onClick={startDrawing}
               >
                 <PenTool className="mr-2 h-4 w-4" />
                 Começar desenho no mapa
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => imageInputRef.current?.click()}
+                title="Inserir imagem sobre o mapa para transformar em camada"
+              >
+                <ImageIcon className="mr-2 h-3.5 w-3.5 text-primary" />
+                Sobrepor imagem no mapa
               </Button>
 
               <Button

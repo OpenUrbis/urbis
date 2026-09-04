@@ -63,6 +63,7 @@ export enum IGetConfigLayerSchemaTypeEnum {
   Stream = "Stream",
   CustomWMSLayer = "CustomWMSLayer",
   GeoJsonLayer = "GeoJsonLayer",
+  BitmapLayer = "BitmapLayer",
 }
 
 export interface IGetConfigLayerSchemaClickAction {

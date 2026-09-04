@@ -1,5 +1,5 @@
 import { TileLayer } from "@deck.gl/geo-layers";
-import { GeoJsonLayer } from "@deck.gl/layers";
+import { BitmapLayer, GeoJsonLayer } from "@deck.gl/layers";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { Signal } from "@preact/signals";
 import React from "react";
@@ -46,12 +46,14 @@ export type MapContextLayerSchemaType =
   | "TileLayer"
   | "GeoJsonLayer"
   | "CustomWMSLayer"
-  | "Stream";
+  | "Stream"
+  | "BitmapLayer";
 
 export type MapContextRenderedLayer =
   | TileLayer
   | GeoJsonLayer
   | CustomWMSLayer
+  | BitmapLayer
   | null;
 
 export type MapContextLayerSchemaTypeMapProps = {

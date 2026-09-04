@@ -12,6 +12,7 @@ import maplibregl from "maplibre-gl";
 import "mapbox-gl-style-switcher/styles.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { encode } from "@open-urbis/endereco-digital";
+import { signal } from "@preact/signals";
 import { IPolygonEditContextActions } from "../../types/polygon-edit-context-type";
 
 type MapboxDrawConfig = ConstructorParameters<typeof MapboxDraw>[0];
@@ -47,6 +48,11 @@ const createLucideSvg = (icon: ControlIconName) => {
 
 export const mapImageControl = {
   current: null as ImageControlInstance | null,
+};
+
+export const activeImageRasterState = {
+  activeRasterId: signal<string | null>(null),
+  activeMode: signal<"move" | "scale" | "rotate" | null>(null),
 };
 
 type TooltipFeature = {
@@ -1038,6 +1044,25 @@ export const addMapControls = (
   imageContainer.style.display = "none";
   map.getContainer().appendChild(imageContainer);
   mapImageControl.current = imageControl;
+
+  // Track image events to keep activeImageRasterState updated
+  map.on("image.add", (e: any) => {
+    activeImageRasterState.activeRasterId.value = e?.id || "raster";
+  });
+  map.on("image.select", (e: any) => {
+    activeImageRasterState.activeRasterId.value = e?.id || "raster";
+  });
+  map.on("image.deselect", () => {
+    activeImageRasterState.activeRasterId.value = null;
+    activeImageRasterState.activeMode.value = null;
+  });
+  map.on("image.remove", () => {
+    activeImageRasterState.activeRasterId.value = null;
+    activeImageRasterState.activeMode.value = null;
+  });
+  map.on("image.mode", (e: any) => {
+    activeImageRasterState.activeMode.value = e?.mode || null;
+  });
 
   // Tooltip Control
   map.addControl(

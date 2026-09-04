@@ -1,4 +1,5 @@
-import { GeoJsonLayer, TextLayer } from "@deck.gl/layers";
+import { BitmapLayer, GeoJsonLayer, TextLayer } from "@deck.gl/layers";
+import { COORDINATE_SYSTEM } from "@deck.gl/core";
 import { MVTLayer } from "@deck.gl/geo-layers";
 import { MVTLoader } from "@loaders.gl/mvt";
 import polylabel from "polylabel";
@@ -1106,7 +1107,119 @@ const createGeoJsonLayer = (
   return result;
 };
 
-const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
+const createBitmapLayer = (
+  layer: IGetConfigLayerSchema,
+  props: MapContextLayerSchemaTypeMapProps,
+) => {
+  const { id, properties = {}, colors = [], isVisible } = layer;
+  const { layerIndex = 0 } = props;
+
+  if (isVisible === false) return [];
+
+  const image =
+    properties.image ||
+    layer.origin ||
+    properties.data ||
+    properties.url ||
+    properties.src;
+
+  if (!image) {
+    return [];
+  }
+
+  // Handle bounds: can be 4 points [bl, tl, tr, br] or [tl, tr, br, bl] or [minX, minY, maxX, maxY]
+  const bounds = properties.bounds ?? properties.coordinates;
+
+  if (!bounds) {
+    return [];
+  }
+
+  // Deck.gl BitmapLayer bounds format:
+  // Can be either [minX, minY, maxX, maxY] or [[bottom-left], [top-left], [top-right], [bottom-right]]
+  let normalizedBounds = bounds;
+  if (Array.isArray(bounds) && bounds.length === 4) {
+    if (Array.isArray(bounds[0])) {
+      // If format is 'mapbox' / 'image-control' [top-left, top-right, bottom-right, bottom-left]:
+      // convert to Deck.gl [bottom-left, top-left, top-right, bottom-right]
+      if (
+        properties.boundsFormat === "mapbox" ||
+        properties.boundsFormat === "image-control"
+      ) {
+        normalizedBounds = [bounds[3], bounds[0], bounds[1], bounds[2]];
+      } else {
+        normalizedBounds = bounds;
+      }
+    }
+  }
+
+  // Opacity
+  let opacity = 1;
+  if (properties.opacity !== undefined && properties.opacity !== null) {
+    const numOpacity = Number(properties.opacity);
+    if (Number.isFinite(numOpacity)) {
+      opacity =
+        numOpacity > 1
+          ? numOpacity / (numOpacity <= 100 ? 100 : 255)
+          : numOpacity;
+      opacity = Math.max(0, Math.min(1, opacity));
+    }
+  }
+
+  // Tint Color & Opacity from colors array if defined
+  let tintColor: [number, number, number] = [255, 255, 255];
+  if (Array.isArray(colors) && colors.length > 0) {
+    const fillColor =
+      colors.find((c) => c.type === "fill" || !c.type) || colors[0];
+    if (fillColor && Array.isArray(fillColor.color)) {
+      const [r, g, b, a] = fillColor.color;
+      if (Number.isFinite(r) && Number.isFinite(g) && Number.isFinite(b)) {
+        tintColor = [r, g, b];
+      }
+      if (a !== undefined && a !== null && properties.opacity === undefined) {
+        const numA = Number(a);
+        if (Number.isFinite(numA)) {
+          opacity = numA > 1 ? numA / (numA <= 100 ? 100 : 255) : numA;
+          opacity = Math.max(0, Math.min(1, opacity));
+        }
+      }
+    }
+  } else if (properties.tintColor && Array.isArray(properties.tintColor)) {
+    tintColor = [
+      properties.tintColor[0],
+      properties.tintColor[1],
+      properties.tintColor[2],
+    ];
+  }
+
+  const bitmapLayer = new BitmapLayer({
+    id: id || layer.id,
+    image,
+    bounds: normalizedBounds,
+    opacity,
+    tintColor,
+    desaturate: Number(properties.desaturate ?? 0),
+    transparentColor: properties.transparentColor ?? [0, 0, 0, 0],
+    _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+    parameters: {
+      depthTest: false,
+      depthMask: false,
+    },
+    getPolygonOffset: ({ layerIndex: idx }) => {
+      const effectiveIndex = typeof idx === "number" ? idx : layerIndex;
+      return [0, -effectiveIndex * 100];
+    },
+    pickable: Boolean(properties.pickable),
+    updateTriggers: {
+      opacity,
+      tintColor,
+      bounds: normalizedBounds,
+    },
+  });
+
+  return [bitmapLayer];
+};
+
+export const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
   Stream: (layer, props) => {
     const { boundingBox: bbox, selectedFeatureIds, token, zoom } = props;
     const { origin } = layer;
@@ -1218,6 +1331,7 @@ const BUILD_OBJECT_BASED_ON_TYPE: MapContextLayerSchemaTypeMap = {
     return layers.flat();
   },
   GeoJsonLayer: (layer, props) => createGeoJsonLayer(layer, props),
+  BitmapLayer: (layer, props) => createBitmapLayer(layer, props),
   CustomWMSLayer: (layer, props) => {
     const { origin, properties, cqlFilter } = layer;
     const { token, organizationId } = props;

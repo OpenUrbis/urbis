@@ -65,7 +65,10 @@ export const LayerItem = ({
       id.startsWith("wms-") ||
       id.startsWith("wfs-") ||
       id.startsWith("file-") ||
-      id.startsWith("upload-")
+      id.startsWith("upload-") ||
+      id.startsWith("drawing-") ||
+      id.startsWith("image-") ||
+      id.startsWith("bitmap-")
     );
   }, [item.id]);
 

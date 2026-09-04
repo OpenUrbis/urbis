@@ -39,7 +39,12 @@ import { useSearchContext } from "../../hooks/useSearchContext";
 import { enabledFeatureFlags } from "../../features/feature-flags";
 import { LayerVisualCustomizationPanel } from "./LayerVisualCustomizationPanel";
 import { LayerMetadataPanel } from "./LayerMetadataPanel";
-import { IGetConfigLayerSchema } from "../../types/fetch-map-config-type";
+import {
+  IGetConfigLayerSchema,
+  IGetConfigLayerSchemaTypeEnum,
+} from "../../types/fetch-map-config-type";
+import { ClickActionEnum } from "@open-urbis/map-shared";
+import { useToast } from "../../hooks/useToast";
 import { mapImageControl } from "../MapView/map-controls";
 import { mapTutorialVisible } from "../MapTutorial/state";
 import { requestedLayerMetadataId } from "./state";
@@ -111,6 +116,8 @@ const PlaceholderPanel = ({
 );
 
 const ImageInsertPanel = () => {
+  const { layerSchemas, layerGroups } = useMapContext();
+  const { toastSuccess } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const selectedFile = useSignal<File | null>(null);
   const status = useSignal("");
@@ -147,7 +154,7 @@ const ImageInsertPanel = () => {
       if (imageId) {
         control.selectRaster(imageId);
       }
-    }, "Imagem inserida.");
+    }, "Imagem inserida. Ajuste a posição, tamanho ou rotação no mapa.");
 
   const setMode = (mode: "move" | "scale" | "rotate") =>
     runImageAction(
@@ -165,11 +172,106 @@ const ImageInsertPanel = () => {
       "Imagem removida.",
     );
 
+  const handleConvertToDeckLayer = () => {
+    error.value = "";
+    try {
+      const control = getImageControl();
+      const currentRaster =
+        control.currentRaster ||
+        Object.values(control.rasters || {})[0];
+
+      if (!currentRaster) {
+        error.value = "Insira ou selecione uma imagem no mapa primeiro.";
+        return;
+      }
+
+      const layerId = `image-${Date.now()}`;
+      const layerName =
+        selectedFile.value?.name?.replace(/\.[^/.]+$/, "") ||
+        `Imagem ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+
+      // Coordinates from @mapbox-controls/image: [top-left, top-right, bottom-right, bottom-left]
+      // Convert to Deck.gl BitmapLayer bounds: [bottom-left, top-left, top-right, bottom-right]
+      const coords = currentRaster.coordinates;
+      const deckBounds = [coords[3], coords[0], coords[1], coords[2]];
+
+      const newLayer: IGetConfigLayerSchema = {
+        id: layerId,
+        name: layerName,
+        origin: currentRaster.src,
+        isActive: true,
+        isSelected: true,
+        type: IGetConfigLayerSchemaTypeEnum.BitmapLayer,
+        isVisible: true,
+        groupId: "drawings",
+        layerGroup: {
+          id: "drawings",
+          name: "Desenhos e Imagens",
+        },
+        colors: [
+          {
+            id: Date.now(),
+            type: "fill",
+            color: [255, 255, 255, 255],
+            label: "Tonalidade",
+            value: "default",
+            layerSchemaId: layerId,
+            pattern: "full",
+          },
+        ],
+        clickAction: { action: ClickActionEnum.SelectFeature as any, params: {} },
+        properties: {
+          image: currentRaster.src,
+          bounds: deckBounds,
+          boundsFormat: "deckgl",
+          opacity: 1.0,
+          tintColor: [255, 255, 255],
+          desaturate: 0,
+          supportsVisualCustomization: true,
+          metadata: {
+            description:
+              "Camada de imagem inserida pelo usuário e renderizada via Deck.gl",
+          },
+        },
+      };
+
+      const currentGroups = layerGroups?.value || [];
+      if (!currentGroups.some((g) => g.id === "drawings")) {
+        layerGroups.value = [
+          ...currentGroups,
+          {
+            id: "drawings",
+            name: "Desenhos e Imagens",
+            ownerGroup: "local",
+            childGroups: [],
+          },
+        ];
+      }
+
+      layerSchemas.value = [...layerSchemas.value, newLayer];
+
+      // Remove temporary MapLibre raster layer to avoid double rendering
+      try {
+        control.selectRaster(currentRaster.id);
+        control.removeRaster();
+      } catch (e) {
+        console.warn("Cleaned up raster after layer creation", e);
+      }
+
+      selectedFile.value = null;
+      status.value = "Imagem transformada em camada do Deck.gl com sucesso!";
+      toastSuccess?.("Imagem transformada em camada do Deck.gl com sucesso!");
+    } catch (err) {
+      console.error("Erro ao transformar imagem em camada", err);
+      error.value = "Não foi possível transformar a imagem em camada.";
+    }
+  };
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
       <PanelHeader
         title="Inserir imagem na tela"
-        description="Use este modo para inserir, posicionar e ajustar imagens sobre o mapa."
+        description="Use este modo para inserir, posicionar e transformar imagens em camadas no mapa."
       />
       <div className="space-y-3 p-3">
         <Input
@@ -254,8 +356,17 @@ const ImageInsertPanel = () => {
           </Button>
         </div>
 
+        <Button
+          className="w-full text-xs font-semibold h-9 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+          onClick={handleConvertToDeckLayer}
+          title="Transformar a imagem ajustada em uma camada do Deck.gl"
+        >
+          <Layers className="mr-2 h-4 w-4" />
+          Transformar em camada
+        </Button>
+
         <p className="text-[11px] leading-relaxed text-muted-foreground">
-          Clique na imagem no mapa para selecionar e ajustar.
+          Posicione a imagem no local desejado e clique em <strong>Transformar em camada</strong> para integrá-la ao mapa Deck.gl com suporte a reordenação, opacidade e tonalidade de cor.
         </p>
 
         {(status.value || error.value) && (

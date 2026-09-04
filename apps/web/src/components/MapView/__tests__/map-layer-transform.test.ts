@@ -259,4 +259,139 @@ describe("map-layer-transform", () => {
     expect(bottomElevation).toBe(0.02);
     expect(topElevation).toBeCloseTo(0.03, 5);
   });
+
+  it("should transform BitmapLayer into Deck.gl BitmapLayer instance with opacity, tintColor and bounds", () => {
+    const bitmapLayerSchema: IGetConfigLayerSchema = {
+      id: "image-12345",
+      name: "Imagem Topográfica",
+      origin: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      isActive: true,
+      isVisible: true,
+      type: IGetConfigLayerSchemaTypeEnum.BitmapLayer,
+      colors: [
+        {
+          id: 1,
+          type: "fill",
+          color: [255, 100, 50, 180],
+          label: "Tonalidade",
+          value: "default",
+          layerSchemaId: "image-12345",
+          pattern: "full",
+        },
+      ],
+      properties: {
+        bounds: [
+          [-46.66, -23.59], // bottom-left
+          [-46.66, -23.58], // top-left
+          [-46.65, -23.58], // top-right
+          [-46.65, -23.59], // bottom-right
+        ],
+        boundsFormat: "deckgl",
+        opacity: 0.8,
+      },
+    } as any;
+
+    const layers = transformSchemaLayers([bitmapLayerSchema], {
+      zoom: 15,
+      is3DActive: false,
+      selectedFeatureIds: [],
+    } as any).flat();
+
+    expect(layers).toBeDefined();
+    expect(layers.length).toBe(1);
+
+    const bitmapLayer = layers[0];
+    expect(bitmapLayer?.id).toBe("image-12345");
+    expect(bitmapLayer?.props.opacity).toBe(0.8);
+    expect(bitmapLayer?.props.tintColor).toEqual([255, 100, 50]);
+    expect(bitmapLayer?.props.bounds).toEqual(bitmapLayerSchema.properties.bounds);
+
+    const asyncPropSymbol = Object.getOwnPropertySymbols(bitmapLayer?.props || {}).find(
+      (s) => s.description === "asyncPropOriginal",
+    );
+    if (asyncPropSymbol) {
+      expect((bitmapLayer?.props as any)[asyncPropSymbol]?.image).toBe(bitmapLayerSchema.origin);
+    }
+  });
+
+  it("should correctly convert Mapbox coordinates to Deck.gl bounds in BitmapLayer", () => {
+    const mapboxCoords = [
+      [-46.66, -23.58], // top-left (0)
+      [-46.65, -23.58], // top-right (1)
+      [-46.65, -23.59], // bottom-right (2)
+      [-46.66, -23.59], // bottom-left (3)
+    ];
+
+    const bitmapLayerSchema: IGetConfigLayerSchema = {
+      id: "image-mapbox-format",
+      name: "Imagem Mapbox",
+      origin: "https://example.com/test.png",
+      isActive: true,
+      isVisible: true,
+      type: IGetConfigLayerSchemaTypeEnum.BitmapLayer,
+      properties: {
+        bounds: mapboxCoords,
+        boundsFormat: "mapbox",
+      },
+    } as any;
+
+    const layers = transformSchemaLayers([bitmapLayerSchema], {
+      zoom: 15,
+      is3DActive: false,
+      selectedFeatureIds: [],
+    } as any).flat();
+
+    const bitmapLayer = layers[0];
+    expect(bitmapLayer).toBeDefined();
+    // Deck.gl format must be [bottom-left, top-left, top-right, bottom-right]
+    expect(bitmapLayer?.props.bounds).toEqual([
+      mapboxCoords[3],
+      mapboxCoords[0],
+      mapboxCoords[1],
+      mapboxCoords[2],
+    ]);
+  });
+
+  it("should support reordering BitmapLayer above and below other layers", () => {
+    const vectorLayer: IGetConfigLayerSchema = {
+      id: "lotes",
+      name: "Lotes",
+      origin: "https://example.com/lotes.json",
+      isActive: true,
+      isVisible: true,
+      type: IGetConfigLayerSchemaTypeEnum.GeoJsonLayer,
+    } as any;
+
+    const bitmapLayer: IGetConfigLayerSchema = {
+      id: "image-overlay",
+      name: "Planta Baixa",
+      origin: "https://example.com/planta.png",
+      isActive: true,
+      isVisible: true,
+      type: IGetConfigLayerSchemaTypeEnum.BitmapLayer,
+      properties: {
+        bounds: [-46.66, -23.59, -46.65, -23.58],
+      },
+    } as any;
+
+    // Order 1: Vector first, then Image on top
+    const layersOrder1 = transformSchemaLayers([vectorLayer, bitmapLayer], {
+      zoom: 15,
+      is3DActive: false,
+      selectedFeatureIds: [],
+    } as any);
+
+    expect(layersOrder1[0]?.id).toBe("lotes");
+    expect(layersOrder1[1]?.id).toBe("image-overlay");
+
+    // Order 2: Image first (underneath), then Vector on top
+    const layersOrder2 = transformSchemaLayers([bitmapLayer, vectorLayer], {
+      zoom: 15,
+      is3DActive: false,
+      selectedFeatureIds: [],
+    } as any);
+
+    expect(layersOrder2[0]?.id).toBe("image-overlay");
+    expect(layersOrder2[1]?.id).toBe("lotes");
+  });
 });

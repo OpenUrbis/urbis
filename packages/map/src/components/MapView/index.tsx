@@ -474,13 +474,15 @@ export const MapView = ({
                 ["linear"],
                 ["coalesce", ["get", "render_height"], ["get", "height"], 10],
                 0,
-                "#64748b",
-                30,
-                "#475569",
-                80,
-                "#334155",
-                150,
-                "#1e293b",
+                "#f8fafc",
+                20,
+                "#f1f5f9",
+                50,
+                "#e2e8f0",
+                100,
+                "#cbd5e1",
+                200,
+                "#94a3b8",
               ],
               "fill-extrusion-height": [
                 "interpolate",
@@ -500,7 +502,7 @@ export const MapView = ({
                 13.5,
                 ["coalesce", ["get", "render_min_height"], ["get", "min_height"], 0],
               ],
-              "fill-extrusion-opacity": 0.48,
+              "fill-extrusion-opacity": 0.85,
               "fill-extrusion-vertical-gradient": true,
             },
           });
@@ -511,7 +513,7 @@ export const MapView = ({
 
       const is3D = is3DActive.value;
       const visibility = is3D ? "visible" : "none";
-      const b3dOpacity = is3D ? 0.48 : 0;
+      const b3dOpacity = is3D ? 0.85 : 0;
 
       const flatBuildingLayerIds = [
         "building",
@@ -534,13 +536,15 @@ export const MapView = ({
         ["linear"],
         ["coalesce", ["get", "render_height"], ["get", "height"], 10],
         0,
-        "#64748b",
-        30,
-        "#475569",
-        80,
-        "#334155",
-        150,
-        "#1e293b",
+        "#f8fafc",
+        20,
+        "#f1f5f9",
+        50,
+        "#e2e8f0",
+        100,
+        "#cbd5e1",
+        200,
+        "#94a3b8",
       ];
 
       if (map.getLayer("openfreemap-3d-buildings")) {
@@ -739,7 +743,7 @@ export const MapView = ({
         });
 
         // Keep 3D building layers linked with baseMap3DOpacity control
-        const b3dOpacity = (baseMap3DOpacity?.value ?? 45) / 100;
+        const b3dOpacity = (baseMap3DOpacity?.value ?? 85) / 100;
         const is3D = is3DActive.value && b3dOpacity > 0;
         const visibility = is3D ? "visible" : "none";
 
@@ -766,13 +770,15 @@ export const MapView = ({
           ["linear"],
           ["coalesce", ["get", "render_height"], ["get", "height"], 10],
           0,
-          "#64748b",
-          30,
-          "#475569",
-          80,
-          "#334155",
-          150,
-          "#1e293b",
+          "#f8fafc",
+          20,
+          "#f1f5f9",
+          50,
+          "#e2e8f0",
+          100,
+          "#cbd5e1",
+          200,
+          "#94a3b8",
         ];
 
         if (map.getLayer("building-3d")) {

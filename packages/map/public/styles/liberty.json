@@ -3952,20 +3952,22 @@
             10
           ],
           0,
-          "#64748b",
-          30,
-          "#475569",
-          80,
-          "#334155",
-          150,
-          "#1e293b"
+          "#f8fafc",
+          20,
+          "#f1f5f9",
+          50,
+          "#e2e8f0",
+          100,
+          "#cbd5e1",
+          200,
+          "#94a3b8"
         ],
         "fill-extrusion-height": [
           "get",
           "render_height"
         ],
-        "fill-extrusion-opacity": 0.45,
-        "fill-extrusion-vertical-gradient": false
+        "fill-extrusion-opacity": 0.85,
+        "fill-extrusion-vertical-gradient": true
       }
     },
     {

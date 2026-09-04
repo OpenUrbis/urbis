@@ -796,23 +796,20 @@ const createMVTLayer = (
   const BASE_ALTITUDE_OFFSET = 0.02;
   const layerAltitudeOffset = BASE_ALTITUDE_OFFSET + layerIndex * 0.01;
 
-  const customElevationFn = preparedProps.getElevation;
   const getElevation = (f: any) => {
-    if (customElevationFn && typeof customElevationFn === "function") {
-      try {
-        const val = customElevationFn(f);
-        if (Number.isFinite(val) && val > 0) return val;
-      } catch {
-        // fallback
-      }
+    const p = f?.properties || {};
+    let h = 14;
+    if (p.render_height !== undefined && p.render_height !== null && Number(p.render_height) > 0) {
+      const raw = Number(p.render_height);
+      h = raw <= 8 ? raw * 3.5 : raw;
+    } else if (p.height !== undefined && p.height !== null && Number(p.height) > 0) {
+      h = Number(p.height);
+    } else if (p.altura !== undefined && p.altura !== null && Number(p.altura) > 0) {
+      h = Number(p.altura);
+    } else if (p.levels || p["building:levels"]) {
+      h = Number(p.levels || p["building:levels"]) * 3.5;
     }
-    const h = Number(
-      f?.properties?.render_height ||
-        f?.properties?.height ||
-        f?.properties?.alt ||
-        12,
-    );
-    return (Number.isFinite(h) && h > 0 ? h : 12) + layerAltitudeOffset;
+    return (h > 0 ? h : 14) + layerAltitudeOffset;
   };
 
   const opacity = preparedProps.opacity;
@@ -833,9 +830,9 @@ const createMVTLayer = (
       loaders: [MVTLoader],
       minZoom: layer.minZoom ?? 13,
       maxZoom: 14,
-      filled: preparedProps.filled !== false,
-      stroked: preparedProps.stroked === true,
-      extruded: preparedProps.extruded !== false,
+      filled: true,
+      stroked: false,
+      extruded: true,
       wireframe: Boolean(preparedProps.wireframe),
       pickable: isPickable,
       autoHighlight,
@@ -859,6 +856,16 @@ const createMVTLayer = (
       parameters: {
         depthTest: true,
         depthMask: true,
+      },
+      _subLayerProps: {
+        'polygons-fill': {
+          extruded: true,
+          getElevation,
+          parameters: {
+            depthTest: true,
+            depthMask: true,
+          },
+        },
       },
       updateTriggers: {
         getFillColor: [

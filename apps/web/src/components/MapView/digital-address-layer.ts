@@ -22,6 +22,7 @@ export const getDigitalAddressLayers = (digitalAddressFeature: any) => {
       getLineWidth: 2,
       lineWidthUnits: "pixels",
       lineWidthMinPixels: 2,
+      getPolygonOffset: () => [0, -8000],
 
       // Point styling (Icon)
       pointType: "icon",

@@ -395,6 +395,7 @@ export const MapView = ({
               lineWidthUnits: "pixels",
               pointRadiusMinPixels: 6,
               pointRadiusMaxPixels: 10,
+              getPolygonOffset: () => [0, -10000],
               pickable: true,
             }),
           ]
@@ -424,6 +425,7 @@ export const MapView = ({
             dashJustified: true,
             pointType: "circle",
             getPointRadius: 8,
+            getPolygonOffset: () => [0, -10000],
             pickable: false,
           }),
         ]

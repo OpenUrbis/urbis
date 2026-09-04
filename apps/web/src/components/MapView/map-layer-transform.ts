@@ -310,8 +310,9 @@ const prepareLayerProperties = (
   props: MapContextLayerSchemaTypeMapProps,
 ) => {
   const safeProperties = properties || {};
-  const { is3DActive } = props;
+  const { is3DActive, layerIndex = 0 } = props;
   const rawElevation = safeProperties.getElevation;
+  const layerAltitudeOffset = layerIndex * 0.1;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let getElevation: any;
 
@@ -325,45 +326,51 @@ const prepareLayerProperties = (
             if (!is3DActive) return 0;
             try {
               const val = Number(getElevationFn(feature));
-              return Number.isFinite(val) && val > 0 ? val : 0;
+              return Number.isFinite(val) && val > 0
+                ? val + layerAltitudeOffset
+                : layerAltitudeOffset;
             } catch {
-              return 0;
+              return layerAltitudeOffset;
             }
           };
         } else {
-          getElevation = () => 0;
+          getElevation = () => (is3DActive ? layerAltitudeOffset : 0);
         }
       } else {
         const numericVal = Number(rawElevation);
         if (Number.isFinite(numericVal) && numericVal > 0) {
-          getElevation = () => (is3DActive ? numericVal : 0);
+          getElevation = () => (is3DActive ? numericVal + layerAltitudeOffset : 0);
         } else if (/^[A-Za-z0-9_]+$/.test(rawElevation.trim())) {
           const propName = rawElevation.trim();
           getElevation = (feature: any) => {
             if (!is3DActive) return 0;
             const val = Number(feature?.properties?.[propName]);
-            return Number.isFinite(val) && val > 0 ? val : 0;
+            return Number.isFinite(val) && val > 0
+              ? val + layerAltitudeOffset
+              : layerAltitudeOffset;
           };
         } else {
-          getElevation = () => 0;
+          getElevation = () => (is3DActive ? layerAltitudeOffset : 0);
         }
       }
     } else if (typeof rawElevation === "number") {
       const numericVal = rawElevation > 0 ? rawElevation : 0;
-      getElevation = () => (is3DActive ? numericVal : 0);
+      getElevation = () => (is3DActive ? numericVal + layerAltitudeOffset : 0);
     } else if (typeof rawElevation === "function") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getElevation = (feature: any) => {
         if (!is3DActive) return 0;
         try {
           const val = Number(rawElevation(feature));
-          return Number.isFinite(val) && val > 0 ? val : 0;
+          return Number.isFinite(val) && val > 0
+            ? val + layerAltitudeOffset
+            : layerAltitudeOffset;
         } catch {
-          return 0;
+          return layerAltitudeOffset;
         }
       };
     } else {
-      getElevation = () => 0;
+      getElevation = () => (is3DActive ? layerAltitudeOffset : 0);
     }
   } else if (safeProperties.extruded) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -375,10 +382,10 @@ const prepareLayerProperties = (
           feature?.properties?.alt ||
           15,
       );
-      return Number.isFinite(h) && h > 0 ? h : 15;
+      return Number.isFinite(h) && h > 0 ? h + layerAltitudeOffset : 15 + layerAltitudeOffset;
     };
   } else {
-    getElevation = () => 0;
+    getElevation = () => (is3DActive ? layerAltitudeOffset : 0);
   }
 
   const isExtruded = is3DActive && Boolean(safeProperties.extruded);
@@ -513,7 +520,7 @@ const createTextLayer = (
   getTextColor: (d: any) => Color,
   filteredOrigin?: string,
 ) => {
-  const { zoom, is3DActive } = props;
+  const { zoom, is3DActive, layerIndex = 0 } = props;
   const { properties, id, origin: rawOrigin } = layer;
   const data = filteredOrigin || rawOrigin;
 
@@ -660,7 +667,7 @@ const createTextLayer = (
           baseElevation = 0;
         }
       }
-      const elevation = baseElevation + 2;
+      const elevation = baseElevation + (layerIndex * 0.1) + 2;
       try {
         const center = polylabel(d.rawCoordinates, 0.000001);
         return [center[0], center[1], elevation];
@@ -677,7 +684,7 @@ const createTextLayer = (
     billboard: true,
     outlineWidth,
     outlineColor,
-    getPolygonOffset: () => [0, -1000],
+    getPolygonOffset: () => [0, -((layerIndex + 1) * 200 + 1000)],
     fontSettings: {
       sdf: true,
       fontSize: 64,
@@ -706,7 +713,7 @@ const createGeoJsonLayer = (
   layer: IGetConfigLayerSchema,
   props: MapContextLayerSchemaTypeMapProps,
 ): any => {
-  const { selectedFeatureIds = [], is3DActive, token, organizationId } = props;
+  const { selectedFeatureIds = [], is3DActive, token, organizationId, layerIndex = 0 } = props;
 
   const {
     id,
@@ -831,6 +838,10 @@ const createGeoJsonLayer = (
       id,
       data: sanitizedData,
       dataTransform: geoJsonDataTransform,
+      getPolygonOffset: ({ layerIndex: deckLayerIndex }: any = {}) => [
+        0,
+        -((layerIndex + 1) * 200 + (deckLayerIndex ?? 0)),
+      ],
       onError: (error: any) => {
         console.warn(`[deck.gl Layer ${id} Error]`, error?.message || error);
       },
@@ -869,7 +880,8 @@ const createGeoJsonLayer = (
           layer.properties?.visualState?.selectedColor,
         ],
         getFillPattern: [layer.colors],
-        getElevation: [is3DActive, properties?.getElevation],
+        getElevation: [is3DActive, properties?.getElevation, layerIndex],
+        getPolygonOffset: [layerIndex],
       },
       ...patternObj,
       extruded: preparedProps.extruded,
@@ -1083,24 +1095,27 @@ export const transformSchemaLayers = (
   const selectedFeatureIds =
     MAP_CONFIGS.CHECKER_POLYGON_IS_SELECTED.BUILD_ARRAY_OF_PROPERTIES(props);
 
-  const flatLayers = layersConfig
-    .filter((layer) => {
-      const { isVisible, minZoom, properties = {}, type } = layer;
-      const { maxZoom } = properties;
+  const visibleLayers = layersConfig.filter((layer) => {
+    const { isVisible, minZoom, properties = {}, type } = layer;
+    const { maxZoom } = properties;
 
-      // Enforce minimum zoom of 12 for Stream layers
-      const effectiveMinZoom =
-        type === "Stream" ? Math.max(minZoom || 0, 12) : minZoom;
+    // Enforce minimum zoom of 12 for Stream layers
+    const effectiveMinZoom =
+      type === "Stream" ? Math.max(minZoom || 0, 12) : minZoom;
 
-      if (checkZoom(zoom, effectiveMinZoom, maxZoom)) return false;
+    if (checkZoom(zoom, effectiveMinZoom, maxZoom)) return false;
 
-      return isVisible;
-    })
-    .map((layer) => {
+    return isVisible;
+  });
+
+  const flatLayers = visibleLayers
+    .map((layer, index) => {
       if (BUILD_OBJECT_BASED_ON_TYPE?.[layer.type])
         return BUILD_OBJECT_BASED_ON_TYPE[layer.type]!(layer, {
           ...props,
           selectedFeatureIds,
+          layerIndex: index,
+          totalLayers: visibleLayers.length,
         });
 
       return null;

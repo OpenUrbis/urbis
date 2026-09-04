@@ -62,6 +62,8 @@ export type MapContextLayerSchemaTypeMapProps = {
   is3DActive?: boolean;
   token?: string;
   organizationId?: string;
+  layerIndex?: number;
+  totalLayers?: number;
 };
 
 export type MapContextLayerSchemaTypeMap = {

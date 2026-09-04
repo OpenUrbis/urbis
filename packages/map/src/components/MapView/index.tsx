@@ -402,6 +402,7 @@ export const MapView = ({
             dashJustified: true,
             pointType: "circle",
             getPointRadius: 8,
+            getPolygonOffset: () => [0, -10000],
             pickable: false,
           }),
         ]

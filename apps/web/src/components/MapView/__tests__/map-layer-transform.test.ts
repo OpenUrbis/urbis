@@ -203,4 +203,54 @@ describe("map-layer-transform", () => {
     });
     expect(elevation).toBe(24.5);
   });
+
+  it("should calculate progressive polygon offset and elevation offsets according to layer order", () => {
+    const bottomLayer: IGetConfigLayerSchema = {
+      id: "layer_bottom",
+      name: "Bottom Layer",
+      origin: "https://example.com/bottom.json",
+      isActive: true,
+      isVisible: true,
+      type: IGetConfigLayerSchemaTypeEnum.GeoJsonLayer,
+    } as any;
+
+    const topLayer: IGetConfigLayerSchema = {
+      id: "layer_top",
+      name: "Top Layer",
+      origin: "https://example.com/top.json",
+      isActive: true,
+      isVisible: true,
+      type: IGetConfigLayerSchemaTypeEnum.GeoJsonLayer,
+    } as any;
+
+    const layers = transformSchemaLayers([bottomLayer, topLayer], {
+      zoom: 15,
+      boundingBox: [-46.66, -23.59, -46.65, -23.58],
+      is3DActive: true,
+      selectedFeatureIds: [],
+    } as any).flat();
+
+    const bottomGeoJson = layers.find((l: any) => l?.id === "layer_bottom");
+    const topGeoJson = layers.find((l: any) => l?.id === "layer_top");
+
+    expect(bottomGeoJson).toBeDefined();
+    expect(topGeoJson).toBeDefined();
+
+    // Polygon offset for bottom layer (index 0) vs top layer (index 1)
+    const bottomOffset = bottomGeoJson?.props.getPolygonOffset();
+    const topOffset = topGeoJson?.props.getPolygonOffset();
+
+    expect(bottomOffset).toEqual([0, -200]);
+    expect(topOffset).toEqual([0, -400]);
+
+    // Top layer offset has larger negative units (closer to camera in depth buffer)
+    expect(topOffset[1]).toBeLessThan(bottomOffset[1]);
+
+    // 3D elevation offset
+    const bottomElevation = bottomGeoJson?.props.getElevation({});
+    const topElevation = topGeoJson?.props.getElevation({});
+
+    expect(bottomElevation).toBe(0);
+    expect(topElevation).toBeCloseTo(0.1, 5);
+  });
 });

@@ -15,7 +15,7 @@ import { getMapConfig, getIntersections } from "../../integrations/map-integrati
 import { getMapStyle } from "../../components/MapView/base-map-styles";
 import { useTheme } from "../../components/ThemeProvider";
 import Header from "../../components/Header";
-import { Button, Input, UrbisFooter, UrbisIcon } from "@open-urbis/map-ui";
+import { Button, UrbisFooter, UrbisIcon } from "@open-urbis/map-ui";
 import { Search } from "../../components/Search";
 import proj4 from "proj4";
 import {
@@ -25,6 +25,18 @@ import {
   getFeatureAreaSquareMeters,
 } from "../../utils/fiu";
 import { getOptionalAuthHeaders } from "../../utils/auth-headers";
+import { useProspectiveSearchContext } from "../../components/ProspectiveSearch/ProspectiveSearchContext";
+import { IntendedUseCard } from "../../components/ProspectiveSearch/ui/IntendedUseCard";
+import { UsoSearchResultItem } from "../../components/ProspectiveSearch/utils/types";
+import {
+  NOTAS_DICTIONARY,
+  formatParameter,
+} from "../../components/ProspectiveSearch/utils/labels";
+import {
+  getRegrasZonamento,
+  getCondicoesInstalacao,
+  pesquisarUsos,
+} from "../../components/ProspectiveSearch/utils/use-logic";
 
 const QUADRO_4A_NOTES: Record<string, string> = {
   "(4A - a)":
@@ -46,6 +58,321 @@ const QUADRO_4A_NOTES: Record<string, string> = {
     "Para estabelecimentos de ensino, o número mínimo de vagas por área construída computável (em m²), será calculated com base na área construída computável destinada às atividades administrativas.",
   "(4A - j)":
     "Nas ZEU e ZEUP ativada, a largura mínima da via será de 12m (doze metros) quando o empreendimento tiver a previsão de vagas de estacionamento.",
+};
+
+const getObjValue = (obj: any, keys: string[]): string => {
+  if (!obj) return "";
+  const foundKey = Object.keys(obj).find((k) =>
+    keys.some((key) => key.toLowerCase() === k.trim().toLowerCase()),
+  );
+  return foundKey && obj[foundKey] !== undefined && obj[foundKey] !== null
+    ? String(obj[foundKey]).trim()
+    : "";
+};
+
+const findZoneData = (zoneName: string, parametrosZonasData: any[]) => {
+  if (!parametrosZonasData || !Array.isArray(parametrosZonasData) || !zoneName)
+    return null;
+  const cleanTarget = zoneName.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+
+  const exact = parametrosZonasData.find((row) => {
+    const rowZone = String(
+      row.zona ||
+        row.Zona ||
+        row.zonaDeUso ||
+        row.zonaUso ||
+        row.cd_zona ||
+        Object.values(row)[0] ||
+        "",
+    );
+    const cleanRow = rowZone.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+    return cleanRow === cleanTarget;
+  });
+  if (exact) return exact;
+
+  return (
+    parametrosZonasData.find((row) => {
+      const rowZone = String(
+        row.zona ||
+          row.Zona ||
+          row.zonaDeUso ||
+          row.zonaUso ||
+          row.cd_zona ||
+          Object.values(row)[0] ||
+          "",
+      );
+      const cleanRow = rowZone.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+      return cleanRow.includes(cleanTarget) || cleanTarget.includes(cleanRow);
+    }) || null
+  );
+};
+
+const findPqaData = (pqaName: string, parametrosPqaData: any[]) => {
+  if (!parametrosPqaData || !Array.isArray(parametrosPqaData) || !pqaName)
+    return null;
+  const cleanTarget = pqaName.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+
+  const exact = parametrosPqaData.find((row) => {
+    const rowPqa = String(
+      row.perimetroQualificacaoAmbiental ||
+        row.perimetro ||
+        row.Perimetro ||
+        row.pqa ||
+        row.PQA ||
+        Object.values(row)[0] ||
+        "",
+    );
+    const cleanRow = rowPqa.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+    return cleanRow === cleanTarget;
+  });
+  if (exact) return exact;
+
+  return (
+    parametrosPqaData.find((row) => {
+      const rowPqa = String(
+        row.perimetroQualificacaoAmbiental ||
+          row.perimetro ||
+          row.Perimetro ||
+          row.pqa ||
+          row.PQA ||
+          Object.values(row)[0] ||
+          "",
+      );
+      const cleanRow = rowPqa.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+      return cleanRow.includes(cleanTarget) || cleanTarget.includes(cleanRow);
+    }) || null
+  );
+};
+
+const formatNumberValue = (val: any, decimals = 2): string => {
+  if (
+    val === undefined ||
+    val === null ||
+    val === "" ||
+    String(val).trim() === "-" ||
+    String(val).trim() === "-Infinity"
+  )
+    return "-";
+  const str = String(val).trim();
+  if (
+    str.toUpperCase().startsWith("NA") ||
+    str.toUpperCase().startsWith("ND") ||
+    str.toUpperCase().startsWith("N.A.")
+  )
+    return "Não aplicável";
+  const num = typeof val === "number" ? val : parseFloat(str.replace(",", "."));
+  if (Number.isFinite(num)) {
+    return num.toLocaleString("pt-BR", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  }
+  return str;
+};
+
+const formatPercentValue = (val: any): string => {
+  if (
+    val === undefined ||
+    val === null ||
+    val === "" ||
+    String(val).trim() === "-"
+  )
+    return "-";
+  const str = String(val).trim();
+  if (
+    str.toUpperCase().startsWith("NA") ||
+    str.toUpperCase().startsWith("ND") ||
+    str.toUpperCase().startsWith("N.A.")
+  )
+    return "Não aplicável";
+  const num = typeof val === "number" ? val : parseFloat(str.replace(",", "."));
+  if (Number.isFinite(num)) {
+    if (num > 0 && num <= 1) {
+      return `${(num * 100).toFixed(0)}% (${num.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })})`;
+    }
+    return `${num.toLocaleString("pt-BR", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    })}%`;
+  }
+  return str;
+};
+
+const formatGabaritoValue = (val: any): string => {
+  if (
+    val === undefined ||
+    val === null ||
+    val === "" ||
+    String(val).trim() === "-"
+  )
+    return "Sem limite regulamentar";
+  const s = String(val).trim().toUpperCase();
+  if (
+    s.startsWith("NA") ||
+    s.startsWith("ND") ||
+    s.startsWith("N.A.") ||
+    s === "SEM LIMITE"
+  )
+    return "Sem limite regulamentar";
+  const num =
+    typeof val === "number"
+      ? val
+      : parseFloat(String(val).replace(",", ".").trim());
+  if (Number.isFinite(num)) {
+    return `${num.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} m`;
+  }
+  return String(val);
+};
+
+const formatSetbackValue = (val: any): string => {
+  if (
+    val === undefined ||
+    val === null ||
+    val === "" ||
+    String(val).trim() === "-"
+  )
+    return "Dispensado";
+  const s = String(val).trim().toUpperCase();
+  if (
+    s.startsWith("NA") ||
+    s.startsWith("ND") ||
+    s === "0" ||
+    s === "0.0" ||
+    s === "0,0" ||
+    s === "DISPENSADO"
+  )
+    return "Dispensado";
+  const num =
+    typeof val === "number"
+      ? val
+      : parseFloat(String(val).replace(",", ".").trim());
+  if (Number.isFinite(num)) {
+    return num === 0
+      ? "Dispensado"
+      : `${num.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} m`;
+  }
+  return String(val);
+};
+
+const getNoteFullText = (noteId: string): string => {
+  if (!noteId) return "";
+  const clean = noteId.replace(/[()]/g, "").trim();
+  const normalized = clean.replace(/\s*-\s*/g, " - ");
+  return (
+    NOTAS_DICTIONARY[clean] ||
+    NOTAS_DICTIONARY[normalized] ||
+    NOTAS_DICTIONARY[noteId] ||
+    QUADRO_4A_NOTES[noteId] ||
+    QUADRO_4A_NOTES[`(${clean})`] ||
+    "Consulte o texto oficial da nota correspondente na Lei nº 16.402/2016."
+  );
+};
+
+const getZonePermissibility = (zoneName: string, regrasZonamento: any) => {
+  if (!regrasZonamento) return null;
+  const cleanZone = zoneName.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+
+  const matchInList = (list: string[] = []) =>
+    Array.isArray(list) &&
+    list.some(
+      (z) => z.replace(/[^a-zA-Z0-9]/g, "").toUpperCase() === cleanZone,
+    );
+
+  // 1. ZOE / ZEP / AL (Regime Especial)
+  if (
+    cleanZone === "ZOE" ||
+    cleanZone === "ZEP" ||
+    cleanZone.startsWith("ZOE") ||
+    cleanZone.startsWith("ZEP") ||
+    matchInList(regrasZonamento.zoeZep)
+  ) {
+    return {
+      status: "regime_especial",
+      label: "Regime Especial",
+      badgeColor: "bg-purple-50 text-purple-900 border-purple-200",
+      description:
+        "Uso regrado por regime urbanístico especial / PIU (ZOE / ZEP / AL).",
+      notes: [],
+    };
+  }
+
+  // 2. Permitido em regra (S)
+  if (matchInList(regrasZonamento.simSemNota)) {
+    return {
+      status: "permitido",
+      label: "Permitido (em regra)",
+      badgeColor: "bg-emerald-50 text-emerald-900 border-emerald-200",
+      description:
+        "Uso permitido por regra geral nesta zona de uso conforme o Quadro nº 4 da Lei nº 16.402/2016.",
+      notes: [],
+    };
+  }
+
+  // 3. Permitido com condições (S com notas)
+  const simNotas: string[] = [];
+  Object.entries(regrasZonamento.simComNota || {}).forEach(
+    ([nota, zonas]: [string, any]) => {
+      if (Array.isArray(zonas) && matchInList(zonas)) {
+        simNotas.push(nota);
+      }
+    },
+  );
+  if (simNotas.length > 0) {
+    return {
+      status: "permitido_condicionado",
+      label: "Permitido com condições",
+      badgeColor: "bg-amber-50 text-amber-900 border-amber-200",
+      description:
+        "Uso permitido nesta zona sujeito ao atendimento das condições regulamentares da LPUOS.",
+      notes: simNotas,
+    };
+  }
+
+  // 4. Proibido com ressalvas (N com notas)
+  const naoNotas: string[] = [];
+  Object.entries(regrasZonamento.naoComNota || {}).forEach(
+    ([nota, zonas]: [string, any]) => {
+      if (Array.isArray(zonas) && matchInList(zonas)) {
+        naoNotas.push(nota);
+      }
+    },
+  );
+  if (naoNotas.length > 0) {
+    return {
+      status: "proibido_ressalvas",
+      label: "Proibido, exceto condições",
+      badgeColor: "bg-rose-50 text-rose-900 border-rose-200",
+      description:
+        "Uso proibido em regra nesta zona, admitindo exceção apenas nos casos previstos em nota regulamentar.",
+      notes: naoNotas,
+    };
+  }
+
+  // 5. Proibido (N)
+  if (matchInList(regrasZonamento.naoSemNota)) {
+    return {
+      status: "proibido",
+      label: "Proibido",
+      badgeColor: "bg-rose-50 text-rose-900 border-rose-200",
+      description:
+        "Uso vedado / não permitido nesta zona de uso conforme o Quadro nº 4 da Lei nº 16.402/2016.",
+      notes: [],
+    };
+  }
+
+  return {
+    status: "sob_consulta",
+    label: "Sob consulta técnica",
+    badgeColor: "bg-slate-100 text-slate-800 border-slate-200",
+    description: "Zona com regras específicas sob análise territorial.",
+    notes: [],
+  };
 };
 
 const waitForImagesToRender = async (element: HTMLElement) => {
@@ -336,7 +663,83 @@ const PrintPage = () => {
     "Preparando a Ficha de Informações Urbanísticas...",
   );
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const [intendedUse, setIntendedUse] = useState("");
+
+  const prospectiveContext = useProspectiveSearchContext();
+
+  const {
+    usosData = [],
+    cnaeData = [],
+    cnaeCatalogData: _cnaeCatalogData = [],
+    usosPorZonaData = [],
+    parametrosUsoData = [],
+    parametrosZonasData = [],
+    parametrosPqaData = [],
+  } = prospectiveContext || {};
+
+  const [selectedUse, setSelectedUse] = useState<UsoSearchResultItem | null>(null);
+
+  const selectedUseCode = useMemo(() => {
+    if (!selectedUse) return "";
+    const getVal = (obj: any, keys: string[]) => {
+      if (!obj) return "";
+      const foundKey = Object.keys(obj).find((k) =>
+        keys.some((key) => key.toLowerCase() === k.trim().toLowerCase()),
+      );
+      return foundKey && obj[foundKey] !== undefined && obj[foundKey] !== null
+        ? String(obj[foundKey]).trim()
+        : "";
+    };
+
+    const rawCode =
+      getVal(selectedUse?.arvore?.tipologiaOuGrupo, [
+        "Código",
+        "Codigo",
+        "codigo",
+      ]) ||
+      getVal(selectedUse?.arvore?.subtipologiaOuAtividade, [
+        "Código",
+        "Codigo",
+        "codigo",
+      ]) ||
+      getVal(selectedUse?.item, ["Código", "Codigo", "codigo"]);
+
+    if (!rawCode) return "";
+
+    if (rawCode.startsWith("HIS1-")) return "HIS1";
+    if (rawCode.startsWith("HIS2-")) return "HIS2";
+    if (rawCode.startsWith("HMP-")) return "HMP";
+
+    return rawCode;
+  }, [selectedUse]);
+
+  const regrasZonamento = useMemo(() => {
+    if (!selectedUseCode || !usosPorZonaData?.length) return null;
+    return getRegrasZonamento(selectedUseCode, usosPorZonaData);
+  }, [selectedUseCode, usosPorZonaData]);
+
+  const condicoesInstalacao = useMemo(() => {
+    if (!selectedUseCode || !parametrosUsoData?.length) return [];
+    return getCondicoesInstalacao(selectedUseCode, parametrosUsoData);
+  }, [selectedUseCode, parametrosUsoData]);
+
+  useEffect(() => {
+    if (!selectedUse && usosData?.length > 0 && typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const usoQuery = params.get("uso") || params.get("usoId");
+      if (usoQuery) {
+        const decodedUso = decodeURIComponent(usoQuery);
+        const searchRes = pesquisarUsos(
+          decodedUso,
+          usosData,
+          cnaeData,
+          "atividade",
+        );
+        if (searchRes?.resultados?.length > 0) {
+          setSelectedUse(searchRes.resultados[0]);
+        }
+      }
+    }
+  }, [usosData, cnaeData, selectedUse]);
 
   const semanticGridItems = buildSemanticTemplateGridItems(template.value, 4);
 
@@ -539,6 +942,7 @@ const PrintPage = () => {
       bairro,
       cep,
       areaM2: areaM2 > 0 ? areaM2.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-",
+      areaNumeric: areaM2,
       testada: rawProps.vl_testada_principal || rawProps.testada ? `${Number(rawProps.vl_testada_principal || rawProps.testada).toFixed(2)} m` : "-",
       latLonText,
       utmText,
@@ -823,6 +1227,9 @@ const PrintPage = () => {
         }
 
         data.value = parsedPayload.feature;
+        if (parsedPayload.selectedUse) {
+          setSelectedUse(parsedPayload.selectedUse);
+        }
 
         try {
           const currentMapConfig = await getMapConfig();
@@ -1032,14 +1439,11 @@ const PrintPage = () => {
                   Voltar ao mapa
                 </Button>
 
-                <div className="flex-1 max-w-xs">
-                  <Input
-                    value={intendedUse}
-                    onInput={(event: any) =>
-                      setIntendedUse(event.currentTarget.value)
-                    }
-                    placeholder="Uso pretendido (opcional)"
-                    className="h-8 text-xs rounded-lg bg-slate-50 border-slate-200"
+                <div className="flex-1 max-w-sm">
+                  <IntendedUseCard
+                    selectedUse={selectedUse}
+                    onSelectUse={setSelectedUse}
+                    isCompact={true}
                   />
                 </div>
               </div>
@@ -1355,50 +1759,287 @@ const PrintPage = () => {
 
             {/* 3. PARÂMETROS URBANÍSTICOS DA ZONA */}
             <div className="rounded-xl border border-slate-200/80 overflow-hidden break-inside-avoid">
-              <div className="bg-slate-50/70 px-4 py-2.5 border-b border-slate-200/80">
+              <div className="bg-slate-50/70 px-4 py-2.5 border-b border-slate-200/80 flex items-center justify-between">
                 <h2 className="text-xs font-semibold text-slate-800">
                   3. Parâmetros urbanísticos básicos de ocupação do solo
                 </h2>
+                <span className="text-[11px] text-slate-500">
+                  Quadros nº 2A, 3, 3A, 3C e 4B (Lei nº 16.402/2016)
+                </span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-50/50 text-slate-600 font-medium border-b border-slate-200/80 text-[11px]">
-                      <th className="py-2 px-3">Parâmetro urbanístico</th>
-                      <th className="py-2 px-3">Referência / Valor</th>
-                      <th className="py-2 px-3">Observação regulamentar</th>
+                      <th className="py-2.5 px-3.5">Parâmetro urbanístico</th>
+                      {fiuUrbanContext.zones.map((zone) => (
+                        <th key={`th-${zone}`} className="py-2.5 px-3.5 whitespace-nowrap">
+                          Zona {zone}
+                        </th>
+                      ))}
+                      <th className="py-2.5 px-3.5">Observação regulamentar</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-800">
+                    {/* CAB */}
                     <tr>
-                      <td className="py-2 px-3 font-medium">Coeficiente de Aproveitamento Básico (CAB)</td>
-                      <td className="py-2 px-3 font-mono font-semibold text-primary">1,00</td>
-                      <td className="py-2 px-3 text-[11px] text-slate-500">Direito de construir básico sem outorga onerosa.</td>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Coeficiente de Aproveitamento Básico (CAB)
+                      </td>
+                      {fiuUrbanContext.zones.map((zone) => {
+                        const zData = findZoneData(zone, parametrosZonasData);
+                        return (
+                          <td key={`cab-${zone}`} className="py-2.5 px-3.5 font-mono font-semibold text-primary">
+                            {formatNumberValue(zData?.coeficienteAproveitamentoBasico) || "1,00"}
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Direito de construir básico sem necessidade de outorga onerosa.
+                      </td>
                     </tr>
+
+                    {/* CAM */}
                     <tr>
-                      <td className="py-2 px-3 font-medium">Coeficiente de Aproveitamento Máximo (CAM)</td>
-                      <td className="py-2 px-3 text-slate-900">Conforme zona</td>
-                      <td className="py-2 px-3 text-[11px] text-slate-500">Mediante Outorga Onerosa do Direito de Construir (OODC).</td>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Coeficiente de Aproveitamento Máximo (CAM)
+                      </td>
+                      {fiuUrbanContext.zones.map((zone) => {
+                        const zData = findZoneData(zone, parametrosZonasData);
+                        return (
+                          <td key={`cam-${zone}`} className="py-2.5 px-3.5 font-mono font-semibold text-slate-900">
+                            {formatNumberValue(zData?.coeficienteAproveitamentoMaximo) || "Não aplicável"}
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Potencial construtivo máximo mediante Outorga Onerosa (OODC).
+                      </td>
                     </tr>
+
+                    {/* CAMin */}
                     <tr>
-                      <td className="py-2 px-3 font-medium">Taxa de Ocupação Máxima (TO)</td>
-                      <td className="py-2 px-3 text-slate-900">Conforme zona</td>
-                      <td className="py-2 px-3 text-[11px] text-slate-500">Proporção da área do lote coberta pela projeção da edificação.</td>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Coeficiente de Aproveitamento Mínimo (CAMin)
+                      </td>
+                      {fiuUrbanContext.zones.map((zone) => {
+                        const zData = findZoneData(zone, parametrosZonasData);
+                        return (
+                          <td key={`camin-${zone}`} className="py-2.5 px-3.5 font-mono text-slate-700">
+                            {formatNumberValue(zData?.coeficienteAproveitamentoMinimo) || "0,10"}
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Abaixo deste limite o imóvel poderá ser caracterizado como subutilizado.
+                      </td>
                     </tr>
+
+                    {/* TO Máxima */}
                     <tr>
-                      <td className="py-2 px-3 font-medium">Gabarito de Altura Máxima</td>
-                      <td className="py-2 px-3 text-slate-900">Conforme zona</td>
-                      <td className="py-2 px-3 text-[11px] text-slate-500">Altura máxima da edificação a partir do perfil natural do terreno.</td>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Taxa de Ocupação Máxima (TO)
+                        {fiuUrbanContext.areaNumeric > 0 && (
+                          <span className="block text-[10px] text-slate-400 font-normal">
+                            {fiuUrbanContext.areaNumeric <= 500
+                              ? "Lote com área ≤ 500 m²"
+                              : "Lote com área > 500 m²"}
+                          </span>
+                        )}
+                      </td>
+                      {fiuUrbanContext.zones.map((zone) => {
+                        const zData = findZoneData(zone, parametrosZonasData);
+                        const toVal =
+                          fiuUrbanContext.areaNumeric > 500
+                            ? zData?.taxaOcupacaoMaximaLotesIgualOuSuperior500 || zData?.taxaOcupacaoMaximaLotesAte500
+                            : zData?.taxaOcupacaoMaximaLotesAte500 || zData?.taxaOcupacaoMaximaLotesIgualOuSuperior500;
+                        return (
+                          <td key={`to-${zone}`} className="py-2.5 px-3.5 font-mono font-semibold text-slate-900">
+                            {formatPercentValue(toVal)}
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Proporção máxima do terreno coberta pela projeção horizontal da edificação.
+                      </td>
                     </tr>
+
+                    {/* Gabarito */}
                     <tr>
-                      <td className="py-2 px-3 font-medium">Taxa de Permeabilidade Mínima (TP)</td>
-                      <td className="py-2 px-3 text-slate-900">Conforme PQA / lote</td>
-                      <td className="py-2 px-3 text-[11px] text-slate-500">Área descoberta permeável destinada à infiltração de água.</td>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Gabarito de Altura Máxima
+                      </td>
+                      {fiuUrbanContext.zones.map((zone) => {
+                        const zData = findZoneData(zone, parametrosZonasData);
+                        return (
+                          <td key={`gab-${zone}`} className="py-2.5 px-3.5 font-medium text-slate-900">
+                            {formatGabaritoValue(zData?.gabaritoAlturaMaxima)}
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Altura máxima medida a partir do perfil natural do terreno até o topo da edificação.
+                      </td>
                     </tr>
+
+                    {/* Recuo de Frente */}
                     <tr>
-                      <td className="py-2 px-3 font-medium">Recuos Obrigatórios (Frente, Laterais, Fundos)</td>
-                      <td className="py-2 px-3 text-slate-900">Conforme LPUOS</td>
-                      <td className="py-2 px-3 text-[11px] text-slate-500">Distâncias mínimas entre a edificação e as divisas do lote.</td>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Recuo Mínimo de Frente
+                      </td>
+                      {fiuUrbanContext.zones.map((zone) => {
+                        const zData = findZoneData(zone, parametrosZonasData);
+                        return (
+                          <td key={`rec-frente-${zone}`} className="py-2.5 px-3.5 text-slate-900">
+                            {formatSetbackValue(zData?.recuoMinimoFrente)}
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Distância mínima obrigatória entre a edificação e o alinhamento da via pública.
+                      </td>
+                    </tr>
+
+                    {/* Recuos Laterais e Fundos */}
+                    <tr>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Recuos Laterais e de Fundos
+                      </td>
+                      {fiuUrbanContext.zones.map((zone) => {
+                        const zData = findZoneData(zone, parametrosZonasData);
+                        const r10 = zData?.recuoMinimoFundosLateraisAlturaEdificacaoMenorOuIgual10;
+                        const rSup = zData?.recuoMinimoFundosLateraisAlturaEdificacaoSuperior10;
+                        return (
+                          <td key={`rec-lat-${zone}`} className="py-2.5 px-3.5 text-slate-900 text-[11px]">
+                            <div>H ≤ 10m: {formatSetbackValue(r10)}</div>
+                            <div className="text-slate-500 mt-0.5">
+                              H &gt; 10m: {rSup ? String(rSup) : "3,00 m"}
+                            </div>
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Distâncias mínimas entre as fachadas da edificação e as divisas laterais/fundos do lote.
+                      </td>
+                    </tr>
+
+                    {/* Cota Parte */}
+                    <tr>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Cota Parte Máxima de Terreno por Unidade
+                      </td>
+                      {fiuUrbanContext.zones.map((zone) => {
+                        const zData = findZoneData(zone, parametrosZonasData);
+                        const cp = zData?.cotaParteMaximaTerrenoPorUnidade;
+                        return (
+                          <td key={`cota-${zone}`} className="py-2.5 px-3.5 font-mono text-slate-900">
+                            {cp && String(cp).trim() !== "-" && !String(cp).toUpperCase().startsWith("NA")
+                              ? `${cp} m²/UH`
+                              : "Não aplicável"}
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Área mínima de terreno atribuída a cada unidade habitacional para adensamento.
+                      </td>
+                    </tr>
+
+                    {/* Taxa de Permeabilidade Mínima */}
+                    <tr>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Taxa de Permeabilidade Mínima (TP)
+                        <span className="block text-[10px] text-slate-400 font-normal">
+                          {fiuUrbanContext.pqa[0] || "PQA incidente"}
+                        </span>
+                      </td>
+                      {fiuUrbanContext.zones.map((zone, idx) => {
+                        if (idx > 0) {
+                          return <td key={`tp-empty-${zone}`} className="py-2.5 px-3.5 text-slate-400">-</td>;
+                        }
+                        const pData = findPqaData(fiuUrbanContext.pqa[0], parametrosPqaData);
+                        const tpVal =
+                          fiuUrbanContext.areaNumeric > 500
+                            ? pData?.["taxaPermeabilidadeLote>500"]
+                            : pData?.["taxaPermeabilidadeLote≤500"];
+                        return (
+                          <td
+                            key={`tp-${zone}`}
+                            colSpan={fiuUrbanContext.zones.length > 1 ? fiuUrbanContext.zones.length : 1}
+                            className="py-2.5 px-3.5 font-mono font-semibold text-emerald-800"
+                          >
+                            {formatPercentValue(tpVal || 0.15)}
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Percentual do terreno destinado exclusivamente à infiltração natural das águas pluviais.
+                      </td>
+                    </tr>
+
+                    {/* Quota Ambiental Mínima */}
+                    <tr>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Quota Ambiental (QA) • Pontuação Mínima
+                      </td>
+                      {fiuUrbanContext.zones.map((zone, idx) => {
+                        if (idx > 0) return null;
+                        const pData = findPqaData(fiuUrbanContext.pqa[0], parametrosPqaData);
+                        let qaPoints: any = "-";
+                        const a = fiuUrbanContext.areaNumeric;
+                        if (a <= 500 && a > 0) {
+                          qaPoints = "Dispensada para lotes ≤ 500 m²";
+                        } else if (a > 500 && a <= 1000) {
+                          qaPoints = formatNumberValue(pData?.["pontuacaoQaMinimoLote>500≤1000"]);
+                        } else if (a > 1000 && a <= 2500) {
+                          qaPoints = formatNumberValue(pData?.["pontuacaoQaMinimoLote>1000≤2500"]);
+                        } else if (a > 2500 && a <= 5000) {
+                          qaPoints = formatNumberValue(pData?.["pontuacaoQaMinimoLote>2500≤5000"]);
+                        } else if (a > 5000 && a <= 10000) {
+                          qaPoints = formatNumberValue(pData?.["pontuacaoQaMinimoLote>5000≤10000"]);
+                        } else if (a > 10000) {
+                          qaPoints = formatNumberValue(pData?.["pontuacaoQaMinimoLote>10000"]);
+                        } else {
+                          qaPoints = "Conforme área do lote";
+                        }
+
+                        return (
+                          <td
+                            key={`qa-${zone}`}
+                            colSpan={fiuUrbanContext.zones.length}
+                            className="py-2.5 px-3.5 font-medium text-slate-900"
+                          >
+                            {typeof qaPoints === "string" && qaPoints.includes("Dispensada")
+                              ? qaPoints
+                              : `${qaPoints} pontos`}
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Pontuação mínima exigida para qualificação ambiental, drenagem e cobertura vegetal.
+                      </td>
+                    </tr>
+
+                    {/* Níveis de Ruído */}
+                    <tr>
+                      <td className="py-2.5 px-3.5 font-medium">
+                        Nível de Ruído Máximo Permitido (NCA)
+                      </td>
+                      {fiuUrbanContext.zones.map((zone) => {
+                        const zData = findZoneData(zone, parametrosZonasData);
+                        const rDiurno = zData?.nivelCriterioAvaliacaoNcaAmbienteExternoDbEmissaoRuido7hAs19h;
+                        const rVesp = zData?.nivelCriterioAvaliacaoNcaAmbienteExternoDbEmissaoRuido19hAs22h;
+                        const rNot = zData?.nivelCriterioAvaliacaoNcaAmbienteExternoDbEmissaoRuido22hAs7h;
+                        return (
+                          <td key={`ruido-${zone}`} className="py-2.5 px-3.5 text-[11px] text-slate-800">
+                            <div>7h-19h: {rDiurno ? `${rDiurno} dB(A)` : "-"}</div>
+                            <div>19h-22h: {rVesp ? `${rVesp} dB(A)` : "-"}</div>
+                            <div>22h-7h: {rNot ? `${rNot} dB(A)` : "-"}</div>
+                          </td>
+                        );
+                      })}
+                      <td className="py-2.5 px-3.5 text-[11px] text-slate-500">
+                        Limite de emissão de ruído no ambiente externo (Quadro nº 4B da Lei nº 16.402/2016).
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -1478,66 +2119,181 @@ const PrintPage = () => {
               </div>
             </div>
 
-            {/* 5. ANÁLISE POR USO PRETENDIDO (QUADRO 4A / LPUOS) */}
+            {/* 5. USO PRETENDIDO, PERMISSIBILIDADE E CONDIÇÕES DE INSTALAÇÃO */}
             <div className="rounded-xl border border-slate-200/80 overflow-hidden break-inside-avoid">
               <div className="bg-slate-50/70 px-4 py-2.5 border-b border-slate-200/80 flex items-center justify-between">
-                <h2 className="text-xs font-semibold text-slate-800">
-                  5. Uso pretendido e condições de instalação
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xs font-semibold text-slate-800">
+                    5. Uso pretendido, permissibilidade e condições de instalação
+                  </h2>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                    Quadros nº 4 e 4A (Lei nº 16.402/2016)
+                  </span>
+                </div>
                 <span className="text-[11px] text-slate-500">
-                  Quadro 4A (Lei nº 16.402/2016)
+                  Decreto nº 57.378/2016
                 </span>
               </div>
-              <div className="p-4 space-y-3 bg-white text-xs">
-                {intendedUse.trim() ? (
+
+              <div className="p-4 space-y-4 bg-white text-xs">
+                {selectedUse ? (
                   <>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg bg-slate-50/60 border border-slate-200/70">
-                      <div>
-                        <span className="text-slate-500 text-[11px] font-medium">
-                          Uso informado:
-                        </span>
-                        <p className="font-semibold text-slate-900 text-sm">
-                          {intendedUse.trim()}
-                        </p>
+                    {/* Card do Uso Selecionado com hierarquia e CNAE */}
+                    <IntendedUseCard
+                      selectedUse={selectedUse}
+                      onSelectUse={setSelectedUse}
+                    />
+
+                    {/* Descrição Complementar Municipal do CNAE se houver */}
+                    {selectedUse.cnaeOriginario &&
+                      Boolean(
+                        getObjValue(selectedUse.cnaeOriginario, [
+                          "descricaoComplementarMunicipioSaoPauloOndeConstamRestricoesMunicipais",
+                          "Descrição Complementar do Município de São Paulo onde constam restrições municipais",
+                          "Descrição Complementar (Município de São Paulo, onde constam restrições municipais)",
+                        ]),
+                      ) && (
+                        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-950 space-y-1">
+                          <span className="font-bold text-amber-900 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-amber-500" />
+                            Restrições Municipais Específicas para esta Atividade (Decreto nº 57.378/2016):
+                          </span>
+                          <p className="leading-relaxed">
+                            {getObjValue(selectedUse.cnaeOriginario, [
+                              "descricaoComplementarMunicipioSaoPauloOndeConstamRestricoesMunicipais",
+                              "Descrição Complementar do Município de São Paulo onde constam restrições municipais",
+                              "Descrição Complementar (Município de São Paulo, onde constam restrições municipais)",
+                            ])}
+                          </p>
+                        </div>
+                      )}
+
+                    {/* Permissibilidade nas zonas incidentes */}
+                    <div className="space-y-2 pt-1">
+                      <span className="text-xs font-semibold text-slate-900 block">
+                        Permissibilidade no Zoneamento Incidente do Imóvel (Quadro nº 4):
+                      </span>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {fiuUrbanContext.zones.map((zone) => {
+                          const perm = getZonePermissibility(zone, regrasZonamento);
+                          return (
+                            <div
+                              key={`perm-${zone}`}
+                              className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 space-y-2 flex flex-col justify-between"
+                            >
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="font-bold text-slate-900 text-xs">
+                                    Zona {zone}
+                                  </span>
+                                  {perm && (
+                                    <span
+                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-semibold border ${perm.badgeColor}`}
+                                    >
+                                      {perm.label}
+                                    </span>
+                                  )}
+                                </div>
+                                {perm && (
+                                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                                    {perm.description}
+                                  </p>
+                                )}
+                              </div>
+
+                              {perm && perm.notes.length > 0 && (
+                                <div className="space-y-1.5 pt-2 border-t border-slate-200/60">
+                                  {perm.notes.map((nota) => (
+                                    <div
+                                      key={nota}
+                                      className="p-2.5 rounded-lg bg-amber-50 border border-amber-200/80 text-[10.5px] text-amber-950 leading-relaxed"
+                                    >
+                                      <span className="font-bold block text-amber-900 mb-0.5">
+                                        Nota {nota.replace(/[()]/g, "")}:
+                                      </span>
+                                      {getNoteFullText(nota)}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                      <p className="text-[10px] text-slate-500 max-w-xs sm:text-right">
-                        Condições de instalação e vagas aplicáveis conforme o Quadro 4A.
-                      </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px]">
-                      <div className="p-2.5 rounded-lg border border-slate-200/70 bg-slate-50/40">
-                        <span className="block text-slate-900 font-medium mb-0.5">
-                          Vagas de automóveis
+                    {/* Condições de Instalação (Quadro 4A) */}
+                    <div className="space-y-2.5 pt-2 border-t border-slate-200/80">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-900 block">
+                          Condições de Instalação e Parâmetros Específicos do Uso (Quadro nº 4A):
                         </span>
-                        <p className="text-slate-500 text-[10px]">
-                          Calculado por área computável ou número de unidades habitacionais.
-                        </p>
-                      </div>
-                      <div className="p-2.5 rounded-lg border border-slate-200/70 bg-slate-50/40">
-                        <span className="block text-slate-900 font-medium mb-0.5">
-                          Carga e descarga
+                        <span className="text-[10px] text-slate-500 font-medium">
+                          {condicoesInstalacao.length} parâmetro(s) regulamentado(s)
                         </span>
-                        <p className="text-slate-500 text-[10px]">
-                          Exigível conforme área computável e localização territorial.
-                        </p>
                       </div>
-                      <div className="p-2.5 rounded-lg border border-slate-200/70 bg-slate-50/40">
-                        <span className="block text-slate-900 font-medium mb-0.5">
-                          Largura da via
-                        </span>
-                        <p className="text-slate-500 text-[10px]">
-                          Mínimo de 12 metros em ZEU/ZEUP com vagas de estacionamento.
-                        </p>
-                      </div>
+
+                      {condicoesInstalacao.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-[11px]">
+                          {condicoesInstalacao.map((cond, idx) => {
+                            const notes = Array.from(new Set(cond.notas || []));
+                            return (
+                              <div
+                                key={`cond-${idx}`}
+                                className="p-3 rounded-xl border border-slate-200/80 bg-slate-50/40 flex flex-col justify-between gap-2.5"
+                              >
+                                <div>
+                                  <span className="block text-slate-800 font-semibold mb-1 leading-snug">
+                                    {formatParameter(cond.parametro)}
+                                  </span>
+                                  <p className="text-primary font-mono font-bold text-xs pt-0.5">
+                                    {cond.valor || "Conforme regulamentação"}
+                                  </p>
+                                </div>
+
+                                {notes.length > 0 && (
+                                  <div className="space-y-1.5 pt-2 border-t border-slate-200/60">
+                                    {notes.map((note) => (
+                                      <div
+                                        key={note}
+                                        className="text-[10px] text-slate-700 bg-white p-2 rounded-lg border border-slate-200 leading-relaxed"
+                                      >
+                                        <span className="font-bold text-amber-800 block mb-0.5">
+                                          Nota {note.replace(/[()]/g, "")}:
+                                        </span>
+                                        {getNoteFullText(note)}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-slate-500 text-[11px] leading-relaxed">
+                          Sem exigências específicas adicionais de condições de instalação no Quadro nº 4A para este uso. Aplicam-se os parâmetros gerais do zoneamento e do Código de Obras e Edificações.
+                        </div>
+                      )}
                     </div>
                   </>
                 ) : (
-                  <div className="p-3 rounded-lg bg-slate-50/60 border border-slate-200/70 text-slate-600 text-xs">
-                    <span className="font-medium text-slate-800">Uso não especificado na consulta.</span>{" "}
-                    <span className="text-slate-500">
-                      Os parâmetros gerais seguem o zoneamento incidente. Para detalhamento de vagas e incomodidade, informe a atividade desejada.
-                    </span>
+                  <div className="p-4 rounded-xl bg-slate-50/60 border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="space-y-1 max-w-xl">
+                      <span className="font-semibold text-slate-900 text-xs block">
+                        Nenhum uso pretendido selecionado para esta consulta.
+                      </span>
+                      <p className="text-slate-500 text-[11px] leading-relaxed">
+                        Selecione uma atividade municipal da LPUOS, CNAE federal ou CNPJ para verificar a permissão no zoneamento incidente e calcular exigências de vagas de estacionamento, carga e descarga e largura de via.
+                      </p>
+                    </div>
+                    <div className="shrink-0 w-full sm:w-auto">
+                      <IntendedUseCard
+                        selectedUse={selectedUse}
+                        onSelectUse={setSelectedUse}
+                        isCompact={true}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -1690,7 +2446,9 @@ const PrintPage = () => {
           <div className="mt-2 grid gap-1.5 sm:grid-cols-[180px_minmax(0,1fr)]">
             <span className="font-medium text-slate-500">Uso informado:</span>
             <span className="font-medium text-slate-900">
-              {intendedUse.trim() || "Não informado"}
+              {selectedUse
+                ? `${getObjValue(selectedUse.item, ["Código", "Codigo", "codigo"]) || getObjValue(selectedUse, ["codigo", "code"])} - ${getObjValue(selectedUse.item, ["Descrição", "Descricao", "descricao"]) || getObjValue(selectedUse, ["descricao", "description"])}`
+                : "Não informado"}
             </span>
             <span className="font-medium text-slate-500">
               Zonas identificadas:

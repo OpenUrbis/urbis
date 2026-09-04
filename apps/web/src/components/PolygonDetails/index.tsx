@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, Input, UrbisIcon } from "@open-urbis/map-ui";
+import { Button, Card, CardContent, UrbisIcon } from "@open-urbis/map-ui";
 import { useSignal } from "@preact/signals";
 import { useState, useMemo } from "preact/hooks";
 import { Check, Edit, FileText } from "lucide-react";
@@ -8,6 +8,8 @@ import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { buildGeometryFiuUrl, canOpenFiuFromGeometry, getFeatureAreaSquareMeters } from "../../utils/fiu";
 import { FiuDisclaimerModal } from "../FiuDisclaimerModal";
 import { ITemplate } from "../ViewTemplate/types/templates-type";
+import { IntendedUseCard } from "../ProspectiveSearch/ui/IntendedUseCard";
+import { UsoSearchResultItem } from "../ProspectiveSearch/utils/types";
 
 const INTERSECTION_NAME_FIELDS = [
   "nm_tema_divisao_pde",
@@ -140,7 +142,7 @@ export const PolygonDetails = ({
 
   // States for Item 0054 workflow: Geometry confirmation and optional Intended Use
   const [isGeometryConfirmed, setIsGeometryConfirmed] = useState(false);
-  const [intendedUse, setIntendedUse] = useState("");
+  const [selectedUse, setSelectedUse] = useState<UsoSearchResultItem | null>(null);
 
   const handleExit = () => {
     resetPolygonEdit();
@@ -177,13 +179,10 @@ export const PolygonDetails = ({
       feature: feature.value,
       response: data || feature.value,
       template,
+      selectedUse,
     });
 
-    const finalUrl = intendedUse.trim()
-      ? `${url}&uso=${encodeURIComponent(intendedUse.trim())}`
-      : url;
-
-    window.open(finalUrl, "_blank");
+    window.open(url, "_blank");
   };
 
   const handleOpenFiuClick = () => {
@@ -317,18 +316,15 @@ export const PolygonDetails = ({
 
             {/* Uso pretendido (opcional) Section */}
             <div className="rounded-xl border bg-background p-3 space-y-2">
-              <label htmlFor="fiu-intended-use" className="block text-xs font-semibold text-foreground">
+              <label className="block text-xs font-semibold text-foreground">
                 Uso pretendido (opcional)
               </label>
               <p className="text-[11px] leading-relaxed text-muted-foreground">
-                Caso já possua um uso pretendido e deseje verificar sua permissão pelo Zoneamento e quais os parâmetros urbanísticos associados a ele, preencha abaixo:
+                Caso já possua um uso pretendido e deseje verificar sua permissão pelo Zoneamento e quais os parâmetros urbanísticos associados a ele, selecione abaixo:
               </p>
-              <Input
-                id="fiu-intended-use"
-                placeholder="Ex.: Padaria, Escritório, Residência Unifamiliar..."
-                value={intendedUse}
-                onInput={(e) => setIntendedUse(e.currentTarget.value)}
-                className="h-8 text-xs"
+              <IntendedUseCard
+                selectedUse={selectedUse}
+                onSelectUse={setSelectedUse}
               />
             </div>
 

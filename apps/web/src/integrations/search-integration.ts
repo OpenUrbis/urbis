@@ -122,28 +122,33 @@ const buildCifCql = (term: string) => {
   return candidates
     .map((candidate) => {
       const parts = [
-        `cd_setor_fiscal = '${candidate.setor}'`,
-        `cd_quadra_fiscal = '${candidate.quadra}'`,
-        `cd_tipo_lote = '${candidate.cd_tipo_lote}'`,
+        `setor_fiscal = ${parseInt(candidate.setor, 10)}`,
+        `quadra_fiscal = ${parseInt(candidate.quadra, 10)}`,
       ];
       if (candidate.condominio)
-        parts.push(`cd_condominio = '${candidate.condominio}'`);
-      if (candidate.lote) parts.push(`cd_lote = '${candidate.lote}'`);
-      if (candidate.digito) parts.push(`cd_digito_sql = '${candidate.digito}'`);
+        parts.push(`condominio = ${parseInt(candidate.condominio, 10)}`);
+      if (candidate.lote) parts.push(`lote_fiscal = ${parseInt(candidate.lote, 10)}`);
+      if (candidate.digito) parts.push(`digito_verificador = ${parseInt(candidate.digito, 10)}`);
       return `(${parts.join(" AND ")})`;
     })
     .join(" OR ");
 };
 
 const buildCifSearchParams = (term: string) => {
-  const CQL_FILTER = buildCifCql(term);
-  if (!CQL_FILTER) return null;
+  const iptuFilter = buildCifCql(term);
+  const safeTerm = String(term).replace(/'/g, "''").trim();
+  const words = safeTerm.split(/\s+/).filter(Boolean);
+  const logradouroFilter = words.length > 0
+    ? words.map((w) => `logradouro ILIKE '%${w}%'`).join(" AND ")
+    : `logradouro ILIKE '%${safeTerm}%'`;
+
+  const CQL_FILTER = iptuFilter || logradouroFilter;
 
   return {
     service: "WFS",
     version: "1.0.0",
     request: "GetFeature",
-    typeName: "slui:view_lote_cidadao",
+    typeName: "slui:lotes_fiscais",
     maxFeatures: "5",
     outputFormat: "json",
     srsName: "EPSG:4326",
@@ -200,40 +205,46 @@ const transformCifSearchResponse = (responseJson: any): IGetSearchItem[] => {
 
     const { properties = {}, id } = feature;
     const {
+      logradouro,
+      numero,
+      complemento,
       endereco_completo,
       nm_logradouro_completo,
       cd_numero_porta,
+      sql,
+      sql_condominio,
+      setor_fiscal,
+      quadra_fiscal,
+      lote_fiscal,
+      condominio,
+      digito_verificador,
       cd_setor_fiscal,
       cd_quadra_fiscal,
       cd_lote,
       cd_condominio,
       cd_digito_sql,
+      tipo_lote_fiscal,
       cd_tipo_lote,
     } = properties;
+
+    const street = logradouro ?? nm_logradouro_completo;
+    const num = numero ?? cd_numero_porta;
+    const comp = complemento;
     const address =
-      endereco_completo ??
-      [nm_logradouro_completo, cd_numero_porta].filter(Boolean).join(" ");
-    const hasCondominio = cd_condominio && cd_condominio !== "00";
-    let typePrefix = "";
-    if (cd_tipo_lote === "V") {
-      typePrefix = "V";
-    } else if (cd_tipo_lote === "M") {
-      typePrefix = "EL";
-    }
-    const lotePart = typePrefix ? `${typePrefix}${cd_lote}` : cd_lote;
-    const iptu = hasCondominio
-      ? [cd_setor_fiscal, cd_quadra_fiscal, `CD${cd_condominio}`, lotePart]
-          .filter(Boolean)
-          .join(".")
-      : [cd_setor_fiscal, cd_quadra_fiscal, lotePart].filter(Boolean).join(".");
-    const iptuLabel = cd_digito_sql ? `${iptu}-${cd_digito_sql}` : iptu;
+      endereco_completo ?? [street, num, comp].filter(Boolean).join(" ");
+
+    const iptuLabel = sql ?? (setor_fiscal !== undefined
+      ? `${String(setor_fiscal).padStart(3, "0")}.${String(quadra_fiscal).padStart(3, "0")}.${condominio ? "CD" + String(condominio).padStart(2, "0") + "." : ""}${String(lote_fiscal).padStart(4, "0")}-${digito_verificador ?? 0}`
+      : (cd_setor_fiscal
+        ? `${cd_setor_fiscal}.${cd_quadra_fiscal}.${cd_condominio && cd_condominio !== "00" ? "CD" + cd_condominio + "." : ""}${cd_lote}${cd_digito_sql ? "-" + cd_digito_sql : ""}`
+        : ""));
 
     return [
       {
         id,
         latitude: center.latitude,
         longitude: center.longitude,
-        name: iptuLabel ? `CIF ${iptuLabel} — ${address}` : address,
+        name: iptuLabel ? `SQL ${iptuLabel} — ${address || "Sem endereço"}` : (address || "Lote fiscal"),
         rawData: feature,
       },
     ];

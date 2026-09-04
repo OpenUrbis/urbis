@@ -556,25 +556,25 @@ export const FeatureAttributesTable = ({
       role="region"
       aria-label="Tabela de atributos da geometria consultada"
     >
-      {/* Feições identificadas - Chips compactos agrupados lado a lado */}
+      {/* Feições identificadas - Chips ultra-compactos agrupados lado a lado */}
       {availableFeatures.length > 0 && (
-        <div className="space-y-1.5 rounded-xl border border-border/80 bg-muted/15 p-2.5 shadow-2xs">
-          <div className="flex items-center justify-between gap-2 px-0.5 text-[11px] font-semibold text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Layers className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+        <div className="space-y-1 rounded-lg border border-border/70 bg-muted/10 p-2 shadow-2xs">
+          <div className="flex items-center justify-between gap-1.5 px-0.5 text-[10.5px] font-semibold text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Layers className="h-3 w-3 text-primary" aria-hidden="true" />
               <span>
                 {availableFeatures.length === 1
                   ? "Feição selecionada (1 feição):"
-                  : `Feições das camadas neste local (${availableFeatures.length}):`}
+                  : `Feições das camadas (${availableFeatures.length}):`}
               </span>
             </div>
-            <span className="text-[10px] text-muted-foreground font-normal hidden sm:inline">
-              Clique em uma feição para ver seus dados cadastrais
+            <span className="text-[9.5px] text-muted-foreground/80 font-normal hidden sm:inline">
+              Clique para alternar a feição
             </span>
           </div>
 
           <div
-            className="flex items-center gap-1.5 flex-wrap"
+            className="flex items-center gap-1 flex-wrap"
             role="tablist"
             aria-label="Lista de feições das camadas identificadas"
           >
@@ -592,10 +592,10 @@ export const FeatureAttributesTable = ({
                   onClick={() => handleSelectFeature(idx, item)}
                   onKeyDown={(e) => handleChipKeyDown(e, idx)}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-[11px] font-medium transition-all border flex items-center gap-1.5 shrink-0 shadow-2xs select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
+                    "h-6 px-2 rounded-md text-[10.5px] font-medium transition-all border flex items-center gap-1 shrink-0 select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
                     isSelected
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs font-semibold ring-2 ring-primary/20"
-                      : "bg-background text-foreground border-border/80 hover:bg-muted/70 hover:border-primary/50"
+                      ? "bg-primary text-primary-foreground border-primary shadow-2xs font-semibold"
+                      : "bg-background text-foreground border-border/70 hover:bg-muted/60 hover:border-primary/40"
                   )}
                   aria-label={`${item.label}${item.percentage ? `, sobreposição de ${item.percentage}` : ""}${item.isActiveOnMap ? ", camada visível no mapa" : ""}`}
                 >
@@ -610,13 +610,13 @@ export const FeatureAttributesTable = ({
                     )}
                     aria-hidden="true"
                   />
-                  <span className="truncate max-w-[200px]">{item.label}</span>
+                  <span className="truncate max-w-[150px] leading-none">{item.label}</span>
 
                   {/* Porcentagem de Intersecção no Chip */}
                   {item.percentage && (
                     <span
                       className={cn(
-                        "text-[9.5px] font-bold px-1.5 py-0.5 rounded-full leading-none shrink-0",
+                        "text-[8.5px] font-bold px-1 py-0.2 rounded-xs leading-none shrink-0",
                         isSelected
                           ? "bg-primary-foreground/25 text-primary-foreground"
                           : "bg-primary/10 text-primary border border-primary/20"
@@ -631,10 +631,10 @@ export const FeatureAttributesTable = ({
                   {item.isActiveOnMap && (
                     <span
                       className={cn(
-                        "text-[9px] font-medium px-1.5 py-0.5 rounded-full leading-none shrink-0",
+                        "text-[8px] font-semibold px-1 py-0.2 rounded-xs leading-none shrink-0",
                         isSelected
                           ? "bg-primary-foreground/20 text-primary-foreground"
-                          : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20"
+                          : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                       )}
                       title="Esta camada está ligada e visível no mapa"
                     >

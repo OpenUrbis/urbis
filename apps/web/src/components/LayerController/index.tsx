@@ -892,83 +892,91 @@ const BaseMapsPanel = ({ onOpenOptions }: BaseMapsPanelProps) => {
         title="Mapas base"
         description="Escolha a referência visual de fundo e configure a visualização 3D e ajustes visuais."
       />
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3">
-        {/* Visualização 3D (Switch direto e limpo) */}
-        <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-3 text-xs">
-          <div className="flex items-center gap-2">
-            <UrbisIcon
-              name="view_in_ar"
-              className="text-muted-foreground text-base shrink-0"
-              aria-hidden="true"
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+        {/* Controles rápidos compactos: 3D e Sobrepor */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <label
+            htmlFor="3d-mode-panel"
+            className="flex items-center justify-between gap-1.5 rounded-xl border bg-muted/20 px-3 py-2 cursor-pointer hover:bg-muted/40 transition-colors select-none"
+          >
+            <span className="flex items-center gap-1.5 font-medium truncate">
+              <UrbisIcon
+                name="view_in_ar"
+                className="text-muted-foreground text-base shrink-0"
+                aria-hidden="true"
+              />
+              Edificações 3D
+            </span>
+            <Switch
+              id="3d-mode-panel"
+              checked={is3DActive.value}
+              onCheckedChange={(checked) => (is3DActive.value = checked)}
+              className="scale-90"
             />
-            <div className="flex flex-col">
-              <Label htmlFor="3d-mode-panel" className="font-medium cursor-pointer text-xs">
-                Visualização 3D
-              </Label>
-              <span className="text-[10px] text-muted-foreground">
-                Ativa a volumetria 3D das edificações sobre qualquer mapa base
-              </span>
-            </div>
-          </div>
-          <Switch
-            id="3d-mode-panel"
-            checked={is3DActive.value}
-            onCheckedChange={(checked) => (is3DActive.value = checked)}
-          />
+          </label>
+
+          <label
+            htmlFor="multi-base-mode-lc"
+            className="flex items-center justify-between gap-1.5 rounded-xl border bg-muted/20 px-3 py-2 cursor-pointer hover:bg-muted/40 transition-colors select-none"
+          >
+            <span className="flex items-center gap-1.5 font-medium truncate">
+              <UrbisIcon
+                name="layers"
+                className="text-muted-foreground text-base shrink-0"
+                aria-hidden="true"
+              />
+              Sobrepor mapas
+            </span>
+            <Switch
+              id="multi-base-mode-lc"
+              checked={isMultiSelect.value}
+              onCheckedChange={handleMultiSelectChange}
+              className="scale-90"
+            />
+          </label>
         </div>
 
-        {/* Ajustes Visuais dos Mapas Base: Opacidade Individual/Global & Saturação */}
-        <div className="space-y-3 rounded-xl border bg-muted/20 p-3 text-xs">
-          <h4 className="font-semibold text-sm">Ajustes Visuais</h4>
+        {/* Ajustes de Opacidade e Saturação */}
+        <div className="space-y-2.5 rounded-xl border bg-muted/20 p-3 text-xs">
+          {activeBaseMaps.map((styleId, idx) => {
+            const itemConfig = BASE_MAPS_CONFIG.find((c) => c.id === styleId);
+            const name = itemConfig?.nome ?? styleId;
+            const opacityVal = getOpacityForStyle(styleId);
 
-          <div className="space-y-3">
-            <span className="text-[11px] font-medium text-muted-foreground">
-              {activeBaseMaps.length > 1
-                ? "Opacidade individual por mapa base"
-                : "Opacidade do mapa base"}
-            </span>
-            {activeBaseMaps.map((styleId, idx) => {
-              const itemConfig = BASE_MAPS_CONFIG.find((c) => c.id === styleId);
-              const name = itemConfig?.nome ?? styleId;
-              const opacityVal = getOpacityForStyle(styleId);
-
-              return (
-                <div key={styleId} className="space-y-1.5 border-b border-border/40 pb-2.5 last:border-0 last:pb-0">
-                  <div className="flex items-center justify-between font-medium">
-                    <span className="flex items-center gap-1.5 text-foreground truncate max-w-[200px]">
-                      {activeBaseMaps.length > 1 && (
-                        <span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground px-1 shrink-0">
-                          {idx + 1}º
-                        </span>
-                      )}
-                      <UrbisIcon name="opacity" className="text-base text-muted-foreground shrink-0" aria-hidden="true" />
-                      <span className="truncate">{name}</span>
-                    </span>
-                    <span className="tabular-nums font-semibold shrink-0">{opacityVal}%</span>
-                  </div>
-                  <Slider
-                    min={0}
-                    max={100}
-                    step={1}
-                    value={[opacityVal]}
-                    onValueChange={([val]) => {
-                      if (val !== undefined) setOpacityForStyle(styleId, val);
-                    }}
-                    aria-label={`Opacidade de ${name}`}
-                  />
+            return (
+              <div key={styleId} className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-foreground truncate max-w-[200px]">
+                    {activeBaseMaps.length > 1 && (
+                      <span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground px-1 shrink-0">
+                        {idx + 1}º
+                      </span>
+                    )}
+                    <span className="truncate">Opacidade {activeBaseMaps.length > 1 ? `(${name})` : ""}</span>
+                  </span>
+                  <span className="tabular-nums font-medium text-muted-foreground">{opacityVal}%</span>
                 </div>
-              );
-            })}
-          </div>
+                <Slider
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={[opacityVal]}
+                  onValueChange={([val]) => {
+                    if (val !== undefined) setOpacityForStyle(styleId, val);
+                  }}
+                  aria-label={`Opacidade de ${name}`}
+                />
+              </div>
+            );
+          })}
 
-          {/* Saturação */}
-          <div className="space-y-1.5 pt-1 border-t border-border/40">
-            <div className="flex items-center justify-between font-medium">
+          <div className="space-y-1 pt-2 border-t border-border/40">
+            <div className="flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-muted-foreground">
-                <UrbisIcon name="palette" className="text-base" aria-hidden="true" />
-                Saturação Global
+                <UrbisIcon name="palette" className="text-sm shrink-0" aria-hidden="true" />
+                Saturação
               </span>
-              <span className="tabular-nums font-semibold">{baseMapSaturation?.value ?? 100}%</span>
+              <span className="tabular-nums font-medium text-muted-foreground">{baseMapSaturation?.value ?? 100}%</span>
             </div>
             <Slider
               min={0}
@@ -981,26 +989,6 @@ const BaseMapsPanel = ({ onOpenOptions }: BaseMapsPanelProps) => {
               aria-label="Saturação dos mapas base"
             />
           </div>
-        </div>
-
-        {/* Multi-select toggle ("Sobre" / Vários mapas base) */}
-        <div className="flex items-center justify-between rounded-xl border bg-background px-3 py-2 text-xs">
-          <div className="flex items-center gap-2">
-            <Layers className="h-4 w-4 text-muted-foreground" />
-            <div className="flex flex-col">
-              <Label htmlFor="multi-base-mode-lc" className="font-medium cursor-pointer text-xs">
-                Vários mapas base (Sobre)
-              </Label>
-              <span className="text-[10px] text-muted-foreground">
-                Sobrepor múltiplos mapas base
-              </span>
-            </div>
-          </div>
-          <Switch
-            id="multi-base-mode-lc"
-            checked={isMultiSelect.value}
-            onCheckedChange={handleMultiSelectChange}
-          />
         </div>
 
         <section className="space-y-2">

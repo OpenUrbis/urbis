@@ -768,8 +768,12 @@ const BaseMapsPanel = ({ onOpenOptions }: BaseMapsPanelProps) => {
   const activeBaseMaps = selectedBaseMaps?.value ?? [selectedBaseMap.value];
   const isMultiSelect = useSignal<boolean>(activeBaseMaps.length > 1);
 
-  const getOpacityForStyle = (styleId: string) =>
-    baseMapOpacities?.value?.[styleId] ?? baseMapOpacity?.value ?? 100;
+  const getOpacityForStyle = (styleId: string) => {
+    const individual = baseMapOpacities?.value?.[styleId];
+    if (individual !== undefined) return individual;
+    if (activeBaseMaps.length === 1) return baseMapOpacity?.value ?? 100;
+    return 100;
+  };
 
   const setOpacityForStyle = (styleId: string, value: number) => {
     if (baseMapOpacities) {
@@ -778,7 +782,7 @@ const BaseMapsPanel = ({ onOpenOptions }: BaseMapsPanelProps) => {
         [styleId]: value,
       };
     }
-    if (baseMapOpacity) {
+    if (baseMapOpacity && activeBaseMaps.length === 1) {
       baseMapOpacity.value = value;
     }
   };
@@ -1209,6 +1213,7 @@ export const LayerController = ({
   const {
     layerSchemas,
     zoom,
+    selectedBaseMaps,
     baseMapOpacity,
     baseMapOpacities,
     baseMapSaturation,
@@ -1851,7 +1856,7 @@ export const LayerController = ({
                     </span>
                     <span className="tabular-nums font-semibold">
                       {selectedBaseMapOptions.value?.id
-                        ? (baseMapOpacities?.value?.[selectedBaseMapOptions.value.id] ?? baseMapOpacity?.value ?? 100)
+                        ? (baseMapOpacities?.value?.[selectedBaseMapOptions.value.id] ?? (selectedBaseMaps?.value?.length === 1 ? baseMapOpacity?.value ?? 100 : 100))
                         : (baseMapOpacity?.value ?? 100)}%
                     </span>
                   </div>
@@ -1861,7 +1866,7 @@ export const LayerController = ({
                     step={1}
                     value={[
                       selectedBaseMapOptions.value?.id
-                        ? (baseMapOpacities?.value?.[selectedBaseMapOptions.value.id] ?? baseMapOpacity?.value ?? 100)
+                        ? (baseMapOpacities?.value?.[selectedBaseMapOptions.value.id] ?? (selectedBaseMaps?.value?.length === 1 ? baseMapOpacity?.value ?? 100 : 100))
                         : (baseMapOpacity?.value ?? 100),
                     ]}
                     onValueChange={([val]) => {
@@ -1873,7 +1878,9 @@ export const LayerController = ({
                             [styleId]: val,
                           };
                         }
-                        if (baseMapOpacity) baseMapOpacity.value = val;
+                        if (baseMapOpacity && (!selectedBaseMaps?.value || selectedBaseMaps.value.length <= 1)) {
+                          baseMapOpacity.value = val;
+                        }
                       }
                     }}
                     aria-label="Opacidade do mapa base"

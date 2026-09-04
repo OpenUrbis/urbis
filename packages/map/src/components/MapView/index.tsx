@@ -596,7 +596,7 @@ export const MapView = ({
         const styleLayers = map.getStyle()?.layers || [];
         activeMaps.forEach((styleId, index) => {
           const prefix = `bm_${index}_`;
-          const opacityVal = opacitiesMap[styleId] ?? globalOpacity;
+          const opacityVal = opacitiesMap[styleId] ?? (activeMaps.length === 1 ? globalOpacity : 100);
           const normOpacity = Math.max(0, Math.min(1, opacityVal / 100));
 
           styleLayers.forEach((layer: any) => {

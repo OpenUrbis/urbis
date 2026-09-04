@@ -743,7 +743,7 @@ export const getMapStyle = (
     }
 
     const prefix = `bm_${index}_`;
-    const styleOpacity = opacities?.[styleId] ?? opacity;
+    const styleOpacity = opacities?.[styleId] ?? (stylesToCombine.length === 1 ? opacity : 100);
     const normOpacity = Math.max(0, Math.min(1, styleOpacity / 100));
 
     if (singleStyle.sources) {

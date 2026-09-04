@@ -31,8 +31,12 @@ export const BaseMapSelector = () => {
   const activeBaseMaps = selectedBaseMaps?.value ?? [selectedBaseMap.value];
   const saturation = baseMapSaturation?.value ?? 100;
 
-  const getOpacityForStyle = (styleId: string) =>
-    baseMapOpacities?.value?.[styleId] ?? baseMapOpacity?.value ?? 100;
+  const getOpacityForStyle = (styleId: string) => {
+    const individual = baseMapOpacities?.value?.[styleId];
+    if (individual !== undefined) return individual;
+    if (activeBaseMaps.length === 1) return baseMapOpacity?.value ?? 100;
+    return 100;
+  };
 
   const setOpacityForStyle = (styleId: string, value: number) => {
     if (baseMapOpacities) {
@@ -41,7 +45,7 @@ export const BaseMapSelector = () => {
         [styleId]: value,
       };
     }
-    if (baseMapOpacity) {
+    if (baseMapOpacity && activeBaseMaps.length === 1) {
       baseMapOpacity.value = value;
     }
   };

@@ -67,14 +67,14 @@ describe("FIU & Prospective Intended Use Cross-Referencing", () => {
   ];
 
   it("should build correct use hierarchy for municipal activity", () => {
-    const hierarchy = buildUsoHierarchy("nR1-1-3", mockUsosData);
+    const hierarchy = buildUsoHierarchy("nR1-1-3", mockUsosData as any);
     expect(hierarchy.subtipologiaOuAtividade?.["Código"]).toBe("nR1-1-3");
     expect(hierarchy.tipologiaOuGrupo?.["Código"]).toBe("nR1-1");
     expect(hierarchy.subcategoria?.["Código"]).toBe("nR1");
   });
 
   it("should find use through CNAE search mode", () => {
-    const result = pesquisarUsos("10.91-1/02", mockUsosData, mockCnaeData, "cnae");
+    const result = pesquisarUsos("10.91-1/02", mockUsosData as any, mockCnaeData as any, "cnae");
     expect(result.resultados.length).toBeGreaterThan(0);
     expect(result.resultados[0].item["Código"]).toBe("nR1-1-3");
     expect(result.resultados[0].cnaeOriginario).toBeDefined();

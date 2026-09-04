@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
+import { HelpCircle } from "lucide-react";
 import { UrbisHeader } from "@open-urbis/map-ui/urbis-header";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { useEffect, useMemo, useState } from "react";
@@ -217,7 +218,8 @@ function LayoutInner() {
                 aria-label="Ajuda"
                 title="Ajuda"
               >
-                ?
+                <HelpCircle className="h-4 w-4" aria-hidden="true" />
+                <span className="sr-only">Ajuda</span>
               </Button>
             </div>
           }

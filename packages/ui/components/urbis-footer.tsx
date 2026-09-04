@@ -5,7 +5,8 @@ export function UrbisFooter(_props: any) {
     <footer className="bg-primary text-primary-foreground pt-10 pb-10 font-sans">
       <div className="container mx-auto px-4">
         <div
-          className="text-transparent text-[9vw] font-black leading-none m-0 px-3 h-auto"
+          className="text-transparent text-[9vw] font-black leading-none m-0 px-3 h-auto select-none pointer-events-none"
+          aria-hidden="true"
           style={{
             WebkitTextStroke: "2px hsl(var(--primary-foreground))",
             fontVariationSettings: '"wght" 1000, "wdth" 125',
@@ -45,7 +46,6 @@ export function UrbisFooter(_props: any) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
-                aria-label="Acessar a página inicial do Mosaico"
               >
                 MOSAICO
               </a>
@@ -71,7 +71,6 @@ export function UrbisFooter(_props: any) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
-                aria-label="Acessar o Mapa Urbis"
               >
                 MAPA
               </a>
@@ -104,7 +103,6 @@ export function UrbisFooter(_props: any) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
-                aria-label="Acessar o Viabiliza"
               >
                 VIABILIZA
               </a>
@@ -132,7 +130,6 @@ export function UrbisFooter(_props: any) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
-                aria-label="Acessar Legislação Urbanística do Urbis"
               >
                 LEGIS
               </a>
@@ -162,7 +159,6 @@ export function UrbisFooter(_props: any) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
-                aria-label="Acessar Dados Abertos do Urbis"
               >
                 DADOS ABERTOS
               </a>
@@ -186,7 +182,6 @@ export function UrbisFooter(_props: any) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
-                aria-label="Acessar a documentação do Urbis"
               >
                 DOCUMENTAÇÃO TÉCNICA
               </a>
@@ -215,7 +210,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/agenda-do-prefeito"
                   className="hover:underline"
-                  aria-label="Agenda do Prefeito"
                 >
                   Agenda do prefeito
                 </a>
@@ -224,7 +218,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/dia-do-prefeito"
                   className="hover:underline"
-                  aria-label="Dia do Prefeito"
                 >
                   Dia do Prefeito
                 </a>
@@ -233,7 +226,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://www.prefeitura.sp.gov.br/cidade/secretarias/comunicacao/organizacao/index.php?p=192554"
                   className="hover:underline"
-                  aria-label="Conheça a equipe de governo"
                 >
                   Conheça a equipe de governo
                 </a>
@@ -242,7 +234,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/subprefeitura"
                   className="hover:underline"
-                  aria-label="Subprefeituras"
                 >
                   Subprefeituras
                 </a>
@@ -251,7 +242,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/secretarias"
                   className="hover:underline"
-                  aria-label="Secretarias"
                 >
                   Secretarias
                 </a>
@@ -260,7 +250,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/outros-%C3%B3rg%C3%A3os"
                   className="hover:underline"
-                  aria-label="Outros órgãos"
                 >
                   Outros órgãos
                 </a>
@@ -269,7 +258,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://sp156.prefeitura.sp.gov.br/portal"
                   className="hover:underline"
-                  aria-label="SP 156"
                 >
                   156
                 </a>
@@ -286,7 +274,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=195534"
                   className="hover:underline"
-                  aria-label="Serviços: Animais"
                 >
                   Animais
                 </a>
@@ -295,7 +282,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=182553"
                   className="hover:underline"
-                  aria-label="Serviços: Casa e Moradia"
                 >
                   Casa e Moradia
                 </a>
@@ -304,7 +290,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=193794"
                   className="hover:underline"
-                  aria-label="Serviços: Cultura e Economia Criativa"
                 >
                   Cultura e Economia Criativa
                 </a>
@@ -313,7 +298,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=193398"
                   className="hover:underline"
-                  aria-label="Serviços: Educação"
                 >
                   Educação
                 </a>
@@ -322,7 +306,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=194817"
                   className="hover:underline"
-                  aria-label="Serviços: Esportes e Lazer"
                 >
                   Esportes e Lazer
                 </a>
@@ -331,7 +314,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=185692"
                   className="hover:underline"
-                  aria-label="Serviços: Família e Assistência Social"
                 >
                   Família e Assistência Social
                 </a>
@@ -340,7 +322,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=190770"
                   className="hover:underline"
-                  aria-label="Serviços: Fazenda"
                 >
                   Fazenda
                 </a>
@@ -349,7 +330,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=188442"
                   className="hover:underline"
-                  aria-label="Serviços: Mobilidade Urbana e Transporte"
                 >
                   Mobilidade Urbana e Transporte
                 </a>
@@ -358,7 +338,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=183339"
                   className="hover:underline"
-                  aria-label="Serviços: Rua e Bairro"
                 >
                   Rua e Bairro
                 </a>
@@ -367,7 +346,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=190857"
                   className="hover:underline"
-                  aria-label="Serviços: Saúde e Bem-estar"
                 >
                   Saúde e Bem-estar
                 </a>
@@ -376,7 +354,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=196305"
                   className="hover:underline"
-                  aria-label="Serviços: Segurança"
                 >
                   Segurança
                 </a>
@@ -385,7 +362,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/cidadao?rootCategoryId=122642&categoryId=190800"
                   className="hover:underline"
-                  aria-label="Serviços: Trabalho"
                 >
                   Trabalho
                 </a>
@@ -402,7 +378,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=197736"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Abertura de Empresas"
                 >
                   Abertura de Empresas
                 </a>
@@ -411,7 +386,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=197907"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Alvarás, Certidões e Licenças"
                 >
                   Alvarás, Certidões e Licenças
                 </a>
@@ -420,7 +394,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=199983"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Cadastros"
                 >
                   Cadastros
                 </a>
@@ -429,7 +402,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=201153"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Consultas, Declarações e Normas"
                 >
                   Consultas, Declarações e Normas
                 </a>
@@ -438,7 +410,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=201903"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Cursos"
                 >
                   Cursos
                 </a>
@@ -447,7 +418,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=201594"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Empreendedorismo"
                 >
                   Empreendedorismo
                 </a>
@@ -456,7 +426,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=199248"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Impostos e Taxas"
                 >
                   Impostos e Taxas
                 </a>
@@ -465,7 +434,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=201429"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Legislação"
                 >
                   Legislação
                 </a>
@@ -474,7 +442,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=200490"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Licitações e Fornecedores"
                 >
                   Licitações e Fornecedores
                 </a>
@@ -483,7 +450,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Nota do Milhão"
                 >
                   Nota do Milhão
                 </a>
@@ -492,7 +458,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=201813"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Oportunidades"
                 >
                   Oportunidades
                 </a>
@@ -501,7 +466,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servicos/empresa?rootCategoryId=122645&categoryId=197769"
                   className="hover:underline"
-                  aria-label="Serviços para empresas: Programas e Benefícios"
                 >
                   Programas e Benefícios
                 </a>
@@ -518,7 +482,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servidores?rootCategoryId=234537&categoryId=212939"
                   className="hover:underline"
-                  aria-label="Servidores: Atendimento"
                 >
                   Atendimento
                 </a>
@@ -527,7 +490,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servidores?rootCategoryId=234537&categoryId=203617"
                   className="hover:underline"
-                  aria-label="Servidores: Benefícios"
                 >
                   Benefícios
                 </a>
@@ -536,7 +498,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servidores?rootCategoryId=234537&categoryId=206445"
                   className="hover:underline"
-                  aria-label="Servidores: Carreira"
                 >
                   Carreira
                 </a>
@@ -545,7 +506,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servidores?rootCategoryId=234537&categoryId=213140"
                   className="hover:underline"
-                  aria-label="Servidores: Comunicados e Publicações"
                 >
                   Comunicados e Publicações
                 </a>
@@ -554,7 +514,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servidores?rootCategoryId=234537&categoryId=213638"
                   className="hover:underline"
-                  aria-label="Servidores: Eventos para o Servidor"
                 >
                   Eventos para o Servidor
                 </a>
@@ -563,7 +522,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servidores?rootCategoryId=234537&categoryId=207796"
                   className="hover:underline"
-                  aria-label="Servidores: Gestão de Pessoas"
                 >
                   Gestão de Pessoas
                 </a>
@@ -572,7 +530,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servidores?rootCategoryId=234537&categoryId=203260"
                   className="hover:underline"
-                  aria-label="Servidores: Minhas informações"
                 >
                   Minhas informações
                 </a>
@@ -581,7 +538,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/web/prefeitura-de-sao-paulo/servidores?rootCategoryId=234537&categoryId=209051"
                   className="hover:underline"
-                  aria-label="Servidores: Normas e procedimentos"
                 >
                   Normas e procedimentos
                 </a>
@@ -598,7 +554,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://capital.sp.gov.br/noticias"
                   className="hover:underline"
-                  aria-label="Notícias"
                 >
                   Notícias
                 </a>
@@ -607,7 +562,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://geosampa.prefeitura.sp.gov.br/PaginasPublicas/_SBC.aspx"
                   className="hover:underline"
-                  aria-label="GeoSampa: Mapa de Serviços"
                 >
                   Mapa de Serviços
                 </a>
@@ -616,7 +570,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://legislacao.prefeitura.sp.gov.br/"
                   className="hover:underline"
-                  aria-label="Portal da Legislação"
                 >
                   Portal da Legislação
                 </a>
@@ -625,7 +578,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://processos.prefeitura.sp.gov.br/Forms/Principal.aspx"
                   className="hover:underline"
-                  aria-label="Pesquisa de Processos"
                 >
                   Pesquisas de Processos
                 </a>
@@ -634,7 +586,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="http://e-negocioscidadesp.prefeitura.sp.gov.br/"
                   className="hover:underline"
-                  aria-label="e-Negócios CidadeSP"
                 >
                   Licitações
                 </a>
@@ -643,7 +594,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://www.prefeitura.sp.gov.br/cidade/secretarias/gestao/coordenadoria_de_bens_e_servicos__cobes/atas_de_registro_de_preco/index.php?p=24208"
                   className="hover:underline"
-                  aria-label="Ata de Registro de Preços"
                 >
                   Ata de Registro de Preços
                 </a>
@@ -652,7 +602,6 @@ export function UrbisFooter(_props: any) {
                 <a
                   href="https://www.sptrans.com.br/busca-de-itinerarios/"
                   className="hover:underline"
-                  aria-label="SPTrans: Itinerários de ônibus"
                 >
                   Itinerários de ônibus
                 </a>
@@ -672,7 +621,7 @@ export function UrbisFooter(_props: any) {
                 href="https://github.com/atlas-cli"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-opacity"
+                className="opacity-90 hover:opacity-100 transition-opacity"
                 aria-label="Atlas CLI"
               >
                 <img
@@ -686,7 +635,7 @@ export function UrbisFooter(_props: any) {
                 href="https://www.primata.design/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-opacity"
+                className="opacity-90 hover:opacity-100 transition-opacity"
                 aria-label="Primata Design"
               >
                 <img
@@ -700,7 +649,7 @@ export function UrbisFooter(_props: any) {
                 href="https://basedosdados.org/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-opacity"
+                className="opacity-90 hover:opacity-100 transition-opacity"
                 aria-label="Base dos Dados"
               >
                 <img
@@ -714,7 +663,7 @@ export function UrbisFooter(_props: any) {
                 href="https://adesampa.com.br/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-opacity"
+                className="opacity-90 hover:opacity-100 transition-opacity"
                 aria-label="ADE Sampa – Agência São Paulo de Desenvolvimento"
               >
                 {/* Duas variantes geradas por `apps/site/scripts/make-theme-variant.mjs` */}

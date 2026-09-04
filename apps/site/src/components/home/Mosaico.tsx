@@ -287,9 +287,12 @@ export function Mosaico() {
 
                 <form
                   onSubmit={handleSearch}
-                  className="mt-3 flex flex-col gap-3"
+                  className="mt-3 flex flex-col gap-2"
                 >
-                  <label htmlFor="busca-urbis" className="sr-only">
+                  <label
+                    htmlFor="busca-urbis"
+                    className="text-sm font-medium text-foreground"
+                  >
                     Buscar endereço, imóvel ou coordenada no Mapa Urbis
                   </label>
 

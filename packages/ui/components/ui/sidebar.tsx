@@ -66,10 +66,14 @@ export function Sidebar({
           "transition-transform duration-300 ease-out",
           "z-[90]",
           open ? openTransform : closedTransform,
-        ].join(" ")}
+          !open ? "invisible pointer-events-none" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         role="dialog"
         aria-modal="true"
         aria-hidden={!open}
+        {...(!open ? { inert: "" } : {})}
       >
         {/* HEADER */}
         <header className="flex items-center justify-between px-4 py-3 border-b border-border">

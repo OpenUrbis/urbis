@@ -135,14 +135,16 @@ select option {
 @keyframes subtle-glow {
   0%, 100% {
     opacity: 1;
-    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.35);
+    transform: scale(1);
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3);
   }
   50% {
-    opacity: 0.82;
-    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15);
+    opacity: 0.92;
+    transform: scale(1.03);
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.12);
   }
 }
 
 .animate-subtle-glow {
-  animation: subtle-glow 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: subtle-glow 4.5s ease-in-out infinite;
 }

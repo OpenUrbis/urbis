@@ -1668,7 +1668,7 @@ export const LayerController = ({
                   highlightFilterButtons.value = true;
                   window.setTimeout(() => {
                     highlightFilterButtons.value = false;
-                  }, 3500);
+                  }, 4500);
                 }}
               />
             )}
@@ -1695,7 +1695,7 @@ export const LayerController = ({
                   highlightCustomizeButtons.value = true;
                   window.setTimeout(() => {
                     highlightCustomizeButtons.value = false;
-                  }, 3500);
+                  }, 4500);
                 }}
               />
             )}

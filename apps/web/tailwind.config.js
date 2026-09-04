@@ -54,6 +54,23 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-family)"],
       },
+      keyframes: {
+        "subtle-glow": {
+          "0%, 100%": {
+            opacity: "1",
+            transform: "scale(1)",
+            boxShadow: "0 0 0 2px hsl(var(--primary) / 0.3)",
+          },
+          "50%": {
+            opacity: "0.92",
+            transform: "scale(1.03)",
+            boxShadow: "0 0 0 4px hsl(var(--primary) / 0.12)",
+          },
+        },
+      },
+      animation: {
+        "subtle-glow": "subtle-glow 4.5s ease-in-out infinite",
+      },
     },
   },
   plugins: [animate],

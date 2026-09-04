@@ -274,7 +274,11 @@ function formatDocumentLabel(
 ): string {
   if (!document) return `Documento ${docId.substring(0, 8)}`;
   if (document.number) return `${document.normativeType} ${document.number}`;
-  if (document.ementa) return document.ementa.substring(0, 80);
+  const descriptor =
+    document.name?.trim() ||
+    (document as any).title?.trim() ||
+    document.ementa?.trim();
+  if (descriptor) return descriptor.substring(0, 80);
   return `Documento ${docId.substring(0, 8)}`;
 }
 

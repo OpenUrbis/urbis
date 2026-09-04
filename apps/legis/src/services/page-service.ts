@@ -113,11 +113,17 @@ class PageService {
      */
     const legacyAuthorityId = page.authorId ? undefined : page.author;
 
+    const resolvedName =
+      (entityData as any).title?.trim() ||
+      entityData.name?.trim() ||
+      (page.title?.trim() || undefined);
+
     return {
       ...entityData,
       id: page.id,
       type: "original_normativo",
-      name: (entityData as any).title ?? entityData.name ?? (page.title?.trim() || undefined),
+      name: resolvedName,
+      title: resolvedName,
       normativeType: entityData.normativeType ?? "L",
       authorityId: entityData.authorityId ?? legacyAuthorityId ?? "",
       ementa: entityData.ementa ?? resolvedTitle,

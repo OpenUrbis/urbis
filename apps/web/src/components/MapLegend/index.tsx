@@ -274,9 +274,9 @@ const LayerLegendSection = ({
               className="text-[15px] text-muted-foreground"
               aria-hidden="true"
             />
-            <h6 className="min-w-0 flex-1 truncate text-xs font-semibold text-foreground">
+            <h3 className="min-w-0 flex-1 truncate text-xs font-semibold text-foreground">
               {layer.name}
-            </h6>
+            </h3>
             <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
               {items.length}
             </span>
@@ -423,7 +423,7 @@ export const MapLegend = () => {
             className="text-[18px] text-primary"
             aria-hidden="true"
           />
-          <h5 className="m-0 truncate text-sm font-semibold">Legenda</h5>
+          <h2 className="m-0 truncate text-sm font-semibold">Legenda</h2>
         </div>
         <Button
           variant="ghost"

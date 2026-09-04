@@ -1793,13 +1793,14 @@ export function PageForm({
           "Persistindo documento e metadados no servidor...",
         );
 
-        const { name: _legacyName, ...normativePayload } = normativeData;
         const serializedContent = JSON.stringify(finalContentToSave);
+        const resolvedNormativeName = normativeData.name?.trim() || trimmedTitle;
         const entityData =
           type === "original_normativo"
             ? {
-                ...normativePayload,
+                ...normativeData,
                 title: trimmedTitle,
+                name: resolvedNormativeName,
                 editorContent: serializedContent,
                 elements: syncedElements,
               }

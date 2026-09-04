@@ -32,7 +32,7 @@ export function UrbisLicenseSummary({
           className={cn(
             "font-bold leading-tight tracking-tight whitespace-nowrap",
             isFooter
-              ? "text-[22px] md:text-[26px] text-white dark:text-black"
+              ? "text-[22px] md:text-[26px] text-primary-foreground"
               : "text-[15px] text-muted-foreground",
           )}
         >
@@ -60,7 +60,7 @@ export function UrbisLicenseSummary({
           rel="noreferrer"
           className={cn(
             "inline-flex items-center gap-1 hover:underline",
-            isFooter ? "text-white dark:text-black" : "text-foreground",
+            isFooter ? "text-primary-foreground" : "text-foreground",
           )}
           aria-label="Licença Pública Geral Affero GNU v3 (AGPLv3) — software"
         >
@@ -77,7 +77,7 @@ export function UrbisLicenseSummary({
           rel="noreferrer"
           className={cn(
             "inline-flex items-center gap-1 hover:underline",
-            isFooter ? "text-white dark:text-black" : "text-foreground",
+            isFooter ? "text-primary-foreground" : "text-foreground",
           )}
           aria-label="Licença Creative Commons BY-SA 4.0 – conteúdos e dados"
         >

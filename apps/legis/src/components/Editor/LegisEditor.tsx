@@ -72,11 +72,13 @@ export function LegisEditor({
 
       sortedLinks.forEach((link, lIndex) => {
         const doc = cache[link.resourceId];
+        const docDescriptor =
+          doc?.name?.trim() || doc?.title?.trim() || doc?.ementa?.trim();
         const docLabel = doc
           ? doc.number
             ? `${doc.normativeType} ${doc.number} ${doc.actDate ? `- ${doc.actDate}` : ""}`
-            : doc.ementa
-              ? doc.ementa.substring(0, 20) + "..."
+            : docDescriptor
+              ? docDescriptor.substring(0, 20) + "..."
               : "Documento"
           : `Doc ${link.resourceId}`;
 
@@ -131,13 +133,18 @@ export function LegisEditor({
           });
         } else {
           // Whole doc linked
+          const docText =
+            doc?.name?.trim() ||
+            doc?.title?.trim() ||
+            doc?.ementa ||
+            docLabel;
           contentToInsert.push({
             type: "reference",
             attrs: {
               pageId: link.resourceId,
               elementId: "root",
               label: docLabel,
-              text: doc?.ementa || docLabel,
+              text: docText,
             },
           });
         }

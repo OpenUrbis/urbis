@@ -157,10 +157,10 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
       {/* Panel Header */}
       <div className="flex items-start justify-between gap-2 border-b bg-background/70 px-3 py-2.5 shrink-0">
         <div>
-          <h5 className="m-0 text-sm font-semibold flex items-center gap-1.5 text-foreground">
+          <h2 className="m-0 text-sm font-semibold flex items-center gap-1.5 text-foreground">
             <Download className="h-4 w-4 text-primary" />
             Exportar geometrias da tela
-          </h5>
+          </h2>
           <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
             Baixe em GeoJSON ou DXF as geometrias das camadas ativas visíveis no mapa.
           </p>

@@ -911,6 +911,7 @@ export const Search = ({
                     setJsonFeature(convertFeatureToSirgas(content.rawData));
                   }}
                   title="Ver JSON"
+                  aria-label={`Ver JSON de ${content.name}`}
                 >
                   <UrbisIcon
                     name="data_object"
@@ -943,9 +944,13 @@ export const Search = ({
             }}
             className="flex items-center gap-2"
           >
+            <label htmlFor="urbis-location-search-input" className="sr-only">
+              Pesquisar endereço, imóvel ou coordenadas no Mapa Urbis
+            </label>
             <div className="relative flex-1">
               <Input
                 id="urbis-location-search-input"
+                aria-label="Buscar endereço, cadastro fiscal, referências, coordenadas ou endereço digital no Mapa Urbis"
                 placeholder="Pesquise por endereço, cadastro fiscal (“SQL”, “IPTU”), referências (distritos etc.), coordenadas georref. ou endereço digital (Urbis ou Plus Code)"
                 value={currentTerm.value}
                 onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -963,6 +968,8 @@ export const Search = ({
                     resetSearch();
                     clearResults();
                   }}
+                  aria-label="Limpar campo de pesquisa"
+                  title="Limpar pesquisa"
                 >
                   <UrbisIcon
                     name="close"
@@ -981,7 +988,8 @@ export const Search = ({
                     size="icon"
                     type="button"
                     className="shrink-0 rounded-full h-10 w-10 text-muted-foreground hover:text-foreground"
-                    title="Como pesquisar"
+                    title="Como pesquisar no Mapa Urbis"
+                    aria-label="Como pesquisar no Mapa Urbis"
                   >
                     <UrbisIcon
                       name="help"

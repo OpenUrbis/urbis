@@ -247,9 +247,8 @@ export interface OriginalNormativo {
   originalStartValidity?: Validity; // Optional start date for the whole document
   authorityId: string;
   ementa: string;
-  // Legado: manter apenas para compatibilidade de leitura com registros antigos.
-  // O título principal de apresentação deve vir de page.title.
   name?: string;
+  title?: string;
   preamble?: string;
   signature?: string;
   sources?: { url: string; name?: string }[];

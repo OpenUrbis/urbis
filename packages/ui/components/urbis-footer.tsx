@@ -45,7 +45,7 @@ export function UrbisFooter(_props: any) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
-                aria-label="Acessar o Mapa"
+                aria-label="Acessar a página inicial do Mosaico"
               >
                 MOSAICO
               </a>
@@ -71,7 +71,7 @@ export function UrbisFooter(_props: any) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
-                aria-label="Acessar o Mapa"
+                aria-label="Acessar o Mapa Urbis"
               >
                 MAPA
               </a>
@@ -103,7 +103,7 @@ export function UrbisFooter(_props: any) {
                 href="https://viabiliza.urbis.prefeitura.sp.gov.br/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:opacity-80 .Urbistransition-opacity"
+                className="hover:opacity-80 transition-opacity"
                 aria-label="Acessar o Viabiliza"
               >
                 VIABILIZA
@@ -205,11 +205,11 @@ export function UrbisFooter(_props: any) {
         </div>
 
         {/* Prefeitura Links */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 border-t border-primary-foreground/30 pt-8 pb-6 text-primary-foreground/90 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 border-t border-primary-foreground/30 pt-8 pb-6 text-primary-foreground text-sm">
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h3 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Prefeitura de São Paulo
-            </h6>
+            </h3>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -278,9 +278,9 @@ export function UrbisFooter(_props: any) {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h3 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Serviços para o Cidadão
-            </h6>
+            </h3>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -394,9 +394,9 @@ export function UrbisFooter(_props: any) {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h3 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Serviços para Empresas
-            </h6>
+            </h3>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -510,9 +510,9 @@ export function UrbisFooter(_props: any) {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h3 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Serviços para o Servidor
-            </h6>
+            </h3>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -590,9 +590,9 @@ export function UrbisFooter(_props: any) {
           </div>
 
           <div>
-            <h6 className="font-bold mb-2.5 text-xl text-primary-foreground">
+            <h3 className="font-bold mb-2.5 text-xl text-primary-foreground">
               Acontece na cidade
-            </h6>
+            </h3>
             <ul className="space-y-1.5">
               <li>
                 <a
@@ -664,7 +664,7 @@ export function UrbisFooter(_props: any) {
         {/* Partners Section */}
         <div className="border-t border-primary-foreground/10 py-12 mt-12">
           <div className="flex flex-col items-center gap-8">
-            <span className="text-primary-foreground/60 text-xs font-bold uppercase tracking-[0.2em]">
+            <span className="text-primary-foreground text-xs font-bold uppercase tracking-[0.2em]">
               Parceiros e Colaboradores
             </span>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">

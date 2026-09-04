@@ -114,7 +114,7 @@ function LayoutInner() {
     <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[10200] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
         Saltar para o conteúdo principal
       </a>
@@ -148,9 +148,9 @@ function LayoutInner() {
                   openSidebar(
                     <div className="h-full min-h-0 flex flex-col">
                       <div className="shrink-0 space-y-1">
-                        <h3 className="text-base font-semibold">
+                        <h2 className="text-base font-semibold">
                           Central de ajuda
-                        </h3>
+                        </h2>
                         <p className="text-sm text-muted-foreground">
                           Encontre respostas rápidas, dúvidas frequentes e um
                           espaço para enviar sugestões sobre a plataforma Urbis.
@@ -186,9 +186,9 @@ function LayoutInner() {
                   openSidebar(
                     <div className="h-full min-h-0 flex flex-col">
                       <div className="shrink-0 space-y-1">
-                        <h3 className="text-base font-semibold">
+                        <h2 className="text-base font-semibold">
                           Central de ajuda
-                        </h3>
+                        </h2>
                         <p className="text-sm text-muted-foreground">
                           Encontre respostas rápidas, dúvidas frequentes e um
                           espaço para enviar sugestões sobre a plataforma Urbis.

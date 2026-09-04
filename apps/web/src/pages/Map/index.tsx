@@ -41,6 +41,9 @@ const MapPage = () => {
 
   return (
     <div className="h-screen w-full overflow-hidden bg-background relative">
+      <h1 className="sr-only">
+        Mapa Urbis - Plataforma Integrada de Dados e Mapas Urbanos de São Paulo
+      </h1>
       <AppLoading />
       <DigitalAddressUrlInitializer />
       <div className="fixed top-0 left-0 right-0 z-50">

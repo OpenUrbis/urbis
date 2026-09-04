@@ -5,6 +5,7 @@ import {
   pageService,
   NormativeSearchResult,
 } from "../../services/page-service";
+import type { OriginalNormativo } from "../../domain/entities";
 import { ElementContent } from "../page/NormativeDocumentRenderer";
 import { NormativeListHeader } from "../common/NormativeListHeader";
 import { processGapsUnified } from "../page/GapLogic";
@@ -49,7 +50,16 @@ const ReferenceComponent = ({ node, editor, getPos }: any) => {
       // Always fetch fresh data to support live updates
       pageService.getById(pageId).then((page) => {
         if (page && page.type === "original_normativo" && page.entity) {
-          setFullDoc(page.entity);
+          const original = page.entity as OriginalNormativo;
+          const resolvedName =
+            original.name?.trim() ||
+            original.title?.trim() ||
+            page.title?.trim();
+          setFullDoc({
+            ...original,
+            name: resolvedName,
+            title: resolvedName,
+          });
           setPageTitle(page.title);
 
           // Rebuild groupData from live doc
@@ -97,12 +107,17 @@ const ReferenceComponent = ({ node, editor, getPos }: any) => {
       pageService.getById(pageId).then((page) => {
         if (page) {
           setPageTitle(page.title);
+          const entity = page.entity as any;
           setData({
             pageId: page.id,
             pageTitle: page.title,
             elementId: "root",
             type: "Documento",
-            text: (page.entity as any)?.ementa || page.title,
+            text:
+              entity?.name?.trim() ||
+              entity?.title?.trim() ||
+              page.title?.trim() ||
+              entity?.ementa,
           });
         }
       });
@@ -177,7 +192,6 @@ const ReferenceComponent = ({ node, editor, getPos }: any) => {
           <NormativeListHeader
             doc={fullDoc}
             showLink={false}
-            elementIds={elementIds}
           />
         ) : (
           <div className="text-[11px] text-muted-foreground mb-2 flex justify-between">

@@ -86,9 +86,14 @@ export function ColetaneaRenderer({
           pages.forEach((p) => {
             if (p && p.type === "original_normativo" && p.entity) {
               const original = p.entity as OriginalNormativo;
+              const resolvedName =
+                original.name?.trim() ||
+                original.title?.trim() ||
+                p.title?.trim();
               docMap[p.id] = {
                 ...original,
-                name: original.name || p.title,
+                name: resolvedName,
+                title: resolvedName,
               };
             }
           });
@@ -169,7 +174,6 @@ export function ColetaneaRenderer({
                     <NormativeListHeader
                       doc={doc}
                       showLink={true}
-                      elementIds={elementIds}
                     />
                     <div className="pl-2 grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-x-6 relative items-start">
                       {elements.map((el, elIdx) => {
@@ -242,7 +246,6 @@ export function ColetaneaRenderer({
                     <NormativeListHeader
                       doc={doc}
                       showLink={true}
-                      elementIds={[elementId]}
                     />
                     <div className="pl-2 grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-x-6 relative items-start">
                       <ElementRow

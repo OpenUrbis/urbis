@@ -66,9 +66,9 @@ const PanelHeader = ({
 }) => (
   <div className="flex items-start justify-between gap-3 border-b bg-background/70 p-3">
     <div>
-      <h5 className="m-0 text-sm font-semibold flex items-center gap-1.5">
+      <h2 className="m-0 text-sm font-semibold flex items-center gap-1.5">
         {title}
-      </h5>
+      </h2>
       {description && (
         <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
           {description}
@@ -209,6 +209,7 @@ const ImageInsertPanel = () => {
             className="h-10 px-0"
             onClick={() => setMode("move")}
             title="Mover imagem"
+            aria-label="Mover imagem"
           >
             <UrbisIcon
               name="open_with"
@@ -221,6 +222,7 @@ const ImageInsertPanel = () => {
             className="h-10 px-0"
             onClick={() => setMode("scale")}
             title="Ajustar tamanho"
+            aria-label="Ajustar tamanho da imagem"
           >
             <UrbisIcon
               name="zoom_out_map"
@@ -233,6 +235,7 @@ const ImageInsertPanel = () => {
             className="h-10 px-0"
             onClick={() => setMode("rotate")}
             title="Girar imagem"
+            aria-label="Girar imagem"
           >
             <UrbisIcon
               name="rotate_right"
@@ -245,6 +248,7 @@ const ImageInsertPanel = () => {
             className="h-10 px-0 text-destructive hover:text-destructive"
             onClick={removeImage}
             title="Remover imagem selecionada"
+            aria-label="Remover imagem selecionada"
           >
             <UrbisIcon name="delete" className="text-lg" aria-hidden="true" />
           </Button>
@@ -485,7 +489,7 @@ const LibrarySection = ({
         className="text-base text-primary"
         aria-hidden="true"
       />
-      <h6 className="text-xs font-semibold">{title}</h6>
+      <h3 className="text-xs font-semibold">{title}</h3>
     </div>
     {requiresLogin && !isAuthenticated ? (
       <p className="text-xs text-muted-foreground">

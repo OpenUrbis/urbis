@@ -120,12 +120,16 @@ export function resolveDocumentLabel(
   if (documentId === LOCAL_DOCUMENT_ID) return LOCAL_DOCUMENT_LABEL;
   if (!document) return `Doc ${documentId}`;
 
-  const ementa = document.ementa?.trim() ?? "";
+  const descriptor =
+    document.name?.trim() ||
+    (document as any).title?.trim() ||
+    document.ementa?.trim() ||
+    "";
   const designation = document.number ? getNormativeDesignation(document) : "";
   const baseLabel =
     designation ||
-    (ementa
-      ? `${ementa.substring(0, 40)}${ementa.length > 40 ? "..." : ""}`
+    (descriptor
+      ? `${descriptor.substring(0, 40)}${descriptor.length > 40 ? "..." : ""}`
       : `Doc ${documentId}`);
 
   // A designação já traz o ano ("nº 536/2023"); repetir a data só gastaria linha.

@@ -19,7 +19,6 @@ import {
 interface NormativeListHeaderProps {
   doc: OriginalNormativo;
   showLink?: boolean;
-  elementIds?: string[];
 }
 
 export function NormativeListHeader({
@@ -37,7 +36,8 @@ export function NormativeListHeader({
   const authorityFullLabel = getAuthorityFullLabel(authority);
   const normativeYear = getNormativeYear(doc.actDate || doc.publicationDate);
   const normativeDate = doc.actDate?.trim() || doc.publicationDate?.trim();
-  const normativeDescriptor = doc.name?.trim() || doc.ementa?.trim();
+  const normativeDescriptor =
+    doc.name?.trim() || doc.title?.trim() || doc.ementa?.trim();
 
   return (
     <div className="mb-4 pl-2 border-b pb-2">

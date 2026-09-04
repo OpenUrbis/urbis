@@ -129,6 +129,8 @@ const Header = () => {
               size="icon"
               className="md:hidden rounded-full h-9 w-9 mr-2 shrink-0"
               onClick={toggleDrawer}
+              aria-label="Abrir pesquisa e navegação"
+              title="Abrir pesquisa e navegação"
             >
               <UrbisIcon
                 name="search"
@@ -148,6 +150,7 @@ const Header = () => {
                     (window.location.href = "/admin/layer-manager")
                   }
                   title="Administração"
+                  aria-label="Painel de administração"
                 >
                   <UrbisIcon
                     name="admin_panel_settings"

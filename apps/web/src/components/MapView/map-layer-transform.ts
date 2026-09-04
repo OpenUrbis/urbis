@@ -1301,15 +1301,6 @@ export const transformSchemaLayers = (
     MAP_CONFIGS.CHECKER_POLYGON_IS_SELECTED.BUILD_ARRAY_OF_PROPERTIES(props);
 
   const visibleLayers = layersConfig.filter((layer) => {
-    // Vector tile layers managed natively by MapLibre (e.g. 3D Buildings) should not create Deck.gl layers
-    if (
-      layer.id === "edificacoes_3d" ||
-      layer.properties?.source === "openmaptiles" ||
-      layer.properties?.sourceType === "vector"
-    ) {
-      return false;
-    }
-
     const { isVisible, minZoom, properties = {}, type } = layer;
     const { maxZoom } = properties;
 

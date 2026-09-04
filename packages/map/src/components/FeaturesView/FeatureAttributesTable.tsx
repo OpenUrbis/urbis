@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "preact/hooks";
 import { Input, cn } from "@open-urbis/map-ui";
-import { Copy, Check, Search, Layers, FileSpreadsheet, ExternalLink, X } from "lucide-react";
+import { Copy, Check, Search, Layers, FileSpreadsheet, ExternalLink, X, SlidersHorizontal } from "lucide-react";
 import { useToast } from "../../hooks/useToast";
 import { useMapContext } from "../../hooks/useMapContext";
 import proj4 from "proj4";
@@ -111,6 +111,14 @@ export const GLOBAL_ATTRIBUTE_LABELS_DE_PARA: Record<string, string> = {
   ano_exercicio: "Ano de Exercício",
   exercicio: "Ano de Exercício",
   ano_base: "Ano Base",
+  an_legislacao: "Ano da Legislação",
+  an_legislacao_zoneamento: "Ano da Legislação",
+  ano_legislacao: "Ano da Legislação",
+  nr_legislacao: "Número da Legislação",
+  cd_usuario_atualizacao: "Usuário de Atualização",
+  cd_usuario_cadastro: "Usuário de Cadastro",
+  cd_usuario: "Código do Usuário",
+  usuario_atualizacao: "Usuário de Atualização",
 
   // --- Endereço, Logradouro & Localização ---
   logradouro: "Endereço Oficial",
@@ -727,11 +735,11 @@ export const formatAttributeValue = (
     return { display: strVal, isUrl: true, isNumeric: false };
   }
 
-  // Datas no formato ISO (YYYY-MM-DD)
-  const dateMatch = strVal.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);
+  // Datas no formato ISO ou SQL (YYYY-MM-DD...)
+  const dateMatch = strVal.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s].*)?$/);
   if (
     dateMatch &&
-    (lowerKey.startsWith("dt_") || lowerKey.startsWith("data_") || lowerKey.includes("data"))
+    (lowerKey.startsWith("dt_") || lowerKey.startsWith("data_") || lowerKey.includes("data") || lowerKey.includes("atualizacao") || lowerKey.includes("cadastro"))
   ) {
     const [, year, month, day] = dateMatch;
     return {
@@ -752,6 +760,8 @@ export interface FeatureAttributesTableProps {
   title?: string;
   calculatedArea?: string | null;
   className?: string;
+  canOpenFiu?: boolean;
+  onOpenFiu?: () => void;
 }
 
 export const FeatureAttributesTable = ({
@@ -760,6 +770,8 @@ export const FeatureAttributesTable = ({
   selectedFeature,
   onSelectFeature,
   className,
+  canOpenFiu = false,
+  onOpenFiu,
 }: FeatureAttributesTableProps) => {
   const {
     layerSchemas,
@@ -769,6 +781,7 @@ export const FeatureAttributesTable = ({
     editFeatureTemplate,
   } = useMapContext();
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
@@ -1318,35 +1331,82 @@ export const FeatureAttributesTable = ({
         </div>
       )}
 
-      {/* Search Input with Clear Button */}
-      <div className="relative">
-        <label htmlFor="pkg-search-attributes-input" className="sr-only">
-          Buscar atributo ou valor nesta camada
-        </label>
-        <Search
-          className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none"
-          aria-hidden="true"
-        />
-        <Input
-          id="pkg-search-attributes-input"
-          type="text"
-          placeholder="Buscar atributo ou valor nesta camada..."
-          value={searchTerm}
-          onInput={(e) => setSearchTerm(e.currentTarget.value)}
-          className="h-8 pl-8 pr-8 text-xs bg-background focus-visible:ring-2 focus-visible:ring-primary"
-          aria-label="Buscar atributo ou valor na camada selecionada"
-        />
-        {searchTerm && (
+      {/* Search Input, FIU Action and Advanced View Toggle */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[180px]">
+          <label htmlFor="pkg-search-attributes-input" className="sr-only">
+            Buscar atributo ou valor nesta camada
+          </label>
+          <Search
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none"
+            aria-hidden="true"
+          />
+          <Input
+            id="pkg-search-attributes-input"
+            type="text"
+            placeholder="Buscar atributo ou valor nesta camada..."
+            value={searchTerm}
+            onInput={(e) => setSearchTerm(e.currentTarget.value)}
+            className="h-8 pl-8 pr-8 text-xs bg-background focus-visible:ring-2 focus-visible:ring-primary"
+            aria-label="Buscar atributo ou valor na camada selecionada"
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+              title="Limpar busca"
+              aria-label="Limpar termo de busca"
+            >
+              <X className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        {/* Botão Abrir FIU (Exibido estritamente quando é perímetro e não ponto) */}
+        {canOpenFiu && onOpenFiu && (
           <button
             type="button"
-            onClick={() => setSearchTerm("")}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-            title="Limpar busca"
-            aria-label="Limpar termo de busca"
+            onClick={onOpenFiu}
+            className="h-8 px-2.5 rounded-md text-[11px] font-semibold transition-all border flex items-center gap-1.5 shrink-0 select-none cursor-pointer bg-primary text-primary-foreground border-primary hover:bg-primary/90 shadow-2xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            title="Abrir Ficha de Informações Urbanísticas oficial em nova aba"
+            aria-label="Abrir Ficha de Informações Urbanísticas para este perímetro"
           >
-            <X className="h-3.5 w-3.5" aria-hidden="true" />
+            <span
+              className="h-3.5 w-3.5 shrink-0"
+              style={{
+                backgroundColor: "currentColor",
+                mask: "url(/capivara-icone.svg) no-repeat center / contain",
+                WebkitMask: "url(/capivara-icone.svg) no-repeat center / contain",
+              }}
+              aria-hidden="true"
+            />
+            <span>Iniciar FIU</span>
+            <ExternalLink className="h-3 w-3 opacity-80" aria-hidden="true" />
           </button>
         )}
+
+        {/* Toggle Modo Avançado */}
+        <button
+          type="button"
+          onClick={() => setShowAdvanced((prev) => !prev)}
+          className={cn(
+            "h-8 px-2.5 rounded-md text-[11px] font-medium transition-all border flex items-center gap-1.5 shrink-0 select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
+            showAdvanced
+              ? "bg-primary text-primary-foreground border-primary shadow-2xs font-semibold"
+              : "bg-background text-muted-foreground border-border/70 hover:bg-muted/60 hover:text-foreground"
+          )}
+          title={
+            showAdvanced
+              ? "Modo avançado ativo: exibindo nomes técnicos e descrições dos atributos"
+              : "Ativar modo avançado para ver nomes técnicos das colunas e descrições completas"
+          }
+          aria-pressed={showAdvanced}
+          aria-label="Alternar visualização avançada com nomes técnicos de colunas e descrições"
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span>Avançado</span>
+        </button>
       </div>
 
       {/* Table content */}
@@ -1411,23 +1471,32 @@ export const FeatureAttributesTable = ({
                       {/* Coluna Atributo */}
                       <th
                         scope="row"
-                        className="py-2.5 px-3.5 align-top font-semibold text-foreground border-r border-border/40 select-text text-left w-[42%]"
+                        className={cn(
+                          "py-2.5 px-3.5 font-semibold text-foreground border-r border-border/40 select-text text-left w-[42%]",
+                          showAdvanced ? "align-top" : "align-middle"
+                        )}
                       >
-                        <div className="flex flex-col gap-0.5">
+                        {showAdvanced ? (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-semibold text-foreground leading-tight">
+                              {displayLabel}
+                            </span>
+                            {displayLabel.toLowerCase() !== key.toLowerCase() && (
+                              <span className="text-[10px] font-mono text-muted-foreground/70 tracking-tight select-all">
+                                {key}
+                              </span>
+                            )}
+                            {description && (
+                              <span className="text-[10px] text-muted-foreground leading-snug">
+                                {description}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
                           <span className="font-semibold text-foreground leading-tight">
                             {displayLabel}
                           </span>
-                          {displayLabel.toLowerCase() !== key.toLowerCase() && (
-                            <span className="text-[10px] font-mono text-muted-foreground/60 tracking-tight select-all">
-                              {key}
-                            </span>
-                          )}
-                          {description && (
-                            <span className="text-[10px] text-muted-foreground leading-snug">
-                              {description}
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </th>
 
                       {/* Coluna Valor */}

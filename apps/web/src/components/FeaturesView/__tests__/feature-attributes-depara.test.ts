@@ -67,6 +67,9 @@ describe("FeatureAttributesTable - DE-PARA e Formatação", () => {
       expect(getAttributeDisplayLabel("tx_zoneamento_perimetro").label).toBe("Zoneamento");
       expect(getAttributeDisplayLabel("vl_venal_imovel").label).toBe("Valor Venal do Imóvel");
       expect(getAttributeDisplayLabel("numero_imovel_cif").label).toBe("Número do Imóvel no CIF (SQL)");
+      expect(getAttributeDisplayLabel("an_legislacao_zoneamento").label).toBe("Ano da Legislação");
+      expect(getAttributeDisplayLabel("dt_atualizacao").label).toBe("Data de Atualização");
+      expect(getAttributeDisplayLabel("cd_usuario_atualizacao").label).toBe("Usuário de Atualização");
     });
 
     it("deve fazer fallback para formatação de texto em campos não mapeados", () => {
@@ -96,6 +99,7 @@ describe("FeatureAttributesTable - DE-PARA e Formatação", () => {
 
     it("deve formatar datas no formato pt-BR", () => {
       expect(formatAttributeValue("2024-05-18", "dt_cadastro").display).toBe("18/05/2024");
+      expect(formatAttributeValue("2016-06-22 06:00:00+00:00", "dt_atualizacao").display).toBe("22/06/2016");
     });
   });
 });

@@ -145,14 +145,19 @@ export const FeatureDetailsWindow = () => {
   // Main active feature for the window
   const activeFeature = rootFeature;
 
-  // Check if active feature is a point geometry
+  // Check if active selection/query is a point geometry
   const isPoint = useMemo(() => {
-    if (!activeFeature) return false;
-    const geom = activeFeature.geometry || activeFeature;
+    if (!activeFeature && !polygonFeature.value) return false;
+    const feat = (activeFeature || polygonFeature.value) as any;
+    const geom = feat?.geometry || feat;
     const isPointGeom = geom?.type === "Point";
-    const isPointInspect = Boolean(activeFeature.properties?.isPointInspection);
+    const isPointInspect = Boolean(
+      feat?.properties?.isPointInspection ||
+      (polygonFeature.value as any)?.properties?.isPointInspection ||
+      (currentSelection?.feature as any)?.properties?.isPointInspection
+    );
     return isPointGeom || isPointInspect;
-  }, [activeFeature]);
+  }, [activeFeature, polygonFeature.value, currentSelection?.feature]);
 
   // Intersecting features list if from polygon analysis
   const intersectingFeatures = useMemo(() => {
@@ -389,37 +394,57 @@ export const FeatureDetailsWindow = () => {
     return `${areaSquareMeters.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} m²`;
   }, [areaSquareMeters, isEffectivePoint]);
 
+  // Feature com geometria de perímetro real (para emissão de FIU ou edição)
+  const perimeterFeature = useMemo(() => {
+    if (isPoint) return null;
+
+    if (polygonFeature.value) {
+      const g = (polygonFeature.value as any).geometry || polygonFeature.value;
+      if (g?.type === "Polygon" || g?.type === "MultiPolygon") {
+        return polygonFeature.value;
+      }
+    }
+    if (rootFeature) {
+      const g = (rootFeature as any).geometry || rootFeature;
+      if (g?.type === "Polygon" || g?.type === "MultiPolygon") {
+        return rootFeature;
+      }
+    }
+    if (currentSelection?.feature) {
+      const g = (currentSelection.feature as any).geometry || currentSelection.feature;
+      if (g?.type === "Polygon" || g?.type === "MultiPolygon") {
+        return currentSelection.feature;
+      }
+    }
+    if (selectedInspectFeature) {
+      const g = (selectedInspectFeature as any).geometry || selectedInspectFeature;
+      if (g?.type === "Polygon" || g?.type === "MultiPolygon") {
+        return selectedInspectFeature;
+      }
+    }
+    return null;
+  }, [isPoint, polygonFeature.value, rootFeature, currentSelection?.feature, selectedInspectFeature]);
+
   // Target feature to evaluate FIU generation:
-  // Allowed whenever a polygon or tax lot is selected, or present among intersecting layers
+  // Strictly available ONLY when it is a polygon / perimeter, NEVER for point queries
   const targetForFiu = useMemo(() => {
-    if (selectedInspectFeature) return selectedInspectFeature;
-    if (activeFeature && !isPoint) return activeFeature;
+    if (isPoint) return null;
+    if (perimeterFeature) return perimeterFeature;
+    if (selectedInspectFeature && hasTaxLotFiuParams(selectedInspectFeature)) return selectedInspectFeature;
     if (intersectingFeatures && intersectingFeatures.length > 0) {
       const withTaxLot = intersectingFeatures.find((f: any) => hasTaxLotFiuParams(f));
       if (withTaxLot) return withTaxLot;
-      const withPoly = intersectingFeatures.find((f: any) => {
-        const g = f?.geometry || f;
-        return g?.type === "Polygon" || g?.type === "MultiPolygon";
-      });
-      if (withPoly) return withPoly;
     }
-    return effectiveFeature;
-  }, [selectedInspectFeature, activeFeature, isPoint, intersectingFeatures, effectiveFeature]);
+    return null;
+  }, [isPoint, perimeterFeature, selectedInspectFeature, intersectingFeatures]);
 
-  // Check if FIU can be generated (available always except when purely a point without polygon/lot)
+  // Check if FIU can be generated (strictly disabled for points, enabled for polygons / perimeters)
   const fiuCheck = useMemo(() => {
-    if (!targetForFiu) {
-      return { ok: false, reason: "Selecione um polígono ou lote fiscal para gerar a FIU." };
-    }
-    const geom = targetForFiu.geometry || targetForFiu;
-    const isPurePoint =
-      (geom?.type === "Point" || targetForFiu.properties?.isPointInspection) &&
-      !hasTaxLotFiuParams(targetForFiu);
-    if (isPurePoint) {
-      return { ok: false, reason: "Selecione um polígono ou lote fiscal para gerar a FIU." };
+    if (isPoint || !targetForFiu) {
+      return { ok: false, reason: "A FIU pode ser gerada a partir de perímetros poligonais ou lotes fiscais." };
     }
     return canOpenFiuFromGeometry(targetForFiu);
-  }, [targetForFiu]);
+  }, [isPoint, targetForFiu]);
 
   // Derive header title - representing the primary selected item
   const headerTitle = useMemo(() => {
@@ -557,7 +582,7 @@ export const FeatureDetailsWindow = () => {
 
   // Open FIU directly on external page (in new tab)
   const handleOpenFiu = () => {
-    const targetFeature = targetForFiu || effectiveFeature || currentSelection?.feature;
+    const targetFeature = targetForFiu || perimeterFeature || rootFeature || polygonFeature.value;
     if (!targetFeature) return;
 
     if (hasTaxLotFiuParams(targetFeature)) {
@@ -961,6 +986,8 @@ export const FeatureDetailsWindow = () => {
                         onSelectFeature={(feat) => setSelectedInspectFeature(feat)}
                         title={headerTitle}
                         calculatedArea={formattedArea}
+                        canOpenFiu={fiuCheck.ok && !polygonLoading}
+                        onOpenFiu={handleOpenFiuClick}
                       />
                     </TabsContent>
 
@@ -1112,6 +1139,8 @@ export const FeatureDetailsWindow = () => {
                       onSelectFeature={(feat) => setSelectedInspectFeature(feat)}
                       title={headerTitle}
                       calculatedArea={formattedArea}
+                      canOpenFiu={fiuCheck.ok && !polygonLoading}
+                      onOpenFiu={handleOpenFiuClick}
                     />
                   </div>
                 )}

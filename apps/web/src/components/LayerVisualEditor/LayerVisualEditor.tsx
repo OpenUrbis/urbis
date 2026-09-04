@@ -82,8 +82,8 @@ export const mergeLayerWithVisualFormValues = (
 
   const nextName = formValues.layerName?.trim() || layer.name;
   const isBitmapLayer =
-    layer.type === "BitmapLayer" ||
-    layer.type === IGetConfigLayerSchemaTypeEnum.BitmapLayer;
+    (layer.type as string) === "BitmapLayer" ||
+    (layer.type as any) === IGetConfigLayerSchemaTypeEnum.BitmapLayer;
 
   const primaryColor = schema.colors?.[0]?.color;
   const bitmapProperties =

@@ -34,7 +34,9 @@ export default function HomePage() {
       <section className="relative px-6 pt-12 pb-16 md:pt-20 md:pb-24 max-w-7xl mx-auto w-full text-center">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur-sm text-xs md:text-sm font-medium text-muted-foreground mb-6 shadow-sm">
           <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-semibold text-foreground">Prefeitura de São Paulo</span>
+          <span className="font-semibold text-foreground">
+            Prefeitura de São Paulo
+          </span>
           <span className="text-muted-foreground/60">•</span>
           <span className="text-foreground/90">CODATA / SMUL</span>
           <span className="text-muted-foreground/60">•</span>
@@ -51,9 +53,10 @@ export default function HomePage() {
         </h1>
 
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-          Ecossistema aberto de engenharia de dados territoriais da cidade de São Paulo.
-          Arquitetura medalhão no Dagster com PostGIS e GeoServer, visualização analítica
-          em Deck.gl a 60fps e integração contínua com bases do GeoSampa e CKAN da CODATA.
+          Ecossistema aberto de engenharia de dados territoriais da cidade de
+          São Paulo. Arquitetura medalhão no Dagster com PostGIS e GeoServer,
+          visualização analítica em Deck.gl a 60fps e integração contínua com
+          bases do GeoSampa e CKAN da CODATA.
         </p>
 
         {/* Action Button Grid */}
@@ -185,8 +188,10 @@ export default function HomePage() {
                   Mapa Urbis
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Visualizador territorial em React, Deck.gl e MapLibre. Consulta interativa
-                  de zoneamento (LPUOS), lotes fiscais, sobreposição por BBOX e integração contínua com as camadas do GeoSampa.
+                  Visualizador territorial em React, Deck.gl e MapLibre.
+                  Consulta interativa de zoneamento (LPUOS), lotes fiscais,
+                  sobreposição por BBOX e integração contínua com as camadas do
+                  GeoSampa.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
@@ -247,7 +252,8 @@ export default function HomePage() {
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Orquestrador Dagster com arquitetura medalhão (Raw, Bronze,
-                  Silver, Gold e CKAN CODATA). PostGIS 3.4, publicação OGC (WFS/WMS) no GeoServer e automação de ingestão.
+                  Silver, Gold e CKAN CODATA). PostGIS 3.4, publicação OGC
+                  (WFS/WMS) no GeoServer e automação de ingestão.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
@@ -308,7 +314,8 @@ export default function HomePage() {
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Autenticação Single Sign-On via OpenID Connect (OIDC), gestão
-                  hierárquica para secretarias municipais (SMUL), órgãos públicos e cidadãos, com matriz granular de perfis.
+                  hierárquica para secretarias municipais (SMUL), órgãos
+                  públicos e cidadãos, com matriz granular de perfis.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
@@ -369,7 +376,8 @@ export default function HomePage() {
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Arquitetura modular em NestJS, processamento assíncrono com
-                  Bull e Redis, TypeORM com migrações automatizadas e padrões de integridade para serviços municipais.
+                  Bull e Redis, TypeORM com migrações automatizadas e padrões de
+                  integridade para serviços municipais.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">

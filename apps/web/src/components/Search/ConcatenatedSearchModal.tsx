@@ -735,7 +735,7 @@ export const ConcatenatedSearchModal = ({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn(
-          "p-0 flex flex-col gap-0 overflow-hidden bg-background shadow-2xl transition-all duration-200",
+          "p-0 flex flex-col gap-0 overflow-hidden bg-background shadow-2xl transition-all duration-200 [&>button:last-child]:hidden",
           isFullScreen
             ? "max-w-full w-screen h-screen max-h-screen rounded-none border-none inset-0"
             : "max-w-[98vw] w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl border border-border/80",

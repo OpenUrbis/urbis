@@ -9,8 +9,7 @@ export class PostHogService implements OnModuleDestroy {
 
   constructor(private readonly configService: ConfigService) {
     const apiKey =
-      this.configService.get<string>('POSTHOG_KEY') ||
-      process.env.POSTHOG_KEY;
+      this.configService.get<string>('POSTHOG_KEY') || process.env.POSTHOG_KEY;
     const host =
       this.configService.get<string>('POSTHOG_HOST') ||
       process.env.POSTHOG_HOST ||

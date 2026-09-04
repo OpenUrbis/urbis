@@ -264,6 +264,7 @@ export function LegisEditor({
               "Informe o Dispositivo / Ato de Origem (ex.: 'Art. 1º da Emenda Constitucional nº 45/2004'):",
             ) || "";
 
+          const parsed = rulesEngine.parseLine(acrescimoText);
           const elementId = `el-${Date.now()}`;
           const situation = {
             type: "Acréscimo" as const,
@@ -281,6 +282,8 @@ export function LegisEditor({
               attrs: {
                 normativeId: elementId,
                 specialSituations: [situation],
+                type: parsed.type,
+                index: parsed.index,
               },
               content: [
                 {
@@ -321,7 +324,7 @@ export function LegisEditor({
         },
       },
     ],
-    [request, requestLinks],
+    [rulesEngine, request, requestLinks],
   );
 
   return (

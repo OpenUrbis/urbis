@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@open-urbis/map-ui";
-import { Info, BookOpen, Layers, Scale, Code } from "lucide-react";
+import { Info, HelpCircle, BookOpen, Layers, Scale, Code } from "lucide-react";
 
 interface InfoModalProps {
   open: boolean;

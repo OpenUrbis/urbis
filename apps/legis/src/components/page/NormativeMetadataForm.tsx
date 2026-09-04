@@ -1950,7 +1950,7 @@ export function NormativeMetadataForm({
         })}
         {(!data.sources || data.sources.length === 0) && (
           <p className="text-xs text-muted-foreground">
-            Nenhuma fonte cadastrada. Use "Upload S3" ou "Adicionar fonte" para incluir.
+            Nenhuma fonte cadastrada. Use “Upload S3” ou “Adicionar fonte” para incluir.
           </p>
         )}
       </FormSection>

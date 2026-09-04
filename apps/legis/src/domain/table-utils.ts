@@ -1,10 +1,11 @@
-import { TableData, TableRow } from "./types";
+import { SpecialSituation, TableData, TableRow } from "./types";
 
 export interface SourceTableCell {
   text: string;
   rowSpan?: number;
   colSpan?: number;
   isHeader?: boolean;
+  specialSituations?: SpecialSituation[];
 }
 
 export interface SourceTableRow {
@@ -25,6 +26,7 @@ export function buildExpandedTableData(
   const grid: string[][] = [];
   const rowTypes: TableRow["type"][] = [];
   const headerGrid: boolean[][] = [];
+  const specialSituationsGrid: (SpecialSituation[] | undefined)[][] = [];
   const occupiedUntilRowByCol: number[] = [];
 
   sourceRows.forEach((row, rowIndex) => {
@@ -55,6 +57,10 @@ export function buildExpandedTableData(
           headerGrid[targetRowIndex] = [];
         }
 
+        if (!specialSituationsGrid[targetRowIndex]) {
+          specialSituationsGrid[targetRowIndex] = [];
+        }
+
         if (!rowTypes[targetRowIndex]) {
           rowTypes[targetRowIndex] =
             row.type === "Cabeçalho" ? "Cabeçalho" : "Corpo";
@@ -64,6 +70,7 @@ export function buildExpandedTableData(
           const targetColIndex = colIndex + colOffset;
           grid[targetRowIndex][targetColIndex] = cell.text;
           headerGrid[targetRowIndex][targetColIndex] = Boolean(cell.isHeader);
+          specialSituationsGrid[targetRowIndex][targetColIndex] = cell.specialSituations;
 
           if (rowSpan > 1) {
             occupiedUntilRowByCol[targetColIndex] = Math.max(
@@ -114,6 +121,7 @@ export function buildExpandedTableData(
       text: grid[rowIndex]?.[colIndex] ?? "",
       rowSpan: 1,
       colSpan: 1,
+      specialSituations: specialSituationsGrid[rowIndex]?.[colIndex],
     })),
   );
 

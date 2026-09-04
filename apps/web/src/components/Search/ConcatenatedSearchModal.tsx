@@ -47,6 +47,7 @@ import {
   Check,
   Library,
   Database,
+  Plus,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { List } from "react-window";
@@ -154,6 +155,7 @@ export const ConcatenatedSearchModal = ({
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -244,6 +246,88 @@ export const ConcatenatedSearchModal = ({
     return list;
   }, [searchResults, clientSearchTerm, sortColumn, sortDirection]);
 
+  const hasMoreRecords = useMemo(() => {
+    if (searchResults.length === 0) return false;
+    if (totalCount !== undefined && totalCount > 0) {
+      return searchResults.length < totalCount;
+    }
+    return searchResults.length % 1000 === 0;
+  }, [searchResults.length, totalCount]);
+
+  const handleLoadMore = async () => {
+    if (!selectedLayerId || isLoadingMore || isSearching) return;
+
+    const layerConfig = layerSchemas.value.find(
+      (c) => c.id === selectedLayerId,
+    );
+    if (!layerConfig) return;
+
+    const fullLayerName = getLayerNameFromConfig(layerConfig);
+    if (!fullLayerName) return;
+
+    const layerOrigin =
+      layerConfig.origin ||
+      (layerConfig.properties as any)?.source?.url ||
+      (layerConfig.properties as any)?.wms?.url ||
+      "";
+
+    const cql = filterNodeToCQL(filterTree, fields);
+    const startIndex = searchResults.length;
+
+    setIsLoadingMore(true);
+    try {
+      const { url, params } = buildSearchRequestConfig(
+        layerOrigin,
+        fullLayerName,
+        cql,
+        1000,
+        startIndex,
+      );
+
+      const headers = await getOptionalAuthHeaders();
+
+      const response = await axios.get(url, {
+        params,
+        headers,
+        transformResponse: (data) => data,
+      });
+
+      const responseText = response.data;
+      let responseJson: any = {};
+      try {
+        responseJson = JSON.parse(responseText);
+      } catch (_error) {
+        responseJson = {};
+      }
+
+      const newItems = (responseJson.features || []).map((f: any) => ({
+        id: f.id,
+        ...f.properties,
+      }));
+
+      if (newItems.length === 0) {
+        toastSuccess("Todos os registros disponíveis já foram carregados.");
+      } else {
+        const combined = [...searchResults, ...newItems];
+        setConcatenatedSearch({
+          results: combined,
+        });
+        toastSuccess(
+          `+${newItems.length} registros adicionados. Total em memória: ${combined.length.toLocaleString("pt-BR")}.`,
+        );
+      }
+    } catch (error: any) {
+      console.error("Load more failed:", error);
+      toastError(
+        error?.message
+          ? `Falha ao carregar mais registros: ${error.message}`
+          : "Falha ao carregar mais registros da camada.",
+      );
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
   // ResizeObserver for Excel-like 100% responsive height
   useEffect(() => {
     if (!tableContainerRef.current) return;
@@ -274,6 +358,7 @@ export const ConcatenatedSearchModal = ({
     typeName: string,
     cql?: string,
     maxFeatures: number = 1000,
+    startIndex?: number,
   ) => {
     let resolvedUrl = normalizeEnvironmentUrl(origin);
     if (
@@ -303,6 +388,9 @@ export const ConcatenatedSearchModal = ({
     setSearchParam(searchParams, "typeName", typeName);
     setSearchParam(searchParams, "CQL_FILTER", cql);
     setSearchParam(searchParams, "maxFeatures", maxFeatures);
+    if (startIndex !== undefined && startIndex > 0) {
+      setSearchParam(searchParams, "startIndex", startIndex);
+    }
 
     return {
       url: baseUrl,
@@ -1083,160 +1171,197 @@ export const ConcatenatedSearchModal = ({
               <p className="text-sm font-medium">Consultando registros da camada...</p>
             </div>
           ) : searchResults.length > 0 ? (
-            <div className="flex-1 min-h-0 relative overflow-x-auto overflow-y-hidden select-none">
-              <div style={{ width: resultsTableWidth, height: "100%" }}>
-                {/* Sticky Header Row */}
-                <div
-                  className="sticky top-0 z-20 flex border-b bg-muted/70 backdrop-blur-md shadow-sm"
-                  style={{ height: HEADER_HEIGHT }}
-                >
-                  {/* Row index header (#) */}
-                  <div
-                    style={{ width: ROW_INDEX_WIDTH }}
-                    className="flex h-full shrink-0 items-center justify-center border-r bg-muted/90 text-[10px] font-mono font-bold text-muted-foreground select-none"
+            displayedResults.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                <Search className="h-8 w-8 text-muted-foreground/60 mb-2" />
+                <h4 className="text-sm font-semibold text-foreground">
+                  Nenhum registro encontrado para &ldquo;{clientSearchTerm}&rdquo;
+                </h4>
+                <p className="text-xs text-muted-foreground max-w-md mt-1 mb-4">
+                  O termo pesquisado não está presente nos {searchResults.length} registros já carregados na memória.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setClientSearchTerm("")}
+                    className="h-8 text-xs"
                   >
-                    #
+                    Limpar filtro local
+                  </Button>
+                  {hasMoreRecords && (
+                    <Button
+                      size="sm"
+                      onClick={handleLoadMore}
+                      disabled={isLoadingMore}
+                      className="h-8 text-xs gap-1.5"
+                    >
+                      {isLoadingMore ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Plus className="h-3.5 w-3.5" />
+                      )}
+                      Carregar próximo lote (+1.000)
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 min-h-0 relative overflow-x-auto overflow-y-hidden select-none">
+                <div style={{ width: resultsTableWidth, height: "100%" }}>
+                  {/* Sticky Header Row */}
+                  <div
+                    className="sticky top-0 z-20 flex border-b bg-muted/70 backdrop-blur-md shadow-sm"
+                    style={{ height: HEADER_HEIGHT }}
+                  >
+                    {/* Row index header (#) */}
+                    <div
+                      style={{ width: ROW_INDEX_WIDTH }}
+                      className="flex h-full shrink-0 items-center justify-center border-r bg-muted/90 text-[10px] font-mono font-bold text-muted-foreground select-none"
+                    >
+                      #
+                    </div>
+
+                    {/* Attribute Column Headers */}
+                    {searchResultColumns.map((key) => {
+                      const mapping = (selectedLayerConfig?.properties as any)
+                        ?.attributeMapping?.[key];
+                      const displayName = mapping?.label || mapping?.name || key;
+                      const description = mapping?.description;
+                      const fieldType = fields.find((f) => f.name === key)?.type;
+                      const isSorted = sortColumn === key;
+
+                      return (
+                        <div
+                          key={key}
+                          style={{ width: COLUMN_WIDTH }}
+                          onClick={() => handleSortToggle(key)}
+                          className={cn(
+                            "flex h-full shrink-0 items-center justify-between border-r px-2.5 text-[11px] font-semibold text-muted-foreground cursor-pointer hover:bg-muted/90 hover:text-foreground transition-colors group",
+                            isSorted && "bg-primary/10 text-primary font-bold",
+                          )}
+                          title={`Clique para ordenar por ${displayName}`}
+                        >
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                            {getColumnTypeIcon(key, fieldType)}
+                            <span className="truncate">{displayName}</span>
+                          </div>
+
+                          <div className="flex items-center gap-1 shrink-0 ml-1">
+                            {description && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger
+                                    asChild
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Info className="h-3 w-3 text-muted-foreground/60 hover:text-foreground cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="max-w-xs text-xs">
+                                    <p className="font-semibold">{displayName}</p>
+                                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                                      {description}
+                                    </p>
+                                    <p className="text-[10px] font-mono text-primary mt-1 border-t pt-1">
+                                      Campo técnico: {key}
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+
+                            {isSorted ? (
+                              sortDirection === "asc" ? (
+                                <ArrowUp className="h-3.5 w-3.5 text-primary shrink-0" />
+                              ) : (
+                                <ArrowDown className="h-3.5 w-3.5 text-primary shrink-0" />
+                              )
+                            ) : (
+                              <ArrowUpDown className="h-3 w-3 opacity-0 group-hover:opacity-60 transition-opacity shrink-0" />
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
-                  {/* Attribute Column Headers */}
-                  {searchResultColumns.map((key) => {
-                    const mapping = (selectedLayerConfig?.properties as any)
-                      ?.attributeMapping?.[key];
-                    const displayName = mapping?.label || mapping?.name || key;
-                    const description = mapping?.description;
-                    const fieldType = fields.find((f) => f.name === key)?.type;
-                    const isSorted = sortColumn === key;
+                  {/* Virtualized Rows List */}
+                  <List
+                    style={{
+                      height: Math.max(containerHeight - HEADER_HEIGHT, 150),
+                      width: resultsTableWidth,
+                      overflowX: "hidden",
+                      overflowY: "auto",
+                    }}
+                    rowCount={displayedResults.length}
+                    rowHeight={ROW_HEIGHT}
+                    rowProps={{}}
+                    rowComponent={({ index, style }) => {
+                      const row = displayedResults[index];
+                      const isEven = index % 2 === 0;
 
-                    return (
-                      <div
-                        key={key}
-                        style={{ width: COLUMN_WIDTH }}
-                        onClick={() => handleSortToggle(key)}
-                        className={cn(
-                          "flex h-full shrink-0 items-center justify-between border-r px-2.5 text-[11px] font-semibold text-muted-foreground cursor-pointer hover:bg-muted/90 hover:text-foreground transition-colors group",
-                          isSorted && "bg-primary/10 text-primary font-bold",
-                        )}
-                        title={`Clique para ordenar por ${displayName}`}
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                          {getColumnTypeIcon(key, fieldType)}
-                          <span className="truncate">{displayName}</span>
-                        </div>
-
-                        <div className="flex items-center gap-1 shrink-0 ml-1">
-                          {description && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger
-                                  asChild
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Info className="h-3 w-3 text-muted-foreground/60 hover:text-foreground cursor-help" />
-                                </TooltipTrigger>
-                                <TooltipContent className="max-w-xs text-xs">
-                                  <p className="font-semibold">{displayName}</p>
-                                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                                    {description}
-                                  </p>
-                                  <p className="text-[10px] font-mono text-primary mt-1 border-t pt-1">
-                                    Campo técnico: {key}
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-
-                          {isSorted ? (
-                            sortDirection === "asc" ? (
-                              <ArrowUp className="h-3.5 w-3.5 text-primary shrink-0" />
-                            ) : (
-                              <ArrowDown className="h-3.5 w-3.5 text-primary shrink-0" />
-                            )
-                          ) : (
-                            <ArrowUpDown className="h-3 w-3 opacity-0 group-hover:opacity-60 transition-opacity shrink-0" />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Virtualized Rows List */}
-                <List
-                  style={{
-                    height: Math.max(containerHeight - HEADER_HEIGHT, 150),
-                    width: resultsTableWidth,
-                    overflowX: "hidden",
-                    overflowY: "auto",
-                  }}
-                  rowCount={displayedResults.length}
-                  rowHeight={ROW_HEIGHT}
-                  rowProps={{}}
-                  rowComponent={({ index, style }) => {
-                    const row = displayedResults[index];
-                    const isEven = index % 2 === 0;
-
-                    return (
-                      <div
-                        style={style}
-                        className={cn(
-                          "flex border-b text-xs transition-colors hover:bg-primary/5 items-center",
-                          isEven ? "bg-background" : "bg-muted/15",
-                        )}
-                      >
-                        {/* Row Index (#) */}
+                      return (
                         <div
-                          style={{ width: ROW_INDEX_WIDTH }}
-                          className="flex h-full shrink-0 items-center justify-center border-r bg-muted/30 text-[10px] font-mono text-muted-foreground/70 select-none"
+                          style={style}
+                          className={cn(
+                            "flex border-b text-xs transition-colors hover:bg-primary/5 items-center",
+                            isEven ? "bg-background" : "bg-muted/15",
+                          )}
                         >
-                          {index + 1}
-                        </div>
+                          {/* Row Index (#) */}
+                          <div
+                            style={{ width: ROW_INDEX_WIDTH }}
+                            className="flex h-full shrink-0 items-center justify-center border-r bg-muted/30 text-[10px] font-mono text-muted-foreground/70 select-none"
+                          >
+                            {index + 1}
+                          </div>
 
-                        {/* Cell Values */}
-                        {searchResultColumns.map((key) => {
-                          const val = row[key];
-                          const cellId = `${index}-${key}`;
-                          const isCopied = copiedCell === cellId;
-                          const isNumericOrCode =
-                            typeof val === "number" ||
-                            (typeof val === "string" &&
-                              /^[0-9.-]+$/.test(val) &&
-                              val.length > 2);
+                          {/* Cell Values */}
+                          {searchResultColumns.map((key) => {
+                            const val = row[key];
+                            const cellId = `${index}-${key}`;
+                            const isCopied = copiedCell === cellId;
+                            const isNumericOrCode =
+                              typeof val === "number" ||
+                              (typeof val === "string" &&
+                                /^[0-9.-]+$/.test(val) &&
+                                val.length > 2);
 
-                          return (
-                            <div
-                              key={key}
-                              style={{ width: COLUMN_WIDTH }}
-                              onClick={() => handleCopyCell(val, cellId)}
-                              className={cn(
-                                "flex h-full shrink-0 items-center border-r px-2.5 truncate cursor-pointer hover:bg-primary/10 transition-colors relative group",
-                                isNumericOrCode && "font-mono text-[11px]",
-                                isCopied && "bg-emerald-500/15 text-emerald-600 font-bold",
-                              )}
-                              title={
-                                val !== null && val !== undefined
-                                  ? `${String(val)} (Clique para copiar)`
-                                  : "-"
-                              }
-                            >
-                              <span className="truncate">
-                                {val !== null && val !== undefined ? String(val) : "-"}
-                              </span>
-                              {isCopied && (
-                                <span className="absolute right-1 text-[9px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-1 rounded flex items-center gap-0.5">
-                                  <Check className="h-2.5 w-2.5" />
-                                  Copiado
+                            return (
+                              <div
+                                key={key}
+                                style={{ width: COLUMN_WIDTH }}
+                                onClick={() => handleCopyCell(val, cellId)}
+                                className={cn(
+                                  "flex h-full shrink-0 items-center border-r px-2.5 truncate cursor-pointer hover:bg-primary/10 transition-colors relative group",
+                                  isNumericOrCode && "font-mono text-[11px]",
+                                  isCopied && "bg-emerald-500/15 text-emerald-600 font-bold",
+                                )}
+                                title={
+                                  val !== null && val !== undefined
+                                    ? `${String(val)} (Clique para copiar)`
+                                    : "-"
+                                }
+                              >
+                                <span className="truncate">
+                                  {val !== null && val !== undefined ? String(val) : "-"}
                                 </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  }}
-                />
+                                {isCopied && (
+                                  <span className="absolute right-1 text-[9px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-1 rounded flex items-center gap-0.5">
+                                    <Check className="h-2.5 w-2.5" />
+                                    Copiado
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    }}
+                  />
+                </div>
               </div>
-            </div>
+            )
           ) : (
             /* Empty State */
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
@@ -1270,14 +1395,14 @@ export const ConcatenatedSearchModal = ({
         {/* ========================================================= */}
         {/* 5. STATUS BAR (Excel-like bottom bar)                     */}
         {/* ========================================================= */}
-        <div className="shrink-0 h-8 px-4 border-t bg-muted/40 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="shrink-0 h-9 px-4 border-t bg-muted/40 flex items-center justify-between text-[11px] text-muted-foreground">
           <div className="flex items-center gap-3 truncate">
             {searchResults.length > 0 ? (
               <>
                 <span className="font-semibold text-foreground">
                   {displayedResults.length === searchResults.length
-                    ? `Exibindo ${searchResults.length} registros`
-                    : `Exibindo ${displayedResults.length} de ${searchResults.length} registros filtrados`}
+                    ? `${searchResults.length.toLocaleString("pt-BR")} registros na memória`
+                    : `${displayedResults.length.toLocaleString("pt-BR")} de ${searchResults.length.toLocaleString("pt-BR")} registros exibidos`}
                 </span>
                 {totalCount !== undefined &&
                   layerTotalCount !== undefined &&
@@ -1292,14 +1417,48 @@ export const ConcatenatedSearchModal = ({
                 </span>
               </>
             ) : (
-              <span>Pronto.</span>
+              <span>Pronto para consultar.</span>
             )}
           </div>
 
-          <div className="hidden lg:flex items-center gap-2 text-[10px]">
-            <span>💡 Clique em qualquer célula para copiar</span>
-            <span>•</span>
-            <span>Role na horizontal para ver mais colunas</span>
+          <div className="flex items-center gap-2">
+            {hasMoreRecords && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleLoadMore}
+                      disabled={isLoadingMore}
+                      className="h-6 text-[11px] font-semibold gap-1.5 px-2.5 rounded-md bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 shadow-none transition-all"
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                          <span>Carregando mais...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-3 w-3 text-primary" />
+                          <span>Carregar mais registros (+1.000)</span>
+                        </>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-xs" side="top" align="end">
+                    <p className="font-semibold">Buscar próximo lote de dados</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Consulta mais 1.000 registros no servidor WFS e adiciona à tabela em memória para exploração e exportação.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+
+            <div className="hidden lg:flex items-center gap-2 text-[10px] text-muted-foreground/80 pl-2">
+              <span>💡 Clique duplo na célula para copiar</span>
+            </div>
           </div>
         </div>
       </DialogContent>

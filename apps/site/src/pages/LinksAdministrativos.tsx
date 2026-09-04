@@ -311,11 +311,11 @@ export default function LinksAdministrativos() {
             Voltar
           </Button>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-bold m-0 text-foreground">
                 Links administrativos
               </h1>
-              <span className="rounded-sm bg-secondary px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-secondary-foreground">
+              <span className="rounded-sm bg-secondary px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-secondary-foreground whitespace-nowrap">
                 Uso interno
               </span>
             </div>

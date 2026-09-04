@@ -168,29 +168,31 @@ function ComponenteCard({ item, delay }: { item: MosaicoItem; delay: number }) {
       >
         <CardContent className="p-4 pl-5">
           <div className="mb-1 flex items-start justify-between gap-2">
-            <h3 className="flex items-center gap-2 text-xl font-bold text-foreground transition-colors group-hover:text-primary">
-              <Icon
-                className="h-5 w-5 shrink-0 text-primary"
-                aria-hidden="true"
-              />
-              {item.title}
-              {item.newTab && (
-                <span className="sr-only">(abre em nova aba)</span>
-              )}
-            </h3>
-            <div className="mt-1 flex shrink-0 items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+              <h3 className="flex items-center gap-2 text-xl font-bold text-foreground transition-colors group-hover:text-primary">
+                <Icon
+                  className="h-5 w-5 shrink-0 text-primary"
+                  aria-hidden="true"
+                />
+                <span>{item.title}</span>
+                {item.newTab && (
+                  <span className="sr-only">(abre em nova aba)</span>
+                )}
+              </h3>
               {item.adminOnly && (
-                <span className="rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
+                <span className="rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground whitespace-nowrap">
                   Uso interno
                 </span>
               )}
-              {item.external && (
+            </div>
+            {item.external && (
+              <div className="mt-1 flex shrink-0 items-center">
                 <ExternalLink
                   className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
                   aria-hidden="true"
                 />
-              )}
-            </div>
+              </div>
+            )}
           </div>
           <p className="text-sm leading-snug text-muted-foreground">
             {item.description}

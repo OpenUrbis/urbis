@@ -96,7 +96,7 @@ export const UrbisHeader = ({
 
             {badgeText ? (
               <span className="hidden sm:inline-flex min-w-0 items-center gap-2 text-muted-foreground text-sm font-semibold">
-                <span className="opacity-40" aria-hidden="true">
+                <span className="text-muted-foreground font-semibold" aria-hidden="true">
                   •
                 </span>
 

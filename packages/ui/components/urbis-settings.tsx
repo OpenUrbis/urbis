@@ -208,6 +208,7 @@ export function UrbisSettings({
               className="h-8 w-8"
               onClick={decreaseFont}
               disabled={fontSize <= 85}
+              aria-label="Diminuir tamanho da fonte"
             >
               <RemoveIcon className="h-[18px] w-[18px]" />
             </Button>
@@ -220,6 +221,7 @@ export function UrbisSettings({
               className="h-8 w-8"
               onClick={increaseFont}
               disabled={fontSize >= 125}
+              aria-label="Aumentar tamanho da fonte"
             >
               <AddIcon className="h-[18px] w-[18px]" />
             </Button>

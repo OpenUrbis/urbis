@@ -62,13 +62,12 @@ export function UrbisLicenseSummary({
             "inline-flex items-center gap-1 hover:underline",
             isFooter ? "text-primary-foreground" : "text-foreground",
           )}
-          aria-label="AGPL v3 (software) – Licença Pública Geral Affero GNU v3"
         >
           <span className="inline-block -scale-x-100" aria-hidden="true">
             ©
           </span>
           <span>AGPL v3</span>
-          <span className="font-normal opacity-90 text-[12px]">(software)</span>
+          <span className="font-normal text-[12px]">(software)</span>
         </a>
 
         <a
@@ -79,26 +78,28 @@ export function UrbisLicenseSummary({
             "inline-flex items-center gap-1 hover:underline",
             isFooter ? "text-primary-foreground" : "text-foreground",
           )}
-          aria-label="CC BY-SA 4.0 (outros) – Licença Creative Commons BY-SA 4.0"
         >
           <img
             src="/cc.svg"
-            className="w-4 h-4 opacity-90"
-            alt="Ícone Creative Commons"
+            className="w-4 h-4"
+            alt=""
+            aria-hidden="true"
           />
           <img
             src="/by.svg"
-            className="w-4 h-4 opacity-90"
-            alt="Ícone Atribuição"
+            className="w-4 h-4"
+            alt=""
+            aria-hidden="true"
           />
           <img
             src="/sa.svg"
-            className="w-4 h-4 opacity-90"
-            alt="Ícone Compartilha Igual"
+            className="w-4 h-4"
+            alt=""
+            aria-hidden="true"
           />
 
           <span>CC BY-SA 4.0</span>
-          <span className="font-normal opacity-90 text-[12px]">(outros)</span>
+          <span className="font-normal text-[12px]">(outros)</span>
         </a>
       </div>
     </div>

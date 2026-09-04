@@ -55,7 +55,7 @@ export function UrbisFooter(_props: any) {
         </div>
 
         <div className="px-1 mb-6">
-          <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
+          <p className="text-primary-foreground text-base font-normal leading-6 tracking-wide mt-1">
             Página inicial do Urbis.
           </p>
         </div>
@@ -80,7 +80,7 @@ export function UrbisFooter(_props: any) {
         </div>
 
         <div className="px-1 mb-6">
-          <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
+          <p className="text-primary-foreground text-base font-normal leading-6 tracking-wide mt-1">
             Mapa online que suporta pesquisas complexas com concatenação de
             critérios, desenho, edição ou arquivos de geometria, em bases
             totalmente personalizáveis, alimentadas por orquestradores de dados,
@@ -112,7 +112,7 @@ export function UrbisFooter(_props: any) {
         </div>
 
         <div className="px-1 mb-8">
-          <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
+          <p className="text-primary-foreground text-base font-normal leading-6 tracking-wide mt-1">
             Ferramenta de formulário do Urbis, totalmente integrada às bases
             georreferenciadas e ao SEI, que permite formulários complexos e
             geração de documentos.
@@ -139,7 +139,7 @@ export function UrbisFooter(_props: any) {
         </div>
 
         <div className="px-1 mb-8">
-          <p className="text-primary-foreground/90 text-base font-normal leading-6 tracking-wide mt-1">
+          <p className="text-primary-foreground text-base font-normal leading-6 tracking-wide mt-1">
             Repositório de dados com explicações normativas sobre conceitos,
             exigências ou fontes de informação, com detalhamento e visualização
             personalizáveis, e vínculos entre seus conteúdos. É utilizado por
@@ -166,7 +166,7 @@ export function UrbisFooter(_props: any) {
 
             <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
 
-            <p className="text-primary-foreground/90 text-sm leading-relaxed">
+            <p className="text-primary-foreground text-sm leading-relaxed">
               Repositório de metadados das bases do Urbis, onde os usuários
               podem buscar, visualizar e encontrar explicações técnicas, de
               maneira acessível e transparente, assim como baixar dados em
@@ -189,7 +189,7 @@ export function UrbisFooter(_props: any) {
 
             <div className="h-1 w-16 bg-primary-foreground rounded-full mb-4" />
 
-            <p className="text-primary-foreground/90 text-sm leading-relaxed">
+            <p className="text-primary-foreground text-sm leading-relaxed">
               O Urbis se baseia e desenvolve todos os seus componentes em
               software livre, com código aberto e cláusula copyleft,
               contribuindo para um ambiente de colaboração e melhoria contínua.

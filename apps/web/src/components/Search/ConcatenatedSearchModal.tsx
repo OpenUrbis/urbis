@@ -36,8 +36,6 @@ import {
   Filter,
   ChevronDown,
   ChevronUp,
-  Maximize2,
-  Minimize2,
   Search,
   X,
   Map,
@@ -153,7 +151,6 @@ export const ConcatenatedSearchModal = ({
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isShareHistoryOpen, setIsShareHistoryOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [clientSearchTerm, setClientSearchTerm] = useState("");
@@ -342,7 +339,7 @@ export const ConcatenatedSearchModal = ({
     const observer = new ResizeObserver(updateSize);
     observer.observe(tableContainerRef.current);
     return () => observer.disconnect();
-  }, [open, isFiltersExpanded, isFullScreen, searchResults.length]);
+  }, [open, isFiltersExpanded, searchResults.length]);
 
   const calcPercentage = (filtered: number, total: number) => {
     if (total <= 0) return 0;
@@ -822,12 +819,7 @@ export const ConcatenatedSearchModal = ({
     >
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
-        className={cn(
-          "p-0 flex flex-col gap-0 overflow-hidden bg-background shadow-2xl transition-all duration-200 [&>button:last-child]:hidden",
-          isFullScreen
-            ? "max-w-full w-screen h-screen max-h-screen rounded-none border-none inset-0"
-            : "max-w-[98vw] w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl border border-border/80",
-        )}
+        className="max-w-[95vw] w-[95vw] h-[90vh] max-h-[90vh] p-0 flex flex-col gap-0 overflow-hidden rounded-2xl border border-border/80 bg-background shadow-2xl [&>button:last-child]:hidden"
       >
         {/* ========================================================= */}
         {/* 1. HEADER (Excel-style Title Bar)                        */}
@@ -877,20 +869,6 @@ export const ConcatenatedSearchModal = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground"
-              onClick={() => setIsFullScreen(!isFullScreen)}
-              title={isFullScreen ? "Restaurar janela" : "Tela cheia"}
-            >
-              {isFullScreen ? (
-                <Minimize2 className="h-4 w-4" />
-              ) : (
-                <Maximize2 className="h-4 w-4" />
-              )}
-            </Button>
 
             <Button
               variant="ghost"

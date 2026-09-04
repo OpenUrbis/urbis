@@ -78,7 +78,7 @@ export const PredefinedSearchSuggestions = ({
       <div className="flex items-center gap-2 px-1 py-2">
         <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
         <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-          Carregando filtros salvos...
+          Carregando consultas salvas...
         </span>
       </div>
     );
@@ -92,7 +92,7 @@ export const PredefinedSearchSuggestions = ({
     <div className="space-y-3 mb-4">
       <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
         <Library className="h-3 w-3" />
-        <span>Salvos ({publicSearches.value.length})</span>
+        <span>Consultas salvas disponíveis ({publicSearches.value.length})</span>
       </div>
       <div className="flex flex-wrap gap-2 px-1">
         {publicSearches.value.map((item) => (

@@ -772,18 +772,12 @@ export const ConcatenatedSearchModal = ({
                   <UrbisIcon name="more_vert" className="text-base" aria-hidden="true" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem
                   onClick={() => handleActionWithAuth(() => setIsShareOpen(true))}
                 >
-                  <Save className="mr-2 h-4 w-4" />
-                  Salvar consulta
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleActionWithAuth(() => setIsShareOpen(true))}
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Compartilhar consulta
+                  <Share2 className="mr-2 h-4 w-4 text-primary" />
+                  Salvar e gerar link
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() =>
@@ -791,7 +785,7 @@ export const ConcatenatedSearchModal = ({
                   }
                 >
                   <Library className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Consultas salvas
+                  Minhas consultas salvas
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

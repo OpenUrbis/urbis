@@ -357,13 +357,12 @@ const ShareContentPanel = () => {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
       <PanelHeader
-        title="Compartilhar"
-        description="Salve a visualização atual do mapa e gere um link de compartilhamento."
+        title="Compartilhar visualização do mapa"
+        description="Gere um link para compartilhar o mapa exatamente como você está vendo agora."
       />
       <div className="space-y-3 p-3">
-        <div className="rounded-xl border bg-muted/40 p-3 text-xs text-muted-foreground">
-          Serão salvos camadas, filtros, estilos, mapa base, posição e zoom
-          atuais.
+        <div className="rounded-xl border bg-muted/40 p-3 text-xs text-muted-foreground leading-relaxed">
+          Serão salvos no link: enquadramento e zoom, camadas ativas, estilos personalizados e mapa base atual.
         </div>
         {error.value && (
           <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">
@@ -624,7 +623,7 @@ const LibraryContentPanel = () => {
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
       <PanelHeader
         title="Biblioteca de conteúdos"
-        description="Visualizações e filtros por atributos de camadas salvos em um só lugar."
+        description="Visualizações do mapa e consultas de dados salvas em um só lugar."
       />
       <div className="space-y-3 p-3">
         {loading.value ? (
@@ -644,13 +643,13 @@ const LibraryContentPanel = () => {
                   className="text-base text-primary"
                   aria-hidden="true"
                 />
-                Visualizações
+                Visualizações do mapa
               </div>
               <LibrarySection
                 title="Minhas visualizações"
                 icon="person"
                 items={myMaps.value}
-                empty="Nenhuma visualização salva."
+                empty="Nenhuma visualização salva encontrada."
                 requiresLogin
                 isAuthenticated={auth.isAuthenticated}
                 onOpenItem={openItem}
@@ -671,17 +670,17 @@ const LibraryContentPanel = () => {
             <div className="space-y-2 rounded-xl border bg-muted/20 p-2">
               <div className="flex items-center gap-2 px-1 text-xs font-semibold">
                 <UrbisIcon
-                  name="filter_alt"
+                  name="table_chart"
                   className="text-base text-primary"
                   aria-hidden="true"
                 />
-                Filtros por atributos de camadas
+                Consultas de dados e tabelas
               </div>
               <LibrarySection
-                title="Meus filtros"
+                title="Minhas consultas"
                 icon="person"
                 items={mySearches.value}
-                empty="Nenhum filtro salvo."
+                empty="Nenhuma consulta salva encontrada."
                 requiresLogin
                 isAuthenticated={auth.isAuthenticated}
                 onOpenItem={openItem}
@@ -690,10 +689,10 @@ const LibraryContentPanel = () => {
                 onDeleteItem={(item) => deleteItem(item, mySearches)}
               />
               <LibrarySection
-                title="Filtros públicos"
+                title="Consultas públicas"
                 icon="public"
                 items={publicSearches.value}
-                empty="Nenhum filtro público disponível."
+                empty="Nenhuma consulta pública disponível."
                 isAuthenticated={auth.isAuthenticated}
                 onOpenItem={openItem}
                 onCopyItemLink={copyItemLink}

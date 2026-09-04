@@ -45,7 +45,7 @@ export const ShareModal = ({
   type = "map",
 }: ShareModalProps) => {
   const typeLabel =
-    type === "map" ? "Visualização" : "Filtro por atributos de camadas";
+    type === "map" ? "Visualização do mapa" : "Consulta de dados em tabela";
   const isSearchShare = type === "search";
   const mapContext = useMapContext();
   const searchContext = useSearchContext();
@@ -202,42 +202,48 @@ export const ShareModal = ({
           <DialogTitle className="flex items-center gap-2">
             <Save className="h-5 w-5 text-primary" />
             {isOwner
-              ? `Atualizar ${typeLabel.toLowerCase()} salvo`
+              ? `Atualizar ${typeLabel.toLowerCase()}`
               : isSearchShare
-                ? `Salvar ${typeLabel.toLowerCase()}`
-                : `Salvar visualização`}
+                ? `Compartilhar consulta de dados`
+                : `Compartilhar visualização do mapa`}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="bg-muted/50 border border-border p-4 rounded-lg space-y-2 text-sm">
-            <div className="flex items-center gap-2 font-semibold text-foreground">
-              <Info className="h-4 w-4 text-blue-500" />O que será salvo?
+          <div className="bg-muted/50 border border-border p-4 rounded-xl space-y-2.5 text-xs">
+            <div className="flex items-center gap-2 font-semibold text-foreground text-sm">
+              <Info className="h-4 w-4 text-blue-500" />
+              <span>O que será salvo neste link?</span>
             </div>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-1">
+            <ul className="list-disc list-inside space-y-1.5 text-muted-foreground ml-1">
               {type === "map" ? (
                 <>
-                  <li>Estado atual das camadas (ligadas/desligadas)</li>
-                  <li>Filtros aplicados e configurações de estilo</li>
-                  <li>Posicionamento e zoom atual do mapa</li>
+                  <li>
+                    <strong>Local e zoom:</strong> O enquadramento exato que você está vendo na tela.
+                  </li>
+                  <li>
+                    <strong>Camadas ativas:</strong> Quais camadas estão ligadas ou visíveis no momento.
+                  </li>
+                  <li>
+                    <strong>Estilos e filtros:</strong> Cores, opacidades, mapa base e filtros espaciais aplicados.
+                  </li>
                 </>
               ) : (
                 <>
-                  <li>Critérios dos filtros por atributos de camadas</li>
-                  <li>Configurações dos filtros salvos</li>
-                  <div className="border-t pt-2.5 mt-2.5 text-xs text-muted-foreground space-y-1.5 font-normal list-none">
-                    <p className="font-semibold text-foreground">Maiores informações:</p>
-                    <p>Ao salvar, é possível reutilizar e compartilhar os filtros.</p>
-                    <p>Após salvar um filtro, não é possível alterar suas condições.</p>
-                    <p>Somente o criador de um filtro pode renomeá-lo.</p>
-                    <p>Se quiser utilizar um filtro público ou compartilhado como base para um filtro seu, basta aplicá-lo, clicar no ícone de filtro da respectiva camada na caixa Camadas, alterar suas condições (se desejar) e, por fim, salvar nos seus filtros.</p>
-                  </div>
+                  <li>
+                    <strong>Camada de dados:</strong> A camada selecionada para exploração.
+                  </li>
+                  <li>
+                    <strong>Critérios de filtro:</strong> Todas as regras e condições configuradas.
+                  </li>
+                  <li>
+                    <strong>Estrutura da tabela:</strong> Pronto para abrir em planilha e exportar CSV.
+                  </li>
                 </>
               )}
             </ul>
-            <p className="text-[11px] text-orange-600 dark:text-orange-400 font-medium pt-1">
-              * Dados temporários como uploads locais, medições ou anotações de
-              tela não são persistidos.
+            <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/50">
+              * Dados temporários como arquivos locais carregados nesta sessão não são salvos na nuvem.
             </p>
           </div>
         </div>
@@ -264,14 +270,20 @@ export const ShareModal = ({
           {!shortUrl.value ? (
             <>
               <div className="space-y-2">
-                <Label htmlFor="share-name">Nome do conteúdo</Label>
+                <Label htmlFor="share-name">
+                  {type === "map" ? "Nome da visualização" : "Nome da consulta"}
+                </Label>
                 <Input
                   id="share-name"
                   value={name.value}
                   onInput={(e) =>
                     (name.value = (e.currentTarget as HTMLInputElement).value)
                   }
-                  placeholder="Ex: Análise da região sul"
+                  placeholder={
+                    type === "map"
+                      ? "Ex: Zoneamento e lotes da região central"
+                      : "Ex: Lotes com área acima de 500m²"
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -283,9 +295,9 @@ export const ShareModal = ({
                   onInput={(e) =>
                     (description.value = (e.currentTarget as any).value)
                   }
-                  placeholder={`Adicione uma breve descrição sobre esta ${typeLabel.toLowerCase()}...`}
+                  placeholder="Adicione observações úteis para quem abrir este link..."
                   className="resize-none"
-                  rows={3}
+                  rows={2}
                 />
               </div>
               {userProfile.value?.position === "Administrador" && (
@@ -296,12 +308,10 @@ export const ShareModal = ({
                   >
                     <div className="flex items-center gap-2 text-primary">
                       <ShieldCheck className="h-4 w-4" />
-                      <span className="font-bold">Tornar Público</span>
+                      <span className="font-bold">Tornar Público na Biblioteca</span>
                     </div>
                     <span className="font-normal text-[11px] text-muted-foreground leading-tight">
-                      Esta é uma permissão administrativa. Ao ativar, qualquer
-                      pessoa com o link poderá acessar os dados sem necessidade
-                      de login.
+                      Disponibiliza este conteúdo na lista pública da Biblioteca para qualquer usuário da plataforma.
                     </span>
                   </Label>
                   <Switch
@@ -313,36 +323,19 @@ export const ShareModal = ({
               )}
               <div className="flex gap-2 mt-2">
                 <Button
-                  className="flex-1 gap-2"
-                  onClick={handleShare}
+                  className="w-full h-10 font-semibold gap-2"
+                  onClick={isOwner ? handleUpdate : handleShare}
                   disabled={loading.value || !name.value.trim()}
                 >
                   {loading.value ? (
-                    "Salvando..."
+                    "Gerando link..."
                   ) : (
                     <>
-                      <Save className="h-4 w-4" />
-                      {isSearchShare ? "Salvar filtro" : "Salvar visualização"}
+                      <Share2 className="h-4 w-4" />
+                      {isOwner ? "Salvar alterações" : "Salvar e gerar link"}
                     </>
                   )}
                 </Button>
-                {isOwner && (
-                  <Button
-                    className="flex-1 gap-2"
-                    variant="secondary"
-                    onClick={handleUpdate}
-                    disabled={loading.value || !name.value.trim()}
-                  >
-                    {loading.value ? (
-                      "Salvando..."
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Salvar Alterações
-                      </>
-                    )}
-                  </Button>
-                )}
               </div>
             </>
           ) : (

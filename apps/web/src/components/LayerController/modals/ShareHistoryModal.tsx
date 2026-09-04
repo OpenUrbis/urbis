@@ -32,7 +32,10 @@ export const ShareHistoryModal = ({
   onOpenChange,
   type = "map",
 }: ShareHistoryModalProps) => {
-  const typeLabel = type === "map" ? "Minhas visualizações" : "Meus filtros";
+  const typeLabel =
+    type === "map"
+      ? "Minhas visualizações do mapa"
+      : "Minhas consultas de dados salvas";
   const history = useSignal<SharedMapItem[]>([]);
   const loading = useSignal(false);
   const page = useSignal(1);
@@ -95,7 +98,11 @@ export const ShareHistoryModal = ({
           ) : history.value.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-muted-foreground gap-2">
               <Search className="h-8 w-8 opacity-50" />
-              <p className="text-sm">Nenhum conteúdo salvo encontrado.</p>
+              <p className="text-sm">
+                {type === "map"
+                  ? "Nenhuma visualização do mapa salva."
+                  : "Nenhuma consulta de dados salva."}
+              </p>
             </div>
           ) : (
             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">

@@ -4,7 +4,8 @@ import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class MapDataService {
-  private readonly baseUrl = 'https://mapdata.urbis.prefeitura.sp.gov.br';
+  private readonly baseUrl =
+    process.env.MAPDATA_BASE_URL || 'https://mapdata.urbis.sampa.br';
 
   constructor(private readonly httpService: HttpService) {}
 

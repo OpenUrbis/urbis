@@ -62,6 +62,8 @@ import {
   User,
   History,
   SlidersHorizontal,
+  Table,
+  FileSpreadsheet,
   type LucideIcon,
 } from "lucide-react";
 
@@ -136,6 +138,10 @@ const ICONS = {
   person: User,
   history: History,
   opacity: SlidersHorizontal,
+  table_chart: Table,
+  table: Table,
+  file_spreadsheet: FileSpreadsheet,
+  spreadsheet: FileSpreadsheet,
 } satisfies Record<string, LucideIcon>;
 
 export type UrbisIconName = keyof typeof ICONS;

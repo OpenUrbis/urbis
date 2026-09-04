@@ -280,6 +280,7 @@ export class GeospatialIntersectionService {
 
     // Fallback: If no schemas were found in database or minimal count, populate known standard layers
     const defaultLayers = [
+      'slui:lotes_fiscais',
       'slui:lote_cidadao',
       'slui:zoneamento',
       'slui:zoneamento_geral',
@@ -1013,8 +1014,8 @@ export class GeospatialIntersectionService {
     const lote = sqlc.substring(6, 10);
 
     const typeNames = [
-      'slui:lote_cidadao',
       'slui:lotes_fiscais',
+      'slui:lote_cidadao',
       'slui:view_lote_cidadao',
     ];
 
@@ -1022,6 +1023,10 @@ export class GeospatialIntersectionService {
 
     for (const typeName of typeNames) {
       try {
+        const cqlFilter = typeName.includes('lotes_fiscais')
+          ? `setor_fiscal = ${parseInt(setor, 10)} AND quadra_fiscal = ${parseInt(quadra, 10)} AND lote_fiscal = ${parseInt(lote, 10)}`
+          : `cd_setor_fiscal = '${setor}' AND cd_quadra_fiscal = '${quadra}' AND cd_lote = '${lote}'`;
+
         const wfsResponse = await firstValueFrom(
           this.httpService.get(this.geoserverUrl, {
             params: {
@@ -1032,7 +1037,7 @@ export class GeospatialIntersectionService {
               maxFeatures: 5,
               outputFormat: 'json',
               srsName: 'EPSG:31983',
-              CQL_FILTER: `cd_setor_fiscal = '${setor}' AND cd_quadra_fiscal = '${quadra}' AND cd_lote = '${lote}'`,
+              CQL_FILTER: cqlFilter,
             },
             headers: {
               ...authHeaders,

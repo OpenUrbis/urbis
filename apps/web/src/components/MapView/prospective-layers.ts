@@ -894,12 +894,42 @@ export const getProspectiveSearchLayers = (
     lotsLayer.proxyLayerId = "lotes_fiscais";
     lotsLayer.name = "Lotes fiscais";
     lotsLayer.minZoom = 13;
-    lotsLayer.properties.wms.layers = "slui:lote_cidadao";
+    lotsLayer.properties.wms.layers = "slui:lotes_fiscais";
 
     const [minArea, maxArea] = areaImovel;
-    const sld = `<StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"><NamedLayer><Name>lote_cidadao</Name><UserStyle><Title>Lots Filter</Title><FeatureTypeStyle><Rule><Name>FilteredLots</Name><ogc:Filter><ogc:And><ogc:PropertyIsEqualTo><ogc:PropertyName>cd_tipo_lote</ogc:PropertyName><ogc:Literal>F</ogc:Literal></ogc:PropertyIsEqualTo><ogc:PropertyIsBetween><ogc:Function name="parseDouble"><ogc:PropertyName>qt_area_terreno</ogc:PropertyName></ogc:Function><ogc:LowerBoundary><ogc:Literal>${minArea}</ogc:Literal></ogc:LowerBoundary><ogc:UpperBoundary><ogc:Literal>${maxArea}</ogc:Literal></ogc:UpperBoundary></ogc:PropertyIsBetween></ogc:And></ogc:Filter><PolygonSymbolizer><Stroke><CssParameter name="stroke">#00FFFF</CssParameter><CssParameter name="stroke-width">1</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>`;
+    const sld = `<StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"><NamedLayer><Name>lotes_fiscais</Name><UserStyle><Title>Lots Filter</Title><FeatureTypeStyle><Rule><Name>FilteredLots</Name><ogc:Filter><ogc:And><ogc:PropertyIsEqualTo><ogc:PropertyName>tipo_lote_fiscal</ogc:PropertyName><ogc:Literal>Fiscal</ogc:Literal></ogc:PropertyIsEqualTo><ogc:PropertyIsBetween><ogc:PropertyName>area_terreno</ogc:PropertyName><ogc:LowerBoundary><ogc:Literal>${minArea}</ogc:Literal></ogc:LowerBoundary><ogc:UpperBoundary><ogc:Literal>${maxArea}</ogc:Literal></ogc:UpperBoundary></ogc:PropertyIsBetween></ogc:And></ogc:Filter><PolygonSymbolizer><Stroke><CssParameter name="stroke">#00FFFF</CssParameter><CssParameter name="stroke-width">1.5</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>`;
 
     lotsLayer.properties.sldBody = sld;
+    lotsLayer.viewTemplate = [
+      {
+        type: "LabelValueTemplate",
+        properties: {
+          label: "SQL",
+          value: "{{sql}}",
+        },
+      },
+      {
+        type: "LabelValueTemplate",
+        properties: {
+          label: "Área do Terreno",
+          value: "{{area_terreno}} m²",
+        },
+      },
+      {
+        type: "LabelValueTemplate",
+        properties: {
+          label: "Logradouro",
+          value: "{{logradouro}}",
+        },
+      },
+      {
+        type: "LabelValueTemplate",
+        properties: {
+          label: "Número",
+          value: "{{numero}}",
+        },
+      },
+    ];
     layers.push(lotsLayer);
   }
 

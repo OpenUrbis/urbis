@@ -354,7 +354,6 @@ export const FeatureAttributesTable = ({
     };
 
     const extractPercentage = (props: Record<string, unknown>): string | null => {
-      if (isPointGeometry) return null;
       const raw = props.totalAreaPercentage ?? props.smallerPolygonAreaPercentage ?? props.percentage;
       if (raw !== undefined && raw !== null && raw !== "") {
         const num = Number(raw);
@@ -460,18 +459,20 @@ export const FeatureAttributesTable = ({
       }
     }
 
-    // Disambiguate duplicate labels only if multiple distinct features have the exact same label
+    // Disambiguate duplicate labels only if multiple distinct features have the exact same label: "Lote Fiscal 1", "Lote Fiscal 2"
     const labelCounts = new Map<string, number>();
     list.forEach((item) => {
-      labelCounts.set(item.label, (labelCounts.get(item.label) || 0) + 1);
+      const base = item.label.replace(/\s+\d+$/, "").trim();
+      labelCounts.set(base, (labelCounts.get(base) || 0) + 1);
     });
 
     const labelIndices = new Map<string, number>();
     list.forEach((item) => {
-      if ((labelCounts.get(item.label) || 0) > 1) {
-        const currentIdx = (labelIndices.get(item.label) || 0) + 1;
-        labelIndices.set(item.label, currentIdx);
-        item.label = `${item.label} #${currentIdx}`;
+      const base = item.label.replace(/\s+\d+$/, "").trim();
+      if ((labelCounts.get(base) || 0) > 1) {
+        const currentIdx = (labelIndices.get(base) || 0) + 1;
+        labelIndices.set(base, currentIdx);
+        item.label = `${base} ${currentIdx}`;
       }
     });
 
@@ -555,10 +556,31 @@ export const FeatureAttributesTable = ({
   }, [availableFeatures, safeLayerIndex]);
 
   const filteredEntries = useMemo(() => {
+    const ignoredKeys = new Set([
+      "geometry",
+      "coordinates",
+      "type",
+      "layer",
+      "layerschemaid",
+      "layerschemaname",
+      "layer_name",
+      "layer_schema_id",
+      "layer_schema_name",
+      "_layerid",
+      "_initialtab",
+      "ispointinspection",
+      "source",
+      "origem_perimetro",
+      "origem_fiu",
+      "totalarea",
+      "totalareapercentage",
+      "smallerpolygonareapercentage",
+    ]);
+
     const entries = Object.entries(activeProperties).filter(([key]) => {
-      if (key === "geometry" || key === "coordinates" || key === "type" || key.startsWith("__")) return false;
-      // When inspecting a point location, omit polygon-specific intersection area fields
-      if (isPointGeometry && (key === "totalArea" || key === "totalAreaPercentage" || key === "smallerPolygonAreaPercentage")) return false;
+      if (key.startsWith("__")) return false;
+      const lowerKey = key.toLowerCase().replace(/[-_\s]+/g, "");
+      if (ignoredKeys.has(key) || ignoredKeys.has(lowerKey)) return false;
       return true;
     });
 
@@ -570,7 +592,7 @@ export const FeatureAttributesTable = ({
       const valStr = String(value ?? "").toLowerCase();
       return label.includes(term) || key.toLowerCase().includes(term) || valStr.includes(term);
     });
-  }, [activeProperties, searchTerm, isPointGeometry]);
+  }, [activeProperties, searchTerm]);
 
   const handleCopy = (key: string, value: string, displayLabel: string) => {
     void navigator.clipboard.writeText(value);
@@ -764,28 +786,34 @@ export const FeatureAttributesTable = ({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/50">
-                {filteredEntries.map(([key, rawValue]) => {
+              <tbody className="divide-y divide-border/60">
+                {filteredEntries.map(([key, rawValue], rowIdx) => {
                   const label = formatAttributeLabel(key);
                   const displayLabel = label || key;
                   const { display, isUrl, isNumeric } = formatAttributeValue(rawValue, key);
                   const isCopied = copiedKey === key;
+                  const isEvenRow = rowIdx % 2 === 1;
 
                   return (
                     <tr
                       key={key}
-                      className="group transition-colors hover:bg-primary/[0.04]"
+                      className={cn(
+                        "group transition-colors",
+                        isEvenRow
+                          ? "bg-muted/35 dark:bg-muted/15 hover:bg-primary/[0.08]"
+                          : "bg-background hover:bg-primary/[0.05]"
+                      )}
                     >
-                      {/* Coluna Atributo: Pintada/destacada suavemente (coluna sim) */}
+                      {/* Coluna Atributo */}
                       <th
                         scope="row"
-                        className="py-2.5 px-3.5 align-top font-semibold text-foreground bg-muted/25 dark:bg-muted/15 border-r border-border/40 select-text text-left"
+                        className="py-2.5 px-3.5 align-top font-semibold text-foreground border-r border-border/40 select-text text-left w-[42%]"
                       >
                         <span className="font-semibold text-foreground">{displayLabel}</span>
                       </th>
 
-                      {/* Coluna Valor: Fundo limpo (coluna não) */}
-                      <td className="py-2.5 px-3.5 align-top bg-background select-text">
+                      {/* Coluna Valor */}
+                      <td className="py-2.5 px-3.5 align-top select-text w-[48%]">
                         {isUrl ? (
                           <a
                             href={display}
@@ -820,8 +848,8 @@ export const FeatureAttributesTable = ({
                         )}
                       </td>
 
-                      {/* Coluna Copiar: Coluna pintada suavemente */}
-                      <td className="py-2 px-2 align-middle text-center bg-muted/10 dark:bg-muted/5 border-l border-border/40">
+                      {/* Coluna Copiar */}
+                      <td className="py-2 px-2 align-middle text-center border-l border-border/40 w-[10%]">
                         <button
                           type="button"
                           onClick={() => handleCopy(key, display, displayLabel)}

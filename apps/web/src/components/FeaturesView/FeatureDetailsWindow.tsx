@@ -28,7 +28,7 @@ import {
 } from "../../utils/fiu";
 import { FiuDisclaimerModal } from "../FiuDisclaimerModal";
 import { ViewTemplate } from "../ViewTemplate";
-import { FeatureAttributesTable, formatAttributeLabel, getFeatureDisplayLabel } from "./FeatureAttributesTable";
+import { FeatureAttributesTable, formatAttributeLabel, getFeatureDisplayLabel, getBoundsFromFeature } from "./FeatureAttributesTable";
 import { exportAttributesToCsv } from "../../utils/exportSpreadsheet";
 import { LegisInformationBlock } from "../LayerController/LayerMetadataPanel";
 
@@ -137,8 +137,11 @@ export const FeatureDetailsWindow = () => {
     return null;
   }, [currentSelection?.feature, polygonFeature.value, polygonData]);
 
-  // Main active feature for the window (stays locked to the main selected item)
+  // Main active feature for the window
   const activeFeature = rootFeature;
+
+  // Effective feature currently inspected (if a layer chip is selected, use it)
+  const effectiveFeature = selectedInspectFeature || rootFeature;
 
   // Check if active feature is a point geometry
   const isPoint = useMemo(() => {
@@ -148,6 +151,16 @@ export const FeatureDetailsWindow = () => {
     const isPointInspect = Boolean(activeFeature.properties?.isPointInspection);
     return isPointGeom || isPointInspect;
   }, [activeFeature]);
+
+  // Check if effective inspected feature is purely a point without polygon or tax lot
+  const isEffectivePoint = useMemo(() => {
+    if (!effectiveFeature) return false;
+    const geom = effectiveFeature.geometry || effectiveFeature;
+    const isPointGeom = geom?.type === "Point";
+    const isPointInspect = Boolean(effectiveFeature.properties?.isPointInspection);
+    const hasLotParams = hasTaxLotFiuParams(effectiveFeature);
+    return (isPointGeom || isPointInspect) && !hasLotParams;
+  }, [effectiveFeature]);
 
   // Derive template for active feature (only when explicitly configured on the layer schema)
   const activeTemplate = useMemo(() => {
@@ -313,29 +326,54 @@ export const FeatureDetailsWindow = () => {
 
   // Calculate area (only relevant for polygons)
   const areaSquareMeters = useMemo(() => {
-    if (!activeFeature || isPoint) return 0;
-    return getFeatureAreaSquareMeters(activeFeature);
-  }, [activeFeature, isPoint]);
+    if (!effectiveFeature || isEffectivePoint) return 0;
+    return getFeatureAreaSquareMeters(effectiveFeature);
+  }, [effectiveFeature, isEffectivePoint]);
 
   const formattedArea = useMemo(() => {
-    if (isPoint || !areaSquareMeters || areaSquareMeters <= 0) return null;
+    if (isEffectivePoint || !areaSquareMeters || areaSquareMeters <= 0) return null;
     return `${areaSquareMeters.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} m²`;
-  }, [areaSquareMeters, isPoint]);
+  }, [areaSquareMeters, isEffectivePoint]);
 
-  // Check if FIU can be generated (limit 500.000 m²)
-  const fiuCheck = useMemo(() => {
-    if (!activeFeature || isPoint) {
-      return { ok: false, reason: "Selecione ou desenhe um polígono para gerar a FIU." };
+  // Target feature to evaluate FIU generation:
+  // Allowed whenever a polygon or tax lot is selected, or present among intersecting layers
+  const targetForFiu = useMemo(() => {
+    if (selectedInspectFeature) return selectedInspectFeature;
+    if (activeFeature && !isPoint) return activeFeature;
+    if (intersectingFeatures && intersectingFeatures.length > 0) {
+      const withTaxLot = intersectingFeatures.find((f: any) => hasTaxLotFiuParams(f));
+      if (withTaxLot) return withTaxLot;
+      const withPoly = intersectingFeatures.find((f: any) => {
+        const g = f?.geometry || f;
+        return g?.type === "Polygon" || g?.type === "MultiPolygon";
+      });
+      if (withPoly) return withPoly;
     }
-    return canOpenFiuFromGeometry(activeFeature);
-  }, [activeFeature, isPoint]);
+    return effectiveFeature;
+  }, [selectedInspectFeature, activeFeature, isPoint, intersectingFeatures, effectiveFeature]);
+
+  // Check if FIU can be generated (available always except when purely a point without polygon/lot)
+  const fiuCheck = useMemo(() => {
+    if (!targetForFiu) {
+      return { ok: false, reason: "Selecione um polígono ou lote fiscal para gerar a FIU." };
+    }
+    const geom = targetForFiu.geometry || targetForFiu;
+    const isPurePoint =
+      (geom?.type === "Point" || targetForFiu.properties?.isPointInspection) &&
+      !hasTaxLotFiuParams(targetForFiu);
+    if (isPurePoint) {
+      return { ok: false, reason: "Selecione um polígono ou lote fiscal para gerar a FIU." };
+    }
+    return canOpenFiuFromGeometry(targetForFiu);
+  }, [targetForFiu]);
 
   // Derive header title - representing the primary selected item
   const headerTitle = useMemo(() => {
-    if (rootFeature?.properties && Object.keys(rootFeature.properties).length > 0) {
-      const p = rootFeature.properties as Record<string, unknown>;
-      // If it's a general multi-layer polygon analysis from drawing
-      if (hasPolygonData && !currentSelection?.feature) {
+    const feat = effectiveFeature;
+    if (feat?.properties && Object.keys(feat.properties).length > 0) {
+      const p = feat.properties as Record<string, unknown>;
+      // If it's a general multi-layer polygon analysis from drawing without specific chip
+      if (hasPolygonData && !currentSelection?.feature && !selectedInspectFeature) {
         return isPoint ? "Camadas no Ponto Selecionado" : "Análise da Área / Perímetro";
       }
       const rawLayer = String(p["layer"] || p["source"] || "");
@@ -353,20 +391,49 @@ export const FeatureDetailsWindow = () => {
       return "Ponto Selecionado";
     }
     return "Dados da Geometria";
-  }, [hasPolygonData, rootFeature, isPoint, currentSelection?.feature, layerSchemas?.value]);
+  }, [effectiveFeature, hasPolygonData, rootFeature, isPoint, currentSelection?.feature, selectedInspectFeature, layerSchemas?.value]);
 
-  // Handle converting a point into a 50m polygon
-  const handleConvertPointToPerimeter = () => {
-    if (!activeFeature) return;
+  // Handle creating perimeter based on actual geometry (or point location if no polygon)
+  const handleCreateOrEditPerimeter = () => {
+    const target = selectedInspectFeature || effectiveFeature || currentSelection?.feature;
+    if (!target) return;
 
-    let lat = activeFeature.properties?.latitude;
-    let lon = activeFeature.properties?.longitude;
+    const normalized = normalizeGeoJsonToWgs84(target);
+    const targetGeom = normalized?.geometry || target?.geometry || target;
+
+    // If target has real polygon/multipolygon geometry, use it as perimeter!
+    if (targetGeom && (targetGeom.type === "Polygon" || targetGeom.type === "MultiPolygon")) {
+      const p = (target.properties as Record<string, unknown>) || {};
+      const perimeterFeature = {
+        type: "Feature" as const,
+        id: `perimeter-${Date.now()}`,
+        properties: {
+          ...p,
+          layer: "Perímetro de Análise",
+          origem_perimetro: getFeatureDisplayLabel(p, String(p.layer || p.source || ""), layerSchemas?.value),
+        },
+        geometry: targetGeom,
+      };
+
+      editFeature(perimeterFeature);
+      setIsEditing(true);
+      setIsOpen(false);
+
+      const bounds = getBoundsFromFeature(perimeterFeature);
+      if (bounds) {
+        flyTo?.({ bounds, padding: 120 });
+      }
+      return;
+    }
+
+    // Fallback: create 50m initial square at point coordinates
+    let lat = target.properties?.latitude;
+    let lon = target.properties?.longitude;
 
     if (lat === undefined || lon === undefined) {
-      const geom = activeFeature.geometry || activeFeature;
-      if (geom?.coordinates && typeof geom.coordinates[0] === "number") {
-        lon = geom.coordinates[0];
-        lat = geom.coordinates[1];
+      if (targetGeom?.type === "Point" && Array.isArray(targetGeom.coordinates) && typeof targetGeom.coordinates[0] === "number") {
+        lon = targetGeom.coordinates[0];
+        lat = targetGeom.coordinates[1];
       }
     }
 
@@ -437,8 +504,16 @@ export const FeatureDetailsWindow = () => {
 
   // Open FIU directly on external page (in new tab)
   const handleOpenFiu = () => {
-    const targetFeature = activeFeature || polygonFeature.value || polygonData || currentSelection?.feature;
+    const targetFeature = targetForFiu || effectiveFeature || currentSelection?.feature;
     if (!targetFeature) return;
+
+    if (hasTaxLotFiuParams(targetFeature)) {
+      const url = buildTaxLotFiuUrl(targetFeature);
+      if (url) {
+        openInNewTab(url);
+        return;
+      }
+    }
 
     const geom = targetFeature.geometry || targetFeature;
     const hasPolygonGeom = geom?.type === "Polygon" || geom?.type === "MultiPolygon";
@@ -451,14 +526,6 @@ export const FeatureDetailsWindow = () => {
       });
       openInNewTab(url);
       return;
-    }
-
-    if (hasTaxLotFiuParams(targetFeature)) {
-      const url = buildTaxLotFiuUrl(targetFeature);
-      if (url) {
-        openInNewTab(url);
-        return;
-      }
     }
 
     const url = buildGeometryFiuUrl({
@@ -475,13 +542,7 @@ export const FeatureDetailsWindow = () => {
   };
 
   const handleEditGeometry = () => {
-    if (!activeFeature) return;
-    if (isPoint) {
-      handleConvertPointToPerimeter();
-      return;
-    }
-    editFeature(activeFeature);
-    setIsEditing(true);
+    handleCreateOrEditPerimeter();
   };
 
   const handleInspectFeatureOnMap = (feat: any) => {
@@ -525,6 +586,7 @@ export const FeatureDetailsWindow = () => {
 
   const handleClose = () => {
     setIsOpen(false);
+    setSelectedInspectFeature(null);
     lastFetchedFeatureRef.current = null;
     selectedFeatures.value = [];
     activeHighlightFeature.value = null;
@@ -566,6 +628,9 @@ export const FeatureDetailsWindow = () => {
       {/* Floating Details Window */}
       {isOpen && (
         <div
+          role="dialog"
+          aria-modal="false"
+          aria-label="Janela de detalhes e atributos da geometria"
           className={cn(
             "pointer-events-auto fixed bottom-0 right-0 md:right-4 lg:right-14 z-[10090] bg-background rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] border border-border flex flex-col transition-all duration-300 ease-in-out",
             isMinimized
@@ -582,16 +647,26 @@ export const FeatureDetailsWindow = () => {
         >
           {/* Window Header */}
           <div
-            className="bg-card text-foreground px-4 py-2.5 flex flex-col rounded-t-2xl select-none border-b border-border shadow-xs"
+            role="button"
+            tabIndex={0}
+            aria-expanded={!isMinimized}
+            aria-label={isMinimized ? "Maximizar janela de atributos" : "Minimizar janela de atributos"}
+            className="bg-card text-foreground px-4 py-2.5 flex flex-col rounded-t-2xl select-none border-b border-border shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
             onClick={() => setIsMinimized(!isMinimized)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setIsMinimized(!isMinimized);
+              }
+            }}
           >
             {isMobile && (
-              <div className="w-8 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-1.5 shrink-0" />
+              <div className="w-8 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-1.5 shrink-0" aria-hidden="true" />
             )}
             <div className="flex justify-between items-center gap-3 w-full">
               {/* Left Section: Window Name & Current Query */}
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary" aria-hidden="true">
                   {polygonLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   ) : (
@@ -601,13 +676,13 @@ export const FeatureDetailsWindow = () => {
                 <div className="min-w-0 flex-1">
                   <h3 className="text-xs md:text-sm font-bold tracking-tight truncate">
                     {hasAdminVisualTemplate
-                      ? "Tabela de atributos e Visualização avançada"
+                      ? "Tabela de Atributos e Visualização Avançada"
                       : Boolean(polygonData) && !isPoint
-                        ? "Tabela de atributos e Resumo territorial"
-                        : "Tabela de atributos"}
+                        ? "Tabela de Atributos e Resumo Territorial"
+                        : "Tabela de Atributos"}
                   </h3>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {polygonLoading ? "Consultando dados e camadas..." : headerTitle}
+                  <p className="text-[11px] text-muted-foreground truncate" aria-live="polite">
+                    {polygonLoading ? "Consultando dados e camadas no local..." : headerTitle}
                   </p>
                 </div>
               </div>
@@ -618,25 +693,25 @@ export const FeatureDetailsWindow = () => {
                 <button
                   type="button"
                   onClick={handleExportAll}
-                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors hidden sm:inline-flex"
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors hidden sm:inline-flex focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                   title="Exportar dados para planilha (.csv)"
-                  aria-label="Exportar dados para planilha"
+                  aria-label="Exportar todos os atributos desta consulta para planilha CSV"
                 >
-                  <Download className="h-4 w-4" />
+                  <Download className="h-4 w-4" aria-hidden="true" />
                 </button>
 
                 {/* Minimize / Maximize */}
                 <button
                   type="button"
                   onClick={() => setIsMinimized(!isMinimized)}
-                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                   title={isMinimized ? "Maximizar janela" : "Minimizar janela"}
-                  aria-label={isMinimized ? "Maximizar janela" : "Minimizar janela"}
+                  aria-label={isMinimized ? "Maximizar janela de atributos" : "Minimizar janela de atributos"}
                 >
                   {isMinimized ? (
-                    <Maximize2 className="h-4 w-4" />
+                    <Maximize2 className="h-4 w-4" aria-hidden="true" />
                   ) : (
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-4 w-4" aria-hidden="true" />
                   )}
                 </button>
 
@@ -644,11 +719,11 @@ export const FeatureDetailsWindow = () => {
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                  title="Fechar janela"
-                  aria-label="Fechar janela"
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors focus-visible:ring-2 focus-visible:ring-destructive focus-visible:outline-none"
+                  title="Fechar janela (Esc)"
+                  aria-label="Fechar janela de atributos e limpar seleção"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -680,7 +755,7 @@ export const FeatureDetailsWindow = () => {
                 <div className="mx-3 mt-3 rounded-xl border border-border bg-card p-3 shadow-xs space-y-2">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary" aria-hidden="true">
                         {isPoint ? <MapPin className="h-4 w-4" /> : <FileSpreadsheet className="h-4 w-4" />}
                       </span>
                       <div className="min-w-0">
@@ -693,16 +768,16 @@ export const FeatureDetailsWindow = () => {
                           </span>
                           {formattedArea && (
                             <span className="shrink-0 rounded-full bg-primary/10 border border-primary/20 text-primary px-2.5 py-0.5 text-[10px] font-semibold flex items-center gap-1">
-                              <span className="text-muted-foreground font-normal">Área da seleção:</span>
+                              <span className="text-muted-foreground font-normal">Área:</span>
                               <strong>{formattedArea}</strong>
                             </span>
                           )}
                         </div>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
                           {isPoint
-                            ? "Ponto consultado no mapa"
+                            ? "Local selecionado no mapa"
                             : intersectingFeatures.length > 0
-                              ? `${intersectingFeatures.length} ${intersectingFeatures.length === 1 ? "feição incidente identificada" : "feições incidentes identificadas"}`
+                              ? `${intersectingFeatures.length} ${intersectingFeatures.length === 1 ? "camada encontrada neste local" : "camadas encontradas neste local"}`
                               : "Perímetro selecionado no mapa"}
                         </p>
                       </div>
@@ -710,31 +785,30 @@ export const FeatureDetailsWindow = () => {
 
                     {/* Ações da Seleção */}
                     <div className="flex items-center gap-2 flex-wrap shrink-0">
-                      {/* Criar perímetro neste ponto (se for Ponto) */}
-                      {isPoint && !polygonLoading && (
+                      {/* Criar perímetro (com base na geometria real ou no ponto) */}
+                      {!polygonLoading && (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={handleConvertPointToPerimeter}
-                          className="h-8 px-3 text-xs font-medium rounded-lg gap-1.5"
-                          title="Transformar este ponto em perímetro de 50m para análise e FIU"
+                          onClick={handleCreateOrEditPerimeter}
+                          className="h-8 px-3 text-xs font-medium rounded-lg gap-1.5 hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary"
+                          title={
+                            isEffectivePoint
+                              ? "Criar uma área de 50 metros neste ponto para análise e FIU"
+                              : "Carregar o contorno desta geometria para editar no mapa ou emitir FIU"
+                          }
+                          aria-label={
+                            isEffectivePoint
+                              ? "Criar perímetro de 50 metros neste ponto"
+                              : `Criar perímetro a partir do contorno de ${headerTitle}`
+                          }
                         >
-                          <SquarePen className="h-3.5 w-3.5 text-primary" />
-                          <span>Criar perímetro neste ponto</span>
-                        </Button>
-                      )}
-
-                      {/* Editar contorno (se for Polígono) */}
-                      {!isPoint && !polygonLoading && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleEditGeometry}
-                          className="h-8 px-3 text-xs font-medium rounded-lg gap-1.5 text-muted-foreground hover:text-foreground"
-                          title="Editar contorno e vértices no mapa"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" />
-                          <span>Editar contorno</span>
+                          <SquarePen className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                          <span>
+                            {isEffectivePoint
+                              ? "Criar perímetro no ponto"
+                              : "Criar perímetro da geometria"}
+                          </span>
                         </Button>
                       )}
 
@@ -744,8 +818,9 @@ export const FeatureDetailsWindow = () => {
                           size="sm"
                           variant="default"
                           onClick={handleOpenFiuClick}
-                          className="h-8 px-3.5 text-xs font-semibold rounded-lg gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
-                          title="Abrir Ficha de Informações Urbanísticas em nova aba"
+                          className="h-8 px-3.5 text-xs font-semibold rounded-lg gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs focus-visible:ring-2 focus-visible:ring-primary"
+                          title="Abrir Ficha de Informações Urbanísticas oficial em nova aba"
+                          aria-label={`Abrir Ficha de Informações Urbanísticas para ${headerTitle}`}
                         >
                           <span
                             className="h-3.5 w-3.5 shrink-0"
@@ -754,9 +829,10 @@ export const FeatureDetailsWindow = () => {
                               mask: "url(/capivara-icone.svg) no-repeat center / contain",
                               WebkitMask: "url(/capivara-icone.svg) no-repeat center / contain",
                             }}
+                            aria-hidden="true"
                           />
                           <span>Iniciar FIU</span>
-                          <ExternalLink className="h-3 w-3 opacity-80" />
+                          <ExternalLink className="h-3 w-3 opacity-80" aria-hidden="true" />
                         </Button>
                       )}
                     </div>
@@ -806,6 +882,7 @@ export const FeatureDetailsWindow = () => {
                         feature={rootFeature}
                         intersectingFeatures={intersectingFeatures}
                         selectedFeature={selectedInspectFeature}
+                        onSelectFeature={(feat) => setSelectedInspectFeature(feat)}
                         title={headerTitle}
                         calculatedArea={formattedArea}
                       />
@@ -956,6 +1033,7 @@ export const FeatureDetailsWindow = () => {
                       feature={rootFeature}
                       intersectingFeatures={intersectingFeatures}
                       selectedFeature={selectedInspectFeature}
+                      onSelectFeature={(feat) => setSelectedInspectFeature(feat)}
                       title={headerTitle}
                       calculatedArea={formattedArea}
                     />
@@ -975,9 +1053,10 @@ export const FeatureDetailsWindow = () => {
               setIsOpen(true);
               setIsMinimized(false);
             }}
-            className="rounded-full shadow-lg gap-2 bg-primary text-primary-foreground font-semibold px-4"
+            className="rounded-full shadow-lg gap-2 bg-primary text-primary-foreground font-semibold px-4 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            aria-label={`Reabrir dados cadastrais e atributos de ${headerTitle}`}
           >
-            <FileSpreadsheet className="h-4 w-4" />
+            <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
             <span>Dados da localização ({headerTitle})</span>
           </Button>
         </div>

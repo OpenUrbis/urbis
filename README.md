@@ -112,7 +112,6 @@ pnpm dev
 - 📐 **Design System:** [`apps/docs/content/docs/general/design-system/index.mdx`](apps/docs/content/docs/general/design-system/index.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/design-system))
 - 🗺️ **Gestão e Cadastro de Camadas:** [`apps/docs/content/docs/general/mapa/index.mdx`](apps/docs/content/docs/general/mapa/index.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/mapa))
 - 🌊 **Datalake e Engenharia de Dados:** [`apps/docs/content/docs/datalake/index.mdx`](apps/docs/content/docs/datalake/index.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/datalake))
-- ⚖️ **Legislação Territorial (Legis):** [`apps/docs/content/docs/legis/architecture.mdx`](apps/docs/content/docs/legis/architecture.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/legis))
 - 🔌 **Referência de APIs (OpenAPI):** [`apps/docs/content/docs/openapi/reference.mdx`](apps/docs/content/docs/openapi/reference.mdx) ([Online](https://docs.urbis.prefeitura.sp.gov.br/docs/openapi/reference))
 
 ---

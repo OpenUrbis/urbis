@@ -1,6 +1,0 @@
-{
-  "title": "Legis Urbanístico",
-  "icon": "Scale",
-  "root": true,
-  "pages": ["architecture", "specs", "inspetor-situacoes"]
-}

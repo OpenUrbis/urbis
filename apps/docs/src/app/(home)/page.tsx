@@ -9,7 +9,6 @@ import {
   FileText,
   GitBranch,
   Map as MapIcon,
-  Scale,
   Server,
   Sparkles,
   Terminal,
@@ -54,7 +53,7 @@ export default function HomePage() {
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
           Ecossistema aberto de engenharia de dados territoriais da cidade de São Paulo.
           Arquitetura medalhão no Dagster com PostGIS e GeoServer, visualização analítica
-          em Deck.gl a 60fps, conformidade regulatória no Legis e integração contínua com bases do GeoSampa e CKAN da CODATA.
+          em Deck.gl a 60fps e integração contínua com bases do GeoSampa e CKAN da CODATA.
         </p>
 
         {/* Action Button Grid */}
@@ -82,14 +81,6 @@ export default function HomePage() {
           >
             <Users className="size-4 text-emerald-500" />
             <span>Contas & Permissões</span>
-          </Link>
-
-          <Link
-            href="/docs/legis"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-card border border-border text-foreground font-semibold text-sm hover:bg-accent/80 hover:text-accent-foreground transition-all shadow-sm hover:shadow hover:-translate-y-0.5"
-          >
-            <Scale className="size-4 text-amber-500" />
-            <span>Legis Urbanístico</span>
           </Link>
 
           <Link
@@ -362,67 +353,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Card 4: Legis */}
-            <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-all hover:border-amber-500/50 group">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                    <Scale className="size-6" />
-                  </div>
-                  <span className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                    Legislação & Regulação
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-amber-500 transition-colors">
-                  Legis Urbanístico
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Consolidação do marco regulatório municipal (Plano Diretor Estratégico - PDE, LPUOS e Código de Obras), editor Tiptap e inspetor de restrições de uso e ocupação.
-                </p>
-                <div className="flex flex-wrap gap-1.5 mb-6">
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    PDE
-                  </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    LPUOS (Zoneamento)
-                  </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    Tiptap
-                  </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    Inspetor
-                  </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    Normas
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 pt-4 border-t border-border/50">
-                <Link
-                  href="/docs/legis/architecture"
-                  className="inline-flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline"
-                >
-                  <span>Arquitetura do Legis</span>
-                  <ArrowRight className="size-3.5" />
-                </Link>
-                <Link
-                  href="/docs/legis/inspetor-situacoes"
-                  className="inline-flex items-center justify-between text-xs text-muted-foreground hover:text-foreground"
-                >
-                  <span>Inspetor de Situações Especiais</span>
-                  <ArrowRight className="size-3.5" />
-                </Link>
-                <Link
-                  href="/docs/legis/specs"
-                  className="inline-flex items-center justify-between text-xs text-muted-foreground hover:text-foreground"
-                >
-                  <span>Especificações Técnicas</span>
-                  <ArrowRight className="size-3.5" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Card 5: Backend & Arquitetura */}
+            {/* Card 4: Backend & Arquitetura */}
             <div className="flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-all hover:border-purple-500/50 group">
               <div>
                 <div className="flex items-center justify-between mb-4">

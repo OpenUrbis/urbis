@@ -43,7 +43,7 @@ export const AttributesInspectionPanel = () => {
             <h5 className="m-0 text-sm font-semibold">Tabela de Atributos</h5>
           </div>
           <p className="text-[11px] leading-relaxed text-muted-foreground">
-            Veja os atributos de geometrias selecionados do mapa.
+            Consulte parâmetros cadastrais e camadas de qualquer local ou elemento do mapa.
           </p>
         </div>
         <Button
@@ -62,7 +62,7 @@ export const AttributesInspectionPanel = () => {
         {/* Simple & honest explanation */}
         <div className="rounded-xl border bg-muted/20 p-3 text-xs space-y-2">
           <p className="text-[11.5px] leading-relaxed text-muted-foreground">
-            Clique no botão abaixo para ativar a consulta e, em seguida, clique no elemento ou local no mapa para, se o elemento estiver habilitado, abrir a <strong>Tabela de Atributos</strong> com busca rápida, nomes tratados e exportação de planilha.
+            Clique no botão abaixo e, em seguida, clique em qualquer ponto ou lote do mapa para abrir a <strong>Tabela de Atributos</strong> com busca rápida, nomes claros e exportação de planilha.
           </p>
         </div>
 

@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback, useEffect } from "preact/hooks";
+import { useState, useMemo, useCallback, useEffect, useRef } from "preact/hooks";
 import { Input, cn } from "@open-urbis/map-ui";
-import { Copy, Check, Search, Layers, FileSpreadsheet, ExternalLink } from "lucide-react";
+import { Copy, Check, Search, Layers, FileSpreadsheet, ExternalLink, X, Info } from "lucide-react";
 import { useToast } from "../../hooks/useToast";
 import { useMapContext } from "../../hooks/useMapContext";
 import { normalizeGeoJsonToWgs84 } from "../../utils/fiu";
@@ -24,7 +24,7 @@ export const formatAttributeLabel = (rawKey: string): string => {
     .join(" ");
 };
 
-const getBoundsFromFeature = (
+export const getBoundsFromFeature = (
   feat: any,
 ): [[number, number], [number, number]] | null => {
   const geom = feat?.geometry || feat;
@@ -178,6 +178,7 @@ export interface FeatureAttributesTableProps {
   feature?: any;
   intersectingFeatures?: any[];
   selectedFeature?: any;
+  onSelectFeature?: (rawFeature: any, item: any) => void;
   title?: string;
   calculatedArea?: string | null;
   className?: string;
@@ -187,12 +188,14 @@ export const FeatureAttributesTable = ({
   feature,
   intersectingFeatures = [],
   selectedFeature,
+  onSelectFeature,
   className,
 }: FeatureAttributesTableProps) => {
   const { layerSchemas, activeHighlightFeature, flyTo } = useMapContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const tableContainerRef = useRef<HTMLDivElement | null>(null);
   const { toastSuccess } = useToast();
 
   // Helper to check if a layer matches any visible/active layer on the map
@@ -241,7 +244,15 @@ export const FeatureAttributesTable = ({
 
   // Combine and sort features: each feature is its own separate item
   const availableFeatures = useMemo(() => {
-    const list: Array<{ label: string; rawLayer: string; isActiveOnMap: boolean; properties: Record<string, unknown>; rawFeature?: any }> = [];
+    const list: Array<{
+      label: string;
+      rawLayer: string;
+      isActiveOnMap: boolean;
+      percentage: string | null;
+      isPrimary: boolean;
+      properties: Record<string, unknown>;
+      rawFeature?: any;
+    }> = [];
     const seenFeatureKeys = new Set<string>();
 
     const buildFeatureKey = (
@@ -272,13 +283,67 @@ export const FeatureAttributesTable = ({
       );
     };
 
-    // 1. Process all intersecting features from spatial query (each feature is a separate item!)
+    const extractPercentage = (props: Record<string, unknown>): string | null => {
+      if (isPointGeometry) return null;
+      const raw = props.totalAreaPercentage ?? props.smallerPolygonAreaPercentage ?? props.percentage;
+      if (raw !== undefined && raw !== null && raw !== "") {
+        const num = Number(raw);
+        if (!isNaN(num) && num > 0.01) {
+          return num >= 99.95 ? "100%" : `${num.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+        }
+      }
+      return null;
+    };
+
+    const isItemPrimary = (itemFeat: any, itemProps: Record<string, unknown>, rawLayer: string) => {
+      if (!feature) return false;
+      if (itemFeat && (itemFeat === feature || itemFeat === selectedFeature)) return true;
+      if (feature.id && (itemFeat?.id === feature.id || itemProps?.id === feature.id)) return true;
+      const p = feature.properties || feature;
+      if (p.cd_setor_fiscal && p.cd_quadra_fiscal && p.cd_lote) {
+        if (
+          itemProps.cd_setor_fiscal === p.cd_setor_fiscal &&
+          itemProps.cd_quadra_fiscal === p.cd_quadra_fiscal &&
+          itemProps.cd_lote === p.cd_lote
+        ) {
+          return true;
+        }
+      }
+      if (p.layerSchemaId && itemProps.layerSchemaId === p.layerSchemaId) return true;
+      if (p.layer && itemProps.layer && p.layer === itemProps.layer) return true;
+      const raw = String(p.layer || feature.id || "");
+      if (raw && rawLayer && (rawLayer === raw || rawLayer.includes(raw) || raw.includes(rawLayer))) {
+        return true;
+      }
+      return false;
+    };
+
+    // 1. If root feature is a distinct clicked feature, put it first!
+    if (feature?.properties && Object.keys(feature.properties).length > 0) {
+      const p = feature.properties as Record<string, unknown>;
+      if (!isSyntheticPoint(feature, p)) {
+        const rawLayer = String(p["layer"] || p["source"] || "");
+        const featureKey = buildFeatureKey(feature, p, rawLayer);
+        seenFeatureKeys.add(featureKey);
+        const label = getFeatureDisplayLabel(p, rawLayer, layerSchemas?.value);
+        list.push({
+          label,
+          rawLayer: rawLayer || "local",
+          isActiveOnMap: isLayerActiveOnMap(rawLayer, p?.layerSchemaId as string),
+          percentage: extractPercentage(p),
+          isPrimary: true,
+          properties: p,
+          rawFeature: feature,
+        });
+      }
+    }
+
+    // 2. Process all intersecting features from spatial query
     if (Array.isArray(intersectingFeatures) && intersectingFeatures.length > 0) {
       intersectingFeatures.forEach((feat, idx) => {
         const featureProps = (feat?.properties as Record<string, unknown>) ?? {};
         if (Object.keys(featureProps).length > 0) {
           if (isSyntheticPoint(feat, featureProps)) return;
-          // Filter negligible sliver intersections (0.0%) for polygon queries
           const pct = Number(featureProps["totalAreaPercentage"]);
           if (!isPointGeometry && featureProps["totalAreaPercentage"] !== undefined && !isNaN(pct) && pct < 0.05) {
             return;
@@ -289,36 +354,19 @@ export const FeatureAttributesTable = ({
           if (!seenFeatureKeys.has(featureKey)) {
             seenFeatureKeys.add(featureKey);
             const label = getFeatureDisplayLabel(featureProps, rawLayer, layerSchemas?.value);
+            const isPrim = isItemPrimary(feat, featureProps, rawLayer);
             list.push({
               label,
               rawLayer,
               isActiveOnMap: isLayerActiveOnMap(rawLayer, featureProps?.layerSchemaId as string),
+              percentage: extractPercentage(featureProps),
+              isPrimary: isPrim,
               properties: featureProps,
               rawFeature: feat,
             });
           }
         }
       });
-    }
-
-    // 2. If root feature is a distinct clicked feature not present in intersections
-    if (feature?.properties && Object.keys(feature.properties).length > 0) {
-      const p = feature.properties as Record<string, unknown>;
-      if (!isSyntheticPoint(feature, p)) {
-        const rawLayer = String(p["layer"] || p["source"] || "");
-        const featureKey = buildFeatureKey(feature, p, rawLayer);
-        if (!seenFeatureKeys.has(featureKey)) {
-          seenFeatureKeys.add(featureKey);
-          const label = getFeatureDisplayLabel(p, rawLayer, layerSchemas?.value);
-          list.unshift({
-            label,
-            rawLayer: rawLayer || "local",
-            isActiveOnMap: isLayerActiveOnMap(rawLayer, p?.layerSchemaId as string),
-            properties: p,
-            rawFeature: feature,
-          });
-        }
-      }
     }
 
     // Fallback if empty properties but feature has top level info
@@ -334,6 +382,8 @@ export const FeatureAttributesTable = ({
           label: "Dados da Geometria",
           rawLayer: "local",
           isActiveOnMap: true,
+          percentage: null,
+          isPrimary: true,
           properties: fallbackProps,
           rawFeature: feature,
         });
@@ -355,36 +405,16 @@ export const FeatureAttributesTable = ({
       }
     });
 
-    const isPrimaryFeature = (item: any) => {
-      if (!feature) return false;
-      if (item.rawFeature === feature) return true;
-      if (feature.id && item.rawFeature?.id === feature.id) return true;
-      const p = feature.properties || feature;
-      const itemProps = item.properties || {};
-      if (p.layerSchemaId && itemProps.layerSchemaId === p.layerSchemaId) return true;
-      if (p.layer && itemProps.layer && p.layer === itemProps.layer) return true;
-      const raw = String(p.layer || feature.id || "");
-      if (raw && item.rawLayer && (item.rawLayer === raw || item.rawLayer.includes(raw) || raw.includes(item.rawLayer))) {
-        return true;
-      }
-      return false;
-    };
-
-    // Ordenação consistente:
-    // 1. Feição diretamente clicada/selecionada pelo usuário
-    // 2. Demais camadas ativas no mapa
-    // 3. Ordem alfabética por nome da camada
+    // Ordenação garantindo que o item primário clicado fique sempre na PRIMEIRA posição (index 0)
     return list.sort((a, b) => {
-      const isPrimA = isPrimaryFeature(a);
-      const isPrimB = isPrimaryFeature(b);
-      if (isPrimA && !isPrimB) return -1;
-      if (!isPrimA && isPrimB) return 1;
+      if (a.isPrimary && !b.isPrimary) return -1;
+      if (!a.isPrimary && b.isPrimary) return 1;
 
       if (a.isActiveOnMap && !b.isActiveOnMap) return -1;
       if (!a.isActiveOnMap && b.isActiveOnMap) return 1;
       return a.label.localeCompare(b.label);
     });
-  }, [feature, intersectingFeatures, layerSchemas?.value, isLayerActiveOnMap, isPointGeometry]);
+  }, [feature, selectedFeature, intersectingFeatures, layerSchemas?.value, isLayerActiveOnMap, isPointGeometry]);
 
   // Sync selected layer when feature or selectedFeature changes
   useEffect(() => {
@@ -417,6 +447,12 @@ export const FeatureAttributesTable = ({
 
   const handleSelectFeature = (globalIndex: number, item: any) => {
     setSelectedLayerIndex(globalIndex);
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollTop = 0;
+    }
+    if (onSelectFeature && item.rawFeature) {
+      onSelectFeature(item.rawFeature, item);
+    }
     if (item.rawFeature) {
       try {
         const normalized = normalizeGeoJsonToWgs84(item.rawFeature);
@@ -428,6 +464,18 @@ export const FeatureAttributesTable = ({
       } catch (err) {
         console.warn("Error highlighting feature on map:", err);
       }
+    }
+  };
+
+  const handleChipKeyDown = (e: any, currentIndex: number) => {
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      const nextIndex = (currentIndex + 1) % availableFeatures.length;
+      handleSelectFeature(nextIndex, availableFeatures[nextIndex]);
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      const prevIndex = (currentIndex - 1 + availableFeatures.length) % availableFeatures.length;
+      handleSelectFeature(prevIndex, availableFeatures[prevIndex]);
     }
   };
 
@@ -454,169 +502,272 @@ export const FeatureAttributesTable = ({
     });
   }, [activeProperties, searchTerm, isPointGeometry]);
 
-  const handleCopy = (key: string, value: string) => {
+  const handleCopy = (key: string, value: string, displayLabel: string) => {
     void navigator.clipboard.writeText(value);
     setCopiedKey(key);
-    toastSuccess("Copiado!");
+    toastSuccess(`Copiado: ${displayLabel}`);
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
+  const activeItem = availableFeatures[safeLayerIndex] || availableFeatures[0];
+
   if (availableFeatures.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-        <FileSpreadsheet className="h-10 w-10 opacity-40 mb-2" />
-        <p className="text-sm font-medium">Nenhum atributo encontrado</p>
-        <p className="text-xs mt-1">Selecione uma geometria no mapa para inspecionar seus dados.</p>
+      <div
+        className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground"
+        role="status"
+        aria-live="polite"
+      >
+        <FileSpreadsheet className="h-10 w-10 opacity-40 mb-2 text-primary" aria-hidden="true" />
+        <p className="text-sm font-semibold text-foreground">Nenhum atributo encontrado</p>
+        <p className="text-xs mt-1 max-w-xs text-muted-foreground">
+          Clique em um elemento ou desenhe uma geometria no mapa para consultar seus dados cadastrais.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className={cn("flex flex-col w-full text-foreground space-y-3 p-3 select-text pointer-events-auto", className)}>
+    <div
+      ref={tableContainerRef}
+      className={cn("flex flex-col w-full text-foreground space-y-3 p-3 select-text pointer-events-auto", className)}
+      role="region"
+      aria-label="Tabela de atributos da geometria consultada"
+    >
       {/* Feições identificadas - Chips compactos agrupados lado a lado */}
       {availableFeatures.length > 0 && (
-        <div className="space-y-1.5 rounded-xl border bg-muted/15 p-2.5">
+        <div className="space-y-1.5 rounded-xl border border-border/80 bg-muted/15 p-2.5 shadow-2xs">
           <div className="flex items-center justify-between gap-2 px-0.5 text-[11px] font-semibold text-muted-foreground">
             <div className="flex items-center gap-1.5">
-              <Layers className="h-3.5 w-3.5 text-primary" />
+              <Layers className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
               <span>
                 {availableFeatures.length === 1
                   ? "Camada selecionada (1 feição):"
-                  : `Camadas no local (${availableFeatures.length}):`}
+                  : `Camadas encontradas neste local (${availableFeatures.length}):`}
               </span>
             </div>
             <span className="text-[10px] text-muted-foreground font-normal hidden sm:inline">
-              Clique para inspecionar no mapa e ver atributos
+              Clique em uma camada para ver seus dados cadastrais
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {availableFeatures.map((item, idx) => (
-              <button
-                key={`${item.label}-${idx}`}
-                type="button"
-                onClick={() => handleSelectFeature(idx, item)}
-                className={cn(
-                  "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border flex items-center gap-1.5 shrink-0 shadow-2xs select-none cursor-pointer",
-                  safeLayerIndex === idx
-                    ? "bg-primary text-primary-foreground border-primary shadow-xs font-semibold"
-                    : "bg-background text-foreground border-border/80 hover:bg-muted/70 hover:border-primary/50"
-                )}
-              >
-                <span
+          <div
+            className="flex items-center gap-1.5 flex-wrap"
+            role="tablist"
+            aria-label="Lista de camadas incidentes"
+          >
+            {availableFeatures.map((item, idx) => {
+              const isSelected = safeLayerIndex === idx;
+              return (
+                <button
+                  key={`${item.label}-${idx}`}
+                  type="button"
+                  role="tab"
+                  id={`tab-layer-${idx}`}
+                  aria-selected={isSelected}
+                  aria-controls={`panel-layer-${idx}`}
+                  tabIndex={isSelected ? 0 : -1}
+                  onClick={() => handleSelectFeature(idx, item)}
+                  onKeyDown={(e) => handleChipKeyDown(e, idx)}
                   className={cn(
-                    "h-1.5 w-1.5 rounded-full shrink-0",
-                    safeLayerIndex === idx
-                      ? "bg-primary-foreground"
-                      : item.isActiveOnMap
-                        ? "bg-emerald-500"
-                        : "bg-muted-foreground/40"
+                    "px-3 py-1.5 rounded-full text-[11px] font-medium transition-all border flex items-center gap-1.5 shrink-0 shadow-2xs select-none cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs font-semibold ring-2 ring-primary/20"
+                      : "bg-background text-foreground border-border/80 hover:bg-muted/70 hover:border-primary/50"
                   )}
-                />
-                <span>{item.label}</span>
-                {item.isActiveOnMap && (
+                  aria-label={`${item.label}${item.percentage ? `, sobreposição de ${item.percentage}` : ""}${item.isActiveOnMap ? ", camada visível no mapa" : ""}`}
+                >
                   <span
                     className={cn(
-                      "text-[9px] font-medium px-1.5 py-0.2 rounded-full",
-                      safeLayerIndex === idx
-                        ? "bg-primary-foreground/20 text-primary-foreground"
-                        : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold"
+                      "h-1.5 w-1.5 rounded-full shrink-0",
+                      isSelected
+                        ? "bg-primary-foreground"
+                        : item.isActiveOnMap
+                          ? "bg-emerald-500"
+                          : "bg-muted-foreground/40"
                     )}
-                  >
-                    Ativa no mapa
-                  </span>
-                )}
-              </button>
-            ))}
+                    aria-hidden="true"
+                  />
+                  <span className="truncate max-w-[200px]">{item.label}</span>
+
+                  {/* Porcentagem de Intersecção no Chip */}
+                  {item.percentage && (
+                    <span
+                      className={cn(
+                        "text-[9.5px] font-bold px-1.5 py-0.5 rounded-full leading-none shrink-0",
+                        isSelected
+                          ? "bg-primary-foreground/25 text-primary-foreground"
+                          : "bg-primary/10 text-primary border border-primary/20"
+                      )}
+                      title={`Sobreposição territorial de ${item.percentage}`}
+                    >
+                      {item.percentage}
+                    </span>
+                  )}
+
+                  {/* Tag de Ativa no mapa */}
+                  {item.isActiveOnMap && (
+                    <span
+                      className={cn(
+                        "text-[9px] font-medium px-1.5 py-0.5 rounded-full leading-none shrink-0",
+                        isSelected
+                          ? "bg-primary-foreground/20 text-primary-foreground"
+                          : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20"
+                      )}
+                      title="Esta camada está ligada e visível no mapa"
+                    >
+                      Ativa
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Search Input */}
+      {/* Search Input with Clear Button */}
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <label htmlFor="search-attributes-input" className="sr-only">
+          Buscar atributo ou valor nesta camada
+        </label>
+        <Search
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none"
+          aria-hidden="true"
+        />
         <Input
+          id="search-attributes-input"
           type="text"
           placeholder="Buscar atributo ou valor nesta camada..."
           value={searchTerm}
           onInput={(e) => setSearchTerm(e.currentTarget.value)}
-          className="h-8 pl-8 pr-3 text-xs bg-background"
+          className="h-8 pl-8 pr-8 text-xs bg-background focus-visible:ring-2 focus-visible:ring-primary"
+          aria-label="Buscar atributo ou valor na camada selecionada"
         />
+        {searchTerm && (
+          <button
+            type="button"
+            onClick={() => setSearchTerm("")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            title="Limpar busca"
+            aria-label="Limpar termo de busca"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        )}
       </div>
 
       {/* Table content */}
-      <div>
+      <div
+        id={`panel-layer-${safeLayerIndex}`}
+        role="tabpanel"
+        aria-labelledby={`tab-layer-${safeLayerIndex}`}
+      >
         {filteredEntries.length === 0 ? (
-          <div className="p-6 text-center text-xs text-muted-foreground rounded-xl border bg-card">
-            Nenhum atributo encontrado para &ldquo;{searchTerm}&rdquo;.
+          <div
+            className="p-6 text-center text-xs text-muted-foreground rounded-xl border border-border bg-card space-y-1"
+            role="status"
+            aria-live="polite"
+          >
+            <p className="font-semibold text-foreground">Nenhum atributo encontrado para &ldquo;{searchTerm}&rdquo;</p>
+            <p className="text-[11px]">Tente buscar por outro termo ou limpe o campo de busca.</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border bg-card shadow-2xs">
-            <table className="w-full text-left text-xs border-collapse">
+          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
+            <table
+              className="w-full text-left text-xs border-collapse"
+              aria-label={`Tabela de atributos de ${activeItem?.label || "camada selecionada"}`}
+            >
+              <caption className="sr-only">
+                Atributos cadastrais e valores da camada {activeItem?.label || "selecionada"}
+              </caption>
               <thead>
-                <tr className="border-b bg-muted/40 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  <th className="py-2.5 px-3 w-[40%] font-medium">Atributo</th>
-                  <th className="py-2.5 px-3 w-[50%] font-medium">Valor</th>
-                  <th className="py-2.5 px-2 w-[10%] text-center font-medium">Copiar</th>
+                <tr className="border-b border-border bg-muted/60 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider select-none">
+                  <th scope="col" className="py-2.5 px-3.5 w-[42%] font-medium border-r border-border/50">
+                    Atributo
+                  </th>
+                  <th scope="col" className="py-2.5 px-3.5 w-[48%] font-medium">
+                    Valor
+                  </th>
+                  <th scope="col" className="py-2.5 px-2 w-[10%] text-center font-medium border-l border-border/50">
+                    Copiar
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60">
+              <tbody className="divide-y divide-border/50">
                 {filteredEntries.map(([key, rawValue]) => {
                   const label = formatAttributeLabel(key);
+                  const displayLabel = label || key;
                   const { display, isUrl, isNumeric } = formatAttributeValue(rawValue, key);
                   const isCopied = copiedKey === key;
 
                   return (
                     <tr
                       key={key}
-                      className="group transition-colors hover:bg-muted/30 odd:bg-background even:bg-muted/10"
+                      className="group transition-colors hover:bg-primary/[0.04]"
                     >
-                      <td className="py-2.5 px-3 align-top font-medium text-foreground">
-                        <div>
-                          <span>{label}</span>
-                          <span className="block text-[10px] font-mono font-normal text-muted-foreground/75 mt-0.5">
-                            {key}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3 align-top">
+                      {/* Coluna Atributo: Pintada/destacada suavemente (coluna sim) */}
+                      <th
+                        scope="row"
+                        className="py-2.5 px-3.5 align-top font-semibold text-foreground bg-muted/25 dark:bg-muted/15 border-r border-border/40 select-text text-left"
+                      >
+                        <span className="font-semibold text-foreground">{displayLabel}</span>
+                      </th>
+
+                      {/* Coluna Valor: Fundo limpo (coluna não) */}
+                      <td className="py-2.5 px-3.5 align-top bg-background select-text">
                         {isUrl ? (
                           <a
                             href={display}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-primary hover:underline font-medium break-all"
+                            className="inline-flex items-center gap-1 text-primary hover:underline font-medium break-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-xs"
+                            aria-label={`Acessar link externo: ${displayLabel}`}
                           >
                             <span>Acessar link</span>
-                            <ExternalLink className="h-3 w-3" />
+                            <ExternalLink className="h-3 w-3" aria-hidden="true" />
                           </a>
+                        ) : typeof rawValue === "boolean" ? (
+                          <span
+                            className={cn(
+                              "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium",
+                              rawValue
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20"
+                                : "bg-muted text-muted-foreground"
+                            )}
+                          >
+                            {display}
+                          </span>
                         ) : (
                           <span
                             className={cn(
                               "text-foreground break-words leading-relaxed select-text",
-                              isNumeric && "font-mono font-semibold"
+                              isNumeric && "font-mono font-medium text-foreground/95"
                             )}
                           >
                             {display}
                           </span>
                         )}
                       </td>
-                      <td className="py-2.5 px-2 align-top text-center">
+
+                      {/* Coluna Copiar: Coluna pintada suavemente */}
+                      <td className="py-2 px-2 align-middle text-center bg-muted/10 dark:bg-muted/5 border-l border-border/40">
                         <button
                           type="button"
-                          onClick={() => handleCopy(key, display)}
+                          onClick={() => handleCopy(key, display, displayLabel)}
                           className={cn(
-                            "inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors",
+                            "inline-flex h-7 w-7 items-center justify-center rounded-md transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
                             isCopied
                               ? "bg-emerald-500/15 text-emerald-600 font-semibold"
                               : "text-muted-foreground hover:bg-muted hover:text-foreground opacity-60 group-hover:opacity-100"
                           )}
-                          title="Copiar valor"
+                          title={`Copiar valor de ${displayLabel}`}
+                          aria-label={`Copiar valor de ${displayLabel}: ${display}`}
                         >
                           {isCopied ? (
-                            <Check className="h-3.5 w-3.5 text-emerald-600" />
+                            <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
                           ) : (
-                            <Copy className="h-3.5 w-3.5" />
+                            <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                           )}
                         </button>
                       </td>
@@ -630,9 +781,17 @@ export const FeatureAttributesTable = ({
       </div>
 
       {/* Footer Info */}
-      <div className="px-1 flex items-center justify-between text-[11px] text-muted-foreground pt-1">
-        <span>{filteredEntries.length} atributos listados</span>
-        <span className="text-[10px]">Dados oficiais · Urbis</span>
+      <div
+        className="px-1 flex items-center justify-between text-[11px] text-muted-foreground pt-1"
+        aria-live="polite"
+      >
+        <span>
+          {filteredEntries.length === 1
+            ? "1 atributo listado"
+            : `${filteredEntries.length} atributos listados`}
+          {searchTerm && ` (filtrado de ${Object.keys(activeProperties).length})`}
+        </span>
+        <span className="text-[10px] text-muted-foreground/80">Dados oficiais · Urbis</span>
       </div>
     </div>
   );

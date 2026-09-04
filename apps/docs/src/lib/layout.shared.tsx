@@ -5,7 +5,6 @@ import {
   Github,
   Home,
   Map as MapIcon,
-  Scale,
   Users,
 } from "lucide-react";
 
@@ -35,11 +34,6 @@ export function baseOptions(): BaseLayoutProps {
         text: "Contas",
         url: "/docs/general/usuarios",
         icon: <Users className="size-4" />,
-      },
-      {
-        text: "Legis",
-        url: "/docs/legis",
-        icon: <Scale className="size-4" />,
       },
       {
         text: "OpenAPI",

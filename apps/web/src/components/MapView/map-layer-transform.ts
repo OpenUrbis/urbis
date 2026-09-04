@@ -397,7 +397,7 @@ const prepareLayerProperties = (
         depthMask: true,
       }
     : {
-        depthTest: false,
+        depthTest: true,
         depthMask: false,
       };
 
@@ -707,7 +707,7 @@ const createTextLayer = (
     billboard: true,
     outlineWidth,
     outlineColor,
-    getPolygonOffset: () => [0, -((layerIndex + 1) * 200 + 1000)],
+    getPolygonOffset: () => [0, -((layerIndex + 1) * 1000 + 2000)],
     fontSettings: {
       sdf: true,
       fontSize: 64,
@@ -870,7 +870,7 @@ const createGeoJsonLayer = (
       dataTransform: geoJsonDataTransform,
       getPolygonOffset: ({ layerIndex: deckLayerIndex }: any = {}) => [
         0,
-        -((layerIndex + 1) * 200 + (deckLayerIndex ?? 0)),
+        -((layerIndex + 1) * 1000 + (deckLayerIndex ?? 0)),
       ],
       onError: (error: any) => {
         console.warn(`[deck.gl Layer ${id} Error]`, error?.message || error);
@@ -1143,6 +1143,15 @@ export const transformSchemaLayers = (
     MAP_CONFIGS.CHECKER_POLYGON_IS_SELECTED.BUILD_ARRAY_OF_PROPERTIES(props);
 
   const visibleLayers = layersConfig.filter((layer) => {
+    // Vector tile layers managed natively by MapLibre (e.g. 3D Buildings) should not create Deck.gl layers
+    if (
+      layer.id === "edificacoes_3d" ||
+      layer.properties?.source === "openmaptiles" ||
+      layer.properties?.sourceType === "vector"
+    ) {
+      return false;
+    }
+
     const { isVisible, minZoom, properties = {}, type } = layer;
     const { maxZoom } = properties;
 

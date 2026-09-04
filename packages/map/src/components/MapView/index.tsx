@@ -445,8 +445,7 @@ export const MapView = ({
         try {
           map.addSource("openmaptiles", {
             type: "vector",
-            tiles: ["https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf"],
-            maxzoom: 14,
+            url: "https://tiles.openfreemap.org/planet",
           });
         } catch {
           // Source may already exist
@@ -598,7 +597,7 @@ export const MapView = ({
     } else {
       map.once("style.load", setup3D);
     }
-  }, [is3DActive.value, currentMapStyle, minimalPreview]);
+  }, [is3DActive.value, currentMapStyle, minimalPreview, layerSchemas.value]);
 
   useEffect(() => {
     const map = mapInstanceRef.current;
@@ -819,6 +818,76 @@ export const MapView = ({
           200,
           "#94a3b8",
         ];
+
+        // Ensure openmaptiles vector source exists on the map
+        if (!map.getSource("openmaptiles")) {
+          try {
+            map.addSource("openmaptiles", {
+              type: "vector",
+              url: "https://tiles.openfreemap.org/planet",
+            });
+          } catch {
+            // Source may already exist
+          }
+        }
+
+        if (
+          map.getSource("openmaptiles") &&
+          !map.getLayer("openfreemap-3d-buildings") &&
+          !map.getLayer("building-3d")
+        ) {
+          try {
+            map.addLayer({
+              id: "openfreemap-3d-buildings",
+              type: "fill-extrusion",
+              source: "openmaptiles",
+              "source-layer": "building",
+              minzoom: 13,
+              layout: {
+                visibility: visibility,
+              },
+              paint: {
+                "fill-extrusion-color": [
+                  "interpolate",
+                  ["linear"],
+                  ["coalesce", ["get", "render_height"], ["get", "height"], 10],
+                  0,
+                  "#f8fafc",
+                  20,
+                  "#f1f5f9",
+                  50,
+                  "#e2e8f0",
+                  100,
+                  "#cbd5e1",
+                  200,
+                  "#94a3b8",
+                ],
+                "fill-extrusion-height": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  13,
+                  0,
+                  13.5,
+                  ["coalesce", ["get", "render_height"], ["get", "height"], 10],
+                ],
+                "fill-extrusion-base": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  13,
+                  0,
+                  13.5,
+                  ["coalesce", ["get", "render_min_height"], ["get", "min_height"], 0],
+                ],
+                "fill-extrusion-opacity": b3dOpacity,
+                "fill-extrusion-vertical-gradient": true,
+              },
+            });
+          } catch {
+            // Ignore
+          }
+        }
 
         if (map.getLayer("building-3d")) {
           map.setLayoutProperty("building-3d", "visibility", visibility);

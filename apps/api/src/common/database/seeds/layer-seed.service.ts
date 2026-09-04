@@ -128,7 +128,7 @@ export class LayerSeedService {
       {
         id: 'edificacoes_3d',
         name: 'Edificações 3D (OpenStreetMap)',
-        origin: 'https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf',
+        origin: 'https://tiles.openfreemap.org/planet',
         type: LayerSchemaTypeEnum.GeoJsonLayer,
         isActive: true,
         isVisible: false,
@@ -139,7 +139,7 @@ export class LayerSeedService {
           source: 'openmaptiles',
           sourceLayer: 'building',
           sourceType: 'vector',
-          tiles: ['https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf'],
+          url: 'https://tiles.openfreemap.org/planet',
           minZoom: 13,
           maxZoom: 20,
           extruded: true,

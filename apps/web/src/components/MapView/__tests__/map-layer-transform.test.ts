@@ -236,18 +236,18 @@ describe("map-layer-transform", () => {
     expect(bottomGeoJson).toBeDefined();
     expect(topGeoJson).toBeDefined();
 
-    // Depth parameters for flat 2D layers (depthTest & depthMask disabled to avoid co-planar Z-fighting)
-    expect(bottomGeoJson?.props.parameters?.depthTest).toBe(false);
+    // Depth parameters for flat 2D layers (depthTest true with depthMask false to respect 3D occlusions while preventing overlay clipping)
+    expect(bottomGeoJson?.props.parameters?.depthTest).toBe(true);
     expect(bottomGeoJson?.props.parameters?.depthMask).toBe(false);
-    expect(topGeoJson?.props.parameters?.depthTest).toBe(false);
+    expect(topGeoJson?.props.parameters?.depthTest).toBe(true);
     expect(topGeoJson?.props.parameters?.depthMask).toBe(false);
 
     // Polygon offset for bottom layer (index 0) vs top layer (index 1)
     const bottomOffset = bottomGeoJson?.props.getPolygonOffset();
     const topOffset = topGeoJson?.props.getPolygonOffset();
 
-    expect(bottomOffset).toEqual([0, -200]);
-    expect(topOffset).toEqual([0, -400]);
+    expect(bottomOffset).toEqual([0, -1000]);
+    expect(topOffset).toEqual([0, -2000]);
 
     // Top layer offset has larger negative units (closer to camera in depth buffer)
     expect(topOffset[1]).toBeLessThan(bottomOffset[1]);

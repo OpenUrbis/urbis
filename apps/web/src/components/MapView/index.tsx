@@ -1438,7 +1438,6 @@ export const MapView = ({
 
   const handleMapClickFallback = (evt: MapClickEventLike) => {
     if (isRulerActiveRef.current) return;
-    if (isDesktop) return;
 
     if (isPickingLocation.value) {
       handleClick({
@@ -1447,22 +1446,65 @@ export const MapView = ({
       return;
     }
 
+    // 1. Check if Deck.gl picked an object
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const deck = (overlayRef?.current as any)?._deck;
-    if (!deck) return;
+    if (deck) {
+      const pickedInfo = deck.pickObject({
+        x: evt.point.x,
+        y: evt.point.y,
+        radius: isDesktop ? 6 : 24,
+      }) as PickingInfo | null;
 
-    const pickedInfo = deck.pickObject({
-      x: evt.point.x,
-      y: evt.point.y,
-      radius: 24,
-    }) as PickingInfo | null;
+      if (pickedInfo?.layer && pickedInfo.object) {
+        handleClick({
+          ...pickedInfo,
+          coordinate: pickedInfo.coordinate ?? [evt.lngLat.lng, evt.lngLat.lat],
+        } as PickingInfo);
+        return;
+      }
+    }
 
-    if (!pickedInfo?.layer || !pickedInfo.object) return;
+    // 2. Query MapLibre 3D building / vector features if Deck.gl didn't pick anything
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const map = (overlayRef?.current as any)?._map || mapInstanceRef.current;
+    if (map) {
+      const candidateLayers = [
+        "openfreemap-3d-buildings",
+        "building-3d",
+        "building",
+      ].filter((id) => map.getLayer(id));
 
-    handleClick({
-      ...pickedInfo,
-      coordinate: pickedInfo.coordinate ?? [evt.lngLat.lng, evt.lngLat.lat],
-    } as PickingInfo);
+      if (candidateLayers.length > 0) {
+        const features = map.queryRenderedFeatures(evt.point, {
+          layers: candidateLayers,
+        });
+
+        if (features && features.length > 0) {
+          const feat = features[0];
+          const properties = {
+            ...feat.properties,
+            layer: "edificacoes_3d",
+          };
+
+          handleClick({
+            object: {
+              id: feat.id ?? `b3d-${Date.now()}`,
+              type: "Feature",
+              geometry: feat.geometry,
+              properties,
+            },
+            coordinate: [evt.lngLat.lng, evt.lngLat.lat],
+            layer: {
+              props: {
+                clickAction: { action: ClickActionEnum.SelectFeature, params: {} },
+                viewTemplate: [],
+              },
+            },
+          } as unknown as PickingInfo);
+        }
+      }
+    }
   };
 
   const saveButton = () => {

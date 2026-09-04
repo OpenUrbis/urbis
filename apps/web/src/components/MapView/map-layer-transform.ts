@@ -896,6 +896,23 @@ const createGeoJsonLayer = (
       pickable: isPickable,
       autoHighlight: autoHighlight,
       highlightColor: highlightColor,
+      _subLayerProps: {
+        'polygons-fill': {
+          parameters: preparedProps.parameters,
+        },
+        'polygons-stroke': {
+          parameters: {
+            depthTest: false,
+            depthMask: false,
+          },
+        },
+        linestrings: {
+          parameters: {
+            depthTest: false,
+            depthMask: false,
+          },
+        },
+      },
       updateTriggers: {
         getFillColor: [
           selectedFeatureIds,

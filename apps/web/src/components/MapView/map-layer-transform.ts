@@ -840,13 +840,12 @@ const createMVTLayer = (
       highlightColor,
       clickAction,
       viewTemplate,
-      dataTransform: (features: any[]) => {
-        if (!Array.isArray(features)) return [];
-        return features.filter(
-          (f) =>
-            f?.properties?.layerName === "building" ||
-            f?.properties?.render_height !== undefined,
-        );
+      binary: false,
+      loadOptions: {
+        mvt: {
+          layers: ["building"],
+          shape: "geojson",
+        },
       },
       getElevation,
       getFillColor: effectiveGetFillColor,

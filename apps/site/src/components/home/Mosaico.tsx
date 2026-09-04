@@ -10,7 +10,7 @@ import {
   Award,
   ClipboardList,
   FileCode2,
-  Database,
+  ShieldCheck,
 } from "lucide-react";
 import { useEffect, useState, type ComponentType } from "react";
 import { Link } from "react-router-dom";
@@ -92,13 +92,11 @@ const componentes: MosaicoItem[] = [
     icon: FileCode2,
   },
   {
-    title: "Data lake",
+    title: "Links administrativos",
     description:
-      "Ambiente interno para organização, integração e consumo de bases de dados utilizadas pelos componentes do Urbis.",
-    href: "https://dadosabertos.urbis.prefeitura.sp.gov.br",
-    icon: Database,
-    external: true,
-    newTab: true,
+      "Acesso direto às ferramentas, consoles e serviços de administração e infraestrutura do ecossistema Urbis.",
+    href: "/links-administrativos",
+    icon: ShieldCheck,
     adminOnly: true,
   },
 ];
@@ -180,19 +178,19 @@ function ComponenteCard({ item, delay }: { item: MosaicoItem; delay: number }) {
                 <span className="sr-only">(abre em nova aba)</span>
               )}
             </h3>
-            {item.external && (
-              <div className="mt-1 flex shrink-0 items-center gap-2">
-                {item.adminOnly && (
-                  <span className="rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
-                    Uso interno
-                  </span>
-                )}
+            <div className="mt-1 flex shrink-0 items-center gap-2">
+              {item.adminOnly && (
+                <span className="rounded-sm bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-foreground">
+                  Uso interno
+                </span>
+              )}
+              {item.external && (
                 <ExternalLink
                   className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
                   aria-hidden="true"
                 />
-              </div>
-            )}
+              )}
+            </div>
           </div>
           <p className="text-sm leading-snug text-muted-foreground">
             {item.description}

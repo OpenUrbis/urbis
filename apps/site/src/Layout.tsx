@@ -85,6 +85,7 @@ function LayoutInner() {
       "/carta-servicos": "Mosaico",
       "/guia-legislacao-urbanistica": "Mosaico",
       "/guia-fiscalizacao-urbanistica": "Mosaico",
+      "/links-administrativos": "Links administrativos",
       "/sobre": "Sobre",
     };
 

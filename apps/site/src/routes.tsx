@@ -7,6 +7,7 @@ import DocTecnica from "./pages/DocTecnica";
 import GuiaLegislacaoUrbanistica from "./pages/GuiaLegislacaoUrbanistica";
 import CartaServicos from "./pages/CartaServicos";
 import GuiaFiscalizacaoUrbanistica from "./pages/GuiaFiscalizacaoUrbanistica";
+import LinksAdministrativos from "./pages/LinksAdministrativos";
 import { Navigate, RouteObject } from "react-router-dom";
 import { GlobalProvider } from "./GlobalProvider";
 import { Loader2 } from "lucide-react";
@@ -42,6 +43,10 @@ const routes: RouteObject[] = [
           {
             path: "guia-fiscalizacao-urbanistica",
             element: <GuiaFiscalizacaoUrbanistica />,
+          },
+          {
+            path: "links-administrativos",
+            element: <LinksAdministrativos />,
           },
 
           // URLs antigas mantidas por compatibilidade (links externos e indexação)

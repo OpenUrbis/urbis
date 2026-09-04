@@ -329,11 +329,13 @@ export const saveFiuPayload = ({
   feature,
   response,
   template,
+  selectedUse,
   key,
 }: {
   feature: any;
   response: any;
   template: ITemplate[];
+  selectedUse?: any;
   key?: string;
 }): string => {
   const payloadKey =
@@ -360,6 +362,7 @@ export const saveFiuPayload = ({
     createdAt: Date.now(),
     feature: payloadFeature,
     template,
+    selectedUse,
   };
 
   cleanupOldFiuPayloads();
@@ -458,17 +461,36 @@ export const buildGeometryFiuUrl = ({
   feature,
   response,
   template,
+  selectedUse,
 }: {
   feature: any;
   response: any;
   template: ITemplate[];
+  selectedUse?: any;
 }): string => {
-  const payloadKey = saveFiuPayload({ feature, response, template });
+  const payloadKey = saveFiuPayload({
+    feature,
+    response,
+    template,
+    selectedUse,
+  });
 
   const params = new URLSearchParams({
     interactive: "true",
     payloadKey,
   });
+
+  if (selectedUse) {
+    const code =
+      selectedUse?.item?.["Código"] ||
+      selectedUse?.item?.["Codigo"] ||
+      selectedUse?.item?.codigo ||
+      selectedUse?.codigo ||
+      "";
+    if (code) {
+      params.set("uso", String(code));
+    }
+  }
 
   return `/print?${params.toString()}`;
 };

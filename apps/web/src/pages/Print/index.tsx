@@ -13,10 +13,12 @@ import { useTheme } from "../../components/ThemeProvider";
 import Header from "../../components/Header";
 import { Button, Input, UrbisFooter, UrbisIcon } from "@open-urbis/map-ui";
 import { Search } from "../../components/Search";
+import proj4 from "proj4";
 import {
   FIU_STORAGE_PREFIX,
   convertGeoJsonToDxf,
   getFiuPayload,
+  getFeatureAreaSquareMeters,
 } from "../../utils/fiu";
 import { getOptionalAuthHeaders } from "../../utils/auth-headers";
 
@@ -77,7 +79,8 @@ const PrintPage = () => {
   const semanticGridItems = buildSemanticTemplateGridItems(template.value, 4);
 
   const fiuUrbanContext = useMemo(() => {
-    const features = data.value?.response?.features ?? [];
+    const rawProps = data.value?.properties ?? {};
+    const features: any[] = data.value?.response?.features ?? [];
 
     const getFeatureName = (feature: any) => {
       const p = feature?.properties || {};
@@ -99,40 +102,193 @@ const PrintPage = () => {
     const uniqueNames = (items: any[]) =>
       Array.from(new Set(items.map(getFeatureName).filter(Boolean)));
 
-    const zones = uniqueNames(
-      features.filter((feature: any) => {
-        const id = String(feature?.id ?? "").toLowerCase();
-        const layer = String(feature?.properties?.layer ?? "").toLowerCase();
-        const schemaId = String(
-          feature?.properties?.layerSchemaId ?? "",
-        ).toLowerCase();
-        return (
-          id.includes("zoneamento") ||
-          layer.includes("zoneamento") ||
-          schemaId.includes("zoneamento")
-        );
-      }),
-    );
+    // Extrair SQL
+    const rawSql =
+      rawProps.cd_sql_formatado ||
+      rawProps.sql_formatado ||
+      rawProps.nr_sql ||
+      rawProps.sql ||
+      (rawProps.cd_setor_fiscal
+        ? `${rawProps.cd_setor_fiscal}.${rawProps.cd_quadra_fiscal}.${rawProps.cd_lote}-${rawProps.cd_digito_lote ?? rawProps.cd_digito ?? ""}`
+        : null);
 
-    const pqa = uniqueNames(
-      features.filter((feature: any) => {
-        const id = String(feature?.id ?? "").toLowerCase();
-        const layer = String(feature?.properties?.layer ?? "").toLowerCase();
-        const schemaId = String(
-          feature?.properties?.layerSchemaId ?? "",
-        ).toLowerCase();
-        return (
-          id.includes("qualificacao_ambiental") ||
-          id.includes("pqa") ||
-          layer.includes("qualificacao_ambiental") ||
-          layer.includes("pqa") ||
-          schemaId.includes("qualificacao_ambiental") ||
-          schemaId.includes("pqa")
-        );
-      }),
-    );
+    // Extrair Endereço
+    const logradouro =
+      rawProps.nm_logradouro_oficial ||
+      rawProps.nm_logradouro ||
+      rawProps.tx_nome_logradouro ||
+      rawProps.endereco ||
+      rawProps.tx_endereco;
+    const numero = rawProps.nr_imovel || rawProps.numero;
+    const enderecoCompleto = logradouro
+      ? `${logradouro}${numero ? `, ${numero}` : ""}`
+      : null;
 
-    return { zones, pqa };
+    // Área
+    const rawArea =
+      rawProps.vl_area_terreno ||
+      rawProps.area_terreno ||
+      rawProps.vl_area_lote ||
+      rawProps.area_lote ||
+      rawProps.totalarea;
+    const calculatedArea = data.value ? getFeatureAreaSquareMeters(data.value) : 0;
+    const areaM2 = rawArea ? Number(rawArea) : calculatedArea;
+
+    // Zoneamento
+    const zoneFeatures = features.filter((feature: any) => {
+      const id = String(feature?.id ?? "").toLowerCase();
+      const layer = String(feature?.properties?.layer ?? "").toLowerCase();
+      const schemaId = String(feature?.properties?.layerSchemaId ?? "").toLowerCase();
+      return id.includes("zoneamento") || layer.includes("zoneamento") || schemaId.includes("zoneamento");
+    });
+    const directZone =
+      rawProps.tx_zoneamento_perimetro ||
+      rawProps.cd_zoneamento_perimetro ||
+      rawProps.sigla_zoneamento ||
+      rawProps.zona;
+    const zones = uniqueNames(zoneFeatures);
+    if (directZone && !zones.includes(directZone)) {
+      zones.unshift(directZone);
+    }
+
+    // PQA
+    const pqaFeatures = features.filter((feature: any) => {
+      const id = String(feature?.id ?? "").toLowerCase();
+      const layer = String(feature?.properties?.layer ?? "").toLowerCase();
+      const schemaId = String(feature?.properties?.layerSchemaId ?? "").toLowerCase();
+      return (
+        id.includes("qualificacao_ambiental") ||
+        id.includes("pqa") ||
+        layer.includes("qualificacao_ambiental") ||
+        layer.includes("pqa") ||
+        schemaId.includes("qualificacao_ambiental") ||
+        schemaId.includes("pqa")
+      );
+    });
+    const directPqa = rawProps.nm_perimetro_pqa || rawProps.pqa;
+    const pqa = uniqueNames(pqaFeatures);
+    if (directPqa && !pqa.includes(directPqa)) {
+      pqa.unshift(directPqa);
+    }
+
+    // Subprefeitura e Distrito
+    const subprefeitura =
+      rawProps.nm_subprefeitura ||
+      rawProps.subprefeitura ||
+      uniqueNames(features.filter((f) => String(f?.id || "").includes("subprefeitura")))[0] ||
+      "-";
+
+    const distrito =
+      rawProps.nm_distrito_municipal ||
+      rawProps.nm_distrito ||
+      rawProps.distrito ||
+      uniqueNames(features.filter((f) => String(f?.id || "").includes("distrito")))[0] ||
+      "-";
+
+    const bairro = rawProps.nm_bairro || rawProps.bairro || "-";
+    const cep = rawProps.cd_cep || rawProps.cep || "-";
+
+    // Macroárea
+    const macroarea =
+      rawProps.nm_macroarea ||
+      rawProps.macroarea ||
+      uniqueNames(features.filter((f) => String(f?.id || "").includes("macro")))[0] ||
+      "-";
+
+    // Coordenadas
+    let latLonText = "-";
+    let utmText = "-";
+    const geom = data.value?.geometry || data.value;
+    if (geom?.coordinates) {
+      try {
+        let firstCoord: number[] | null = null;
+        if (geom.type === "Point") firstCoord = geom.coordinates;
+        else if (geom.type === "Polygon") firstCoord = geom.coordinates[0][0];
+        else if (geom.type === "MultiPolygon") firstCoord = geom.coordinates[0][0][0];
+
+        if (firstCoord && firstCoord.length >= 2) {
+          const lon = Number(firstCoord[0]);
+          const lat = Number(firstCoord[1]);
+          if (Number.isFinite(lon) && Number.isFinite(lat)) {
+            latLonText = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+            try {
+              const [easting, northing] = proj4("EPSG:4326", "EPSG:31983", [lon, lat]);
+              utmText = `X: ${easting.toFixed(2)} m, Y: ${northing.toFixed(2)} m (SIRGAS 2000 / UTM 23S)`;
+            } catch {
+              // fallback
+            }
+          }
+        }
+      } catch {
+        // fallback
+      }
+    }
+
+    // Restrições e Camadas Incidentes
+    const heritageFeatures = features.filter((f: any) => {
+      const id = String(f?.id ?? "").toLowerCase();
+      const p = f?.properties ?? {};
+      const layer = String(p.layer ?? "").toLowerCase();
+      return (
+        id.includes("tombamento") ||
+        id.includes("zepec") ||
+        id.includes("cit_") ||
+        id.includes("idesp_") ||
+        id.includes("patrimonio") ||
+        layer.includes("tombamento") ||
+        layer.includes("zepec")
+      );
+    });
+
+    const envFeatures = features.filter((f: any) => {
+      const id = String(f?.id ?? "").toLowerCase();
+      const p = f?.properties ?? {};
+      const layer = String(p.layer ?? "").toLowerCase();
+      return (
+        id.includes("mananciais") ||
+        id.includes("apm") ||
+        id.includes("aprm") ||
+        id.includes("vegetacao") ||
+        id.includes("drenagem") ||
+        id.includes("agua") ||
+        layer.includes("mananciais") ||
+        layer.includes("vegetacao")
+      );
+    });
+
+    const riskFeatures = features.filter((f: any) => {
+      const id = String(f?.id ?? "").toLowerCase();
+      const p = f?.properties ?? {};
+      const layer = String(p.layer ?? "").toLowerCase();
+      return (
+        id.includes("risco") ||
+        id.includes("contamina") ||
+        layer.includes("risco") ||
+        layer.includes("contamina")
+      );
+    });
+
+    return {
+      sql: rawSql || "Identificação Georreferenciada",
+      iptu: rawProps.cd_iptu || rawProps.nr_iptu || rawProps.iptu || "-",
+      endereco: enderecoCompleto || "Endereço cadastral não especificado",
+      subprefeitura,
+      distrito,
+      bairro,
+      cep,
+      areaM2: areaM2 > 0 ? areaM2.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-",
+      testada: rawProps.vl_testada_principal || rawProps.testada ? `${Number(rawProps.vl_testada_principal || rawProps.testada).toFixed(2)} m` : "-",
+      latLonText,
+      utmText,
+      zones: zones.length ? zones : ["Zona não categorizada"],
+      primaryZone: zones[0] || "Zona Urbana",
+      macroarea,
+      pqa: pqa.length ? pqa : ["PA 1 (Padrão)"],
+      heritage: uniqueNames(heritageFeatures),
+      environmental: uniqueNames(envFeatures),
+      risks: uniqueNames(riskFeatures),
+      totalIntersecting: features.length,
+    };
   }, [data.value]);
 
   const getGridSpanClass = (span: number) => {
@@ -748,116 +904,421 @@ const PrintPage = () => {
 
           <section
             id="fiu-document"
-            className="flex-1 w-full overflow-visible bg-white p-0 print:p-0"
+            className="flex-1 w-full overflow-visible bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm print:p-0 print:border-none print:shadow-none space-y-6"
           >
-            <div className="mb-4 rounded-xl border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-700 print:mb-3 print:break-inside-avoid">
-              <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate-900">
-                Uso e parâmetros urbanísticos
-              </h2>
-              <div className="mt-2 grid gap-1.5 sm:grid-cols-[180px_minmax(0,1fr)]">
-                <span className="font-semibold text-slate-500">
-                  Uso informado:
-                </span>
-                <span className="font-semibold text-slate-900">
-                  {intendedUse.trim() || "não informado"}
-                </span>
-                <span className="font-semibold text-slate-500">
-                  Zonas identificadas:
-                </span>
-                <span className="font-semibold text-slate-900">
-                  {fiuUrbanContext.zones.length
-                    ? fiuUrbanContext.zones.join(", ")
-                    : "nada consta"}
-                </span>
-                <span className="font-semibold text-slate-500">
-                  Per. de Qual. Amb.:
-                </span>
-                <span className="font-semibold text-slate-900">
-                  {fiuUrbanContext.pqa.length
-                    ? fiuUrbanContext.pqa.join(", ")
-                    : "nada consta"}
-                </span>
+            {/* Cabeçalho Oficial PMSP */}
+            <div className="border-b-2 border-slate-900 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-xs uppercase tracking-widest text-slate-500">
+                    Prefeitura do Município de São Paulo
+                  </span>
+                  <span className="text-slate-300">|</span>
+                  <span className="font-semibold text-xs text-slate-500">
+                    SMUL
+                  </span>
+                </div>
+                <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-950 mt-1 uppercase">
+                  Ficha de Informações Urbanísticas (FIU)
+                </h1>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Plataforma Urbis · Sistema Integrado de Informações Territoriais e Urbanísticas
+                </p>
               </div>
-              <p className="mt-2 text-[11px] text-slate-500">
-                Permissividade, condições de instalação e notas dependem do uso
-                informado e das regras urbanísticas vigentes. Use a Pesquisa
-                Prospectiva para detalhar a análise normativa quando necessário.
-              </p>
+
+              <div className="text-left sm:text-right text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200 shrink-0">
+                <p>
+                  <strong className="text-slate-900">Emissão:</strong>{" "}
+                  {new Date().toLocaleDateString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+                <p>
+                  <strong className="text-slate-900">Finalidade:</strong>{" "}
+                  Consulta e Viabilidade Prévia
+                </p>
+                <p className="text-[10px] text-amber-700 font-semibold mt-0.5">
+                  Validade Demonstrativa
+                </p>
+              </div>
             </div>
 
-            {intendedUse.trim() && (
-              <div className="mb-4 rounded-xl border border-slate-200 bg-white p-4 text-xs leading-relaxed text-slate-700 print:mb-3 print:break-inside-avoid space-y-3">
-                <h3 className="text-sm font-bold uppercase tracking-wide text-slate-900 border-b pb-2">
-                  Parâmetros urbanísticos por Uso
-                </h3>
-                <p className="font-medium text-slate-800">
-                  Grupo de atividades / Tipologias pretendido:{" "}
-                  <span className="font-bold text-primary">{intendedUse.trim()}</span>
-                </p>
+            {/* 1. IDENTIFICAÇÃO DO IMÓVEL / DADOS CADASTRAIS */}
+            <div className="rounded-xl border border-slate-200 overflow-hidden break-inside-avoid">
+              <div className="bg-slate-900 text-white px-4 py-2 flex items-center justify-between">
+                <h2 className="text-xs font-bold uppercase tracking-wider">
+                  1. Identificação do Imóvel e Dados Cadastrais
+                </h2>
+                <span className="text-[11px] font-mono font-bold text-amber-400">
+                  SQL: {fiuUrbanContext.sql}
+                </span>
+              </div>
+              <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 text-xs text-slate-800 bg-slate-50/50">
+                <div>
+                  <span className="block font-semibold text-slate-500 text-[11px]">
+                    SQL (Setor-Quadra-Lote)
+                  </span>
+                  <strong className="text-sm font-mono text-slate-950 font-bold">
+                    {fiuUrbanContext.sql}
+                  </strong>
+                </div>
+                <div>
+                  <span className="block font-semibold text-slate-500 text-[11px]">
+                    Inscrição Imobiliária (IPTU)
+                  </span>
+                  <span className="font-mono text-slate-900">
+                    {fiuUrbanContext.iptu}
+                  </span>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="block font-semibold text-slate-500 text-[11px]">
+                    Logradouro / Endereço
+                  </span>
+                  <span className="font-semibold text-slate-900 text-xs">
+                    {fiuUrbanContext.endereco}
+                  </span>
+                </div>
+                <div>
+                  <span className="block font-semibold text-slate-500 text-[11px]">
+                    Subprefeitura
+                  </span>
+                  <span className="font-medium text-slate-900">
+                    {fiuUrbanContext.subprefeitura}
+                  </span>
+                </div>
+                <div>
+                  <span className="block font-semibold text-slate-500 text-[11px]">
+                    Distrito Municipal
+                  </span>
+                  <span className="font-medium text-slate-900">
+                    {fiuUrbanContext.distrito}
+                  </span>
+                </div>
+                <div>
+                  <span className="block font-semibold text-slate-500 text-[11px]">
+                    Bairro / CEP
+                  </span>
+                  <span className="font-medium text-slate-900">
+                    {fiuUrbanContext.bairro} · {fiuUrbanContext.cep}
+                  </span>
+                </div>
+                <div>
+                  <span className="block font-semibold text-slate-500 text-[11px]">
+                    Área do Terreno (m²)
+                  </span>
+                  <strong className="text-slate-950 font-bold text-sm">
+                    {fiuUrbanContext.areaM2} m²
+                  </strong>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="block font-semibold text-slate-500 text-[11px]">
+                    Coordenadas Geográficas (WGS84 / SIRGAS 2000)
+                  </span>
+                  <span className="font-mono text-[11px] text-slate-700">
+                    {fiuUrbanContext.latLonText}
+                  </span>
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="block font-semibold text-slate-500 text-[11px]">
+                    Coordenadas Projetadas UTM (Metros)
+                  </span>
+                  <span className="font-mono text-[11px] text-slate-700">
+                    {fiuUrbanContext.utmText}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-                <div className="space-y-2 text-[11px] bg-slate-50 p-3 rounded-lg border border-slate-100">
-                  <p className="font-semibold text-slate-900">
-                    Condições de instalação e vagas exigidas (Quadro 4A / LPUOS):
+            {/* 2. ZONEAMENTO E ENQUADRAMENTO TERRITORIAL */}
+            <div className="rounded-xl border border-slate-200 overflow-hidden break-inside-avoid">
+              <div className="bg-slate-800 text-white px-4 py-2 flex items-center justify-between">
+                <h2 className="text-xs font-bold uppercase tracking-wider">
+                  2. Zoneamento e Enquadramento Territorial (LPUOS & PDE)
+                </h2>
+                <span className="text-[11px] font-semibold text-slate-300">
+                  Leis nº 16.402/16 e 16.050/14
+                </span>
+              </div>
+              <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs bg-white">
+                <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50 space-y-1.5">
+                  <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide block">
+                    Zona de Uso Incidente
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {fiuUrbanContext.zones.map((zone) => (
+                      <span
+                        key={zone}
+                        className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-primary/10 text-primary border border-primary/30"
+                      >
+                        {zone}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Definida pela Lei nº 16.402/2016 e Lei nº 18.177/2024.
                   </p>
-                  <ul className="list-disc pl-5 space-y-1 text-slate-700">
-                    <li>
-                      Número mínimo de vagas de automóveis por área construída [m²] ou Unidades Habitacionais [UH]:{" "}
-                      <span className="italic font-medium text-slate-600">
-                        NA (4A - a) (4A - e) (4A - f) (4A - i)
+                </div>
+
+                <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50 space-y-1.5">
+                  <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide block">
+                    Macroárea / Macrozoneamento
+                  </span>
+                  <p className="font-bold text-slate-900 text-xs">
+                    {fiuUrbanContext.macroarea}
+                  </p>
+                  <p className="text-[10px] text-slate-500">
+                    Macroárea de Estruturação ou Urbanização Consolidada (PDE).
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50 space-y-1.5">
+                  <span className="font-bold text-[11px] text-slate-500 uppercase tracking-wide block">
+                    Perímetro de Qualificação Ambiental (PQA)
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {fiuUrbanContext.pqa.map((pqaName) => (
+                      <span
+                        key={pqaName}
+                        className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300"
+                      >
+                        {pqaName}
                       </span>
-                    </li>
-                    <li>
-                      Vagas de carga e descarga (caminhão / utilitário):{" "}
-                      <span className="italic font-medium text-slate-600">
-                        Conforme área computável e localização (4A - c) (4A - d) (4A - g) (4A - h)
-                      </span>
-                    </li>
-                    <li>
-                      Condições de acessibilidade e via:{" "}
-                      <span className="italic font-medium text-slate-600">
-                        Largura mínima da via 12m em ZEU/ZEUP ativada (4A - j)
-                      </span>
-                    </li>
-                  </ul>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-slate-500">
+                    Determina exigências de Quociente Ambiental (QA).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. PARÂMETROS URBANÍSTICOS DA ZONA */}
+            <div className="rounded-xl border border-slate-200 overflow-hidden break-inside-avoid">
+              <div className="bg-slate-800 text-white px-4 py-2">
+                <h2 className="text-xs font-bold uppercase tracking-wider">
+                  3. Parâmetros Urbanísticos Básicos de Ocupação do Solo
+                </h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 text-[11px]">
+                      <th className="py-2.5 px-3">Parâmetro Urbanístico</th>
+                      <th className="py-2.5 px-3">Referência / Valor</th>
+                      <th className="py-2.5 px-3">Observação Regulamentar</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 text-slate-800">
+                    <tr>
+                      <td className="py-2 px-3 font-semibold">Coeficiente de Aproveitamento Básico (CAB)</td>
+                      <td className="py-2 px-3 font-mono font-bold text-primary">1,00</td>
+                      <td className="py-2 px-3 text-[11px] text-slate-600">Direito de construir básico sem outorga onerosa.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold">Coeficiente de Aproveitamento Máximo (CAM)</td>
+                      <td className="py-2 px-3 font-mono font-bold text-slate-950">Conforme Zona</td>
+                      <td className="py-2 px-3 text-[11px] text-slate-600">Mediante Outorga Onerosa do Direito de Construir (OODC).</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold">Taxa de Ocupação Máxima (TO)</td>
+                      <td className="py-2 px-3 font-mono font-bold text-slate-950">Conforme Zona</td>
+                      <td className="py-2 px-3 text-[11px] text-slate-600">Proporção da área do lote coberta pela projeção da edificação.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold">Gabarito de Altura Máxima</td>
+                      <td className="py-2 px-3 font-mono font-bold text-slate-950">Conforme Zona</td>
+                      <td className="py-2 px-3 text-[11px] text-slate-600">Altura máxima permitida da edificação medida a partir do perfil natural.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold">Taxa de Permeabilidade Mínima (TP)</td>
+                      <td className="py-2 px-3 font-mono font-bold text-slate-950">Conforme PQA / Lote</td>
+                      <td className="py-2 px-3 text-[11px] text-slate-600">Área descoberta permeável destinada à infiltração de água.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold">Recuos Obrigatórios (Frente, Laterais, Fundos)</td>
+                      <td className="py-2 px-3 font-mono font-bold text-slate-950">Conforme LPUOS</td>
+                      <td className="py-2 px-3 text-[11px] text-slate-600">Distâncias mínimas entre a edificação e as divisas do lote.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 4. RESTRIÇÕES TERRITORIAIS, AMBIENTAIS E PATRIMÔNIO HISTÓRICO */}
+            <div className="rounded-xl border border-slate-200 overflow-hidden break-inside-avoid">
+              <div className="bg-slate-800 text-white px-4 py-2 flex items-center justify-between">
+                <h2 className="text-xs font-bold uppercase tracking-wider">
+                  4. Restrições Territoriais, Patrimônio Histórico e Ambientais
+                </h2>
+                <span className="text-[11px] text-slate-300">
+                  {fiuUrbanContext.totalIntersecting} camadas consultadas
+                </span>
+              </div>
+              <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs bg-white">
+                <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                  <span className="font-bold text-[11px] text-slate-700 uppercase tracking-wide block mb-1.5">
+                    Patrimônio Cultural & Tombamentos
+                  </span>
+                  {fiuUrbanContext.heritage.length > 0 ? (
+                    <ul className="space-y-1">
+                      {fiuUrbanContext.heritage.map((item) => (
+                        <li key={item} className="text-amber-800 font-semibold text-[11px] flex items-start gap-1">
+                          <span>•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-slate-500 italic text-[11px]">
+                      Nada consta (sem incidência de tombamento direto).
+                    </p>
+                  )}
+                </div>
+
+                <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                  <span className="font-bold text-[11px] text-slate-700 uppercase tracking-wide block mb-1.5">
+                    Proteção Ambiental & Mananciais
+                  </span>
+                  {fiuUrbanContext.environmental.length > 0 ? (
+                    <ul className="space-y-1">
+                      {fiuUrbanContext.environmental.map((item) => (
+                        <li key={item} className="text-emerald-800 font-semibold text-[11px] flex items-start gap-1">
+                          <span>•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-slate-500 italic text-[11px]">
+                      Sem restrições de mananciais/vegetação direta.
+                    </p>
+                  )}
+                </div>
+
+                <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                  <span className="font-bold text-[11px] text-slate-700 uppercase tracking-wide block mb-1.5">
+                    Riscos & Áreas Contaminadas
+                  </span>
+                  {fiuUrbanContext.risks.length > 0 ? (
+                    <ul className="space-y-1">
+                      {fiuUrbanContext.risks.map((item) => (
+                        <li key={item} className="text-red-700 font-semibold text-[11px] flex items-start gap-1">
+                          <span>•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-slate-500 italic text-[11px]">
+                      Sem histórico de risco geológico ou contaminação cadastrado.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 5. ANÁLISE POR USO PRETENDIDO (QUADRO 4A / LPUOS) */}
+            <div className="rounded-xl border border-slate-200 overflow-hidden break-inside-avoid">
+              <div className="bg-slate-800 text-white px-4 py-2 flex items-center justify-between">
+                <h2 className="text-xs font-bold uppercase tracking-wider">
+                  5. Parâmetros de Uso Pretendido e Vagas (Quadro 4A / LPUOS)
+                </h2>
+                <span className="text-[11px] font-semibold text-slate-300">
+                  Uso: {intendedUse.trim() || "Geral / Não especificado"}
+                </span>
+              </div>
+              <div className="p-4 space-y-3 bg-white text-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                  <div>
+                    <span className="font-bold text-slate-700 text-[11px]">
+                      Uso pretendido informado para a análise:
+                    </span>
+                    <p className="font-bold text-primary text-sm">
+                      {intendedUse.trim() || "Uso padrão / Em estudo preliminar"}
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-slate-500 max-w-xs sm:text-right">
+                    As condições de instalação e vagas são regidas pelo Quadro 4A da Lei nº 16.402/2016.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
+                  <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                    <strong className="block text-slate-900 font-semibold mb-1">
+                      Vagas de Automóveis
+                    </strong>
+                    <p className="text-slate-600">
+                      Calculado por área construída computável ou número de Unidades Habitacionais (UH).
+                    </p>
+                  </div>
+                  <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                    <strong className="block text-slate-900 font-semibold mb-1">
+                      Carga e Descarga
+                    </strong>
+                    <p className="text-slate-600">
+                      Exigível conforme área computável e localização (Quadro 4A - c, d, g, h).
+                    </p>
+                  </div>
+                  <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                    <strong className="block text-slate-900 font-semibold mb-1">
+                      Largura Mínima da Via
+                    </strong>
+                    <p className="text-slate-600">
+                      Mínimo de 12 metros em ZEU/ZEUP quando houver previsão de vagas de estacionamento.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="pt-2 border-t border-slate-200">
-                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">
-                    Notas relativas ao uso (Quadro nº 4A - Lei 16.402/2016)
+                  <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wide mb-1.5">
+                    Notas Regulamentares do Uso (Quadro 4A - Lei 16.402/2016):
                   </h4>
-                  <div className="grid gap-1.5 text-[10px] leading-snug text-slate-600">
-                    {Object.entries(QUADRO_4A_NOTES).map(([key, desc]) => (
-                      <p key={key}>
-                        <strong className="font-semibold text-slate-800">{key}</strong> {desc}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[10px] text-slate-600">
+                    {Object.entries(QUADRO_4A_NOTES).slice(0, 6).map(([key, desc]) => (
+                      <p key={key} className="leading-snug">
+                        <strong className="font-semibold text-slate-900">{key}:</strong> {desc}
                       </p>
                     ))}
                   </div>
                 </div>
               </div>
-            )}
-            <div className="hidden md:grid md:grid-cols-12 gap-4 w-full items-start">
-              {semanticGridItems.map((item) => (
-                <div
-                  className={`${getGridSpanClass(item.span)} min-w-0`}
-                  key={`interactive-view-item-${item.sourceIndex}`}
-                >
-                  <FeaturesView
-                    feature={{
-                      feature: data.value,
-                      template: [item.template],
-                    }}
-                    isPrint={true}
-                  />
-                </div>
-              ))}
             </div>
 
-            <div className="md:hidden">
-              <FeaturesView
-                feature={{ feature: data.value, template: template.value }}
-                key="interactive-view-mobile"
-                isPrint={true}
-              />
+            {/* Se houver templates específicos configurados pelo Admin */}
+            {semanticGridItems.length > 0 && (
+              <div className="space-y-4 pt-2 border-t border-slate-200 break-inside-avoid">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  6. Informações Adicionais do Cadastro
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 w-full items-start">
+                  {semanticGridItems.map((item) => (
+                    <div
+                      className={`${getGridSpanClass(item.span)} min-w-0`}
+                      key={`interactive-view-item-${item.sourceIndex}`}
+                    >
+                      <FeaturesView
+                        feature={{
+                          feature: data.value,
+                          template: [item.template],
+                        }}
+                        isPrint={true}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Termo de Responsabilidade e Validade Técnica */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-[10px] text-slate-500 leading-relaxed break-inside-avoid">
+              <strong className="text-slate-800 block text-[11px] mb-0.5 uppercase tracking-wide">
+                Termo de Validade Técnica e Base Legal:
+              </strong>
+              Esta Ficha de Informações Urbanísticas (FIU) é emitida pela Plataforma Urbis em conformidade com o Plano Diretor Estratégico do Município de São Paulo (Lei nº 16.050/2014) e a Lei de Parcelamento, Uso e Ocupação do Solo (Lei nº 16.402/2016 e Lei nº 18.177/2024). O documento tem caráter informativo e demonstrativo para subsidiar estudos de viabilidade e instrução técnica prévia de licenciamento urbanístico.
             </div>
           </section>
         </main>

@@ -1364,29 +1364,6 @@ export const FeatureAttributesTable = ({
           )}
         </div>
 
-        {/* Botão Abrir FIU (Exibido estritamente quando é perímetro e não ponto) */}
-        {canOpenFiu && onOpenFiu && (
-          <button
-            type="button"
-            onClick={onOpenFiu}
-            className="h-8 px-2.5 rounded-md text-[11px] font-semibold transition-all border flex items-center gap-1.5 shrink-0 select-none cursor-pointer bg-primary text-primary-foreground border-primary hover:bg-primary/90 shadow-2xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-            title="Abrir Ficha de Informações Urbanísticas oficial em nova aba"
-            aria-label="Abrir Ficha de Informações Urbanísticas para este perímetro"
-          >
-            <span
-              className="h-3.5 w-3.5 shrink-0"
-              style={{
-                backgroundColor: "currentColor",
-                mask: "url(/capivara-icone.svg) no-repeat center / contain",
-                WebkitMask: "url(/capivara-icone.svg) no-repeat center / contain",
-              }}
-              aria-hidden="true"
-            />
-            <span>Iniciar FIU</span>
-            <ExternalLink className="h-3 w-3 opacity-80" aria-hidden="true" />
-          </button>
-        )}
-
         {/* Toggle Modo Avançado */}
         <button
           type="button"

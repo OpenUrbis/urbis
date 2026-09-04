@@ -378,7 +378,6 @@ const createDynamicWmsStyle = (
   urlGeoserver: string,
   layerName: string,
   attribution: string,
-  backgroundColor?: string,
   transparent = true,
 ): StyleSpecification => {
   let cleanUrl = urlGeoserver;
@@ -403,17 +402,6 @@ const createDynamicWmsStyle = (
       },
     },
     [
-      ...(backgroundColor
-        ? [
-            {
-              id: `${id}-background`,
-              type: "background" as const,
-              paint: {
-                "background-color": backgroundColor,
-              },
-            },
-          ]
-        : []),
       {
         id,
         type: "raster",
@@ -448,7 +436,6 @@ const createGeosampaWmsStyle = ({
   id,
   layerName,
   attribution,
-  backgroundColor,
   transparent = true,
 }: GeosampaWmsStyleConfig): StyleSpecification =>
   createRasterStyle(
@@ -464,17 +451,6 @@ const createGeosampaWmsStyle = ({
       },
     },
     [
-      ...(backgroundColor
-        ? [
-            {
-              id: `${id}-background`,
-              type: "background" as const,
-              paint: {
-                "background-color": backgroundColor,
-              },
-            },
-          ]
-        : []),
       {
         id,
         type: "raster",
@@ -490,7 +466,6 @@ const GEOSAMPA_WMS_STYLES: Record<
   "geosampa-ortofoto-2020": {
     layerName: "ORTO_RGB_2020",
     attribution: "Ortofoto 2020: GeoSampa / © <a href=\"https://prefeitura.sp.gov.br/\" target=\"_blank\" rel=\"noopener\">Município de São Paulo</a> <span style=\"display:inline-block;transform:scaleX(-1);\">&copy;</span> <a href=\"https://urbis.prefeitura.sp.gov.br/license/cc-by-sa-4.0.html\" target=\"_blank\" rel=\"noopener\">CC BY-SA 4.0</a>",
-    backgroundColor: "#ffffff",
   },
   "geosampa-sara-brasil-1930": {
     layerName: "SaraBrasil_1930",
@@ -499,12 +474,10 @@ const GEOSAMPA_WMS_STYLES: Record<
   "geosampa-ortofoto-2017": {
     layerName: "Orto_PMD_RGB_2017",
     attribution: "Ortofoto 2017: GeoSampa / © <a href=\"https://prefeitura.sp.gov.br/\" target=\"_blank\" rel=\"noopener\">Município de São Paulo</a> <span style=\"display:inline-block;transform:scaleX(-1);\">&copy;</span> <a href=\"https://urbis.prefeitura.sp.gov.br/license/cc-by-sa-4.0.html\" target=\"_blank\" rel=\"noopener\">CC BY-SA 4.0</a>",
-    backgroundColor: "#ffffff",
   },
   "geosampa-hillshade-mdc-2004": {
     layerName: "Orto_MDC",
     attribution: "Ortofoto 2004: GeoSampa / © <a href=\"https://prefeitura.sp.gov.br/\" target=\"_blank\" rel=\"noopener\">Município de São Paulo</a> <span style=\"display:inline-block;transform:scaleX(-1);\">&copy;</span> <a href=\"https://urbis.prefeitura.sp.gov.br/license/cc-by-sa-4.0.html\" target=\"_blank\" rel=\"noopener\">CC BY-SA 4.0</a>",
-    backgroundColor: "#ffffff",
   },
 };
 
@@ -669,8 +642,7 @@ export const getSingleMapStyle = (
         vaspConfig.id,
         vaspConfig.urlGeoserver!,
         vaspConfig.camada!,
-        "VASP Cruzeiro 1954: GeoSampa / Prefeitura de São Paulo",
-        "#ffffff"
+        "VASP Cruzeiro 1954: GeoSampa / Prefeitura de São Paulo"
       );
     }
     default: {
@@ -682,8 +654,7 @@ export const getSingleMapStyle = (
           found.camada,
           found.tipo === "ortofoto"
             ? `${found.nome}: GeoSampa / © <a href="https://prefeitura.sp.gov.br/" target="_blank" rel="noopener">Município de São Paulo</a> <span style="display:inline-block;transform:scaleX(-1);">&copy;</span> <a href="https://urbis.prefeitura.sp.gov.br/license/cc-by-sa-4.0.html" target="_blank" rel="noopener">CC BY-SA 4.0</a>`
-            : `${found.nome}: GeoSampa / Prefeitura de São Paulo`,
-          found.tipo === "ortofoto" ? "#ffffff" : undefined
+            : `${found.nome}: GeoSampa / Prefeitura de São Paulo`
         );
       }
       return osmStyle;
@@ -713,12 +684,11 @@ export const getMapStyle = (
     stylesToCombine.push("standard");
   }
 
-  // When a single vector style (OpenFreeMap) is active, return URL directly so MapLibre loads vector tiles, glyphs & sprites
+  // If the 1st active style is a vector style (OpenFreeMap), return its URL directly as base
   if (
-    stylesToCombine.length === 1 &&
-    (stylesToCombine[0] === "openfreemap-liberty" ||
-      stylesToCombine[0] === "openfreemap-positron" ||
-      stylesToCombine[0] === "openfreemap-bright")
+    stylesToCombine[0] === "openfreemap-liberty" ||
+    stylesToCombine[0] === "openfreemap-positron" ||
+    stylesToCombine[0] === "openfreemap-bright"
   ) {
     return getSingleMapStyle(stylesToCombine[0], theme, apiBaseUrl);
   }
@@ -745,6 +715,9 @@ export const getMapStyle = (
 
     if (singleStyle.layers) {
       singleStyle.layers.forEach((layer) => {
+        // Discard any background layers from overlaid maps to prevent opaque white blocking
+        if (layer.type === "background" && index > 0) return;
+
         const newLayer = { ...layer, id: `${prefix}${layer.id}` };
         if ("source" in newLayer && typeof newLayer.source === "string") {
           newLayer.source = `${prefix}${newLayer.source}`;

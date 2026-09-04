@@ -37,7 +37,7 @@ import { ProspectiveSearchContext } from "@open-urbis/map";
 // @ts-expect-error OpenLocationCode declaration
 import { OpenLocationCode } from "open-location-code";
 import proj4 from "proj4";
-import { getMapStyle } from "./base-map-styles";
+import { getMapStyle, getSingleMapStyle } from "./base-map-styles";
 import { normalizeGeoJsonToWgs84 } from "../../utils/fiu";
 import { Copy, Info, Loader2, Search, SquarePen, TableProperties, X, Layers, Trash2 } from "lucide-react";
 import { encode, getPolygon } from "@open-urbis/endereco-digital";
@@ -621,7 +621,98 @@ export const MapView = ({
 
     const applyPaintUpdates = () => {
       try {
+        const isBaseVector =
+          activeMaps[0] === "openfreemap-liberty" ||
+          activeMaps[0] === "openfreemap-positron" ||
+          activeMaps[0] === "openfreemap-bright";
+
+        // When base map is vector and additional raster maps are active, inject overlay sources and layers
+        if (isBaseVector && activeMaps.length > 1) {
+          activeMaps.slice(1).forEach((styleId, idx) => {
+            const index = idx + 1;
+            const prefix = `bm_${index}_`;
+            const singleSpec = getSingleMapStyle(
+              styleId,
+              theme,
+              import.meta.env.VITE_API_URL || "/api",
+            );
+
+            if (
+              typeof singleSpec === "object" &&
+              singleSpec.sources &&
+              singleSpec.layers
+            ) {
+              Object.entries(singleSpec.sources).forEach(([srcKey, srcVal]) => {
+                const sourceId = `${prefix}${srcKey}`;
+                if (!map.getSource(sourceId)) {
+                  try {
+                    map.addSource(sourceId, srcVal as any);
+                  } catch {
+                    // Ignore
+                  }
+                }
+              });
+
+              singleSpec.layers.forEach((l: any) => {
+                if (l.type === "background") return;
+
+                const layerId = `${prefix}${l.id}`;
+                if (!map.getLayer(layerId)) {
+                  const opacityVal = opacitiesMap[styleId] ?? 100;
+                  const normOpacity = Math.max(0, Math.min(1, opacityVal / 100));
+
+                  const beforeLayerId = map.getLayer("openfreemap-3d-buildings")
+                    ? "openfreemap-3d-buildings"
+                    : map.getLayer("building-3d")
+                    ? "building-3d"
+                    : map.getLayer("place_city")
+                    ? "place_city"
+                    : undefined;
+
+                  try {
+                    map.addLayer(
+                      {
+                        ...l,
+                        id: layerId,
+                        source: `${prefix}${l.source}`,
+                        paint: {
+                          ...l.paint,
+                          "raster-opacity": normOpacity,
+                          "raster-saturation": normSat,
+                        },
+                      },
+                      beforeLayerId,
+                    );
+                  } catch {
+                    // Ignore
+                  }
+                }
+              });
+            }
+          });
+        }
+
         const styleLayers = map.getStyle()?.layers || [];
+
+        // Remove obsolete overlay layers that are no longer active
+        styleLayers.forEach((layer: any) => {
+          if (layer.id && layer.id.startsWith("bm_")) {
+            const match = layer.id.match(/^bm_(\d+)_/);
+            if (match) {
+              const layerIdx = Number(match[1]);
+              if (
+                layerIdx >= activeMaps.length ||
+                (isBaseVector && layerIdx === 0)
+              ) {
+                try {
+                  map.removeLayer(layer.id);
+                } catch {
+                  // Ignore
+                }
+              }
+            }
+          }
+        });
         
         styleLayers.forEach((layer: any) => {
           if (

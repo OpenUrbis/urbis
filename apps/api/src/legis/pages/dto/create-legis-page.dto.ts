@@ -68,7 +68,7 @@ export class CreateLegisPageDto {
   @IsBoolean()
   isPublic?: boolean;
 
-  @ApiPropertyOptional({ type: 'object' })
+  @ApiPropertyOptional({ type: 'object', additionalProperties: true })
   @IsOptional()
   @IsObject()
   source?: Record<string, unknown>;
@@ -78,7 +78,7 @@ export class CreateLegisPageDto {
   @IsString()
   entityType?: string;
 
-  @ApiPropertyOptional({ type: 'object' })
+  @ApiPropertyOptional({ type: 'object', additionalProperties: true })
   @IsOptional()
   @IsObject()
   entityData?: Record<string, unknown>;

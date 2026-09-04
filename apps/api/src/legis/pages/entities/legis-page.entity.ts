@@ -66,6 +66,7 @@ export class LegisPage {
   @Column({ type: 'jsonb', nullable: true })
   @ApiPropertyOptional({
     type: 'object',
+    additionalProperties: true,
     example: { url: 'https://example.org/norma', type: 'html' },
   })
   source?: Record<string, unknown> | null;
@@ -75,7 +76,7 @@ export class LegisPage {
   entityType?: string | null;
 
   @Column({ type: 'jsonb', nullable: true })
-  @ApiPropertyOptional({ type: 'object' })
+  @ApiPropertyOptional({ type: 'object', additionalProperties: true })
   entityData?: Record<string, unknown> | null;
 
   @Column({ type: 'uuid', nullable: true })

@@ -59,6 +59,7 @@ export class GeoJsonDto {
   @ApiPropertyOptional({
     description: 'Optional properties of the GeoJSON feature',
     type: 'object',
+    additionalProperties: true,
     example: { name: 'Sample Polygon' },
   })
   properties?: Record<string, any>;

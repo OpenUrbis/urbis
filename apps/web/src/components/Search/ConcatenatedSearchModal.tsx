@@ -842,30 +842,42 @@ export const ConcatenatedSearchModal = ({
             </div>
 
             {/* Collapsible Filter Toggle Button */}
-            <Button
-              variant={isFiltersExpanded ? "secondary" : "outline"}
-              size="sm"
-              className={cn(
-                "h-8 text-xs gap-1.5 rounded-lg font-medium",
-                activeFiltersCount > 0 && "border-primary/50 text-primary bg-primary/5",
-              )}
-              onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-              disabled={!selectedLayerId}
-              title="Configurar critérios de filtro da camada"
-            >
-              <Filter className="h-3.5 w-3.5" />
-              <span>Critérios de filtro</span>
-              {activeFiltersCount > 0 && (
-                <span className="ml-0.5 rounded-full bg-primary px-1.5 py-0.2 text-[10px] font-bold text-primary-foreground">
-                  {activeFiltersCount}
-                </span>
-              )}
-              {isFiltersExpanded ? (
-                <ChevronUp className="h-3.5 w-3.5 ml-0.5" />
-              ) : (
-                <ChevronDown className="h-3.5 w-3.5 ml-0.5" />
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={isFiltersExpanded ? "secondary" : "outline"}
+                    size="sm"
+                    className={cn(
+                      "h-8 text-xs gap-1.5 rounded-lg font-medium",
+                      activeFiltersCount > 0 &&
+                        "border-primary/50 text-primary bg-primary/5",
+                    )}
+                    onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+                    disabled={!selectedLayerId}
+                  >
+                    <Filter className="h-3.5 w-3.5" />
+                    <span>Critérios de filtro</span>
+                    {activeFiltersCount > 0 && (
+                      <span className="ml-0.5 rounded-full bg-primary px-1.5 py-0.2 text-[10px] font-bold text-primary-foreground">
+                        {activeFiltersCount}
+                      </span>
+                    )}
+                    {isFiltersExpanded ? (
+                      <ChevronUp className="h-3.5 w-3.5 ml-0.5" />
+                    ) : (
+                      <ChevronDown className="h-3.5 w-3.5 ml-0.5" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-xs">
+                  <p className="font-semibold">Regras de filtro da camada</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Adicione condições para filtrar atributos (ex: setor, quadra, uso ou área) antes de carregar a planilha.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
             {/* Instant In-Table Filter */}
             {searchResults.length > 0 && (
@@ -893,49 +905,83 @@ export const ConcatenatedSearchModal = ({
           {/* Right Action Buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
             {searchResults.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExportCSV}
-                className="h-8 text-xs gap-1.5 rounded-lg border-muted hover:bg-muted/60"
-                title="Exportar dados carregados para arquivo CSV"
-              >
-                <Download className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Exportar CSV</span>
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleExportCSV}
+                      className="h-8 text-xs gap-1.5 rounded-lg border-muted hover:bg-muted/60"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Exportar CSV</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-xs">
+                    <p className="font-semibold">Baixar planilha (.csv)</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Exporta todos os registros e colunas carregados na grade para um arquivo CSV pronto para Excel ou Planilhas.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
 
             {selectedLayerId && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleApplyToLayer}
-                className="h-8 text-xs gap-1.5 rounded-lg border-muted hover:bg-muted/60"
-                title="Aplica os mesmos critérios para filtrar geometrias no mapa"
-              >
-                <Map className="h-3.5 w-3.5 text-blue-500" />
-                <span className="hidden md:inline">Filtrar no mapa</span>
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleApplyToLayer}
+                      className="h-8 text-xs gap-1.5 rounded-lg border-muted hover:bg-muted/60"
+                    >
+                      <Map className="h-3.5 w-3.5 text-blue-500" />
+                      <span className="hidden md:inline">Filtrar no mapa</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-xs">
+                    <p className="font-semibold">Filtrar geometrias no mapa</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Aplica as mesmas regras de filtro na visualização espacial do mapa, exibindo apenas as feições correspondentes.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
 
-            <Button
-              size="sm"
-              onClick={handleSearch}
-              disabled={isSearching || !selectedLayerId}
-              className="h-8 text-xs px-4 rounded-lg shadow-sm gap-1.5 font-semibold bg-primary hover:bg-primary/90"
-            >
-              {isSearching ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  <span>Consultando...</span>
-                </>
-              ) : (
-                <>
-                  <TableProperties className="h-3.5 w-3.5" />
-                  <span>Consultar dados</span>
-                </>
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    onClick={handleSearch}
+                    disabled={isSearching || !selectedLayerId}
+                    className="h-8 text-xs px-4 rounded-lg shadow-sm gap-1.5 font-semibold bg-primary hover:bg-primary/90"
+                  >
+                    {isSearching ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <span>Consultando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <TableProperties className="h-3.5 w-3.5" />
+                        <span>Consultar dados</span>
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-xs" side="bottom" align="end">
+                  <p className="font-semibold">Consultar registros da camada</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Carrega na grade abaixo os registros que atendem aos critérios de filtro (limite de 1.000 itens por consulta).
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 

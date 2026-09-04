@@ -1732,6 +1732,7 @@ export const LayerController = ({
               <ContentMenuButton
                 icon="table_chart"
                 label="Explorar registros filtrados"
+                title="Explorar e exportar registros em formato de planilha"
                 showTutorialLabels={showTutorialLabels}
                 onClick={() => {
                   concatenatedSearch.value = {
@@ -1746,6 +1747,7 @@ export const LayerController = ({
               <ContentMenuButton
                 icon="filter_alt"
                 label="Filtrar geometrias no mapa"
+                title="Filtrar geometrias visíveis no mapa"
                 showTutorialLabels={showTutorialLabels}
                 onClick={() => {
                   activeTab.value = "visible";

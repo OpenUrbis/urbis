@@ -21,6 +21,6 @@ export class SupportTicket {
   @Column('text', { array: true, nullable: true })
   files: string[];
 
-  @Column()
+  @Column({ type: 'varchar', enum: SupportTicketType })
   type: SupportTicketType;
 }

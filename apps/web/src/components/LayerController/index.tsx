@@ -890,30 +890,11 @@ const BaseMapsPanel = ({ onOpenOptions }: BaseMapsPanelProps) => {
     <div className="flex min-h-0 flex-1 flex-col">
       <PanelHeader
         title="Mapas base"
-        description="Escolha a referência visual de fundo e configure a visualização 3D e ajustes visuais."
+        description="Escolha a referência visual de fundo e configure a sobreposição e ajustes visuais."
       />
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
-        {/* Controles: 3D e Sobrepor em linhas separadas */}
+        {/* Controles do Mapa Base */}
         <div className="space-y-2 text-xs">
-          <label
-            htmlFor="3d-mode-panel"
-            className="flex items-center justify-between gap-2 rounded-xl border bg-muted/20 px-3 py-2.5 cursor-pointer hover:bg-muted/40 transition-colors select-none"
-          >
-            <span className="flex items-center gap-2 font-medium">
-              <UrbisIcon
-                name="view_in_ar"
-                className="text-muted-foreground text-base shrink-0"
-                aria-hidden="true"
-              />
-              Edificações 3D
-            </span>
-            <Switch
-              id="3d-mode-panel"
-              checked={is3DActive.value}
-              onCheckedChange={(checked) => (is3DActive.value = checked)}
-            />
-          </label>
-
           <label
             htmlFor="multi-base-mode-lc"
             className="flex items-center justify-between gap-2 rounded-xl border bg-muted/20 px-3 py-2.5 cursor-pointer hover:bg-muted/40 transition-colors select-none"

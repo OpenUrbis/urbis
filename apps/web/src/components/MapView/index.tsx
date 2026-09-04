@@ -1878,6 +1878,13 @@ export const MapView = ({
             <DeckGLOverlay
               ref={overlayRef}
               layers={!isEditing.value ? layers.value : []}
+              getCursor={({ isHovering }) =>
+                !minimalPreview && isPickingLocation.value
+                  ? "crosshair"
+                  : isHovering
+                  ? "pointer"
+                  : "default"
+              }
               onClick={(i) => {
                 if (!minimalPreview) handleClick(i);
               }}

@@ -821,9 +821,16 @@ const createGeoJsonLayer = (
     return sanitized;
   };
 
-  const hasHoverColor = Boolean(properties?.visualState?.hoverColor);
-
   const rawLayer = layer as any;
+  const hasHoverColor = Boolean(properties?.visualState?.hoverColor);
+  const autoHighlight =
+    properties?.autoHighlight !== false &&
+    rawLayer?.autoHighlight !== false;
+
+  const highlightColor =
+    hasHoverColor
+      ? properties.visualState.hoverColor
+      : (properties?.highlightColor ?? rawLayer?.highlightColor ?? [255, 255, 255, 120]);
   const mergedProperties = {
     ...properties,
     ...(rawLayer.filled !== undefined ? { filled: rawLayer.filled } : {}),
@@ -886,8 +893,8 @@ const createGeoJsonLayer = (
       clickAction,
       viewTemplate,
       pickable: isPickable,
-      autoHighlight: hasHoverColor ? true : properties?.autoHighlight,
-      highlightColor: hasHoverColor ? properties.visualState.hoverColor : properties?.highlightColor,
+      autoHighlight: autoHighlight,
+      highlightColor: highlightColor,
       updateTriggers: {
         getFillColor: [
           selectedFeatureIds,

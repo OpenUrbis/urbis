@@ -85,7 +85,7 @@ export class AddUserApiKeyTable1786220658088 implements MigrationInterface {
       `ALTER TABLE "legis_pages" ALTER COLUMN "tags" SET DEFAULT '[]'::jsonb`,
     );
     await queryRunner.query(
-      `CREATE UNIQUE INDEX "IDX_230b925048540454c8b4c481e1" ON "users" ("cpf") `,
+      `CREATE UNIQUE INDEX IF NOT EXISTS "IDX_230b925048540454c8b4c481e1" ON "users" ("cpf") `,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_da5f4d28dd77dbb5b152b02cde" ON "legis_pages" ("authorId") `,

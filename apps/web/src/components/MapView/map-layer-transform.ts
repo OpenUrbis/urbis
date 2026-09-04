@@ -312,7 +312,8 @@ const prepareLayerProperties = (
   const safeProperties = properties || {};
   const { is3DActive, layerIndex = 0 } = props;
   const rawElevation = safeProperties.getElevation;
-  const layerAltitudeOffset = layerIndex * 0.1;
+  const BASE_ALTITUDE_OFFSET = 0.5;
+  const layerAltitudeOffset = BASE_ALTITUDE_OFFSET + layerIndex * 0.15;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let getElevation: any;
 
@@ -821,9 +822,16 @@ const createGeoJsonLayer = (
     return sanitized;
   };
 
-  const hasHoverColor = Boolean(properties?.visualState?.hoverColor);
-
   const rawLayer = layer as any;
+  const hasHoverColor = Boolean(properties?.visualState?.hoverColor);
+  const autoHighlight =
+    properties?.autoHighlight !== false &&
+    rawLayer?.autoHighlight !== false;
+
+  const highlightColor =
+    hasHoverColor
+      ? properties.visualState.hoverColor
+      : (properties?.highlightColor ?? rawLayer?.highlightColor ?? [255, 255, 255, 120]);
   const mergedProperties = {
     ...properties,
     ...(rawLayer.filled !== undefined ? { filled: rawLayer.filled } : {}),
@@ -886,8 +894,8 @@ const createGeoJsonLayer = (
       clickAction,
       viewTemplate,
       pickable: isPickable,
-      autoHighlight: hasHoverColor ? true : properties?.autoHighlight,
-      highlightColor: hasHoverColor ? properties.visualState.hoverColor : properties?.highlightColor,
+      autoHighlight: autoHighlight,
+      highlightColor: highlightColor,
       updateTriggers: {
         getFillColor: [
           selectedFeatureIds,

@@ -3905,7 +3905,6 @@
       "source": "openmaptiles",
       "source-layer": "building",
       "minzoom": 13,
-      "maxzoom": 14,
       "paint": {
         "fill-color": "hsl(35,8%,85%)",
         "fill-outline-color": [
@@ -3921,53 +3920,6 @@
           14,
           "hsl(35,6%,79%)"
         ]
-      }
-    },
-    {
-      "id": "openfreemap-3d-buildings",
-      "type": "fill-extrusion",
-      "source": "openmaptiles",
-      "source-layer": "building",
-      "minzoom": 14,
-      "paint": {
-        "fill-extrusion-base": [
-          "get",
-          "render_min_height"
-        ],
-        "fill-extrusion-color": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "coalesce",
-            [
-              "get",
-              "render_height"
-            ],
-            [
-              "get",
-              "height"
-            ],
-            10
-          ],
-          0,
-          "#f8fafc",
-          20,
-          "#f1f5f9",
-          50,
-          "#e2e8f0",
-          100,
-          "#cbd5e1",
-          200,
-          "#94a3b8"
-        ],
-        "fill-extrusion-height": [
-          "get",
-          "render_height"
-        ],
-        "fill-extrusion-opacity": 0.85,
-        "fill-extrusion-vertical-gradient": true
       }
     },
     {

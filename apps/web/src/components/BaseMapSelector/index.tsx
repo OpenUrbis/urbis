@@ -87,27 +87,8 @@ export const BaseMapSelector = () => {
       </CardHeader>
 
       <CardContent className="p-3 pt-0 grid gap-2.5">
-        {/* Controles: 3D e Sobrepor em linhas separadas */}
+        {/* Controles do Mapa Base */}
         <div className="space-y-1.5 text-xs">
-          <label
-            htmlFor="3d-mode"
-            className="flex items-center justify-between gap-2 rounded-lg border bg-muted/20 px-3 py-2 cursor-pointer hover:bg-muted/40 transition-colors select-none"
-          >
-            <span className="flex items-center gap-2 font-medium">
-              <UrbisIcon
-                name="view_in_ar"
-                className="text-muted-foreground text-base shrink-0"
-                aria-hidden="true"
-              />
-              Edificações 3D
-            </span>
-            <Switch
-              id="3d-mode"
-              checked={is3DActive.value}
-              onCheckedChange={(checked) => (is3DActive.value = checked)}
-            />
-          </label>
-
           <label
             htmlFor="multi-base-mode"
             className="flex items-center justify-between gap-2 rounded-lg border bg-muted/20 px-3 py-2 cursor-pointer hover:bg-muted/40 transition-colors select-none"

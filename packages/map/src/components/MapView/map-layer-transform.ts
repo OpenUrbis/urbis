@@ -1199,7 +1199,6 @@ const createBitmapLayer = (
     tintColor,
     desaturate: Number(properties.desaturate ?? 0),
     transparentColor: properties.transparentColor ?? [0, 0, 0, 0],
-    _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
     parameters: {
       depthTest: false,
       depthMask: false,

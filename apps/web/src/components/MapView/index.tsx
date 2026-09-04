@@ -1236,7 +1236,7 @@ export const MapView = ({
     toastSuccess("Camada criada e adicionada ao mapa com sucesso!");
   };
 
-  const createLayerFromImage = () => {
+  const createLayerFromImage = async () => {
     const control = mapImageControl.current;
     if (!control) return;
 
@@ -1251,13 +1251,29 @@ export const MapView = ({
     const layerId = `image-${Date.now()}`;
     const layerName = `Imagem ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
 
+    let imageSrc = currentRaster.src;
+    try {
+      if (imageSrc && imageSrc.startsWith("blob:")) {
+        const res = await fetch(imageSrc);
+        const blob = await res.blob();
+        imageSrc = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => resolve(currentRaster.src);
+          reader.readAsDataURL(blob);
+        });
+      }
+    } catch (e) {
+      console.warn("Could not convert blob to data URL, using original src", e);
+    }
+
     const coords = currentRaster.coordinates;
     const deckBounds = [coords[3], coords[0], coords[1], coords[2]];
 
     const newLayer: IGetConfigLayerSchema = {
       id: layerId,
       name: layerName,
-      origin: currentRaster.src,
+      origin: imageSrc,
       isActive: true,
       isSelected: true,
       type: IGetConfigLayerSchemaTypeEnum.BitmapLayer,
@@ -1280,7 +1296,7 @@ export const MapView = ({
       ],
       clickAction: { action: ClickActionEnum.SelectFeature as any, params: {} },
       properties: {
-        image: currentRaster.src,
+        image: imageSrc,
         bounds: deckBounds,
         boundsFormat: "deckgl",
         opacity: 1.0,
@@ -1310,10 +1326,20 @@ export const MapView = ({
     layerSchemas.value = [...layerSchemas.value, newLayer];
 
     try {
-      control.selectRaster(currentRaster.id);
+      control.deselectRaster();
       control.removeRaster();
-    } catch (e) {
-      console.warn("Could not cleanly remove temporary raster", e);
+    } catch {
+      try {
+        const rasterId = currentRaster.id;
+        delete control.rasters[rasterId];
+        control.map?.removeLayer(currentRaster.rasterLayer.id);
+        control.map?.removeLayer(currentRaster.fillLayer.id);
+        control.map?.removeSource(currentRaster.rasterSource.id);
+        control.map?.removeSource(currentRaster.polygonSource.id);
+        control.map?.removeSource(currentRaster.pointsSource.id);
+      } catch (e) {
+        console.warn("Could not cleanly remove temporary raster", e);
+      }
     }
 
     activeImageRasterState.activeRasterId.value = null;

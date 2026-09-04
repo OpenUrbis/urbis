@@ -426,25 +426,57 @@ export const FeatureDetailsWindow = () => {
   }, [isPoint, polygonFeature.value, rootFeature, currentSelection?.feature, selectedInspectFeature]);
 
   // Target feature to evaluate FIU generation:
-  // Strictly available ONLY when it is a polygon / perimeter, NEVER for point queries
+  // Available whenever an inspected item, root feature, or intersecting layer is a polygon / tax lot
   const targetForFiu = useMemo(() => {
-    if (isPoint) return null;
+    if (selectedInspectFeature) {
+      if (
+        hasTaxLotFiuParams(selectedInspectFeature) ||
+        canOpenFiuFromGeometry(selectedInspectFeature).ok
+      ) {
+        return selectedInspectFeature;
+      }
+    }
     if (perimeterFeature) return perimeterFeature;
-    if (selectedInspectFeature && hasTaxLotFiuParams(selectedInspectFeature)) return selectedInspectFeature;
+    if (rootFeature) {
+      if (
+        hasTaxLotFiuParams(rootFeature) ||
+        canOpenFiuFromGeometry(rootFeature).ok
+      ) {
+        return rootFeature;
+      }
+    }
+    if (polygonFeature.value && canOpenFiuFromGeometry(polygonFeature.value).ok) {
+      return polygonFeature.value;
+    }
     if (intersectingFeatures && intersectingFeatures.length > 0) {
-      const withTaxLot = intersectingFeatures.find((f: any) => hasTaxLotFiuParams(f));
+      const withTaxLot = intersectingFeatures.find((f: any) =>
+        hasTaxLotFiuParams(f),
+      );
       if (withTaxLot) return withTaxLot;
+      const withGeom = intersectingFeatures.find(
+        (f: any) => canOpenFiuFromGeometry(f).ok,
+      );
+      if (withGeom) return withGeom;
     }
     return null;
-  }, [isPoint, perimeterFeature, selectedInspectFeature, intersectingFeatures]);
+  }, [
+    selectedInspectFeature,
+    perimeterFeature,
+    rootFeature,
+    polygonFeature.value,
+    intersectingFeatures,
+  ]);
 
-  // Check if FIU can be generated (strictly disabled for points, enabled for polygons / perimeters)
+  // Check if FIU can be generated
   const fiuCheck = useMemo(() => {
-    if (isPoint || !targetForFiu) {
+    if (!targetForFiu) {
       return { ok: false, reason: "A FIU pode ser gerada a partir de perímetros poligonais ou lotes fiscais." };
     }
+    if (hasTaxLotFiuParams(targetForFiu)) {
+      return { ok: true };
+    }
     return canOpenFiuFromGeometry(targetForFiu);
-  }, [isPoint, targetForFiu]);
+  }, [targetForFiu]);
 
   // Derive header title - representing the primary selected item
   const headerTitle = useMemo(() => {

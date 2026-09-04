@@ -10,6 +10,7 @@ import { useLayerPersistence } from "../../hooks/useLayerPersistence";
 import { AppLoading } from "../../components/AppLoading";
 import { ProspectiveView } from "./ProspectiveView";
 import { FeatureDetailsWindow } from "../../components/FeaturesView/FeatureDetailsWindow";
+import { ConcatenatedSearchModal } from "../../components/Search/ConcatenatedSearchModal";
 import { LayerWarningAlert } from "../../components/MapView/LayerWarningAlert";
 import { useAppLoading } from "../../hooks/useAppLoading";
 import { useDigitalAddressSearch } from "../../hooks/useDigitalAddressSearch";
@@ -65,6 +66,9 @@ const MapPage = () => {
 
       {/* Feature Details Window - Direct Top-Level Render */}
       <FeatureDetailsWindow />
+
+      {/* Concatenated / Tabular Search Modal */}
+      <ConcatenatedSearchModal />
 
       {/* Layer Warning Alert - Centered Top Notification with 6s Timer */}
       <LayerWarningAlert />

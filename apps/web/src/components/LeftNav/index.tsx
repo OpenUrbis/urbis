@@ -9,7 +9,7 @@ import {
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { Search } from "../Search";
-import { SlidersHorizontal, Globe, PenLine, TableProperties } from "lucide-react";
+import { SlidersHorizontal, Globe, PenLine, TableProperties, Table } from "lucide-react";
 import { LocationSelectionCard } from "../LocationSelectionCard";
 import { ProspectiveSearchPage } from "../../pages/Map/ProspectiveSearchPage";
 import { enabledFeatureFlags } from "../../features/feature-flags";
@@ -36,7 +36,7 @@ export const LeftNav = () => {
   } = useNavigationContext();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const features = enabledFeatureFlags.value;
-  const { currentTerm, searchQuery } = useSearchContext();
+  const { currentTerm, searchQuery, concatenatedSearch } = useSearchContext();
   const hasActiveSearch =
     Boolean(currentTerm.value.trim()) || Boolean(searchQuery.data);
 
@@ -91,6 +91,18 @@ export const LeftNav = () => {
       icon: <TableProperties className="h-4 w-4" />,
       onClick: () =>
         handleNavigate(<AttributesInspectionPanel key="nav-attributes-inspection" />),
+    },
+    features.concatenatedSearch && {
+      label: "Explorar dados em tabela",
+      description:
+        "Consulte, filtre e exporte os dados cadastrais das camadas em formato de tabela.",
+      icon: <Table className="h-4 w-4" />,
+      onClick: () => {
+        concatenatedSearch.value = {
+          ...concatenatedSearch.peek(),
+          isOpen: true,
+        };
+      },
     },
     features.digitalAddress && {
       label: "Endereço Digital Urbis",

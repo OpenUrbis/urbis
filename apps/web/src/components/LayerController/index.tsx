@@ -1173,6 +1173,7 @@ export const LayerController = ({
     flyTo,
   } = useMapContext();
   const { isProspectiveSearchActive } = useNavigationContext();
+  const { concatenatedSearch } = useSearchContext();
   const auth = useAuth();
   const features = enabledFeatureFlags.value;
   const canManageLayers = features.manageLayers && !hideManager;
@@ -1730,8 +1731,22 @@ export const LayerController = ({
 
             {canManageLayers && features.concatenatedSearch && (
               <ContentMenuButton
+                icon="table_chart"
+                label="Explorar dados em tabela"
+                showTutorialLabels={showTutorialLabels}
+                onClick={() => {
+                  concatenatedSearch.value = {
+                    ...concatenatedSearch.peek(),
+                    isOpen: true,
+                  };
+                }}
+              />
+            )}
+
+            {canManageLayers && (
+              <ContentMenuButton
                 icon="filter_alt"
-                label="Filtros por atributos de camadas"
+                label="Filtrar geometrias no mapa"
                 showTutorialLabels={showTutorialLabels}
                 onClick={() => {
                   activeTab.value = "visible";

@@ -1,5 +1,7 @@
 import { useSignal } from "@preact/signals";
 import { useMapContext } from "../../hooks/useMapContext";
+import { useSearchContext } from "../../hooks/useSearchContext";
+import { enabledFeatureFlags } from "../../features/feature-flags";
 import {
   IGetConfigColor,
   IGetConfigLayerSchema,
@@ -23,6 +25,7 @@ import {
   EyeOff,
   Ellipsis,
   Filter,
+  TableProperties,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -53,6 +56,8 @@ export const LayerItem = ({
   highlightFilter?: boolean;
 }) => {
   const { zoom, handleActiveLayer } = useMapContext();
+  const { concatenatedSearch } = useSearchContext();
+  const features = enabledFeatureFlags.value;
   const showFilter = useSignal(false);
   const isUserAddedLayer = useMemo(() => {
     const id = item.id.toString();
@@ -242,7 +247,7 @@ export const LayerItem = ({
                     highlightFilter &&
                       "animate-pulse bg-blue-500/15 ring-1 ring-blue-500/40 text-blue-500",
                   )}
-                  aria-label="Filtrar por atributos"
+                  aria-label="Filtrar geometrias no mapa"
                   onClick={(e) => {
                     e.stopPropagation();
                     showFilter.value = true;
@@ -254,8 +259,8 @@ export const LayerItem = ({
               <TooltipContent>
                 <p>
                   {item.cqlFilter
-                    ? "Filtro por atributos ativo. Clique para gerenciar."
-                    : "Filtrar por atributos"}
+                    ? "Filtro no mapa ativo. Clique para gerenciar."
+                    : "Filtrar geometrias no mapa"}
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -301,7 +306,22 @@ export const LayerItem = ({
               <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuContent align="end" className="w-56">
+            {canFilter && features.concatenatedSearch && (
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  concatenatedSearch.value = {
+                    ...concatenatedSearch.peek(),
+                    selectedLayerId: item.id.toString(),
+                    isOpen: true,
+                  };
+                }}
+              >
+                <TableProperties className="mr-2 h-4 w-4" />
+                <span>Explorar dados em tabela</span>
+              </DropdownMenuItem>
+            )}
             {canFilter && (
               <DropdownMenuItem
                 onClick={(e) => {
@@ -310,7 +330,7 @@ export const LayerItem = ({
                 }}
               >
                 <Filter className="mr-2 h-4 w-4" />
-                <span>Filtrar por atributos</span>
+                <span>Filtrar geometrias no mapa</span>
               </DropdownMenuItem>
             )}
             {canCustomizeLayer && (

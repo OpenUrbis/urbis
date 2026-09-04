@@ -164,7 +164,7 @@ export const LayerFilterModal = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-6 flex flex-col">
         <DialogHeader className="mb-4">
           <DialogTitle className="text-xl font-bold text-primary">
-            Filtrar Camada: {layer.name}
+            Filtrar geometrias no mapa: {layer.name}
           </DialogTitle>
         </DialogHeader>
 
@@ -259,7 +259,7 @@ export const LayerFilterModal = ({
               onClick={handleClear}
               className="rounded-full h-10 px-6"
             >
-              Limpar Filtros
+              Limpar filtros
             </Button>
             <div className="flex items-center gap-2">
               <Button
@@ -267,7 +267,7 @@ export const LayerFilterModal = ({
                 className="rounded-full h-10 px-8 shadow-md gap-2"
               >
                 <Filter className="h-4 w-4" />
-                Aplicar na camada
+                Aplicar no mapa
               </Button>
               <TooltipProvider>
                 <Tooltip>

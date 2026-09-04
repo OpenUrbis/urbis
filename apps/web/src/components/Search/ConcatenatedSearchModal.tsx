@@ -23,7 +23,7 @@ import {
   UrbisIcon,
 } from "@open-urbis/map-ui";
 import axios from "axios";
-import { Info, Loader2, Save, Share2, Table, Library } from "lucide-react";
+import { Info, Loader2, Save, Share2, Table, Library, TableProperties, Download } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { List } from "react-window";
 import { useMapContext } from "../../hooks/useMapContext";
@@ -420,15 +420,18 @@ export const ConcatenatedSearchModal = ({
     }
   };
 
-  // Effect to load attributes if a layer is pre-selected (e.g., from a shared link)
+  // Effect to load attributes and counts if layer changes or when modal opens
   useEffect(() => {
-    if (open && selectedLayerId && fields.length === 0 && !loadingAttributes) {
-      fetchAttributes(selectedLayerId);
+    if (open && selectedLayerId) {
+      if (lastFetchedLayerId.current !== selectedLayerId && !loadingAttributes) {
+        setFields([]);
+        setErrorAttributes(null);
+        attemptsRef.current = 0;
+        fetchLayerTotalCount(selectedLayerId);
+        fetchAttributes(selectedLayerId);
+      }
     }
-    if (open && selectedLayerId && layerTotalCount === undefined) {
-      fetchLayerTotalCount(selectedLayerId);
-    }
-  }, [open, selectedLayerId, fields.length, loadingAttributes, layerTotalCount]);
+  }, [open, selectedLayerId, loadingAttributes]);
 
   const handleLayerChange = async (layerId: string) => {
     setFields([]);
@@ -530,33 +533,16 @@ export const ConcatenatedSearchModal = ({
       open={open}
       onOpenChange={(v) => setConcatenatedSearch({ isOpen: v })}
     >
-      <DialogTrigger asChild>
-        {trigger ? (
-          trigger
-        ) : (
-          <Button
-            variant="outline"
-            size="icon"
-            className="shrink-0 rounded-full h-9 w-9 shadow-sm border-input"
-            title="Filtros por atributos de camadas"
-          >
-            <UrbisIcon
-              name="filter_list"
-              className="text-base"
-              aria-hidden="true"
-            />
-          </Button>
-        )}
-      </DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-6">
         <DialogHeader className="mb-4 space-y-2">
-          <DialogTitle className="text-xl font-bold">
-            Filtros por atributos de camadas
+          <DialogTitle className="text-xl font-bold flex items-center gap-2">
+            <TableProperties className="h-5 w-5 text-primary" />
+            Explorar dados em tabela
           </DialogTitle>
           <p className="flex items-start gap-2 rounded-lg bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground">
-            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            Escolha uma camada e combine critérios dos seus atributos para
-            exibir no mapa apenas as feições correspondentes.
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-500" />
+            Consulte os atributos das camadas em formato de tabela, filtre critérios específicos e exporte para planilha (.csv).
           </p>
         </DialogHeader>
 
@@ -567,7 +553,7 @@ export const ConcatenatedSearchModal = ({
 
           <div className="space-y-2">
             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
-              Camada de busca
+              Camada de dados
             </div>
             <div className="flex items-center gap-2">
               <div className="flex-1">
@@ -576,7 +562,7 @@ export const ConcatenatedSearchModal = ({
                   onValueChange={handleLayerChange}
                 >
                   <SelectTrigger className="w-full h-10">
-                    <SelectValue placeholder="Selecione uma camada para pesquisar..." />
+                    <SelectValue placeholder="Selecione uma camada para explorar dados..." />
                   </SelectTrigger>
                   <SelectContent>
                     {layerSchemas.value.map((c) => (
@@ -658,7 +644,7 @@ export const ConcatenatedSearchModal = ({
           {fields.length > 0 && (
             <div className="space-y-2">
               <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
-                Critérios de filtro
+                Critérios de filtro (opcional)
               </div>
               <div className="border rounded-xl p-4 bg-background/50 shadow-sm backdrop-blur-sm">
                 <FilterBuilder
@@ -680,7 +666,7 @@ export const ConcatenatedSearchModal = ({
                 disabled={!selectedLayerId}
                 className="h-10 px-6 rounded-full"
               >
-                Aplicar na Camada
+                Filtrar geometrias no mapa
               </Button>
               <div className="flex items-center gap-1.5">
                 <Button
@@ -696,7 +682,7 @@ export const ConcatenatedSearchModal = ({
                   ) : (
                     <>
                       <Table className="h-4 w-4" />
-                      Prévia dos resultados
+                      Visualizar dados na tabela
                     </>
                   )}
                 </Button>
@@ -728,7 +714,7 @@ export const ConcatenatedSearchModal = ({
               <div className="flex justify-between items-center px-1">
                 <div className="flex flex-col">
                   <h3 className="font-bold text-sm uppercase tracking-wider">
-                    Resultados dos filtros
+                    Registros da camada
                   </h3>
                   <p className="text-xs text-muted-foreground">
                     Exibindo {searchResults.length} de{" "}
@@ -750,13 +736,9 @@ export const ConcatenatedSearchModal = ({
                       variant="outline"
                       size="sm"
                       onClick={handleExportCSV}
-                      className="h-8 text-[11px] rounded-full px-4"
+                      className="h-8 text-[11px] rounded-full px-4 gap-1.5"
                     >
-                      <UrbisIcon
-                        name="download"
-                        className="text-sm mr-2"
-                        aria-hidden="true"
-                      />
+                      <Download className="h-3.5 w-3.5" />
                       Exportar CSV
                     </Button>
                     <TooltipProvider>

@@ -1732,7 +1732,7 @@ export const LayerController = ({
             {canManageLayers && features.concatenatedSearch && (
               <ContentMenuButton
                 icon="table_chart"
-                label="Explorar dados em tabela"
+                label="Explorar registros filtrados"
                 showTutorialLabels={showTutorialLabels}
                 onClick={() => {
                   concatenatedSearch.value = {

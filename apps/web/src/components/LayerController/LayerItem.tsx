@@ -319,7 +319,7 @@ export const LayerItem = ({
                 }}
               >
                 <TableProperties className="mr-2 h-4 w-4" />
-                <span>Explorar dados em tabela</span>
+                <span>Explorar registros filtrados</span>
               </DropdownMenuItem>
             )}
             {canFilter && (

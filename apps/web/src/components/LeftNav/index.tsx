@@ -93,7 +93,7 @@ export const LeftNav = () => {
         handleNavigate(<AttributesInspectionPanel key="nav-attributes-inspection" />),
     },
     features.concatenatedSearch && {
-      label: "Explorar dados em tabela",
+      label: "Explorar registros filtrados",
       description:
         "Consulte, filtre e exporte os dados cadastrais das camadas em formato de tabela.",
       icon: <Table className="h-4 w-4" />,

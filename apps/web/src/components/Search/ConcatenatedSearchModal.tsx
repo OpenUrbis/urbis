@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -21,10 +22,32 @@ import {
   TooltipProvider,
   TooltipTrigger,
   UrbisIcon,
+  cn,
 } from "@open-urbis/map-ui";
 import axios from "axios";
-import { Info, Loader2, Save, Share2, Table, Library, TableProperties, Download } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  Info,
+  Loader2,
+  Save,
+  Share2,
+  TableProperties,
+  Download,
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  Maximize2,
+  Minimize2,
+  Search,
+  X,
+  Map,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Check,
+  Library,
+  Database,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { List } from "react-window";
 import { useMapContext } from "../../hooks/useMapContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
@@ -38,6 +61,8 @@ import { FilterGroup } from "../FilterBuilder/types";
 import { ShareHistoryModal } from "../LayerController/modals/ShareHistoryModal";
 import { ShareModal } from "../LayerController/modals/ShareModal";
 import { PredefinedSearchSuggestions } from "./PredefinedSearchSuggestions";
+import { getOptionalAuthHeaders } from "../../utils/auth-headers";
+import { normalizeEnvironmentUrl } from "../MapView/map-layer-transform";
 
 const DEFAULT_TREE: FilterGroup = {
   id: "root",
@@ -95,9 +120,6 @@ const ensureSearchParam = (
   }
 };
 
-import { getOptionalAuthHeaders } from "../../utils/auth-headers";
-import { normalizeEnvironmentUrl } from "../MapView/map-layer-transform";
-
 interface ConcatenatedSearchModalProps {
   trigger?: React.ReactNode;
 }
@@ -118,10 +140,6 @@ export const ConcatenatedSearchModal = ({
     isOpen: open,
   } = concatenatedSearch.value;
 
-  const searchResultColumns =
-    searchResults.length > 0 ? Object.keys(searchResults[0]) : [];
-  const resultsTableWidth = Math.max(searchResultColumns.length, 1) * 200;
-
   const setConcatenatedSearch = (newVal: Partial<ConcatenatedSearchState>) => {
     concatenatedSearch.value = { ...concatenatedSearch.value, ...newVal };
   };
@@ -133,6 +151,17 @@ export const ConcatenatedSearchModal = ({
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isShareHistoryOpen, setIsShareHistoryOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+  const [clientSearchTerm, setClientSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [copiedCell, setCopiedCell] = useState<string | null>(null);
+
+  const tableContainerRef = useRef<HTMLDivElement | null>(null);
+  const [containerHeight, setContainerHeight] = useState(480);
+  const [containerWidth, setContainerWidth] = useState(1000);
+
   const { toastSuccess, toastError } = useToast();
 
   const lastFetchedLayerId = useRef<string | null>(null);
@@ -140,6 +169,95 @@ export const ConcatenatedSearchModal = ({
   const maxAttempts = 3;
 
   const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
+
+  const selectedLayerConfig = useMemo(() => {
+    return layerSchemas.value.find((c) => c.id === selectedLayerId);
+  }, [layerSchemas.value, selectedLayerId]);
+
+  const activeFiltersCount = useMemo(() => {
+    const countNodes = (group: FilterGroup): number => {
+      let count = 0;
+      for (const child of group.children) {
+        if (child.type === "condition") count++;
+        else if (child.type === "group") count += countNodes(child);
+      }
+      return count;
+    };
+    return filterTree ? countNodes(filterTree) : 0;
+  }, [filterTree]);
+
+  // Column definitions & mappings
+  const searchResultColumns = useMemo(() => {
+    if (searchResults.length === 0) return [];
+    return Object.keys(searchResults[0]).filter(
+      (k) => !isGeometryAttributeName(k),
+    );
+  }, [searchResults]);
+
+  const COLUMN_WIDTH = 190;
+  const ROW_INDEX_WIDTH = 56;
+  const ROW_HEIGHT = 34;
+  const HEADER_HEIGHT = 38;
+
+  const resultsTableWidth = Math.max(
+    ROW_INDEX_WIDTH + searchResultColumns.length * COLUMN_WIDTH,
+    containerWidth,
+  );
+
+  // Client-side instant filter & sort
+  const displayedResults = useMemo(() => {
+    let list = searchResults;
+
+    if (clientSearchTerm.trim()) {
+      const term = clientSearchTerm.toLowerCase().trim();
+      list = list.filter((row) =>
+        Object.entries(row).some(([key, val]) => {
+          if (isGeometryAttributeName(key)) return false;
+          return String(val ?? "")
+            .toLowerCase()
+            .includes(term);
+        }),
+      );
+    }
+
+    if (sortColumn) {
+      list = [...list].sort((a, b) => {
+        const valA = a[sortColumn];
+        const valB = b[sortColumn];
+        if (valA === valB) return 0;
+        if (valA === null || valA === undefined) return 1;
+        if (valB === null || valB === undefined) return -1;
+
+        const numA = Number(valA);
+        const numB = Number(valB);
+        if (!isNaN(numA) && !isNaN(numB)) {
+          return sortDirection === "asc" ? numA - numB : numB - numA;
+        }
+
+        return sortDirection === "asc"
+          ? String(valA).localeCompare(String(valB))
+          : String(valB).localeCompare(String(valA));
+      });
+    }
+
+    return list;
+  }, [searchResults, clientSearchTerm, sortColumn, sortDirection]);
+
+  // ResizeObserver for Excel-like 100% responsive height
+  useEffect(() => {
+    if (!tableContainerRef.current) return;
+    const updateSize = () => {
+      if (tableContainerRef.current) {
+        setContainerHeight(Math.max(tableContainerRef.current.clientHeight, 260));
+        setContainerWidth(Math.max(tableContainerRef.current.clientWidth, 600));
+      }
+    };
+
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(tableContainerRef.current);
+    return () => observer.disconnect();
+  }, [open, isFiltersExpanded, isFullScreen, searchResults.length]);
 
   const calcPercentage = (filtered: number, total: number) => {
     if (total <= 0) return 0;
@@ -248,7 +366,6 @@ export const ConcatenatedSearchModal = ({
   const fetchAttributes = async (layerId: string) => {
     if (!layerId || lastFetchedLayerId.current === layerId) return;
 
-    // Se já atingiu o máximo de tentativas para este layer, não tenta novamente
     if (attemptsRef.current >= maxAttempts) return;
 
     const layerConfig = layerSchemas.value.find((c) => c.id === layerId);
@@ -260,7 +377,7 @@ export const ConcatenatedSearchModal = ({
     const fullLayerName = getLayerNameFromConfig(layerConfig);
     if (!fullLayerName) {
       setErrorAttributes(
-        "Não foi possível identificar o nome técnico (typeName) desta camada para carregar os atributos de filtro.",
+        "Não foi possível identificar o nome técnico (typeName) desta camada para carregar os atributos.",
       );
       return;
     }
@@ -282,7 +399,7 @@ export const ConcatenatedSearchModal = ({
         );
 
         if (attributes.length === 0) {
-          throw new Error("Nenhum atributo retornado pelo serviço WFS DescribeFeatureType.");
+          throw new Error("Nenhum atributo retornado pelo serviço WFS.");
         }
 
         const mapping =
@@ -300,7 +417,7 @@ export const ConcatenatedSearchModal = ({
         );
 
         lastFetchedLayerId.current = layerId;
-        attemptsRef.current = 0; // Reset attempts on success
+        attemptsRef.current = 0;
         break;
       } catch (error: any) {
         attemptsRef.current++;
@@ -312,7 +429,7 @@ export const ConcatenatedSearchModal = ({
           setLoadingAttributes(false);
           const detail = error?.message ? `: ${error.message}` : ".";
           setErrorAttributes(
-            `Não foi possível carregar os atributos desta camada para realizar a busca${detail}`,
+            `Não foi possível carregar os atributos desta camada${detail}`,
           );
           break;
         } else {
@@ -324,11 +441,9 @@ export const ConcatenatedSearchModal = ({
   };
 
   const handleSearch = async () => {
-    console.log(selectedLayerId);
     if (!selectedLayerId) return;
 
     const cql = filterNodeToCQL(filterTree, fields);
-    console.log("cql", cql);
 
     setIsSearching(true);
     setConcatenatedSearch({
@@ -343,7 +458,7 @@ export const ConcatenatedSearchModal = ({
       if (layerConfig) {
         const fullLayerName = getLayerNameFromConfig(layerConfig);
         if (!fullLayerName) {
-          toastError("Não foi possível identificar o nome técnico (typeName) da camada para busca.");
+          toastError("Nome técnico da camada não identificado para busca.");
           return;
         }
 
@@ -356,7 +471,8 @@ export const ConcatenatedSearchModal = ({
         const { url, params } = buildSearchRequestConfig(
           layerOrigin,
           fullLayerName,
-          cql || undefined,
+          cql,
+          1000,
         );
 
         const headers = await getOptionalAuthHeaders();
@@ -375,8 +491,7 @@ export const ConcatenatedSearchModal = ({
           responseJson = {};
         }
 
-        let items: any[] = [];
-        items = (responseJson.features || []).map((f: any) => ({
+        const items = (responseJson.features || []).map((f: any) => ({
           id: f.id,
           ...f.properties,
         }));
@@ -403,9 +518,11 @@ export const ConcatenatedSearchModal = ({
         }
 
         if (items.length === 0) {
-          toastError("Nenhum resultado encontrado na busca.");
+          toastError("Nenhum resultado encontrado para os critérios.");
         } else {
-          toastSuccess(`${items.length} registro(s) encontrado(s).`);
+          toastSuccess(`${items.length} registro(s) carregado(s) na tabela.`);
+          // Automatically collapse filter panel once results arrive so table gets full screen
+          setIsFiltersExpanded(false);
         }
       }
     } catch (error: any) {
@@ -413,14 +530,14 @@ export const ConcatenatedSearchModal = ({
       toastError(
         error?.message
           ? `Falha ao realizar a busca: ${error.message}`
-          : "Falha ao realizar a busca na camada.",
+          : "Falha ao consultar dados da camada.",
       );
     } finally {
       setIsSearching(false);
     }
   };
 
-  // Effect to load attributes and counts if layer changes or when modal opens
+  // Effect to load attributes and counts when selectedLayerId changes or modal opens
   useEffect(() => {
     if (open && selectedLayerId) {
       if (lastFetchedLayerId.current !== selectedLayerId && !loadingAttributes) {
@@ -437,7 +554,9 @@ export const ConcatenatedSearchModal = ({
     setFields([]);
     setErrorAttributes(null);
     lastFetchedLayerId.current = null;
-    attemptsRef.current = 0; // Reset attempts when changing layer manually
+    attemptsRef.current = 0;
+    setClientSearchTerm("");
+    setSortColumn(null);
 
     setConcatenatedSearch({
       selectedLayerId: layerId,
@@ -457,7 +576,9 @@ export const ConcatenatedSearchModal = ({
     if (searchResults.length === 0) return;
 
     try {
-      const headers = Object.keys(searchResults[0]).filter((k) => k !== "id");
+      const headers = Object.keys(searchResults[0]).filter(
+        (k) => k !== "id" && !isGeometryAttributeName(k),
+      );
       const csvContent = [
         headers.join(","),
         ...searchResults.map((row) =>
@@ -467,22 +588,29 @@ export const ConcatenatedSearchModal = ({
               const strVal = String(
                 val === null || val === undefined ? "" : val,
               );
-              return strVal.includes(",") ? `"${strVal}"` : strVal;
+              return strVal.includes(",") || strVal.includes('"')
+                ? `"${strVal.replace(/"/g, '""')}"`
+                : strVal;
             })
             .join(","),
         ),
       ].join("\n");
 
+      const layerName = selectedLayerConfig?.name
+        ? selectedLayerConfig.name.toLowerCase().replace(/[^a-z0-9]+/g, "_")
+        : "registros";
+      const filename = `urbis_${layerName}_export.csv`;
+
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
-      link.setAttribute("download", "busca_export.csv");
+      link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      toastSuccess("Exportação concluída com sucesso! (Limite: 1000 itens)");
+      toastSuccess(`Arquivo "${filename}" baixado com sucesso!`);
     } catch (error) {
       console.error("Export failed", error);
       toastError("Falha ao exportar CSV.");
@@ -503,7 +631,7 @@ export const ConcatenatedSearchModal = ({
     const layerConfig = layerSchemas.value.find(
       (c) => c.id === selectedLayerId,
     );
-    if (!layerConfig || !layerConfig) {
+    if (!layerConfig) {
       toastError("Camada não encontrada ou não configurada corretamente.");
       return;
     }
@@ -525,7 +653,77 @@ export const ConcatenatedSearchModal = ({
       return s;
     });
 
-    toastSuccess(`Filtro aplicado à camada "${layerConfig.name}"`);
+    toastSuccess(`Filtro aplicado às geometrias de "${layerConfig.name}" no mapa.`);
+  };
+
+  const handleSortToggle = (colKey: string) => {
+    if (sortColumn === colKey) {
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else {
+        setSortColumn(null);
+        setSortDirection("asc");
+      }
+    } else {
+      setSortColumn(colKey);
+      setSortDirection("asc");
+    }
+  };
+
+  const handleCopyCell = async (value: any, cellId: string) => {
+    if (value === undefined || value === null || value === "-") return;
+    const str = String(value);
+    await navigator.clipboard.writeText(str);
+    setCopiedCell(cellId);
+    toastSuccess(`Copiado: "${str.slice(0, 32)}${str.length > 32 ? "..." : ""}"`);
+    setTimeout(() => setCopiedCell(null), 1500);
+  };
+
+  const getColumnTypeIcon = (fieldName: string, fieldType?: string) => {
+    const type = fieldType?.toLowerCase() || "";
+    const name = fieldName.toLowerCase();
+    if (
+      type.includes("int") ||
+      type.includes("double") ||
+      type.includes("float") ||
+      type.includes("num") ||
+      name.startsWith("nr_") ||
+      name.startsWith("cd_") ||
+      name.includes("area") ||
+      name.includes("valor")
+    ) {
+      return (
+        <span
+          className="text-[9px] font-mono text-blue-500 font-bold px-1 py-0.5 rounded bg-blue-500/10"
+          title="Número / Código"
+        >
+          #
+        </span>
+      );
+    }
+    if (
+      type.includes("date") ||
+      type.includes("time") ||
+      name.includes("data") ||
+      name.includes("dt_")
+    ) {
+      return (
+        <span
+          className="text-[9px] text-amber-500 px-1 py-0.5 rounded bg-amber-500/10"
+          title="Data / Hora"
+        >
+          📅
+        </span>
+      );
+    }
+    return (
+      <span
+        className="text-[9px] font-serif text-emerald-500 font-bold px-1 py-0.5 rounded bg-emerald-500/10"
+        title="Texto"
+      >
+        Aa
+      </span>
+    );
   };
 
   return (
@@ -534,332 +732,537 @@ export const ConcatenatedSearchModal = ({
       onOpenChange={(v) => setConcatenatedSearch({ isOpen: v })}
     >
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-6">
-        <DialogHeader className="mb-4 space-y-2">
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <TableProperties className="h-5 w-5 text-primary" />
-            Explorar dados em tabela
-          </DialogTitle>
-          <p className="flex items-start gap-2 rounded-lg bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground">
-            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-500" />
-            Consulte os atributos das camadas em formato de tabela, filtre critérios específicos e exporte para planilha (.csv).
-          </p>
-        </DialogHeader>
-
-        <div className="space-y-6 flex-1 overflow-y-auto">
-          {(!selectedLayerId ||
-            (filterTree.children.length === 0 &&
-              searchResults.length === 0)) && <PredefinedSearchSuggestions />}
-
-          <div className="space-y-2">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
-              Camada de dados
+      <DialogContent
+        className={cn(
+          "p-0 flex flex-col gap-0 overflow-hidden bg-background shadow-2xl transition-all duration-200",
+          isFullScreen
+            ? "max-w-full w-screen h-screen max-h-screen rounded-none border-none inset-0"
+            : "max-w-[98vw] w-[98vw] h-[94vh] max-h-[94vh] rounded-2xl border border-border/80",
+        )}
+      >
+        {/* ========================================================= */}
+        {/* 1. HEADER (Excel-style Title Bar)                        */}
+        {/* ========================================================= */}
+        <DialogHeader className="h-12 shrink-0 px-4 border-b bg-muted/40 flex flex-row items-center justify-between space-y-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+              <TableProperties className="h-4 w-4" />
             </div>
-            <div className="flex items-center gap-2">
-              <div className="flex-1">
-                <Select
-                  value={selectedLayerId}
-                  onValueChange={handleLayerChange}
-                >
-                  <SelectTrigger className="w-full h-10">
-                    <SelectValue placeholder="Selecione uma camada para explorar dados..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {layerSchemas.value.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-10 w-10">
-                    <UrbisIcon
-                      name="more_vert"
-                      className=""
-                      aria-hidden="true"
-                    />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleActionWithAuth(() => setIsShareOpen(true))
-                    }
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    Salvar filtro
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleActionWithAuth(() => setIsShareOpen(true))
-                    }
-                  >
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Compartilhar filtro salvo
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleActionWithAuth(() => setIsShareHistoryOpen(true))
-                    }
-                  >
-                    <Library className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Salvos
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <DialogTitle className="text-sm font-bold truncate flex items-center gap-2">
+              <span>Explorar registros filtrados</span>
+              {selectedLayerConfig && (
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 max-w-[260px] truncate">
+                  <Database className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{selectedLayerConfig.name}</span>
+                </span>
+              )}
+            </DialogTitle>
           </div>
 
-          {loadingAttributes && (
-            <div className="text-sm text-muted-foreground flex items-center gap-2 py-4 justify-center">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Carregando atributos da camada...
-            </div>
-          )}
+          <div className="flex items-center gap-1 shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground"
+                  title="Mais opções"
+                >
+                  <UrbisIcon name="more_vert" className="text-base" aria-hidden="true" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => handleActionWithAuth(() => setIsShareOpen(true))}
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  Salvar consulta
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleActionWithAuth(() => setIsShareOpen(true))}
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Compartilhar consulta
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    handleActionWithAuth(() => setIsShareHistoryOpen(true))
+                  }
+                >
+                  <Library className="mr-2 h-4 w-4 text-muted-foreground" />
+                  Consultas salvas
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          {errorAttributes && (
-            <div className="text-sm text-red-500 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg p-4 flex items-center gap-2 justify-center">
-              <UrbisIcon
-                name="error"
-                className="text-base"
-                aria-hidden="true"
-              />
-              {errorAttributes}
-            </div>
-          )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground"
+              onClick={() => setIsFullScreen(!isFullScreen)}
+              title={isFullScreen ? "Restaurar janela" : "Tela cheia"}
+            >
+              {isFullScreen ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <Maximize2 className="h-4 w-4" />
+              )}
+            </Button>
 
-          {errorAttributes && (
-            <div className="text-xs text-muted-foreground text-center px-4">
-              <p>
-                Algumas camadas podem não estar aptas para filtros por atributos
-                devido a restrições de serviço ou configurações do servidor.
-              </p>
-            </div>
-          )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground"
+              onClick={() => setConcatenatedSearch({ isOpen: false })}
+              title="Fechar janela"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </DialogHeader>
 
-          {fields.length > 0 && (
-            <div className="space-y-2">
-              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">
-                Critérios de filtro (opcional)
+        {/* ========================================================= */}
+        {/* 2. COMPACT TOOLBAR (Excel-like single line actions)       */}
+        {/* ========================================================= */}
+        <div className="shrink-0 px-4 py-2 border-b bg-background/95 backdrop-blur flex flex-wrap items-center justify-between gap-2">
+          {/* Left: Layer Selector + Filter Drawer Button + Client Search */}
+          <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+            {/* Layer Selector */}
+            <div className="w-[240px] sm:w-[280px]">
+              <Select
+                value={selectedLayerId}
+                onValueChange={handleLayerChange}
+              >
+                <SelectTrigger className="h-8 text-xs font-medium">
+                  <SelectValue placeholder="Selecione uma camada..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {layerSchemas.value.map((c) => (
+                    <SelectItem key={c.id} value={c.id} className="text-xs">
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Collapsible Filter Toggle Button */}
+            <Button
+              variant={isFiltersExpanded ? "secondary" : "outline"}
+              size="sm"
+              className={cn(
+                "h-8 text-xs gap-1.5 rounded-lg font-medium",
+                activeFiltersCount > 0 && "border-primary/50 text-primary bg-primary/5",
+              )}
+              onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+              disabled={!selectedLayerId}
+              title="Configurar critérios de filtro da camada"
+            >
+              <Filter className="h-3.5 w-3.5" />
+              <span>Critérios de filtro</span>
+              {activeFiltersCount > 0 && (
+                <span className="ml-0.5 rounded-full bg-primary px-1.5 py-0.2 text-[10px] font-bold text-primary-foreground">
+                  {activeFiltersCount}
+                </span>
+              )}
+              {isFiltersExpanded ? (
+                <ChevronUp className="h-3.5 w-3.5 ml-0.5" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 ml-0.5" />
+              )}
+            </Button>
+
+            {/* Instant In-Table Filter */}
+            {searchResults.length > 0 && (
+              <div className="relative w-[200px] sm:w-[260px]">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <Input
+                  value={clientSearchTerm}
+                  onChange={(e) => setClientSearchTerm((e.target as HTMLInputElement).value)}
+                  placeholder="Buscar nestas linhas..."
+                  className="h-8 pl-8 pr-7 text-xs bg-muted/30 border-muted"
+                />
+                {clientSearchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setClientSearchTerm("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
-              <div className="border rounded-xl p-4 bg-background/50 shadow-sm backdrop-blur-sm">
+            )}
+          </div>
+
+          {/* Right Action Buttons */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {searchResults.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCSV}
+                className="h-8 text-xs gap-1.5 rounded-lg border-muted hover:bg-muted/60"
+                title="Exportar dados carregados para arquivo CSV"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Exportar CSV</span>
+              </Button>
+            )}
+
+            {selectedLayerId && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleApplyToLayer}
+                className="h-8 text-xs gap-1.5 rounded-lg border-muted hover:bg-muted/60"
+                title="Aplica os mesmos critérios para filtrar geometrias no mapa"
+              >
+                <Map className="h-3.5 w-3.5 text-blue-500" />
+                <span className="hidden md:inline">Filtrar no mapa</span>
+              </Button>
+            )}
+
+            <Button
+              size="sm"
+              onClick={handleSearch}
+              disabled={isSearching || !selectedLayerId}
+              className="h-8 text-xs px-4 rounded-lg shadow-sm gap-1.5 font-semibold bg-primary hover:bg-primary/90"
+            >
+              {isSearching ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>Consultando...</span>
+                </>
+              ) : (
+                <>
+                  <TableProperties className="h-3.5 w-3.5" />
+                  <span>Consultar dados</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* ========================================================= */}
+        {/* 3. COLLAPSIBLE FILTER ACCORDION (Tucks away neatly)       */}
+        {/* ========================================================= */}
+        {isFiltersExpanded && (
+          <div className="shrink-0 border-b bg-muted/20 p-4 max-h-[42vh] overflow-y-auto space-y-4 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-primary" />
+                <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  Construtor de Regras de Filtro
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  (Combine condições para filtrar a consulta)
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsFiltersExpanded(false)}
+                className="h-7 text-xs text-muted-foreground"
+              >
+                Ocultar filtros ✕
+              </Button>
+            </div>
+
+            {(!selectedLayerId ||
+              (filterTree.children.length === 0 &&
+                searchResults.length === 0)) && (
+              <PredefinedSearchSuggestions currentLayerId={selectedLayerId} />
+            )}
+
+            {loadingAttributes && (
+              <div className="text-xs text-muted-foreground flex items-center gap-2 py-3 justify-center">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Carregando atributos da camada...
+              </div>
+            )}
+
+            {errorAttributes && (
+              <div className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-center gap-2">
+                <Info className="h-4 w-4 shrink-0" />
+                <span>{errorAttributes}</span>
+              </div>
+            )}
+
+            {fields.length > 0 && (
+              <div className="border rounded-xl p-3 bg-background/80 shadow-sm backdrop-blur">
                 <FilterBuilder
                   value={filterTree}
-                  onChange={(tree) =>
-                    setConcatenatedSearch({ filterTree: tree })
-                  }
+                  onChange={(tree) => setConcatenatedSearch({ filterTree: tree })}
                   fields={fields}
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="flex justify-end pt-2">
-            <div className="flex gap-2 items-center">
+            <div className="flex items-center justify-between pt-1">
               <Button
-                variant="secondary"
-                onClick={handleApplyToLayer}
-                disabled={!selectedLayerId}
-                className="h-10 px-6 rounded-full"
+                variant="ghost"
+                size="sm"
+                className="h-8 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() =>
+                  setConcatenatedSearch({
+                    filterTree: DEFAULT_TREE,
+                  })
+                }
               >
-                Filtrar geometrias no mapa
+                Limpar todos os critérios
               </Button>
-              <div className="flex items-center gap-1.5">
-                <Button
-                  onClick={handleSearch}
-                  disabled={isSearching || !selectedLayerId}
-                  className="h-10 px-8 rounded-full shadow-md gap-2"
-                >
-                  {isSearching ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Buscando...
-                    </>
-                  ) : (
-                    <>
-                      <Table className="h-4 w-4" />
-                      Visualizar dados na tabela
-                    </>
-                  )}
-                </Button>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full hover:bg-muted shrink-0">
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs" side="top" align="end">
-                      <div className="text-xs leading-relaxed space-y-1.5 p-1">
-                        <p>Clique no botão para visualizar rapidamente uma tabela com os registros que atendem aos filtros aplicados.</p>
-                        <div className="border-t pt-1.5 mt-1.5 text-[11px] text-muted-foreground space-y-1">
-                          <p className="font-semibold text-foreground">Maiores informações:</p>
-                          <p>A tabela é limitada aos primeiros 1000 registros, ordenados pelo ID, e sem o atributo de geometria.</p>
-                          <p>Para uma visualização maior, com possibilidade de ordenar e filtrar os resultados, utilize a opção Baixar CSV e abra o arquivo em uma aplicação de planilhas (ex.: Excel, Numbers ou Sheets).</p>
-                        </div>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              <Button
+                size="sm"
+                onClick={handleSearch}
+                disabled={isSearching || !selectedLayerId}
+                className="h-8 text-xs px-5 rounded-lg gap-1.5"
+              >
+                {isSearching ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <TableProperties className="h-3.5 w-3.5" />
+                )}
+                Aplicar e consultar tabela
+              </Button>
             </div>
           </div>
+        )}
 
-          {totalCount !== undefined && (
-            <div className="space-y-3 mt-6">
-              <div className="flex justify-between items-center px-1">
-                <div className="flex flex-col">
-                  <h3 className="font-bold text-sm uppercase tracking-wider">
-                    Registros da camada
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    Exibindo {searchResults.length} de{" "}
-                    {totalCount !== undefined ? totalCount : "?"} registros
-                    encontrados
-                  </p>
-                  {totalCount !== undefined &&
-                    layerTotalCount !== undefined &&
-                    layerTotalCount > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        ({calcPercentage(totalCount, layerTotalCount)}% dos{" "}
-                        {layerTotalCount} totais da camada).
-                      </p>
-                    )}
-                </div>
-                {searchResults.length > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleExportCSV}
-                      className="h-8 text-[11px] rounded-full px-4 gap-1.5"
-                    >
-                      <Download className="h-3.5 w-3.5" />
-                      Exportar CSV
-                    </Button>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted shrink-0">
-                            <Info className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs" side="top" align="end">
-                          <div className="text-xs leading-relaxed space-y-1.5 p-1">
-                            <p>Clique para exportar essa tabela em um arquivo .csv pelo botão Exportar CSV.</p>
-                            <div className="border-t pt-1.5 mt-1.5 text-[11px] text-muted-foreground space-y-1">
-                              <p className="font-semibold text-foreground">Maiores informações:</p>
-                              <p>O arquivo possui os mesmos conteúdos da tabela, portanto, o mesmo limite de 1000 registros e sem o atributo de geometria.</p>
-                              <p>Para exportar geometrias visíveis sobre uma área, utilize a ferramenta Exportar geometrias da tela, disponível no lado direito da tela.</p>
-                              <p>Para fazer o download de um dado completo, é possível clicar no botão Baixar tudo, dentro da caixa Mais informações de uma camada, ou nos Metadados da camada - também acessível pela caixa Mais informações ou pela pesquisa nos Dados Abertos).</p>
-                            </div>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+        {/* ========================================================= */}
+        {/* 4. MAIN SPREADSHEET GRID (Excel Look & Feel 100% Tela)    */}
+        {/* ========================================================= */}
+        <div
+          ref={tableContainerRef}
+          className="flex-1 min-h-0 relative bg-background overflow-hidden flex flex-col"
+        >
+          {isSearching ? (
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm font-medium">Consultando registros da camada...</p>
+            </div>
+          ) : searchResults.length > 0 ? (
+            <div className="flex-1 min-h-0 relative overflow-x-auto overflow-y-hidden select-none">
+              <div style={{ width: resultsTableWidth, height: "100%" }}>
+                {/* Sticky Header Row */}
+                <div
+                  className="sticky top-0 z-20 flex border-b bg-muted/70 backdrop-blur-md shadow-sm"
+                  style={{ height: HEADER_HEIGHT }}
+                >
+                  {/* Row index header (#) */}
+                  <div
+                    style={{ width: ROW_INDEX_WIDTH }}
+                    className="flex h-full shrink-0 items-center justify-center border-r bg-muted/90 text-[10px] font-mono font-bold text-muted-foreground select-none"
+                  >
+                    #
                   </div>
-                )}
-              </div>
-              {searchResults.length > 0 ? (
-                <div className="border rounded-xl overflow-hidden shadow-sm bg-background">
-                  <div className="relative overflow-x-auto">
-                    <div style={{ width: resultsTableWidth }}>
-                      <div className="sticky top-0 z-20 flex border-b bg-muted/50 backdrop-blur-md">
+
+                  {/* Attribute Column Headers */}
+                  {searchResultColumns.map((key) => {
+                    const mapping = (selectedLayerConfig?.properties as any)
+                      ?.attributeMapping?.[key];
+                    const displayName = mapping?.label || mapping?.name || key;
+                    const description = mapping?.description;
+                    const fieldType = fields.find((f) => f.name === key)?.type;
+                    const isSorted = sortColumn === key;
+
+                    return (
+                      <div
+                        key={key}
+                        style={{ width: COLUMN_WIDTH }}
+                        onClick={() => handleSortToggle(key)}
+                        className={cn(
+                          "flex h-full shrink-0 items-center justify-between border-r px-2.5 text-[11px] font-semibold text-muted-foreground cursor-pointer hover:bg-muted/90 hover:text-foreground transition-colors group",
+                          isSorted && "bg-primary/10 text-primary font-bold",
+                        )}
+                        title={`Clique para ordenar por ${displayName}`}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                          {getColumnTypeIcon(key, fieldType)}
+                          <span className="truncate">{displayName}</span>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0 ml-1">
+                          {description && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger
+                                  asChild
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Info className="h-3 w-3 text-muted-foreground/60 hover:text-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs text-xs">
+                                  <p className="font-semibold">{displayName}</p>
+                                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                                    {description}
+                                  </p>
+                                  <p className="text-[10px] font-mono text-primary mt-1 border-t pt-1">
+                                    Campo técnico: {key}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+
+                          {isSorted ? (
+                            sortDirection === "asc" ? (
+                              <ArrowUp className="h-3.5 w-3.5 text-primary shrink-0" />
+                            ) : (
+                              <ArrowDown className="h-3.5 w-3.5 text-primary shrink-0" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="h-3 w-3 opacity-0 group-hover:opacity-60 transition-opacity shrink-0" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Virtualized Rows List */}
+                <List
+                  style={{
+                    height: Math.max(containerHeight - HEADER_HEIGHT, 150),
+                    width: resultsTableWidth,
+                    overflowX: "hidden",
+                    overflowY: "auto",
+                  }}
+                  rowCount={displayedResults.length}
+                  rowHeight={ROW_HEIGHT}
+                  rowProps={{}}
+                  rowComponent={({ index, style }) => {
+                    const row = displayedResults[index];
+                    const isEven = index % 2 === 0;
+
+                    return (
+                      <div
+                        style={style}
+                        className={cn(
+                          "flex border-b text-xs transition-colors hover:bg-primary/5 items-center",
+                          isEven ? "bg-background" : "bg-muted/15",
+                        )}
+                      >
+                        {/* Row Index (#) */}
+                        <div
+                          style={{ width: ROW_INDEX_WIDTH }}
+                          className="flex h-full shrink-0 items-center justify-center border-r bg-muted/30 text-[10px] font-mono text-muted-foreground/70 select-none"
+                        >
+                          {index + 1}
+                        </div>
+
+                        {/* Cell Values */}
                         {searchResultColumns.map((key) => {
-                          const layer = layerSchemas.value.find(
-                            (c) => c.id === selectedLayerId,
-                          );
-                          const mapping = (layer?.properties as any)
-                            ?.attributeMapping?.[key];
-                          const displayName =
-                            mapping?.label || mapping?.name || key;
-                          const description = mapping?.description;
+                          const val = row[key];
+                          const cellId = `${index}-${key}`;
+                          const isCopied = copiedCell === cellId;
+                          const isNumericOrCode =
+                            typeof val === "number" ||
+                            (typeof val === "string" &&
+                              /^[0-9.-]+$/.test(val) &&
+                              val.length > 2);
 
                           return (
                             <div
                               key={key}
-                              className="flex h-10 min-w-[200px] items-center px-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
+                              style={{ width: COLUMN_WIDTH }}
+                              onClick={() => handleCopyCell(val, cellId)}
+                              className={cn(
+                                "flex h-full shrink-0 items-center border-r px-2.5 truncate cursor-pointer hover:bg-primary/10 transition-colors relative group",
+                                isNumericOrCode && "font-mono text-[11px]",
+                                isCopied && "bg-emerald-500/15 text-emerald-600 font-bold",
+                              )}
+                              title={
+                                val !== null && val !== undefined
+                                  ? `${String(val)} (Clique para copiar)`
+                                  : "-"
+                              }
                             >
-                              {description ? (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger className="flex items-center gap-1 cursor-help">
-                                      {displayName}
-                                      <Info className="h-3 w-3" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="max-w-xs">{description}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              ) : (
-                                displayName
+                              <span className="truncate">
+                                {val !== null && val !== undefined ? String(val) : "-"}
+                              </span>
+                              {isCopied && (
+                                <span className="absolute right-1 text-[9px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950 px-1 rounded flex items-center gap-0.5">
+                                  <Check className="h-2.5 w-2.5" />
+                                  Copiado
+                                </span>
                               )}
                             </div>
                           );
                         })}
                       </div>
-                      <List
-                        style={{
-                          height: 400,
-                          width: resultsTableWidth,
-                          overflowX: "hidden",
-                          overflowY: "auto",
-                        }}
-                        rowCount={searchResults.length}
-                        rowHeight={40}
-                        rowProps={{}}
-                        rowComponent={({ index, style }) => {
-                          const row = searchResults[index];
-                          return (
-                            <div
-                              style={style}
-                              className="flex border-b hover:bg-muted/30 transition-colors items-center"
-                            >
-                              {searchResultColumns.map((key) => {
-                                const val = row[key] ?? "-";
-
-                                return (
-                                  <div
-                                    key={key}
-                                    className="whitespace-nowrap w-[200px] min-w-[200px] truncate text-[11px] py-2 px-4 shrink-0"
-                                    title={String(val)}
-                                  >
-                                    {String(val)}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          );
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="border rounded-xl shadow-sm bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900 p-6">
-                  <div className="flex items-center justify-center gap-3 text-amber-900 dark:text-amber-100">
-                    <UrbisIcon name="info" className="" aria-hidden="true" />
-                    <div className="text-center">
-                      <p className="font-medium">
-                        Nenhum resultado encontrado para os filtros informados.
-                      </p>
-                      <p className="text-sm text-amber-800/80 dark:text-amber-200/80 mt-1">
-                        Revise os critérios da busca ou tente uma combinação
-                        diferente.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            /* Empty State */
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground mb-4">
+                <TableProperties className="h-7 w-7" />
+              </div>
+              <h4 className="text-base font-bold text-foreground">
+                {selectedLayerId
+                  ? "Nenhum dado carregado ainda"
+                  : "Selecione uma camada para começar"}
+              </h4>
+              <p className="text-xs text-muted-foreground max-w-md mt-1 mb-5">
+                {selectedLayerId
+                  ? `Clique no botão "Consultar dados" para carregar a planilha da camada "${selectedLayerConfig?.name || selectedLayerId}".`
+                  : "Escolha uma camada no topo para explorar os registros, aplicar critérios de filtro e visualizar em formato de planilha."}
+              </p>
+              {selectedLayerId && (
+                <Button
+                  onClick={handleSearch}
+                  disabled={isSearching}
+                  className="rounded-full px-6 gap-2"
+                >
+                  <TableProperties className="h-4 w-4" />
+                  Consultar dados da camada
+                </Button>
               )}
             </div>
           )}
         </div>
+
+        {/* ========================================================= */}
+        {/* 5. STATUS BAR (Excel-like bottom bar)                     */}
+        {/* ========================================================= */}
+        <div className="shrink-0 h-8 px-4 border-t bg-muted/40 flex items-center justify-between text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-3 truncate">
+            {searchResults.length > 0 ? (
+              <>
+                <span className="font-semibold text-foreground">
+                  {displayedResults.length === searchResults.length
+                    ? `Exibindo ${searchResults.length} registros`
+                    : `Exibindo ${displayedResults.length} de ${searchResults.length} registros filtrados`}
+                </span>
+                {totalCount !== undefined &&
+                  layerTotalCount !== undefined &&
+                  layerTotalCount > 0 && (
+                    <span className="hidden sm:inline border-l pl-3">
+                      Total da camada: {layerTotalCount.toLocaleString("pt-BR")} (
+                      {calcPercentage(totalCount, layerTotalCount)}% filtrado)
+                    </span>
+                  )}
+                <span className="hidden md:inline border-l pl-3">
+                  {searchResultColumns.length} colunas
+                </span>
+              </>
+            ) : (
+              <span>Pronto.</span>
+            )}
+          </div>
+
+          <div className="hidden lg:flex items-center gap-2 text-[10px]">
+            <span>💡 Clique em qualquer célula para copiar</span>
+            <span>•</span>
+            <span>Role na horizontal para ver mais colunas</span>
+          </div>
+        </div>
       </DialogContent>
+
       <ShareModal
         isOpen={isShareOpen}
         onOpenChange={setIsShareOpen}

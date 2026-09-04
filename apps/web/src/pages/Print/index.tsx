@@ -1416,37 +1416,28 @@ const PrintPage = () => {
             className="print:hidden rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-xs flex flex-col gap-3"
             data-fiu-pdf-ignore="true"
           >
+            {/* Linha Superior: Voltar ao Mapa e Exportações */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  className="whitespace-nowrap rounded-lg"
-                  onClick={() => {
-                    if (window.opener) {
-                      window.close();
-                    } else {
-                      window.location.href = "/";
-                    }
-                  }}
-                >
-                  <UrbisIcon
-                    name="arrow_back"
-                    className="mr-1.5 text-sm"
-                    aria-hidden="true"
-                  />
-                  Voltar ao mapa
-                </Button>
-
-                <div className="flex-1 max-w-sm">
-                  <IntendedUseCard
-                    selectedUse={selectedUse}
-                    onSelectUse={setSelectedUse}
-                    isCompact={true}
-                  />
-                </div>
-              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="whitespace-nowrap rounded-lg self-start"
+                onClick={() => {
+                  if (window.opener) {
+                    window.close();
+                  } else {
+                    window.location.href = "/";
+                  }
+                }}
+              >
+                <UrbisIcon
+                  name="arrow_back"
+                  className="mr-1.5 text-sm"
+                  aria-hidden="true"
+                />
+                Voltar ao mapa
+              </Button>
 
               <div className="flex flex-wrap items-center gap-1.5">
                 <Button
@@ -1510,7 +1501,8 @@ const PrintPage = () => {
               </div>
             </div>
 
-            <div className="w-full shrink-0 border-t border-slate-100 pt-2">
+            {/* Linha Central: Busca de Imóvel / Endereço */}
+            <div className="w-full shrink-0 border-t border-slate-100 pt-2.5">
               <Search
                 isInteractiveView={true}
                 onItemClick={(config, item) => {
@@ -1555,6 +1547,19 @@ const PrintPage = () => {
                   window.location.href = url.toString();
                 }}
               />
+            </div>
+
+            {/* Linha Inferior: Uso Pretendido abaixo da busca */}
+            <div className="w-full shrink-0 border-t border-slate-100 pt-2.5">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-semibold text-slate-700">
+                  Uso pretendido (opcional)
+                </span>
+                <IntendedUseCard
+                  selectedUse={selectedUse}
+                  onSelectUse={setSelectedUse}
+                />
+              </div>
             </div>
           </section>
 

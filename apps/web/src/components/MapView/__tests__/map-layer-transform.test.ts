@@ -201,7 +201,7 @@ describe("map-layer-transform", () => {
     const elevation = layer?.props.getElevation({
       properties: { vl_altura_estimada_metros: 24.5 },
     });
-    expect(elevation).toBe(25);
+    expect(elevation).toBeCloseTo(24.52, 2);
   });
 
   it("should calculate progressive polygon offset and elevation offsets according to layer order", () => {
@@ -252,11 +252,11 @@ describe("map-layer-transform", () => {
     // Top layer offset has larger negative units (closer to camera in depth buffer)
     expect(topOffset[1]).toBeLessThan(bottomOffset[1]);
 
-    // 3D elevation offset starting from baseline (0.5m)
+    // 3D elevation offset starting from minimal baseline (0.02m)
     const bottomElevation = bottomGeoJson?.props.getElevation({});
     const topElevation = topGeoJson?.props.getElevation({});
 
-    expect(bottomElevation).toBe(0.5);
-    expect(topElevation).toBeCloseTo(0.65, 5);
+    expect(bottomElevation).toBe(0.02);
+    expect(topElevation).toBeCloseTo(0.03, 5);
   });
 });

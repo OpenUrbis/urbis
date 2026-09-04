@@ -310,10 +310,10 @@ const prepareLayerProperties = (
   props: MapContextLayerSchemaTypeMapProps,
 ) => {
   const safeProperties = properties || {};
-  const { is3DActive, layerIndex = 0 } = props;
+  const { is3DActive = true, layerIndex = 0 } = props;
   const rawElevation = safeProperties.getElevation;
-  const BASE_ALTITUDE_OFFSET = 0.5;
-  const layerAltitudeOffset = BASE_ALTITUDE_OFFSET + layerIndex * 0.15;
+  const BASE_ALTITUDE_OFFSET = 0.02;
+  const layerAltitudeOffset = BASE_ALTITUDE_OFFSET + layerIndex * 0.01;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let getElevation: any;
 

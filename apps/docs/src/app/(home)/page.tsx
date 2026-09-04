@@ -6,6 +6,7 @@ import {
   Database,
   ExternalLink,
   FileCode,
+  FileText,
   GitBranch,
   Map as MapIcon,
   Scale,
@@ -34,9 +35,11 @@ export default function HomePage() {
       <section className="relative px-6 pt-12 pb-16 md:pt-20 md:pb-24 max-w-7xl mx-auto w-full text-center">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border bg-card/60 backdrop-blur-sm text-xs md:text-sm font-medium text-muted-foreground mb-6 shadow-sm">
           <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-semibold text-foreground">OpenUrbis</span>
+          <span className="font-semibold text-foreground">Prefeitura de São Paulo</span>
           <span className="text-muted-foreground/60">•</span>
-          <span>Prefeitura de São Paulo</span>
+          <span className="text-foreground/90">CODATA / SMUL</span>
+          <span className="text-muted-foreground/60">•</span>
+          <span className="font-semibold text-foreground">OpenUrbis</span>
           <span className="text-muted-foreground/60">•</span>
           <span className="text-primary font-medium">Documentação Técnica</span>
         </div>
@@ -44,14 +47,14 @@ export default function HomePage() {
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground max-w-5xl mx-auto leading-[1.1] mb-6">
           Plataforma Territorial Integrada &{" "}
           <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 dark:from-blue-400 dark:via-indigo-300 dark:to-emerald-400 bg-clip-text text-transparent">
-            Engenharia Geoespacial
+            Inteligência Geoespacial
           </span>
         </h1>
 
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-          Guia completo de arquitetura, pipelines de dados territoriais com
-          Dagster e PostGIS, visualização em tempo real com Deck.gl, módulo
-          legislativo Legis e catálogo de microsserviços.
+          Ecossistema aberto de engenharia de dados territoriais da cidade de São Paulo.
+          Arquitetura medalhão no Dagster com PostGIS e GeoServer, visualização analítica
+          em Deck.gl a 60fps, conformidade regulatória no Legis e integração contínua com bases do GeoSampa e CKAN da CODATA.
         </p>
 
         {/* Action Button Grid */}
@@ -90,6 +93,14 @@ export default function HomePage() {
           </Link>
 
           <Link
+            href="/docs/general/forms"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-card border border-border text-foreground font-semibold text-sm hover:bg-accent/80 hover:text-accent-foreground transition-all shadow-sm hover:shadow hover:-translate-y-0.5"
+          >
+            <FileText className="size-4 text-rose-500" />
+            <span>Formulários & Processos</span>
+          </Link>
+
+          <Link
             href="/docs/openapi"
             className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-card border border-border text-foreground font-semibold text-sm hover:bg-accent/80 hover:text-accent-foreground transition-all shadow-sm hover:shadow hover:-translate-y-0.5"
           >
@@ -124,7 +135,7 @@ export default function HomePage() {
               +7.500
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              Arquivos indexados no Azure Blob Storage
+              Camadas e datasets territoriais indexados no Azure Blob Storage
             </div>
           </div>
           <div className="p-4 rounded-xl bg-card/40 border border-border/40">
@@ -132,7 +143,7 @@ export default function HomePage() {
               3 Clusters
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              AKS Kubernetes em Nuvem (Urbis, DataLake, GeoServer)
+              AKS Kubernetes em Nuvem Azure PMSP (Urbis, DataLake, GeoServer)
             </div>
           </div>
           <div className="p-4 rounded-xl bg-card/40 border border-border/40">
@@ -140,7 +151,7 @@ export default function HomePage() {
               100% Livre
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              Licença AGPL v3 (Código) & CC BY-SA 4.0
+              Licença AGPL v3 (Código Aberto) & CC BY-SA 4.0 (Dados Abertos)
             </div>
           </div>
           <div className="p-4 rounded-xl bg-card/40 border border-border/40">
@@ -148,7 +159,7 @@ export default function HomePage() {
               Deck.gl + Dagster
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              Renderização 60fps & SDAs reativos
+              Renderização Web GIS a 60fps & Pipelines analíticos reativos
             </div>
           </div>
         </div>
@@ -163,7 +174,7 @@ export default function HomePage() {
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground">
               Selecione o módulo de interesse para navegar pelas diretrizes
-              técnicas, arquitetura de software e guias operacionais.
+              técnicas, engenharia de dados territoriais e guias operacionais.
             </p>
           </div>
 
@@ -176,16 +187,15 @@ export default function HomePage() {
                     <MapIcon className="size-6" />
                   </div>
                   <span className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                    Web GIS
+                    Web GIS Municipal
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                   Mapa Urbis
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Visualizador territorial em React, Deck.gl e MapLibre. Suporte
-                  a camadas vetoriais por BBOX, GeoJSON, WMS raster e
-                  visualização rápida de zoneamento e lotes.
+                  Visualizador territorial em React, Deck.gl e MapLibre. Consulta interativa
+                  de zoneamento (LPUOS), lotes fiscais, sobreposição por BBOX e integração contínua com as camadas do GeoSampa.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
@@ -193,6 +203,9 @@ export default function HomePage() {
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
                     MapLibre
+                  </span>
+                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
+                    GeoSampa
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
                     Layer Schema
@@ -235,7 +248,7 @@ export default function HomePage() {
                     <Database className="size-6" />
                   </div>
                   <span className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                    Data Engineering
+                    Data Engineering & CODATA
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-emerald-500 transition-colors">
@@ -243,18 +256,20 @@ export default function HomePage() {
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Orquestrador Dagster com arquitetura medalhão (Raw, Bronze,
-                  Silver, Gold). Banco PostGIS 3.4, publicação OGC no GeoServer
-                  e automação de ingestão.
+                  Silver, Gold e CKAN CODATA). PostGIS 3.4, publicação OGC (WFS/WMS) no GeoServer e automação de ingestão.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
                     Dagster
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    PostGIS
+                    PostGIS 3.4
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    GeoServer
+                    GeoServer OGC
+                  </span>
+                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
+                    CKAN CODATA
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
                     GeoSampa
@@ -294,7 +309,7 @@ export default function HomePage() {
                     <Users className="size-6" />
                   </div>
                   <span className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                    Auth & RBAC
+                    Governança & RBAC
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-indigo-500 transition-colors">
@@ -302,21 +317,23 @@ export default function HomePage() {
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Autenticação Single Sign-On via OpenID Connect (OIDC), gestão
-                  hierárquica de organizações públicas e privadas, matriz de
-                  cargos e permissões territoriais.
+                  hierárquica para secretarias municipais (SMUL), órgãos públicos e cidadãos, com matriz granular de perfis.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    OIDC
+                    OIDC / SSO
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
                     RBAC
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
+                    SMUL / PMSP
+                  </span>
+                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
                     Organizações
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    Cargos
+                    Auditoria
                   </span>
                 </div>
               </div>
@@ -353,18 +370,22 @@ export default function HomePage() {
                     <Scale className="size-6" />
                   </div>
                   <span className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                    Legislação
+                    Legislação & Regulação
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-amber-500 transition-colors">
                   Legis Urbanístico
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Editor interativo de atos normativos, inspetor unificado de
-                  situações de parcelamento, uso e ocupação do solo e
-                  consolidação de artigos de leis.
+                  Consolidação do marco regulatório municipal (Plano Diretor Estratégico - PDE, LPUOS e Código de Obras), editor Tiptap e inspetor de restrições de uso e ocupação.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
+                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
+                    PDE
+                  </span>
+                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
+                    LPUOS (Zoneamento)
+                  </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
                     Tiptap
                   </span>
@@ -373,9 +394,6 @@ export default function HomePage() {
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
                     Normas
-                  </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
-                    Artigos
                   </span>
                 </div>
               </div>
@@ -412,16 +430,15 @@ export default function HomePage() {
                     <Server className="size-6" />
                   </div>
                   <span className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                    Backend & Stack
+                    Backend & Microsserviços
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-purple-500 transition-colors">
                   Backend Modular & Filas
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Arquitetura modular em NestJS, processamento em background com
-                  Bull e Redis, TypeORM com migrações automatizadas e workers
-                  independentes.
+                  Arquitetura modular em NestJS, processamento assíncrono com
+                  Bull e Redis, TypeORM com migrações automatizadas e padrões de integridade para serviços municipais.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
@@ -471,7 +488,7 @@ export default function HomePage() {
                     <Cloud className="size-6" />
                   </div>
                   <span className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400">
-                    Infraestrutura
+                    Infraestrutura & Nuvem PMSP
                   </span>
                 </div>
                 <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-sky-500 transition-colors">
@@ -479,8 +496,8 @@ export default function HomePage() {
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Topologia dos clusters Azure AKS (Urbis, SiiauDataLake,
-                  slui-geoserver), rollouts seguros via kubectl, containers
-                  Docker e análise de custos.
+                  slui-geoserver), rollouts declarativos via kubectl, containers
+                  Docker e governança de custos na nuvem da Prefeitura.
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
@@ -494,6 +511,9 @@ export default function HomePage() {
                   </span>
                   <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
                     CI / CD
+                  </span>
+                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-mono">
+                    Segurança PMSP
                   </span>
                 </div>
               </div>
@@ -533,7 +553,7 @@ export default function HomePage() {
           <div className="max-w-3xl mb-8">
             <div className="inline-flex items-center gap-2 text-primary font-semibold text-xs uppercase tracking-wider mb-2">
               <Terminal className="size-4" />
-              <span>Para Desenvolvedores & Contribuidores</span>
+              <span>Para Desenvolvedores & Equipes Técnicas</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
               Pronto para configurar seu ambiente local?
@@ -541,7 +561,7 @@ export default function HomePage() {
             <p className="text-sm sm:text-base text-muted-foreground">
               Acesse o guia passo a passo para clonar os submódulos, inicializar
               o banco de dados PostgreSQL/PostGIS local com pnpm composer:up e
-              executar os testes integrados.
+              executar os pipelines de engenharia de dados e testes integrados.
             </p>
           </div>
 
@@ -601,7 +621,7 @@ export default function HomePage() {
                   Soluções de Problemas
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Erros comuns e soluções
+                  Erros comuns e diagnósticos
                 </div>
               </div>
             </Link>

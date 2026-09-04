@@ -31,6 +31,7 @@ import {
   Save,
   Share2,
   TableProperties,
+  FileSpreadsheet,
   Download,
   Filter,
   ChevronDown,
@@ -746,7 +747,7 @@ export const ConcatenatedSearchModal = ({
         <DialogHeader className="h-12 shrink-0 px-4 border-b bg-muted/40 flex flex-row items-center justify-between space-y-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-              <TableProperties className="h-4 w-4" />
+              <FileSpreadsheet className="h-4 w-4" />
             </div>
             <DialogTitle className="text-sm font-bold truncate flex items-center gap-2">
               <span>Explorar registros filtrados</span>

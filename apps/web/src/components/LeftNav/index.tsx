@@ -9,7 +9,7 @@ import {
 import { useNavigationContext } from "../../hooks/useNavigationContext";
 import { useSearchContext } from "../../hooks/useSearchContext";
 import { Search } from "../Search";
-import { SlidersHorizontal, Globe, PenLine, TableProperties, Table } from "lucide-react";
+import { SlidersHorizontal, Globe, PenLine, TableProperties, FileSpreadsheet } from "lucide-react";
 import { LocationSelectionCard } from "../LocationSelectionCard";
 import { ProspectiveSearchPage } from "../../pages/Map/ProspectiveSearchPage";
 import { enabledFeatureFlags } from "../../features/feature-flags";
@@ -96,7 +96,7 @@ export const LeftNav = () => {
       label: "Explorar registros filtrados",
       description:
         "Consulte, filtre e exporte os dados cadastrais das camadas em formato de tabela.",
-      icon: <Table className="h-4 w-4" />,
+      icon: <FileSpreadsheet className="h-4 w-4" />,
       onClick: () => {
         concatenatedSearch.value = {
           ...concatenatedSearch.peek(),

@@ -25,7 +25,7 @@ import {
   EyeOff,
   Ellipsis,
   Filter,
-  TableProperties,
+  FileSpreadsheet,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -318,7 +318,7 @@ export const LayerItem = ({
                   };
                 }}
               >
-                <TableProperties className="mr-2 h-4 w-4" />
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
                 <span>Explorar registros filtrados</span>
               </DropdownMenuItem>
             )}

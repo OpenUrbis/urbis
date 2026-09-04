@@ -236,6 +236,12 @@ describe("map-layer-transform", () => {
     expect(bottomGeoJson).toBeDefined();
     expect(topGeoJson).toBeDefined();
 
+    // Depth parameters for flat 2D layers (depthTest & depthMask disabled to avoid co-planar Z-fighting)
+    expect(bottomGeoJson?.props.parameters?.depthTest).toBe(false);
+    expect(bottomGeoJson?.props.parameters?.depthMask).toBe(false);
+    expect(topGeoJson?.props.parameters?.depthTest).toBe(false);
+    expect(topGeoJson?.props.parameters?.depthMask).toBe(false);
+
     // Polygon offset for bottom layer (index 0) vs top layer (index 1)
     const bottomOffset = bottomGeoJson?.props.getPolygonOffset();
     const topOffset = topGeoJson?.props.getPolygonOffset();

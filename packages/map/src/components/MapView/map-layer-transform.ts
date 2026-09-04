@@ -390,6 +390,27 @@ const prepareLayerProperties = (
 
   const isExtruded = is3DActive && Boolean(safeProperties.extruded);
 
+  const defaultParameters = isExtruded
+    ? {
+        depthTest: true,
+        depthMask: true,
+      }
+    : {
+        depthTest: false,
+        depthMask: false,
+      };
+
+  const parameters = {
+    ...defaultParameters,
+    ...(safeProperties.parameters || {}),
+    ...(safeProperties.depthTest !== undefined
+      ? { depthTest: Boolean(safeProperties.depthTest) }
+      : {}),
+    ...(safeProperties.depthMask !== undefined
+      ? { depthMask: Boolean(safeProperties.depthMask) }
+      : {}),
+  };
+
   const cleanedProperties = { ...safeProperties };
 
   // Deck.gl's GeoJsonLayer expects pointType to be a non-empty string and calls pointType.split('+').
@@ -445,6 +466,7 @@ const prepareLayerProperties = (
     getElevation,
     extruded: isExtruded,
     wireframe: Boolean(safeProperties.wireframe),
+    parameters,
   };
 };
 

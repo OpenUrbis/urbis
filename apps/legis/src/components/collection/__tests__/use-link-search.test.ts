@@ -94,6 +94,29 @@ describe("searchLocalElements", () => {
     expect(found[0].pageId).toBe(LOCAL_DOCUMENT_ID);
   });
 
+  it("matches composite search queries with index prefix and dash variations", () => {
+    const element = makeElement({
+      id: "item-6",
+      type: "Item",
+      index: "6",
+      text: "<p>Linhas do Anexo II – Tabela de Taxas, relativas ao serviço público.</p>",
+    });
+
+    const queryConditions: SearchCondition[] = [
+      {
+        id: "c1",
+        field: "term",
+        operator: "contains",
+        value: "6) Linhas do Anexo II - Tabela de Taxas, relativ",
+        connector: "AND",
+      },
+    ];
+
+    const found = searchLocalElements([element], queryConditions);
+    expect(found).toHaveLength(1);
+    expect(found[0].elementId).toBe("item-6");
+  });
+
   it("returns nothing without conditions, instead of every element", () => {
     expect(searchLocalElements([makeElement()], [])).toEqual([]);
   });

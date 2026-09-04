@@ -347,7 +347,7 @@ describe("RulesEngine - real-world text scenarios", () => {
 
       expect(result.type).toBe("Item");
       expect(result.ruleId).toBe("item_hierarchical");
-      expect(result.index).toBe("1.1.");
+      expect(result.index).toBe("1.1");
       expect(result.content).toBe("primeiro nível");
     });
 
@@ -356,7 +356,7 @@ describe("RulesEngine - real-world text scenarios", () => {
 
       expect(result.type).toBe("Item");
       expect(result.ruleId).toBe("item_hierarchical");
-      expect(result.index).toBe("2.3.4.");
+      expect(result.index).toBe("2.3.4");
     });
 
     it("upper-cases the alphabetic segment of a hierarchical item", () => {
@@ -364,7 +364,7 @@ describe("RulesEngine - real-world text scenarios", () => {
 
       expect(result.type).toBe("Item");
       expect(result.ruleId).toBe("item_hierarchical");
-      expect(result.index).toBe("1.A.");
+      expect(result.index).toBe("1.A");
       expect(result.content).toBe("alfanumérico");
     });
 

@@ -25,50 +25,12 @@ interface NormativeListHeaderProps {
 export function NormativeListHeader({
   doc,
   showLink = true,
-  elementIds,
 }: NormativeListHeaderProps) {
   const { getAuthorityById } = useAuthorities();
   const authority = React.useMemo(
     () => getAuthorityById(doc.authorityId),
     [doc.authorityId, getAuthorityById],
   );
-
-  const structuralContext = React.useMemo(() => {
-    if (!elementIds || elementIds.length === 0 || !doc.elements) return null;
-
-    const firstId = elementIds[0];
-    const elements = doc.elements;
-    const firstIdx = elements.findIndex((el) => el.id === firstId);
-    if (firstIdx === -1) return null;
-
-    // Collect parents (structural elements: Parte, Livro, Título, Capítulo, Seção, Subseção, Artigo)
-    const parents: string[] = [];
-    const levels: Record<string, number> = {
-      Parte: 0,
-      Livro: 1,
-      Título: 2,
-      Capítulo: 3,
-      Seção: 4,
-      Subseção: 5,
-      Artigo: 6,
-    };
-
-    let currentMaxLevel =
-      levels[elements[firstIdx].type as keyof typeof levels] ?? 99;
-
-    for (let i = firstIdx - 1; i >= 0; i--) {
-      const el = elements[i];
-      const level = levels[el.type as keyof typeof levels];
-      if (level !== undefined && level < currentMaxLevel) {
-        let label = `${el.type} ${el.index || ""}`;
-        if (el.type === "Artigo") label = `Art. ${el.index || ""}`;
-        parents.unshift(label);
-        currentMaxLevel = level;
-      }
-    }
-
-    return parents.length > 0 ? parents.join(" > ") : null;
-  }, [doc, elementIds]);
 
   const normativeTypeLabel = getNormativeTypeLabel(doc.normativeType);
   const authorityShortLabel = getAuthorityShortLabel(authority);
@@ -125,12 +87,6 @@ export function NormativeListHeader({
               </span>
             )}
           </div>
-
-          {structuralContext && (
-            <div className="text-[10px] text-muted-foreground">
-              {structuralContext}
-            </div>
-          )}
         </div>
 
         {showLink && (

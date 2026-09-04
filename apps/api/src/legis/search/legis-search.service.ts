@@ -39,6 +39,19 @@ type NormativeSearchResult = {
 const SNIPPET_CONTEXT = 50;
 const SNIPPET_MAX_LENGTH = 120;
 
+export function normalizeSearchText(str: string): string {
+  if (!str) return '';
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[–—]/g, '-')
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
 /**
  * Reduces a stored field to the text a person actually reads.
  *
@@ -308,15 +321,29 @@ export class LegisSearchService {
           continue;
         }
 
-        if (
+        const cleanText = toSearchableText(element.text);
+        const index = element.index ? String(element.index).trim() : '';
+        const type = element.type ? String(element.type).trim() : '';
+
+        const candidateTexts = [
+          cleanText,
+          index ? `${index}) ${cleanText}` : '',
+          index ? `${index}. ${cleanText}` : '',
+          index ? `${index} - ${cleanText}` : '',
+          type ? `${type} ${index} ${cleanText}` : '',
+        ].filter(Boolean);
+
+        const matchesElement = candidateTexts.some((candidate) =>
           this.matchesAll(
             entityData,
-            toSearchableText(element.text),
+            candidate,
             normalizedConditions,
             page,
             authority,
-          )
-        ) {
+          ),
+        );
+
+        if (matchesElement) {
           results.push({
             pageId: page.id,
             pageTitle: page.title,
@@ -575,6 +602,9 @@ export class LegisSearchService {
         despadm: 'despacho administrativo',
         despadmintloc: 'despacho administrativo interlocutório',
         despnor: 'despacho normativo',
+        ec: 'emenda constitucional',
+        ecr: 'emenda constitucional de revisão',
+        elo: 'emenda à lei orgânica',
         indic: 'indicação',
         infor: 'informação',
         instr: 'instrução',
@@ -694,6 +724,12 @@ export class LegisSearchService {
     }
 
     if (normalizedFieldValue.includes(normalizedValue)) {
+      return true;
+    }
+
+    const nfdField = normalizeSearchText(normalizedFieldValue);
+    const nfdVal = normalizeSearchText(normalizedValue);
+    if (nfdField && nfdVal && nfdField.includes(nfdVal)) {
       return true;
     }
 

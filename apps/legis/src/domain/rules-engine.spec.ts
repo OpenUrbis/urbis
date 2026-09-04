@@ -88,7 +88,7 @@ describe("RulesEngine", () => {
     const result = engine.parseLine(line);
 
     expect(result.type).toBe("Item");
-    expect(result.index).toBe("8.1.2.");
+    expect(result.index).toBe("8.1.2");
     expect(result.content).toBe(
       "Admite-se a adoção de outro sistema ou tecnologia que assegure o mesmo desempenho",
     );
@@ -99,7 +99,7 @@ describe("RulesEngine", () => {
     const result = engine.parseLine(line);
 
     expect(result.type).toBe("Item");
-    expect(result.index).toBe("9.9.1.");
+    expect(result.index).toBe("9.9.1");
     expect(result.content).toBe("detalhamento complementar...");
   });
 
@@ -109,7 +109,7 @@ describe("RulesEngine", () => {
     const result = engine.parseLine(line);
 
     expect(result.type).toBe("Item");
-    expect(result.index).toBe("3.A.");
+    expect(result.index).toBe("3.A");
     expect(result.content).toBe(
       "A descaracterização da Área de Preservação Permanente - APP deverá ser comprovada pelo interessado",
     );
@@ -121,7 +121,7 @@ describe("RulesEngine", () => {
     const result = engine.parseLine(line);
 
     expect(result.type).toBe("Item");
-    expect(result.index).toBe("3.A.1.");
+    expect(result.index).toBe("3.A.1");
     expect(result.content).toBe(
       "A execução de qualquer tipo de obra junto a represa deverá atender à legislação aplicável",
     );

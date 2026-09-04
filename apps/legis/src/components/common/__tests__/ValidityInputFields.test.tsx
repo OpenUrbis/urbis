@@ -5,7 +5,7 @@ import { ValidityInputFields } from "../ValidityInputFields";
 import { createEmptyValidity } from "../../../domain/validity";
 
 describe("ValidityInputFields", () => {
-  it("renders with disabled date input", () => {
+  it("renders with editable date input and link selector", () => {
     const html = renderToStaticMarkup(
       <ValidityInputFields
         value={createEmptyValidity()}
@@ -14,7 +14,7 @@ describe("ValidityInputFields", () => {
       />,
     );
 
-    expect(html).toContain("disabled");
+    expect(html).toContain("Data");
     expect(html).toContain("Selecionar elemento");
   });
 
@@ -36,6 +36,5 @@ describe("ValidityInputFields", () => {
 
     expect(html).toContain("15/05/2016");
     expect(html).toContain("Lei 1.234 - Art. 1º");
-    expect(html).toContain("(do elemento vinculado)");
   });
 });

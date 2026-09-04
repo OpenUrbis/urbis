@@ -29,23 +29,14 @@ export function ValidityInputFields({
     ? "grid grid-cols-1 gap-3 md:grid-cols-2"
     : "grid grid-cols-2 gap-3";
 
-  const isLinked = Boolean(value.normativeElementId?.trim());
-
   return (
     <div className={gridClassName}>
       <div className="space-y-2">
-        <Label className={labelClassName}>
-          Data{" "}
-          {isLinked && (
-            <span className="font-normal text-muted-foreground">
-              (do elemento vinculado)
-            </span>
-          )}
-        </Label>
+        <Label className={labelClassName}>Data</Label>
         <DatePartsInput
           value={value.date}
           onChange={(date) => onChange({ ...value, date: date || "" })}
-          disabled={isLinked || _disabled}
+          disabled={_disabled}
           className={compact ? "h-8 text-xs" : undefined}
         />
       </div>

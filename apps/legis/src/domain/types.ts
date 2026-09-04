@@ -168,6 +168,8 @@ export interface TableCell {
   text: string;
   rowSpan?: number;
   colSpan?: number;
+  isHeader?: boolean;
+  specialSituations?: SpecialSituation[];
 }
 
 export interface TableRow {

@@ -50,14 +50,13 @@ function normalizeIndexToken(token: string): string {
 
 function normalizeHierarchicalNumericIndex(index: string): string {
   const trimmed = index.trim();
-  const hasTrailingDot = /\.\s*$/.test(trimmed);
   const segments = trimmed
     .split(".")
     .map((segment) => segment.trim())
     .filter(Boolean)
     .map((segment) => segment.toUpperCase());
 
-  return `${segments.join(".")}${hasTrailingDot ? "." : ""}`;
+  return segments.join(".");
 }
 
 function isStandaloneStructuralIndexToken(token: string): boolean {

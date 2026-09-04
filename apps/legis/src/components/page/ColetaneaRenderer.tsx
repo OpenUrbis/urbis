@@ -85,7 +85,11 @@ export function ColetaneaRenderer({
           const docMap: Record<string, OriginalNormativo> = {};
           pages.forEach((p) => {
             if (p && p.type === "original_normativo" && p.entity) {
-              docMap[p.id] = p.entity as OriginalNormativo;
+              const original = p.entity as OriginalNormativo;
+              docMap[p.id] = {
+                ...original,
+                name: original.name || p.title,
+              };
             }
           });
           setDocs(docMap);

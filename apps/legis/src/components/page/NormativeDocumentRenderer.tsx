@@ -731,7 +731,9 @@ export function ElementContent({
         s.type === "Restauração de vigor/eficácia",
     );
 
+    // Only Veto replaces the entire unsegmented element text with placeholder (VETADO)
     if (
+      situation.type === "Veto" &&
       placeholder &&
       !hasOverturn &&
       segmentBaseText.trim() &&

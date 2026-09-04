@@ -80,30 +80,66 @@ export function buildConditions(
 /* Local search                                                                */
 /* -------------------------------------------------------------------------- */
 
+function normalizeSearchText(str: string): string {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[–—]/g, "-")
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 function matchesTerm(
   element: NormativeElementEntity,
   condition: SearchCondition,
 ): boolean {
-  const haystacks = [
-    htmlToPlainText(element.text),
-    element.type,
-    element.index ?? "",
-  ].map((value) => value.toLowerCase());
-  const needle = condition.value.toLowerCase();
+  const plainText = htmlToPlainText(element.text);
+  const type = element.type ?? "";
+  const index = element.index ?? "";
 
-  switch (condition.operator) {
-    case "equals":
-      return haystacks.some((haystack) => haystack.trim() === needle);
-    case "not_contains":
-      return !haystacks.some((haystack) => haystack.includes(needle));
-    case "greater":
-    case "less":
-      // Sem ordenação significativa para texto livre: condição neutra.
-      return true;
-    case "contains":
-    default:
-      return haystacks.some((haystack) => haystack.includes(needle));
-  }
+  const haystacks = [
+    plainText,
+    type,
+    index,
+    index ? `${index}) ${plainText}` : "",
+    index ? `${index}. ${plainText}` : "",
+    index ? `${index} - ${plainText}` : "",
+    type ? `${type} ${index} ${plainText}` : "",
+  ]
+    .filter(Boolean)
+    .map((value) => value.toLowerCase());
+
+  const needle = condition.value.toLowerCase();
+  const normalizedNeedle = normalizeSearchText(condition.value);
+
+  const checkMatch = (haystack: string) => {
+    switch (condition.operator) {
+      case "equals":
+        return (
+          haystack.trim() === needle ||
+          normalizeSearchText(haystack) === normalizedNeedle
+        );
+      case "not_contains":
+        return (
+          !haystack.includes(needle) &&
+          !normalizeSearchText(haystack).includes(normalizedNeedle)
+        );
+      case "greater":
+      case "less":
+        return true;
+      case "contains":
+      default:
+        return (
+          haystack.includes(needle) ||
+          normalizeSearchText(haystack).includes(normalizedNeedle)
+        );
+    }
+  };
+
+  return haystacks.some(checkMatch);
 }
 
 function matchesLocalCondition(

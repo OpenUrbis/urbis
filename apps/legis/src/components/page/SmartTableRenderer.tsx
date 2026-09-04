@@ -155,6 +155,20 @@ export function SmartTableRenderer({
           row.type === "Cabeçalho" || col.type === "Cabeçalho" || cell.isHeader;
         const Tag = isHeader ? "th" : "td";
 
+        const hasVeto =
+          cell.specialSituations?.some((s: any) => s.type === "Veto") ||
+          cell.text?.toLowerCase().includes("(vetado)") ||
+          /<(s|strike)\b[^>]*>/i.test(cell.text || "");
+        const hasRevoked =
+          cell.specialSituations?.some((s: any) =>
+            ["Revogação", "Anulação", "Cassação"].includes(s.type),
+          ) ||
+          cell.text?.toLowerCase().includes("(revogado)") ||
+          cell.text?.toLowerCase().includes("(anulado)") ||
+          cell.text?.toLowerCase().includes("(cassado)");
+
+        const isCellStruck = hasVeto || hasRevoked;
+
         return (
           <Tag
             key={col.id}
@@ -163,6 +177,7 @@ export function SmartTableRenderer({
             className={cn(
               "border last:border-0 px-3 py-2 text-justify align-middle transition-colors",
               isHeader && "border-b font-medium text-center bg-muted/30",
+              isCellStruck && "line-through text-muted-foreground opacity-80",
               "hover:bg-muted/40",
               onSelect && "cursor-pointer",
             )}

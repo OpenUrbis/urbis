@@ -1349,12 +1349,12 @@ export function NormativeMetadataForm({
                         */}
             <SelectTrigger aria-label="Autoridade" aria-required="true">
               {selectedAuthority ? (
-                <span className="min-w-0 truncate text-left">
-                  {selectedAuthority.commonRefAbbr}
+                <span className="min-w-0 truncate text-left text-foreground">
+                  <span className="font-medium">{selectedAuthority.commonRefAbbr}</span>
                   {selectedAuthority.complementAbbr
                     ? ` · ${selectedAuthority.complementAbbr}`
                     : ""}
-                  <span className="text-muted-foreground">
+                  <span className="text-muted-foreground dark:text-muted-foreground/90">
                     {" — "}
                     {selectedAuthority.complementFull ||
                       selectedAuthority.commonRefFull}
@@ -1372,13 +1372,13 @@ export function NormativeMetadataForm({
             </SelectTrigger>
             <SelectContent className="max-h-[300px]">
               {authorities.map((auth) => (
-                <SelectItem key={auth.id} value={auth.id}>
+                <SelectItem key={auth.id} value={auth.id} className="group cursor-pointer">
                   <div className="flex max-w-[520px] flex-col py-0.5 leading-snug">
-                    <span>
+                    <span className="font-medium text-foreground group-data-[highlighted]:text-accent-foreground">
                       {auth.commonRefAbbr}
                       {auth.complementAbbr ? ` · ${auth.complementAbbr}` : ""}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground group-data-[highlighted]:text-accent-foreground/90">
                       {auth.commonRefFull}
                       {auth.complementFull ? ` — ${auth.complementFull}` : ""}
                       {" · "}

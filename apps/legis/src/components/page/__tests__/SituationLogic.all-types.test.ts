@@ -396,7 +396,7 @@ describe("getElementStyle, when situations contradict each other", () => {
     ).toEqual({ color: "red" });
   });
 
-  it("prefers striking over colouring new text", () => {
+  it("keeps blue styling struck through for new text when revoked", () => {
     expect(
       getElementStyle(
         makeElement([
@@ -404,7 +404,11 @@ describe("getElementStyle, when situations contradict each other", () => {
           { type: "Revogação", date: "01.02.2021" },
         ]),
       ),
-    ).toEqual({ textDecoration: "line-through" });
+    ).toEqual({
+      color: "blue",
+      textDecoration: "line-through",
+      fontWeight: "bold",
+    });
   });
 
   it("prefers new text over a disputed reading", () => {
@@ -435,12 +439,10 @@ describe("getElementStyle, when situations contradict each other", () => {
     });
   });
 
-  it("documents that a future revocation already strikes the text", () => {
-    // Current behaviour: the revocation family is matched by presence, with
-    // no date check, so a device still in force reads as revoked.
+  it("renders red without strike-through when a revocation is not yet in force (future)", () => {
     expect(
       getElementStyle(makeElement([{ type: "Revogação", date: FUTURE }])),
-    ).toEqual({ textDecoration: "line-through" });
+    ).toEqual({ color: "red" });
   });
 
   it("documents that a conditional revocation also strikes the text", () => {

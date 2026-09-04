@@ -117,6 +117,7 @@ class PageService {
       ...entityData,
       id: page.id,
       type: "original_normativo",
+      name: (entityData as any).title ?? entityData.name ?? (page.title?.trim() || undefined),
       normativeType: entityData.normativeType ?? "L",
       authorityId: entityData.authorityId ?? legacyAuthorityId ?? "",
       ementa: entityData.ementa ?? resolvedTitle,

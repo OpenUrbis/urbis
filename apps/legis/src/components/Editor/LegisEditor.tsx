@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import NovelEditorWrapper from "./index";
 import { Editor as TiptapEditor, JSONContent } from "@tiptap/core";
-import { Link as LinkIcon, Code } from "lucide-react";
+import { Link as LinkIcon, Code, PlusCircle } from "lucide-react";
 import { suggestionItems as defaultSuggestionItems } from "./slash-command";
 import {
   CollectionLink,
@@ -10,6 +10,7 @@ import {
 } from "../../domain/entities";
 import { parse, isValid, compareAsc } from "date-fns";
 import { useInspectorTaskRequest } from "../inspector/inspector-task-context";
+import { RulesEngine } from "../../domain/rules-engine";
 
 interface LegisEditorProps {
   initialContent?: JSONContent;
@@ -241,9 +242,56 @@ export function LegisEditor({
     [handleEditLink, onEditorReady],
   );
 
+  const rulesEngine = useMemo(() => new RulesEngine(), []);
+
   const customSuggestionItems = useMemo(
     () => [
       ...defaultSuggestionItems,
+      {
+        title: "Acréscimo Normativo",
+        description: "Inserir novo dispositivo acrescido com dispositivo de origem",
+        searchTerms: ["acréscimo", "acrescimo", "adicionar", "incluir", "inserir", "dispositivo", "norma"],
+        icon: <PlusCircle size={18} />,
+        command: ({ editor: instance, range }: any) => {
+          instance.chain().focus().deleteRange(range).run();
+          const acrescimoText = window.prompt(
+            "Digite o texto do novo Elemento Normativo acrescido (ex.: 'LXXVIII - a todos, no âmbito judicial...'):",
+          );
+          if (!acrescimoText || !acrescimoText.trim()) return;
+
+          const dispositivo =
+            window.prompt(
+              "Informe o Dispositivo / Ato de Origem (ex.: 'Art. 1º da Emenda Constitucional nº 45/2004'):",
+            ) || "";
+
+          const elementId = `el-${Date.now()}`;
+          const situation = {
+            type: "Acréscimo" as const,
+            relatedDeviceId: dispositivo,
+            dispositivo: dispositivo,
+            device: dispositivo,
+            date: "",
+          };
+
+          instance
+            .chain()
+            .focus()
+            .insertContent({
+              type: "paragraph",
+              attrs: {
+                normativeId: elementId,
+                specialSituations: [situation],
+              },
+              content: [
+                {
+                  type: "text",
+                  text: acrescimoText.trim(),
+                },
+              ],
+            })
+            .run();
+        },
+      },
       {
         title: "Vínculo Normativo",
         description: "Pesquisar e inserir referência a outra norma",

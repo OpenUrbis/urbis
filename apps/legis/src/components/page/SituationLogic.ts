@@ -360,67 +360,63 @@ export function getElementStyle(
 } {
   const situations = element.specialSituations || [];
 
-  // Check for Repristination/Restoration logic
+  // Check for Repristination/Restoration/Derrubada logic
   const repristination = situations.find((s) => s.type === "Repristinação");
   const restoration = situations.find(
     (s) => s.type === "Restauração de vigor/eficácia",
   );
+  const derrubada = situations.find((s) => s.type === "Derrubada de veto");
 
-  let isRestoredActive = false;
-
+  let isRepristinatedActive = false;
   if (repristination) {
     const d = parseDate(repristination.date);
-    // Active if date is valid and in past/today (not future)
-    if (!isAfter(d, new Date())) isRestoredActive = true;
+    if (!isAfter(d, new Date())) isRepristinatedActive = true;
   }
 
+  let isRestoredEfficacyActive = false;
   if (restoration) {
     const d = parseDate(restoration.date);
-    if (!isAfter(d, new Date())) isRestoredActive = true;
+    if (!isAfter(d, new Date())) isRestoredEfficacyActive = true;
+  }
+
+  let isDerrubadaActive = false;
+  if (derrubada) {
+    const d = parseDate(derrubada.date);
+    if (!isAfter(d, new Date())) isDerrubadaActive = true;
   }
 
   const isFuture = isValidityNotStarted(element);
   const isExpired = isValidityEnded(element, originalEndValidity);
 
-  // Explicit checks for negative situations (in case isExpired misses them)
-  const hasVeto = situations.some((s) => s.type === "Veto");
-  const hasRevocation = situations.some((s) =>
-    [
-      "Revogação",
-      "Anulação",
-      "Cassação",
-      "Perda definitiva de vigor/eficácia",
-      "Suspensão de vigor/eficácia",
-    ].includes(s.type),
-  );
-
-  // Check for positive counter-situations
-  const hasDerrubada = situations.some((s) => s.type === "Derrubada de veto");
-
-  // Vermelho: texto ainda sem vigor ou que será extinto ou tornado sem vigor/eficácia em breve
-  if (isFuture) {
-    return { color: "red" };
-  }
-
-  // Tachado: texto extinto, ou sem vigor/eficácia
-
-  // Case 1: Veto without Derrubada
-  if (hasVeto && !hasDerrubada) {
-    return { textDecoration: "line-through" };
-  }
-
-  // Case 2: Expired or Revoked, AND NOT Repristinated/Restored
-  if ((isExpired || hasRevocation) && !isRestoredActive) {
-    return { textDecoration: "line-through" };
-  }
-
-  // Check for specific situation effects for COLOR
-  const hasColorOrangeGroup = situations.some(
+  // Check if there is a future revocation/anulação/cassação that hasn't entered in force yet
+  const futureRevocation = situations.find(
     (s) =>
-      s.type === "Derrubada de veto" ||
-      s.type === "Repristinação" ||
-      s.type === "Restauração de vigor/eficácia",
+      ["Revogação", "Anulação", "Cassação"].includes(s.type) &&
+      s.date &&
+      s.date !== "vigência condicionada" &&
+      isAfter(parseDate(s.date), new Date()),
   );
+
+  const activeRevocation = situations.find(
+    (s) =>
+      [
+        "Revogação",
+        "Anulação",
+        "Cassação",
+        "Perda definitiva de vigor/eficácia",
+        "Suspensão de vigor/eficácia",
+      ].includes(s.type) &&
+      (!s.date ||
+        s.date === "vigência condicionada" ||
+        !isAfter(parseDate(s.date), new Date())),
+  );
+
+  const hasVeto = situations.some((s) => s.type === "Veto");
+
+  const hasOrangeBase =
+    (hasVeto && isDerrubadaActive) ||
+    (!hasVeto && (isRepristinatedActive || isRestoredEfficacyActive));
+
   const hasNew = situations.some(
     (s) =>
       s.type === "Nova redação" ||
@@ -428,23 +424,51 @@ export function getElementStyle(
       s.type === "Renumeração" ||
       s.type === "Alteração de ementa",
   );
+
   const hasInterpretation = situations.some(
     (s) =>
       s.type === "Interpretação conforme à Constituição" ||
       s.type === "Declaração de inconstitucionalidade sem redução de texto",
   );
 
-  // Azul (legível e diferenciado): texto novo em vigor
+  // Future validity or future revocation not yet in force: red text without strike-through
+  if (isFuture || futureRevocation) {
+    return { color: "red" };
+  }
+
+  // Active extinction / revocation / veto: struck-through while preserving color
+  const isRevocationUndone =
+    (isRepristinatedActive && activeRevocation?.type === "Revogação") ||
+    (isRestoredEfficacyActive &&
+      activeRevocation?.type === "Suspensão de vigor/eficácia");
+
+  const isStruck =
+    (hasVeto && !isDerrubadaActive) ||
+    ((isExpired || Boolean(activeRevocation)) && !isRevocationUndone);
+
+  if (isStruck) {
+    if (hasOrangeBase) {
+      return { color: "orange", textDecoration: "line-through" };
+    }
+    if (hasNew) {
+      return {
+        color: "blue",
+        textDecoration: "line-through",
+        fontWeight: "bold",
+      };
+    }
+    return { textDecoration: "line-through" };
+  }
+
+  // Active in force
   if (hasNew) {
     return { color: "blue", fontWeight: "bold" };
   }
 
-  // Laranja (legível e de pouca atenção): texto em vigor mas objeto de disputa
-  if (hasColorOrangeGroup) {
+  if (hasOrangeBase || isDerrubadaActive || isRepristinatedActive || isRestoredEfficacyActive) {
     return { color: "orange" };
   }
 
-  // Sublinhado: texto com interpretações específicas fixadas
   if (hasInterpretation) {
     return { textDecoration: "underline" };
   }

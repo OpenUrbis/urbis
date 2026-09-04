@@ -44,15 +44,16 @@ export function updateValidityNormativeElement(
   linkedLabel?: string,
   linkedDate?: string,
 ): Validity {
+  const current = validity ?? createEmptyValidity();
   return {
-    ...(validity ?? createEmptyValidity()),
+    ...current,
     normativeElementId,
     deviceId: normativeElementId
-      ? (linkedLabel ?? validity?.deviceId ?? "")
+      ? (linkedLabel ?? current.deviceId ?? "")
       : "",
     date: normativeElementId
-      ? (linkedDate ?? validity?.date ?? "")
-      : (validity?.date ?? ""),
+      ? (linkedDate ?? current.date ?? "")
+      : (current.date ?? ""),
   };
 }
 

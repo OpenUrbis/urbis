@@ -146,11 +146,25 @@ const extractTableDataFromNode = (
           }
         }
 
+        const innerHtml = tempDiv.innerHTML || "";
+        const cellSituations = cell.attrs.specialSituations ? [...cell.attrs.specialSituations] : [];
+        if (
+          !cellSituations.length &&
+          (/<(s|strike)\b[^>]*>/i.test(innerHtml) ||
+            /\(vetado\)/i.test(innerHtml))
+        ) {
+          cellSituations.push({
+            type: /\(vetado\)/i.test(innerHtml) ? "Veto" : "Revogação",
+            date: "",
+          });
+        }
+
         extractedCells.push({
-          text: tempDiv.innerHTML || "",
+          text: innerHtml,
           rowSpan: cell.attrs.rowspan || 1,
           colSpan: cell.attrs.colspan || 1,
           isHeader: cell.type.name === "tableHeader",
+          specialSituations: cellSituations.length ? cellSituations : undefined,
         });
       });
 
@@ -2668,7 +2682,7 @@ export function PageForm({
                   variant="ghost"
                   onClick={() => proceedWithNavigation(pendingNavigation)}
                   disabled={isSubmitting}
-                  className="text-muted-foreground hover:text-destructive"
+                  className="text-foreground/90 hover:text-destructive hover:bg-destructive/10"
                 >
                   Descartar alterações
                 </Button>

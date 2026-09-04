@@ -714,6 +714,7 @@ export const MapView = ({
     baseMap3DOpacity?.value,
     selectedBaseMap.value,
     selectedBaseMaps?.value,
+    is3DActive.value,
   ]);
 
   useEffect(() => {

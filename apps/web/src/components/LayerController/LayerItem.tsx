@@ -168,7 +168,7 @@ export const LayerItem = ({
       <Button
         variant="ghost"
         size="icon"
-        className="h-6 w-6 rounded-full hover:bg-muted"
+        className="h-6 w-6 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
         onClick={(e) => {
           e.stopPropagation();
           onClick?.(item.id);
@@ -241,11 +241,11 @@ export const LayerItem = ({
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "h-6 w-6 rounded-full shrink-0 text-primary hover:bg-primary/10 hover:text-primary",
+                    "h-6 w-6 rounded-full shrink-0 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200",
                     item.cqlFilter &&
-                      "text-blue-500 hover:bg-blue-500/10 hover:text-blue-600",
+                      "text-primary hover:bg-primary/10 hover:text-primary",
                     highlightFilter &&
-                      "animate-pulse bg-blue-500/15 ring-1 ring-blue-500/40 text-blue-500",
+                      "bg-primary/20 text-primary ring-2 ring-primary/40 shadow-sm animate-pulse",
                   )}
                   aria-label="Filtrar geometrias no mapa"
                   onClick={(e) => {
@@ -275,9 +275,9 @@ export const LayerItem = ({
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "h-6 w-6 rounded-full text-primary hover:bg-primary/10 hover:text-primary",
+                    "h-6 w-6 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200",
                     highlightCustomize &&
-                      "animate-pulse bg-primary/15 ring-1 ring-primary/40",
+                      "bg-primary/20 text-primary ring-2 ring-primary/40 shadow-sm animate-pulse",
                   )}
                   aria-label="Personalizar visualmente"
                   onClick={(e) => {
@@ -300,10 +300,10 @@ export const LayerItem = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 rounded-full hover:bg-muted"
+              className="h-6 w-6 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
               onClick={(e) => e.stopPropagation()}
             >
-              <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+              <MoreVertical className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">

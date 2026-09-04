@@ -311,6 +311,7 @@ export const LayerSortableList = ({
               onShowMetadata={onShowMetadata}
               onRemove={onRemove}
               highlightCustomize={highlightCustomize}
+              highlightFilter={highlightFilter}
             />
           );
         })}

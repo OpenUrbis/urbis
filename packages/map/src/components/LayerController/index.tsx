@@ -44,9 +44,9 @@ const isCollapsed = signal<boolean>(false);
 const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
 const MAP_STYLES = [
-  { id: "openfreemap-liberty", label: "Mapa Urbano 3D", icon: "view_in_ar" },
+  { id: "openfreemap-liberty", label: "Mapa Urbano Vetorial", icon: "map" },
   { id: "openfreemap-positron", label: "Claro Minimalista", icon: "light_mode" },
-  { id: "openfreemap-bright", label: "Colorido Urbano", icon: "map" },
+  { id: "openfreemap-bright", label: "Colorido Urbano", icon: "palette" },
   { id: "standard", label: "OpenStreetMap", icon: "public" },
   { id: "outdoors", label: "Topográfico", icon: "forest" },
   { id: "satellite", label: "Satélite", icon: "satellite" },

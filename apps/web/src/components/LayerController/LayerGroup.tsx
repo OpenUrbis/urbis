@@ -41,6 +41,9 @@ export const LayerGroup = ({
   level = 0,
   onRemove,
   onShowMetadata,
+  onCustomize,
+  highlightCustomize = false,
+  highlightFilter = false,
 }: {
   group: IGetConfigLayerGroup;
   isSubGroup?: boolean;
@@ -48,6 +51,9 @@ export const LayerGroup = ({
   level?: number;
   onRemove?: (id: string) => void;
   onShowMetadata?: (id: string) => void;
+  onCustomize?: (id: string) => void;
+  highlightCustomize?: boolean;
+  highlightFilter?: boolean;
 }) => {
   const isOpen = useSignal(true);
   const { layerSchemas, handleActiveLayer } = useMapContext();
@@ -122,6 +128,9 @@ export const LayerGroup = ({
         onClick={handleActiveLayer}
         onRemove={onRemove}
         onShowMetadata={onShowMetadata}
+        onCustomize={onCustomize}
+        highlightCustomize={highlightCustomize}
+        highlightFilter={highlightFilter}
       />
     ));
   });
@@ -210,6 +219,9 @@ export const LayerGroup = ({
               level={level + 1}
               onRemove={onRemove}
               onShowMetadata={onShowMetadata}
+              onCustomize={onCustomize}
+              highlightCustomize={highlightCustomize}
+              highlightFilter={highlightFilter}
             />
           ))}
         </div>

@@ -353,12 +353,35 @@ const ShareContentPanel = () => {
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
       <PanelHeader
         title="Compartilhar visualização do mapa"
-        description="Gere um link para compartilhar o mapa exatamente como você está vendo agora."
+        description="Gere um link para abrir o mapa exatamente como você está vendo agora."
       />
       <div className="space-y-3 p-3">
-        <div className="rounded-xl border bg-muted/40 p-3 text-xs text-muted-foreground leading-relaxed">
-          Serão salvos no link: enquadramento e zoom, camadas ativas, estilos personalizados e mapa base atual.
+        {/* Box explicativo em Linguagem Simples com (i) */}
+        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3 text-xs space-y-1.5">
+          <div className="flex items-start gap-2">
+            <Info className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div className="space-y-1 min-w-0">
+              <p className="font-semibold text-xs text-foreground">
+                O que será salvo neste link?
+              </p>
+              <ul className="space-y-1 text-[11px] leading-relaxed text-muted-foreground list-disc list-inside">
+                <li>
+                  <strong className="text-foreground">Local e aproximação (zoom):</strong> o ponto exato da cidade onde você está navegando.
+                </li>
+                <li>
+                  <strong className="text-foreground">Camadas visíveis:</strong> as camadas de dados que você deixou ativas no mapa.
+                </li>
+                <li>
+                  <strong className="text-foreground">Ajustes visuais e 3D:</strong> o mapa base escolhido (satélite, ortofoto, etc.), cores, opacidades e modo 3D.
+                </li>
+                <li>
+                  <strong className="text-foreground">Filtros aplicados:</strong> quaisquer regras de filtro ativas nas camadas.
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
+
         {error.value && (
           <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-2 text-xs text-destructive">
             {error.value}
@@ -370,18 +393,19 @@ const ShareContentPanel = () => {
             id="content-share-name"
             value={name.value}
             onInput={(e) => (name.value = e.currentTarget.value)}
-            placeholder="Ex: Análise da região sul"
+            placeholder="Ex: Análise de zoneamento da região central"
           />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="content-share-description">
-            Descrição opcional
+            Descrição (opcional)
           </Label>
           <Textarea
             id="content-share-description"
             value={description.value}
             onInput={(e) => (description.value = e.currentTarget.value)}
             rows={3}
+            placeholder="Adicione observações para quem abrir este link..."
             className="resize-none"
           />
         </div>
@@ -391,7 +415,7 @@ const ShareContentPanel = () => {
               htmlFor="content-share-public"
               className="text-xs font-medium"
             >
-              Tornar público
+              Tornar público na Biblioteca
             </Label>
             <Switch
               id="content-share-public"
@@ -618,9 +642,35 @@ const LibraryContentPanel = () => {
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
       <PanelHeader
         title="Biblioteca de conteúdos"
-        description="Visualizações do mapa e consultas de dados salvas em um só lugar."
+        description="Acesse suas visualizações do mapa e consultas de dados salvas em um só lugar."
       />
       <div className="space-y-3 p-3">
+        {/* Box explicativo com (i) em Linguagem Simples */}
+        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3 text-xs space-y-2">
+          <div className="flex items-start gap-2">
+            <Info className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div className="space-y-1.5 min-w-0">
+              <p className="font-semibold text-xs text-foreground">
+                Como funciona a Biblioteca?
+              </p>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                Aqui você encontra tudo o que foi salvo no Urbis para consultar novamente ou compartilhar:
+              </p>
+              <ul className="space-y-1 text-[11px] leading-relaxed text-muted-foreground list-disc list-inside">
+                <li>
+                  <strong className="text-foreground">Visualizações do mapa:</strong> guarda o local exato da cidade, aproximação (zoom), camadas ativas, mapa base (satélite, ortofoto ou ruas), estilos e filtros.
+                </li>
+                <li>
+                  <strong className="text-foreground">Consultas e tabelas:</strong> guarda as buscas por atributos feitas na ferramenta <em>Explorar registros filtrados</em>, prontas para reabrir e baixar em planilha.
+                </li>
+                <li>
+                  <strong className="text-foreground">Compartilhamento:</strong> você pode copiar o link de qualquer item para enviar a colegas ou cidadãos.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {loading.value ? (
           <div className="flex justify-center p-8 text-muted-foreground">
             <UrbisIcon
@@ -631,8 +681,8 @@ const LibraryContentPanel = () => {
           </div>
         ) : (
           <>
-            <div className="space-y-2 rounded-xl border bg-muted/20 p-2">
-              <div className="flex items-center gap-2 px-1 text-xs font-semibold">
+            <div className="space-y-2 rounded-xl border bg-muted/20 p-2.5">
+              <div className="flex items-center gap-2 px-1 text-xs font-semibold text-foreground">
                 <UrbisIcon
                   name="map"
                   className="text-base text-primary"
@@ -641,10 +691,10 @@ const LibraryContentPanel = () => {
                 Visualizações do mapa
               </div>
               <LibrarySection
-                title="Minhas visualizações"
+                title="Minhas visualizações salvas"
                 icon="person"
                 items={myMaps.value}
-                empty="Nenhuma visualização salva encontrada."
+                empty="Você ainda não salvou nenhuma visualização. Para salvar o estado atual do mapa, use o botão Compartilhar no menu lateral."
                 requiresLogin
                 isAuthenticated={auth.isAuthenticated}
                 onOpenItem={openItem}
@@ -656,14 +706,14 @@ const LibraryContentPanel = () => {
                 title="Visualizações públicas"
                 icon="public"
                 items={publicMaps.value}
-                empty="Nenhuma visualização pública disponível."
+                empty="Nenhuma visualização pública disponível no momento."
                 isAuthenticated={auth.isAuthenticated}
                 onOpenItem={openItem}
                 onCopyItemLink={copyItemLink}
               />
             </div>
-            <div className="space-y-2 rounded-xl border bg-muted/20 p-2">
-              <div className="flex items-center gap-2 px-1 text-xs font-semibold">
+            <div className="space-y-2 rounded-xl border bg-muted/20 p-2.5">
+              <div className="flex items-center gap-2 px-1 text-xs font-semibold text-foreground">
                 <UrbisIcon
                   name="table_chart"
                   className="text-base text-primary"
@@ -672,10 +722,10 @@ const LibraryContentPanel = () => {
                 Consultas de dados e tabelas
               </div>
               <LibrarySection
-                title="Minhas consultas"
+                title="Minhas consultas salvas"
                 icon="person"
                 items={mySearches.value}
-                empty="Nenhuma consulta salva encontrada."
+                empty="Você ainda não salvou nenhuma consulta. Ao filtrar dados em Explorar registros filtrados, clique em Compartilhar para guardar sua tabela aqui."
                 requiresLogin
                 isAuthenticated={auth.isAuthenticated}
                 onOpenItem={openItem}
@@ -687,7 +737,7 @@ const LibraryContentPanel = () => {
                 title="Consultas públicas"
                 icon="public"
                 items={publicSearches.value}
-                empty="Nenhuma consulta pública disponível."
+                empty="Nenhuma consulta pública disponível no momento."
                 isAuthenticated={auth.isAuthenticated}
                 onOpenItem={openItem}
                 onCopyItemLink={copyItemLink}
@@ -1639,7 +1689,7 @@ export const LayerController = ({
                   highlightFilterButtons.value = true;
                   window.setTimeout(() => {
                     highlightFilterButtons.value = false;
-                  }, 2400);
+                  }, 3500);
                 }}
               />
             )}
@@ -1666,7 +1716,7 @@ export const LayerController = ({
                   highlightCustomizeButtons.value = true;
                   window.setTimeout(() => {
                     highlightCustomizeButtons.value = false;
-                  }, 2400);
+                  }, 3500);
                 }}
               />
             )}

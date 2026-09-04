@@ -245,7 +245,7 @@ export const LayerItem = ({
                     item.cqlFilter &&
                       "text-primary hover:bg-primary/10 hover:text-primary",
                     highlightFilter &&
-                      "bg-primary/20 text-primary ring-2 ring-primary/40 shadow-sm animate-pulse",
+                      "bg-primary/20 text-primary ring-1 ring-primary/30 shadow-sm animate-subtle-glow transition-all duration-300",
                   )}
                   aria-label="Filtrar geometrias no mapa"
                   onClick={(e) => {
@@ -277,7 +277,7 @@ export const LayerItem = ({
                   className={cn(
                     "h-6 w-6 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200",
                     highlightCustomize &&
-                      "bg-primary/20 text-primary ring-2 ring-primary/40 shadow-sm animate-pulse",
+                      "bg-primary/20 text-primary ring-1 ring-primary/30 shadow-sm animate-subtle-glow transition-all duration-300",
                   )}
                   aria-label="Personalizar visualmente"
                   onClick={(e) => {

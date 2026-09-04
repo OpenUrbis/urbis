@@ -153,15 +153,15 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col h-full">
       {/* Panel Header */}
-      <div className="flex items-start justify-between gap-3 border-b bg-background/70 p-3">
+      <div className="flex items-start justify-between gap-2 border-b bg-background/70 px-3 py-2.5 shrink-0">
         <div>
           <h5 className="m-0 text-sm font-semibold flex items-center gap-1.5 text-foreground">
             <Download className="h-4 w-4 text-primary" />
             Exportar geometrias da tela
           </h5>
-          <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+          <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
             Baixe em GeoJSON ou DXF as geometrias das camadas ativas visíveis no mapa.
           </p>
         </div>
@@ -169,7 +169,7 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 shrink-0"
+            className="h-7 w-7 shrink-0"
             onClick={onClose}
             aria-label="Fechar exportação"
           >
@@ -178,23 +178,20 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
         )}
       </div>
 
-      {/* Panel Body */}
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3.5 space-y-4">
+      {/* Panel Body (Scrollable if needed, but compact enough to fit without scrolling) */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 space-y-2.5">
         {/* Context Info Box */}
-        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3 text-xs text-blue-950 dark:text-blue-200">
-          <div className="flex gap-2.5 items-start">
-            <Info className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
-            <div className="space-y-0.5">
-              <p className="font-semibold text-xs text-foreground">Área visível e limites</p>
-              <p className="text-[11px] leading-relaxed text-muted-foreground">
-                Limite de até <strong className="font-medium text-foreground">1.000 feições</strong> por camada. Apenas geometrias no enquadramento atual e ativas para o nível de zoom são exportadas.
-              </p>
-            </div>
+        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-2.5 py-1.5 text-xs text-blue-950 dark:text-blue-200">
+          <div className="flex gap-2 items-center">
+            <Info className="h-3.5 w-3.5 shrink-0 text-blue-600 dark:text-blue-400" />
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              Limite de até <strong className="font-medium text-foreground">1.000 feições</strong> por camada no enquadramento atual.
+            </p>
           </div>
         </div>
 
         {/* Layers Section */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-semibold flex items-center gap-1.5 text-foreground">
               <Layers className="h-3.5 w-3.5 text-primary" />
@@ -207,17 +204,17 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
           </div>
 
           {activeLayers.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border/80 bg-muted/10 p-4 text-center text-xs text-muted-foreground space-y-1">
-              <Layers className="h-5 w-5 mx-auto opacity-40 text-muted-foreground" />
+            <div className="rounded-lg border border-dashed border-border/80 bg-muted/10 p-3 text-center text-xs text-muted-foreground space-y-1">
+              <Layers className="h-4 w-4 mx-auto opacity-40 text-muted-foreground" />
               <p className="font-medium text-foreground text-xs">
                 Nenhuma camada ativa
               </p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[10.5px] text-muted-foreground">
                 Ative camadas na aba &ldquo;Camadas&rdquo; para incluí-las na exportação.
               </p>
             </div>
           ) : (
-            <div className="max-h-[140px] overflow-y-auto rounded-xl border bg-muted/20 p-2 space-y-1 divide-y divide-border/20">
+            <div className="max-h-[105px] overflow-y-auto rounded-lg border bg-muted/20 px-2.5 py-1 space-y-0.5 divide-y divide-border/20">
               {activeLayers.map((layer) => {
                 const isReady =
                   !(layer.minZoom && currentZoom < layer.minZoom);
@@ -230,9 +227,9 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
                 return (
                   <div
                     key={layer.id}
-                    className="flex items-center justify-between gap-2 pt-1.5 first:pt-0 pb-1.5 last:pb-0"
+                    className="flex items-center justify-between gap-2 pt-1 first:pt-0 pb-1 last:pb-0 text-xs"
                   >
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
                       <span
                         className={cn(
                           "h-2 w-2 shrink-0 rounded-full",
@@ -268,21 +265,21 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
           )}
 
           {hasActiveLayersRequiringZoom && exportableLayers.length === 0 && (
-            <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-2 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2">
+            <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-2 py-1.5 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
-              <p className="text-[11px] leading-relaxed">
+              <p className="text-[10.5px] leading-snug">
                 Aproxime o mapa (zoom in) para desbloquear a exportação das camadas selecionadas.
               </p>
             </div>
           )}
         </div>
 
-        {/* Format Selection */}
-        <div className="space-y-2">
+        {/* Format Selection (2 columns side by side for compact height) */}
+        <div className="space-y-1.5">
           <h4 className="text-xs font-semibold text-foreground">
             Formato do arquivo
           </h4>
-          <div className="grid grid-cols-1 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {/* GeoJSON */}
             <div
               role="button"
@@ -294,37 +291,21 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
                 }
               }}
               className={cn(
-                "cursor-pointer rounded-xl border p-3 transition-all text-left flex items-start gap-3 select-none",
+                "cursor-pointer rounded-lg border p-2 transition-all text-left flex items-center gap-2 select-none",
                 selectedFormat.value === "geojson"
                   ? "border-primary bg-primary/5 ring-1 ring-primary/30"
                   : "border-border bg-card/40 hover:bg-muted/30",
               )}
             >
-              <div
-                className={cn(
-                  "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors",
-                  selectedFormat.value === "geojson"
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-muted-foreground/40 bg-transparent",
-                )}
-              >
-                {selectedFormat.value === "geojson" && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-background" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0 space-y-0.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                    <FileCode className="h-3.5 w-3.5 text-primary" />
-                    GeoJSON
-                  </span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">
+              <FileCode className="h-4 w-4 text-primary shrink-0" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-foreground">GeoJSON</span>
+                  <span className="text-[9px] font-mono text-muted-foreground font-medium">
                     .geojson
                   </span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  Padrão aberto para web GIS e mapas. Projeção WGS84 (Lat/Lon).
-                </p>
+                <p className="text-[10px] text-muted-foreground truncate">Web GIS / WGS84</p>
               </div>
             </div>
 
@@ -339,37 +320,21 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
                 }
               }}
               className={cn(
-                "cursor-pointer rounded-xl border p-3 transition-all text-left flex items-start gap-3 select-none",
+                "cursor-pointer rounded-lg border p-2 transition-all text-left flex items-center gap-2 select-none",
                 selectedFormat.value === "dwg"
                   ? "border-primary bg-primary/5 ring-1 ring-primary/30"
                   : "border-border bg-card/40 hover:bg-muted/30",
               )}
             >
-              <div
-                className={cn(
-                  "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors",
-                  selectedFormat.value === "dwg"
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-muted-foreground/40 bg-transparent",
-                )}
-              >
-                {selectedFormat.value === "dwg" && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-background" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0 space-y-0.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5 text-primary" />
-                    DWG / DXF (CAD)
-                  </span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-foreground">DXF (CAD)</span>
+                  <span className="text-[9px] font-mono text-muted-foreground font-medium">
                     .dxf
                   </span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  Formato vetorial para AutoCAD e softwares CAD. Projeção SIRGAS 2000 / UTM 23S.
-                </p>
+                <p className="text-[10px] text-muted-foreground truncate">AutoCAD / UTM 23S</p>
               </div>
             </div>
           </div>
@@ -377,12 +342,12 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
 
         {/* Error Feedback */}
         {errorMessage.value && (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive space-y-1">
-            <div className="flex items-center gap-1.5 font-semibold">
-              <AlertTriangle className="h-4 w-4 shrink-0" />
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-2.5 py-2 text-xs text-destructive space-y-0.5">
+            <div className="flex items-center gap-1.5 font-semibold text-xs">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
               <span>Falha na exportação</span>
             </div>
-            <p className="text-[11px] leading-relaxed opacity-90 pl-5">
+            <p className="text-[10.5px] leading-relaxed opacity-90 pl-5">
               {errorMessage.value}
             </p>
           </div>
@@ -390,55 +355,52 @@ export const ScreenExportPanel = ({ onClose }: ScreenExportPanelProps) => {
 
         {/* Success Feedback */}
         {exportResult.value && (
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs space-y-2">
-            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold">
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-2 text-xs space-y-1.5">
+            <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 font-semibold text-xs">
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
               <span>Arquivo gerado com sucesso!</span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              O download iniciou automaticamente. Se necessário, baixe novamente pelo botão abaixo:
-            </p>
             <Button
               asChild
-              className="w-full h-9 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs shadow-sm"
+              className="w-full h-8 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs shadow-sm"
             >
               <a
                 href={exportResult.value.url}
                 download={exportResult.value.filename}
               >
-                <Download className="mr-2 h-4 w-4" />
+                <Download className="mr-1.5 h-3.5 w-3.5" />
                 Baixar {exportResult.value.filename}
               </a>
             </Button>
           </div>
         )}
+      </div>
 
-        {/* Primary Action Button */}
-        <div className="pt-2">
-          <Button
-            className="w-full h-10 font-semibold text-xs shadow-sm"
-            disabled={isExporting.value || exportableLayers.length === 0}
-            onClick={handleExport}
-          >
-            {isExporting.value ? (
-              <>
-                <UrbisIcon
-                  name="progress_activity"
-                  className="animate-spin mr-2 text-base"
-                  aria-hidden="true"
-                />
-                Exportando geometrias...
-              </>
-            ) : (
-              <>
-                <Download className="mr-2 h-4 w-4" />
-                {exportResult.value
-                  ? "Gerar nova exportação"
-                  : `Exportar ${selectedFormat.value === "geojson" ? "GeoJSON" : "DXF (CAD)"}`}
-              </>
-            )}
-          </Button>
-        </div>
+      {/* Primary Action Button Fixed at Bottom (Always Visible) */}
+      <div className="border-t bg-background/80 p-3 shrink-0">
+        <Button
+          className="w-full h-9 font-semibold text-xs shadow-sm"
+          disabled={isExporting.value || exportableLayers.length === 0}
+          onClick={handleExport}
+        >
+          {isExporting.value ? (
+            <>
+              <UrbisIcon
+                name="progress_activity"
+                className="animate-spin mr-2 text-base"
+                aria-hidden="true"
+              />
+              Exportando geometrias...
+            </>
+          ) : (
+            <>
+              <Download className="mr-1.5 h-4 w-4" />
+              {exportResult.value
+                ? "Gerar nova exportação"
+                : `Exportar ${selectedFormat.value === "geojson" ? "GeoJSON" : "DXF (CAD)"}`}
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

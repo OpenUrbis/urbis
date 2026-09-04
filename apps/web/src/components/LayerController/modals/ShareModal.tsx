@@ -219,31 +219,31 @@ export const ShareModal = ({
               {type === "map" ? (
                 <>
                   <li>
-                    <strong>Local e zoom:</strong> O enquadramento exato que você está vendo na tela.
+                    <strong className="text-foreground">Local e aproximação (zoom):</strong> o ponto exato da cidade que você está vendo na tela.
                   </li>
                   <li>
-                    <strong>Camadas ativas:</strong> Quais camadas estão ligadas ou visíveis no momento.
+                    <strong className="text-foreground">Camadas visíveis:</strong> quais camadas de dados estão ligadas e ativas.
                   </li>
                   <li>
-                    <strong>Estilos e filtros:</strong> Cores, opacidades, mapa base e filtros espaciais aplicados.
+                    <strong className="text-foreground">Ajustes visuais e mapa base:</strong> o mapa base escolhido (satélite, ortofoto, ruas), cores, opacidades, modo 3D e filtros.
                   </li>
                 </>
               ) : (
                 <>
                   <li>
-                    <strong>Camada de dados:</strong> A camada selecionada para exploração.
+                    <strong className="text-foreground">Camada de dados:</strong> a camada selecionada para consulta.
                   </li>
                   <li>
-                    <strong>Critérios de filtro:</strong> Todas as regras e condições configuradas.
+                    <strong className="text-foreground">Regras de filtro:</strong> todas as condições e buscas por atributos configuradas.
                   </li>
                   <li>
-                    <strong>Estrutura da tabela:</strong> Pronto para abrir em planilha e exportar CSV.
+                    <strong className="text-foreground">Tabela pronta:</strong> quem abrir o link verá os mesmos registros e poderá baixar em planilha (CSV).
                   </li>
                 </>
               )}
             </ul>
             <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/50">
-              * Dados temporários como arquivos locais carregados nesta sessão não são salvos na nuvem.
+              * O link fica salvo na sua <strong>Biblioteca de conteúdos</strong> para você acessar sempre que quiser.
             </p>
           </div>
         </div>

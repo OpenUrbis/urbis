@@ -1001,6 +1001,30 @@ export const ConcatenatedSearchModal = ({
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => handleActionWithAuth(() => setIsShareOpen(true))}
+                      className="h-8 text-xs gap-1.5 rounded-lg border-muted hover:bg-muted/60 text-primary"
+                    >
+                      <Share2 className="h-3.5 w-3.5" />
+                      <span className="hidden lg:inline">Compartilhar consulta</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-xs">
+                    <p className="font-semibold">Salvar e gerar link</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Gera um link direto desta tabela com a camada e os filtros aplicados. Fica disponível também na Biblioteca de conteúdos.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+
+            {selectedLayerId && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={handleApplyToLayer}
                       className="h-8 text-xs gap-1.5 rounded-lg border-muted hover:bg-muted/60"
                     >

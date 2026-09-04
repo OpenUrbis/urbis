@@ -485,7 +485,6 @@ export const MapView = ({
       map.once("style.load", setup3D);
     }
   }, [is3DActive.value, currentMapStyle, minimalPreview]);
-  }, [is3DActive.value, currentMapStyle, minimalPreview, layerSchemas.value]);
 
   useEffect(() => {
     const map = mapInstanceRef.current;

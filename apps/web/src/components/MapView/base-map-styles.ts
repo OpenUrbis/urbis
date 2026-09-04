@@ -102,8 +102,8 @@ export const BASE_MAPS_CONFIG: BaseMapConfig[] = [
     grupo: "Bases não oficiais",
     ordemExibicao: 1,
     tipo: "mapa",
-    nome: "Mapa Urbano Vetorial",
-    descricao: "Cartografia vetorial com arruamento detalhado, quadras e pontos de interesse (Fonte: OpenFreeMap / OSM).",
+    nome: "Mapa Urbano 3D",
+    descricao: "Visualização com edificações e arruamento detalhado (Fonte: OpenFreeMap / OSM).",
     urlMiniatura: "/openfreemap_3d.jpg"
   },
   {

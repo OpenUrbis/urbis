@@ -81,54 +81,28 @@ export const BaseMapSelector = () => {
       </CardHeader>
 
       <CardContent className="p-3 grid gap-3">
-        {/* Visualização 3D (Switch + Slider integrado) */}
-        <div className="space-y-2.5 rounded-lg border bg-muted/20 p-3 text-xs">
-          <div className="flex items-center justify-between font-medium">
-            <div className="flex items-center gap-2">
-              <UrbisIcon
-                name="view_in_ar"
-                className="text-muted-foreground text-base shrink-0"
-                aria-hidden="true"
-              />
-              <div className="flex flex-col">
-                <Label htmlFor="3d-mode" className="font-medium cursor-pointer text-xs">
-                  Visualização 3D
-                </Label>
-                <span className="text-[10px] text-muted-foreground">
-                  Projeta a volumetria 3D das edificações sobre qualquer mapa base
-                </span>
-              </div>
-            </div>
-            <Switch
-              id="3d-mode"
-              checked={is3DActive.value}
-              onCheckedChange={(checked) => (is3DActive.value = checked)}
+        {/* Visualização 3D (Switch direto e limpo) */}
+        <div className="flex items-center justify-between rounded-lg border bg-muted/20 p-3 text-xs">
+          <div className="flex items-center gap-2">
+            <UrbisIcon
+              name="view_in_ar"
+              className="text-muted-foreground text-base shrink-0"
+              aria-hidden="true"
             />
-          </div>
-
-          {is3DActive.value && (
-            <div className="space-y-1.5 pt-2 border-t border-border/40">
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span className="text-[11px] font-medium">
-                  Opacidade das edificações 3D
-                </span>
-                <span className="tabular-nums font-semibold text-foreground">
-                  {baseMap3DOpacity?.value ?? 45}%
-                </span>
-              </div>
-              <Slider
-                min={0}
-                max={100}
-                step={1}
-                value={[baseMap3DOpacity?.value ?? 45]}
-                onValueChange={([val]) => {
-                  if (baseMap3DOpacity && val !== undefined)
-                    baseMap3DOpacity.value = val;
-                }}
-                aria-label="Opacidade das edificações 3D"
-              />
+            <div className="flex flex-col">
+              <Label htmlFor="3d-mode" className="font-medium cursor-pointer text-xs">
+                Visualização 3D
+              </Label>
+              <span className="text-[10px] text-muted-foreground">
+                Ativa a volumetria 3D das edificações sobre o mapa
+              </span>
             </div>
-          )}
+          </div>
+          <Switch
+            id="3d-mode"
+            checked={is3DActive.value}
+            onCheckedChange={(checked) => (is3DActive.value = checked)}
+          />
         </div>
 
         {/* Visual Adjustments: Opacidade Individual & Saturação */}

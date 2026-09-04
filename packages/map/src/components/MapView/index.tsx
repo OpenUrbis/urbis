@@ -499,8 +499,8 @@ export const MapView = ({
                 13.5,
                 ["coalesce", ["get", "render_min_height"], ["get", "min_height"], 0],
               ],
-              "fill-extrusion-opacity": 0.45,
-              "fill-extrusion-vertical-gradient": false,
+              "fill-extrusion-opacity": 0.48,
+              "fill-extrusion-vertical-gradient": true,
             },
           });
         } catch {
@@ -508,9 +508,9 @@ export const MapView = ({
         }
       }
 
-      const b3dOpacity = (baseMap3DOpacity?.value ?? 45) / 100;
-      const is3D = is3DActive.value && b3dOpacity > 0;
+      const is3D = is3DActive.value;
       const visibility = is3D ? "visible" : "none";
+      const b3dOpacity = is3D ? 0.48 : 0;
 
       const flatBuildingLayerIds = [
         "building",
@@ -662,13 +662,13 @@ export const MapView = ({
           map.setLayoutProperty("building-3d", "visibility", visibility);
           map.setPaintProperty("building-3d", "fill-extrusion-opacity", b3dOpacity);
           map.setPaintProperty("building-3d", "fill-extrusion-color", extrusionColor);
-          map.setPaintProperty("building-3d", "fill-extrusion-vertical-gradient", false);
+          map.setPaintProperty("building-3d", "fill-extrusion-vertical-gradient", true);
         }
         if (map.getLayer("openfreemap-3d-buildings")) {
           map.setLayoutProperty("openfreemap-3d-buildings", "visibility", visibility);
           map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-opacity", b3dOpacity);
           map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-color", extrusionColor);
-          map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-vertical-gradient", false);
+          map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-vertical-gradient", true);
         }
       } catch (_err) {
         // Style might be loading

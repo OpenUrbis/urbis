@@ -261,7 +261,7 @@ export const FeatureAttributesTable = ({
   onSelectFeature,
   className,
 }: FeatureAttributesTableProps) => {
-  const { layerSchemas, activeHighlightFeature, flyTo } = useMapContext();
+  const { layerSchemas, activeHighlightFeature, flyTo, layerWithRootEditTemplate } = useMapContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -318,7 +318,10 @@ export const FeatureAttributesTable = ({
       label: string;
       rawLayer: string;
       isActiveOnMap: boolean;
+      isBaseEditLayer: boolean;
+      isTaxLot: boolean;
       percentage: string | null;
+      percentageNum: number;
       isPrimary: boolean;
       properties: Record<string, unknown>;
       rawFeature?: any;
@@ -345,23 +348,57 @@ export const FeatureAttributesTable = ({
       return `${layerId}::feat-${index !== undefined ? index : JSON.stringify(itemProps)}`;
     };
 
-    const isSyntheticPoint = (_feat: any, p: Record<string, unknown>) => {
+    const isPerimeterOrSynthetic = (feat: any, p: Record<string, unknown>) => {
+      const layerStr = String(p.layer || p.source || p.layer_name || p.layerSchemaName || feat?.id || "").toLowerCase();
       return Boolean(
         p.isPointInspection ||
-        p.layer === "Ponto Consultado" ||
-        p.layer === "Ponto de Inspeção"
+        p.origem_perimetro ||
+        layerStr.includes("perímetro") ||
+        layerStr.includes("perimetro") ||
+        layerStr.includes("geometria selecionada") ||
+        layerStr.includes("ponto consultado") ||
+        layerStr.includes("ponto de inspeção") ||
+        layerStr.includes("consulta pontual") ||
+        layerStr.includes("consulta territorial") ||
+        String(feat?.id || "").startsWith("perimeter-") ||
+        String(feat?.id || "").startsWith("query-point-")
       );
     };
 
-    const extractPercentage = (props: Record<string, unknown>): string | null => {
+    const isTaxLot = (feat: any, p: Record<string, unknown>, rawLayer: string) => {
+      if (
+        (p.cd_setor_fiscal !== undefined && p.cd_quadra_fiscal !== undefined) ||
+        (p.setor !== undefined && p.quadra !== undefined && p.lote !== undefined) ||
+        p.sql !== undefined ||
+        p.sql_formatado !== undefined ||
+        p.nr_sql !== undefined ||
+        p.codigo_lote !== undefined
+      ) {
+        return true;
+      }
+      const s = String(p.layer || rawLayer || p.layerSchemaName || feat?.id || "").toLowerCase();
+      return s.includes("lote_fiscal") || s.includes("lotes_fiscais") || s.includes("lote fiscal") || s.includes("lotes fiscais") || s === "lotes" || s === "lote";
+    };
+
+    const isBaseEditLayer = (feat: any, p: Record<string, unknown>, rawLayer: string) => {
+      const rootId = (layerWithRootEditTemplate?.value || "").trim().toLowerCase();
+      if (!rootId) return false;
+      const layerId = String(p.layerSchemaId || p.layer || rawLayer || feat?.id || "").toLowerCase().trim();
+      return layerId === rootId || layerId.includes(rootId) || rootId.includes(layerId);
+    };
+
+    const extractPercentage = (props: Record<string, unknown>): { str: string | null; num: number } => {
       const raw = props.totalAreaPercentage ?? props.smallerPolygonAreaPercentage ?? props.percentage;
       if (raw !== undefined && raw !== null && raw !== "") {
         const num = Number(raw);
         if (!isNaN(num) && num > 0.01) {
-          return num >= 99.95 ? "100%" : `${num.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+          return {
+            str: num >= 99.95 ? "100%" : `${num.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`,
+            num,
+          };
         }
       }
-      return null;
+      return { str: null, num: 0 };
     };
 
     const isItemPrimary = (itemFeat: any, itemProps: Record<string, unknown>, rawLayer: string) => {
@@ -387,32 +424,14 @@ export const FeatureAttributesTable = ({
       return false;
     };
 
-    // 1. If root feature is a distinct clicked feature, put it first!
-    if (feature?.properties && Object.keys(feature.properties).length > 0) {
-      const p = feature.properties as Record<string, unknown>;
-      if (!isSyntheticPoint(feature, p)) {
-        const rawLayer = String(p["layer"] || p["source"] || "");
-        const featureKey = buildFeatureKey(feature, p, rawLayer);
-        seenFeatureKeys.add(featureKey);
-        const label = getFeatureDisplayLabel(p, rawLayer, layerSchemas?.value);
-        list.push({
-          label,
-          rawLayer: rawLayer || "local",
-          isActiveOnMap: isLayerActiveOnMap(rawLayer, p?.layerSchemaId as string),
-          percentage: extractPercentage(p),
-          isPrimary: true,
-          properties: p,
-          rawFeature: feature,
-        });
-      }
-    }
-
-    // 2. Process all intersecting features from spatial query
+    // 1. Process intersecting features first (real catalog layers)
     if (Array.isArray(intersectingFeatures) && intersectingFeatures.length > 0) {
       intersectingFeatures.forEach((feat, idx) => {
         const featureProps = (feat?.properties as Record<string, unknown>) ?? {};
         if (Object.keys(featureProps).length > 0) {
-          if (isSyntheticPoint(feat, featureProps)) return;
+          // Discard synthetic point inspection or analysis perimeter features
+          if (isPerimeterOrSynthetic(feat, featureProps)) return;
+
           const pct = Number(featureProps["totalAreaPercentage"]);
           if (!isPointGeometry && featureProps["totalAreaPercentage"] !== undefined && !isNaN(pct) && pct < 0.05) {
             return;
@@ -424,11 +443,18 @@ export const FeatureAttributesTable = ({
             seenFeatureKeys.add(featureKey);
             const label = getFeatureDisplayLabel(featureProps, rawLayer, layerSchemas?.value);
             const isPrim = isItemPrimary(feat, featureProps, rawLayer);
+            const isBase = isBaseEditLayer(feat, featureProps, rawLayer);
+            const isLot = isTaxLot(feat, featureProps, rawLayer);
+            const { str: pctStr, num: pctNum } = extractPercentage(featureProps);
+
             list.push({
               label,
               rawLayer,
               isActiveOnMap: isLayerActiveOnMap(rawLayer, featureProps?.layerSchemaId as string),
-              percentage: extractPercentage(featureProps),
+              isBaseEditLayer: isBase,
+              isTaxLot: isLot,
+              percentage: pctStr,
+              percentageNum: pctNum,
               isPrimary: isPrim,
               properties: featureProps,
               rawFeature: feat,
@@ -438,11 +464,40 @@ export const FeatureAttributesTable = ({
       });
     }
 
-    // Fallback if empty properties but feature has top level info
+    // 2. If root feature is a real layer feature (not perimeter/synthetic) and not already in list, add it
+    if (feature?.properties && Object.keys(feature.properties).length > 0) {
+      const p = feature.properties as Record<string, unknown>;
+      if (!isPerimeterOrSynthetic(feature, p)) {
+        const rawLayer = String(p["layer"] || p["source"] || "");
+        const featureKey = buildFeatureKey(feature, p, rawLayer);
+        if (!seenFeatureKeys.has(featureKey)) {
+          seenFeatureKeys.add(featureKey);
+          const label = getFeatureDisplayLabel(p, rawLayer, layerSchemas?.value);
+          const isBase = isBaseEditLayer(feature, p, rawLayer);
+          const isLot = isTaxLot(feature, p, rawLayer);
+          const { str: pctStr, num: pctNum } = extractPercentage(p);
+
+          list.push({
+            label,
+            rawLayer: rawLayer || "local",
+            isActiveOnMap: isLayerActiveOnMap(rawLayer, p?.layerSchemaId as string),
+            isBaseEditLayer: isBase,
+            isTaxLot: isLot,
+            percentage: pctStr,
+            percentageNum: pctNum,
+            isPrimary: true,
+            properties: p,
+            rawFeature: feature,
+          });
+        }
+      }
+    }
+
+    // Fallback only if no real intersecting features were found at all
     if (list.length === 0 && feature) {
       const fallbackProps: Record<string, unknown> = {};
       Object.entries(feature).forEach(([k, v]) => {
-        if (k !== "geometry" && k !== "type" && typeof v !== "function") {
+        if (k !== "geometry" && k !== "type" && typeof v !== "function" && k !== "origem_perimetro") {
           fallbackProps[k] = v;
         }
       });
@@ -451,7 +506,10 @@ export const FeatureAttributesTable = ({
           label: "Dados da Geometria",
           rawLayer: "local",
           isActiveOnMap: true,
+          isBaseEditLayer: false,
+          isTaxLot: false,
           percentage: null,
+          percentageNum: 0,
           isPrimary: true,
           properties: fallbackProps,
           rawFeature: feature,
@@ -476,16 +534,40 @@ export const FeatureAttributesTable = ({
       }
     });
 
-    // Ordenação garantindo que o item primário clicado fique sempre na PRIMEIRA posição (index 0)
+    // Ordenação estrita por prioridade:
+    // 1º: Camada base de edição configurada (layerWithRootEditTemplate)
+    // 2º: Primeiro lote fiscal disponível
+    // 3º: Feição primária clicada
+    // 4º: Camadas ativas/visíveis no mapa
+    // 5º: Maior sobreposição e ordem alfabética
     return list.sort((a, b) => {
+      if (a.isBaseEditLayer && !b.isBaseEditLayer) return -1;
+      if (!a.isBaseEditLayer && b.isBaseEditLayer) return 1;
+
+      if (a.isTaxLot && !b.isTaxLot) return -1;
+      if (!a.isTaxLot && b.isTaxLot) return 1;
+
       if (a.isPrimary && !b.isPrimary) return -1;
       if (!a.isPrimary && b.isPrimary) return 1;
 
       if (a.isActiveOnMap && !b.isActiveOnMap) return -1;
       if (!a.isActiveOnMap && b.isActiveOnMap) return 1;
+
+      if (Math.abs(a.percentageNum - b.percentageNum) > 0.1) {
+        return b.percentageNum - a.percentageNum;
+      }
+
       return a.label.localeCompare(b.label);
     });
-  }, [feature, selectedFeature, intersectingFeatures, layerSchemas?.value, isLayerActiveOnMap, isPointGeometry]);
+  }, [
+    feature,
+    selectedFeature,
+    intersectingFeatures,
+    layerSchemas?.value,
+    layerWithRootEditTemplate?.value,
+    isLayerActiveOnMap,
+    isPointGeometry,
+  ]);
 
   // Sync selected layer when feature or selectedFeature changes
   useEffect(() => {

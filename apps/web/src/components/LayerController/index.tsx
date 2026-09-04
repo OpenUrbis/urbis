@@ -886,54 +886,28 @@ const BaseMapsPanel = ({ onOpenOptions }: BaseMapsPanelProps) => {
         description="Escolha a referência visual de fundo e configure a visualização 3D e ajustes visuais."
       />
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3">
-        {/* Visualização 3D (Switch integrado com Slider de Opacidade) */}
-        <div className="space-y-2.5 rounded-xl border bg-muted/20 p-3 text-xs">
-          <div className="flex items-center justify-between font-medium">
-            <div className="flex items-center gap-2">
-              <UrbisIcon
-                name="view_in_ar"
-                className="text-muted-foreground text-base shrink-0"
-                aria-hidden="true"
-              />
-              <div className="flex flex-col">
-                <Label htmlFor="3d-mode-panel" className="font-medium cursor-pointer text-xs">
-                  Visualização 3D
-                </Label>
-                <span className="text-[10px] text-muted-foreground">
-                  Projeta a volumetria 3D das edificações sobre qualquer mapa base
-                </span>
-              </div>
-            </div>
-            <Switch
-              id="3d-mode-panel"
-              checked={is3DActive.value}
-              onCheckedChange={(checked) => (is3DActive.value = checked)}
+        {/* Visualização 3D (Switch direto e limpo) */}
+        <div className="flex items-center justify-between rounded-xl border bg-muted/20 p-3 text-xs">
+          <div className="flex items-center gap-2">
+            <UrbisIcon
+              name="view_in_ar"
+              className="text-muted-foreground text-base shrink-0"
+              aria-hidden="true"
             />
-          </div>
-
-          {is3DActive.value && (
-            <div className="space-y-1.5 pt-2 border-t border-border/40">
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span className="text-[11px] font-medium">
-                  Opacidade das edificações 3D
-                </span>
-                <span className="tabular-nums font-semibold text-foreground">
-                  {baseMap3DOpacity?.value ?? 45}%
-                </span>
-              </div>
-              <Slider
-                min={0}
-                max={100}
-                step={1}
-                value={[baseMap3DOpacity?.value ?? 45]}
-                onValueChange={([val]) => {
-                  if (baseMap3DOpacity && val !== undefined)
-                    baseMap3DOpacity.value = val;
-                }}
-                aria-label="Opacidade das edificações 3D"
-              />
+            <div className="flex flex-col">
+              <Label htmlFor="3d-mode-panel" className="font-medium cursor-pointer text-xs">
+                Visualização 3D
+              </Label>
+              <span className="text-[10px] text-muted-foreground">
+                Ativa a volumetria 3D das edificações sobre qualquer mapa base
+              </span>
             </div>
-          )}
+          </div>
+          <Switch
+            id="3d-mode-panel"
+            checked={is3DActive.value}
+            onCheckedChange={(checked) => (is3DActive.value = checked)}
+          />
         </div>
 
         {/* Ajustes Visuais dos Mapas Base: Opacidade Individual/Global & Saturação */}

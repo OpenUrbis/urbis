@@ -68,7 +68,7 @@ const createMicroPointFeature = (lat: number, lon: number) => {
 };
 
 export const FeatureDetailsWindow = () => {
-  const { selectedFeatures, flyTo, zoom, layerSchemas, activeHighlightFeature } = useMapContext();
+  const { selectedFeatures, flyTo, zoom, layerSchemas, activeHighlightFeature, layerWithRootEditTemplate } = useMapContext();
   const polygonEdit = usePolygonEditContext();
   const { isEditing, data: polygonData, feature: polygonFeature, editFeature, setIsEditing, loading: polygonLoading } = polygonEdit;
   const { isProspectiveSearchActive, drawerOpen } = useNavigationContext();
@@ -140,9 +140,6 @@ export const FeatureDetailsWindow = () => {
   // Main active feature for the window
   const activeFeature = rootFeature;
 
-  // Effective feature currently inspected (if a layer chip is selected, use it)
-  const effectiveFeature = selectedInspectFeature || rootFeature;
-
   // Check if active feature is a point geometry
   const isPoint = useMemo(() => {
     if (!activeFeature) return false;
@@ -151,6 +148,74 @@ export const FeatureDetailsWindow = () => {
     const isPointInspect = Boolean(activeFeature.properties?.isPointInspection);
     return isPointGeom || isPointInspect;
   }, [activeFeature]);
+
+  // Intersecting features list if from polygon analysis
+  const intersectingFeatures = useMemo(() => {
+    if (polygonData && Array.isArray(polygonData.features)) {
+      return polygonData.features.filter((feat: any) => {
+        if (isPoint) return true;
+        const p = feat?.properties || {};
+        const pct = Number(p.totalAreaPercentage);
+        if (p.totalAreaPercentage !== undefined && !isNaN(pct) && pct < 0.05) {
+          return false;
+        }
+        return true;
+      });
+    }
+    return [];
+  }, [polygonData, isPoint]);
+
+  // Effective feature currently inspected (if a layer chip is selected, use it, otherwise pick in priority order)
+  const effectiveFeature = useMemo(() => {
+    if (selectedInspectFeature) return selectedInspectFeature;
+
+    // If rootFeature is a real layer feature (not synthetic point/perimeter), use it
+    if (rootFeature) {
+      const p = (rootFeature.properties as Record<string, unknown>) || {};
+      const layerStr = String(p.layer || p.source || rootFeature.id || "").toLowerCase();
+      const isPerimOrSynthetic =
+        Boolean(p.isPointInspection) ||
+        Boolean(p.origem_perimetro) ||
+        layerStr.includes("perímetro") ||
+        layerStr.includes("perimetro") ||
+        layerStr.includes("geometria selecionada") ||
+        layerStr.includes("ponto consultado") ||
+        layerStr.includes("ponto de inspeção") ||
+        layerStr.includes("consulta pontual") ||
+        String(rootFeature.id || "").startsWith("perimeter-");
+
+      if (!isPerimOrSynthetic) {
+        return rootFeature;
+      }
+    }
+
+    // Priority 1: Base layer configured for editing (layerWithRootEditTemplate)
+    if (intersectingFeatures && intersectingFeatures.length > 0) {
+      const rootEditId = (layerWithRootEditTemplate?.value || "").trim().toLowerCase();
+      if (rootEditId) {
+        const baseMatch = intersectingFeatures.find((f: any) => {
+          const fp = f?.properties || {};
+          const lId = String(fp.layerSchemaId || fp.layer || f.id || "").toLowerCase().trim();
+          return lId === rootEditId || lId.includes(rootEditId) || rootEditId.includes(lId);
+        });
+        if (baseMatch) return baseMatch;
+      }
+
+      // Priority 2: First Tax Lot (Lote Fiscal)
+      const lotMatch = intersectingFeatures.find((f: any) => {
+        if (hasTaxLotFiuParams(f)) return true;
+        const fp = f?.properties || {};
+        const lId = String(fp.layer || fp.source || fp.layerSchemaName || f.id || "").toLowerCase();
+        return lId.includes("lote_fiscal") || lId.includes("lotes_fiscais") || lId.includes("lote fiscal") || lId.includes("lotes fiscais") || lId === "lotes" || lId === "lote";
+      });
+      if (lotMatch) return lotMatch;
+
+      // Priority 3: First intersecting layer feature
+      return intersectingFeatures[0];
+    }
+
+    return rootFeature;
+  }, [selectedInspectFeature, rootFeature, intersectingFeatures, layerWithRootEditTemplate?.value]);
 
   // Check if effective inspected feature is purely a point without polygon or tax lot
   const isEffectivePoint = useMemo(() => {
@@ -308,22 +373,6 @@ export const FeatureDetailsWindow = () => {
     }
   }, [rootFeature]);
 
-  // Intersecting features list if from polygon analysis
-  const intersectingFeatures = useMemo(() => {
-    if (polygonData && Array.isArray(polygonData.features)) {
-      return polygonData.features.filter((feat: any) => {
-        if (isPoint) return true;
-        const p = feat?.properties || {};
-        const pct = Number(p.totalAreaPercentage);
-        if (p.totalAreaPercentage !== undefined && !isNaN(pct) && pct < 0.05) {
-          return false;
-        }
-        return true;
-      });
-    }
-    return [];
-  }, [polygonData, isPoint]);
-
   // Calculate area (only relevant for polygons)
   const areaSquareMeters = useMemo(() => {
     if (!effectiveFeature || isEffectivePoint) return 0;
@@ -372,15 +421,14 @@ export const FeatureDetailsWindow = () => {
     const feat = effectiveFeature;
     if (feat?.properties && Object.keys(feat.properties).length > 0) {
       const p = feat.properties as Record<string, unknown>;
-      // If it's a general multi-layer polygon analysis from drawing without specific chip
-      if (hasPolygonData && !currentSelection?.feature && !selectedInspectFeature) {
-        return isPoint ? "Consulta Territorial no Ponto" : "Análise da Área / Perímetro";
-      }
       const rawLayer = String(p["layer"] || p["source"] || "");
-      return getFeatureDisplayLabel(p, rawLayer, layerSchemas?.value);
+      const label = getFeatureDisplayLabel(p, rawLayer, layerSchemas?.value);
+      if (label && label !== "Dados da Geometria") {
+        return label;
+      }
     }
     if (hasPolygonData) {
-      return isPoint ? "Consulta Territorial no Ponto" : "Análise da Área / Perímetro";
+      return isPoint ? "Consulta Territorial no Ponto" : "Análise Territorial";
     }
     if (isPoint) {
       const lat = rootFeature?.properties?.latitude;
@@ -391,7 +439,7 @@ export const FeatureDetailsWindow = () => {
       return "Ponto Consultado no Mapa";
     }
     return "Dados da Geometria";
-  }, [effectiveFeature, hasPolygonData, rootFeature, isPoint, currentSelection?.feature, selectedInspectFeature, layerSchemas?.value]);
+  }, [effectiveFeature, hasPolygonData, rootFeature, isPoint, layerSchemas?.value]);
 
   // Handle creating perimeter based on actual geometry (or point location if no polygon)
   const handleCreateOrEditPerimeter = () => {

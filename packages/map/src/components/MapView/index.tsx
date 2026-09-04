@@ -431,7 +431,7 @@ export const MapView = ({
     ],
   );
 
-  // Smooth camera pitch transition & 3D Building management when 3D mode is toggled
+  // Smooth camera pitch transition when 3D mode is toggled
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || minimalPreview) return;
@@ -439,147 +439,6 @@ export const MapView = ({
     const setup3D = () => {
       // Localize map labels to Portuguese (with accents) and clean typography
       localizeMapLabels(map);
-
-      // Ensure openmaptiles vector source exists on the map (for Ortofoto, Satélite, etc.)
-      if (!map.getSource("openmaptiles")) {
-        try {
-          map.addSource("openmaptiles", {
-            type: "vector",
-            url: "https://tiles.openfreemap.org/planet",
-          });
-        } catch {
-          // Source may already exist
-        }
-      }
-
-      // Add 3D buildings extrusion layer if not present (controlled via edificacoes_3d layer)
-      const edificacoesLayer = layerSchemas.value?.find(
-        (l) => l.id === "edificacoes_3d" || l.properties?.source === "openmaptiles",
-      );
-      const is3DBuildingsLayerActive = Boolean(
-        edificacoesLayer && (edificacoesLayer.isVisible ?? edificacoesLayer.isSelected),
-      );
-      const visibility = is3DBuildingsLayerActive ? "visible" : "none";
-      const b3dOpacity = is3DBuildingsLayerActive
-        ? (typeof edificacoesLayer?.properties?.opacity === "number"
-            ? edificacoesLayer.properties.opacity
-            : 0.85)
-        : 0;
-
-      if (
-        map.getSource("openmaptiles") &&
-        !map.getLayer("openfreemap-3d-buildings") &&
-        !map.getLayer("building-3d")
-      ) {
-        try {
-          map.addLayer({
-            id: "openfreemap-3d-buildings",
-            type: "fill-extrusion",
-            source: "openmaptiles",
-            "source-layer": "building",
-            minzoom: 13,
-            layout: {
-              visibility: visibility,
-            },
-            paint: {
-              "fill-extrusion-color": [
-                "interpolate",
-                ["linear"],
-                ["coalesce", ["get", "render_height"], ["get", "height"], 10],
-                0,
-                "#f8fafc",
-                20,
-                "#f1f5f9",
-                50,
-                "#e2e8f0",
-                100,
-                "#cbd5e1",
-                200,
-                "#94a3b8",
-              ],
-              "fill-extrusion-height": [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                13,
-                0,
-                13.5,
-                ["coalesce", ["get", "render_height"], ["get", "height"], 10],
-              ],
-              "fill-extrusion-base": [
-                "interpolate",
-                ["linear"],
-                ["zoom"],
-                13,
-                0,
-                13.5,
-                ["coalesce", ["get", "render_min_height"], ["get", "min_height"], 0],
-              ],
-              "fill-extrusion-opacity": b3dOpacity,
-              "fill-extrusion-vertical-gradient": true,
-            },
-          });
-        } catch {
-          // Ignore if layer cannot be added
-        }
-      }
-
-      const flatBuildingLayerIds = [
-        "building",
-        "building_outline",
-        "building-underground",
-        "building-top",
-      ];
-      flatBuildingLayerIds.forEach((id) => {
-        if (map.getLayer(id)) {
-          try {
-            map.setLayoutProperty(
-              id,
-              "visibility",
-              is3DBuildingsLayerActive ? "none" : "visible",
-            );
-          } catch {
-            // Ignore
-          }
-        }
-      });
-
-      const extrusionColor = [
-        "interpolate",
-        ["linear"],
-        ["coalesce", ["get", "render_height"], ["get", "height"], 10],
-        0,
-        "#f8fafc",
-        20,
-        "#f1f5f9",
-        50,
-        "#e2e8f0",
-        100,
-        "#cbd5e1",
-        200,
-        "#94a3b8",
-      ];
-
-      if (map.getLayer("openfreemap-3d-buildings")) {
-        try {
-          map.setLayoutProperty("openfreemap-3d-buildings", "visibility", visibility);
-          map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-opacity", b3dOpacity);
-          map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-color", extrusionColor);
-          map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-vertical-gradient", false);
-        } catch {
-          // Ignore
-        }
-      }
-      if (map.getLayer("building-3d")) {
-        try {
-          map.setLayoutProperty("building-3d", "visibility", visibility);
-          map.setPaintProperty("building-3d", "fill-extrusion-opacity", b3dOpacity);
-          map.setPaintProperty("building-3d", "fill-extrusion-color", extrusionColor);
-          map.setPaintProperty("building-3d", "fill-extrusion-vertical-gradient", false);
-        } catch {
-          // Ignore
-        }
-      }
 
       if (is3DActive.value) {
         if (map.getPitch() < 30) {
@@ -597,6 +456,7 @@ export const MapView = ({
     } else {
       map.once("style.load", setup3D);
     }
+  }, [is3DActive.value, currentMapStyle, minimalPreview]);
   }, [is3DActive.value, currentMapStyle, minimalPreview, layerSchemas.value]);
 
   useEffect(() => {
@@ -767,140 +627,7 @@ export const MapView = ({
           }
         });
 
-        // 3D building layers linked with edificacoes_3d layer in layerSchemas
-        const edificacoesLayer = layerSchemas.value?.find(
-          (l) => l.id === "edificacoes_3d" || l.properties?.source === "openmaptiles",
-        );
-        const is3DBuildingsLayerActive = Boolean(
-          edificacoesLayer && (edificacoesLayer.isVisible ?? edificacoesLayer.isSelected),
-        );
-        const b3dOpacity = is3DBuildingsLayerActive
-          ? (typeof edificacoesLayer?.properties?.opacity === "number"
-              ? edificacoesLayer.properties.opacity
-              : 0.85)
-          : 0;
-        const visibility = is3DBuildingsLayerActive ? "visible" : "none";
-
         localizeMapLabels(map);
-
-        const flatBuildingLayerIds = [
-          "building",
-          "building_outline",
-          "building-underground",
-          "building-top",
-        ];
-        flatBuildingLayerIds.forEach((id) => {
-          if (map.getLayer(id)) {
-            try {
-              map.setLayoutProperty(
-                id,
-                "visibility",
-                is3DBuildingsLayerActive ? "none" : "visible",
-              );
-            } catch {
-              // Ignore
-            }
-          }
-        });
-
-        const extrusionColor = [
-          "interpolate",
-          ["linear"],
-          ["coalesce", ["get", "render_height"], ["get", "height"], 10],
-          0,
-          "#f8fafc",
-          20,
-          "#f1f5f9",
-          50,
-          "#e2e8f0",
-          100,
-          "#cbd5e1",
-          200,
-          "#94a3b8",
-        ];
-
-        // Ensure openmaptiles vector source exists on the map
-        if (!map.getSource("openmaptiles")) {
-          try {
-            map.addSource("openmaptiles", {
-              type: "vector",
-              url: "https://tiles.openfreemap.org/planet",
-            });
-          } catch {
-            // Source may already exist
-          }
-        }
-
-        if (
-          map.getSource("openmaptiles") &&
-          !map.getLayer("openfreemap-3d-buildings") &&
-          !map.getLayer("building-3d")
-        ) {
-          try {
-            map.addLayer({
-              id: "openfreemap-3d-buildings",
-              type: "fill-extrusion",
-              source: "openmaptiles",
-              "source-layer": "building",
-              minzoom: 13,
-              layout: {
-                visibility: visibility,
-              },
-              paint: {
-                "fill-extrusion-color": [
-                  "interpolate",
-                  ["linear"],
-                  ["coalesce", ["get", "render_height"], ["get", "height"], 10],
-                  0,
-                  "#f8fafc",
-                  20,
-                  "#f1f5f9",
-                  50,
-                  "#e2e8f0",
-                  100,
-                  "#cbd5e1",
-                  200,
-                  "#94a3b8",
-                ],
-                "fill-extrusion-height": [
-                  "interpolate",
-                  ["linear"],
-                  ["zoom"],
-                  13,
-                  0,
-                  13.5,
-                  ["coalesce", ["get", "render_height"], ["get", "height"], 10],
-                ],
-                "fill-extrusion-base": [
-                  "interpolate",
-                  ["linear"],
-                  ["zoom"],
-                  13,
-                  0,
-                  13.5,
-                  ["coalesce", ["get", "render_min_height"], ["get", "min_height"], 0],
-                ],
-                "fill-extrusion-opacity": b3dOpacity,
-                "fill-extrusion-vertical-gradient": true,
-              },
-            });
-          } catch {
-            // Ignore
-          }
-        }
-
-        if (map.getLayer("building-3d")) {
-          map.setLayoutProperty("building-3d", "visibility", visibility);
-          map.setPaintProperty("building-3d", "fill-extrusion-opacity", b3dOpacity);
-          map.setPaintProperty("building-3d", "fill-extrusion-color", extrusionColor);
-          map.setPaintProperty("building-3d", "fill-extrusion-vertical-gradient", true);
-        }
-        if (map.getLayer("openfreemap-3d-buildings")) {
-          map.setLayoutProperty("openfreemap-3d-buildings", "visibility", visibility);
-          map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-opacity", b3dOpacity);
-          map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-color", extrusionColor);
-          map.setPaintProperty("openfreemap-3d-buildings", "fill-extrusion-vertical-gradient", true);
-        }
       } catch (_err) {
         // Style might be loading
       }

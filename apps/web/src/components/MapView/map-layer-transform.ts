@@ -1,4 +1,5 @@
 import { GeoJsonLayer, TextLayer } from "@deck.gl/layers";
+import { MVTLayer } from "@deck.gl/geo-layers";
 import polylabel from "polylabel";
 import { MAP_CONFIGS } from "../../application-configs";
 import { createGetTextLayerUri } from "../../integrations/map-integration";
@@ -732,10 +733,166 @@ const createTextLayer = (
   });
 };
 
+const createMVTLayer = (
+  layer: IGetConfigLayerSchema,
+  props: MapContextLayerSchemaTypeMapProps,
+): any => {
+  const { selectedFeatureIds = [], is3DActive = true, layerIndex = 0 } = props;
+  const { id, origin, clickAction, viewTemplate, properties } = layer;
+
+  const dataUrl =
+    typeof origin === "string" && origin.includes("{z}/{x}/{y}")
+      ? (origin.includes("20260830_080001_pt")
+          ? origin
+          : origin.replace(
+              /planet\/\{z\}/,
+              "planet/20260830_080001_pt/{z}",
+            ))
+      : "https://tiles.openfreemap.org/planet/20260830_080001_pt/{z}/{x}/{y}.pbf";
+
+  const rawLayer = layer as any;
+  const mergedProperties = {
+    ...properties,
+    ...(rawLayer.filled !== undefined ? { filled: rawLayer.filled } : {}),
+    ...(rawLayer.stroked !== undefined ? { stroked: rawLayer.stroked } : {}),
+    ...(rawLayer.getLineWidth !== undefined ? { getLineWidth: rawLayer.getLineWidth } : {}),
+    ...(rawLayer.autoHighlight !== undefined ? { autoHighlight: rawLayer.autoHighlight } : {}),
+    ...(rawLayer.highlightColor !== undefined ? { highlightColor: rawLayer.highlightColor } : {}),
+    ...(rawLayer.opacity !== undefined ? { opacity: rawLayer.opacity } : {}),
+    ...(rawLayer.pickable !== undefined ? { pickable: rawLayer.pickable } : {}),
+    ...(rawLayer.wireframe !== undefined ? { wireframe: rawLayer.wireframe } : {}),
+    ...(rawLayer.extruded !== undefined ? { extruded: rawLayer.extruded } : {}),
+    ...(rawLayer.getElevation !== undefined ? { getElevation: rawLayer.getElevation } : {}),
+    ...(rawLayer.maxZoom !== undefined ? { maxZoom: rawLayer.maxZoom } : {}),
+  };
+
+  const preparedProps = prepareLayerProperties(
+    {
+      ...mergedProperties,
+      extruded: mergedProperties.extruded !== false,
+      filled: mergedProperties.filled !== false,
+    },
+    props,
+  );
+
+  const { getFillColor, getLineColor } = generateGetColorFns(
+    layer,
+    selectedFeatureIds,
+  );
+
+  const hasHoverColor = Boolean(properties?.visualState?.hoverColor);
+  const autoHighlight =
+    properties?.autoHighlight !== false && rawLayer?.autoHighlight !== false;
+  const highlightColor = hasHoverColor
+    ? properties.visualState.hoverColor
+    : (properties?.highlightColor ?? rawLayer?.highlightColor ?? [255, 255, 255, 120]);
+
+  const isPickable =
+    properties?.pickable !== false &&
+    rawLayer?.pickable !== false &&
+    (!clickAction || ((clickAction as any) !== "none" && (clickAction.action as string) !== "none"));
+
+  const BASE_ALTITUDE_OFFSET = 0.02;
+  const layerAltitudeOffset = BASE_ALTITUDE_OFFSET + layerIndex * 0.01;
+
+  const customElevationFn = preparedProps.getElevation;
+  const getElevation = (f: any) => {
+    if (customElevationFn && typeof customElevationFn === "function") {
+      try {
+        const val = customElevationFn(f);
+        if (Number.isFinite(val) && val > 0) return val;
+      } catch {
+        // fallback
+      }
+    }
+    const h = Number(
+      f?.properties?.render_height ||
+        f?.properties?.height ||
+        f?.properties?.alt ||
+        12,
+    );
+    return (Number.isFinite(h) && h > 0 ? h : 12) + layerAltitudeOffset;
+  };
+
+  const opacity = preparedProps.opacity;
+  const effectiveGetFillColor = (d: any) => {
+    const c = getFillColor(d);
+    if (typeof opacity === "number" && opacity >= 0 && opacity <= 1) {
+      return [c[0], c[1], c[2], Math.round(c[3] * opacity)] as Color;
+    }
+    return c;
+  };
+
+  return [
+    new MVTLayer({
+      ...MAP_CONFIGS.DEFAULT_LAYER_PROPERTIES,
+      ...preparedProps,
+      id,
+      data: dataUrl,
+      minZoom: layer.minZoom ?? 13,
+      maxZoom: 14,
+      filled: preparedProps.filled !== false,
+      stroked: preparedProps.stroked === true,
+      extruded: preparedProps.extruded !== false,
+      wireframe: Boolean(preparedProps.wireframe),
+      pickable: isPickable,
+      autoHighlight,
+      highlightColor,
+      clickAction,
+      viewTemplate,
+      dataTransform: (features: any[]) => {
+        if (!Array.isArray(features)) return [];
+        return features.filter(
+          (f) =>
+            f?.properties?.layerName === "building" ||
+            f?.properties?.render_height !== undefined,
+        );
+      },
+      getElevation,
+      getFillColor: effectiveGetFillColor,
+      getLineColor,
+      getPolygonOffset: ({ layerIndex: deckLayerIndex }: any = {}) => [
+        0,
+        -((layerIndex + 1) * 1000 + (deckLayerIndex ?? 0)),
+      ],
+      parameters: {
+        depthTest: true,
+        depthMask: true,
+      },
+      updateTriggers: {
+        getFillColor: [
+          selectedFeatureIds,
+          layer.colors,
+          layer.getFillColorPropName,
+          layer.properties?.visualState?.selectedColor,
+          opacity,
+        ],
+        getLineColor: [
+          selectedFeatureIds,
+          layer.colors,
+          layer.getLineColorPropName,
+          layer.properties?.visualState?.selectedColor,
+        ],
+        getElevation: [is3DActive, properties?.getElevation, layerIndex],
+        getPolygonOffset: [layerIndex],
+      },
+    }),
+  ];
+};
+
 const createGeoJsonLayer = (
   layer: IGetConfigLayerSchema,
   props: MapContextLayerSchemaTypeMapProps,
 ): any => {
+  if (
+    layer.id === "edificacoes_3d" ||
+    layer.properties?.source === "openmaptiles" ||
+    layer.properties?.sourceType === "vector" ||
+    (layer.type as string) === "MVTLayer"
+  ) {
+    return createMVTLayer(layer, props);
+  }
+
   const { selectedFeatureIds = [], is3DActive, token, organizationId, layerIndex = 0 } = props;
 
   const {

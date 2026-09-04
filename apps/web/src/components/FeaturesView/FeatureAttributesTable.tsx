@@ -564,19 +564,19 @@ export const FeatureAttributesTable = ({
               <Layers className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
               <span>
                 {availableFeatures.length === 1
-                  ? "Camada selecionada (1 feição):"
-                  : `Camadas encontradas neste local (${availableFeatures.length}):`}
+                  ? "Feição selecionada (1 feição):"
+                  : `Feições das camadas neste local (${availableFeatures.length}):`}
               </span>
             </div>
             <span className="text-[10px] text-muted-foreground font-normal hidden sm:inline">
-              Clique em uma camada para ver seus dados cadastrais
+              Clique em uma feição para ver seus dados cadastrais
             </span>
           </div>
 
           <div
             className="flex items-center gap-1.5 flex-wrap"
             role="tablist"
-            aria-label="Lista de camadas incidentes"
+            aria-label="Lista de feições das camadas identificadas"
           >
             {availableFeatures.map((item, idx) => {
               const isSelected = safeLayerIndex === idx;

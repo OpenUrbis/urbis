@@ -374,13 +374,13 @@ export const FeatureDetailsWindow = () => {
       const p = feat.properties as Record<string, unknown>;
       // If it's a general multi-layer polygon analysis from drawing without specific chip
       if (hasPolygonData && !currentSelection?.feature && !selectedInspectFeature) {
-        return isPoint ? "Camadas no Ponto Selecionado" : "Análise da Área / Perímetro";
+        return isPoint ? "Consulta Territorial no Ponto" : "Análise da Área / Perímetro";
       }
       const rawLayer = String(p["layer"] || p["source"] || "");
       return getFeatureDisplayLabel(p, rawLayer, layerSchemas?.value);
     }
     if (hasPolygonData) {
-      return isPoint ? "Camadas no Ponto Selecionado" : "Análise da Área / Perímetro";
+      return isPoint ? "Consulta Territorial no Ponto" : "Análise da Área / Perímetro";
     }
     if (isPoint) {
       const lat = rootFeature?.properties?.latitude;
@@ -388,7 +388,7 @@ export const FeatureDetailsWindow = () => {
       if (lat !== undefined && lon !== undefined) {
         return `Ponto (${Number(lat).toFixed(5)}, ${Number(lon).toFixed(5)})`;
       }
-      return "Ponto Selecionado";
+      return "Ponto Consultado no Mapa";
     }
     return "Dados da Geometria";
   }, [effectiveFeature, hasPolygonData, rootFeature, isPoint, currentSelection?.feature, selectedInspectFeature, layerSchemas?.value]);
@@ -751,7 +751,7 @@ export const FeatureDetailsWindow = () => {
               </div>
             ) : (
               <>
-                {/* Caixa "Seleção" - Reunindo informações e ações da seleção atual */}
+                {/* Caixa "Seleção" - Informações e ações diretas da feição ativa */}
                 <div className="mx-3 mt-3 rounded-xl border border-border bg-card p-3 shadow-xs space-y-2">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -760,9 +760,6 @@ export const FeatureDetailsWindow = () => {
                       </span>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
-                            Seleção:
-                          </span>
                           <span className="text-xs font-bold text-foreground truncate">
                             {headerTitle}
                           </span>
@@ -775,9 +772,11 @@ export const FeatureDetailsWindow = () => {
                         </div>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
                           {isPoint
-                            ? "Local selecionado no mapa"
+                            ? intersectingFeatures.length > 0
+                              ? `${intersectingFeatures.length} ${intersectingFeatures.length === 1 ? "feição identificada neste ponto" : "feições das camadas identificadas"}`
+                              : "Ponto consultado no mapa"
                             : intersectingFeatures.length > 0
-                              ? `${intersectingFeatures.length} ${intersectingFeatures.length === 1 ? "camada encontrada neste local" : "camadas encontradas neste local"}`
+                              ? `${intersectingFeatures.length} ${intersectingFeatures.length === 1 ? "feição incidente identificada" : "feições das camadas identificadas"}`
                               : "Perímetro selecionado no mapa"}
                         </p>
                       </div>
@@ -785,7 +784,7 @@ export const FeatureDetailsWindow = () => {
 
                     {/* Ações da Seleção */}
                     <div className="flex items-center gap-2 flex-wrap shrink-0">
-                      {/* Criar perímetro (com base na geometria real ou no ponto) */}
+                      {/* Criar perímetro (com base na geometria real da feição ou no ponto) */}
                       {!polygonLoading && (
                         <Button
                           size="sm"
@@ -794,20 +793,20 @@ export const FeatureDetailsWindow = () => {
                           className="h-8 px-3 text-xs font-medium rounded-lg gap-1.5 hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary"
                           title={
                             isEffectivePoint
-                              ? "Criar uma área de 50 metros neste ponto para análise e FIU"
+                              ? "Criar uma área de 50 metros ao redor deste ponto para análise urbanística e FIU"
                               : "Carregar o contorno desta geometria para editar no mapa ou emitir FIU"
                           }
                           aria-label={
                             isEffectivePoint
                               ? "Criar perímetro de 50 metros neste ponto"
-                              : `Criar perímetro a partir do contorno de ${headerTitle}`
+                              : `Criar perímetro a partir da feição ${headerTitle}`
                           }
                         >
                           <SquarePen className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                           <span>
                             {isEffectivePoint
-                              ? "Criar perímetro no ponto"
-                              : "Criar perímetro da geometria"}
+                              ? "Criar perímetro de 50m"
+                              : "Criar perímetro da feição"}
                           </span>
                         </Button>
                       )}
@@ -921,7 +920,7 @@ export const FeatureDetailsWindow = () => {
                               )}
                             </div>
                             <p className="text-xs text-muted-foreground leading-relaxed">
-                              Foram identificadas {intersectingFeatures.length} camadas incidentes sobre esta localização.
+                              Foram identificadas {intersectingFeatures.length} feições das camadas sobre esta localização.
                               Consulte os parâmetros detalhados na aba <strong>Tabela de atributos</strong>.
                             </p>
                           </div>

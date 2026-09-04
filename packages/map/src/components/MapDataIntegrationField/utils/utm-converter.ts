@@ -61,12 +61,5 @@ export function convertGeometryToWGS84(geometry: any): any {
     coordinates: raw.coordinates.map(convertArray),
   };
 
-  console.log(
-    "convertGeometryToWGS84: Exemplo de coordenada convertida:",
-    raw.coordinates[0][0],
-    " -> ",
-    result.coordinates[0][0],
-  );
-
   return result;
 }

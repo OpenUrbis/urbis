@@ -43,9 +43,17 @@ export function parseDataToFeatureCollection(data: any): any {
     value: unknown,
     fallbackInMeters = 3,
   ): number => {
-    const thicknessInMeters = toNumber(value) ?? fallbackInMeters;
+    const rawVal = toNumber(value);
+    if (rawVal === undefined || !Number.isFinite(rawVal) || rawVal <= 0) {
+      return fallbackInMeters;
+    }
 
-    return fromLegacyCentimeters(toLegacyCentimeters(thicknessInMeters));
+    // Se o valor for > 50 (ex: 300cm, 400cm), converte de centímetros legados para metros
+    if (rawVal > 50) {
+      return fromLegacyCentimeters(rawVal);
+    }
+
+    return rawVal;
   };
 
   // 1. Localizar a altitude do terreno (ground level) para servir como base 0 do prédio
@@ -104,7 +112,20 @@ export function parseDataToFeatureCollection(data: any): any {
 
     if (geo && geo.coordinates && Array.isArray(geo.coordinates)) {
       try {
-        const rawName = obj.nome || parentName || "Geometria";
+        const rawIdent =
+          obj.identificação?.valor ??
+          obj.identificação?.value ??
+          obj.identificação ??
+          obj.identificacao?.valor ??
+          obj.identificacao?.value ??
+          obj.identificacao;
+        let rawName = obj.nome || parentName || "Geometria";
+        if (typeof rawIdent === "string" && rawIdent.trim()) {
+          const trimmedIdent = rawIdent.trim();
+          if (!String(rawName).toLowerCase().includes(trimmedIdent.toLowerCase())) {
+            rawName = `${rawName} (${trimmedIdent})`;
+          }
+        }
         const name = String(rawName).toLowerCase();
 
         // Skip "imóvel de análise (espacial)" completely from rendering on the map layer
@@ -267,13 +288,31 @@ export function parseDataToFeatureCollection(data: any): any {
             ind.identificação?.valor ??
             ind.identificação?.value ??
             ind.identificação ??
+            ind.identificacao?.valor ??
+            ind.identificacao?.value ??
+            ind.identificacao ??
             ind.nome?.valor ??
             ind.nome?.value ??
             ind.nome ??
             ind.name;
           if (!unitName || typeof unitName !== "string") {
-            unitName = `Unidade ${i}`;
+            unitName = `Unidade ${i + 1}`;
           }
+
+          const UNIT_COLORS = [
+            "#60a5fa", // blue-400
+            "#a78bfa", // violet-400
+            "#f472b6", // pink-400
+            "#34d399", // emerald-400
+            "#fbbf24", // amber-400
+            "#38bdf8", // sky-400
+            "#818cf8", // indigo-400
+            "#2dd4bf", // teal-400
+            "#fb923c", // orange-400
+            "#a3e635", // lime-400
+            "#c084fc", // purple-400
+            "#fb7185", // rose-400
+          ];
 
           features.push({
             type: "Feature",
@@ -283,6 +322,8 @@ export function parseDataToFeatureCollection(data: any): any {
               type: "area_individual",
               height: parentTop,
               base_height: parentBase,
+              unitIndex: i,
+              unitColor: UNIT_COLORS[i % UNIT_COLORS.length],
               jsonPath: `${path}.areas_individuais[${i}]`,
               rawMetadata: JSON.stringify(m, null, 2),
             },

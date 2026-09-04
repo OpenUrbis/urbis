@@ -115,6 +115,8 @@ export const useLayerPersistence = () => {
             mapContext.selectedBaseMaps.value = mapState.selectedBaseMaps;
           if (mapState.baseMapOpacity !== undefined)
             mapContext.baseMapOpacity.value = mapState.baseMapOpacity;
+          if (mapState.baseMapOpacities)
+            mapContext.baseMapOpacities.value = { ...mapState.baseMapOpacities };
           if (mapState.baseMapSaturation !== undefined)
             mapContext.baseMapSaturation.value = mapState.baseMapSaturation;
           if (mapState.selectedFeatures)

@@ -43,6 +43,7 @@ import { Copy, Info, Loader2, Search, SquarePen, TableProperties, X, Layers, Tra
 import { encode, getPolygon } from "@open-urbis/endereco-digital";
 import { enabledFeatureFlags } from "../../features/feature-flags";
 import { useToast } from "../../hooks/useToast";
+import { formatMapHash, updateMapUrlHash } from "../../utils/map-hash";
 
 proj4.defs(
   "EPSG:31983",
@@ -621,31 +622,56 @@ export const MapView = ({
     const applyPaintUpdates = () => {
       try {
         const styleLayers = map.getStyle()?.layers || [];
-        activeMaps.forEach((styleId, index) => {
-          const prefix = `bm_${index}_`;
-          const opacityVal = opacitiesMap[styleId] ?? (activeMaps.length === 1 ? globalOpacity : 100);
-          const normOpacity = Math.max(0, Math.min(1, opacityVal / 100));
+        
+        styleLayers.forEach((layer: any) => {
+          if (
+            !layer.id ||
+            layer.id.startsWith("deck-") ||
+            layer.id === "building-3d" ||
+            layer.id === "openfreemap-3d-buildings"
+          ) {
+            return;
+          }
 
-          styleLayers.forEach((layer: any) => {
-            if (layer.id && layer.id.startsWith(prefix)) {
+          if (activeMaps.length > 1) {
+            activeMaps.forEach((styleId, index) => {
+              const prefix = `bm_${index}_`;
+              if (layer.id.startsWith(prefix)) {
+                const opacityVal = opacitiesMap[styleId] ?? 100;
+                const normOpacity = Math.max(0, Math.min(1, opacityVal / 100));
+
+                if (layer.type === "raster") {
+                  map.setPaintProperty(layer.id, "raster-opacity", normOpacity);
+                  map.setPaintProperty(layer.id, "raster-saturation", normSat);
+                } else if (layer.type === "background") {
+                  map.setPaintProperty(layer.id, "background-opacity", normOpacity);
+                } else if (layer.type === "fill") {
+                  map.setPaintProperty(layer.id, "fill-opacity", normOpacity);
+                } else if (layer.type === "line") {
+                  map.setPaintProperty(layer.id, "line-opacity", normOpacity);
+                } else if (layer.type === "fill-extrusion") {
+                  map.setPaintProperty(
+                    layer.id,
+                    "fill-extrusion-opacity",
+                    normOpacity * 0.45,
+                  );
+                }
+              }
+            });
+          } else {
+            const singleStyleId = activeMaps[0];
+            const opacityVal = opacitiesMap[singleStyleId] ?? globalOpacity;
+            const normOpacity = Math.max(0, Math.min(1, opacityVal / 100));
+
+            if (layer.id.startsWith("bm_0_") || !layer.id.startsWith("bm_")) {
               if (layer.type === "raster") {
                 map.setPaintProperty(layer.id, "raster-opacity", normOpacity);
                 map.setPaintProperty(layer.id, "raster-saturation", normSat);
               } else if (layer.type === "background") {
-                map.setPaintProperty(
-                  layer.id,
-                  "background-opacity",
-                  normOpacity,
-                );
-              } else if (layer.type === "fill") {
-                map.setPaintProperty(layer.id, "fill-opacity", normOpacity);
-              } else if (layer.type === "line") {
-                map.setPaintProperty(layer.id, "line-opacity", normOpacity);
-              } else if (layer.type === "fill-extrusion") {
-                map.setPaintProperty(layer.id, "fill-extrusion-opacity", normOpacity * 0.45);
+                map.setPaintProperty(layer.id, "background-opacity", normOpacity);
               }
             }
-          });
+          }
         });
 
         // Keep 3D building layers linked with baseMap3DOpacity control
@@ -1674,10 +1700,14 @@ export const MapView = ({
                     if (map) {
                       const center = map.getCenter();
                       const bounds = map.getBounds();
+                      const currentZoom = map.getZoom();
+                      const currentBearing = map.getBearing();
+                      const currentPitch = map.getPitch();
+
                       handleViewportChange({
-                        zoom: map.getZoom(),
-                        bearing: map.getBearing(),
-                        pitch: map.getPitch(),
+                        zoom: currentZoom,
+                        bearing: currentBearing,
+                        pitch: currentPitch,
                         latitude: center.lat,
                         longitude: center.lng,
                         getBounds: () => [
@@ -1687,6 +1717,15 @@ export const MapView = ({
                           bounds.getNorth(),
                         ],
                       });
+
+                      const hash = formatMapHash({
+                        zoom: currentZoom,
+                        latitude: center.lat,
+                        longitude: center.lng,
+                        bearing: currentBearing,
+                        pitch: currentPitch,
+                      });
+                      updateMapUrlHash(hash);
                     } else {
                       const deckViewport = (
                         overlayRef!.current as any

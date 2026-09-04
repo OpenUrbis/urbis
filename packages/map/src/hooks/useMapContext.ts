@@ -7,6 +7,7 @@ import { IGetConfigLayerSchema } from "../types/fetch-map-config-type";
 import { normalizeEnvironmentUrl } from "../components/MapView/map-layer-transform";
 import { isMapError, isMapPopulated } from "./useLayerPersistence";
 import { toast } from "./use-toast";
+import { parseMapHash } from "../utils/map-hash";
 import {
   IMapContextActions,
   MapContextSelectedFeature,
@@ -31,7 +32,7 @@ const getMapHandlers = (context: MapContextType) => {
     selectedBaseMap,
     selectedBaseMaps,
     baseMapOpacity,
-    baseMapOpacities: _baseMapOpacities,
+    baseMapOpacities,
     baseMapSaturation,
   } = context;
 
@@ -165,6 +166,7 @@ const getMapHandlers = (context: MapContextType) => {
   const populateMapContext = async (options?: { disablePadding?: boolean }) => {
     const urlParams = new URLSearchParams(window.location.search);
     const shareId = urlParams.get("shareId");
+    const urlHash = typeof window !== "undefined" ? parseMapHash(window.location.hash) : null;
     const uiPadding = options?.disablePadding
       ? { top: 0, bottom: 0, left: 0, right: 0 }
       : {
@@ -255,6 +257,10 @@ const getMapHandlers = (context: MapContextType) => {
             baseMapOpacity.value = loadedMapContext.baseMapOpacity;
           }
 
+          if (loadedMapContext.baseMapOpacities && baseMapOpacities) {
+            baseMapOpacities.value = { ...loadedMapContext.baseMapOpacities };
+          }
+
           if (loadedMapContext.baseMapSaturation !== undefined && baseMapSaturation) {
             baseMapSaturation.value = loadedMapContext.baseMapSaturation;
           }
@@ -307,7 +313,17 @@ const getMapHandlers = (context: MapContextType) => {
         context.disablePadding.value = true;
       }
 
-      if (viewport.value) {
+      if (urlHash) {
+        viewport.value = {
+          latitude: urlHash.latitude,
+          longitude: urlHash.longitude,
+          zoom: urlHash.zoom,
+          bearing: urlHash.bearing ?? 0,
+          pitch: urlHash.pitch ?? 0,
+          padding: uiPadding,
+        };
+        zoom.value = urlHash.zoom;
+      } else if (viewport.value) {
         viewport.value = {
           ...viewport.value,
           padding: uiPadding,

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useMapContext } from "../../hooks/useMapContext";
 import {
   Card,
@@ -28,14 +29,15 @@ export const BaseMapSelector = () => {
     (selectedBaseMaps?.value?.length ?? 0) > 1,
   );
 
+  useEffect(() => {
+    isMultiSelect.value = (selectedBaseMaps?.value?.length ?? 0) > 1;
+  }, [selectedBaseMaps?.value?.length]);
+
   const activeBaseMaps = selectedBaseMaps?.value ?? [selectedBaseMap.value];
   const saturation = baseMapSaturation?.value ?? 100;
 
   const getOpacityForStyle = (styleId: string) => {
-    const individual = baseMapOpacities?.value?.[styleId];
-    if (individual !== undefined) return individual;
-    if (activeBaseMaps.length === 1) return baseMapOpacity?.value ?? 100;
-    return 100;
+    return baseMapOpacities?.value?.[styleId] ?? 100;
   };
 
   const setOpacityForStyle = (styleId: string, value: number) => {

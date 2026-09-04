@@ -766,13 +766,16 @@ const BaseMapsPanel = ({ onOpenOptions }: BaseMapsPanelProps) => {
   } = useMapContext();
 
   const activeBaseMaps = selectedBaseMaps?.value ?? [selectedBaseMap.value];
-  const isMultiSelect = useSignal<boolean>(activeBaseMaps.length > 1);
+  const isMultiSelect = useSignal<boolean>(
+    (selectedBaseMaps?.value?.length ?? 0) > 1,
+  );
+
+  useEffect(() => {
+    isMultiSelect.value = (selectedBaseMaps?.value?.length ?? 0) > 1;
+  }, [selectedBaseMaps?.value?.length]);
 
   const getOpacityForStyle = (styleId: string) => {
-    const individual = baseMapOpacities?.value?.[styleId];
-    if (individual !== undefined) return individual;
-    if (activeBaseMaps.length === 1) return baseMapOpacity?.value ?? 100;
-    return 100;
+    return baseMapOpacities?.value?.[styleId] ?? 100;
   };
 
   const setOpacityForStyle = (styleId: string, value: number) => {
@@ -1856,8 +1859,8 @@ export const LayerController = ({
                     </span>
                     <span className="tabular-nums font-semibold">
                       {selectedBaseMapOptions.value?.id
-                        ? (baseMapOpacities?.value?.[selectedBaseMapOptions.value.id] ?? (selectedBaseMaps?.value?.length === 1 ? baseMapOpacity?.value ?? 100 : 100))
-                        : (baseMapOpacity?.value ?? 100)}%
+                        ? (baseMapOpacities?.value?.[selectedBaseMapOptions.value.id] ?? 100)
+                        : 100}%
                     </span>
                   </div>
                   <Slider
@@ -1866,8 +1869,8 @@ export const LayerController = ({
                     step={1}
                     value={[
                       selectedBaseMapOptions.value?.id
-                        ? (baseMapOpacities?.value?.[selectedBaseMapOptions.value.id] ?? (selectedBaseMaps?.value?.length === 1 ? baseMapOpacity?.value ?? 100 : 100))
-                        : (baseMapOpacity?.value ?? 100),
+                        ? (baseMapOpacities?.value?.[selectedBaseMapOptions.value.id] ?? 100)
+                        : 100,
                     ]}
                     onValueChange={([val]) => {
                       if (val !== undefined && selectedBaseMapOptions.value?.id) {

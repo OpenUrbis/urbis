@@ -1,5 +1,6 @@
 import { GeoJsonLayer, TextLayer } from "@deck.gl/layers";
 import { MVTLayer } from "@deck.gl/geo-layers";
+import { MVTLoader } from "@loaders.gl/mvt";
 import polylabel from "polylabel";
 import { MAP_CONFIGS } from "../../application-configs";
 import { createGetTextLayerUri } from "../../integrations/map-integration";
@@ -829,6 +830,7 @@ const createMVTLayer = (
       ...preparedProps,
       id,
       data: dataUrl,
+      loaders: [MVTLoader],
       minZoom: layer.minZoom ?? 13,
       maxZoom: 14,
       filled: preparedProps.filled !== false,

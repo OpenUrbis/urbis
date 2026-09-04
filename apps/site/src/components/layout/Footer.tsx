@@ -5,15 +5,31 @@ export function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground pt-10 pb-10 font-sans">
       <div className="container mx-auto px-4">
-        <h1
-          className="text-transparent text-[9vw] font-black leading-none m-0 px-3 h-auto"
-          style={{
-            WebkitTextStroke: "2px hsl(var(--primary-foreground))",
-            fontVariationSettings: '"wght" 1000, "wdth" 125',
-          }}
+        <div
+          className="w-full select-none pointer-events-none px-3"
+          aria-hidden="true"
         >
-          URBIS&apos;SP
-        </h1>
+          <svg
+            viewBox="0 0 1000 135"
+            className="w-full h-auto max-h-[140px]"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <text
+              x="0"
+              y="110"
+              fill="none"
+              stroke="hsl(var(--primary-foreground))"
+              strokeWidth="2.5"
+              className="font-sans font-black text-[120px] tracking-tight"
+              style={{
+                fontVariationSettings: '"wght" 1000, "wdth" 125',
+              }}
+            >
+              {"URBIS'SP"}
+            </text>
+          </svg>
+        </div>
 
         {/* INICIO */}
         <div className="flex justify-start mt-12 mb-6">

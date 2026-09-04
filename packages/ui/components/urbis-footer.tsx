@@ -5,14 +5,29 @@ export function UrbisFooter(_props: any) {
     <footer className="bg-primary text-primary-foreground pt-10 pb-10 font-sans">
       <div className="container mx-auto px-4">
         <div
-          className="text-transparent text-[9vw] font-black leading-none m-0 px-3 h-auto select-none pointer-events-none"
+          className="w-full select-none pointer-events-none px-3"
           aria-hidden="true"
-          style={{
-            WebkitTextStroke: "2px hsl(var(--primary-foreground))",
-            fontVariationSettings: '"wght" 1000, "wdth" 125',
-          }}
         >
-          {"URBIS'SP"}
+          <svg
+            viewBox="0 0 1000 135"
+            className="w-full h-auto max-h-[140px]"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <text
+              x="0"
+              y="110"
+              fill="none"
+              stroke="hsl(var(--primary-foreground))"
+              strokeWidth="2.5"
+              className="font-sans font-black text-[120px] tracking-tight"
+              style={{
+                fontVariationSettings: '"wght" 1000, "wdth" 125',
+              }}
+            >
+              {"URBIS'SP"}
+            </text>
+          </svg>
         </div>
 
         {/* INICIO */}
@@ -697,7 +712,7 @@ export function UrbisFooter(_props: any) {
               href="https://prefeitura.sp.gov.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="opacity-80 hover:opacity-100 transition-opacity"
+              className="opacity-90 hover:opacity-100 transition-opacity"
               aria-label="Prefeitura de São Paulo – site oficial"
             >
               <img
@@ -713,7 +728,7 @@ export function UrbisFooter(_props: any) {
               href="https://codata.prefeitura.sp.gov.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="opacity-80 hover:opacity-100 transition-opacity"
+              className="opacity-90 hover:opacity-100 transition-opacity"
               aria-label="CODATA – Tecnologia da Informação da Prefeitura de São Paulo"
             >
               <img

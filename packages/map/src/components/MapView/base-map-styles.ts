@@ -51,7 +51,7 @@ const createSingleSourceRasterStyle = (
     ],
   );
 
-const _osmStyle = createSingleSourceRasterStyle(
+const osmStyle = createSingleSourceRasterStyle(
   "openstreetmap",
   [
     "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -312,7 +312,7 @@ export const getSingleMapStyle = (
     return OPENFREEMAP_STYLES.bright;
   }
   if (style === "standard") {
-    return _osmStyle;
+    return osmStyle;
   }
 
   if (!style) {
@@ -367,15 +367,12 @@ export const getMapStyle = (
     stylesToCombine.push("standard");
   }
 
-  // When a single vector style (OpenFreeMap) is active with default 100% opacity, return URL directly
+  // When a single vector style (OpenFreeMap) is active, return URL directly so MapLibre loads vector tiles, glyphs & sprites
   if (
     stylesToCombine.length === 1 &&
     (stylesToCombine[0] === "openfreemap-liberty" ||
       stylesToCombine[0] === "openfreemap-positron" ||
-      stylesToCombine[0] === "openfreemap-bright") &&
-    opacity === 100 &&
-    saturation === 100 &&
-    (!opacities || opacities[stylesToCombine[0]] === undefined || opacities[stylesToCombine[0]] === 100)
+      stylesToCombine[0] === "openfreemap-bright")
   ) {
     return getSingleMapStyle(stylesToCombine[0], theme, apiBaseUrl);
   }
@@ -385,35 +382,27 @@ export const getMapStyle = (
   const normSaturation = Math.max(-1, Math.min(1, saturation / 100 - 1));
 
   stylesToCombine.forEach((styleId, index) => {
-    const singleStyle = getSingleMapStyle(
+    const rawSingleStyle = getSingleMapStyle(
       styleId,
       theme,
       apiBaseUrl,
-    ) as MapLibreStyleSpecification;
-
-    if (typeof singleStyle === "string") {
-      const prefix = `bm_${index}_`;
-      combinedSources[`${prefix}openmaptiles`] = {
-        type: "vector",
-        tiles: ["https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf"],
-        maxzoom: 14,
-      };
-      return;
-    }
+    );
+    const singleStyle =
+      typeof rawSingleStyle === "string" ? (osmStyle as MapLibreStyleSpecification) : (rawSingleStyle as MapLibreStyleSpecification);
 
     const prefix = `bm_${index}_`;
-    const styleOpacity = opacities?.[styleId] ?? opacity;
+    const styleOpacity = opacities?.[styleId] ?? (stylesToCombine.length === 1 ? opacity : 100);
     const normOpacity = Math.max(0, Math.min(1, styleOpacity / 100));
 
     if (singleStyle.sources) {
       Object.entries(singleStyle.sources).forEach(([srcKey, srcVal]) => {
         const newSrcKey = `${prefix}${srcKey}`;
-        combinedSources[newSrcKey] = srcVal;
+        combinedSources[newSrcKey] = srcVal as any;
       });
     }
 
     if (singleStyle.layers) {
-      singleStyle.layers.forEach((layer) => {
+      singleStyle.layers.forEach((layer: any) => {
         const newLayer = { ...layer, id: `${prefix}${layer.id}` };
         if ("source" in newLayer && typeof newLayer.source === "string") {
           newLayer.source = `${prefix}${newLayer.source}`;

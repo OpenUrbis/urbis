@@ -28,7 +28,12 @@ import {
 } from "../../utils/fiu";
 import { FiuDisclaimerModal } from "../FiuDisclaimerModal";
 import { ViewTemplate } from "../ViewTemplate";
-import { FeatureAttributesTable, formatAttributeLabel, getFeatureDisplayLabel, getBoundsFromFeature } from "./FeatureAttributesTable";
+import {
+  FeatureAttributesTable,
+  getFeatureDisplayLabel,
+  findLayerSchema,
+  getBoundsFromFeature,
+} from "./FeatureAttributesTable";
 import { exportAttributesToCsv } from "../../utils/exportSpreadsheet";
 import { LegisInformationBlock } from "../LayerController/LayerMetadataPanel";
 
@@ -644,16 +649,40 @@ export const FeatureDetailsWindow = () => {
   };
 
   const handleExportAll = () => {
-    const list = [{
-      label: headerTitle,
-      properties: activeFeature?.properties || {},
-    }];
+    const list = [
+      {
+        label: headerTitle,
+        layerSchema: findLayerSchema(
+          activeFeature?.properties || {},
+          undefined,
+          layerSchemas?.value,
+          activeFeature,
+        ),
+        properties: activeFeature?.properties || {},
+      },
+    ];
 
     if (Array.isArray(intersectingFeatures)) {
       intersectingFeatures.forEach((f, idx) => {
         if (f?.properties) {
+          const rawLayer = String(
+            f.properties.layer || f.properties.source || `Camada ${idx + 1}`,
+          );
+          const label = getFeatureDisplayLabel(
+            f.properties,
+            rawLayer,
+            layerSchemas?.value,
+            f,
+          );
+          const layerSchema = findLayerSchema(
+            f.properties,
+            rawLayer,
+            layerSchemas?.value,
+            f,
+          );
           list.push({
-            label: formatAttributeLabel(String(f.properties.layer || `Camada ${idx + 1}`)),
+            label,
+            layerSchema,
             properties: f.properties,
           });
         }

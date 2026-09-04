@@ -713,15 +713,12 @@ export const getMapStyle = (
     stylesToCombine.push("standard");
   }
 
-  // When a single vector style (OpenFreeMap) is active with default 100% opacity, return URL directly
+  // When a single vector style (OpenFreeMap) is active, return URL directly so MapLibre loads vector tiles, glyphs & sprites
   if (
     stylesToCombine.length === 1 &&
     (stylesToCombine[0] === "openfreemap-liberty" ||
       stylesToCombine[0] === "openfreemap-positron" ||
-      stylesToCombine[0] === "openfreemap-bright") &&
-    opacity === 100 &&
-    saturation === 100 &&
-    (!opacities || opacities[stylesToCombine[0]] === undefined || opacities[stylesToCombine[0]] === 100)
+      stylesToCombine[0] === "openfreemap-bright")
   ) {
     return getSingleMapStyle(stylesToCombine[0], theme, apiBaseUrl);
   }
@@ -731,16 +728,9 @@ export const getMapStyle = (
   const normSaturation = Math.max(-1, Math.min(1, saturation / 100 - 1));
 
   stylesToCombine.forEach((styleId, index) => {
-    const singleStyle = getSingleMapStyle(styleId, theme, apiBaseUrl);
-    if (typeof singleStyle === "string") {
-      const prefix = `bm_${index}_`;
-      combinedSources[`${prefix}openmaptiles`] = {
-        type: "vector",
-        tiles: ["https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf"],
-        maxzoom: 14,
-      };
-      return;
-    }
+    const rawSingleStyle = getSingleMapStyle(styleId, theme, apiBaseUrl);
+    const singleStyle =
+      typeof rawSingleStyle === "string" ? osmStyle : rawSingleStyle;
 
     const prefix = `bm_${index}_`;
     const styleOpacity = opacities?.[styleId] ?? (stylesToCombine.length === 1 ? opacity : 100);

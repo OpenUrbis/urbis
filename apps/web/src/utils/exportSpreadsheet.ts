@@ -1,10 +1,14 @@
-import { formatAttributeLabel } from "../components/FeaturesView/FeatureAttributesTable";
+import {
+  getAttributeDisplayLabel,
+  formatAttributeValue,
+} from "../components/FeaturesView/FeatureAttributesTable";
 
 export interface ExportSpreadsheetOptions {
   title?: string;
   calculatedArea?: string | null;
   features: Array<{
     label: string;
+    layerSchema?: any;
     properties: Record<string, unknown>;
   }>;
 }
@@ -41,23 +45,12 @@ export const exportAttributesToCsv = ({
         return;
       }
 
-      const label = formatAttributeLabel(key);
-      let valueStr = "";
-
-      if (rawValue === null || rawValue === undefined) {
-        valueStr = "—";
-      } else if (typeof rawValue === "boolean") {
-        valueStr = rawValue ? "Sim" : "Não";
-      } else if (typeof rawValue === "number") {
-        valueStr = rawValue.toLocaleString("pt-BR");
-      } else if (typeof rawValue === "object") {
-        valueStr = JSON.stringify(rawValue);
-      } else {
-        valueStr = String(rawValue).trim();
-      }
+      const { label } = getAttributeDisplayLabel(key, feat.layerSchema);
+      const displayLabel = label || key;
+      const { display } = formatAttributeValue(rawValue, key);
 
       lines.push(
-        `"${layerName.replace(/"/g, '""')}";"${label.replace(/"/g, '""')}";"${key.replace(/"/g, '""')}";"${valueStr.replace(/"/g, '""')}"`
+        `"${layerName.replace(/"/g, '""')}";"${displayLabel.replace(/"/g, '""')}";"${key.replace(/"/g, '""')}";"${display.replace(/"/g, '""')}"`
       );
     });
   });

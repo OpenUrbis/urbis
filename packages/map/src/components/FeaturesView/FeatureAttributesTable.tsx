@@ -5,6 +5,303 @@ import { useToast } from "../../hooks/useToast";
 import { useMapContext } from "../../hooks/useMapContext";
 import proj4 from "proj4";
 
+// ==============================================================================
+// 1. Dicionários Globais de DE-PARA (Urbis / GeoSampa / PMSP)
+// ==============================================================================
+
+export const GLOBAL_LAYER_NAMES_DE_PARA: Record<string, string> = {
+  sirgas_lote_fiscal: "Lotes Fiscais",
+  view_lote_cidadao: "Lotes Fiscais",
+  lotes_fiscais: "Lotes Fiscais",
+  lote_fiscal: "Lotes Fiscais",
+  lotes: "Lotes Fiscais",
+  lote: "Lotes Fiscais",
+  sirgas_zoneamento_sub_lpuos2016: "Zoneamento (LPUOS 2016)",
+  zoneamento_sub_lpuos2016: "Zoneamento (LPUOS 2016)",
+  zoneamento_lpuos_2016: "Zoneamento (LPUOS 2016)",
+  zoneamento: "Zoneamento",
+  macroarea: "Macroáreas (PDE)",
+  macroareas: "Macroáreas (PDE)",
+  sirgas_macroareas: "Macroáreas (PDE)",
+  sirgas_eixos_estruturacao_transformacao_urbana: "Eixos de Estruturação (PDE)",
+  eixos_estruturacao: "Eixos de Estruturação (PDE)",
+  sirgas_distrito_municipal: "Distritos Municipais",
+  distrito_municipal: "Distritos Municipais",
+  distrito: "Distritos Municipais",
+  distritos: "Distritos Municipais",
+  sirgas_subprefeitura: "Subprefeituras",
+  subprefeitura: "Subprefeituras",
+  subprefeituras: "Subprefeituras",
+  sirgas_logradouros: "Logradouros",
+  logradouros: "Logradouros",
+  logradouro: "Logradouros",
+  sirgas_espacos_livres_cif: "Espaços Livres (CIF)",
+  espacos_livres_cif: "Espaços Livres (CIF)",
+  sirgas_vias_cif: "Vias Públicas (CIF)",
+  vias_cif: "Vias Públicas (CIF)",
+  sirgas_imoveis_em_vila: "Imóveis em Vila",
+  imoveis_em_vila: "Imóveis em Vila",
+  sirgas_perimetro_acao_promac: "Perímetro de Ação PROMAC",
+  perimetro_acao_promac: "Perímetro de Ação PROMAC",
+  sirgas_leis_esparsas: "Leis Esparsas",
+  leis_esparsas: "Leis Esparsas",
+  sirgas_patrimonio_cultural: "Patrimônio Cultural",
+  patrimonio_cultural: "Patrimônio Cultural",
+  cit_imoveis: "Patrimônio Cultural — Imóveis (CIT)",
+  cit_envoltorias: "Patrimônio Cultural — Envoltórias (CIT)",
+  cit_ambientais_paisagisticos: "Patrimônio Cultural — Bens Ambientais (CIT)",
+  cit_arqueologico: "Patrimônio Cultural — Bens Arqueológicos (CIT)",
+  idesp_imoveis_estadual: "Patrimônio Estadual — Imóveis (IDESP)",
+  idesp_envoltorias_estadual: "Patrimônio Estadual — Envoltórias (IDESP)",
+  idesp_ambientais_paisagisticos_estadual: "Patrimônio Estadual — Bens Ambientais (IDESP)",
+  idesp_bens_moveis_estadual: "Patrimônio Estadual — Bens Móveis (IDESP)",
+  indicativo_area_construida_3d: "Edificações 3D (Área Construída)",
+  indicativo_funai: "Terras Indígenas (FUNAI)",
+  indicativo_igc: "Limites Municipais (IGC)",
+  limites_municipio: "Limites do Município",
+};
+
+export const GLOBAL_ATTRIBUTE_LABELS_DE_PARA: Record<string, string> = {
+  // --- Cadastro & Identificação Fiscal ---
+  sql: "SQL (Setor-Quadra-Lote)",
+  cd_sql: "SQL (Setor-Quadra-Lote)",
+  nr_sql: "SQL (Setor-Quadra-Lote)",
+  sql_formatado: "SQL Formatado",
+  cd_sql_formatado: "SQL Formatado",
+  cd_sql_condominio: "SQL Condomínio",
+  sql_condominio: "SQL Condomínio",
+  cd_identificador: "Identificador Único",
+  identificador: "Identificador Único",
+  cd_id: "Identificador Único",
+  id_geosampa: "ID GeoSampa",
+  id_origem: "ID de Origem",
+  cd_setor_fiscal: "Setor Fiscal",
+  setor_fiscal: "Setor Fiscal",
+  setor: "Setor Fiscal",
+  cd_quadra_fiscal: "Quadra Fiscal",
+  quadra_fiscal: "Quadra Fiscal",
+  quadra: "Quadra Fiscal",
+  cd_lote: "Lote Fiscal",
+  lote_fiscal: "Lote Fiscal",
+  cd_lote_fiscal: "Lote Fiscal",
+  lote: "Lote Fiscal",
+  codigo_lote: "Lote Fiscal",
+  cd_condominio: "Condomínio",
+  condominio: "Condomínio",
+  codigo_condominio: "Código do Condomínio",
+  cd_digito_sql: "Dígito Verificador (DV)",
+  digito_verificador: "Dígito Verificador (DV)",
+  digito_sql: "Dígito Verificador (DV)",
+  cd_digito: "Dígito Verificador (DV)",
+  cd_tipo_lote: "Tipo de Lote",
+  tipo_lote: "Tipo de Lote",
+  tx_tipo_lote: "Tipo de Lote",
+  cd_tipo_quadra: "Tipo de Quadra",
+  tipo_quadra: "Tipo de Quadra",
+  tx_tipo_quadra: "Tipo de Quadra",
+  situacao_cadastro: "Situação Cadastral",
+  tx_situacao_cadastro: "Situação Cadastral",
+  st_cadastro: "Situação Cadastral",
+  status: "Situação / Status",
+  dt_cadastro: "Data de Cadastro",
+  data_cadastro: "Data de Cadastro",
+  dt_atualizacao: "Data de Atualização",
+  data_atualizacao: "Data de Atualização",
+  dt_ultima_atualizacao: "Última Atualização",
+  ano_exercicio: "Ano de Exercício",
+  exercicio: "Ano de Exercício",
+  ano_base: "Ano Base",
+
+  // --- Endereço, Logradouro & Localização ---
+  logradouro: "Endereço Oficial",
+  tx_nome_logradouro: "Logradouro",
+  nm_logradouro: "Logradouro",
+  nome_logradouro: "Logradouro",
+  endereco: "Endereço",
+  tx_logradouro: "Logradouro",
+  cd_tipo_logradouro: "Tipo de Logradouro",
+  tp_logradouro: "Tipo de Logradouro",
+  tipo_logradouro: "Tipo de Logradouro",
+  tx_tipo_logradouro: "Tipo de Logradouro",
+  cd_titulo_logradouro: "Título do Logradouro",
+  titulo_logradouro: "Título do Logradouro",
+  tx_titulo_logradouro: "Título do Logradouro",
+  cd_logradouro: "Código do Logradouro (CODLOG)",
+  cd_logradouro_geoinfo: "Código do Logradouro (CODLOG)",
+  codigo_logradouro_codlog: "Código do Logradouro (CODLOG)",
+  codlog: "Código do Logradouro (CODLOG)",
+  cd_codlog: "Código do Logradouro (CODLOG)",
+  nr_porta: "Número de Porta",
+  numero: "Número de Porta",
+  numero_porta: "Número de Porta",
+  nr_imovel: "Número de Porta",
+  nr_endereco: "Número de Porta",
+  menor_numero: "Menor Número",
+  nr_menor_porta: "Menor Número",
+  maior_numero: "Maior Número",
+  nr_maior_porta: "Maior Número",
+  tx_complemento: "Complemento",
+  complemento: "Complemento",
+  tx_bairro: "Bairro",
+  bairro: "Bairro",
+  nm_bairro: "Bairro",
+  cd_cep: "CEP",
+  cep: "CEP",
+  nr_cep: "CEP",
+  cd_subprefeitura: "Subprefeitura",
+  subprefeitura: "Subprefeitura",
+  nm_subprefeitura: "Subprefeitura",
+  cd_distrito: "Distrito Municipal",
+  distrito: "Distrito Municipal",
+  nm_distrito: "Distrito Municipal",
+  nome_distrito: "Distrito Municipal",
+  cd_zona_eleitoral: "Zona Eleitoral",
+  zona_eleitoral: "Zona Eleitoral",
+  regiao: "Região Administrativa",
+
+  // --- Dimensões, Áreas & Métricas ---
+  vl_area_terreno: "Área do Terreno",
+  area_terreno: "Área do Terreno",
+  vl_metragem_terreno: "Área do Terreno",
+  metragem_terreno: "Área do Terreno",
+  ar_terreno: "Área do Terreno",
+  area_m2: "Área (m²)",
+  area_total: "Área Total",
+  vl_area_construida: "Área Construída",
+  area_construida: "Área Construída",
+  ar_construida: "Área Construída",
+  area_edificada: "Área Edificada",
+  vl_area_ocupada: "Área Ocupada",
+  area_ocupada: "Área Ocupada",
+  ar_ocupada: "Área Ocupada",
+  vl_testada: "Testada Principal",
+  testada: "Testada Principal",
+  vl_testada_principal: "Testada Principal",
+  testada_principal: "Testada Principal",
+  vl_fracao_ideal: "Fração Ideal",
+  fracao_ideal: "Fração Ideal",
+  vl_frente: "Frente (m)",
+  frente_terreno: "Frente (m)",
+  vl_fundo: "Fundo (m)",
+  fundo_terreno: "Fundo (m)",
+  vl_profundidade: "Profundidade (m)",
+  profundidade: "Profundidade (m)",
+  perimetro: "Perímetro",
+  vl_perimetro: "Perímetro",
+
+  // --- Zoneamento, Uso do Solo e Parâmetros Urbanísticos (PDE / LPUOS) ---
+  tx_zoneamento_perimetro: "Zoneamento",
+  zoneamento: "Zoneamento",
+  cd_zoneamento_perimetro: "Zoneamento",
+  sigla_zona: "Sigla do Zoneamento",
+  nm_zona: "Nome da Zona",
+  zona_uso: "Zona de Uso",
+  tx_perimetro_qualificacao: "Perímetro de Qualificação",
+  perimetro_qualificacao: "Perímetro de Qualificação",
+  nm_perimetro_qualificacao: "Perímetro de Qualificação",
+  tx_macroarea: "Macroárea",
+  macroarea: "Macroárea",
+  nm_macroarea: "Macroárea",
+  nm_tema_divisao_pde: "Perímetro PDE",
+  nm_perimetro_divisao_pde: "Perímetro PDE",
+  tema_divisao_pde: "Tema PDE",
+  tipo_eixo: "Tipo de Eixo",
+  tx_tipo_eixo: "Tipo de Eixo",
+  nm_eixo: "Nome do Eixo",
+  tipo_zona: "Tipo de Zona",
+  tx_tipo_zona: "Tipo de Zona",
+  coeficiente_aproveitamento_basico: "C.A. Básico",
+  ca_basico: "C.A. Básico",
+  ca_minimo: "C.A. Mínimo",
+  coeficiente_aproveitamento_maximo: "C.A. Máximo",
+  ca_maximo: "C.A. Máximo",
+  taxa_ocupacao_maxima: "Taxa de Ocupação Máxima",
+  to_maxima: "Taxa de Ocupação Máxima",
+  taxa_ocupacao: "Taxa de Ocupação",
+  gabarito_altura_maxima: "Gabarito de Altura Máxima",
+  gabarito: "Gabarito",
+  altura_maxima: "Altura Máxima (m)",
+  taxa_permeabilidade_minima: "Taxa de Permeabilidade Mínima",
+  tp_minima: "Taxa de Permeabilidade Mínima",
+  permeabilidade_minima: "Taxa de Permeabilidade Mínima",
+  recuo_frontal_minimo: "Recuo Frontal Mínimo",
+  recuo_frontal: "Recuo Frontal",
+  quota_ambiental: "Quota Ambiental",
+  qa_minima: "Quota Ambiental Mínima",
+  pontuacao_minima_qa: "Pontuação Mínima QA",
+  largura_minima_via: "Largura Mínima da Via",
+  largura_via: "Largura da Via",
+  nm_restricao: "Restrição Urbanística",
+  tipo_restricao: "Tipo de Restrição",
+  restricao: "Restrição",
+  tx_enquadramento: "Enquadramento Urbanístico",
+  enquadramento: "Enquadramento",
+
+  // --- Patrimônio Cultural & Histórico (CIT / CONPRESP / CONDEPHAAT / IPHAN) ---
+  numero_imovel_cif: "Número do Imóvel no CIF (SQL)",
+  nr_cif: "Número CIF",
+  cif: "Código CIF",
+  denominacao_bem: "Denominação do Bem",
+  nm_bem: "Denominação do Bem",
+  denominacao: "Denominação",
+  grau_protecao: "Grau de Proteção",
+  nivel_protecao: "Nível de Proteção",
+  grau_preservacao: "Grau de Preservação",
+  legislacao: "Legislação / Resolução",
+  nr_resolucao: "Número da Resolução",
+  resolucao: "Resolução",
+  ato_legal: "Ato Legal",
+  orgao_responsavel: "Órgão Responsável",
+  orgao: "Órgão Responsável",
+  orgao_tutelador: "Órgão Tutelador",
+  processo_tombamento: "Processo de Tombamento",
+  nr_processo: "Número do Processo",
+  data_tombamento: "Data do Tombamento",
+  dt_resolucao: "Data da Resolução",
+  tipo_patrimonio: "Categoria do Patrimônio",
+  categoria_patrimonio: "Categoria do Patrimônio",
+
+  // --- Dados Imobiliários, Fiscais & IPTU ---
+  vl_venal_imovel: "Valor Venal do Imóvel",
+  valor_venal: "Valor Venal",
+  vl_venal: "Valor Venal",
+  vl_venal_terreno: "Valor Venal do Terreno",
+  valor_venal_terreno: "Valor Venal do Terreno",
+  vl_venal_construcao: "Valor Venal da Construção",
+  valor_venal_construcao: "Valor Venal da Construção",
+  vl_m2_terreno: "Valor do m² do Terreno",
+  valor_m2_terreno: "Valor do m² do Terreno",
+  vl_m2_construcao: "Valor do m² da Construção",
+  valor_m2_construcao: "Valor do m² da Construção",
+  cd_uso: "Uso do Imóvel",
+  tx_uso: "Uso do Imóvel",
+  tipo_uso: "Tipo de Uso",
+  uso_imovel: "Uso do Imóvel",
+  descricao_uso: "Descrição do Uso",
+  tx_padrao_construcao: "Padrão de Construção",
+  padrao_construcao: "Padrão de Construção",
+  tx_tipo_terreno: "Tipo de Terreno",
+  tipo_terreno: "Tipo de Terreno",
+  qtd_pavimentos: "Número de Pavimentos",
+  nr_pavimentos: "Número de Pavimentos",
+  numero_pavimentos: "Número de Pavimentos",
+  qtd_unidades: "Número de Unidades",
+  nr_unidades: "Número de Unidades",
+
+  // --- Sobreposição & Análise Espacial ---
+  totalareapercentage: "Sobreposição Territorial",
+  total_area_percentage: "Sobreposição Territorial",
+  smallerpolygonareapercentage: "Interseção no Polígono",
+  smaller_polygon_area_percentage: "Interseção no Polígono",
+  percentage: "Sobreposição",
+  latitude: "Latitude",
+  lat: "Latitude",
+  longitude: "Longitude",
+  lon: "Longitude",
+  lng: "Longitude",
+  altitude: "Altitude",
+};
+
 export const formatAttributeLabel = (rawKey: string): string => {
   if (!rawKey) return "";
 
@@ -158,37 +455,105 @@ export const getBoundsFromFeature = (
   return null;
 };
 
+export const findLayerSchema = (
+  props?: Record<string, unknown>,
+  rawLayer?: string,
+  schemas?: any[],
+  feat?: any,
+): any => {
+  if (!schemas || !Array.isArray(schemas) || schemas.length === 0) return null;
+
+  const targetIds = [
+    props?.layerSchemaId,
+    props?.layer_schema_id,
+    props?._layerId,
+    props?.layer,
+    props?.source,
+    rawLayer,
+    feat?.id,
+    feat?.layer,
+  ]
+    .filter(Boolean)
+    .map((id) => String(id).trim());
+
+  if (targetIds.length === 0) return null;
+
+  // 1. Direct ID / proxyLayerId / Name exact match
+  for (const s of schemas) {
+    if (!s) continue;
+    const sId = String(s.id || "").trim();
+    const sProxy = String(s.proxyLayerId || "").trim();
+    const sName = String(s.name || "").trim();
+
+    for (const tid of targetIds) {
+      if (sId && tid.toLowerCase() === sId.toLowerCase()) return s;
+      if (sProxy && tid.toLowerCase() === sProxy.toLowerCase()) return s;
+      if (sName && tid.toLowerCase() === sName.toLowerCase()) return s;
+    }
+  }
+
+  // 2. Stripped prefix / URL Origin match
+  for (const s of schemas) {
+    if (!s) continue;
+    const sIdClean = String(s.id || "").replace(/^([a-zA-Z0-9_-]+):/, "").toLowerCase().trim();
+    const sNameClean = String(s.name || "").toLowerCase().trim();
+    const sOrigin = String(s.origin || "").toLowerCase();
+
+    for (const tid of targetIds) {
+      const tidClean = tid.replace(/^([a-zA-Z0-9_-]+):/, "").toLowerCase().trim();
+      if (!tidClean) continue;
+      if (sIdClean && (tidClean === sIdClean || (tidClean.length > 3 && sIdClean.includes(tidClean)) || (sIdClean.length > 3 && tidClean.includes(sIdClean)))) {
+        return s;
+      }
+      if (sNameClean && (tidClean === sNameClean || (tidClean.length > 3 && sNameClean.includes(tidClean)) || (sNameClean.length > 3 && tidClean.includes(sNameClean)))) {
+        return s;
+      }
+      if (sOrigin && sOrigin.includes(tidClean)) {
+        return s;
+      }
+    }
+  }
+
+  return null;
+};
+
 export const getFeatureDisplayLabel = (
   props: Record<string, unknown>,
   rawLayer?: string,
   schemas?: any[],
+  feat?: any,
 ): string => {
-  // 1. Se possuir nome de schema explícito
+  // 1. Se possuir nome de schema explícito nas propriedades
   if (props.layerSchemaName) {
     return String(props.layerSchemaName);
   }
   if (props.layer_name) {
     return String(props.layer_name);
   }
+  if (props.nm_tema_divisao_pde) {
+    return String(props.nm_tema_divisao_pde);
+  }
+
+  // 2. Busca no catálogo de layer schemas
+  const matchedSchema = findLayerSchema(props, rawLayer, schemas, feat);
+  if (matchedSchema?.name) {
+    return matchedSchema.name;
+  }
 
   const cleanLayer = (
     rawLayer?.includes(":") ? rawLayer.split(":").slice(1).join(":") : (rawLayer || "")
   ).trim().toLowerCase();
+  const normLayer = cleanLayer.replace(/[-_\s]+/g, "_");
 
-  // 2. Busca nome cadastrado no layer schema
-  if (schemas && Array.isArray(schemas) && cleanLayer) {
-    const matched = schemas.find((s) => {
-      if (!s) return false;
-      const sId = (s.id?.includes(":") ? s.id.split(":").slice(1).join(":") : (s.id || "")).toLowerCase().trim();
-      const sName = (s.name || "").toLowerCase().trim();
-      return sId === cleanLayer || sName === cleanLayer || cleanLayer.includes(sId) || (sId.length > 3 && sId.includes(cleanLayer));
-    });
-    if (matched?.name) {
-      return matched.name;
-    }
+  // 3. Busca no DE-PARA canônico de camadas
+  if (GLOBAL_LAYER_NAMES_DE_PARA[cleanLayer]) {
+    return GLOBAL_LAYER_NAMES_DE_PARA[cleanLayer];
+  }
+  if (GLOBAL_LAYER_NAMES_DE_PARA[normLayer]) {
+    return GLOBAL_LAYER_NAMES_DE_PARA[normLayer];
   }
 
-  // 3. Formatação padrão a partir do nome da camada
+  // 4. Formatação padrão a partir do nome da camada
   if (rawLayer && rawLayer !== "Geometria Selecionada" && rawLayer !== "local") {
     return formatAttributeLabel(rawLayer);
   }
@@ -196,7 +561,70 @@ export const getFeatureDisplayLabel = (
   return "Dados da Geometria";
 };
 
-const formatAttributeValue = (value: unknown, key: string): { display: string; isUrl: boolean; isNumeric: boolean } => {
+export const getAttributeDisplayLabel = (
+  rawKey: string,
+  layerSchema?: any,
+  fallbackTemplates?: any[],
+): { label: string; description?: string } => {
+  if (!rawKey) return { label: "" };
+
+  const cleanKey = rawKey.includes(":") ? rawKey.split(":").slice(1).join(":") : rawKey;
+  const lowerKey = cleanKey.toLowerCase().trim();
+  const normalizedKey = lowerKey.replace(/[-_\s]+/g, "");
+
+  // 1. Busca no attributeMapping configurado no LayerSchema
+  const mapping =
+    layerSchema?.properties?.attributeMapping ||
+    layerSchema?.attributeMapping ||
+    layerSchema?.properties?.metadata?.attributeMapping;
+
+  if (mapping && typeof mapping === "object") {
+    for (const [mapKey, mapVal] of Object.entries(mapping)) {
+      if (!mapVal) continue;
+      const cleanMapKey = mapKey.replace(/^([a-zA-Z0-9_-]+):/, "").toLowerCase().trim();
+      const normMapKey = cleanMapKey.replace(/[-_\s]+/g, "");
+      if (cleanMapKey === lowerKey || normMapKey === normalizedKey) {
+        const valObj = typeof mapVal === "object" ? (mapVal as any) : { label: String(mapVal) };
+        const label = valObj.label || valObj.name || String(mapVal);
+        if (label && typeof label === "string") {
+          return { label, description: valObj.description };
+        }
+      }
+    }
+  }
+
+  // 2. Busca nos templates visuais configurados (ViewTemplate / BoardTemplate)
+  const templatesToCheck = [
+    ...(Array.isArray(layerSchema?.viewTemplate) ? layerSchema.viewTemplate : []),
+    ...(Array.isArray(layerSchema?.boardTemplate) ? layerSchema.boardTemplate : []),
+    ...(Array.isArray(fallbackTemplates) ? fallbackTemplates : []),
+  ];
+
+  for (const t of templatesToCheck) {
+    if (!t) continue;
+    const tProp = String(t.properties?.property || t.name || t.id || "").toLowerCase().trim();
+    const normTProp = tProp.replace(/[-_\s]+/g, "");
+    if ((tProp === lowerKey || normTProp === normalizedKey) && t.label) {
+      return { label: String(t.label) };
+    }
+  }
+
+  // 3. Busca no DE-PARA global de nomes de campos
+  if (GLOBAL_ATTRIBUTE_LABELS_DE_PARA[lowerKey]) {
+    return { label: GLOBAL_ATTRIBUTE_LABELS_DE_PARA[lowerKey] };
+  }
+  if (GLOBAL_ATTRIBUTE_LABELS_DE_PARA[normalizedKey]) {
+    return { label: GLOBAL_ATTRIBUTE_LABELS_DE_PARA[normalizedKey] };
+  }
+
+  // 4. Formatação heurística
+  return { label: formatAttributeLabel(cleanKey) };
+};
+
+export const formatAttributeValue = (
+  value: unknown,
+  key: string,
+): { display: string; isUrl: boolean; isNumeric: boolean } => {
   if (value === null || value === undefined || value === "") {
     return { display: "—", isUrl: false, isNumeric: false };
   }
@@ -205,21 +633,75 @@ const formatAttributeValue = (value: unknown, key: string): { display: string; i
     return { display: value ? "Sim" : "Não", isUrl: false, isNumeric: false };
   }
 
+  const lowerKey = key.toLowerCase();
+
+  // Valores monetários (R$)
+  if (
+    typeof value === "number" &&
+    (lowerKey.startsWith("vl_venal") ||
+      lowerKey.startsWith("valor_venal") ||
+      lowerKey.startsWith("vl_m2") ||
+      lowerKey.startsWith("valor_m2") ||
+      lowerKey.includes("preco") ||
+      lowerKey.includes("custo"))
+  ) {
+    return {
+      display: `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      isUrl: false,
+      isNumeric: true,
+    };
+  }
+
+  // Porcentagens (%)
+  if (
+    typeof value === "number" &&
+    (lowerKey.includes("percentage") ||
+      lowerKey.includes("percent") ||
+      lowerKey.includes("porcentagem") ||
+      lowerKey.includes("taxa_"))
+  ) {
+    return {
+      display: `${value.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 2 })}%`,
+      isUrl: false,
+      isNumeric: true,
+    };
+  }
+
+  // Áreas (m²)
+  if (
+    typeof value === "number" &&
+    (lowerKey.includes("area") ||
+      lowerKey.includes("metragem") ||
+      lowerKey.startsWith("ar_") ||
+      lowerKey.includes("superficie"))
+  ) {
+    return {
+      display: `${value.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} m²`,
+      isUrl: false,
+      isNumeric: true,
+    };
+  }
+
+  // Números genéricos e códigos
   if (typeof value === "number") {
-    if (key.toLowerCase().includes("percentage") || key.toLowerCase().includes("percent")) {
+    if (
+      Number.isInteger(value) &&
+      (lowerKey.startsWith("cd_") ||
+        lowerKey.startsWith("nr_") ||
+        lowerKey.includes("codigo") ||
+        lowerKey.includes("identificador") ||
+        lowerKey.includes("sql") ||
+        lowerKey.includes("cep") ||
+        lowerKey.includes("ano") ||
+        lowerKey.includes("exercicio"))
+    ) {
       return {
-        display: `${value.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 2 })}%`,
+        display: String(value),
         isUrl: false,
         isNumeric: true,
       };
     }
-    if (key.toLowerCase().includes("area")) {
-      return {
-        display: `${value.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} m²`,
-        isUrl: false,
-        isNumeric: true,
-      };
-    }
+
     return {
       display: value.toLocaleString("pt-BR"),
       isUrl: false,
@@ -229,16 +711,34 @@ const formatAttributeValue = (value: unknown, key: string): { display: string; i
 
   if (typeof value === "object") {
     if (Array.isArray(value)) {
-      return { display: value.map(v => typeof v === "object" ? JSON.stringify(v) : String(v)).join(", "), isUrl: false, isNumeric: false };
+      return {
+        display: value.map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v))).join(", "),
+        isUrl: false,
+        isNumeric: false,
+      };
     }
     return { display: JSON.stringify(value), isUrl: false, isNumeric: false };
   }
 
   const strVal = String(value).trim();
 
-  // Check URL
+  // Links e URLs
   if (strVal.startsWith("http://") || strVal.startsWith("https://")) {
     return { display: strVal, isUrl: true, isNumeric: false };
+  }
+
+  // Datas no formato ISO (YYYY-MM-DD)
+  const dateMatch = strVal.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);
+  if (
+    dateMatch &&
+    (lowerKey.startsWith("dt_") || lowerKey.startsWith("data_") || lowerKey.includes("data"))
+  ) {
+    const [, year, month, day] = dateMatch;
+    return {
+      display: `${day}/${month}/${year}`,
+      isUrl: false,
+      isNumeric: false,
+    };
   }
 
   return { display: strVal, isUrl: false, isNumeric: false };
@@ -261,7 +761,13 @@ export const FeatureAttributesTable = ({
   onSelectFeature,
   className,
 }: FeatureAttributesTableProps) => {
-  const { layerSchemas, activeHighlightFeature, flyTo, layerWithRootEditTemplate } = useMapContext();
+  const {
+    layerSchemas,
+    activeHighlightFeature,
+    flyTo,
+    layerWithRootEditTemplate,
+    editFeatureTemplate,
+  } = useMapContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLayerIndex, setSelectedLayerIndex] = useState(0);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -317,6 +823,7 @@ export const FeatureAttributesTable = ({
     const list: Array<{
       label: string;
       rawLayer: string;
+      layerSchema?: any;
       isActiveOnMap: boolean;
       isBaseEditLayer: boolean;
       isTaxLot: boolean;
@@ -441,7 +948,8 @@ export const FeatureAttributesTable = ({
 
           if (!seenFeatureKeys.has(featureKey)) {
             seenFeatureKeys.add(featureKey);
-            const label = getFeatureDisplayLabel(featureProps, rawLayer, layerSchemas?.value);
+            const layerSchema = findLayerSchema(featureProps, rawLayer, layerSchemas?.value, feat);
+            const label = getFeatureDisplayLabel(featureProps, rawLayer, layerSchemas?.value, feat);
             const isPrim = isItemPrimary(feat, featureProps, rawLayer);
             const isBase = isBaseEditLayer(feat, featureProps, rawLayer);
             const isLot = isTaxLot(feat, featureProps, rawLayer);
@@ -450,6 +958,7 @@ export const FeatureAttributesTable = ({
             list.push({
               label,
               rawLayer,
+              layerSchema,
               isActiveOnMap: isLayerActiveOnMap(rawLayer, featureProps?.layerSchemaId as string),
               isBaseEditLayer: isBase,
               isTaxLot: isLot,
@@ -472,7 +981,8 @@ export const FeatureAttributesTable = ({
         const featureKey = buildFeatureKey(feature, p, rawLayer);
         if (!seenFeatureKeys.has(featureKey)) {
           seenFeatureKeys.add(featureKey);
-          const label = getFeatureDisplayLabel(p, rawLayer, layerSchemas?.value);
+          const layerSchema = findLayerSchema(p, rawLayer, layerSchemas?.value, feature);
+          const label = getFeatureDisplayLabel(p, rawLayer, layerSchemas?.value, feature);
           const isBase = isBaseEditLayer(feature, p, rawLayer);
           const isLot = isTaxLot(feature, p, rawLayer);
           const { str: pctStr, num: pctNum } = extractPercentage(p);
@@ -480,6 +990,7 @@ export const FeatureAttributesTable = ({
           list.push({
             label,
             rawLayer: rawLayer || "local",
+            layerSchema,
             isActiveOnMap: isLayerActiveOnMap(rawLayer, p?.layerSchemaId as string),
             isBaseEditLayer: isBase,
             isTaxLot: isLot,
@@ -632,10 +1143,11 @@ export const FeatureAttributesTable = ({
     }
   };
 
+  const activeItem = availableFeatures[safeLayerIndex] || availableFeatures[0];
+
   const activeProperties = useMemo(() => {
-    const activeItem = availableFeatures[safeLayerIndex] || availableFeatures[0];
     return activeItem?.properties || {};
-  }, [availableFeatures, safeLayerIndex]);
+  }, [activeItem]);
 
   const filteredEntries = useMemo(() => {
     const ignoredKeys = new Set([
@@ -670,11 +1182,19 @@ export const FeatureAttributesTable = ({
 
     const term = searchTerm.toLowerCase();
     return entries.filter(([key, value]) => {
-      const label = formatAttributeLabel(key).toLowerCase();
+      const { label } = getAttributeDisplayLabel(
+        key,
+        activeItem?.layerSchema,
+        editFeatureTemplate?.value,
+      );
       const valStr = String(value ?? "").toLowerCase();
-      return label.includes(term) || key.toLowerCase().includes(term) || valStr.includes(term);
+      return (
+        label.toLowerCase().includes(term) ||
+        key.toLowerCase().includes(term) ||
+        valStr.includes(term)
+      );
     });
-  }, [activeProperties, searchTerm]);
+  }, [activeProperties, searchTerm, activeItem?.layerSchema, editFeatureTemplate?.value]);
 
   const handleCopy = (key: string, value: string, displayLabel: string) => {
     void navigator.clipboard.writeText(value);
@@ -682,8 +1202,6 @@ export const FeatureAttributesTable = ({
     toastSuccess(`Copiado: ${displayLabel}`);
     setTimeout(() => setCopiedKey(null), 2000);
   };
-
-  const activeItem = availableFeatures[safeLayerIndex] || availableFeatures[0];
 
   if (availableFeatures.length === 0) {
     return (
@@ -870,7 +1388,11 @@ export const FeatureAttributesTable = ({
               </thead>
               <tbody className="divide-y divide-border/60">
                 {filteredEntries.map(([key, rawValue], rowIdx) => {
-                  const label = formatAttributeLabel(key);
+                  const { label, description } = getAttributeDisplayLabel(
+                    key,
+                    activeItem?.layerSchema,
+                    editFeatureTemplate?.value,
+                  );
                   const displayLabel = label || key;
                   const { display, isUrl, isNumeric } = formatAttributeValue(rawValue, key);
                   const isCopied = copiedKey === key;
@@ -891,7 +1413,21 @@ export const FeatureAttributesTable = ({
                         scope="row"
                         className="py-2.5 px-3.5 align-top font-semibold text-foreground border-r border-border/40 select-text text-left w-[42%]"
                       >
-                        <span className="font-semibold text-foreground">{displayLabel}</span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-semibold text-foreground leading-tight">
+                            {displayLabel}
+                          </span>
+                          {displayLabel.toLowerCase() !== key.toLowerCase() && (
+                            <span className="text-[10px] font-mono text-muted-foreground/60 tracking-tight select-all">
+                              {key}
+                            </span>
+                          )}
+                          {description && (
+                            <span className="text-[10px] text-muted-foreground leading-snug">
+                              {description}
+                            </span>
+                          )}
+                        </div>
                       </th>
 
                       {/* Coluna Valor */}

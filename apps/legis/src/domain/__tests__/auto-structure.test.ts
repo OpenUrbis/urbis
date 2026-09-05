@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { ElementType } from "../entities";
 import { RulesEngine } from "../rules-engine";
 import {
+  autoMergeStructuralHeaders,
   getFirstAutoStructureLine,
   getImmediateHierarchicalParentIndex,
   isHierarchicalNumericIndex,
@@ -557,5 +558,153 @@ describe("resolveHierarchicalNumericParentId", () => {
     });
 
     expect(resolved).toEqual([undefined, "item-2", "item-2-1", "inciso-2-1-1"]);
+  });
+});
+
+describe("autoMergeStructuralHeaders", () => {
+  const engine = new RulesEngine();
+
+  it("merges standalone structural headers with their subsequent rubric paragraph", () => {
+    const content = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          attrs: { normativeId: "tit-1" },
+          content: [{ type: "text", text: "TÍTULO I" }],
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "DA ABRANGÊNCIA, DOS CONCEITOS, PRINCÍPIOS E OBJETIVOS",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          attrs: { normativeId: "cap-1" },
+          content: [{ type: "text", text: "CAPÍTULO I" }],
+        },
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "DOS PRINCÍPIOS E OBJETIVOS" },
+          ],
+        },
+        {
+          type: "paragraph",
+          attrs: { normativeId: "art-1" },
+          content: [
+            {
+              type: "text",
+              text: "Art. 1º Esta lei disciplina o parcelamento do solo.",
+            },
+          ],
+        },
+      ],
+    };
+
+    const { nextContent, changed } = autoMergeStructuralHeaders(content, engine);
+
+    expect(changed).toBe(true);
+    expect(nextContent?.content).toHaveLength(3);
+
+    // First block: TÍTULO I with hardBreak and rubric
+    expect(nextContent?.content?.[0]).toEqual({
+      type: "paragraph",
+      attrs: { normativeId: "tit-1" },
+      content: [
+        { type: "text", text: "TÍTULO I" },
+        { type: "hardBreak" },
+        {
+          type: "text",
+          text: "DA ABRANGÊNCIA, DOS CONCEITOS, PRINCÍPIOS E OBJETIVOS",
+        },
+      ],
+    });
+
+    // Second block: CAPÍTULO I with hardBreak and rubric
+    expect(nextContent?.content?.[1]).toEqual({
+      type: "paragraph",
+      attrs: { normativeId: "cap-1" },
+      content: [
+        { type: "text", text: "CAPÍTULO I" },
+        { type: "hardBreak" },
+        { type: "text", text: "DOS PRINCÍPIOS E OBJETIVOS" },
+      ],
+    });
+
+    // Third block: Art. 1º untouched
+    expect(nextContent?.content?.[2]).toEqual({
+      type: "paragraph",
+      attrs: { normativeId: "art-1" },
+      content: [
+        {
+          type: "text",
+          text: "Art. 1º Esta lei disciplina o parcelamento do solo.",
+        },
+      ],
+    });
+  });
+
+  it("does not merge when header already contains its rubric in the same block", () => {
+    const content = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "CAPÍTULO I - DOS PRINCÍPIOS E OBJETIVOS",
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Art. 1º Esta lei disciplina o uso do solo.",
+            },
+          ],
+        },
+      ],
+    };
+
+    const { nextContent, changed } = autoMergeStructuralHeaders(content, engine);
+    expect(changed).toBe(false);
+    expect(nextContent?.content).toHaveLength(2);
+  });
+
+  it("does not merge when standalone header is followed by another structural element", () => {
+    const content = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "TÍTULO I" }],
+        },
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "CAPÍTULO I" }],
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Art. 1º Disposições gerais.",
+            },
+          ],
+        },
+      ],
+    };
+
+    const { nextContent, changed } = autoMergeStructuralHeaders(content, engine);
+    expect(changed).toBe(false);
+    expect(nextContent?.content).toHaveLength(3);
   });
 });

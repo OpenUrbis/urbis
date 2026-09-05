@@ -792,14 +792,74 @@ export function ElementContent({
     <CopyIndentationPrefix indentationLevel={indentationLevel} />
   );
 
-  if (isCentered)
+  if (isCentered) {
+    const headerStyles: Record<
+      string,
+      { container: string; key: string; text: string }
+    > = {
+      Parte: {
+        container: "my-8 text-center leading-snug",
+        key: "text-xl md:text-2xl font-bold uppercase tracking-wider",
+        text: "text-base md:text-lg font-medium uppercase tracking-wide mt-1.5 opacity-90",
+      },
+      Livro: {
+        container: "my-8 text-center leading-snug",
+        key: "text-xl md:text-2xl font-bold uppercase tracking-wider",
+        text: "text-base md:text-lg font-medium uppercase tracking-wide mt-1.5 opacity-90",
+      },
+      Título: {
+        container: "my-7 text-center leading-snug",
+        key: "text-lg md:text-xl font-bold uppercase tracking-wide",
+        text: "text-sm md:text-base font-medium uppercase tracking-wide mt-1 opacity-90",
+      },
+      Capítulo: {
+        container: "my-6 text-center leading-snug",
+        key: "text-base md:text-lg font-bold uppercase tracking-wide",
+        text: "text-sm md:text-base font-medium uppercase tracking-normal mt-1 opacity-90",
+      },
+      Seção: {
+        container: "my-5 text-center leading-snug",
+        key: "text-sm md:text-base font-semibold uppercase tracking-wide",
+        text: "text-xs md:text-sm font-medium uppercase tracking-normal mt-0.5 opacity-90",
+      },
+      Subseção: {
+        container: "my-4 text-center leading-snug",
+        key: "text-sm md:text-base font-semibold uppercase tracking-wide",
+        text: "text-xs md:text-sm font-medium uppercase tracking-normal mt-0.5 opacity-90",
+      },
+      Anexo: {
+        container: "my-8 text-center leading-snug",
+        key: "text-lg md:text-xl font-bold uppercase tracking-wide",
+        text: "text-sm md:text-base font-medium uppercase tracking-wide mt-1.5 opacity-90",
+      },
+      "Divisão desconforme": {
+        container: "my-4 text-center leading-snug",
+        key: "text-base font-bold",
+        text: "text-sm font-normal mt-1",
+      },
+    };
+
+    const style = headerStyles[type] || {
+      container: "my-4 text-center leading-snug",
+      key: "text-base font-bold",
+      text: "text-sm font-normal mt-1",
+    };
+
+    const cleanKey = key.replace(/[\s\-–—]+$/, "").trim();
+
     return (
-      <div className="mb-4 mt-6 font-bold text-center">
-        {key}
-        <span dangerouslySetInnerHTML={{ __html: finalDisplayText }} />
+      <div className={style.container}>
+        <div className={style.key}>{cleanKey || key}</div>
+        {finalDisplayText && finalDisplayText.trim() && (
+          <div
+            className={style.text}
+            dangerouslySetInnerHTML={{ __html: finalDisplayText }}
+          />
+        )}
         {noteSuperscript}
       </div>
     );
+  }
 
   let keyDisplay: React.ReactNode = <span className="font-bold">{key}</span>;
   const renumSit = specialSituations?.find((s) => s.type === "Renumeração");

@@ -1,4 +1,6 @@
+import type { JSONContent } from "@tiptap/core";
 import { ElementType } from "./entities";
+import { RulesEngine } from "./rules-engine";
 
 const HIERARCHICAL_NUMERIC_SCOPE_BREAKERS = new Set<ElementType>([
   "Parte",
@@ -182,7 +184,106 @@ export function resolveHierarchicalNumericParentId(
   }
 
   return (
-    getIndexedParentByType(indexedParents, "Inciso", parentIndex) ??
+    getIndexedParentByType(indexedParents, "Inciso", parentIndex) ||
     getIndexedParentByType(indexedParents, "Item", parentIndex)
   );
+}
+
+export const STRUCTURAL_HEADER_TYPES = new Set<ElementType>([
+  "Parte",
+  "Livro",
+  "Título",
+  "Capítulo",
+  "Seção",
+  "Subseção",
+  "Anexo",
+]);
+
+export function getNodePlainText(node?: JSONContent): string {
+  if (!node) return "";
+  if (node.type === "text") return node.text || "";
+  if (node.type === "hardBreak") return "\n";
+  if (!node.content || !node.content.length) return "";
+  return node.content.map(getNodePlainText).join("");
+}
+
+export function isStandaloneStructuralHeader(
+  node: JSONContent,
+  rulesEngine: RulesEngine = new RulesEngine(),
+): boolean {
+  if (node.type !== "paragraph" && node.type !== "heading") return false;
+  const text = getNodePlainText(node).trim();
+  if (!text) return false;
+
+  if (text.includes("\n")) return false;
+
+  const parsed = rulesEngine.parseLine(text);
+  if (!STRUCTURAL_HEADER_TYPES.has(parsed.type as ElementType)) return false;
+
+  const cleanContent = (parsed.content || "")
+    .replace(/^[\s\-–—.:]+$/, "")
+    .trim();
+
+  return !cleanContent;
+}
+
+export function isEligibleStructuralRubric(
+  node: JSONContent,
+  rulesEngine: RulesEngine = new RulesEngine(),
+): boolean {
+  if (node.type !== "paragraph" && node.type !== "heading") return false;
+  const text = getNodePlainText(node).trim();
+  if (!text) return false;
+
+  if (text.length > 400) return false;
+
+  const parsed = rulesEngine.parseLine(text);
+  if (parsed.type !== "Texto") return false;
+
+  if (/^(?:DECRETA|RESOLVE|CONSIDERANDO)\b/i.test(text)) return false;
+
+  return true;
+}
+
+export function autoMergeStructuralHeaders(
+  content?: JSONContent,
+  rulesEngine: RulesEngine = new RulesEngine(),
+): { nextContent: JSONContent | undefined; changed: boolean } {
+  if (!content?.content || content.content.length < 2) {
+    return { nextContent: content, changed: false };
+  }
+
+  const nodes = content.content;
+  const mergedNodes: JSONContent[] = [];
+  let changed = false;
+
+  for (let i = 0; i < nodes.length; i++) {
+    const current = nodes[i];
+    const next = nodes[i + 1];
+
+    if (
+      next &&
+      isStandaloneStructuralHeader(current, rulesEngine) &&
+      isEligibleStructuralRubric(next, rulesEngine)
+    ) {
+      const currentContent = current.content || [];
+      const nextContent = next.content || [];
+
+      const mergedBlock: JSONContent = {
+        ...current,
+        content: [...currentContent, { type: "hardBreak" }, ...nextContent],
+      };
+
+      mergedNodes.push(mergedBlock);
+      changed = true;
+      i++;
+    } else {
+      mergedNodes.push(current);
+    }
+  }
+
+  return {
+    nextContent: changed ? { ...content, content: mergedNodes } : content,
+    changed,
+  };
 }

@@ -86,6 +86,7 @@ import {
   SourceTableRow,
 } from "../../domain/table-utils";
 import {
+  autoMergeStructuralHeaders,
   getFirstAutoStructureLine,
   registerHierarchicalNumericParent,
   resolveHierarchicalNumericParentId,
@@ -1106,11 +1107,16 @@ export function PageForm({
       ? editor.state.doc.copy(splitFragment).toJSON()
       : editor.getJSON();
 
-    const { nextContent, changed: blankLinesChanged } =
+    const { nextContent: withoutBlanks, changed: blankLinesChanged } =
       removeBlankTopLevelBlocks(currentContent);
 
-    if (!nextContent || (!blankLinesChanged && !lineBreaksChanged)) {
-      toast.info("Nenhuma linha em branco foi encontrada para formatar.");
+    const { nextContent, changed: headersMerged } =
+      autoMergeStructuralHeaders(withoutBlanks, rulesEngine);
+
+    const changed = blankLinesChanged || lineBreaksChanged || headersMerged;
+
+    if (!nextContent || !changed) {
+      toast.info("Nenhuma linha em branco ou cabeçalho pendente para formatar.");
       return;
     }
 
@@ -1127,12 +1133,17 @@ export function PageForm({
       console.warn("Could not restore selection exactly after auto-format", e);
     }
 
+    const messages = [];
+    if (lineBreaksChanged) messages.push("quebras de linha separadas em blocos");
+    if (blankLinesChanged) messages.push("linhas em branco removidas");
+    if (headersMerged) messages.push("títulos e rubricas estruturais unificados");
+
     toast.success(
-      lineBreaksChanged
-        ? "Conteúdo formatado: quebras de linha separadas em blocos e linhas em branco removidas."
-        : "Conteúdo formatado: linhas em branco removidas.",
+      messages.length > 0
+        ? `Conteúdo formatado: ${messages.join(", ")}.`
+        : "Conteúdo formatado com sucesso.",
     );
-  }, [editor, overwriteAutomation]);
+  }, [editor, overwriteAutomation, rulesEngine]);
 
   useEffect(() => {
     categoryService.getAll().then(setCategories);

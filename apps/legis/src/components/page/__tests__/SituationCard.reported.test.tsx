@@ -44,8 +44,8 @@ describe("reported situation card", () => {
     );
 
     expect(lines).toEqual([
-      "Vigor e eficácia",
-      "Perda definitiva de vigor/eficácia",
+      "Retiradas e restaurações de vigor/eficácia",
+      "PERDA DEFINITIVA DE VIGOR/EFICÁCIA",
       "em 22.03.2016",
       "Todo o dispositivo perdeu vigor/eficácia em definitivo.",
       "Origem:",
@@ -94,8 +94,8 @@ describe("reported situation card", () => {
     );
 
     expect(lines).toEqual([
-      "Vigor e eficácia",
-      "Perda definitiva de vigor/eficácia",
+      "Retiradas e restaurações de vigor/eficácia",
+      "PERDA DEFINITIVA DE VIGOR/EFICÁCIA",
       "em 22.03.2016",
       "Todo o dispositivo perdeu vigor/eficácia em definitivo.",
       "Origem:",

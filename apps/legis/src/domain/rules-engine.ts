@@ -289,6 +289,17 @@ export const DEFAULT_RULES: ParsingRule[] = [
     priority: 40,
     extract: (m) => ({ index: m[1].toUpperCase(), content: cleanExtractedContent(m[2]) }),
   },
+  {
+    id: "nota",
+    name: "Nota",
+    regex: new RegExp(
+      `^${TAGS_PREFIX}(?:NOTA${SPACE_OPT})?\\(([A-Za-z0-9]+(?:[\\s-–—.]+[A-Za-z0-9]+)*)\\)${SPACE_OPT}[-–—:.]?${SPACE_OPT}(.*)`,
+      "i",
+    ),
+    type: "Nota",
+    priority: 45,
+    extract: (m) => ({ index: m[1].trim(), content: cleanExtractedContent(m[2]) }),
+  },
 ];
 
 export class RulesEngine {

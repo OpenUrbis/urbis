@@ -315,6 +315,81 @@ describe("date label", () => {
   });
 });
 
+describe("reader-specific presentation", () => {
+  it("renders veto without the act date or redundant whole-device copy", () => {
+    const presentation = getSituationPresentation(
+      {
+        type: "Veto",
+        date: "19.03.2024",
+        relatedDeviceId: "art-1",
+        dispositivo: "Art. 1º",
+      },
+      undefined,
+      { surface: "reader" },
+    );
+
+    expect(presentation.title).toBe("VETO");
+    expect(presentation.dateLabel).toBeUndefined();
+    expect(presentation.effect).toBe("");
+    expect(presentation.originLabel).toBe("Dispositivo");
+  });
+
+  it("uses the affected element validity for a revocation card", () => {
+    const presentation = getSituationPresentation(
+      {
+        type: "Revogação",
+        date: "19.03.2024",
+        relatedDeviceId: "art-1",
+        dispositivo: "Art. 1º inteiro",
+      },
+      "19.03.2024",
+      {
+        surface: "reader",
+        effectiveStartDate: "01.01.2020",
+      },
+    );
+
+    expect(presentation.title).toBe("REVOGAÇÃO");
+    expect(presentation.dateLabel).toBe("Início da vigência: 01.01.2020");
+    expect(presentation.effect).toBe("");
+    expect(presentation.originLabel).toBe("Dispositivo");
+
+    const legacyFullDevice = getSituationPresentation(
+      {
+        type: "Revogação",
+        revokedText: "texto completo do dispositivo",
+      },
+      undefined,
+      { surface: "reader" },
+    );
+    expect(legacyFullDevice.excerpt?.label).toBe("Dispositivo revogado");
+  });
+
+  it("maps validity alteration types to reader status names", () => {
+    expect(
+      getSituationPresentation(
+        { type: "Vigência inicial alterada", date: "01.01.2030" },
+        undefined,
+        { surface: "reader", effectiveStartDate: "01.01.2030" },
+      ),
+    ).toMatchObject({
+      title: "VIGÊNCIA NÃO INICIADA",
+      dateLabel: "Início da vigência: 01.01.2030",
+    });
+
+    expect(
+      getSituationPresentation(
+        { type: "Vigência final alterada", date: "01.01.2030" },
+        undefined,
+        { surface: "reader", effectiveEndDate: "01.01.2030" },
+      ),
+    ).toMatchObject({
+      title: "VIGÊNCIA FINALIZADA",
+      dateLabel: "Fim da vigência: 01.01.2030",
+    });
+  });
+});
+
 describe("partial versus whole", () => {
   it.each(TYPES_WITH_PARTIAL_COPY)(
     "%s switches to the partial sentence",

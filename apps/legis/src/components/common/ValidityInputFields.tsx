@@ -37,6 +37,7 @@ export function ValidityInputFields({
           value={value.date}
           onChange={(date) => onChange({ ...value, date: date || "" })}
           disabled={_disabled}
+          allowConditional
           className={compact ? "h-8 text-xs" : undefined}
         />
       </div>

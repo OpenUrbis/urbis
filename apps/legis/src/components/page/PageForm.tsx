@@ -70,7 +70,11 @@ import {
   DOCUMENT_TITLE_CLASS,
   DOCUMENT_TITLE_INPUT_RESET,
 } from "./document-title";
-import { DOMSerializer, Node as ProseMirrorNode } from "@tiptap/pm/model";
+import {
+  DOMSerializer,
+  Fragment,
+  Node as ProseMirrorNode,
+} from "@tiptap/pm/model";
 import {
   validateNormativeStructure,
   ValidationIssue,
@@ -82,6 +86,7 @@ import {
   SourceTableRow,
 } from "../../domain/table-utils";
 import {
+  getFirstAutoStructureLine,
   registerHierarchicalNumericParent,
   resolveHierarchicalNumericParentId,
   shouldClearHierarchicalNumericParents,
@@ -227,6 +232,20 @@ const removeBlankTopLevelBlocks = (content?: JSONContent) => {
     nextContent: changed ? { ...content, content: filteredContent } : content,
     changed,
   };
+};
+
+const AUTO_STRUCTURE_PARSE_OPTIONS = {
+  splitHardBreaks: true,
+  collapseWhitespace: false,
+};
+
+const getAutoStructureParseText = (node: ProseMirrorNode): string => {
+  const firstLine = splitLineBreaksInFragment(
+    Fragment.from(node),
+    AUTO_STRUCTURE_PARSE_OPTIONS,
+  ).firstChild;
+
+  return firstLine?.textContent || getFirstAutoStructureLine(node.textContent);
 };
 /**
  * Define a hierarquia de precedência para elementos legislativos/documentais.
@@ -738,6 +757,7 @@ export function PageForm({
 
             blocks.push({
               text,
+              parseText: getAutoStructureParseText(node),
               html: tempDiv.innerHTML,
               content: node.toJSON(),
               isTarget: !isOutsideSelection, // Mark if this block is a target for re-structuring
@@ -845,7 +865,9 @@ export function PageForm({
           existing = undefined;
         }
 
-        const parsed = rulesEngine.parseLine(block.text);
+        const parsed = rulesEngine.parseLine(
+          block.parseText ?? getFirstAutoStructureLine(block.text),
+        );
 
         // Priority: Block Type (Table/Figure/Map) > Parsed Type
         const detectedType = (block.type || parsed.type) as ElementType;
@@ -1981,7 +2003,7 @@ export function PageForm({
           <div className="flex items-center gap-1">
             <InfoButton
               onClick={() => setInfoModalOpen(true)}
-              title="Informações do Legis"
+              title="Guia do Editor do Legis"
             />
             {isNormative && (
               <>
@@ -2707,8 +2729,8 @@ export function PageForm({
         <InfoModal
           open={infoModalOpen}
           onOpenChange={setInfoModalOpen}
-          title="Informações do Editor do Legis"
-          category="general"
+          title="Guia do Editor do Legis"
+          category="editor"
         />
       </div>
     </InspectorTaskProvider>

@@ -8,7 +8,7 @@ import {
 } from "../../domain/text-utils";
 import type { SituationGroupType } from "../page/SituationLogic";
 import {
-  GROUP_TITLES,
+  FORM_GROUP_TITLES,
   SITUATION_TYPE_MAP,
   withSpecialSituationCompatibilityFields,
 } from "../page/SituationLogic";
@@ -131,7 +131,9 @@ export const SITUATION_TYPE_CONFIG: Record<
 
   "Nova redação": newTextConfig("Nova redação"),
   "Alteração de ementa": newTextConfig("Ementa alterada"),
-  Acréscimo: newTextConfig("Texto acrescido"),
+  Acréscimo: newTextConfig(
+    "Trecho do Elemento normativo que acrescenta",
+  ),
   "Interpretação conforme à Constituição": newTextConfig(
     "Texto com interpretação fixada",
   ),
@@ -195,10 +197,32 @@ const GROUP_ORDER: SituationGroupType[] = [
   "VETO_GROUP",
   "ALTERATION_GROUP",
   "VIGOR_GROUP",
-  "EXISTENCE_GROUP",
   "INTERPRETATION_GROUP",
+  "EXISTENCE_GROUP",
   "VALIDITY_GROUP",
   "OTHER",
+];
+
+/** Stable order used by the Admin, matching the agreed registration workflow. */
+const FORM_TYPE_ORDER: SpecialSituationType[] = [
+  "Veto",
+  "Derrubada de veto",
+  "Renumeração",
+  "Nova redação",
+  // Kept for legacy records; it belongs to the redaction family.
+  "Alteração de ementa",
+  "Perda definitiva de vigor/eficácia",
+  "Suspensão de vigor/eficácia",
+  "Restauração de vigor/eficácia",
+  "Interpretação conforme à Constituição",
+  "Declaração de inconstitucionalidade sem redução de texto",
+  "Acréscimo",
+  "Revogação",
+  "Anulação",
+  "Cassação",
+  "Repristinação",
+  "Vigência inicial alterada",
+  "Vigência final alterada",
 ];
 
 export const SITUATION_TYPE_OPTION_GROUPS: SituationTypeOptionGroup[] = (() => {
@@ -213,10 +237,17 @@ export const SITUATION_TYPE_OPTION_GROUPS: SituationTypeOptionGroup[] = (() => {
     },
   );
 
+  const order = new Map(FORM_TYPE_ORDER.map((type, index) => [type, index]));
+
   return GROUP_ORDER.filter((group) => byGroup.has(group)).map((group) => ({
     group,
-    label: GROUP_TITLES[group],
-    types: byGroup.get(group)!.sort((a, b) => a.localeCompare(b, "pt-BR")),
+    label: FORM_GROUP_TITLES[group],
+    types: byGroup.get(group)!.sort(
+      (a, b) =>
+        (order.get(a) ?? Number.MAX_SAFE_INTEGER) -
+          (order.get(b) ?? Number.MAX_SAFE_INTEGER) ||
+        a.localeCompare(b, "pt-BR"),
+    ),
   }));
 })();
 
@@ -291,7 +322,17 @@ export function isSituationDraftValid(
       draft.sourceDocumentId?.trim(),
   );
 
-  return hasLinkedElement;
+  if (!hasLinkedElement) return false;
+
+  // An addition is derived from the linked source device. It must not be saved
+  // as a free-text element with only a manually typed origin.
+  if (draft.type === "Acréscimo") {
+    return Boolean(
+      draft.newText?.trim() || normalizeAnnotatedTextSegments(draft.sourceTrechos).length,
+    );
+  }
+
+  return true;
 }
 
 /** Turns a draft into the record persisted on the element. */

@@ -7,9 +7,12 @@ import { LinkPickerView } from "./LinkPickerView";
 import { TrechoView } from "./TrechoView";
 import {
   useInspectorTask,
+  type AcrescimoTaskRequest,
   type TrechosTaskRequest,
   type LinksTaskRequest,
 } from "./inspector-task-context";
+import type { LinkPickerSelection } from "./LinkPickerView";
+import { getSegmentBaseText } from "../../domain/segment-anchor";
 
 /**
  * Renders whichever step the centre column asked for. When there is no pending
@@ -49,9 +52,65 @@ function TrechoTaskView({
 }
 
 /**
- * A multi-link step can itself open a passage step. Rather than nesting tasks,
- * the sub-step is kept as local state of this view.
+ * An addition first chooses its source device and then narrows the source text
+ * to the passage that will be copied into the new element.
  */
+function AcrescimoTaskView({
+  task,
+  editor,
+  onResolve,
+  onCancel,
+  onToggleCollapse,
+}: {
+  task: AcrescimoTaskRequest;
+  editor?: unknown;
+  onResolve: (payload: {
+    selection: LinkPickerSelection;
+    segments: AnnotatedTextSegment[];
+  }) => void;
+  onCancel: () => void;
+  onToggleCollapse?: () => void;
+}) {
+  const [selection, setSelection] = useState<LinkPickerSelection | null>(null);
+  const [segments, setSegments] = useState<AnnotatedTextSegment[]>([]);
+
+  if (!selection) {
+    return (
+      <LinkPickerView
+        title={task.title ?? "Elemento normativo que acrescenta"}
+        localElements={task.localElements}
+        closeOnSelect={false}
+        onSelect={(next) => {
+          setSegments([]);
+          setSelection(next);
+        }}
+        onBack={onCancel}
+        onToggleCollapse={onToggleCollapse}
+      />
+    );
+  }
+
+  const sourceElement = selection.document?.elements?.find(
+    (candidate) => candidate.id === selection.elementId,
+  );
+  const sourceBaseText = sourceElement ? getSegmentBaseText(sourceElement) : "";
+
+  return (
+    <TrechoView
+      baseText={sourceBaseText}
+      elementId={selection.elementId}
+      elementLabel={selection.deviceLabel || selection.elementId}
+      situationType="Acréscimo"
+      segments={segments}
+      onChange={setSegments}
+      onBack={() => onResolve({ selection, segments })}
+      editor={editor}
+      mode="citation"
+      onToggleCollapse={onToggleCollapse}
+    />
+  );
+}
+
 function LinksTaskView({
   task,
   editor,
@@ -144,6 +203,23 @@ export function InspectorHost({ editor, children }: InspectorHostProps) {
             initialSelection={task.initialSelection}
             onSelect={(selection) => resolve(selection)}
             onBack={cancel}
+            onToggleCollapse={toggleCollapse}
+          />
+        </InspectorShell>
+      );
+
+    case "acrescimo":
+      return (
+        <InspectorShell
+          mode="link"
+          collapsed={collapsed}
+          onToggleCollapse={toggleCollapse}
+        >
+          <AcrescimoTaskView
+            task={task}
+            editor={editor}
+            onResolve={(payload) => resolve(payload)}
+            onCancel={cancel}
             onToggleCollapse={toggleCollapse}
           />
         </InspectorShell>

@@ -14,7 +14,11 @@ import {
   Info,
 } from "lucide-react";
 import React from "react";
-import { formatValidityDate } from "../../domain/validity";
+import {
+  CONDITIONAL_VALIDITY,
+  formatValidityDate,
+  isConditionalValidity,
+} from "../../domain/validity";
 
 export type SituationGroupType =
   | "VETO_GROUP"
@@ -32,6 +36,9 @@ export interface SituationGroup {
   type: SituationGroupType;
   situations: SpecialSituation[];
   latestDate: Date;
+  /** Effective validity dates of the affected element, not the source act. */
+  effectiveStartDate?: string;
+  effectiveEndDate?: string;
 }
 
 export const SITUATION_TYPE_MAP: Record<string, SituationGroupType> = {
@@ -61,13 +68,25 @@ export const SITUATION_TYPE_MAP: Record<string, SituationGroupType> = {
   "Vigência final alterada": "VALIDITY_GROUP",
 };
 
+/** Titles used by the public reading view. */
 export const GROUP_TITLES: Record<SituationGroupType, string> = {
-  VETO_GROUP: "Veto",
-  ALTERATION_GROUP: "Alteração e Redação",
-  VIGOR_GROUP: "Vigor e eficácia",
-  EXISTENCE_GROUP: "Modificação da Estrutura",
-  INTERPRETATION_GROUP: "Interpretação e Constitucionalidade",
-  VALIDITY_GROUP: "Vigência e Prazos",
+  VETO_GROUP: "Vetos e Derrubadas de Veto",
+  ALTERATION_GROUP: "Renumerações e Novas redações",
+  VIGOR_GROUP: "Retiradas e restaurações de vigor/eficácia",
+  EXISTENCE_GROUP: "Acréscimos, Extinções e Repristinações",
+  INTERPRETATION_GROUP: "Interpretações constitucionais",
+  VALIDITY_GROUP: "Vigência não iniciada ou finalizada",
+  OTHER: "Outras situações",
+};
+
+/** Titles used by the situation picker in the admin/editor. */
+export const FORM_GROUP_TITLES: Record<SituationGroupType, string> = {
+  VETO_GROUP: "Vetos e Derrubadas de Veto",
+  ALTERATION_GROUP: "Renumerações e Novas redações",
+  VIGOR_GROUP: "Retiradas de vigor/eficácia e Restauração de vigor/eficácia",
+  EXISTENCE_GROUP: "Acréscimos, Extinções e Repristinações",
+  INTERPRETATION_GROUP: "Interpretações constitucionais",
+  VALIDITY_GROUP: "Vigência",
   OTHER: "Outras situações",
 };
 
@@ -163,7 +182,7 @@ export function getSituationNewTextLabel(type?: string): string {
 }
 
 export const parseDate = (dateStr?: string) => {
-  if (!dateStr || dateStr === "vigência condicionada") return new Date(0);
+  if (!dateStr || isConditionalValidity(dateStr)) return new Date(0);
   try {
     const d = parse(dateStr, "dd.MM.yyyy", new Date());
     return isValid(d) ? d : new Date(0);
@@ -176,9 +195,20 @@ function getLatestSituationByType(
   situations: SpecialSituation[] | undefined,
   type: SpecialSituation["type"],
 ): SpecialSituation | undefined {
-  return (situations || [])
-    .filter((situation) => situation.type === type)
-    .sort((a, b) => compareDesc(parseDate(a.date), parseDate(b.date)))[0];
+  const matching = (situations || []).filter(
+    (situation) => situation.type === type,
+  );
+
+  // A conditional validity is an explicit current rule, not an epoch date. If
+  // it exists, prefer the last conditional configuration over dated entries.
+  const conditional = matching.filter((situation) =>
+    isConditionalValidity(situation.date),
+  );
+  if (conditional.length > 0) return conditional[conditional.length - 1];
+
+  return matching.sort((a, b) =>
+    compareDesc(parseDate(a.date), parseDate(b.date)),
+  )[0];
 }
 
 export function getEffectiveValidityDates(
@@ -208,7 +238,7 @@ export function getEffectiveValidityDates(
 
 function formatEffectiveValidityDate(dateStr?: string) {
   if (!dateStr) return "sem data";
-  if (dateStr === "vigência condicionada") return "vigência condicionada";
+  if (isConditionalValidity(dateStr)) return CONDITIONAL_VALIDITY;
 
   return formatValidityDate(dateStr);
 }
@@ -229,15 +259,13 @@ export function getElementValiditySummary(
   if (startDate && endDate) {
     baseSummary = `Vigência: de ${formatEffectiveValidityDate(startDate)} até ${formatEffectiveValidityDate(endDate)}`;
   } else if (startDate) {
-    baseSummary =
-      startDate === "vigência condicionada"
-        ? "Vigência condicionada"
-        : `Vigência: a partir de ${formatEffectiveValidityDate(startDate)}`;
+    baseSummary = isConditionalValidity(startDate)
+      ? "Vigência condicionada"
+      : `Vigência: a partir de ${formatEffectiveValidityDate(startDate)}`;
   } else if (endDate) {
-    baseSummary =
-      endDate === "vigência condicionada"
-        ? "Vigência condicionada"
-        : `Vigência: até ${formatEffectiveValidityDate(endDate)}`;
+    baseSummary = isConditionalValidity(endDate)
+      ? "Vigência condicionada"
+      : `Vigência: até ${formatEffectiveValidityDate(endDate)}`;
   }
 
   if (isValidityNotStarted(element)) {
@@ -275,16 +303,14 @@ export function getIconForType(type: SituationGroupType) {
  * Based on the latest "Vigência inicial alterada" or the original start validity.
  */
 export function isValidityNotStarted(element: NormativeElementEntity): boolean {
-  const alterations = (element.specialSituations || [])
-    .filter((s) => s.type === "Vigência inicial alterada")
-    .sort((a, b) => compareDesc(parseDate(a.date), parseDate(b.date)));
-
+  const latestAlteration = getLatestSituationByType(
+    element.specialSituations,
+    "Vigência inicial alterada",
+  );
   const effectiveDateStr =
-    alterations.length > 0
-      ? alterations[0].date
-      : element.originalStartValidity?.date;
+    latestAlteration?.date || element.originalStartValidity?.date;
 
-  if (effectiveDateStr === "vigência condicionada") return true;
+  if (isConditionalValidity(effectiveDateStr)) return true;
 
   const effectiveDate = parseDate(effectiveDateStr);
   return isAfter(effectiveDate, new Date());
@@ -298,15 +324,14 @@ export function isValidityEnded(
   element: NormativeElementEntity,
   originalEndValidity?: any,
 ): boolean {
-  const alterations = (element.specialSituations || [])
-    .filter((s) => s.type === "Vigência final alterada")
-    .sort((a, b) => compareDesc(parseDate(a.date), parseDate(b.date)));
-
-  const effectiveDateStr =
-    alterations.length > 0 ? alterations[0].date : originalEndValidity?.date;
+  const latestAlteration = getLatestSituationByType(
+    element.specialSituations,
+    "Vigência final alterada",
+  );
+  const effectiveDateStr = latestAlteration?.date || originalEndValidity?.date;
 
   if (!effectiveDateStr) return false;
-  if (effectiveDateStr === "vigência condicionada") return true;
+  if (isConditionalValidity(effectiveDateStr)) return true;
 
   const effectiveDate = parseDate(effectiveDateStr);
   return !isAfter(effectiveDate, new Date());
@@ -327,6 +352,7 @@ export function groupSituationsForElement(
   });
 
   const result: SituationGroup[] = [];
+  const effectiveValidity = getEffectiveValidityDates(element);
 
   Object.entries(byType).forEach(([typeClass, sits]) => {
     sits.sort((a, b) => compareAsc(parseDate(a.date), parseDate(b.date)));
@@ -339,6 +365,8 @@ export function groupSituationsForElement(
       type: typeClass as SituationGroupType,
       situations: sits,
       latestDate,
+      effectiveStartDate: effectiveValidity.startDate,
+      effectiveEndDate: effectiveValidity.endDate,
     });
   });
 

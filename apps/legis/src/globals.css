@@ -101,6 +101,17 @@ td, th {
     cursor: grabbing;
 }
 
+/*
+  Preambles often arrive from copied HTML with a fixed black/white text color.
+  Let the Legis theme remain readable while keeping the original HTML in the
+  Admin editor unchanged.
+*/
+.legis-preamble [style*="color"],
+.legis-preamble [style*="COLOR"],
+.legis-preamble font[color] {
+    color: inherit !important;
+}
+
 /* Active Block & Normative Hover Styles */
 .active-block {
     background-color: hsl(var(--muted)/0.3);

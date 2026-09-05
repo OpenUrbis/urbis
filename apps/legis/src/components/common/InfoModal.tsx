@@ -13,7 +13,7 @@ interface InfoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title?: string;
-  category?: "general" | "normative" | "situations" | "authorities" | "html_tags";
+  category?: "general" | "editor" | "normative" | "situations" | "authorities" | "html_tags";
 }
 
 export function InfoModal({
@@ -67,6 +67,40 @@ export function InfoModal({
                   <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                     Vincule alterações normativas (revogações, vetos, novas redações,
                     alterações de vigência) a dispositivos específicos do texto.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {category === "editor" && (
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 rounded-lg border p-3">
+                <Code className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold">Auto-formatar</h4>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    Remove linhas em branco excedentes e separa quebras de linha em parágrafos limpos e independentes, mantendo a integridade do texto e tags suportadas. Exige marcar <em>Sobrescrever ao aplicar</em> para atualizar o documento.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-lg border p-3">
+                <Code className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold">Auto-estruturar</h4>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    Analisa o texto do documento e identifica automaticamente os dispositivos normativos (Artigos, Parágrafos, Incisos, Alíneas, Itens, Tabelas, Figuras, Mapas e Notas), vinculando-os à árvore hierárquica do ato.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-lg border p-3">
+                <Code className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold">Sobrescrever ao aplicar</h4>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    Quando ativado, permite reprocessar a estrutura do documento e substituir todos os elementos e IDs existentes pelos novos blocos detectados no editor.
                   </p>
                 </div>
               </div>

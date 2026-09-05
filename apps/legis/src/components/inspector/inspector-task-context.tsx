@@ -32,6 +32,16 @@ export interface LinkTaskRequest {
   onResolve: (selection: LinkPickerSelection) => void;
 }
 
+export interface AcrescimoTaskRequest {
+  kind: "acrescimo";
+  title?: string;
+  localElements?: NormativeElementEntity[];
+  onResolve: (
+    selection: LinkPickerSelection,
+    segments: AnnotatedTextSegment[],
+  ) => void;
+}
+
 export interface LinksTaskRequest {
   kind: "links";
   title?: string;
@@ -63,6 +73,7 @@ export interface HtmlTaskRequest {
 
 export type InspectorTask =
   | LinkTaskRequest
+  | AcrescimoTaskRequest
   | LinksTaskRequest
   | TrechosTaskRequest
   | HtmlTaskRequest;
@@ -98,6 +109,14 @@ export function InspectorTaskProvider({
         case "link":
           current.onResolve(value as LinkPickerSelection);
           break;
+        case "acrescimo": {
+          const payload = value as {
+            selection: LinkPickerSelection;
+            segments: AnnotatedTextSegment[];
+          };
+          current.onResolve(payload.selection, payload.segments);
+          break;
+        }
         case "links": {
           const payload = value as {
             links: CollectionLink[];

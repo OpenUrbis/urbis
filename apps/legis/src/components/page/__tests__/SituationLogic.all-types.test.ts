@@ -169,6 +169,26 @@ describe("every type is assigned to a card", () => {
     expect(group.elementKey).toBe("Parágrafo 2º");
   });
 
+  it("carries the effective Element validity separately from situation dates", () => {
+    const groups = groupSituationsForElement(
+      makeElement(
+        [
+          { type: "Vigência inicial alterada", date: "01.01.2030" },
+          { type: "Revogação", date: "19.03.2024" },
+        ],
+        {
+          originalStartValidity: { date: "01.01.2020", deviceId: "" },
+        },
+      ),
+    );
+    const group = groups.find((candidate) => candidate.type === "EXISTENCE_GROUP");
+
+    expect(group?.effectiveStartDate).toBe("01.01.2030");
+    expect(group?.situations.find((s) => s.type === "Revogação")?.date).toBe(
+      "19.03.2024",
+    );
+  });
+
   it("builds no group for an element with no situations", () => {
     expect(groupSituationsForElement(makeElement([]))).toEqual([]);
     expect(
@@ -583,6 +603,18 @@ describe("getEffectiveValidityDates", () => {
     expect(dates.endDate).toBe("31.12.2025");
     expect(dates.latestStartAlteration?.date).toBe("01.01.2022");
     expect(dates.latestEndAlteration?.date).toBe("31.12.2025");
+  });
+
+  it("lets a conditional alteration remain the effective rule", () => {
+    const dates = getEffectiveValidityDates(
+      makeElement([
+        { type: "Vigência inicial alterada", date: "01.01.2030" },
+        { type: "Vigência inicial alterada", date: "vigência condicionada" },
+      ]),
+    );
+
+    expect(dates.startDate).toBe("vigência condicionada");
+    expect(dates.latestStartAlteration?.date).toBe("vigência condicionada");
   });
 
   it("prefers the end of the whole document over the end of the element", () => {

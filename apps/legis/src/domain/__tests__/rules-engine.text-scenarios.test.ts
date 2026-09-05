@@ -721,6 +721,23 @@ describe("RulesEngine - real-world text scenarios", () => {
       expect(result.type).toBe("Texto");
       expect(result.content).toBe("...");
     });
+
+    it("identifies parenthesized and prefixed notes as Nota", () => {
+      const numericNote = parse("(1) Texto da nota explicativa.");
+      expect(numericNote.type).toBe("Nota");
+      expect(numericNote.index).toBe("1");
+      expect(numericNote.content).toBe("Texto da nota explicativa.");
+
+      const dashedNote = parse("(4A - a) - Parâmetro especial aplicável.");
+      expect(dashedNote.type).toBe("Nota");
+      expect(dashedNote.index).toBe("4A - a");
+      expect(dashedNote.content).toBe("Parâmetro especial aplicável.");
+
+      const explicitNote = parse("Nota (2): Observação técnica complementar.");
+      expect(explicitNote.type).toBe("Nota");
+      expect(explicitNote.index).toBe("2");
+      expect(explicitNote.content).toBe("Observação técnica complementar.");
+    });
   });
 
   describe("10. custom rules and priority", () => {

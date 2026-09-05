@@ -378,6 +378,44 @@ describe("resolveLinkedElementDate", () => {
     expect(date).toBe("01.01.2020");
   });
 
+  it("prefers the latest effective start alteration over the source act date", () => {
+    const date = resolveLinkedElementDate(
+      {
+        ...mockDoc,
+        elements: [
+          {
+            ...mockDoc.elements[0],
+            specialSituations: [
+              { type: "Vigência inicial alterada", date: "01.01.2030" },
+            ],
+          },
+        ],
+      },
+      "el-with-date",
+    );
+
+    expect(date).toBe("01.01.2030");
+  });
+
+  it("keeps a conditional effective start explicit", () => {
+    const date = resolveLinkedElementDate(
+      {
+        ...mockDoc,
+        elements: [
+          {
+            ...mockDoc.elements[0],
+            specialSituations: [
+              { type: "Vigência inicial alterada", date: "vigência condicionada" },
+            ],
+          },
+        ],
+      },
+      "el-with-date",
+    );
+
+    expect(date).toBe("vigência condicionada");
+  });
+
   it("falls back to document's general actDate when element date is missing", () => {
     const date = resolveLinkedElementDate(mockDoc, "el-no-date");
     expect(date).toBe("15.05.2014");

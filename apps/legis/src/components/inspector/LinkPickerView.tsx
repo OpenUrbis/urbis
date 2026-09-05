@@ -78,6 +78,8 @@ export interface LinkPickerViewProps {
   localElements?: NormativeElementEntity[];
   /** Vínculo já escolhido, para pré-selecionar e pré-carregar o documento. */
   initialSelection?: { documentId?: string; elementId?: string };
+  /** Keeps the picker mounted when a flow needs a second step after selection. */
+  closeOnSelect?: boolean;
   onSelect: (selection: LinkPickerSelection) => void;
   onBack: () => void;
   onToggleCollapse?: () => void;
@@ -599,6 +601,7 @@ export function LinkPickerView({
   title,
   localElements,
   initialSelection,
+  closeOnSelect = true,
   onSelect,
   onBack,
   onToggleCollapse,
@@ -723,9 +726,9 @@ export function LinkPickerView({
         deviceLabel: formatDeviceKey(element),
         document,
       });
-      onBack();
+      if (closeOnSelect) onBack();
     },
-    [docCache, onBack, onSelect],
+    [closeOnSelect, docCache, onBack, onSelect],
   );
 
   const handleBrowse = useCallback((docId: string) => {

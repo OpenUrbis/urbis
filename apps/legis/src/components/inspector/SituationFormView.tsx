@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   Button,
   Input,
@@ -105,6 +105,7 @@ export function SituationFormView({
 }: SituationFormViewProps) {
   const type = draft.type as SpecialSituationType | undefined;
   const config = getSituationTypeConfig(type);
+  const isAddition = type === "Acréscimo";
 
   const isLinked = Boolean(
     draft.relatedDeviceId?.trim() ||
@@ -115,8 +116,10 @@ export function SituationFormView({
   const sourceSegments = normalizeAnnotatedTextSegments(draft.sourceTrechos);
   const isEditing = editingIndex !== null;
 
-  const patch = (changes: Partial<SpecialSituation>) =>
-    onChange({ ...draft, ...changes });
+  const patch = useCallback(
+    (changes: Partial<SpecialSituation>) => onChange({ ...draft, ...changes }),
+    [draft, onChange],
+  );
 
   const handleTypeChange = (nextType: string) => {
     onChange(
@@ -139,7 +142,7 @@ export function SituationFormView({
     if (config.supportsNewText && originText && draft.newText !== originText) {
       patch({ newText: originText });
     }
-  }, [config.supportsNewText, originText, draft.newText]);
+  }, [config.supportsNewText, originText, draft.newText, patch]);
 
   const isValid = isSituationDraftValid(draft);
 
@@ -173,7 +176,9 @@ export function SituationFormView({
             disabled={!isValid}
             title={
               !isValid
-                ? "Vincule um dispositivo/elemento normativo para salvar a situação especial"
+                ? isAddition
+                  ? "Vincule o Elemento que acrescenta e selecione o trecho de origem"
+                  : "Vincule um dispositivo/elemento normativo para salvar a situação especial"
                 : undefined
             }
           >
@@ -233,14 +238,16 @@ export function SituationFormView({
           <DatePartsInput
             value={draft.date}
             onChange={(date) => patch({ date: date || "" })}
-            disabled={isLinked}
+            allowConditional
           />
         </InspectorField>
       </InspectorSection>
 
       {type && (
         <>
-          <InspectorSection title="Origem">
+          <InspectorSection
+            title={isAddition ? "Elemento normativo que acrescenta" : "Origem"}
+          >
             <Button
               variant="outline"
               size="sm"
@@ -250,7 +257,9 @@ export function SituationFormView({
               <Link2 className="h-3 w-3" />
               {draft.dispositivo ||
                 draft.sourceDocumentLabel ||
-                "Vincular dispositivo"}
+                (isAddition
+                  ? "Vincular Elemento que acrescenta"
+                  : "Vincular dispositivo")}
             </Button>
 
             {!isLinked && (
@@ -294,7 +303,7 @@ export function SituationFormView({
               <div className="space-y-1 rounded border px-1.5 py-1">
                 <div className="flex items-center justify-between gap-1">
                   <span className={ui.label}>
-                    Citação da origem
+                    {isAddition ? "Trecho do Elemento de origem" : "Citação da origem"}
                     {sourceSegments.length > 0 && ` (${sourceSegments.length})`}
                   </span>
                   <Button
@@ -305,12 +314,18 @@ export function SituationFormView({
                     disabled={!sourceLabel}
                     title={
                       sourceLabel
-                        ? `Citar trechos de ${sourceLabel}`
+                        ? isAddition
+                          ? `Selecionar trecho de ${sourceLabel}`
+                          : `Citar trechos de ${sourceLabel}`
                         : "Revincule o dispositivo para carregar o texto de origem"
                     }
                   >
                     <Scissors className="h-3 w-3" />
-                    {sourceSegments.length ? "Ajustar" : "Citar trechos"}
+                    {sourceSegments.length
+                      ? "Ajustar trecho"
+                      : isAddition
+                        ? "Selecionar trecho"
+                        : "Citar trechos"}
                   </Button>
                 </div>
 
@@ -383,20 +398,34 @@ export function SituationFormView({
                     size="sm"
                     className={cn(ui.smallButton, "h-5 px-1 text-[10px]")}
                     onClick={onOpenSourceTrechos}
-                    title="Selecionar o texto alterado dentro do dispositivo vinculado"
+                    title={
+                      isAddition
+                        ? "Selecionar o trecho do Elemento que acrescenta"
+                        : "Selecionar o texto alterado dentro do dispositivo vinculado"
+                    }
                   >
                     <Scissors className="h-3 w-3 mr-1" />
-                    {sourceSegments.length ? "Ajustar texto alterado" : "Selecionar texto alterado"}
+                    {sourceSegments.length
+                      ? "Ajustar trecho acrescido"
+                      : isAddition
+                        ? "Selecionar trecho acrescido"
+                        : "Selecionar texto alterado"}
                   </Button>
                 ) : undefined
               }
             >
               <Textarea
                 value={draft.newText || originText || ""}
-                readOnly={Boolean(isLinked && (originText || sourceBaseText))}
+                readOnly={
+                  isAddition || Boolean(isLinked && (originText || sourceBaseText))
+                }
                 onChange={(event) => patch({ newText: event.target.value })}
                 className="min-h-20 text-[11px] bg-muted/30"
-                placeholder="Vincule um dispositivo para carregar o texto da nova redação"
+                placeholder={
+                  isAddition
+                    ? "Vincule o Elemento que acrescenta e selecione o trecho de origem"
+                    : "Vincule um dispositivo para carregar o texto da nova redação"
+                }
               />
             </InspectorSection>
           )}

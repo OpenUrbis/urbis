@@ -88,19 +88,29 @@ function OriginLine({
 
   const documentText = origin.documentLabel || documentRef?.label;
   const readable = [documentText, deviceText].filter(Boolean).join(" · ");
-  const identifier = origin.documentId || origin.deviceId;
+  const isDeviceReference = presentation.originLabel === "Dispositivo";
+  const identifier = isDeviceReference
+    ? origin.deviceId || origin.documentId
+    : origin.documentId || origin.deviceId;
 
   if (!readable && !identifier) return null;
 
-  // Sem nada legível, o leitor recebe uma frase e o id fica no tooltip: mostrar
-  // "lei_revisao_zoneamento" na página só expõe o modelo de dados.
-  const body = readable || "documento não identificado";
-  const isUnresolved = !readable;
+  // Vetoes and revocations point the reader at the affected device. Do not turn
+  // that line into a link to the source act merely because a legacy record also
+  // carries its document id.
+  const body = isDeviceReference
+    ? [deviceText, documentText].filter(Boolean).join(" · ") ||
+      "dispositivo não identificado"
+    : readable || "documento não identificado";
+  const isUnresolved = isDeviceReference ? !deviceText && !documentText : !readable;
 
   // Dispositivo deste documento âncora na própria página; origem externa abre a
   // página do ato. Sem alvo real, nada de link morto.
-  const anchor =
-    resolvedDevice && origin.deviceId
+  const anchor = isDeviceReference
+    ? resolvedDevice && origin.deviceId
+      ? elementAnchorHref(origin.deviceId)
+      : undefined
+    : resolvedDevice && origin.deviceId
       ? elementAnchorHref(origin.deviceId)
       : documentRef?.href;
   const tooltip = isUnresolved
@@ -115,7 +125,7 @@ function OriginLine({
   return (
     <div className="space-y-0.5">
       <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 text-[11px] text-muted-foreground">
-        <span className="shrink-0">Origem:</span>
+        <span className="shrink-0">{presentation.originLabel || "Origem"}:</span>
         {anchor ? (
           <a
             href={anchor}
@@ -183,9 +193,11 @@ function SituationEntry({
         )}
       </div>
 
-      <p className="text-[11px] leading-relaxed text-muted-foreground">
-        {presentation.effect}
-      </p>
+      {presentation.effect && (
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
+          {presentation.effect}
+        </p>
+      )}
 
       {presentation.excerpt && (
         <figure
@@ -303,6 +315,11 @@ export function SituationCard({
               presentation={getSituationPresentation(
                 withSpecialSituationCompatibilityFields(situation),
                 documentDate,
+                {
+                  surface: "reader",
+                  effectiveStartDate: group.effectiveStartDate,
+                  effectiveEndDate: group.effectiveEndDate,
+                },
               )}
               resolveDeviceLabel={resolveDeviceLabel}
               resolveDocument={resolveDocument}

@@ -12,6 +12,15 @@ const HIERARCHICAL_NUMERIC_SCOPE_BREAKERS = new Set<ElementType>([
   "Anexo",
 ]);
 
+const STRUCTURAL_LINE_BREAK =
+  /\r\n?|[\n\u000b\u000c\u0085\u2028\u2029]/; // eslint-disable-line no-control-regex -- document line-break separators
+
+export function getFirstAutoStructureLine(text?: string): string {
+  if (!text) return "";
+
+  return text.split(STRUCTURAL_LINE_BREAK).find((line) => line.trim()) || "";
+}
+
 function buildTypedIndexedParentKey(
   type: "Item" | "Inciso",
   index: string,
@@ -26,7 +35,7 @@ function getIndexedParentByType(
 ): string | undefined {
   const normalized = normalizeHierarchicalDottedIndex(index) ?? index?.trim();
 
-  if (!normalized) {
+  if (!normalized || STRUCTURAL_LINE_BREAK.test(normalized)) {
     return undefined;
   }
 
@@ -73,7 +82,7 @@ function isHierarchicalDottedIndex(index?: string): boolean {
 function normalizeHierarchicalDottedIndex(index?: string): string | undefined {
   const trimmed = index?.trim();
 
-  if (!trimmed) {
+  if (!trimmed || STRUCTURAL_LINE_BREAK.test(trimmed)) {
     return undefined;
   }
 
@@ -123,7 +132,7 @@ export function registerHierarchicalNumericParent(
   if (type === "Item") {
     const normalized = normalizeHierarchicalDottedIndex(index) ?? index?.trim();
 
-    if (normalized) {
+    if (normalized && !STRUCTURAL_LINE_BREAK.test(normalized)) {
       pruneIndexedParentsToActiveBranch(indexedParents, normalized, [
         "Item",
         "Inciso",

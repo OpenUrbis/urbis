@@ -1,6 +1,43 @@
-import { format, isValid, parse } from "date-fns";
+import { compareDesc, format, isValid, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { OriginalNormativo, Validity } from "./types";
+
+export const CONDITIONAL_VALIDITY = "vigência condicionada";
+
+export function isConditionalValidity(value?: string): boolean {
+  return value?.trim().toLowerCase() === CONDITIONAL_VALIDITY;
+}
+
+function parseValidityDate(value?: string): Date {
+  if (!value || isConditionalValidity(value)) return new Date(0);
+  const parsed = parse(value.trim(), "dd.MM.yyyy", new Date());
+  return isValid(parsed) ? parsed : new Date(0);
+}
+
+function getEffectiveLinkedElementStart(
+  document: OriginalNormativo,
+  elementId?: string | null,
+): string | undefined {
+  const element = elementId
+    ? document.elements?.find((candidate) => candidate.id === elementId)
+    : undefined;
+  const alterations = (element?.specialSituations ?? []).filter(
+    (situation) => situation.type === "Vigência inicial alterada",
+  );
+  const conditional = alterations.filter((situation) =>
+    isConditionalValidity(situation.date),
+  );
+  if (conditional.length > 0) {
+    return CONDITIONAL_VALIDITY;
+  }
+
+  const latestAlteration = [...alterations].sort((a, b) =>
+    compareDesc(parseValidityDate(a.date), parseValidityDate(b.date)),
+  )[0];
+  return (
+    latestAlteration?.date?.trim() || element?.originalStartValidity?.date?.trim()
+  );
+}
 
 export function createEmptyValidity(): Validity {
   return {
@@ -22,20 +59,18 @@ export function resolveLinkedElementDate(
 ): string {
   if (!document) return "";
 
-  if (elementId) {
-    const element = document.elements?.find((e) => e.id === elementId);
-    if (element?.originalStartValidity?.date?.trim()) {
-      return element.originalStartValidity.date.trim();
-    }
-  }
+  const linkedElementDate = getEffectiveLinkedElementStart(document, elementId);
+  if (linkedElementDate) return linkedElementDate;
 
-  const generalDate =
-    document.actDate?.trim() ||
-    document.publicationDate?.trim() ||
+  // A document validity is not the same thing as the act date. Prefer the
+  // explicitly configured validity and only then fall back to publication/act
+  // metadata for legacy documents that have no validity field.
+  return (
     document.originalStartValidity?.date?.trim() ||
-    "";
-
-  return generalDate;
+    document.publicationDate?.trim() ||
+    document.actDate?.trim() ||
+    ""
+  );
 }
 
 export function updateValidityNormativeElement(

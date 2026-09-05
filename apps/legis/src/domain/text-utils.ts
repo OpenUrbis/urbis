@@ -594,7 +594,7 @@ export function getCleanDisplayText(
       "i",
     ),
     Nota: new RegExp(
-      `^${TAGS_PREFIX}${OPT_WS}\\(${escapedIndex}\\)${SPACE_OPT}[\\-–—]?${SPACE_OPT}`,
+      `^${TAGS_PREFIX}${OPT_WS}(?:NOTA${SPACE_OPT})?\\(${escapedIndex}\\)${SPACE_OPT}[\\-–—:.]?${SPACE_OPT}`,
       "i",
     ),
   };

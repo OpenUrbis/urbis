@@ -8,6 +8,11 @@ import {
   NormativeElementEntity,
   OriginalNormativo,
 } from "../../domain/entities";
+import type { AnnotatedTextSegment } from "../../domain/types";
+import { getElementKey } from "../../domain/display-logic";
+import { getSegmentBaseText } from "../../domain/segment-anchor";
+import { buildRetainedExcerpt } from "../../domain/text-utils";
+import type { LinkPickerSelection } from "../inspector/LinkPickerView";
 import { parse, isValid, compareAsc } from "date-fns";
 import { useInspectorTaskRequest } from "../inspector/inspector-task-context";
 import { RulesEngine } from "../../domain/rules-engine";
@@ -36,6 +41,8 @@ export function LegisEditor({
   const { request } = useInspectorTaskRequest();
   /** Position of the reference node being edited, if any. */
   const editingNodePosRef = useRef<number | null>(null);
+  /** Cursor position where an asynchronous addition command must be inserted. */
+  const acrescimoInsertPosRef = useRef<number | null>(null);
 
   // Auto-normalize ordinals on change (if normative)
   const handleContentChange = useCallback(
@@ -251,55 +258,90 @@ export function LegisEditor({
 
   const rulesEngine = useMemo(() => new RulesEngine(), []);
 
+  const insertAcréscimoFromSource = useCallback(
+    (selection: LinkPickerSelection, sourceSegments: AnnotatedTextSegment[]) => {
+      if (!editor) return;
+
+      const sourceElement = selection.document?.elements?.find(
+        (candidate) => candidate.id === selection.elementId,
+      );
+      const sourceBaseText = sourceElement
+        ? getSegmentBaseText(sourceElement)
+        : "";
+      const sourceText = sourceSegments.length
+        ? buildRetainedExcerpt(sourceBaseText, sourceSegments)
+        : sourceBaseText;
+
+      if (!sourceText.trim()) {
+        acrescimoInsertPosRef.current = null;
+        return;
+      }
+
+      // The structure comes from the linked source Element too. This avoids
+      // asking for a second, conflicting "new element" text/index in a prompt.
+      const parseText = sourceElement
+        ? `${getElementKey(sourceElement)}${sourceText}`
+        : sourceText;
+      const parsed = rulesEngine.parseLine(parseText);
+      const elementId = `el-${Date.now()}`;
+      const situation = {
+        type: "Acréscimo" as const,
+        sourceDocumentId: selection.documentId,
+        sourceDocumentLabel: selection.documentLabel,
+        relatedDeviceId: selection.elementId,
+        normativeElementId: selection.elementId,
+        dispositivo: selection.deviceLabel || selection.elementId,
+        device: selection.deviceLabel || selection.elementId,
+        sourceTrechos: sourceSegments,
+        newText: sourceText,
+        date: "",
+      };
+
+      const content = {
+        type: "paragraph",
+        attrs: {
+          normativeId: elementId,
+          specialSituations: [situation],
+          type: parsed.type,
+          index: parsed.index,
+        },
+        content: [
+          {
+            type: "text",
+            text: sourceText.trim(),
+          },
+        ],
+      };
+      const insertionPosition = acrescimoInsertPosRef.current;
+
+      const chain = editor.chain().focus();
+      if (insertionPosition !== null) {
+        chain.insertContentAt(insertionPosition, content).run();
+      } else {
+        chain.insertContent(content).run();
+      }
+      acrescimoInsertPosRef.current = null;
+    },
+    [acrescimoInsertPosRef, editor, rulesEngine],
+  );
+
   const customSuggestionItems = useMemo(
     () => [
       ...defaultSuggestionItems,
       {
         title: "Acréscimo Normativo",
-        description: "Inserir novo dispositivo acrescido com dispositivo de origem",
+        description: "Vincular o Elemento de origem e selecionar o trecho acrescido",
         searchTerms: ["acréscimo", "acrescimo", "adicionar", "incluir", "inserir", "dispositivo", "norma"],
         icon: <PlusCircle size={18} />,
         command: ({ editor: instance, range }: any) => {
           instance.chain().focus().deleteRange(range).run();
-          const acrescimoText = window.prompt(
-            "Digite o texto do novo Elemento Normativo acrescido (ex.: 'LXXVIII - a todos, no âmbito judicial...'):",
-          );
-          if (!acrescimoText || !acrescimoText.trim()) return;
-
-          const dispositivo =
-            window.prompt(
-              "Informe o Dispositivo / Ato de Origem (ex.: 'Art. 1º da Emenda Constitucional nº 45/2004'):",
-            ) || "";
-
-          const parsed = rulesEngine.parseLine(acrescimoText);
-          const elementId = `el-${Date.now()}`;
-          const situation = {
-            type: "Acréscimo" as const,
-            relatedDeviceId: dispositivo,
-            dispositivo: dispositivo,
-            device: dispositivo,
-            date: "",
-          };
-
-          instance
-            .chain()
-            .focus()
-            .insertContent({
-              type: "paragraph",
-              attrs: {
-                normativeId: elementId,
-                specialSituations: [situation],
-                type: parsed.type,
-                index: parsed.index,
-              },
-              content: [
-                {
-                  type: "text",
-                  text: acrescimoText.trim(),
-                },
-              ],
-            })
-            .run();
+          acrescimoInsertPosRef.current = instance.state.selection.from;
+          request({
+            kind: "acrescimo",
+            title: "Elemento normativo que acrescenta",
+            localElements,
+            onResolve: insertAcréscimoFromSource,
+          });
         },
       },
       {
@@ -331,7 +373,7 @@ export function LegisEditor({
         },
       },
     ],
-    [rulesEngine, request, requestLinks],
+    [insertAcréscimoFromSource, localElements, request, requestLinks],
   );
 
   return (

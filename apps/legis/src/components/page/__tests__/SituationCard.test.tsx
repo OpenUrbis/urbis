@@ -91,18 +91,18 @@ describe("SituationCard", () => {
       ],
     });
 
-    it("states the type exactly once instead of repeating it as a heading", () => {
+    it("states the reader-facing type exactly once", () => {
       const html = renderSituationCard(lossOfEffect);
       const occurrences =
-        html.split("Perda definitiva de vigor/eficácia").length - 1;
+        html.split("PERDA DEFINITIVA DE VIGOR/EFICÁCIA").length - 1;
 
       expect(occurrences).toBe(1);
     });
 
-    it("never shouts the type in uppercase", () => {
+    it("uses the official uppercase type in the reading view", () => {
       const html = renderSituationCard(lossOfEffect);
 
-      expect(html).not.toContain("PERDA DEFINITIVA DE VIGOR/EFICÁCIA");
+      expect(html).toContain("PERDA DEFINITIVA DE VIGOR/EFICÁCIA");
     });
 
     it("explains a whole-device situation in plain language", () => {
@@ -161,9 +161,59 @@ describe("SituationCard", () => {
         }),
       );
 
+      expect(html).toContain("VETO");
+      expect(html).toContain("Texto(s) vetado(s)");
       expect(html).toContain("Veto parcial");
       expect(html).toContain("trecho vetado");
+      expect(html).not.toContain("Todo o dispositivo foi vetado.");
       expect(html).toContain("line-through");
+    });
+
+    it("uses the effective element validity in a revocation card", () => {
+      const html = renderSituationCard(
+        makeGroup({
+          type: "EXISTENCE_GROUP",
+          effectiveStartDate: "01.01.2020",
+          situations: [
+            {
+              type: "Revogação",
+              date: "19.03.2024",
+              relatedDeviceId: "art-1",
+              dispositivo: "Art. 1º inteiro",
+            },
+          ],
+        }),
+      );
+
+      expect(html).toContain("Acréscimos, Extinções e Repristinações");
+      expect(html).toContain("REVOGAÇÃO");
+      expect(html).toContain("Início da vigência: 01.01.2020");
+      expect(html).not.toContain("em 19.03.2024");
+      expect(html).not.toContain("Todo o dispositivo foi revogado.");
+      expect(html).toContain("Dispositivo:");
+      expect(html).toContain("Art. 1º inteiro");
+    });
+
+    it("does not show a date for a veto and names the affected device", () => {
+      const html = renderSituationCard(
+        makeGroup({
+          type: "VETO_GROUP",
+          situations: [
+            {
+              type: "Veto",
+              date: "19.03.2024",
+              relatedDeviceId: "art-1",
+              dispositivo: "Art. 1º",
+            },
+          ],
+        }),
+      );
+
+      expect(html).toContain("Vetos e Derrubadas de Veto");
+      expect(html).toContain("Dispositivo:");
+      expect(html).toContain("Art. 1º");
+      expect(html).not.toContain("19.03.2024");
+      expect(html).not.toContain("Todo o dispositivo foi vetado.");
     });
 
     it("describes a renumbering with its new reference", () => {
@@ -204,8 +254,8 @@ describe("SituationCard", () => {
     it("uses a group title that is not an enumeration of internal types", () => {
       const html = renderSituationCard(lossOfEffect);
 
-      expect(html).toContain("Vigor e eficácia");
-      expect(html).not.toContain("Retiradas e Restauração");
+      expect(html).toContain("Retiradas e restaurações de vigor/eficácia");
+      expect(html).not.toContain("Modificação da Estrutura");
     });
   });
 });

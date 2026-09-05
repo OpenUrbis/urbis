@@ -1,5 +1,9 @@
 import type { SpecialSituation } from "../../domain/entities";
 import {
+  CONDITIONAL_VALIDITY,
+  isConditionalValidity,
+} from "../../domain/validity";
+import {
   buildAnnotatedSegmentsExcerpt,
   buildCitationFromAnchoredSegments,
   normalizeAnnotatedTextSegments,
@@ -46,6 +50,15 @@ export interface SituationExcerpt {
   struck: boolean;
 }
 
+export type SituationPresentationSurface = "admin" | "reader";
+
+export interface SituationPresentationOptions {
+  surface?: SituationPresentationSurface;
+  /** Effective validity of the affected element, never the source act date. */
+  effectiveStartDate?: string;
+  effectiveEndDate?: string;
+}
+
 export interface SituationPresentation {
   /** Official type name. Rendered exactly once. */
   title: string;
@@ -58,6 +71,8 @@ export interface SituationPresentation {
   excerpt?: SituationExcerpt;
   /** Extra facts, e.g. the new numbering after a renumbering. */
   details: { label: string; value: string }[];
+  /** Label of the reference line in the reading view. */
+  originLabel?: string;
   origin?: SituationOrigin;
 }
 
@@ -91,21 +106,85 @@ function getTone(type: SpecialSituation["type"]): SituationTone {
   return "neutral";
 }
 
-const CONDITIONAL_VALIDITY = "vigência condicionada";
+const DEVICE_REFERENCE_TYPES = new Set<SpecialSituation["type"]>([
+  "Veto",
+  "Derrubada de veto",
+  "Revogação",
+  "Anulação",
+  "Cassação",
+]);
+
+const READER_TITLES: Partial<Record<SpecialSituation["type"], string>> = {
+  Veto: "VETO",
+  "Derrubada de veto": "DERRUBADA DE VETO",
+  Renumeração: "RENUMERAÇÃO",
+  "Nova redação": "NOVA REDAÇÃO",
+  "Perda definitiva de vigor/eficácia":
+    "PERDA DEFINITIVA DE VIGOR/EFICÁCIA",
+  "Suspensão de vigor/eficácia": "SUSPENSÃO DE VIGOR/EFICÁCIA",
+  "Restauração de vigor/eficácia": "RESTAURAÇÃO DE VIGOR/EFICÁCIA",
+  "Interpretação conforme à Constituição":
+    "INTERPRETAÇÃO CONFORME À CONSTITUIÇÃO",
+  "Declaração de inconstitucionalidade sem redução de texto":
+    "DECLARAÇÃO DE INCONSTITUCIONALIDADE SEM REDUÇÃO DE TEXTO",
+  Acréscimo: "ACRÉSCIMO",
+  Revogação: "REVOGAÇÃO",
+  Anulação: "ANULAÇÃO",
+  Cassação: "CASSAÇÃO",
+  Repristinação: "REPRISTINAÇÃO",
+  "Vigência inicial alterada": "VIGÊNCIA NÃO INICIADA",
+  "Vigência final alterada": "VIGÊNCIA FINALIZADA",
+  "Alteração de ementa": "ALTERAÇÃO DE EMENTA",
+};
+
+function formatReaderDate(date?: string): string | undefined {
+  const normalized = date?.trim();
+  if (!normalized) return undefined;
+  return isConditionalValidity(normalized) ? CONDITIONAL_VALIDITY : normalized;
+}
 
 function getDateLabel(
   situation: SpecialSituation,
   fallbackDate?: string,
+  options: SituationPresentationOptions = {},
 ): string | undefined {
-  const date = situation.date?.trim() || fallbackDate?.trim();
-  if (!date) return undefined;
-  if (date === CONDITIONAL_VALIDITY) return "vigência condicionada";
+  const isReader = options.surface === "reader";
+
+  // A veto card describes the vetoed text/device, not the date of the act that
+  // imposed it. The date remains available in the Admin record.
+  if (isReader && situation.type === "Veto") return undefined;
+
+  let date = situation.date?.trim() || fallbackDate?.trim();
+  if (isReader && situation.type === "Revogação") {
+    date = options.effectiveStartDate?.trim();
+    return date ? `Início da vigência: ${formatReaderDate(date)}` : undefined;
+  }
+  if (isReader && situation.type === "Anulação") {
+    date = options.effectiveStartDate?.trim();
+    return date ? `Início da vigência: ${formatReaderDate(date)}` : undefined;
+  }
+  if (isReader && situation.type === "Cassação") {
+    date = options.effectiveStartDate?.trim();
+    return date ? `Início da vigência: ${formatReaderDate(date)}` : undefined;
+  }
+  if (isReader && situation.type === "Vigência inicial alterada") {
+    date = options.effectiveStartDate?.trim() || date;
+    return date ? `Início da vigência: ${formatReaderDate(date)}` : undefined;
+  }
+  if (isReader && situation.type === "Vigência final alterada") {
+    date = options.effectiveEndDate?.trim() || date;
+    return date ? `Fim da vigência: ${formatReaderDate(date)}` : undefined;
+  }
+
+  const formatted = formatReaderDate(date);
+  if (!formatted) return undefined;
+  if (isConditionalValidity(formatted)) return CONDITIONAL_VALIDITY;
 
   if (situation.type === "Vigência inicial alterada")
-    return `a partir de ${date}`;
-  if (situation.type === "Vigência final alterada") return `até ${date}`;
+    return `a partir de ${formatted}`;
+  if (situation.type === "Vigência final alterada") return `até ${formatted}`;
 
-  return `em ${date}`;
+  return `em ${formatted}`;
 }
 
 /**
@@ -243,7 +322,9 @@ function getOrigin(situation: SpecialSituation): SituationOrigin | undefined {
 export function getSituationPresentation(
   situation: SpecialSituation,
   fallbackDate?: string,
+  options: SituationPresentationOptions = {},
 ): SituationPresentation {
+  const isReader = options.surface === "reader";
   const copy = EFFECT_COPY[situation.type] ?? {
     whole: "Situação especial registrada.",
   };
@@ -267,20 +348,44 @@ export function getSituationPresentation(
     details.push({ label: "Novo índice", value: situation.newIndex.trim() });
   }
 
+  const origin = getOrigin(situation);
+  const publicEffect =
+    isReader && situation.type === "Veto" && !isPartial
+      ? ""
+      : isReader && situation.type === "Revogação" && !isPartial
+        ? ""
+        : isPartial
+          ? copy.partial!
+          : copy.whole;
+  const excerptLabel =
+    isReader && situation.type === "Veto"
+      ? "Texto(s) vetado(s)"
+      : isReader && situation.type === "Revogação" && !hasSegments
+        ? "Dispositivo revogado"
+        : copy.excerptLabel;
+
   return {
-    title: situation.type,
+    title: isReader
+      ? READER_TITLES[situation.type] || situation.type
+      : situation.type,
     tone: getTone(situation.type),
-    dateLabel: getDateLabel(situation, fallbackDate),
-    effect: isPartial ? copy.partial! : copy.whole,
+    dateLabel: getDateLabel(situation, fallbackDate, options),
+    effect: publicEffect,
     excerpt:
-      excerptText && copy.excerptLabel
+      excerptText && excerptLabel
         ? {
-            label: copy.excerptLabel,
+            label: excerptLabel,
             text: excerptText,
             struck: !!copy.struck,
           }
         : undefined,
     details,
-    origin: getOrigin(situation),
+    originLabel:
+      origin &&
+      DEVICE_REFERENCE_TYPES.has(situation.type) &&
+      (origin.deviceLabel || origin.deviceId)
+        ? "Dispositivo"
+        : "Origem",
+    origin,
   };
 }

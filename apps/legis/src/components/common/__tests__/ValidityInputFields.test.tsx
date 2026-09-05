@@ -37,4 +37,21 @@ describe("ValidityInputFields", () => {
     expect(html).toContain("15/05/2016");
     expect(html).toContain("Lei 1.234 - Art. 1º");
   });
+
+  it("renders conditional validity as an explicit selectable state", () => {
+    const html = renderToStaticMarkup(
+      <ValidityInputFields
+        value={{
+          date: "vigência condicionada",
+          deviceId: "",
+          normativeElementId: "",
+        }}
+        onChange={vi.fn()}
+        onOpenLinkManager={vi.fn()}
+      />,
+    );
+
+    expect(html).toContain("Vigência condicionada");
+    expect(html).toContain("Informar data");
+  });
 });

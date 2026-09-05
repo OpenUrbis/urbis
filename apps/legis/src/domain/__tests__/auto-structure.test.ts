@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import type { ElementType } from "../entities";
+import { RulesEngine } from "../rules-engine";
 import {
+  getFirstAutoStructureLine,
   getImmediateHierarchicalParentIndex,
   isHierarchicalNumericIndex,
   normalizeHierarchicalNumericIndex,
@@ -47,6 +49,42 @@ describe("isHierarchicalNumericIndex", () => {
   });
 });
 
+describe("getFirstAutoStructureLine", () => {
+  it("keeps a following item from being absorbed into the current index", () => {
+    const engine = new RulesEngine();
+    const indexedParents = new Map<string, string>();
+    const parentLine = "1.1.\n1.1.1.";
+
+    const parent = engine.parseLine(getFirstAutoStructureLine(parentLine));
+    registerHierarchicalNumericParent(
+      indexedParents,
+      parent.type,
+      parent.index,
+      "item-1-1",
+    );
+
+    const child = engine.parseLine(
+      getFirstAutoStructureLine("1.1.1.\nDescrição do item."),
+    );
+
+    expect(parent).toMatchObject({ type: "Item", index: "1.1" });
+    expect(child).toMatchObject({ type: "Item", index: "1.1.1" });
+    expect(
+      resolveHierarchicalNumericParentId(
+        child.type,
+        child.index,
+        indexedParents,
+      ),
+    ).toBe("item-1-1");
+  });
+
+  it("skips blank lines without changing the parsed key", () => {
+    expect(getFirstAutoStructureLine("\n\r\n  2.1. item")).toBe(
+      "  2.1. item",
+    );
+  });
+});
+
 describe("normalizeHierarchicalNumericIndex", () => {
   it("drops the trailing dot and inner blanks", () => {
     expect(normalizeHierarchicalNumericIndex("1.1.")).toBe("1.1");
@@ -67,6 +105,10 @@ describe("normalizeHierarchicalNumericIndex", () => {
     expect(normalizeHierarchicalNumericIndex("1.a")).toBeUndefined();
     expect(normalizeHierarchicalNumericIndex("I.II")).toBeUndefined();
     expect(normalizeHierarchicalNumericIndex("1º.2")).toBeUndefined();
+  });
+
+  it("rejects an index that crosses a line break", () => {
+    expect(normalizeHierarchicalNumericIndex("1.1.\n1.1.1.")).toBeUndefined();
   });
 
   it("silently collapses empty segments, unlike isHierarchicalNumericIndex", () => {

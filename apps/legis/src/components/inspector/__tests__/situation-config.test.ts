@@ -51,6 +51,30 @@ describe("SITUATION_TYPE_CONFIG", () => {
       SITUATION_TYPE_OPTION_GROUPS.every((group) => group.label.length > 0),
     ).toBe(true);
   });
+
+  it("uses the agreed Admin groups and registration order", () => {
+    expect(SITUATION_TYPE_OPTION_GROUPS.map((group) => group.label)).toEqual([
+      "Vetos e Derrubadas de Veto",
+      "Renumerações e Novas redações",
+      "Retiradas de vigor/eficácia e Restauração de vigor/eficácia",
+      "Interpretações constitucionais",
+      "Acréscimos, Extinções e Repristinações",
+      "Vigência",
+    ]);
+
+    expect(SITUATION_TYPE_OPTION_GROUPS[0].types).toEqual([
+      "Veto",
+      "Derrubada de veto",
+    ]);
+    expect(SITUATION_TYPE_OPTION_GROUPS[1].types.slice(0, 2)).toEqual([
+      "Renumeração",
+      "Nova redação",
+    ]);
+    expect(SITUATION_TYPE_OPTION_GROUPS[5].types).toEqual([
+      "Vigência inicial alterada",
+      "Vigência final alterada",
+    ]);
+  });
 });
 
 describe("pruneSituationDraftForType", () => {
@@ -246,6 +270,31 @@ describe("isSituationDraftValid", () => {
     ).toBe(true);
     expect(
       isSituationDraftValid({ type: "Nova redação", sourceDocumentId: "doc-1" }),
+    ).toBe(true);
+  });
+
+  it("requires an addition to derive its text from the linked source", () => {
+    expect(
+      isSituationDraftValid({
+        type: "Acréscimo",
+        relatedDeviceId: "source-el-1",
+      }),
+    ).toBe(false);
+    expect(
+      isSituationDraftValid({
+        type: "Acréscimo",
+        relatedDeviceId: "source-el-1",
+        newText: "trecho da norma de origem",
+      }),
+    ).toBe(true);
+    expect(
+      isSituationDraftValid({
+        type: "Acréscimo",
+        relatedDeviceId: "source-el-1",
+        sourceTrechos: [
+          { start: 0, end: 8, selectedText: "trecho" },
+        ],
+      }),
     ).toBe(true);
   });
 });

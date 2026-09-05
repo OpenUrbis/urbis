@@ -30,6 +30,7 @@ import { usePermission } from "../hooks/use-permission";
 import { useLegisLayout } from "../components/layout/legis-layout";
 import { PageResultCard } from "../components/page/PageResultCard";
 import { PageResultListSkeleton } from "../components/page/PageResultCardSkeleton";
+import { InfoButton, InfoModal } from "../components/common/InfoModal";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -49,6 +50,7 @@ export default function Home() {
   const [results, setResults] = useState<GlobalSearchResult[] | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid"); // Grid as default
   const [isMoreInfoOpen, setIsMoreInfoOpen] = useState(false);
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
 
   const getPageTypeLabel = (type: PageType) => {
     return type === "original_normativo"
@@ -394,6 +396,10 @@ export default function Home() {
                     Criar Página
                   </Button>
                 )}
+                <InfoButton
+                  onClick={() => setInfoModalOpen(true)}
+                  title="Informações do Legis"
+                />
               </div>
             </div>
 
@@ -597,6 +603,13 @@ export default function Home() {
             )}
           </div>
         </div>
+
+        <InfoModal
+          open={infoModalOpen}
+          onOpenChange={setInfoModalOpen}
+          title="Informações do Legis"
+          category="general"
+        />
       </div>
     );
   }

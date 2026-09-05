@@ -308,7 +308,10 @@ export function SpecialSituationsInspector({
             normativeElementId: elementId,
             dispositivo: deviceLabel || elementId,
             device: deviceLabel || elementId,
-            date: linkedDate || previous.date || documentValidityDate || "",
+            // The linked device provides the source reference, not the date of
+            // the situation. Keep the act/document date unless the editor has
+            // already configured another value (including conditional validity).
+            date: previous.date || documentValidityDate || "",
             newText: shouldAutofill ? sourceBaseText : previous.newText,
           };
         });
@@ -492,7 +495,11 @@ export function SpecialSituationsInspector({
         onToggleCollapse={toggleCollapse}
       >
         <LinkPickerView
-          title="Vincular dispositivo"
+          title={
+            target === "situation" && draft.type === "Acréscimo"
+              ? "Elemento normativo que acrescenta"
+              : "Vincular dispositivo"
+          }
           localElements={allElements}
           initialSelection={
             target === "situation"

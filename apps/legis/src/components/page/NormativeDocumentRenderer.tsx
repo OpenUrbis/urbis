@@ -349,7 +349,7 @@ export function NormativeDocumentRenderer({
           </div>
           {data.preamble && (
             <div
-              className="text-sm mb-4 whitespace-pre-wrap"
+              className="legis-preamble text-sm mb-4 whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: data.preamble }}
             />
           )}

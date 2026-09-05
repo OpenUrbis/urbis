@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Input } from "@open-urbis/map-ui";
+import { Button, Input } from "@open-urbis/map-ui";
 import { isAfter, isValid, parse, startOfDay } from "date-fns";
+import {
+  CONDITIONAL_VALIDITY,
+  isConditionalValidity,
+} from "../../domain/validity";
 
 interface DatePartsInputProps {
   value?: string;
@@ -8,11 +12,13 @@ interface DatePartsInputProps {
   disabled?: boolean;
   maxYear?: number;
   allowFuture?: boolean;
+  /** Adds an explicit control for the non-date validity state. */
+  allowConditional?: boolean;
   className?: string;
 }
 
 function normalizeStoredDateToDisplay(storedValue?: string) {
-  if (!storedValue || storedValue === "vigência condicionada") return "";
+  if (!storedValue || isConditionalValidity(storedValue)) return "";
 
   const parts = storedValue.split(".");
   if (parts.length !== 3) return storedValue;
@@ -26,8 +32,10 @@ export function DatePartsInput({
   disabled,
   maxYear,
   allowFuture,
+  allowConditional = false,
   className,
 }: DatePartsInputProps) {
+  const isConditional = isConditionalValidity(value);
   const [displayValue, setDisplayValue] = useState(() =>
     normalizeStoredDateToDisplay(value),
   );
@@ -87,14 +95,42 @@ export function DatePartsInput({
   };
 
   return (
-    <Input
-      placeholder="dd/mm/aaaa"
-      value={displayValue}
-      onChange={(e) => handleChange(e.target.value)}
-      inputMode="numeric"
-      maxLength={10}
-      disabled={disabled}
-      className={className}
-    />
+    <div className="space-y-1">
+      <div className="flex items-center gap-1">
+        <Input
+          placeholder="dd/mm/aaaa"
+          value={displayValue}
+          onChange={(e) => handleChange(e.target.value)}
+          inputMode="numeric"
+          maxLength={10}
+          disabled={disabled || isConditional}
+          className={className}
+        />
+        {allowConditional && (
+          <Button
+            type="button"
+            variant={isConditional ? "outline" : "ghost"}
+            size="sm"
+            className="h-8 shrink-0 px-1.5 text-[10px]"
+            onClick={() =>
+              onChange(isConditional ? undefined : CONDITIONAL_VALIDITY)
+            }
+            disabled={disabled}
+            title={
+              isConditional
+                ? "Trocar a vigência condicionada por uma data"
+                : "Marcar como vigência condicionada"
+            }
+          >
+            {isConditional ? "Informar data" : "Condicionada"}
+          </Button>
+        )}
+      </div>
+      {allowConditional && isConditional && (
+        <span className="text-[10px] text-muted-foreground">
+          Vigência condicionada
+        </span>
+      )}
+    </div>
   );
 }

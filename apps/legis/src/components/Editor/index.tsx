@@ -89,16 +89,16 @@ export default function NovelEditorWrapper({
                 <EditorCommandItem
                   value={item.title}
                   onCommand={(val) => item.command?.(val)}
-                  className="flex w-full items-center space-x-2 rounded-md px-2 py-1 text-left text-sm hover:bg-accent aria-selected:bg-accent"
+                  className="group flex w-full items-center space-x-2 rounded-md px-2 py-1 text-left text-sm text-foreground hover:bg-accent hover:text-accent-foreground aria-selected:bg-accent aria-selected:text-accent-foreground"
                   key={item.title}
                   keywords={item.searchTerms}
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md border border-muted bg-background">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md border border-muted bg-background text-inherit">
                     {item.icon}
                   </div>
                   <div>
-                    <p className="font-medium">{item.title}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-medium text-inherit">{item.title}</p>
+                    <p className="text-xs text-inherit opacity-70">
                       {item.description}
                     </p>
                   </div>

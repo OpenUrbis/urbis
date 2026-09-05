@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "preact/hooks";
-import { Input, Button, cn } from "@open-urbis/map-ui";
+import { Input, cn } from "@open-urbis/map-ui";
 import { Copy, Check, Search, Layers, FileSpreadsheet, ExternalLink, X, SlidersHorizontal } from "lucide-react";
 import { useToast } from "../../hooks/useToast";
 import { useMapContext } from "../../hooks/useMapContext";
@@ -699,8 +699,6 @@ export interface FeatureAttributesTableProps {
   title?: string;
   calculatedArea?: string | null;
   className?: string;
-  canOpenFiu?: boolean;
-  onOpenFiu?: () => void;
 }
 
 export const FeatureAttributesTable = ({
@@ -709,8 +707,6 @@ export const FeatureAttributesTable = ({
   selectedFeature,
   onSelectFeature,
   className,
-  canOpenFiu = false,
-  onOpenFiu,
 }: FeatureAttributesTableProps) => {
   const {
     layerSchemas,
@@ -1302,31 +1298,6 @@ export const FeatureAttributesTable = ({
             </button>
           )}
         </div>
-
-        {/* Iniciar FIU Action Button */}
-        {canOpenFiu && onOpenFiu && (
-          <Button
-            type="button"
-            size="sm"
-            variant="default"
-            onClick={onOpenFiu}
-            className="h-8 px-3 text-xs font-semibold rounded-md gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xs shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-            title="Abrir Ficha de Informações Urbanísticas oficial em nova aba"
-            aria-label="Abrir Ficha de Informações Urbanísticas (Iniciar FIU)"
-          >
-            <span
-              className="h-3.5 w-3.5 shrink-0"
-              style={{
-                backgroundColor: "currentColor",
-                mask: "url(/capivara-icone.svg) no-repeat center / contain",
-                WebkitMask: "url(/capivara-icone.svg) no-repeat center / contain",
-              }}
-              aria-hidden="true"
-            />
-            <span>Iniciar FIU</span>
-            <ExternalLink className="h-3 w-3 opacity-80" aria-hidden="true" />
-          </Button>
-        )}
 
         {/* Toggle Modo Avançado */}
         <button

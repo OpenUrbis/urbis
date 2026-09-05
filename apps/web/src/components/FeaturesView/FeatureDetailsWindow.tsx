@@ -1018,8 +1018,6 @@ export const FeatureDetailsWindow = () => {
                         onSelectFeature={(feat) => setSelectedInspectFeature(feat)}
                         title={headerTitle}
                         calculatedArea={formattedArea}
-                        canOpenFiu={fiuCheck.ok && !polygonLoading}
-                        onOpenFiu={handleOpenFiuClick}
                       />
                     </TabsContent>
 
@@ -1171,8 +1169,6 @@ export const FeatureDetailsWindow = () => {
                       onSelectFeature={(feat) => setSelectedInspectFeature(feat)}
                       title={headerTitle}
                       calculatedArea={formattedArea}
-                      canOpenFiu={fiuCheck.ok && !polygonLoading}
-                      onOpenFiu={handleOpenFiuClick}
                     />
                   </div>
                 )}

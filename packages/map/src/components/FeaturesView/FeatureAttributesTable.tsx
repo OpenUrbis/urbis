@@ -761,8 +761,6 @@ export interface FeatureAttributesTableProps {
   title?: string;
   calculatedArea?: string | null;
   className?: string;
-  canOpenFiu?: boolean;
-  onOpenFiu?: () => void;
 }
 
 export const FeatureAttributesTable = ({
@@ -771,8 +769,6 @@ export const FeatureAttributesTable = ({
   selectedFeature,
   onSelectFeature,
   className,
-  canOpenFiu = false,
-  onOpenFiu,
 }: FeatureAttributesTableProps) => {
   const {
     layerSchemas,

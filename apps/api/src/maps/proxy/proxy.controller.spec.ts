@@ -181,4 +181,44 @@ describe('ProxyController', () => {
       );
     });
   });
+
+  describe('proxyLayerWfs', () => {
+    it('automatically injects typeName and normalizes legacy CQL filters for lotes_fiscais', async () => {
+      const mockLayer: Partial<LayerSchema> = {
+        id: 'lotes_fiscais',
+        name: 'Lotes fiscais',
+        origin:
+          'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=slui%3Alotes_fiscais',
+        isPublic: true,
+        isActive: true,
+        properties: {
+          typeName: 'slui:lotes_fiscais',
+        },
+      };
+      layerSchemaRepo.findOne.mockResolvedValue(mockLayer as LayerSchema);
+
+      const res = mockResponse();
+      const query = {
+        service: 'WFS',
+        version: '1.1.0',
+        request: 'GetFeature',
+        outputFormat: 'json',
+        CQL_FILTER:
+          "cd_setor_fiscal = '014' AND cd_quadra_fiscal = '045' AND cd_lote = '0007' AND cd_condominio = '00'",
+      };
+
+      await controller.proxyLayerWfs('lotes_fiscais', { headers: {} }, res, query);
+
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        expect.stringContaining('https://geoserver.slui.dev/geoserver/slui/ows?'),
+        expect.anything(),
+      );
+
+      const calledUrl = new URL(mockedAxios.get.mock.calls[0][0]);
+      expect(calledUrl.searchParams.get('typeName')).toBe('slui:lotes_fiscais');
+      expect(calledUrl.searchParams.get('CQL_FILTER')).toBe(
+        "sql_condominio = '014045000700'",
+      );
+    });
+  });
 });

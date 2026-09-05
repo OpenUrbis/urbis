@@ -1136,6 +1136,24 @@ const PrintPage = () => {
     return () => clearInterval(interval);
   }, [loading.value, isInteractive.value]);
 
+  const normalizeTaxLotCql = (cql: string): string => {
+    if (!cql || typeof cql !== "string") return cql;
+    const setorMatch = cql.match(/cd_setor_fiscal\s*=\s*['"]?(\d+)['"]?/i);
+    const quadraMatch = cql.match(/cd_quadra_fiscal\s*=\s*['"]?(\d+)['"]?/i);
+    const loteMatch = cql.match(/cd_lote\s*=\s*['"]?(\d+)['"]?/i);
+    const condoMatch = cql.match(/cd_condominio\s*=\s*['"]?(\d+)['"]?/i);
+
+    if (setorMatch && quadraMatch && loteMatch) {
+      const s = setorMatch[1].padStart(3, "0");
+      const q = quadraMatch[1].padStart(3, "0");
+      const l = loteMatch[1].padStart(4, "0");
+      const c = (condoMatch ? condoMatch[1] : "00").padStart(2, "0");
+      return `sql_condominio = '${s}${q}${l}${c}'`;
+    }
+
+    return cql;
+  };
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchPolygonData = async (
     layerSchema: string,
@@ -1165,21 +1183,73 @@ const PrintPage = () => {
       requestUrl = `${environment}/proxy?url=${encodeURIComponent(fixedOrigin)}`;
     }
 
+    const fixedParams = { ...params };
+    const cqlKey = Object.keys(fixedParams).find(
+      (k) => k.toUpperCase() === "CQL_FILTER",
+    );
+    if (cqlKey && fixedParams[cqlKey]) {
+      fixedParams[cqlKey] = normalizeTaxLotCql(fixedParams[cqlKey]);
+    }
+
+    if (layerSchema && !fixedParams.typeName && !fixedParams.typeNames) {
+      fixedParams.typeName =
+        layerSchema === "lotes_fiscais" ? "slui:lotes_fiscais" : layerSchema;
+    }
+
     const mergedParams = {
       service: "WFS",
       version: "1.1.0",
       request: "GetFeature",
       outputFormat: "json",
       srsName: "EPSG:4326",
-      ...params,
+      ...fixedParams,
     };
 
-    const { data: responseData, status } = await axios.get(requestUrl, {
-      params: mergedParams,
-      headers,
-    });
+    let responseData: any = null;
+    let status = 0;
 
-    const feature = responseData?.features?.[0];
+    try {
+      const response = await axios.get(requestUrl, {
+        params: mergedParams,
+        headers,
+      });
+      responseData = response.data;
+      status = response.status;
+    } catch {
+      // Primary request failed, check fallback below
+    }
+
+    let feature = responseData?.features?.[0];
+
+    // Fallback: if queried with sql_condominio and not found, try integer setor/quadra/lote fields
+    if (!feature && cqlKey && fixedParams[cqlKey]) {
+      const sqlCondoMatch = String(fixedParams[cqlKey]).match(
+        /sql_condominio\s*=\s*['"]?(\d{12})['"]?/i,
+      );
+      if (sqlCondoMatch) {
+        const full = sqlCondoMatch[1];
+        const s = parseInt(full.slice(0, 3), 10);
+        const q = parseInt(full.slice(3, 6), 10);
+        const l = parseInt(full.slice(6, 10), 10);
+        const fallbackFilter = `setor_fiscal = ${s} AND quadra_fiscal = ${q} AND lote_fiscal = ${l}`;
+
+        try {
+          const fallbackRes = await axios.get(requestUrl, {
+            params: {
+              ...mergedParams,
+              [cqlKey]: fallbackFilter,
+            },
+            headers,
+          });
+          if (fallbackRes.status === 200 && fallbackRes.data?.features?.[0]) {
+            feature = fallbackRes.data.features[0];
+            status = 200;
+          }
+        } catch {
+          // Ignore fallback failure
+        }
+      }
+    }
 
     if (!feature || status !== 200)
       throw { message: "LayerSchema data is not found" };
@@ -1190,13 +1260,14 @@ const PrintPage = () => {
   const fetchLayerConfig = async (layerSchema: string) => {
     if (!layerSchema) throw { message: "LayerSchema is not found" };
 
-    const { origin, boardTemplate } = await getLayerSchema(layerSchema);
+    const schema = await getLayerSchema(layerSchema);
+    if (!schema) throw { message: "LayerSchema is not found" };
 
-    if (!boardTemplate) throw { message: "BoardTemplate is not found" };
+    if (schema.boardTemplate && schema.boardTemplate.length > 0) {
+      template.value = schema.boardTemplate;
+    }
 
-    template.value = boardTemplate;
-
-    return origin;
+    return schema.origin || "";
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

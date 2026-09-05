@@ -294,7 +294,12 @@ export const hasTaxLotFiuParams = (feature: any): boolean => {
   const props = feature?.properties ?? {};
 
   return Boolean(
-    props.cd_setor_fiscal && props.cd_quadra_fiscal && props.cd_lote,
+    props.sql_condominio ||
+      props.sql ||
+      (props.setor_fiscal !== undefined &&
+        props.quadra_fiscal !== undefined &&
+        props.lote_fiscal !== undefined) ||
+      (props.cd_setor_fiscal && props.cd_quadra_fiscal && props.cd_lote),
   );
 };
 
@@ -302,24 +307,35 @@ export const buildTaxLotFiuUrl = (feature: any): string | null => {
   if (!hasTaxLotFiuParams(feature)) return null;
 
   const props = feature.properties ?? {};
-  const filterParts = [
-    `cd_setor_fiscal = '${props.cd_setor_fiscal}'`,
-    `cd_quadra_fiscal = '${props.cd_quadra_fiscal}'`,
-    `cd_lote = '${props.cd_lote}'`,
-  ];
 
-  if (
-    props.cd_condominio !== undefined &&
-    props.cd_condominio !== null &&
-    props.cd_condominio !== ""
-  ) {
-    filterParts.push(`cd_condominio = '${props.cd_condominio}'`);
+  let cqlFilter = "";
+  if (props.sql_condominio) {
+    cqlFilter = `sql_condominio = '${props.sql_condominio}'`;
+  } else if (props.sql && String(props.sql).replace(/\D/g, "").length >= 10) {
+    const rawSql = String(props.sql).replace(/\D/g, "");
+    const sqlCondo = rawSql.padEnd(12, "0");
+    cqlFilter = `sql_condominio = '${sqlCondo}'`;
+  } else {
+    const setor = String(
+      props.setor_fiscal ?? props.cd_setor_fiscal ?? "",
+    ).padStart(3, "0");
+    const quadra = String(
+      props.quadra_fiscal ?? props.cd_quadra_fiscal ?? "",
+    ).padStart(3, "0");
+    const lote = String(
+      props.lote_fiscal ?? props.cd_lote ?? "",
+    ).padStart(4, "0");
+    const condo = String(
+      props.condominio ?? props.cd_condominio ?? "00",
+    ).padStart(2, "0");
+
+    cqlFilter = `sql_condominio = '${setor}${quadra}${lote}${condo}'`;
   }
 
   const params = new URLSearchParams({
     interactive: "true",
     layerSchema: "lotes_fiscais",
-    CQL_FILTER: filterParts.join(" AND "),
+    CQL_FILTER: cqlFilter,
   });
 
   return `/print?${params.toString()}`;

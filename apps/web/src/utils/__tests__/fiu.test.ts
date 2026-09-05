@@ -24,11 +24,23 @@ describe("fiu utility", () => {
   });
 
   it("should validate tax lot fiu params correctly", () => {
-    const validFeature = {
+    const validFeatureLegacy = {
       properties: {
         cd_setor_fiscal: "01",
         cd_quadra_fiscal: "02",
         cd_lote: "0003",
+      },
+    };
+    const validFeatureModern = {
+      properties: {
+        setor_fiscal: 14,
+        quadra_fiscal: 45,
+        lote_fiscal: 7,
+      },
+    };
+    const validFeatureSqlCondo = {
+      properties: {
+        sql_condominio: "014045000700",
       },
     };
     const invalidFeature = {
@@ -37,7 +49,9 @@ describe("fiu utility", () => {
       },
     };
 
-    expect(hasTaxLotFiuParams(validFeature)).toBe(true);
+    expect(hasTaxLotFiuParams(validFeatureLegacy)).toBe(true);
+    expect(hasTaxLotFiuParams(validFeatureModern)).toBe(true);
+    expect(hasTaxLotFiuParams(validFeatureSqlCondo)).toBe(true);
     expect(hasTaxLotFiuParams(invalidFeature)).toBe(false);
   });
 
@@ -52,7 +66,23 @@ describe("fiu utility", () => {
 
     const url = buildTaxLotFiuUrl(feature);
     expect(url).toBe(
-      "/print?interactive=true&layerSchema=lotes_fiscais&CQL_FILTER=cd_setor_fiscal+%3D+%2701%27+AND+cd_quadra_fiscal+%3D+%2702%27+AND+cd_lote+%3D+%270003%27",
+      "/print?interactive=true&layerSchema=lotes_fiscais&CQL_FILTER=sql_condominio+%3D+%27001002000300%27",
+    );
+  });
+
+  it("should build tax lot FIU url from modern properties correctly", () => {
+    const feature = {
+      properties: {
+        setor_fiscal: 14,
+        quadra_fiscal: 45,
+        lote_fiscal: 7,
+        condominio: 0,
+      },
+    };
+
+    const url = buildTaxLotFiuUrl(feature);
+    expect(url).toBe(
+      "/print?interactive=true&layerSchema=lotes_fiscais&CQL_FILTER=sql_condominio+%3D+%27014045000700%27",
     );
   });
 

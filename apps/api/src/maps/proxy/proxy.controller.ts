@@ -43,6 +43,7 @@ export class ProxyController {
   ) {
     const layers = allQuery.layers || allQuery.LAYERS;
     let targetUrl = this.resolveLayerTargetUrl(null, 'wms');
+    let resolvedLayer: LayerSchema | null = null;
 
     if (layers) {
       try {
@@ -50,6 +51,7 @@ export class ProxyController {
         if (layer) {
           await this.assertLayerAccess(layer, request);
           targetUrl = this.resolveLayerTargetUrl(layer, 'wms');
+          resolvedLayer = layer;
         }
       } catch (error) {
         if (error instanceof NotFoundException) {
@@ -60,7 +62,12 @@ export class ProxyController {
     }
 
     const { url: _, ...params } = allQuery;
-    return this.handleProxy(targetUrl, params, res, 'GET');
+    const normalizedParams = this.normalizeQueryParams(
+      resolvedLayer,
+      params,
+      'wms',
+    );
+    return this.handleProxy(targetUrl, normalizedParams, res, 'GET');
   }
 
   @Post('wms')
@@ -76,6 +83,7 @@ export class ProxyController {
     const layers =
       body?.layers || body?.LAYERS || allQuery?.layers || allQuery?.LAYERS;
     let targetUrl = this.resolveLayerTargetUrl(null, 'wms');
+    let resolvedLayer: LayerSchema | null = null;
 
     if (layers) {
       try {
@@ -83,6 +91,7 @@ export class ProxyController {
         if (layer) {
           await this.assertLayerAccess(layer, request);
           targetUrl = this.resolveLayerTargetUrl(layer, 'wms');
+          resolvedLayer = layer;
         }
       } catch (error) {
         if (error instanceof NotFoundException) {
@@ -94,9 +103,14 @@ export class ProxyController {
 
     const { url: _queryUrl, ...queryParams } = allQuery || {};
     const { url: _bodyUrl, ...bodyParams } = body || {};
+    const normalizedParams = this.normalizeQueryParams(
+      resolvedLayer,
+      { ...queryParams, ...bodyParams },
+      'wms',
+    );
     return this.handleProxy(
       targetUrl,
-      { ...queryParams, ...bodyParams },
+      normalizedParams,
       res,
       'POST',
     );
@@ -117,6 +131,7 @@ export class ProxyController {
       allQuery.TYPENAME ||
       allQuery.TYPENAMES;
     let targetUrl = this.resolveLayerTargetUrl(null, 'wfs');
+    let resolvedLayer: LayerSchema | null = null;
 
     if (typeName) {
       try {
@@ -124,6 +139,7 @@ export class ProxyController {
         if (layer) {
           await this.assertLayerAccess(layer, request);
           targetUrl = this.resolveLayerTargetUrl(layer, 'wfs');
+          resolvedLayer = layer;
         }
       } catch (error) {
         if (error instanceof NotFoundException) {
@@ -134,7 +150,12 @@ export class ProxyController {
     }
 
     const { url: _, ...params } = allQuery;
-    return this.handleProxy(targetUrl, params, res, 'GET');
+    const normalizedParams = this.normalizeQueryParams(
+      resolvedLayer,
+      params,
+      'wfs',
+    );
+    return this.handleProxy(targetUrl, normalizedParams, res, 'GET');
   }
 
   @Post('wfs')
@@ -157,6 +178,7 @@ export class ProxyController {
       allQuery?.TYPENAME ||
       allQuery?.TYPENAMES;
     let targetUrl = this.resolveLayerTargetUrl(null, 'wfs');
+    let resolvedLayer: LayerSchema | null = null;
 
     if (typeName) {
       try {
@@ -164,6 +186,7 @@ export class ProxyController {
         if (layer) {
           await this.assertLayerAccess(layer, request);
           targetUrl = this.resolveLayerTargetUrl(layer, 'wfs');
+          resolvedLayer = layer;
         }
       } catch (error) {
         if (error instanceof NotFoundException) {
@@ -175,9 +198,14 @@ export class ProxyController {
 
     const { url: _queryUrl, ...queryParams } = allQuery || {};
     const { url: _bodyUrl, ...bodyParams } = body || {};
+    const normalizedParams = this.normalizeQueryParams(
+      resolvedLayer,
+      { ...queryParams, ...bodyParams },
+      'wfs',
+    );
     return this.handleProxy(
       targetUrl,
-      { ...queryParams, ...bodyParams },
+      normalizedParams,
       res,
       'POST',
     );
@@ -202,8 +230,9 @@ export class ProxyController {
 
     const targetUrl = this.resolveLayerTargetUrl(layer, 'wms');
     const { url: _, ...params } = allQuery;
+    const normalizedParams = this.normalizeQueryParams(layer, params, 'wms');
 
-    return this.handleProxy(targetUrl, params, res, 'GET');
+    return this.handleProxy(targetUrl, normalizedParams, res, 'GET');
   }
 
   @Post('layers/:layerId/wms')
@@ -226,10 +255,15 @@ export class ProxyController {
     const targetUrl = this.resolveLayerTargetUrl(layer, 'wms');
     const { url: _queryUrl, ...queryParams } = allQuery || {};
     const { url: _bodyUrl, ...bodyParams } = body || {};
+    const normalizedParams = this.normalizeQueryParams(
+      layer,
+      { ...queryParams, ...bodyParams },
+      'wms',
+    );
 
     return this.handleProxy(
       targetUrl,
-      { ...queryParams, ...bodyParams },
+      normalizedParams,
       res,
       'POST',
     );
@@ -254,8 +288,9 @@ export class ProxyController {
 
     const targetUrl = this.resolveLayerTargetUrl(layer, 'wfs');
     const { url: _, ...params } = allQuery;
+    const normalizedParams = this.normalizeQueryParams(layer, params, 'wfs');
 
-    return this.handleProxy(targetUrl, params, res, 'GET');
+    return this.handleProxy(targetUrl, normalizedParams, res, 'GET');
   }
 
   @Post('layers/:layerId/wfs')
@@ -278,10 +313,15 @@ export class ProxyController {
     const targetUrl = this.resolveLayerTargetUrl(layer, 'wfs');
     const { url: _queryUrl, ...queryParams } = allQuery || {};
     const { url: _bodyUrl, ...bodyParams } = body || {};
+    const normalizedParams = this.normalizeQueryParams(
+      layer,
+      { ...queryParams, ...bodyParams },
+      'wfs',
+    );
 
     return this.handleProxy(
       targetUrl,
-      { ...queryParams, ...bodyParams },
+      normalizedParams,
       res,
       'POST',
     );
@@ -621,6 +661,105 @@ export class ProxyController {
     }
 
     return [...aliases];
+  }
+
+  private getLayerTypeName(layer: LayerSchema): string | null {
+    return (
+      layer.properties?.typeName ||
+      layer.properties?.wfs?.typeName ||
+      layer.properties?.wms?.layers ||
+      this.extractTypeNameFromOrigin(layer.origin) ||
+      (layer.id?.includes(':') ? layer.id : `slui:${layer.id}`) ||
+      null
+    );
+  }
+
+  private extractTypeNameFromOrigin(origin?: string): string | null {
+    if (!origin) return null;
+    try {
+      const url = new URL(origin);
+      return (
+        url.searchParams.get('typeNames') ||
+        url.searchParams.get('typeName') ||
+        url.searchParams.get('TYPENAME') ||
+        url.searchParams.get('TYPENAMES') ||
+        url.searchParams.get('layers') ||
+        url.searchParams.get('LAYERS')
+      );
+    } catch {
+      return null;
+    }
+  }
+
+  private normalizeQueryParams(
+    layer: LayerSchema | null,
+    params: Record<string, any>,
+    type: 'wms' | 'wfs',
+  ): Record<string, any> {
+    const normalized = { ...params };
+
+    if (layer) {
+      const defaultTypeName = this.getLayerTypeName(layer);
+
+      if (type === 'wfs') {
+        const hasTypeName =
+          normalized.typeName ||
+          normalized.typeNames ||
+          normalized.TYPENAME ||
+          normalized.TYPENAMES;
+        if (!hasTypeName && defaultTypeName) {
+          normalized.typeName = defaultTypeName;
+        }
+      } else if (type === 'wms') {
+        const hasLayers = normalized.layers || normalized.LAYERS;
+        if (!hasLayers && defaultTypeName) {
+          normalized.layers = defaultTypeName;
+        }
+      }
+
+      // Handle legacy CQL filters for lotes_fiscais or general cadastral filters
+      const cqlKey = Object.keys(normalized).find(
+        (k) => k.toUpperCase() === 'CQL_FILTER',
+      );
+      if (cqlKey && typeof normalized[cqlKey] === 'string') {
+        normalized[cqlKey] = this.normalizeCqlFilter(layer, normalized[cqlKey]);
+      }
+    }
+
+    return normalized;
+  }
+
+  private normalizeCqlFilter(layer: LayerSchema, filter: string): string {
+    if (!filter || typeof filter !== 'string') return filter;
+
+    const isLotes =
+      layer.id?.includes('lote') ||
+      layer.name?.toLowerCase().includes('lote') ||
+      layer.properties?.typeName?.includes('lote');
+
+    if (isLotes) {
+      const setorMatch = filter.match(/cd_setor_fiscal\s*=\s*['"]?(\d+)['"]?/i);
+      const quadraMatch = filter.match(/cd_quadra_fiscal\s*=\s*['"]?(\d+)['"]?/i);
+      const loteMatch = filter.match(/cd_lote\s*=\s*['"]?(\d+)['"]?/i);
+      const condoMatch = filter.match(/cd_condominio\s*=\s*['"]?(\d+)['"]?/i);
+
+      if (setorMatch && quadraMatch && loteMatch) {
+        const s = setorMatch[1].padStart(3, '0');
+        const q = quadraMatch[1].padStart(3, '0');
+        const l = loteMatch[1].padStart(4, '0');
+        const c = (condoMatch ? condoMatch[1] : '00').padStart(2, '0');
+        return `sql_condominio = '${s}${q}${l}${c}'`;
+      }
+
+      let rewritten = filter;
+      rewritten = rewritten.replace(/\bcd_setor_fiscal\b/gi, 'setor_fiscal');
+      rewritten = rewritten.replace(/\bcd_quadra_fiscal\b/gi, 'quadra_fiscal');
+      rewritten = rewritten.replace(/\bcd_lote\b/gi, 'lote_fiscal');
+      rewritten = rewritten.replace(/\bcd_condominio\b/gi, 'condominio');
+      return rewritten;
+    }
+
+    return filter;
   }
 
   private withoutNamespace(value: string): string {

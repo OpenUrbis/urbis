@@ -73,7 +73,7 @@ export function Sidebar({
         role="dialog"
         aria-modal="true"
         aria-hidden={!open}
-        {...(!open ? { inert: "" } : {})}
+        {...(!open ? ({ inert: "" } as unknown as React.HTMLAttributes<HTMLElement>) : {})}
       >
         {/* HEADER */}
         <header className="flex items-center justify-between px-4 py-3 border-b border-border">

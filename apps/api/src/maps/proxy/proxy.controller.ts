@@ -516,7 +516,12 @@ export class ProxyController {
         /^-?\d+(_\d+)?$/.test(part),
       );
       if (coordStartIndex !== -1) {
-        persistedLayerId = parts.slice(0, coordStartIndex).join('-');
+        // Negative coordinates are encoded with a double hyphen (the ID separator
+        // plus the coordinate sign). Remove the separator left by split('-').
+        persistedLayerId = parts
+          .slice(0, coordStartIndex)
+          .join('-')
+          .replace(/-+$/, '');
       } else {
         persistedLayerId = layerId.split('--')[0].slice('cell-'.length);
       }

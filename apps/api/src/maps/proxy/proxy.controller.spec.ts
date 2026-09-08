@@ -183,6 +183,41 @@ describe('ProxyController', () => {
   });
 
   describe('proxyLayerWfs', () => {
+    it('resolves Stream cell IDs with negative coordinates to the persisted layer', async () => {
+      const mockLayer: Partial<LayerSchema> = {
+        id: 'cedi_historico',
+        name: 'CEDI histórico',
+        origin:
+          'https://geoserver.slui.dev/geoserver/slui/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=slui%3Acedi_historico',
+        isPublic: true,
+        isActive: true,
+        properties: {
+          typeName: 'slui:cedi_historico',
+        },
+      };
+      layerSchemaRepo.findOne.mockResolvedValue(mockLayer as LayerSchema);
+
+      const res = mockResponse();
+      await controller.proxyLayerWfs(
+        'cell-cedi_historico--47_28--24_05--47_275--24_045',
+        { headers: {} },
+        res,
+        {
+          service: 'WFS',
+          version: '2.0.0',
+          request: 'GetFeature',
+          outputFormat: 'application/json',
+          bbox: '-47.28,-24.05,-47.275,-24.045,CRS:84',
+        },
+      );
+
+      expect(layerSchemaRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 'cedi_historico' },
+      });
+      const calledUrl = new URL(mockedAxios.get.mock.calls[0][0]);
+      expect(calledUrl.searchParams.get('typeName')).toBe('slui:cedi_historico');
+    });
+
     it('automatically injects typeName and normalizes legacy CQL filters for lotes_fiscais', async () => {
       const mockLayer: Partial<LayerSchema> = {
         id: 'lotes_fiscais',

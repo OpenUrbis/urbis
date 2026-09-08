@@ -263,8 +263,17 @@ export class LayerSchemasService {
   }
 
   async upsert(dto: LayerSchemaDto): Promise<LayerSchema> {
-    const existing = await this.repository.findOneBy({ id: dto.id });
+    const existing = await this.repository.findOne({
+      where: { id: dto.id },
+      withDeleted: true,
+    });
 
-    return existing ? await this.update(dto.id, dto) : this.create(dto);
+    if (!existing) return this.create(dto);
+
+    if (existing.deletedAt) {
+      await this.repository.restore(dto.id);
+    }
+
+    return this.update(dto.id, dto);
   }
 }

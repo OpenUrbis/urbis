@@ -251,11 +251,15 @@ export class SignIn implements OnInit {
     requires2fa,
     accessToken,
   }: any) {
-    if (!requires2fa && redirectToCallback)
-      return (location.href = redirectToCallback);
+    if (requires2fa === true) {
+      return this.router.navigate(['/two-factor'], {
+        queryParams: { otpValidated, requires2fa, accessToken },
+      });
+    }
 
-    this.router.navigate(['/two-factor'], {
-      queryParams: { otpValidated, requires2fa, accessToken },
-    });
+    if (redirectToCallback) return (location.href = redirectToCallback);
+
+    console.error('Login succeeded without an OIDC callback or 2FA requirement');
+    this.hasLoginError.set(true);
   }
 }

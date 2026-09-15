@@ -44,7 +44,7 @@ export function S3FilePickerModal({
   onOpenChange,
   onSelect,
   folderPath = "legis/fontes",
-  title = "Upload de Arquivo / Recentes (S3)",
+  title = "Upload de Arquivo / Recentes (repositório)",
 }: S3FilePickerModalProps) {
   const [activeTab, setActiveTab] = useState<"upload" | "recent">("upload");
   const [isUploading, setIsUploading] = useState(false);
@@ -87,7 +87,7 @@ export function S3FilePickerModal({
       setSelectedFile(null);
       setCustomName("");
     } catch (err: any) {
-      alert(err?.message || "Erro ao fazer upload do arquivo para o S3.");
+      alert(err?.message || "Erro ao fazer upload do arquivo para o repositório.");
     } finally {
       setIsUploading(false);
     }
@@ -137,7 +137,7 @@ export function S3FilePickerModal({
             onClick={() => setActiveTab("upload")}
           >
             <Upload className="h-3.5 w-3.5" />
-            Novo Upload S3
+            Novo Upload
           </button>
           <button
             type="button"
@@ -178,7 +178,7 @@ export function S3FilePickerModal({
                   <Upload className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div className="text-xs font-medium">
-                  Clique aqui ou selecione um arquivo para enviar ao S3
+                  Clique aqui ou selecione um arquivo para enviar ao repositório
                 </div>
                 <p className="text-[11px] text-muted-foreground">
                   Suporta imagens (PNG, JPG, WEBP, SVG), PDFs, documentos e anexos.
@@ -348,7 +348,7 @@ export function S3FilePickerModal({
               {isUploading ? (
                 <>
                   <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                  Enviando S3...
+                  Enviando...
                 </>
               ) : (
                 <>

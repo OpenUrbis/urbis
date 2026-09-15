@@ -33,6 +33,7 @@ export interface SituationGroup {
   id: string;
   elementId: string;
   elementKey: string;
+  elementText?: string;
   type: SituationGroupType;
   situations: SpecialSituation[];
   latestDate: Date;
@@ -362,6 +363,7 @@ export function groupSituationsForElement(
       id: `${element.id}-${typeClass}`,
       elementId: element.id,
       elementKey: `${element.type} ${element.index || ""}`,
+      elementText: element.text,
       type: typeClass as SituationGroupType,
       situations: sits,
       latestDate,

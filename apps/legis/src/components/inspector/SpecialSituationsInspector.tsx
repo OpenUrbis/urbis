@@ -108,7 +108,7 @@ type Route =
   /** `source` marks passages of the linked act, `target` of the element itself. */
   | { kind: "trechos"; target: "target" | "source" }
   | { kind: "link"; target: LinkTarget }
-  | { kind: "picker"; target: "parent" | "bulkParent" };
+  | { kind: "picker"; target: "parent" | "bulkParent" | "noteTarget" };
 
 /** Text of the linked source device, kept so its passages can be marked. */
 interface SourceContext {
@@ -519,6 +519,7 @@ export function SpecialSituationsInspector({
 
   if (route.kind === "picker") {
     const isBulkParent = route.target === "bulkParent";
+    const isNoteTarget = route.target === "noteTarget";
 
     return (
       <InspectorShell
@@ -527,15 +528,26 @@ export function SpecialSituationsInspector({
         onToggleCollapse={toggleCollapse}
       >
         <ElementPickerView
-          title="Elemento pai"
+          title={isNoteTarget ? "Elemento de destino (Nota)" : "Elemento pai"}
           elements={allElements}
-          value={isBulkParent ? undefined : element?.parentId}
+          value={
+            isBulkParent
+              ? undefined
+              : isNoteTarget
+                ? element?.noteData?.[0]?.targetElementId
+                : element?.parentId
+          }
           excludeId={isBulkParent ? undefined : element?.id}
-          onSelect={(parentId) => {
+          onSelect={(selectedId) => {
             if (isBulkParent) {
-              applyBulkParent(parentId);
+              applyBulkParent(selectedId);
+            } else if (isNoteTarget && element) {
+              onUpdate({
+                ...element,
+                noteData: selectedId ? [{ targetElementId: selectedId }] : [],
+              });
             } else if (element) {
-              onUpdate({ ...element, parentId });
+              onUpdate({ ...element, parentId: selectedId });
             }
           }}
           onBack={goRoot}
@@ -899,19 +911,37 @@ export function SpecialSituationsInspector({
 
           {element.type === "Nota" && (
             <InspectorField label="Elemento de destino (Nota)">
-              <Button
-                variant="outline"
-                size="sm"
-                className={cn(ui.smallButton, "w-full justify-start")}
-                onClick={() => setRoute({ kind: "picker", target: "parent" })}
-              >
-                <Link2 className="h-3 w-3 shrink-0 text-primary" />
-                <span className="min-w-0 truncate">
-                  {element.noteData && element.noteData.length > 0
-                    ? `Vinculado (${element.noteData[0].targetElementId})`
-                    : "Vincular a elemento normativo..."}
-                </span>
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(ui.smallButton, "flex-1 justify-start min-w-0")}
+                  onClick={() => setRoute({ kind: "picker", target: "noteTarget" })}
+                >
+                  <Link2 className="h-3 w-3 shrink-0 text-primary" />
+                  <span className="min-w-0 truncate">
+                    {(() => {
+                      const targetId = element.noteData?.[0]?.targetElementId;
+                      if (!targetId) return "Vincular a elemento normativo...";
+                      const targetEl = allElements.find((e) => e.id === targetId);
+                      return targetEl
+                        ? `Vinculado (${getElementLabel(targetEl)})`
+                        : `Vinculado (${targetId})`;
+                    })()}
+                  </span>
+                </Button>
+                {element.noteData && element.noteData.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 shrink-0 hover:text-destructive"
+                    title="Remover vínculo"
+                    onClick={() => onUpdate({ ...element, noteData: [] })}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
             </InspectorField>
           )}
         </InspectorSection>

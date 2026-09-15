@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { X, BookOpen, Layers } from "lucide-react";
 
 interface SynthesisModalProps {
@@ -9,8 +10,8 @@ interface SynthesisModalProps {
 export function SynthesisModal({ isOpen, onClose }: SynthesisModalProps) {
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300 p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 p-4">
       <div className="bg-background rounded-3xl shadow-2xl max-w-lg w-full flex flex-col animate-in zoom-in-95 duration-300 border border-border overflow-hidden">
         {/* Header */}
         <div className="px-4 py-4 md:px-6 md:py-4 border-b border-border flex justify-between items-start bg-background shrink-0 relative overflow-hidden">
@@ -98,6 +99,7 @@ export function SynthesisModal({ isOpen, onClose }: SynthesisModalProps) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

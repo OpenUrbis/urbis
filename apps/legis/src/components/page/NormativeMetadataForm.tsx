@@ -42,7 +42,7 @@ import {
   Authority,
   EmentaAlteration,
 } from "../../domain/entities";
-import type { AnnotatedTextSegment } from "../../domain/types";
+import type { AnnotatedTextSegment, Validity } from "../../domain/types";
 import { NORMATIVE_TYPES, NormativeTypeKey } from "../../data/normative-types";
 import { SimpleEditor } from "../Editor/SimpleEditor";
 import { uploadFileToS3, isImageUrl } from "../../services/file-service";
@@ -1132,6 +1132,27 @@ export function NormativeMetadataForm({
     });
   };
 
+  const resolveValidityLabel = useCallback(
+    (validity?: Validity | null) => {
+      if (!validity) return undefined;
+      const elementId = validity.normativeElementId;
+      if (elementId && linkCache[elementId]?.label) {
+        return linkCache[elementId].label;
+      }
+      if (validity.deviceId?.trim()) {
+        return validity.deviceId.trim();
+      }
+      if (elementId && data.elements && data.elements.length > 0) {
+        const found = data.elements.find((el) => el.id === elementId);
+        if (found) {
+          return `${found.type} ${found.index || ""}`.trim();
+        }
+      }
+      return undefined;
+    },
+    [data.elements, linkCache],
+  );
+
   return (
     <div className="space-y-5 pb-6">
       {(!hasNormativeType ||
@@ -1264,7 +1285,8 @@ export function NormativeMetadataForm({
                 : undefined
             }
             linkError={
-              !data.originalStartValidity?.normativeElementId?.trim()
+              !data.originalStartValidity?.normativeElementId?.trim() &&
+              !data.originalStartValidity?.deviceId?.trim()
                 ? "A vigência inicial precisa estar vinculada a um elemento normativo."
                 : undefined
             }
@@ -1272,12 +1294,7 @@ export function NormativeMetadataForm({
               onChange({ ...data, originalStartValidity })
             }
             onOpenLinkManager={() => requestLink({ type: "startValidity" })}
-            linkLabel={
-              data.originalStartValidity?.normativeElementId
-                ? linkCache[data.originalStartValidity.normativeElementId]
-                    ?.label
-                : undefined
-            }
+            linkLabel={resolveValidityLabel(data.originalStartValidity)}
             disabled={disabled}
           />
 
@@ -1295,11 +1312,7 @@ export function NormativeMetadataForm({
               onChange({ ...data, originalEndValidity })
             }
             onOpenLinkManager={() => requestLink({ type: "endValidity" })}
-            linkLabel={
-              data.originalEndValidity?.normativeElementId
-                ? linkCache[data.originalEndValidity.normativeElementId]?.label
-                : undefined
-            }
+            linkLabel={resolveValidityLabel(data.originalEndValidity)}
             disabled={disabled}
           />
         </div>

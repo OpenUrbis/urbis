@@ -319,6 +319,7 @@ export function SituationCard({
                   surface: "reader",
                   effectiveStartDate: group.effectiveStartDate,
                   effectiveEndDate: group.effectiveEndDate,
+                  elementText: group.elementText,
                 },
               )}
               resolveDeviceLabel={resolveDeviceLabel}

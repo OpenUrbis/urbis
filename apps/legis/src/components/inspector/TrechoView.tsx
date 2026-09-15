@@ -306,11 +306,10 @@ export function TrechoView({
 
   const [captureActive, setCaptureActive] = useState(true);
   /**
-   * Whether the user asked to narrow a citation down to specific passages. Only
-   * meaningful while nothing is marked: as soon as a passage exists the scope is
-   * unambiguously "specific".
+   * Defaulting to "specific" so opening the citation tool starts on
+   * "Trechos específicos" as requested.
    */
-  const [wantsSpecificTrechos, setWantsSpecificTrechos] = useState(false);
+  const [wantsSpecificTrechos, setWantsSpecificTrechos] = useState(true);
   /**
    * Why the last capture attempt did not do what the user expected. Passages are
    * confined to the element being edited, so a selection that reaches outside it

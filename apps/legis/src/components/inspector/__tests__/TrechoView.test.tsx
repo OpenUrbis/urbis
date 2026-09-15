@@ -283,27 +283,17 @@ describe("TrechoView citation preview", () => {
 });
 
 describe("TrechoView citation scope", () => {
-  it("presents the whole element as the citation when nothing is marked", () => {
+  it('starts with "Trechos específicos" as the active option when opened', () => {
     const html = citation({ segments: [] });
 
-    expect(html).toContain('data-citation-scope="whole"');
-    expect(html).toContain('data-citation-whole="true"');
-    expect(html).toContain("A citação é o elemento inteiro.");
-    // The preview already reproduces the element in full.
-    expect(html).toContain('data-trecho-preview="true"');
-    expect(html).toContain(SOURCE);
-    expect(html).toContain("Citação do elemento inteiro");
-  });
-
-  it('marks "Elemento inteiro" as the active option while nothing is marked', () => {
-    const html = citation({ segments: [] });
-
-    expect(tagWith(html, 'data-citation-scope-option="whole"')).toContain(
+    expect(html).toContain('data-citation-scope="specific"');
+    expect(tagWith(html, 'data-citation-scope-option="specific"')).toContain(
       'aria-pressed="true"',
     );
-    expect(tagWith(html, 'data-citation-scope-option="specific"')).toContain(
+    expect(tagWith(html, 'data-citation-scope-option="whole"')).toContain(
       'aria-pressed="false"',
     );
+    expect(html).toContain('data-trecho-source="panel"');
   });
 
   it("switches to specific passages as soon as one is marked", () => {
@@ -328,12 +318,6 @@ describe("TrechoView citation scope", () => {
       expect(html).toContain("Elemento inteiro");
       expect(html).toContain("Trechos específicos");
     });
-  });
-
-  it("hides the selection area while the citation covers the whole element", () => {
-    const html = citation({ segments: [] });
-
-    expect(html).not.toContain('data-trecho-source="panel"');
   });
 });
 

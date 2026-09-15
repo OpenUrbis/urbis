@@ -216,11 +216,11 @@ export class LayerSchema {
   groupId?: string;
 
   @ApiProperty({
-    example: true,
+    example: false,
     description:
       'Determines whether the layer is public or restricted to specific roles',
   })
-  @Column({ default: true })
+  @Column({ default: false })
   isPublic?: boolean;
 
   @ApiProperty({
@@ -228,7 +228,10 @@ export class LayerSchema {
     description:
       'List of role IDs allowed to access this layer if isPublic is false',
   })
-  @Column({ type: 'jsonb', default: [] })
+  @Column({
+    type: 'jsonb',
+    default: ['f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4'],
+  })
   allowedRoles?: string[];
 
   @ManyToOne(() => LayerGroup, { nullable: true })

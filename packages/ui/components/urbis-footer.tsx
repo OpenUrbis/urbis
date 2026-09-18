@@ -709,15 +709,15 @@ export function UrbisFooter(_props: any) {
           {/* Left: Official Logos */}
           <div className="flex items-center gap-6 self-center md:self-start">
             <a
-              href="https://prefeitura.sp.gov.br"
+              href="https://capital.sp.gov.br"
               target="_blank"
               rel="noopener noreferrer"
               className="opacity-90 hover:opacity-100 transition-opacity"
-              aria-label="Prefeitura de São Paulo – site oficial"
+              aria-label="Cidade de São Paulo – portal oficial"
             >
               <img
-                src="/logo-prefeitura.png"
-                alt="Logotipo da Prefeitura de São Paulo"
+                src="/logo-cidade-sp.png"
+                alt="Logotipo da Cidade de São Paulo"
                 className="h-20 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
               />
             </a>

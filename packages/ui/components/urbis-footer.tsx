@@ -633,7 +633,7 @@ export function UrbisFooter(_props: any) {
             </span>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
               <a
-                href="https://github.com/atlas-cli"
+                href="https://atlascli.io"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="opacity-90 hover:opacity-100 transition-opacity -mr-[20px]"

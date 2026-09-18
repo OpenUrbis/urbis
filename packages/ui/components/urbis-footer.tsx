@@ -642,7 +642,7 @@ export function UrbisFooter(_props: any) {
                 <img
                   src="/atlas-logo.png"
                   alt="Atlas"
-                  className="h-11 md:h-14 w-auto object-contain transition-[filter]"
+                  className="h-[50px] md:h-[64px] w-auto object-contain transition-[filter]"
                 />
               </a>
 

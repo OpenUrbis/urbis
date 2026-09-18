@@ -749,16 +749,16 @@ export function Footer() {
               href="https://prefeitura.sp.gov.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="opacity-80 hover:opacity-100 transition-opacity"
+              className="opacity-90 hover:opacity-100 transition-opacity"
               aria-label="Prefeitura de São Paulo"
             >
               <img
                 src="/logo-prefeitura.png"
                 alt="Prefeitura de São Paulo"
-                className="h-24 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
+                className="h-16 md:h-20 w-auto object-contain transition-[filter]"
                 loading="lazy"
                 width="200"
-                height="96"
+                height="80"
               />
             </a>
             <div className="h-12 w-px bg-primary-foreground/20" />
@@ -766,12 +766,12 @@ export function Footer() {
               href="https://codata.prefeitura.sp.gov.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="opacity-80 hover:opacity-100 transition-opacity"
+              className="opacity-90 hover:opacity-100 transition-opacity"
             >
               <img
                 src="/logo-codata.svg"
                 alt="CODATA"
-                className="h-14 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
+                className="h-11 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
                 loading="lazy"
                 width="140"
                 height="56"

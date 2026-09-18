@@ -718,7 +718,7 @@ export function UrbisFooter(_props: any) {
               <img
                 src="/logo-prefeitura.png"
                 alt="Logotipo da Prefeitura de São Paulo"
-                className="h-20 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
+                className="h-16 md:h-20 w-auto object-contain transition-[filter]"
               />
             </a>
 

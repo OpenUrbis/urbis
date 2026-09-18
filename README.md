@@ -23,7 +23,6 @@
 - 📝 **Viabiliza (Workflows & Formulários Inteligentes)**: [viabiliza.urbis.prefeitura.sp.gov.br](https://viabiliza.urbis.prefeitura.sp.gov.br/)
 - 📊 **Dados Abertos (Catálogo de Dados CKAN)**: [dadosabertos.urbis.prefeitura.sp.gov.br](https://dadosabertos.urbis.prefeitura.sp.gov.br/)
 - 📖 **Documentação Técnica Completa**: [`apps/docs`](apps/docs) | [docs.urbis.prefeitura.sp.gov.br](https://docs.urbis.prefeitura.sp.gov.br)
-- 🔌 **API Gateway & Swagger OpenAPI**: [api.mapa.urbis.prefeitura.sp.gov.br/swagger/docs](https://api.mapa.urbis.prefeitura.sp.gov.br/swagger/docs) | Local: `http://localhost:3000/swagger/docs`
 - 🛠️ **Guia de Instalação & Setup**: [`apps/docs/content/docs/general/development/setup.mdx`](apps/docs/content/docs/general/development/setup.mdx) | [Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/development/setup)
 - 🏛️ **Arquitetura & Módulos**: [`apps/docs/content/docs/general/architecture/index.mdx`](apps/docs/content/docs/general/architecture/index.mdx) | [Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/architecture)
 

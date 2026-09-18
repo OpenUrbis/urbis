@@ -703,12 +703,12 @@ export function Footer() {
                 href="https://github.com/atlas-cli"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-opacity"
+                className="opacity-80 hover:opacity-100 transition-opacity"
               >
                 <img
-                  src="https://github.com/FernandoDorstSilva/imagens-publicas/blob/main/Property%201=branca.png?raw=true"
-                  alt="Atlas CLI"
-                  className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-110 transition-[filter]"
+                  src="/atlas-logo.png"
+                  alt="Atlas"
+                  className="h-9 md:h-12 w-auto object-contain transition-[filter]"
                 />
               </a>
 

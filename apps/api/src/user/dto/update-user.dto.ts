@@ -23,10 +23,10 @@ export class UpdateUserDto {
   @IsString()
   firstName?: string;
 
-  @ApiPropertyOptional({ example: 'Doe' })
+  @ApiPropertyOptional({ example: 'user@example.com' })
   @IsOptional()
   @IsString()
-  lastName?: string;
+  email?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

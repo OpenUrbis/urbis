@@ -44,8 +44,32 @@ export class UserAvatarComponent {
   getInitials(): string {
     const fn = (this.firstName() || '').trim();
     const ln = (this.lastName() || '').trim();
-    const f = fn ? fn[0] : '';
-    const l = ln ? ln[0] : '';
-    return (f + l).toUpperCase() || '?';
+
+    if (fn && ln) {
+      return (fn[0] + ln[0]).toUpperCase();
+    }
+
+    const full = (fn || ln).trim();
+    if (!full) return 'U';
+
+    if (full.includes('@')) {
+      const username = full.split('@')[0].replace(/[._-]/g, ' ').trim();
+      const parts = username.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return username.slice(0, 2).toUpperCase() || 'U';
+    }
+
+    const words = full.split(/\s+/).filter(Boolean);
+    if (words.length >= 2) {
+      return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+    }
+
+    if (words.length === 1 && words[0].length >= 2) {
+      return words[0].slice(0, 2).toUpperCase();
+    }
+
+    return full[0]?.toUpperCase() || 'U';
   }
 }

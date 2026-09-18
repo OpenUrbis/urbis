@@ -119,9 +119,18 @@ import { anonymizePersonName } from './anonymize-person-name';
 
         <!-- Dados do representado -->
         <div class="space-y-4">
-          <h4 class="font-bold text-sm text-foreground">
-            Dados do Representado
-          </h4>
+          <div class="space-y-1">
+            <h4 class="font-bold text-sm text-foreground">
+              Dados do Representado
+            </h4>
+            <p class="text-xs text-muted-foreground leading-relaxed">
+              @if (isCnpj) {
+                Os dados cadastrais de Pessoa Jurídica são consultados na base pública OpenCNPJ. Em caso de divergência ou desatualização, revise e corrija os campos abaixo antes de enviar a solicitação.
+              } @else {
+                Os dados de nome são fornecidos pelo solicitante no ato do requerimento e apresentados de forma anonimizada para conformidade com a LGPD.
+              }
+            </p>
+          </div>
           @if (isCnpj) {
             <div class="space-y-1.5">
               <label

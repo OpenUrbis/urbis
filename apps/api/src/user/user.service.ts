@@ -16,6 +16,7 @@ import {
   Brackets,
   FindOneOptions,
   FindOptionsWhere,
+  Not,
   Repository,
 } from 'typeorm';
 import { IPaginationOptions } from '../common/utils/types/pagination-options';
@@ -263,6 +264,42 @@ export class UserService {
       metadata,
       ...profileUpdate
     } = updateProfileDto;
+
+    if (
+      profileUpdate.email !== undefined &&
+      profileUpdate.email.trim().toLowerCase() !==
+        (existingUser.email || '').trim().toLowerCase()
+    ) {
+      if (
+        !accessControl ||
+        !accessControl.hasPermission({
+          permissions: {
+            id: 'user:update',
+            resource: 'user',
+            action: 'update',
+            scope: RolePermissionScopeEnum.ANY,
+          },
+        })
+      ) {
+        throw new BadRequestException(
+          'Apenas administradores podem alterar o e-mail de usuários',
+        );
+      }
+
+      const normalizedEmail = profileUpdate.email.trim().toLowerCase();
+      const duplicateUser = await this.usersRepository.findOne({
+        where: { email: normalizedEmail, id: Not(id) },
+      });
+      if (duplicateUser) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            email: 'alreadyExists',
+          },
+        });
+      }
+      profileUpdate.email = normalizedEmail;
+    }
     const changes: Record<string, { old: any; new: any }> = {};
     if (existingUser) {
       for (const key of Object.keys(profileUpdate)) {

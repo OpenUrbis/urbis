@@ -14,6 +14,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, map, startWith, switchMap, tap } from 'rxjs';
 import { IRoleResponse } from '../../components/role-manager/dto/role.dto';
 import { RoleManagerApi } from '../../components/role-manager/services/role-manager-api';
+import { SYSTEM_ROLES } from '../../shared/constants/system-roles.const';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   HlmInputDirective,
@@ -38,6 +39,7 @@ import { lucideSearch, lucideX } from '@ng-icons/lucide';
 export class RoleSelector implements OnInit {
   control = input.required<FormControl>();
   multi = input<boolean>(false);
+  excludeSystemUserRole = input<boolean>(false);
 
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   search = new FormControl();
@@ -59,7 +61,19 @@ export class RoleSelector implements OnInit {
             search: typeof search === 'string' ? search : '',
             exclude: this.multi() ? this.selectedRoleIds() : [],
           })
-          .pipe(map((value) => (value as any)?.data ?? [])),
+          .pipe(
+            map((value) => {
+              const list = (value as any)?.data ?? [];
+              if (this.excludeSystemUserRole()) {
+                return list.filter(
+                  (r: any) =>
+                    r.id !== SYSTEM_ROLES.user &&
+                    !(r.isSystemRole && r.name === 'Usuário'),
+                );
+              }
+              return list;
+            }),
+          ),
       ),
       tap(() => this.searchLoading.set(false)),
     ),

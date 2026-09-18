@@ -1832,11 +1832,12 @@ export function PageForm({
 
       if (
         isNormative &&
+        isPublic &&
         !normativeData.originalStartValidity?.normativeElementId?.trim() &&
         !normativeData.originalStartValidity?.deviceId?.trim()
       ) {
         const message =
-          "O Elemento vinculado da Vigência inicial é obrigatório. Indique expressamente o elemento vinculado da vigência inicial antes de salvar.";
+          "Para publicar a página, é obrigatório indicar o dispositivo que define a vigência inicial do Original normativo. Salve como rascunho (página privada) para poder vincular o elemento e tente publicar novamente.";
         reportSaveError(message);
         return null;
       }
@@ -2183,11 +2184,12 @@ export function PageForm({
                   }
 
                   if (
+                    isPublic &&
                     !normativeData.originalStartValidity?.normativeElementId?.trim() &&
                     !normativeData.originalStartValidity?.deviceId?.trim()
                   ) {
                     reportSaveError(
-                      "O Elemento vinculado da Vigência inicial é obrigatório. Indique expressamente o elemento vinculado da vigência inicial antes de salvar.",
+                      "Para publicar a página, é obrigatório indicar o dispositivo que define a vigência inicial do Original normativo. Salve como rascunho (página privada) para poder vincular o elemento e tente publicar novamente.",
                     );
                     return;
                   }
@@ -2343,6 +2345,14 @@ export function PageForm({
                         ? "Disponível para visualização pública."
                         : "Visível apenas para usuários com acesso autorizado."}
                     </p>
+                    {isPublic &&
+                      isNormative &&
+                      !normativeData.originalStartValidity?.normativeElementId?.trim() &&
+                      !normativeData.originalStartValidity?.deviceId?.trim() && (
+                        <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                          Atenção: É necessário vincular o dispositivo de vigência inicial antes de publicar.
+                        </p>
+                      )}
                   </div>
 
                   <Switch

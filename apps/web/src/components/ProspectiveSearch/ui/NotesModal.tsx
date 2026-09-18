@@ -20,7 +20,7 @@ export function NotesModal({ notaId, isOpen, onClose }: NotesModalProps) {
     "Conteúdo da nota não encontrado na base de dados para esta referência.";
 
   return createPortal(
-    <div className="fixed inset-0 z-[10002] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 p-4">
+    <div className="fixed inset-0 z-[10050] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 p-4">
       <div className="bg-background rounded-2xl shadow-xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 border border-border">
         {/* Simple Header */}
         <div className="px-6 pt-6 pb-4 flex justify-between items-start shrink-0 border-b border-border">

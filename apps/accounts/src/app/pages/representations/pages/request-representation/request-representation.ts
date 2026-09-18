@@ -241,16 +241,24 @@ export class RequestRepresentation {
     this.loading.set(true);
     this.cnpjLookupMessage.set('');
     try {
-      const data: any = await firstValueFrom(this.openCnpjApi.getByCnpj(cnpj));
+      const representationType =
+        this.form.controls.representationType.value || undefined;
+      const data: any = await firstValueFrom(
+        this.representationApi.checkDocument(cnpj, representationType),
+      );
       this.form.patchValue({
         companyName:
-          data?.razao_social ?? data?.razaoSocial ?? data?.companyName ?? data?.name ?? '',
+          data?.name ??
+          data?.companyName ??
+          data?.razao_social ??
+          data?.razaoSocial ??
+          '',
         tradeName:
+          data?.metadata?.socialName ??
+          data?.metadata?.tradeName ??
+          data?.tradeName ??
           data?.nome_fantasia ??
           data?.nomeFantasia ??
-          data?.tradeName ??
-          data?.metadata?.tradeName ??
-          data?.metadata?.socialName ??
           '',
       });
       this.cnpjLookupMessage.set(
@@ -258,9 +266,16 @@ export class RequestRepresentation {
       );
     } catch (e: any) {
       console.error(e);
-      this.cnpjLookupMessage.set(
-        'Não foi possível obter dados no OpenCNPJ. Preencha os dados manualmente.',
-      );
+      const backendMessage = e?.error?.message;
+      if (backendMessage) {
+        this.cnpjLookupMessage.set(
+          this.translate.instant(backendMessage),
+        );
+      } else {
+        this.cnpjLookupMessage.set(
+          'Não foi possível obter dados no OpenCNPJ. Preencha os dados manualmente.',
+        );
+      }
     } finally {
       this.loading.set(false);
     }

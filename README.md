@@ -16,8 +16,14 @@
 
 *O **Urbis** é uma plataforma de código aberto para gestão pública municipal e mapeamento territorial (GIS), permitindo a visualização de dados urbanos, gestão legislativa e processos administrativos voltados à transparência e tomada de decisão orientada a dados.*
 
-- 🌐 **Portal Público**: [mapa.urbis.prefeitura.sp.gov.br](https://mapa.urbis.prefeitura.sp.gov.br/)
-- 📖 **Documentação Completa**: [`apps/docs`](apps/docs) ou online em [docs.urbis.prefeitura.sp.gov.br](https://docs.urbis.prefeitura.sp.gov.br)
+- 🌐 **Portal Público (Mosaico)**: [urbis.prefeitura.sp.gov.br](https://urbis.prefeitura.sp.gov.br/)
+- 🗺️ **Mapa Urbis (Web GIS)**: [mapa.urbis.prefeitura.sp.gov.br](https://mapa.urbis.prefeitura.sp.gov.br/)
+- ⚖️ **Legis (Legislação e Normas Urbanísticas)**: [legis.urbis.prefeitura.sp.gov.br](https://legis.urbis.prefeitura.sp.gov.br/)
+- 👤 **Contas / Accounts (Portal de Identidade & SSO)**: [conta.urbis.prefeitura.sp.gov.br](https://conta.urbis.prefeitura.sp.gov.br/)
+- 📝 **Viabiliza (Workflows & Formulários Inteligentes)**: [viabiliza.urbis.prefeitura.sp.gov.br](https://viabiliza.urbis.prefeitura.sp.gov.br/)
+- 📊 **Dados Abertos (Catálogo de Dados CKAN)**: [dadosabertos.urbis.prefeitura.sp.gov.br](https://dadosabertos.urbis.prefeitura.sp.gov.br/)
+- 📖 **Documentação Técnica Completa**: [`apps/docs`](apps/docs) | [docs.urbis.prefeitura.sp.gov.br](https://docs.urbis.prefeitura.sp.gov.br)
+- 🔌 **API Gateway & Swagger OpenAPI**: [api.mapa.urbis.prefeitura.sp.gov.br/swagger/docs](https://api.mapa.urbis.prefeitura.sp.gov.br/swagger/docs) | Local: `http://localhost:3000/swagger/docs`
 - 🛠️ **Guia de Instalação & Setup**: [`apps/docs/content/docs/general/development/setup.mdx`](apps/docs/content/docs/general/development/setup.mdx) | [Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/development/setup)
 - 🏛️ **Arquitetura & Módulos**: [`apps/docs/content/docs/general/architecture/index.mdx`](apps/docs/content/docs/general/architecture/index.mdx) | [Online](https://docs.urbis.prefeitura.sp.gov.br/docs/general/architecture)
 

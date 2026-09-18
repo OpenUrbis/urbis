@@ -183,7 +183,7 @@ Agradecemos imensamente a todos que contribuem para tornar o Urbis uma ferrament
 
 ## ⭐ Histórico de Estrelas (Star History)
 
-[![Star History Chart](https://api.star-history.com/svg?repos=OpenUrbis/urbis-map&type=Date)](https://star-history.com/#OpenUrbis/urbis-map&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=OpenUrbis/urbis-agent,OpenUrbis/urbis-map,OpenUrbis/urbis-datalake,OpenUrbis/urbis-workflows,OpenUrbis/urbis-workflows-api,OpenUrbis/urbis-projeto-inteligente&type=Date)](https://star-history.com/#OpenUrbis/urbis-agent&OpenUrbis/urbis-map&OpenUrbis/urbis-datalake&OpenUrbis/urbis-workflows&OpenUrbis/urbis-workflows-api&OpenUrbis/urbis-projeto-inteligente&Date)
 
 ---
 

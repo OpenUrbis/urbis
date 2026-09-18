@@ -718,12 +718,11 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="opacity-70 hover:opacity-100 transition-opacity"
               >
-                {" "}
                 <img
-                  src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/5087ba000a96aba045e6adcc4a73275cd81d682c/PMT-Logo.svg"
+                  src="/logo-primata.svg"
                   alt="Primata Design"
                   className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-0"
-                />{" "}
+                />
               </a>
 
               <a
@@ -733,7 +732,7 @@ export function Footer() {
                 className="opacity-70 hover:opacity-100 transition-opacity"
               >
                 <img
-                  src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/9a2f0801588c2debec94e690ff12cc4f9fc85888/bd_logo_v2.svg"
+                  src="/logo-basedosdados.svg"
                   alt="Base dos Dados"
                   className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-110 transition-[filter]"
                 />
@@ -753,8 +752,8 @@ export function Footer() {
               className="opacity-80 hover:opacity-100 transition-opacity"
             >
               <img
-                src="https://github.com/FernandoDorstSilva/imagens-publicas/blob/main/67ed4d18b423c93557cb4b9b_logo-prefeitura.png?raw=true"
-                alt="Prefeitura SP"
+                src="/logo-prefeitura.png"
+                alt="Prefeitura de São Paulo"
                 className="h-24 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
                 loading="lazy"
                 width="200"
@@ -769,8 +768,8 @@ export function Footer() {
               className="opacity-80 hover:opacity-100 transition-opacity"
             >
               <img
-                src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/25e3fad688128822ab408216cab33a8eb7d255ff/logo%20codata%20negativo.svg"
-                alt="Codata"
+                src="/logo-codata.svg"
+                alt="CODATA"
                 className="h-14 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
                 loading="lazy"
                 width="140"

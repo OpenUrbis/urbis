@@ -654,7 +654,7 @@ export function UrbisFooter(_props: any) {
                 aria-label="Primata Design"
               >
                 <img
-                  src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/5087ba000a96aba045e6adcc4a73275cd81d682c/PMT-Logo.svg"
+                  src="/logo-primata.svg"
                   alt="Primata Design"
                   className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-0"
                 />
@@ -668,7 +668,7 @@ export function UrbisFooter(_props: any) {
                 aria-label="Base dos Dados"
               >
                 <img
-                  src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/9a2f0801588c2debec94e690ff12cc4f9fc85888/bd_logo_v2.svg"
+                  src="/logo-basedosdados.svg"
                   alt="Base dos Dados"
                   className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-110 transition-[filter]"
                 />
@@ -716,7 +716,7 @@ export function UrbisFooter(_props: any) {
               aria-label="Prefeitura de São Paulo – site oficial"
             >
               <img
-                src="https://github.com/FernandoDorstSilva/imagens-publicas/blob/main/67ed4d18b423c93557cb4b9b_logo-prefeitura.png?raw=true"
+                src="/logo-prefeitura.png"
                 alt="Logotipo da Prefeitura de São Paulo"
                 className="h-20 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
               />
@@ -732,7 +732,7 @@ export function UrbisFooter(_props: any) {
               aria-label="CODATA – Tecnologia da Informação da Prefeitura de São Paulo"
             >
               <img
-                src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/25e3fad688128822ab408216cab33a8eb7d255ff/logo%20codata%20negativo.svg"
+                src="/logo-codata.svg"
                 alt="Logotipo da CODATA São Paulo"
                 className="h-11 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
               />

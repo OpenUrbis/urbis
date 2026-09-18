@@ -77,7 +77,7 @@ export function Footer() {
                 </Button>
               </a>
               <a
-                href="mailto:codata@prefeitura.sp.gov.br"
+                href="mailto:codataurbis@prefeitura.sp.gov.br"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -859,7 +859,7 @@ export function Footer() {
 
             {/* Botão "Encontrou um erro?" */}
             <a
-              href="mailto:codata@prefeitura.sp.gov.br"
+              href="mailto:codataurbis@prefeitura.sp.gov.br"
               className="group mt-1 inline-flex items-center gap-2 text-xs font-medium
                text-white dark:text-black transition-colors
                bg-white/10 dark:bg-black/10

@@ -189,4 +189,4 @@ Agradecemos imensamente a todos que contribuem para tornar o Urbis uma ferrament
 
 ## 📬 Contato e Comunidade
 
-Dúvidas ou sugestões? Entre em contato pelo e-mail [contas@urbis.prefeitura.sp.gov.br](mailto:contas@urbis.prefeitura.sp.gov.br) ou participe das discussões no repositório.
+Dúvidas ou sugestões? Entre em contato pelo e-mail [codataurbis@prefeitura.sp.gov.br](mailto:codataurbis@prefeitura.sp.gov.br) ou participe das discussões no repositório.

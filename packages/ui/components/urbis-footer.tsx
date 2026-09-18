@@ -636,13 +636,13 @@ export function UrbisFooter(_props: any) {
                 href="https://github.com/atlas-cli"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="opacity-90 hover:opacity-100 transition-opacity"
+                className="opacity-90 hover:opacity-100 transition-opacity -mr-[20px]"
                 aria-label="Atlas"
               >
                 <img
                   src="/atlas-logo.png"
                   alt="Atlas"
-                  className="h-9 md:h-12 w-auto object-contain transition-[filter]"
+                  className="h-11 md:h-14 w-auto object-contain transition-[filter]"
                 />
               </a>
 

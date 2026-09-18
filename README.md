@@ -29,6 +29,8 @@ Gerenciado com **Turborepo** e **pnpm**:
 
 ### 📱 Aplicações (`apps/`)
 
+![Módulos e Aplicações do Urbis](apps/docs/public/cover-apps.png)
+
 | Aplicação | Diretório | Tecnologia | Descrição |
 | :--- | :--- | :--- | :--- |
 | **API Backend** | [`apps/api`](apps/api) | NestJS, PostgreSQL, Redis, MinIO | API REST principal, provedor OIDC, filas Bull e serviços. |

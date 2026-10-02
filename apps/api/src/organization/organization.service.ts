@@ -280,7 +280,7 @@ export class OrganizationService {
       metadata.isSystem === true ||
       metadata.hidden === true ||
       metadata.isHidden === true ||
-      ['codata', 'urbis'].includes(organization.name?.trim().toLowerCase())
+      organization.name?.trim().toLowerCase() === 'urbis'
     );
   }
 

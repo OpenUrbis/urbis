@@ -63,7 +63,7 @@
     "react-map-gl": "^7.1.9",
     "react-resizable-panels": "^4.10.0",
     "react-window": "^2.2.5",
-    "zod": "^4.2.1"
+    "zod": "^4.6.6"
   },
   "peerDependencies": {
     "react": "^18.2.0",

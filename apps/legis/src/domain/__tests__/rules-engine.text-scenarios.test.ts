@@ -737,6 +737,20 @@ describe("RulesEngine - real-world text scenarios", () => {
       expect(explicitNote.type).toBe("Nota");
       expect(explicitNote.index).toBe("2");
       expect(explicitNote.content).toBe("Observação técnica complementar.");
+
+      const letterNote = parse("Nota a - Primeira nota sobre a tabela.");
+      expect(letterNote.type).toBe("Nota");
+      expect(letterNote.index).toBe("a");
+      expect(letterNote.content).toBe("Primeira nota sobre a tabela.");
+
+      const letterNoteB = parse("Nota b");
+      expect(letterNoteB.type).toBe("Nota");
+      expect(letterNoteB.index).toBe("b");
+
+      const letterNoteColon = parse("Nota b: Segunda nota sobre a tabela.");
+      expect(letterNoteColon.type).toBe("Nota");
+      expect(letterNoteColon.index).toBe("b");
+      expect(letterNoteColon.content).toBe("Segunda nota sobre a tabela.");
     });
   });
 

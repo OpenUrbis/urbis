@@ -10,6 +10,8 @@ import { LayerSchemaDto } from './dto/layer-schema.dto';
 import { LayerSchema } from './entities/layer-schema.entity';
 import { AccessControl } from 'common/guards/access-control/access-control';
 
+const ADMIN_ROLE_ID = 'f5fe5a01-b8e8-4f45-8701-45a6b24ba2d4';
+
 @Injectable()
 export class LayerSchemasService {
   constructor(
@@ -167,8 +169,8 @@ export class LayerSchemasService {
       layerGroup,
       colors,
       index,
-      isPublic: isPublic ?? true,
-      allowedRoles: allowedRoles ?? [],
+      isPublic: isPublic ?? false,
+      allowedRoles: allowedRoles ?? [ADMIN_ROLE_ID],
     });
 
     return this.repository.save(entity);
@@ -240,8 +242,9 @@ export class LayerSchemasService {
     layerSchema.layerGroup = layerGroup;
     layerSchema.colors = colors;
     layerSchema.index = index;
-    layerSchema.isPublic = isPublic ?? true;
-    layerSchema.allowedRoles = allowedRoles ?? [];
+    // Updates that omit visibility must not accidentally make a restricted layer public.
+    layerSchema.isPublic = isPublic ?? layerSchema.isPublic ?? false;
+    layerSchema.allowedRoles = allowedRoles ?? layerSchema.allowedRoles ?? [];
 
     return await this.repository.save(layerSchema);
   }

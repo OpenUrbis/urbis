@@ -41,6 +41,18 @@ pnpm --filter @open-urbis/map-accounts dev
 
 Acesse em: `http://localhost:4200`
 
+### Integração local com o Mapa
+
+Quando o Mapa é aberto em `localhost`, o menu de usuário aponta para `http://localhost:4200`; em outros hosts, mantém a URL de produção. A API local (`http://localhost:3000`) e o Contas devem permanecer em execução durante o login OIDC.
+
+Na edição de um usuário, falhas ao carregar cargos ou entidades encerram o estado de carregamento e preservam a entidade selecionada; o erro detalhado fica no console do navegador para diagnóstico.
+
+### Seleção e administração de organizações
+
+A interface classifica uma organização como sistema quando seus metadados indicam `isSystem` ou quando o nome normalizado é o fallback legado `urbis`. O nome `CODATA`, por si só, não ativa mais a interface de sistema; a organização usa a interface administrativa normal, desde que o usuário tenha os vínculos e cargos necessários.
+
+Essa classificação visual não concede nem remove permissões, cargos ou vínculos.
+
 ---
 
 ## 🏗️ Build de Produção

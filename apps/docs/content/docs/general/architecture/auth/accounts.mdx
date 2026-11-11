@@ -14,7 +14,9 @@ A aplicação `apps/accounts` é a interface principal para os usuários gerenci
 
 ## Integração
 
-É construída com Angular e se comunica com a API via endpoints REST padrão protegidos por tokens OIDC.
+É construída com Angular e se comunica com a API via endpoints REST padrão protegidos por tokens OIDC. No Mapa local, executado em `localhost`, o menu de usuário usa `http://localhost:4200`; em hosts não locais, usa a URL pública do Contas.
+
+Durante a edição de um usuário, falhas ao carregar cargos ou entidades finalizam o carregamento e preservam a entidade selecionada para evitar uma tela indefinidamente bloqueada. O detalhe da falha é registrado no console para diagnóstico.
 
 ## Estrutura
 

@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
@@ -18,6 +19,7 @@ describe('RoleService', () => {
   let organizationService: any;
   let permissionService: any;
   let entityManager: any;
+  let configService: any;
 
   beforeEach(async () => {
     roleRepository = {
@@ -52,6 +54,12 @@ describe('RoleService', () => {
       save: jest.fn(),
       getRepository: jest.fn().mockReturnValue(userRoleAssignmentRepository),
     };
+    configService = {
+      get: jest.fn().mockImplementation((key: string) => {
+        if (key === 'admin.organization.id') return 'system-org-id';
+        return undefined;
+      }),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -80,6 +88,10 @@ describe('RoleService', () => {
           provide: OrganizationService,
           useValue: organizationService,
         },
+        {
+          provide: ConfigService,
+          useValue: configService,
+        },
       ],
     }).compile();
 
@@ -102,6 +114,24 @@ describe('RoleService', () => {
         BadRequestException,
       );
       expect(userRoleAssignmentRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('throws BadRequestException when trying to assign system user role to non-system organization', async () => {
+      roleRepository.findOne.mockResolvedValue({
+        id: SYSTEM_ROLES.user,
+        name: 'Usuário',
+        isSystemRole: true,
+      });
+
+      await expect(
+        service.assign({
+          userId: 'user-1',
+          roleId: SYSTEM_ROLES.user,
+          organizationId: 'other-org-id',
+        }),
+      ).rejects.toThrow(
+        'O cargo de Usuário não pode ser cadastrado em outras entidades que não a do sistema.',
+      );
     });
 
     it('unassigns normal role successfully', async () => {

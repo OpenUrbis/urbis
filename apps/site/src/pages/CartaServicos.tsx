@@ -25,10 +25,10 @@ export default function CartaServicos() {
             esta página é uma versão demonstrativa e pode conter erros.
             Contribuições e correções de links podem ser enviados para{" "}
             <a
-              href="mailto:codata@prefeitura.sp.gov.br"
+              href="mailto:codataurbis@prefeitura.sp.gov.br"
               className="text-blue-600 underline hover:text-blue-700 font-medium"
             >
-              CODATA@prefeitura.sp.gov.br
+              codataurbis@prefeitura.sp.gov.br
             </a>
             .
           </span>

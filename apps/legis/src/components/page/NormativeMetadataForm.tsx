@@ -26,6 +26,7 @@ import {
   Plus,
   Trash2,
   AlertCircle,
+  AlertTriangle,
   PlusCircle,
   ExternalLink,
   X,
@@ -42,7 +43,7 @@ import {
   Authority,
   EmentaAlteration,
 } from "../../domain/entities";
-import type { AnnotatedTextSegment } from "../../domain/types";
+import type { AnnotatedTextSegment, Validity } from "../../domain/types";
 import { NORMATIVE_TYPES, NormativeTypeKey } from "../../data/normative-types";
 import { SimpleEditor } from "../Editor/SimpleEditor";
 import { uploadFileToS3, isImageUrl } from "../../services/file-service";
@@ -242,6 +243,7 @@ function ValiditySlot({
   isRequired = false,
   dateError,
   linkError,
+  linkWarning,
 }: {
   label: string;
   emptyHint: string;
@@ -255,6 +257,7 @@ function ValiditySlot({
   isRequired?: boolean;
   dateError?: string;
   linkError?: string;
+  linkWarning?: string;
 }) {
   return (
     <div className="space-y-1.5">
@@ -309,6 +312,15 @@ function ValiditySlot({
               <AlertCircle className="h-3 w-3 shrink-0" />
               {linkError}
             </p>
+          )}
+          {!linkError && linkWarning && (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+              <div className="flex-1">
+                <span className="font-semibold block mb-0.5">Dispositivo não vinculado</span>
+                {linkWarning}
+              </div>
+            </div>
           )}
         </div>
       ) : (
@@ -1132,6 +1144,27 @@ export function NormativeMetadataForm({
     });
   };
 
+  const resolveValidityLabel = useCallback(
+    (validity?: Validity | null) => {
+      if (!validity) return undefined;
+      const elementId = validity.normativeElementId;
+      if (elementId && linkCache[elementId]?.label) {
+        return linkCache[elementId].label;
+      }
+      if (validity.deviceId?.trim()) {
+        return validity.deviceId.trim();
+      }
+      if (elementId && data.elements && data.elements.length > 0) {
+        const found = data.elements.find((el) => el.id === elementId);
+        if (found) {
+          return `${found.type} ${found.index || ""}`.trim();
+        }
+      }
+      return undefined;
+    },
+    [data.elements, linkCache],
+  );
+
   return (
     <div className="space-y-5 pb-6">
       {(!hasNormativeType ||
@@ -1263,21 +1296,17 @@ export function NormativeMetadataForm({
                 ? "Data de vigência inicial é obrigatória."
                 : undefined
             }
-            linkError={
-              !data.originalStartValidity?.normativeElementId?.trim()
-                ? "A vigência inicial precisa estar vinculada a um elemento normativo."
+            linkWarning={
+              !data.originalStartValidity?.normativeElementId?.trim() &&
+              !data.originalStartValidity?.deviceId?.trim()
+                ? "Dispositivo não vinculado. É permitido salvar como rascunho (página privada) para vincular o dispositivo do próprio ato, mas a publicação pública exigirá a indicação expressa do elemento de vigência."
                 : undefined
             }
             onChange={(originalStartValidity) =>
               onChange({ ...data, originalStartValidity })
             }
             onOpenLinkManager={() => requestLink({ type: "startValidity" })}
-            linkLabel={
-              data.originalStartValidity?.normativeElementId
-                ? linkCache[data.originalStartValidity.normativeElementId]
-                    ?.label
-                : undefined
-            }
+            linkLabel={resolveValidityLabel(data.originalStartValidity)}
             disabled={disabled}
           />
 
@@ -1295,11 +1324,7 @@ export function NormativeMetadataForm({
               onChange({ ...data, originalEndValidity })
             }
             onOpenLinkManager={() => requestLink({ type: "endValidity" })}
-            linkLabel={
-              data.originalEndValidity?.normativeElementId
-                ? linkCache[data.originalEndValidity.normativeElementId]?.label
-                : undefined
-            }
+            linkLabel={resolveValidityLabel(data.originalEndValidity)}
             disabled={disabled}
           />
         </div>

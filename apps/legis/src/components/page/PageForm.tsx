@@ -717,6 +717,25 @@ export function PageForm({
     return target ? `${target.type} ${target.index || ""}`.trim() : "";
   };
 
+  const getStartValidityBaseDescription = () => {
+    const startVal = normativeData.originalStartValidity;
+    const elements =
+      structuredElements.length > 0
+        ? structuredElements
+        : normativeData.elements || [];
+
+    if (startVal?.normativeElementId && elements.length > 0) {
+      const found = elements.find((e) => e.id === startVal.normativeElementId);
+      if (found) {
+        return `${found.type} ${found.index || ""}`.trim();
+      }
+    }
+    if (startVal?.deviceId?.trim()) {
+      return startVal.deviceId.trim();
+    }
+    return getLastElementDescription();
+  };
+
   const performSync = useCallback(
     (
       editor: TiptapEditor,
@@ -790,11 +809,13 @@ export function PageForm({
           });
         } else if (node.type.name === "image") {
           const elementId = node.attrs.normativeId || crypto.randomUUID();
+          const existingForNode = currentElements.find((e) => e.id === elementId);
 
           // Smart Title detection for Image/Map
-          let elementTitle = "Figura";
-          let elementHtml = "Figura";
-          let elementType: ElementType = "Figura";
+          let elementTitle = existingForNode?.text || "Figura";
+          let elementHtml = existingForNode?.text || "Figura";
+          let elementType: ElementType =
+            existingForNode?.type === "Mapa" ? "Mapa" : "Figura";
 
           const lastBlock = blocks[blocks.length - 1];
           const isMapTitle =
@@ -806,6 +827,15 @@ export function PageForm({
             elementTitle = lastBlock.text;
             elementHtml = lastBlock.html;
             elementType = isMapTitle ? "Mapa" : "Figura";
+          } else if (
+            existingForNode?.type === "Mapa" ||
+            existingForNode?.type === "Figura"
+          ) {
+            elementType = existingForNode.type;
+            if (existingForNode.text) {
+              elementTitle = existingForNode.text;
+              elementHtml = existingForNode.text;
+            }
           }
 
           const commonData = {
@@ -821,26 +851,48 @@ export function PageForm({
           if (elementType === "Mapa") {
             blocks.push({
               ...commonData,
-              mapData: {
-                screen: {
-                  url: node.attrs.src,
-                  resolution: {
-                    width: node.attrs.width,
-                    height: node.attrs.height,
+              mapData: existingForNode?.mapData
+                ? {
+                    ...existingForNode.mapData,
+                    screen: {
+                      url:
+                        node.attrs.src ||
+                        existingForNode.mapData.screen?.url ||
+                        "",
+                      resolution: {
+                        width:
+                          node.attrs.width ||
+                          existingForNode.mapData.screen?.resolution?.width,
+                        height:
+                          node.attrs.height ||
+                          existingForNode.mapData.screen?.resolution?.height,
+                      },
+                    },
+                  }
+                : {
+                    screen: {
+                      url: node.attrs.src,
+                      resolution: {
+                        width: node.attrs.width,
+                        height: node.attrs.height,
+                      },
+                    },
+                    files: [],
                   },
-                },
-                files: [],
-              },
               isTarget: !isOutsideSelection,
             });
           } else {
             blocks.push({
               ...commonData,
               figureData: {
-                url: node.attrs.src,
+                url: node.attrs.src || existingForNode?.figureData?.url || "",
                 resolution: {
-                  width: node.attrs.width,
-                  height: node.attrs.height,
+                  width:
+                    node.attrs.width ||
+                    existingForNode?.figureData?.resolution?.width,
+                  height:
+                    node.attrs.height ||
+                    existingForNode?.figureData?.resolution?.height,
                 },
               },
               isTarget: !isOutsideSelection,
@@ -980,9 +1032,10 @@ export function PageForm({
             existing?.specialSituations ||
             block.content?.attrs?.specialSituations ||
             [],
-          tableData: block.tableData,
-          figureData: block.figureData,
-          mapData: block.mapData,
+          tableData: block.tableData || existing?.tableData,
+          figureData: block.figureData || existing?.figureData,
+          mapData: block.mapData || existing?.mapData,
+          noteData: existing?.noteData,
         };
       });
 
@@ -1770,6 +1823,25 @@ export function PageForm({
         return null;
       }
 
+      if (isNormative && !normativeData.originalStartValidity?.date?.trim()) {
+        const message =
+          "Data de vigência inicial é obrigatória. Defina a data da vigência inicial antes de salvar o original normativo.";
+        reportSaveError(message);
+        return null;
+      }
+
+      if (
+        isNormative &&
+        isPublic &&
+        !normativeData.originalStartValidity?.normativeElementId?.trim() &&
+        !normativeData.originalStartValidity?.deviceId?.trim()
+      ) {
+        const message =
+          "Para publicar a página, é obrigatório indicar o dispositivo que define a vigência inicial do Original normativo. Salve como rascunho (página privada) para poder vincular o elemento e tente publicar novamente.";
+        reportSaveError(message);
+        return null;
+      }
+
       if (blockingValidationIssues.length > 0) {
         const message = `Existem ${blockingValidationIssues.length} inconsistência(s) bloqueante(s) na estrutura normativa. Corrija antes de salvar.`;
         reportSaveError(message);
@@ -2054,6 +2126,82 @@ export function PageForm({
             <Button
               onClick={() => {
                 clearSaveFeedback();
+                const trimmedTitle = title.trim();
+                if (!trimmedTitle) {
+                  reportSaveError("Informe um título antes de salvar.");
+                  return;
+                }
+
+                if (type === "coletanea_tematica") {
+                  const hasDescription = Boolean(
+                    coletaneaData.shortDescription &&
+                      htmlToPlainText(coletaneaData.shortDescription).trim(),
+                  );
+                  const hasContent = Boolean(
+                    content &&
+                      content.content &&
+                      hasMeaningfulTextContent(content.content),
+                  );
+
+                  if (!hasDescription && !hasContent) {
+                    reportSaveError(
+                      "Preencha a Descrição resumida ou adicione algum conteúdo antes de salvar a coletânea.",
+                    );
+                    return;
+                  }
+                } else if (!content && type !== "original_normativo") {
+                  reportSaveError("Adicione algum conteúdo antes de salvar.");
+                  return;
+                }
+
+                if (isNormative) {
+                  if (!hasNormativeType) {
+                    reportSaveError(
+                      "O campo Tipo normativo é obrigatório. Selecione um tipo normativo antes de salvar o original normativo.",
+                    );
+                    return;
+                  }
+
+                  if (!hasMinimumNormativeMetadata) {
+                    reportSaveError(
+                      "Preencha pelo menos um dos campos Número, Data do ato ou Data de publicação antes de salvar o original normativo.",
+                    );
+                    return;
+                  }
+
+                  if (!hasNormativeAuthority) {
+                    reportSaveError(
+                      "Selecione uma autoridade antes de salvar o original normativo.",
+                    );
+                    return;
+                  }
+
+                  if (!normativeData.originalStartValidity?.date?.trim()) {
+                    reportSaveError(
+                      "Data de vigência inicial é obrigatória. Defina a data da vigência inicial antes de salvar o original normativo.",
+                    );
+                    return;
+                  }
+
+                  if (
+                    isPublic &&
+                    !normativeData.originalStartValidity?.normativeElementId?.trim() &&
+                    !normativeData.originalStartValidity?.deviceId?.trim()
+                  ) {
+                    reportSaveError(
+                      "Para publicar a página, é obrigatório indicar o dispositivo que define a vigência inicial do Original normativo. Salve como rascunho (página privada) para poder vincular o elemento e tente publicar novamente.",
+                    );
+                    return;
+                  }
+
+                  if (blockingValidationIssues.length > 0) {
+                    reportSaveError(
+                      `Existem ${blockingValidationIssues.length} inconsistência(s) bloqueante(s) na estrutura normativa. Corrija antes de salvar.`,
+                    );
+                    return;
+                  }
+                }
+
                 setSaveConfirmationOpen(true);
               }}
               variant="outline"
@@ -2197,6 +2345,14 @@ export function PageForm({
                         ? "Disponível para visualização pública."
                         : "Visível apenas para usuários com acesso autorizado."}
                     </p>
+                    {isPublic &&
+                      isNormative &&
+                      !normativeData.originalStartValidity?.normativeElementId?.trim() &&
+                      !normativeData.originalStartValidity?.deviceId?.trim() && (
+                        <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                          Atenção: É necessário vincular o dispositivo de vigência inicial antes de publicar.
+                        </p>
+                      )}
                   </div>
 
                   <Switch
@@ -2562,7 +2718,7 @@ export function PageForm({
               </p>
               <p>
                 {isNormative
-                  ? `Vigência do original: início ${normativeData.originalStartValidity?.date || normativeData.publicationDate || "não definida"}${normativeData.originalEndValidity?.date ? ` · fim ${normativeData.originalEndValidity.date}` : ""}. Base: ${getLastElementDescription()}`
+                  ? `Vigência do original: início ${normativeData.originalStartValidity?.date || normativeData.publicationDate || "não definida"}${normativeData.originalEndValidity?.date ? ` · fim ${normativeData.originalEndValidity.date}` : ""}. Base: ${getStartValidityBaseDescription()}`
                   : "Deseja salvar esta coletânea?"}
               </p>
             </div>

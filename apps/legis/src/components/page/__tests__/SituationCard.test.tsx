@@ -216,6 +216,27 @@ describe("SituationCard", () => {
       expect(html).not.toContain("Todo o dispositivo foi vetado.");
     });
 
+    it("renders Texto(s) vetado(s) with the element text when elementText is present in group", () => {
+      const html = renderSituationCard(
+        makeGroup({
+          type: "VETO_GROUP",
+          elementText: "<p>Art. 1º - Conteúdo integral do artigo vetado pelo Executivo.</p>",
+          situations: [
+            {
+              type: "Veto",
+              date: "19.03.2024",
+              relatedDeviceId: "art-1",
+              dispositivo: "Art. 1º",
+            },
+          ],
+        }),
+      );
+
+      expect(html).toContain("Vetos e Derrubadas de Veto");
+      expect(html).toContain("Texto(s) vetado(s)");
+      expect(html).toContain("Art. 1º - Conteúdo integral do artigo vetado pelo Executivo.");
+    });
+
     it("describes a renumbering with its new reference", () => {
       const html = renderSituationCard(
         makeGroup({

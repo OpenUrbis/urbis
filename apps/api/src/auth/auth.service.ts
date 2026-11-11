@@ -129,16 +129,31 @@ export class AuthService {
   }
 
   private async validateExistingLegalRegistration(cpf: string): Promise<void> {
-    const organization = await this.organizationService.findOneByDocument(cpf);
-    const representedType = organization?.metadata?.representedType;
+    const cleanCpf = cpf.replace(/\D/g, '');
+    const organization =
+      await this.organizationService.findOneByDocument(cleanCpf);
+    if (!organization) return;
 
-    if (!['Espólio', 'Herança jacente ou vacante'].includes(representedType)) {
-      return;
+    const representedType = organization?.metadata?.representedType;
+    if (!representedType) return;
+
+    const estateTypes = ['Espólio', 'Herança jacente ou vacante'];
+    if (estateTypes.includes(representedType)) {
+      throw new BadRequestException(
+        `O CPF já se encontra cadastrado como ${representedType}. Caso este cadastro esteja incorreto, contatar o suporte.`,
+      );
     }
 
-    throw new BadRequestException(
-      `Este CPF já está cadastrado como ${representedType}. Para alterar ou corrigir a situação, contate o suporte do Urbis.`,
-    );
+    const incapableTypes = [
+      'Incapaz (representado por autoridade parental)',
+      'Incapaz (representado por tutor)',
+      'Incapaz (representado por curador)',
+    ];
+    if (incapableTypes.includes(representedType)) {
+      throw new BadRequestException(
+        `O CPF já se encontra cadastrado como ${representedType}. Caso este cadastro esteja incorreto ou a situação tenha se alterado, contatar o suporte.`,
+      );
+    }
   }
 
   async confirmEmail(emailHashConfirm: string): Promise<void> {

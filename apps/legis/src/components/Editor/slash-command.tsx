@@ -84,7 +84,7 @@ export const suggestionItems = createSuggestionItems([
   },
   {
     title: "Figura / Imagem",
-    description: "Enviar imagem ou figura para o S3.",
+    description: "Enviar imagem ou figura para o repositório.",
     searchTerms: ["figura", "image", "figure", "imagem", "upload"],
     icon: <Image size={18} />,
     command: ({ editor, range }) => {
@@ -112,7 +112,7 @@ export const suggestionItems = createSuggestionItems([
   },
   {
     title: "Mapa",
-    description: "Enviar mapa (imagem) para o S3.",
+    description: "Enviar mapa (imagem) para o repositório.",
     searchTerms: ["mapa", "map", "upload"],
     icon: <Map size={18} />,
     command: ({ editor, range }) => {
@@ -140,7 +140,7 @@ export const suggestionItems = createSuggestionItems([
   },
   {
     title: "Arquivo / Anexo",
-    description: "Enviar arquivo ou anexo para o S3.",
+    description: "Enviar arquivo ou anexo para o repositório.",
     searchTerms: ["arquivo", "anexo", "upload", "file", "pdf"],
     icon: <Paperclip size={18} />,
     command: ({ editor, range }) => {

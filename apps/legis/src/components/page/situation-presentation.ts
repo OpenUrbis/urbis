@@ -6,6 +6,7 @@ import {
 import {
   buildAnnotatedSegmentsExcerpt,
   buildCitationFromAnchoredSegments,
+  htmlToPlainText,
   normalizeAnnotatedTextSegments,
 } from "../../domain/text-utils";
 import {
@@ -57,6 +58,8 @@ export interface SituationPresentationOptions {
   /** Effective validity of the affected element, never the source act date. */
   effectiveStartDate?: string;
   effectiveEndDate?: string;
+  /** Text of the normative element to which the situation belongs. */
+  elementText?: string;
 }
 
 export interface SituationPresentation {
@@ -283,7 +286,10 @@ const EFFECT_COPY: Record<
  * The quoted passage, if any. Prefers the persisted segments (which carry the
  * exact selected text) and falls back to the legacy free-text fields.
  */
-function getExcerptText(situation: SpecialSituation): string | undefined {
+function getExcerptText(
+  situation: SpecialSituation,
+  elementText?: string,
+): string | undefined {
   const segments = normalizeAnnotatedTextSegments(situation.trechos);
   if (segments.length) {
     const excerpt = buildAnnotatedSegmentsExcerpt(segments).trim();
@@ -297,12 +303,19 @@ function getExcerptText(situation: SpecialSituation): string | undefined {
     situation.newText;
 
   const trimmed = legacy?.trim();
-  if (!trimmed) return undefined;
+  if (trimmed && !/^texto integral$/i.test(trimmed)) {
+    return trimmed;
+  }
 
-  // Legacy placeholder that used to be displayed verbatim to the reader.
-  if (/^texto integral$/i.test(trimmed)) return undefined;
+  if (
+    elementText?.trim() &&
+    (situation.type === "Veto" || situation.type === "Derrubada de veto")
+  ) {
+    const plain = htmlToPlainText(elementText).trim();
+    if (plain) return plain;
+  }
 
-  return trimmed;
+  return undefined;
 }
 
 function getOrigin(situation: SpecialSituation): SituationOrigin | undefined {
@@ -328,7 +341,7 @@ export function getSituationPresentation(
   const copy = EFFECT_COPY[situation.type] ?? {
     whole: "Situação especial registrada.",
   };
-  const excerptText = getExcerptText(situation);
+  const excerptText = getExcerptText(situation, options.elementText);
   const hasSegments =
     normalizeAnnotatedTextSegments(situation.trechos).length > 0;
   const isPartial = hasSegments && !!copy.partial;

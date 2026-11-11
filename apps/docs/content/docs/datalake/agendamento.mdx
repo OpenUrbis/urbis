@@ -10,6 +10,16 @@ Isso elimina falhas de orquestração ao processar assets particionados dinamica
 
 ---
 
+## 📊 Relatório diário de pipelines
+
+O sensor `daily_failure_report_sensor` solicita o job `daily_failure_report_job` uma vez por dia a partir das **07:00**, por padrão, no fuso `America/Sao_Paulo`. Quando uma pipeline semanal do contrato ainda está em execução, a emissão do relatório é adiada até sua conclusão.
+
+O job publica o PDF no armazenamento compatível com S3, gera um link assinado e tenta solicitar o envio pelo Azure Communication Services. Em produção, o `K8sRunLauncher` pode executar o job em um pod temporário; nesses pods, `AZURE_EMAIL_TO_ADDRESSES` vem do ConfigMap `urbis-datalake-dagster-user-deployments-urbis-datalake-user-env`, no namespace `urbis-datalake`. A configuração deve permanecer alinhada ao Secret e ao deployment permanente. O endereço institucional esperado inclui `codataurbis@PREFEITURA.SP.GOV.BR`.
+
+O log **“Relatório publicado para ser enviado por e-mail”** descreve a publicação do artefato e a preparação do link. Ele não comprova a entrega na caixa postal; a investigação de não recebimento deve conferir a configuração efetiva do pod, os logs da execução e o provedor de e-mail.
+
+---
+
 ## ⚙️ Como Funciona o Fluxo Declarativo
 
 ```mermaid

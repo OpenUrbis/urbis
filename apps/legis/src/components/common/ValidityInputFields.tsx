@@ -50,7 +50,7 @@ export function ValidityInputFields({
             onChange(updateValidityNormativeElement(value, normativeElementId))
           }
           onOpen={onOpenLinkManager}
-          label={linkLabel}
+          label={linkLabel || value.deviceId || undefined}
         />
       </div>
     </div>

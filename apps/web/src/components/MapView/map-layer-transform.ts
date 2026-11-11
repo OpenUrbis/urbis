@@ -8,6 +8,7 @@ import { createGetTextLayerUri } from "../../integrations/map-integration";
 import {
   IGetConfigFillPattern,
   IGetConfigFillPatternConfig,
+  IGetConfigColor,
   IGetConfigLayerSchema,
 } from "../../types/fetch-map-config-type";
 import {
@@ -219,6 +220,25 @@ export const calculateGridCells = (
   return cells;
 };
 
+const resolveColorKey = (
+  value: unknown,
+  colors: IGetConfigColor[],
+): string => {
+  if (typeof value !== "number") return String(value ?? "default");
+
+  const numericColors = colors
+    .filter((color) => color.value !== "default" && Number.isFinite(Number(color.value)))
+    .sort((a, b) => Number(a.value) - Number(b.value));
+
+  if (numericColors.length === 0) return String(value);
+
+  const matchingColor = [...numericColors]
+    .reverse()
+    .find((color) => value >= Number(color.value));
+
+  return matchingColor?.value ?? "default";
+};
+
 const generateGetColorFns = (
   layer: IGetConfigLayerSchema,
   selectedFeatureIds: string[] = [],
@@ -227,11 +247,12 @@ const generateGetColorFns = (
     layer;
   const { fillColors, lineColors, textColors, patterns, patternConfigs } =
     buildColorsObj(layer);
+  const colors = layer.colors ?? [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getTextColor = (d: any): Color => {
     const key = getTextColorPropName ?? getFillColorPropName ?? "default";
-    const keyToFind = d?.properties?.[key] ?? "default";
+    const keyToFind = resolveColorKey(d?.properties?.[key], colors);
     const color = textColors?.[keyToFind] ?? textColors?.["default"];
     if (!color)
       return (
@@ -246,7 +267,7 @@ const generateGetColorFns = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getLineColor = (d: any): Color => {
     const key = getLineColorPropName ?? getFillColorPropName ?? "default";
-    const keyToFind = d?.properties?.[key] ?? "default";
+    const keyToFind = resolveColorKey(d?.properties?.[key], colors);
     const color = lineColors?.[keyToFind] ?? lineColors?.["default"];
     if (!color)
       return (
@@ -261,7 +282,7 @@ const generateGetColorFns = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFillColor = (d: any): Color => {
     const key = getFillColorPropName ?? "default";
-    const keyToFind = d?.properties?.[key] ?? "default";
+    const keyToFind = resolveColorKey(d?.properties?.[key], colors);
     const color =
       fillColors?.[keyToFind] ??
       fillColors?.["default"] ??

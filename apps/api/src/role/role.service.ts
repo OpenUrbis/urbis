@@ -3,7 +3,9 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { SYSTEM_ROLES } from 'common/constants/system-roles.const';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { IPaginationOptions } from 'common/utils/types/pagination-options';
@@ -45,8 +47,9 @@ export class RoleService {
     private readonly entityManager: EntityManager,
 
     private readonly permissionService: PermissionService,
-    @Inject({ forwardRef: () => OrganizationService })
+    @Inject(forwardRef(() => OrganizationService))
     private readonly organizationService: OrganizationService,
+    private readonly configService: ConfigService,
   ) {}
 
   async findOne(id: string): Promise<Role | null> {
@@ -183,7 +186,25 @@ export class RoleService {
     entityManager?: EntityManager,
   ) {
     const { userId, roleId, organizationId = organization?.id } = data;
-    const assign = await this.userRoleAssignmentRepository.findOne({
+    const systemOrgId = this.configService.get<string>('admin.organization.id');
+    const role = await this.findOne(roleId);
+
+    if (
+      (roleId === SYSTEM_ROLES.user ||
+        (role?.isSystemRole && role?.name === 'Usuário')) &&
+      organizationId &&
+      organizationId !== systemOrgId
+    ) {
+      throw new BadRequestException(
+        'O cargo de Usuário não pode ser cadastrado em outras entidades que não a do sistema.',
+      );
+    }
+
+    const repo = entityManager
+      ? entityManager.getRepository(UserRoleAssignment)
+      : this.userRoleAssignmentRepository;
+
+    const assign = await repo.findOne({
       where: {
         userId,
         roleId,
@@ -198,9 +219,7 @@ export class RoleService {
     };
 
     if (!assign)
-      return entityManager
-        ? entityManager.save(UserRoleAssignment, newRegister)
-        : this.userRoleAssignmentRepository.save(newRegister);
+      return repo.save(newRegister);
     else return assign;
   }
 

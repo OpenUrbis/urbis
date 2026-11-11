@@ -102,8 +102,9 @@ export class Sidenav {
     const org = this.organizationState.selectedOrganization();
     const normalizedName = org?.name?.trim().toLowerCase();
 
-    // Keep the name fallback for system organizations created before metadata.isSystem was added.
-    return org?.metadata?.isSystem === true || normalizedName === 'codata';
+    // Explicit metadata remains the primary marker. The name fallback is only
+    // for the legacy `Urbis` system account, not ordinary organizations such as CODATA.
+    return org?.metadata?.isSystem === true || normalizedName === 'urbis';
   });
 
   changeOrganization() {

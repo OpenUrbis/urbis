@@ -293,12 +293,15 @@ export const DEFAULT_RULES: ParsingRule[] = [
     id: "nota",
     name: "Nota",
     regex: new RegExp(
-      `^${TAGS_PREFIX}(?:NOTA${SPACE_OPT})?\\(([A-Za-z0-9]+(?:[\\s-–—.]+[A-Za-z0-9]+)*)\\)${SPACE_OPT}[-–—:.]?${SPACE_OPT}(.*)`,
+      `^${TAGS_PREFIX}(?:NOTA${SPACE_OPT}(?:\\(([A-Za-z0-9]+(?:[\\s-–—.]+[A-Za-z0-9]+)*)\\)|([A-Za-z0-9]+))|\\(([A-Za-z0-9]+(?:[\\s-–—.]+[A-Za-z0-9]+)*)\\))${SPACE_OPT}[)\\s-–—:.]*${SPACE_OPT}(.*)`,
       "i",
     ),
     type: "Nota",
     priority: 45,
-    extract: (m) => ({ index: m[1].trim(), content: cleanExtractedContent(m[2]) }),
+    extract: (m) => ({
+      index: (m[1] || m[2] || m[3] || "").trim(),
+      content: cleanExtractedContent(m[4]),
+    }),
   },
 ];
 

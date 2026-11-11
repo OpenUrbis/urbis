@@ -77,7 +77,7 @@ export function Footer() {
                 </Button>
               </a>
               <a
-                href="mailto:codata@prefeitura.sp.gov.br"
+                href="mailto:codataurbis@prefeitura.sp.gov.br"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -700,15 +700,15 @@ export function Footer() {
             </span>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
               <a
-                href="https://github.com/atlas-cli"
+                href="https://atlascli.io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="opacity-70 hover:opacity-100 transition-opacity"
+                className="opacity-80 hover:opacity-100 transition-opacity -mr-[20px]"
               >
                 <img
-                  src="https://github.com/FernandoDorstSilva/imagens-publicas/blob/main/Property%201=branca.png?raw=true"
-                  alt="Atlas CLI"
-                  className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-110 transition-[filter]"
+                  src="/atlas-logo.png"
+                  alt="Atlas"
+                  className="h-[50px] md:h-[64px] w-auto object-contain transition-[filter]"
                 />
               </a>
 
@@ -718,12 +718,11 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="opacity-70 hover:opacity-100 transition-opacity"
               >
-                {" "}
                 <img
-                  src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/5087ba000a96aba045e6adcc4a73275cd81d682c/PMT-Logo.svg"
+                  src="/logo-primata.svg"
                   alt="Primata Design"
                   className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-0"
-                />{" "}
+                />
               </a>
 
               <a
@@ -733,7 +732,7 @@ export function Footer() {
                 className="opacity-70 hover:opacity-100 transition-opacity"
               >
                 <img
-                  src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/9a2f0801588c2debec94e690ff12cc4f9fc85888/bd_logo_v2.svg"
+                  src="/logo-basedosdados.svg"
                   alt="Base dos Dados"
                   className="h-8 md:h-10 w-auto object-contain scale-[0.8] dark:invert dark:brightness-110 transition-[filter]"
                 />
@@ -750,15 +749,16 @@ export function Footer() {
               href="https://prefeitura.sp.gov.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="opacity-80 hover:opacity-100 transition-opacity"
+              className="opacity-90 hover:opacity-100 transition-opacity"
+              aria-label="Prefeitura de São Paulo"
             >
               <img
-                src="https://github.com/FernandoDorstSilva/imagens-publicas/blob/main/67ed4d18b423c93557cb4b9b_logo-prefeitura.png?raw=true"
-                alt="Prefeitura SP"
-                className="h-24 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
+                src="/logo-prefeitura.png"
+                alt="Prefeitura de São Paulo"
+                className="h-16 md:h-20 w-auto object-contain transition-[filter]"
                 loading="lazy"
                 width="200"
-                height="96"
+                height="80"
               />
             </a>
             <div className="h-12 w-px bg-primary-foreground/20" />
@@ -766,12 +766,12 @@ export function Footer() {
               href="https://codata.prefeitura.sp.gov.br"
               target="_blank"
               rel="noopener noreferrer"
-              className="opacity-80 hover:opacity-100 transition-opacity"
+              className="opacity-90 hover:opacity-100 transition-opacity"
             >
               <img
-                src="https://raw.githubusercontent.com/FernandoDorstSilva/imagens-publicas/25e3fad688128822ab408216cab33a8eb7d255ff/logo%20codata%20negativo.svg"
-                alt="Codata"
-                className="h-14 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
+                src="/logo-codata.svg"
+                alt="CODATA"
+                className="h-11 w-auto object-contain dark:invert dark:brightness-110 transition-[filter]"
                 loading="lazy"
                 width="140"
                 height="56"
@@ -859,7 +859,7 @@ export function Footer() {
 
             {/* Botão "Encontrou um erro?" */}
             <a
-              href="mailto:codata@prefeitura.sp.gov.br"
+              href="mailto:codataurbis@prefeitura.sp.gov.br"
               className="group mt-1 inline-flex items-center gap-2 text-xs font-medium
                text-white dark:text-black transition-colors
                bg-white/10 dark:bg-black/10

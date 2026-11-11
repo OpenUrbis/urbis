@@ -251,6 +251,70 @@ describe('UserService', () => {
         }),
       );
     });
+
+    it('allows administrators to update user email', async () => {
+      const existing = {
+        id: 'user-1',
+        email: 'old@example.test',
+        accountType: 'fisica_capaz',
+      } as User;
+      const refreshed = {
+        ...existing,
+        email: 'new@example.test',
+      } as User;
+
+      usersRepository.findOne
+        .mockResolvedValueOnce(existing)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(refreshed);
+
+      const accessControl = {
+        hasPermission: jest.fn().mockReturnValue(true),
+      } as any;
+
+      await service.update(
+        'user-1',
+        {
+          accountType: 'fisica_capaz',
+          email: 'new@example.test',
+        } as any,
+        accessControl,
+      );
+
+      expect(usersRepository.update).toHaveBeenCalledWith(
+        { id: 'user-1' },
+        expect.objectContaining({
+          email: 'new@example.test',
+        }),
+      );
+    });
+
+    it('rejects email update when actor is not administrator', async () => {
+      const existing = {
+        id: 'user-1',
+        email: 'old@example.test',
+        accountType: 'fisica_capaz',
+      } as User;
+
+      usersRepository.findOne.mockResolvedValueOnce(existing);
+
+      const accessControl = {
+        hasPermission: jest.fn().mockReturnValue(false),
+      } as any;
+
+      await expect(
+        service.update(
+          'user-1',
+          {
+            accountType: 'fisica_capaz',
+            email: 'new@example.test',
+          } as any,
+          accessControl,
+        ),
+      ).rejects.toThrow(
+        'Apenas administradores podem alterar o e-mail de usuários',
+      );
+    });
   });
 
   describe('softDelete', () => {

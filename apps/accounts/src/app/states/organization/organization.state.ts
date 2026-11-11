@@ -41,7 +41,7 @@ export class OrganizationState {
 
     effect(() => {
       // Guard against running default selection/clear logic while organizations are still loading
-      if (this.myOrganizations.isLoading()) {
+      if (this.myOrganizations.isLoading() || this.myOrganizations.error()) {
         return;
       }
 

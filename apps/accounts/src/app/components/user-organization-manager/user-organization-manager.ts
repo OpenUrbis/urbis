@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Subject, switchMap, tap } from 'rxjs';
+import { catchError, finalize, of, Subject, switchMap, tap } from 'rxjs';
 import {
   LoadingContent,
   HlmButtonDirective,
@@ -46,9 +46,17 @@ export class UserOrganizationManager {
   organizations = toSignal(
     this.user$.pipe(
       tap(() => this.loading.set(true)),
-      switchMap((userId: string) => this.organizationApi.listByUser(userId)),
-      tap(() => this.loading.set(false)),
+      switchMap((userId: string) =>
+        this.organizationApi.listByUser(userId).pipe(
+          catchError((error) => {
+            console.error('Erro ao carregar as entidades do usuário', error);
+            return of([] as IResponseOrganizationWithRole[]);
+          }),
+          finalize(() => this.loading.set(false)),
+        ),
+      ),
     ),
+    { initialValue: [] as IResponseOrganizationWithRole[] },
   );
 
   constructor() {

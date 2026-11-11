@@ -59,7 +59,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (item of organizations() ?? []; track item.id) {
+          @for (item of organizations(); track item.id) {
             <tr
               class="border-b last:border-0 hover:bg-muted/50 transition-colors"
             >

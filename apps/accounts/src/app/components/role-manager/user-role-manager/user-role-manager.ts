@@ -11,7 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { provideIcons } from '@ng-icons/core';
 import { lucideLock, lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject, switchMap, tap } from 'rxjs';
+import { catchError, finalize, of, Subject, switchMap, tap } from 'rxjs';
 import {
   HlmButtonDirective,
   HlmDialogService,
@@ -54,9 +54,17 @@ export class UserRoleManager {
   userRoles = toSignal(
     this.userId$.pipe(
       tap(() => this.loading.set(true)),
-      switchMap(() => this.roleManagerApi.getUserRoles(this.userId())),
-      tap(() => this.loading.set(false)),
+      switchMap(() =>
+        this.roleManagerApi.getUserRoles(this.userId()).pipe(
+          catchError((error) => {
+            console.error('Erro ao carregar os cargos do usuário', error);
+            return of([] as IUserAssigmentResponse[]);
+          }),
+          finalize(() => this.loading.set(false)),
+        ),
+      ),
     ),
+    { initialValue: [] as IUserAssigmentResponse[] },
   );
 
   userRoleIds = computed(() => {

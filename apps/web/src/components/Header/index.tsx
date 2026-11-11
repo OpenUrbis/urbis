@@ -22,6 +22,13 @@ import {
   mapTutorialVisible,
 } from "../MapTutorial/state";
 
+const accountsUrl =
+  import.meta.env.VITE_ACCOUNTS_URL ||
+  (window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:4200"
+    : "https://conta.urbis.prefeitura.sp.gov.br");
+
 const Header = () => {
   const auth = useAuth();
   const { theme, setTheme } = useTheme();
@@ -98,6 +105,7 @@ const Header = () => {
           badgeText={badgeText}
           menuItems={menuItems}
           isAuthenticated={auth.isAuthenticated}
+          accountUrl={accountsUrl}
           user={{
             name: userProfile.value?.name ?? auth.user?.profile.name,
             socialName:

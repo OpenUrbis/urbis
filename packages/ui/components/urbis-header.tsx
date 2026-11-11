@@ -41,6 +41,7 @@ interface UrbisHeaderProps extends UrbisSettingsProps {
   onLogout?: () => void;
   leftSlot?: React.ReactNode;
   rightSlot?: React.ReactNode;
+  accountUrl?: string;
   showMobileMenu?: boolean;
   showLogin?: boolean; // <- controla se "Entrar" aparece quando não autenticado
   onMobileMenuClick?: () => void;
@@ -58,6 +59,7 @@ export const UrbisHeader = ({
   onLogout,
   leftSlot,
   rightSlot,
+  accountUrl = "https://conta.urbis.prefeitura.sp.gov.br",
   showMobileMenu = true,
   showLogin = true,
   onMobileMenuClick,
@@ -257,7 +259,7 @@ export const UrbisHeader = ({
 
                     <div className="p-1">
                       <a
-                        href="https://conta.urbis.prefeitura.sp.gov.br"
+                        href={accountUrl}
                         className="flex w-full items-center rounded-lg px-3 py-2 text-sm hover:bg-accent"
                         role="menuitem"
                         onClick={() => setUserMenuOpen(false)}

@@ -275,6 +275,9 @@ export class OrganizationService {
   }
 
   private isHiddenSystemOrganization(organization: Organization): boolean {
+    // Explicit metadata remains the primary marker. Keep only the legacy
+    // `urbis` name fallback for the system account; ordinary organizations,
+    // including CODATA, must not be hidden merely because of their name.
     const metadata = organization.metadata || {};
     return (
       metadata.isSystem === true ||

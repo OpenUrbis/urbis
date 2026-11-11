@@ -47,6 +47,12 @@ Quando o Mapa é aberto em `localhost`, o menu de usuário aponta para `http://l
 
 Na edição de um usuário, falhas ao carregar cargos ou entidades encerram o estado de carregamento e preservam a entidade selecionada; o erro detalhado fica no console do navegador para diagnóstico.
 
+### Seleção e administração de organizações
+
+A interface classifica uma organização como sistema quando seus metadados indicam `isSystem` ou quando o nome normalizado é o fallback legado `urbis`. O nome `CODATA`, por si só, não ativa mais a interface de sistema; a organização usa a interface administrativa normal, desde que o usuário tenha os vínculos e cargos necessários.
+
+Essa classificação visual não concede nem remove permissões, cargos ou vínculos.
+
 ---
 
 ## 🏗️ Build de Produção

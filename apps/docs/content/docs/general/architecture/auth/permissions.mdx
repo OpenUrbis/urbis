@@ -12,6 +12,12 @@ O Urbis utiliza um sistema de Controle de Acesso Baseado em Função (RBAC) para
 -   **Cargo**: Uma coleção de permissões (ex: Admin, Membro, Visualizador).
 -   **Permissão**: Um direito granular para executar uma ação (ex: `user:create`, `post:delete`).
 
+## Visibilidade de organizações
+
+A API preserva entidades marcadas explicitamente como sistema ou ocultas por `metadata.isSystem`, `metadata.hidden` ou `metadata.isHidden` somente para administradores globais ou consultas que solicitam entidades ocultas. Para os demais usuários, a listagem filtra essas entidades e mantém apenas o fallback nominal legado para o nome normalizado `urbis`, correspondente à conta de sistema `Urbis (conta do sistema)`.
+
+`CODATA` não é mais reconhecida como entidade de sistema pelo nome. Portanto, uma organização chamada CODATA pode aparecer e usar a interface administrativa normal quando o usuário tiver vínculo e cargo compatíveis. A mudança é de visibilidade/classificação; não cria permissões, não altera cargos e não modifica vínculos no banco.
+
 ## Implementação
 
 ### Guards do Backend

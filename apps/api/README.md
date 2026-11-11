@@ -33,6 +33,12 @@ Fora de `development`, a API **não** gera chave substituta: é obrigatório con
 
 O reCAPTCHA do login só é dispensado em `development`/`test`; em produção a validação permanece ativa.
 
+### Visibilidade de organizações
+
+Os métodos de organizações filtram entidades de sistema/ocultas para usuários comuns. O filtro considera os metadados `isSystem`, `hidden` e `isHidden`; por compatibilidade, mantém somente o fallback nominal legado para o nome normalizado `urbis`. O nome `CODATA` não é mais tratado como marcador de sistema.
+
+Esse comportamento afeta a listagem e a seleção de organizações, não altera vínculos, cargos ou permissões no banco. Administradores globais ou consultas com `includeHidden` continuam podendo receber entidades ocultas.
+
 ---
 
 ## 📖 Endpoints e Documentação Interativa

@@ -1,3 +1,5 @@
+import { generateKeyPairSync } from 'crypto';
+
 /**
  * Loads OIDC JWKS configuration.
  * In production, keys must be provided via the OIDC_JWKS or AUTH_JWKS environment variable.
@@ -7,27 +9,35 @@ export const getJwks = () => {
   if (envJwks) {
     try {
       return typeof envJwks === 'string' ? JSON.parse(envJwks) : envJwks;
-    } catch (e) {
-      console.error('Failed to parse OIDC_JWKS environment variable:', e);
+    } catch (error) {
+      console.error('Failed to parse OIDC_JWKS/AUTH_JWKS:', error);
+      throw new Error(
+        'Invalid OIDC_JWKS/AUTH_JWKS configuration; provide valid JSON.',
+      );
     }
   }
 
-  // Development dummy key structure for local testing
+  if (process.env.NODE_ENV !== 'development') {
+    throw new Error(
+      'OIDC_JWKS or AUTH_JWKS must be configured outside development.',
+    );
+  }
+
+  // Generate a valid ephemeral key for local development only. The OIDC provider
+  // requires RS256 keys with a modulus of at least 2048 bits.
+  const { privateKey } = generateKeyPairSync('rsa', {
+    modulusLength: 2048,
+    publicExponent: 0x10001,
+  });
+  const privateJwk = privateKey.export({ format: 'jwk' });
+
   return {
     keys: [
       {
-        kty: 'RSA',
-        e: 'AQAB',
+        ...privateJwk,
         use: 'sig',
         alg: 'RS256',
         kid: 'dev-key',
-        n: 'sX8_dev_key_dummy_n',
-        d: 'sX8_dev_key_dummy_d',
-        p: 'sX8_dev_key_dummy_p',
-        q: 'sX8_dev_key_dummy_q',
-        dp: 'sX8_dev_key_dummy_dp',
-        dq: 'sX8_dev_key_dummy_dq',
-        qi: 'sX8_dev_key_dummy_qi',
       },
     ],
   };

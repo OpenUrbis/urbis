@@ -29,6 +29,16 @@ import { User } from 'user/entities/user.entity';
 import { UserStatus } from 'user/enums/user-status.enum';
 import { LoginGuard } from './../guards/login.guard';
 
+// Local/test environments do not have a production Google reCAPTCHA key pair.
+const signinRecaptcha: MethodDecorator =
+  process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+    ? () => {}
+    : Recaptcha({
+        response: (req) => req.body.recaptcha,
+        action: 'signin',
+        score: 0.5,
+      });
+
 @Controller('auth/oidc')
 export class OidcController {
   constructor(
@@ -278,11 +288,7 @@ export class OidcController {
   }
 
   @UseGuards(LoginGuard)
-  @Recaptcha({
-    response: (req) => req.body.recaptcha,
-    action: 'signin',
-    score: 0.5,
-  })
+  @signinRecaptcha
   @Post('interaction/login/:uuid')
   async loginConfirm(
     @Req() req,

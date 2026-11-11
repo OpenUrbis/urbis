@@ -25,6 +25,14 @@ Este é o fluxo principal utilizado por nossas aplicações frontend (SPAs).
 5.  **Redirecionamento**: A API redireciona de volta para o frontend com um código de autorização.
 6.  **Troca de Token**: O frontend troca o código por um Token de Acesso e um Token de ID.
 
+## Desenvolvimento local
+
+Ao executar a API pelo script `dev`, `NODE_ENV=development` é definido. Sem `OIDC_JWKS` ou `AUTH_JWKS`, o ambiente de desenvolvimento gera uma chave RSA 2048 efêmera para assinar tokens locais. A chave muda quando a API reinicia, portanto sessões locais antigas podem exigir novo login.
+
+Em qualquer ambiente diferente de `development`, a ausência de um JWKS válido interrompe a inicialização da configuração OIDC. Chaves e segredos de produção devem ser fornecidos somente por variáveis seguras de ambiente, nunca por arquivos versionados.
+
+O reCAPTCHA do login é dispensado somente em `development` e `test`; em produção continua obrigatório.
+
 ## Endpoints
 
 -   **Descoberta**: `/auth/oidc/.well-known/openid-configuration`

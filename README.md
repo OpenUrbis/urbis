@@ -119,7 +119,7 @@ pnpm dev
 | **Web GIS (Mapa)** | `http://localhost:5173` | Interface principal de mapas GIS |
 | **API Backend** | `http://localhost:3000` | REST API |
 | **Swagger OpenAPI** | `http://localhost:3000/swagger/docs` | Documentação interativa de endpoints |
-| **Portal Accounts** | `https://conta.urbis.prefeitura.sp.gov.br` | Portal de contas e OIDC (Porta 443 SSL) |
+| **Portal Accounts** | `http://localhost:4200` | Portal local de contas e OIDC; HTTPS/domínio local é opcional via `dev:ssl` |
 | **Legis** | `http://localhost:5175` | Editor e inspetor legislativo |
 | **Site Institucional** | `http://localhost:5174` | Site público institucional |
 | **Portal de Docs** | `http://localhost:3010` | Portal de documentação técnica |

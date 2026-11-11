@@ -25,6 +25,14 @@ pnpm --filter @open-urbis/map-api dev
 
 A API estará acessível em: `http://localhost:3000`
 
+### OIDC local e chaves JWKS
+
+O script `dev` define `NODE_ENV=development`. Nesse ambiente, se `OIDC_JWKS`/`AUTH_JWKS` não estiver definido, a API gera uma chave RSA 2048 efêmera para o OIDC local. A chave é renovada quando a API reinicia; sessões e tokens locais antigos podem exigir novo login.
+
+Fora de `development`, a API **não** gera chave substituta: é obrigatório configurar um JWKS válido em `OIDC_JWKS` ou `AUTH_JWKS`. Nunca copie chaves ou segredos de produção para o repositório.
+
+O reCAPTCHA do login só é dispensado em `development`/`test`; em produção a validação permanece ativa.
+
 ---
 
 ## 📖 Endpoints e Documentação Interativa

@@ -41,6 +41,12 @@ pnpm --filter @open-urbis/map-accounts dev
 
 Acesse em: `http://localhost:4200`
 
+### Integração local com o Mapa
+
+Quando o Mapa é aberto em `localhost`, o menu de usuário aponta para `http://localhost:4200`; em outros hosts, mantém a URL de produção. A API local (`http://localhost:3000`) e o Contas devem permanecer em execução durante o login OIDC.
+
+Na edição de um usuário, falhas ao carregar cargos ou entidades encerram o estado de carregamento e preservam a entidade selecionada; o erro detalhado fica no console do navegador para diagnóstico.
+
 ---
 
 ## 🏗️ Build de Produção

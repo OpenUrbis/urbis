@@ -52,6 +52,18 @@ graph TD
 | **`SiiauDataLake`** | `saade_group` | `SiiauDataLake` | **Datalake PostGIS** (`urbis-datalake-postgresql`), Dagster Webserver/Daemon, Ingress `datalake.urbis.prefeitura.sp.gov.br`. |
 | **`slui-geoserver`** | `saade_group` | `slui-geoserver` | **GeoServer REST API** (`geoserver` porta 8080), Ingress `geoserver.slui.dev`, serviços WMS/WFS. |
 
+### Certificados TLS (cert-manager / Let's Encrypt)
+
+Estado verificado em **10/11/2026**. Todos os certificados são emitidos pelo Let's Encrypt e renovados pelo `cert-manager`. Veja [Deploy — Certificados TLS](/docs/general/infrastructure/deploy#certificados-tls-cert-manager--lets-encrypt).
+
+| Cluster | Domínio(s) | Recurso `Certificate` | Validade (`notAfter`) | Observação |
+| :--- | :--- | :--- | :--- | :--- |
+| `Urbis` | `api.mapa.urbis.prefeitura.sp.gov.br`, `api.mapa.urbis.sampa.br` | `urbis-map/urbis-map-certificate` | 08/02/2027 | Reemitido em 10/11/2026 após expirar em 06/11/2026. |
+| `Urbis` | `api.urbis.prefeitura.sp.gov.br`, `api.urbis.sampa.br` | `urbis-map/urbis-workflows-tls` | 08/02/2027 | Renovação estava travada; reemitido em 10/11/2026 (antes de vencer em 02/12/2026). |
+| `Urbis` | `api.urbis.sampa.br` | `urbis-workflows/api-urbis-sampa-br` | 26/10/2026 (expirado) | **Legado/sem uso aparente**: o DNS aponta para `20.81.92.24` (ingress `nginx-map`), não para o ingress `nginx` (`48.194.84.65`) que usa este Secret. Sua renovação nunca conclui e pode bloquear a de `urbis-workflows-tls` (veja *Desafios concorrentes* em Deploy). Aguarda decisão de descomissionamento. |
+| `SiiauDataLake` | `datalake.urbis.prefeitura.sp.gov.br` | `urbis-datalake/datalake-urbis-prefeitura-sp-gov-br-tls` | 05/02/2027 | Há um segundo `Certificate` duplicado (`datalake-urbis-prefeitura-sp-gov-br`, `Ready=False`) apontando para o mesmo Secret. |
+| `slui-geoserver` | `geoserver.slui.dev` | `default/slui-geo-tls` | 20/01/2027 | OK. |
+
 ---
 
 ## 🗄️ 3. Bancos de Dados Gerenciados & Caches

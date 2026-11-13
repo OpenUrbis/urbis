@@ -5,6 +5,9 @@ import { Polygon, ResponseData } from "../types/fetch-map-intersections-type";
 
 const environment = (import.meta.env.VITE_API_URL || "/api") + "/maps";
 
+// Carrega camadas e configuracoes iniciais do mapa (GET {API}/maps/config/map).
+// Se este fetch falhar (inclusive por certificado TLS da API expirado, que o navegador
+// rejeita antes de qualquer resposta HTTP), o mapa exibe o erro M001001DS.
 export const getMapConfig = async (): Promise<IGetConfigResponse> => {
   const headers = await getOptionalAuthHeaders().catch(() => ({}));
   let response = await fetch(`${environment}/config/map`, { headers });

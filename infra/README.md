@@ -27,6 +27,8 @@ O chart `urbis-map` é composto por subcharts modulares:
    ```
 4. Ingress Controller (Nginx) com ingressClass `nginx-map` (ou ingress default).
 
+> ⚠️ **Certificados TLS:** o solver HTTP-01 do `Issuer` (`base.certManager.ingressClassName`) deve usar o **mesmo IngressClass** do ingress da API (`components-api-gateway.ingress.className`, hoje `nginx-map`) e deve ser declarado via `ingressClassName`, **não** via `class`. Caso contrário, o ingress-nginx ignora o ingress temporário do desafio, a renovação trava e o certificado expira (o Mapa exibe `M001001DS`). Detalhes em `apps/docs` → Infraestrutura → Deploy → *Certificados TLS*.
+
 ---
 
 ## 🔐 Configuração de Segredos (`secrets.yaml`)
@@ -92,4 +94,10 @@ kubectl get hpa -n urbis-map
 
 # Inspecionar Ingress e Certificados TLS
 kubectl get ingress,certificate -n urbis-map
+
+# Renovação de certificado travada? (Challenge 'pending' / 'wrong status code 404')
+kubectl get certificaterequest,order,challenge -n urbis-map
+
+# Validade do certificado efetivamente servido
+echo | openssl s_client -connect api.mapa.urbis.prefeitura.sp.gov.br:443 -servername api.mapa.urbis.prefeitura.sp.gov.br 2>/dev/null | openssl x509 -noout -dates
 ```

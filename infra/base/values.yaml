@@ -6,5 +6,7 @@ certManager:
   issuerName: "urbis-issuer"
   email: "admin@urbis.example.com"
   server: "https://acme-v02.api.letsencrypt.org/directory"
+  # IngressClass usado pelo solver HTTP-01 (deve casar com components-api-gateway.ingress.className).
+  ingressClassName: "nginx-map"
 tlsSecretName: "urbis-map-certificate-tls"
 dockerConfig: "{}"

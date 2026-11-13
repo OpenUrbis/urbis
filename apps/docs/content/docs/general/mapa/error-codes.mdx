@@ -21,8 +21,20 @@ Os códigos seguem o formato `X000123DS` onde:
 
 | Código | Mensagem | Descrição | Solução Sugerida |
 |--------|----------|-----------|------------------|
-| `M001001DS` | Erro ao carregar configurações do mapa | Falha ao obter as camadas e configurações iniciais da API. | Verificar conexão com internet. Verificar se a API de mapas está online. Tentar recarregar a página. |
+| `M001001DS` | Erro ao carregar configurações do mapa | Falha ao obter as camadas e configurações iniciais da API (`GET /maps/config/map`). Causas possíveis: sem internet, API fora do ar, bloqueio de CORS ou **certificado TLS da API expirado/inválido**. | Verificar conexão com internet. Verificar se a API de mapas está online. Tentar recarregar a página. Para a equipe técnica: veja a seção [Diagnóstico do `M001001DS`](#diagnóstico-do-m001001ds) abaixo. |
 | `M001002DS` | Timeout no carregamento do mapa | O carregamento das camadas excedeu o tempo limite. | A conexão pode estar lenta. Tentar recarregar a página. |
+
+#### Diagnóstico do `M001001DS`
+
+O mesmo código aparece para qualquer falha na chamada de configuração do mapa. Para descobrir a causa:
+
+1. Abra `https://api.mapa.urbis.prefeitura.sp.gov.br/maps/config/map` no navegador.
+   - **Aviso de segurança / "Sua conexão não é particular"** (`NET::ERR_CERT_DATE_INVALID`): o certificado TLS da API expirou. Veja [Certificados TLS](/docs/general/infrastructure/deploy#certificados-tls-cert-manager--lets-encrypt).
+   - **Erro 5xx ou sem resposta**: a API (`urbis-map-api`) está indisponível; verifique os pods no cluster `Urbis`, namespace `urbis-map`.
+   - **JSON com as camadas**: a API está saudável; o problema é de rede local, CORS ou do navegador do usuário.
+2. Para verificar a validade do certificado: `echo | openssl s_client -connect api.mapa.urbis.prefeitura.sp.gov.br:443 -servername api.mapa.urbis.prefeitura.sp.gov.br 2>/dev/null | openssl x509 -noout -enddate`.
+
+> **Ocorrência registrada:** em 06/11/2026 o certificado da API expirou porque a renovação automática estava travada (solver HTTP-01 ignorado pelo ingress-nginx). Detalhes e correção em [Certificados TLS](/docs/general/infrastructure/deploy#certificados-tls-cert-manager--lets-encrypt).
 
 ### Configurações de Pesquisa (S)
 

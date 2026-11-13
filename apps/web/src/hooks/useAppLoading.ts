@@ -14,7 +14,12 @@ export const useAppLoading = () => {
   const { isSearchConfigLoaded, searchConfigError } = useSearchContext();
 
   const loadingState = computed(() => {
-    // Check for errors first
+    // Check for errors first.
+    // M001001DS e generico: isMapError e ativado por QUALQUER falha ao obter
+    // GET {API}/maps/config/map (API fora do ar, rede, CORS, timeout de 10s em
+    // useLayerPersistence ou certificado TLS da API expirado/invalido, caso em que
+    // o navegador bloqueia a requisicao). Diagnostico: ver apps/docs ->
+    // mapa/error-codes (M001001DS) e infrastructure/deploy (Certificados TLS).
     if (isMapError.value) {
       appError.value = {
         code: "M001001DS",

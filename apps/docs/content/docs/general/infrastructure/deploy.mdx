@@ -66,7 +66,51 @@ Para aplicar alterações na configuração ou chart:
 helm upgrade urbis-map ./infra -f ./infra/values.yaml -n urbis-map
 ```
 
+### Certificados TLS (cert-manager / Let's Encrypt)
+
+Os certificados HTTPS da API são emitidos pelo Let's Encrypt (validade de 90 dias) e renovados automaticamente pelo `cert-manager`, cerca de 30 dias antes de vencer. Se a renovação falhar e o certificado expirar, os navegadores bloqueiam a API e o Mapa Urbis exibe o erro `M001001DS` (veja [Códigos de Erro](/docs/general/mapa/error-codes)).
+
+**Como funciona a renovação (desafio HTTP-01):**
+
+1. O `cert-manager` cria um pod e um ingress temporários (`cm-acme-http-solver-*`) que publicam um token em `/.well-known/acme-challenge/<token>`.
+2. O Let's Encrypt acessa essa URL pela internet. Se receber o token (HTTP 200), emite o certificado.
+3. O `cert-manager` grava o certificado no Secret `urbis-map-certificate-tls`, usado pelo ingress da API.
+
+**Regra de configuração — `ingressClassName`, não `class`:** o solver do `Issuer` deve declarar o IngressClass pelo campo `ingressClassName`:
+
+```yaml
+solvers:
+  - http01:
+      ingress:
+        ingressClassName: nginx-map   # correto
+        # class: nginx-map            # EVITAR: annotation legada
+```
+
+Com `class`, o `cert-manager` cria o ingress do solver com a annotation legada `kubernetes.io/ingress.class`. O `ingress-nginx` compara essa annotation com o argumento `--ingress-class` do controller (neste cluster, `nginx`) e **ignora** o solver se forem diferentes. O desafio então cai na API (404), a renovação fica `pending` e o certificado expira. O valor é definido em `base.certManager.ingressClassName` (`infra/values.yaml`) e deve ser igual a `components-api-gateway.ingress.className`.
+
+**Ocorrência de 06/11/2026:** o certificado de `api.mapa.urbis.prefeitura.sp.gov.br` e `api.mapa.urbis.sampa.br` expirou depois de a renovação ficar 33 dias travada (`wrong status code '404', expected '200'`). A correção foi um patch pontual no `Issuer` de produção (de `class` para `ingressClassName`), remoção do `CertificateRequest` travado e nova emissão.
+
+**Desafios concorrentes para o mesmo domínio:** o `cert-manager` não processa dois desafios HTTP-01 do mesmo domínio ao mesmo tempo. Se houver um `Challenge` antigo e preso (`pending`) para um domínio, ele ocupa a vaga e os novos desafios desse domínio ficam parados, sem estado e sem log. Em 10/11/2026 isso manteve a renovação de `api.urbis.*` pendente por 8 dias (o desafio preso era de um `Certificate` legado de `api.urbis.sampa.br`). Para identificar: `kubectl get challenge -A` e procure outro `Challenge` `pending` com o mesmo `DOMAIN`; resolva a causa dele ou remova o `CertificateRequest` correspondente.
+
+**Diagnóstico (somente leitura):**
+
+```bash
+# Validade do certificado servido
+echo | openssl s_client -connect api.mapa.urbis.prefeitura.sp.gov.br:443 -servername api.mapa.urbis.prefeitura.sp.gov.br 2>/dev/null | openssl x509 -noout -dates
+
+# Estado da renovação
+kubectl get certificate,certificaterequest,order,challenge -n urbis-map
+kubectl describe challenge -n urbis-map   # veja o campo Reason
+
+# O ingress do solver foi reconhecido pelo nginx? (não deve haver 404 vindo da API)
+kubectl logs -n urbis-map deploy/urbis-map-ingress-nginx-controller | grep acme-challenge
+```
+
+> **Produção:** não use `helm upgrade` para corrigir isto. Aplique um patch pontual no `Issuer` e faça backup do estado anterior antes (`kubectl get issuer,certificate -o yaml`).
+
 ### Problemas comuns com Certificados (ACME Solver)
+
+> **Nota:** esta seção descreve um problema antigo e a chave `cm-acme-http-solver-name` não existe mais no chart `infra/`. Para falhas de renovação, use a seção [Certificados TLS](#certificados-tls-cert-manager--lets-encrypt) acima.
 
 Ao utilizar o `cert-manager` com desafios HTTP-01, o `ingress-nginx` pode retornar erro **503 Service Temporarily Unavailable** durante a validação se o roteamento manual no Ingress estiver apontando para um serviço inexistente.
 

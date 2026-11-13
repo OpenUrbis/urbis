@@ -12,4 +12,11 @@ spec:
     solvers:
     - http01:
         ingress:
-          name: urbis-map-api
+          # IMPORTANTE: usar `ingressClassName` (campo spec.ingressClassName do ingress solver)
+          # e NAO `class` (annotation legada kubernetes.io/ingress.class). O ingress-nginx
+          # compara a annotation legada com `--ingress-class` do controller (aqui: `nginx`) e
+          # ignora o solver quando nao coincidem; o desafio HTTP-01 cai na API (404) e o
+          # certificado nao renova. Em 2026-11-06 isso derrubou o Mapa (erro M001001DS).
+          # O valor deve ser o mesmo do IngressClass do ingress da API
+          # (components-api-gateway: ingress.className).
+          ingressClassName: {{ .Values.certManager.ingressClassName | default "nginx-map" }}

@@ -7,6 +7,8 @@ base:
     email: admin@urbis.example.com
     issuerName: urbis-issuer
     server: https://acme-v02.api.letsencrypt.org/directory
+    # IngressClass do solver HTTP-01; deve ser igual a components-api-gateway.ingress.className.
+    ingressClassName: nginx-map
 
 components-api-gateway:
   domainName: api.mapa.urbis.example.com
